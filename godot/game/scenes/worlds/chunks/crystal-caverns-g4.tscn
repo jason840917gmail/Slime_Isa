@@ -40,7 +40,8 @@
 [ext_resource type="Script" uid="uid://71vyo7j20xgb" path="res://game/crystal_mine/mine_rails.gd" id="35_1hjpl"]
 [ext_resource type="Texture2D" path="res://asset/MAPS/props/mine/256x256-mine-cart.webp" id="36_07qml"]
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
-[ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
+[ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="door_end_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6"]
 size = Vector2(1664, 192)
@@ -85,7 +86,7 @@ script = ExtResource("4_ja5vv")
 
 [node name="forest" type="TileMapLayer" parent="." unique_id=984845468]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAAEAAEA//////////8EAAIA//////////8EAAMA//////////8EAAQA//////////8EAAUA//////////8FAAEA//////////8FAAIA//////////8FAAMA//////////8FAAQA//////////8FAAUA//////////8GAAIA//////////8GAAMA//////////8GAAQA//////////8GAAUA//////////8HAAIA//////////8HAAMA//////////8HAAQA//////////8IAAMA//////////8RAAMA//////////8SAAIA//////////8SAAMA//////////8SAAQA//////////8SAAgA//////////8SAAkA//////////8SAAoA//////////8TAAIA//////////8TAAMA//////////8TAAQA//////////8TAAgA//////////8TAAkA//////////8TAAoA//////////8UAAIA//////////8UAAMA//////////8UAAQA//////////8UAAUA//////////8UAAcA//////////8UAAgA//////////8UAAkA//////////8UAAoA//////////8VAAIA//////////8VAAMA//////////8VAAQA//////////8VAAgA//////////8VAAkA//////////8VAAoA//////////8WAAIA//////////8WAAMA//////////8WAAoA//////////8XAAMA//////////8=")
+tile_map_data = PackedByteArray("AAAEAAEA//////////8EAAIA//////////8EAAMA//////////8EAAQA//////////8EAAUA//////////8FAAEA//////////8FAAIA//////////8FAAMA//////////8FAAQA//////////8FAAUA//////////8GAAIA//////////8GAAMA//////////8GAAQA//////////8GAAUA//////////8HAAIA//////////8HAAMA//////////8HAAQA//////////8IAAMA//////////8RAAMA//////////8SAAIA//////////8SAAMA//////////8SAAQA//////////8SAAgA//////////8SAAkA//////////8SAAoA//////////8TAAIA//////////8TAAMA//////////8TAAQA//////////8TAAgA//////////8TAAkA//////////8TAAoA//////////8UAAIA//////////8UAAMA//////////8UAAQA//////////8UAAUA//////////8UAAcA//////////8UAAgA//////////8UAAkA//////////8UAAoA//////////8VAAIA//////////8VAAMA//////////8VAAQA//////////8VAAgA//////////8VAAkA//////////8VAAoA//////////8WAAIA//////////8WAAMA//////////8WAAoA//////////8XAAMA//////////8AAAAAAAAOAAAAAAABAAAAAAAOAAAAAAAAAAEAAAAOAAAAAAABAAEAAAAOAAAAAAAAAAIAAAAOAAAAAAABAAIAAAAOAAAAAAAAAAMAAAAOAAAAAAABAAMAAAAOAAAAAAAAAAQAAAAOAAAAAAABAAQAAAAOAAAAAAAAAAUAAAAOAAAAAAABAAUAAAAOAAAAAAAAAAYAAAAOAAAAAAABAAYAAAAOAAAAAAAAAAcAAAAOAAAAAAABAAcAAAAOAAAAAAAAAAgAAAAOAAAAAAABAAgAAAAOAAAAAAAAAAkAAAAOAAAAAAABAAkAAAAOAAAAAAAAAAoAAAAOAAAAAAABAAoAAAAOAAAAAAAAAAsAAAAOAAAAAAABAAsAAAAOAAAAAAAAAAwAAAAOAAAAAAABAAwAAAAOAAAAAAAAAA0AAAAOAAAAAAABAA0AAAAOAAAAAAAAAA4AAAAOAAAAAAABAA4AAAAOAAAAAAAAAA8AAAAOAAAAAAABAA8AAAAOAAAAAAAAABAAAAAOAAAAAAABABAAAAAOAAAAAAAAABEAAAAOAAAAAAABABEAAAAOAAAAAAAAABIAAAAOAAAAAAABABIAAAAOAAAAAAAAABMAAAAOAAAAAAABABMAAAAOAAAAAAAAABQAAAAOAAAAAAABABQAAAAOAAAAAAAAABUAAAAOAAAAAAABABUAAAAOAAAAAAAAABYAAAAOAAAAAAABABYAAAAOAAAAAAAAABcAAAAOAAAAAAABABcAAAAOAAAAAAAAABgAAAAOAAAAAAABABgAAAAOAAAAAAAAABkAAAAOAAAAAAABABkAAAAOAAAAAAAAAB0AAAAOAAAAAAABAB0AAAAOAAAAAAAAAB4AAAAOAAAAAAABAB4AAAAOAAAAAAAAAB8AAAAOAAAAAAABAB8AAAAOAAAAAAA=")
 tile_set = ExtResource("forest_tileset")
 script = ExtResource("forest_layer")
 
@@ -148,10 +149,6 @@ shape = NodePath("../collision-shape")
 [node name="player-spawn" type="Node2D" parent="." unique_id=420893304]
 y_sort_enabled = true
 position = Vector2(1728, 1728)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=1610959316]
-y_sort_enabled = true
-position = Vector2(256, 1728)
 
 [node name="exit-1" type="Area2D" parent="." unique_id=2089016837]
 y_sort_enabled = true
@@ -261,11 +258,16 @@ script = ExtResource("5_48ck5")
 map_id = "crystal-caverns-g4"
 exit_id = "crystal-caverns-g4-to-crystal-mine"
 target_area_id = "crystal-mine"
-entry_marker = "arrive-from-camp"
+target_door_id = "mine-entrance"
 area = NodePath("..")
 
-[node name="arrive-from-crystal-mine" type="Node2D" parent="MineOutside" unique_id=571139516]
+[node name="camp-mine-mouth" type="Node2D" parent="MineOutside" unique_id=571139516]
 position = Vector2(1024, 812.8)
+
+[node name="DoorScript" type="Node" parent="MineOutside/camp-mine-mouth" unique_id=841575073]
+script = ExtResource("door_end_script")
+map_id = "crystal-caverns-g4"
+door_id = "camp-mine-mouth"
 
 [node name="smith" parent="MineOutside" unique_id=918722303 instance=ExtResource("17_6peyf")]
 position = Vector2(1254.4, 825.6)

@@ -9,9 +9,9 @@ extends Node2D
 ## jingle, the creak hint naming a blast once the bomb is learned). Broken, a hole into the dark
 ## (floor-hole.webp, broken flagstones round a black shaft, no ladder) replaces the cracks, and the
 ## hole is a door of kind `fall`: walking into it the slime spins and shrinks into it, the iris
-## closes, and it lands in `target_area_id` on the Node2D named `target_marker` there (or at
-## `target_door_id`'s arrival). Nothing needs to lead back: a one-way way down (the Well Room's
-## floor into the Roots).
+## closes, and it drops onto the landing `target_door_id` in `target_area_id` (object.landing,
+## game/scripts/landing.gd). Nothing needs to lead back: a one-way way down (the Well Room's floor
+## into the Roots).
 ##
 ## Everything is set on this root in the Inspector: at load it hands `flag_id` and `radius` to the
 ## CrackedGroundScript, `flag_id` to the StoryVariantScript (which keeps the hole once the flag is
@@ -39,10 +39,9 @@ const DUST_SPREAD := 0.55
 ## How near its middle a Heavy slam must land, and where the slime stands to hear it creak.
 @export var radius: float = 52.0
 @export_group("Hole (once broken)")
-## The world the hole drops into, and where in it: the Node2D named `target_marker` (any depth), or
-## with `target_door_id` that door's arrival.
+## The world the hole drops into, and the landing there it drops onto (its `door_id`; "" = that
+## world's spawn).
 @export var target_area_id: String = ""
-@export var target_marker: String = ""
 @export var target_door_id: String = ""
 ## The hole's own door id (only needed if a door elsewhere should arrive at it).
 @export var door_id: String = ""
@@ -104,7 +103,6 @@ func _enter_tree() -> void:
 		door.set(&"door_id", door_id)
 		door.set(&"target_area_id", target_area_id)
 		door.set(&"target_door_id", target_door_id)
-		door.set(&"target_marker", target_marker)
 		door.set(&"kind", kind)
 		door.set(&"side", "none")
 		door.set(&"trigger_rect", hole_trigger)

@@ -312,7 +312,6 @@ func _place() -> void:
 	door.set(&"map_id", MAP_ID)
 	door.set(&"door_id", "dungeon-lab-way-out")
 	door.set(&"target_area_id", "playground")
-	door.set(&"target_marker", "player-spawn")
 	door.set(&"kind", "opening")
 	door.set(&"side", "south")
 	door.set(&"trigger_rect", Rect2(-64, 0, 128, 32))

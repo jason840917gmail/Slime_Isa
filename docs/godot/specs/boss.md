@@ -358,11 +358,11 @@ Heavy skin; his strength is the built one (the kit's `EnragedLook` only shows hi
   18 / `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it.
 - **The squint:** every hit is refused as `immune` (the clink), the Spear's too, except while he is
   off balance. Airborne and contact-hop still refuse as `state-blocked`.
-- **Out of balance:** a mud ball thrown at him (tag `mud-ball`, the Gulp's throw) puts him in phase `unbalanced` for `unbalance_ms` 2000: his eye stays shut, the Spear clinks, his attack is cancelled (clip `out-of-balance`, sheet frame 38), and a floating "Out of balance!". The first time, the tip "A Heavy Roll knocks him down while he is out of balance." shows for 4 s. A plain Roll bonks off him. Then he chases again.
+- **Out of balance:** a mud ball thrown at him (tag `mud-ball`, the Gulp's throw) puts him in phase `unbalanced` for `unbalance_ms` 2000: his eye stays shut, the Spear clinks, his attack is cancelled (clip `out-of-balance`, sheet frame 38), and a floating "Out of balance!". The first time, the tip "A Heavy Roll knocks him down while he is out of balance." shows for 4 s. A plain Roll bonks off him. Then he chases again, and no leap comes right after it: a leap it cut short (its small hops, its landing or its recovery) ends there and the next one comes `leap_cadence_ms` after the unbalance; else not before `recovery_ms` after it.
 - **The topple:** a Heavy Roll's bonk (tags `roll` + `heavy`: game/fattys_lair/heavy_check.gd
   `is_heavy_roll`) while he is in phase `unbalanced` (only then) knocks him
   off balance: phase `dizzy` (the old name) for `dizzy_ms` 3000 (the stand-up included), his attack cancelled, collision
-  on, the `recovery` clip (his eye wide open), a light shake (120 ms, 0.004), "Off balance!"
+  on, the `fall` clip (his eye wide open), a light shake (120 ms, 0.004), "Off balance!"
   floating over him, daze stars until it ends, his art lies back `fall_lean_rad` 0.25 on the fall clip (sheet frame 39; out of balance only sways `unbalance_lean_rad` 0.16) toward the
   Roll's push and wobbling on it (presentation); no leap until `recovery_ms` after it; the hit
   itself does no damage (`pass`). While he is down the Spear lands as in phase one, and the first hit that lands ends the fall: he gets up with his eye shut. Then he

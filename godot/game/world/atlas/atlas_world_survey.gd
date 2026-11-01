@@ -1,8 +1,8 @@
 extends RefCounted
 ## What the world atlas (world_atlas.gd) checks about a world scene, read from the saved file
 ## without instancing it (PackedScene.get_state()): its size from the `world-definition` node, its
-## exits (each `world_exit.gd` node with its Area2D's shapes), the names of its nodes (arrival
-## markers) and the layout hash a placeholder world records on its root
+## exits (each `world_exit.gd` node with its Area2D's shapes), the names of its nodes and the
+## layout hash a placeholder world records on its root
 ## (`metadata/world_map_layout_hash`, written by godot/tools/build_region_worlds.gd).
 ##
 ## Only the scene's own nodes count: an exit inside an instanced sub-scene is not seen.
@@ -56,7 +56,7 @@ static func edge_step(edge: String) -> Vector2i:
 
 ## {map_id, columns, rows, tile_size, size (world units), hash (int, or null when the root has
 ## none), names ({node name: true}), exits: [{name, rect (world units), edge ("" when on no edge),
-## target, entry, entry_marker, gate (requiredItemId, "" when open)}]}.
+## target, entry, gate (requiredItemId, "" when open)}]}.
 static func read(packed: PackedScene) -> Dictionary:
 	var state := packed.get_state()
 	var nodes := {}
@@ -178,7 +178,6 @@ static func _exit(nodes: Dictionary, path: String, size: Vector2) -> Dictionary:
 		"edge": edge_of(rect, size),
 		"target": str(props.get("target_area_id", "")),
 		"entry": str(props.get("entry", "")),
-		"entry_marker": str(props.get("entry_marker", "")),
 		"gate": str((gate as Dictionary).get("requiredItemId", "")) if gate is Dictionary else "",
 	}
 

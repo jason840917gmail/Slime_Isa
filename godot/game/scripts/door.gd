@@ -3,8 +3,8 @@ class_name DoorScript
 ## Scene script `game.door` (Phaser `features/scripts/DoorScript.ts`; interaction spec 3.2, 6.1).
 ## `use()` asks main.gd to travel to `target_area_id`, arriving at `target_door_id`'s arrival point
 ## there (the door's parent's child named "arrival", else the parent; game/world/area_travel.gd snaps
-## it to a tile centre), or, with no `target_door_id`, at the Node2D named `target_marker` there
-## (a one-way way in: a hole the slime falls through lands on a marker, and nothing leads back).
+## it to a tile centre), or, with no `target_door_id`, at that world's `player-spawn` (the dev labs'
+## ways back to the playground). A one-way way in names a landing (game/scripts/landing.gd) there.
 ## A door without a `target_area_id` is an arrival point only: it never travels.
 ##
 ## **No keys for transitions (owner, 2026-10-14; docs/godot/CONVENTIONS.md "Doors"):** a door is
@@ -23,17 +23,28 @@ class_name DoorScript
 ## slime frozen), by `kind`:
 ## - "door": a real door. The leaf swings open over `doorOpenMs` (game/world/door_leaf.gd, built
 ##   over the house's art: `house_art`, `door_rect`, `door_arch`, `hinge`, `double_leaf`; or a
-##   separate leaf picture, `leaf_art_path`), `open_cue` plays. Arriving through it the leaf stands
-##   open while the slime walks out, then closes behind it over `doorCloseMs` with `close_cue`. An
-##   interior's way out has its own door picture as `house_art` (a Sprite2D in the room). Without
-##   leaf art only the cues play and there is no lead-in.
-## - "opening": a gap, a cave mouth, a hole in a wall: no lead-in, `use_cue`.
+##   separate leaf picture, `leaf_art_path`), `open_cue` plays, then the slime walks into the
+##   doorway (below). Arriving through it the leaf stands open while the slime walks out, then
+##   closes behind it over `doorCloseMs` with `close_cue`. An interior's way out has its own door
+##   picture as `house_art` (a Sprite2D in the room). Without leaf art only the cues play.
+## - "opening": a gap, a cave mouth, a hole in a wall: `use_cue`, and the walk into the doorway.
+## - The walk into the doorway (a door with a side, "door" or "opening"; docs/design/
+##   2026-10-31-crossings-and-arrivals.md D4): the slime's picture walks out of the room, into the
+##   doorway and `WALK_IN_PAST_PX` past the door node, fading into the dark, over `doorWalkInMs`
+##   while the iris waits; arriving it walks out on the other side (below).
 ## - "ladder_down": a hole with a ladder: the slime slides to the hole's middle, sinking and shrinking
-##   into it over `ladderClimbMs` (`use_cue`).
+##   into it over `ladderClimbMs` (`use_cue`). Arriving at one (it came up the ladder) it rises out
+##   of the hole, small to full size (`play_arrival`).
 ## - "ladder_up": a ladder's foot: the slime climbs a little up the ladder, fading, over
-##   `ladderClimbMs`.
+##   `ladderClimbMs`. Arriving at one (it came down) it slides down onto the foot, fading in.
 ## - "fall": a hole without a ladder into another scene: the slime spins and shrinks into the hole's
-##   middle over `holeFallMs` with `fall_cue` (Zelda). Plain pits (elevation holes) are not doors.
+##   middle over `holeFallMs` with `fall_cue` (Zelda); its `target_door_id` names a landing there
+##   (game/scripts/landing.gd), where it drops in from above. Plain pits (elevation holes) are not
+##   doors.
+##
+## Every end of a crossing answers the same calls (docs/godot/CONVENTIONS.md "Doors"; the stair doors
+## and the landings too): `door_id`, `arrival_point`, `exact_arrival`, `has_side`, `inward`,
+## `on_arrival` and `play_arrival` (the arrival's own animation; main.gd `_start_arrival`).
 ##
 ## Door pairing (owner, 2026-10-14): `side` is the wall the door is in, the way the slime walks to go
 ## through it. A north door leads to the next scene's south door and back, east pairs with west.
@@ -52,6 +63,8 @@ const DoorLeaf := preload("res://game/world/door_leaf.gd")
 
 ## Contract of game/world/area_travel.gd: doors are found by `door_id` in this group.
 const GROUP := &"door"
+## Where a door with no `target_door_id` arrives: the target world's spawn.
+const SPAWN_MARKER := "player-spawn"
 const MAIN_GROUP := &"world_main"
 const SIDES: PackedStringArray = ["north", "south", "east", "west"]
 const KINDS: PackedStringArray = ["door", "opening", "ladder_down", "ladder_up", "fall"]
@@ -69,6 +82,14 @@ const FALL_TURNS := 1.5
 const CLIMB_RISE_PX := 22.0
 const SINK_SCALE := 0.35
 const SINK_DEPTH_PX := 10.0
+## The slime's art at rest on its effects channel (`effect_step`): no offset, its own size, opaque.
+const EFFECT_REST := {"offset": Vector2.ZERO, "scale": 1.0, "alpha": 1.0}
+## The walk into a doorway: past the door node by this much, never shorter or longer than these.
+const WALK_IN_PAST_PX := 12.0
+const WALK_IN_MIN_PX := 12.0
+const WALK_IN_MAX_PX := 56.0
+## Arriving up a ladder: the share of the climb spent rising out of the hole (the rest steps off).
+const RISE_SHARE := 0.6
 
 ## The slime came in through this door (main.gd `_start_arrival` calls `on_arrival`): a hatch latched
 ## from below opens when the slime climbs up through it (game/scripts/latched_hatch.gd).
@@ -80,12 +101,9 @@ signal arrived
 @export var door_id: String = ""
 ## JSON `targetAreaId`.
 @export var target_area_id: String = ""
-## JSON `targetDoorId`.
+## JSON `targetDoorId`: the end the slime comes out of in `target_area_id` (a door, a stair door, a
+## landing); "" = that world's `player-spawn`.
 @export var target_door_id: String = ""
-## Not in Phaser: with no `target_door_id`, the Node2D (any depth) in the target world the slime
-## arrives at (a world exit's `entry_marker`; main.gd `request_exit`). For one-way ways in such as a
-## blown floor's fall (game/scripts/cracked_floor.gd).
-@export var target_marker: String = ""
 ## What the door is (see the class notes): its lead-in and look.
 @export_enum("door", "opening", "ladder_down", "ladder_up", "fall") var kind: String = "opening"
 ## The wall the door is in = the way through it ("north": push up into it). "none" = no side (holes,
@@ -178,7 +196,10 @@ func _physics_process(delta: float) -> void:
 		_refused = false
 		return
 	_push_ms += delta * 1000.0
-	if _push_ms < _number("doorPushMs", 200.0) or _refused:
+	# A rolling ball goes through at once: waiting out the push, it would reach the wall behind the
+	# doorway (a room's edge) and bonk.
+	var rolling := player.has_method(&"is_rolling_on") and bool(player.call(&"is_rolling_on"))
+	if (_push_ms < _number("doorPushMs", 200.0) and not rolling) or _refused:
 		return
 	if map_id.is_empty():
 		map_id = world.map_id()
@@ -189,11 +210,13 @@ func _physics_process(delta: float) -> void:
 
 
 ## True while the player's body touches this door's trigger and its movement input points into the
-## door (see the class notes).
+## door (see the class notes); a rolling ball's way counts as the input (player.gd
+## `get_travel_intent`: a roll goes through an open door as a walk does).
 func is_pushing(player: Node, player_body: CharacterBody2D) -> bool:
 	if player == null or player_body == null or not player.has_method(&"get_move_intent"):
 		return false
-	var intent: Vector2 = player.call(&"get_move_intent")
+	var travel := &"get_travel_intent" if player.has_method(&"get_travel_intent") else &"get_move_intent"
+	var intent: Vector2 = player.call(travel)
 	if intent == Vector2.ZERO or not touches(player_body):
 		return false
 	intent = intent.normalized()
@@ -265,6 +288,12 @@ func has_side() -> bool:
 	return side in SIDES
 
 
+## True when the slime arrives exactly at `arrival_point` (a door with a side: its doorway), not
+## snapped to the nearest open tile's centre (game/world/area_travel.gd).
+func exact_arrival() -> bool:
+	return has_side()
+
+
 ## True for a hole in the ground (with or without a ladder): walked into, not pushed against.
 func is_hole() -> bool:
 	return kind == "ladder_down" or kind == "fall"
@@ -308,12 +337,24 @@ static func opposite(door_side: String) -> String:
 func lead_ms() -> float:
 	match kind:
 		"door":
-			return _number("doorOpenMs", 250.0) if has_leaf() else 0.0
+			return _leaf_open_ms() + _walk_in_ms()
+		"opening":
+			return _walk_in_ms()
 		"ladder_down", "ladder_up":
 			return _number("ladderClimbMs", 450.0)
 		"fall":
 			return _number("holeFallMs", 550.0)
 	return 0.0
+
+
+## How long the leaf takes to swing open going through (0 without a leaf).
+func _leaf_open_ms() -> float:
+	return _number("doorOpenMs", 250.0) if has_leaf() else 0.0
+
+
+## How long the walk into the doorway takes (a door with a side; 0 otherwise).
+func _walk_in_ms() -> float:
+	return _number("doorWalkInMs", 0.0) if has_side() else 0.0
 
 
 ## Goes through the door (UniversalSceneWorldController.doorCandidate): main's `request_exit`
@@ -330,7 +371,7 @@ func use() -> Dictionary:
 		lock["unlockedMessage"] = DEFAULT_UNLOCKED_TEXT
 	var result: Dictionary = main.call(&"request_exit", {"map_id": map_id, "exit_id": door_id,
 		"target_area_id": target_area_id, "entry": "", "target_door_id": target_door_id,
-		"entry_marker": target_marker if target_door_id.is_empty() else "", "gate": lock,
+		"entry_marker": SPAWN_MARKER if target_door_id.is_empty() else "", "gate": lock,
 		"transition": "iris", "door_side": side if has_side() else "", "lead_ms": lead})
 	if str(result.get("status", "")) == "queued":
 		_used = true
@@ -353,6 +394,50 @@ func on_arrival() -> void:
 	_kill_leaf_tween()
 	_leaf.progress = 1.0
 	_close_pending = not _stays_open
+
+
+## main.gd `_start_arrival`: the slime came in through this end; its own arrival plays on the
+## slime's picture after `delay_ms` (the black's hold), the body already standing at
+## `arrival_point`. Returns how long the slime must stay still, from now (ms); 0 when this end has
+## no arrival of its own (a door with a side: the slime walks out of it, main.gd).
+func play_arrival(player: Node, delay_ms: float) -> float:
+	if player == null or not player.has_method(&"effect_tween"):
+		return 0.0
+	var ms := _number("ladderClimbMs", 450.0)
+	match kind:
+		"ladder_up":
+			# It came down the ladder: down onto the foot, fading in.
+			var tween := arrival_tween(player, {"offset": Vector2(0.0, -CLIMB_RISE_PX), "scale": 1.0, "alpha": 0.0}, delay_ms)
+			if tween == null:
+				return 0.0
+			effect_step(tween, player, {"offset": Vector2(0.0, -CLIMB_RISE_PX), "scale": 1.0, "alpha": 0.0}, EFFECT_REST, ms)
+			return delay_ms + ms
+		"ladder_down":
+			# It came up the ladder: out of the hole's middle, small to full size, then off its edge.
+			var middle := trigger_global().get_center() - (player.call(&"get_centre") as Vector2)
+			var deep := {"offset": middle + Vector2(0.0, SINK_DEPTH_PX), "scale": SINK_SCALE, "alpha": 0.0}
+			var risen := {"offset": middle, "scale": 1.0, "alpha": 1.0}
+			var tween := arrival_tween(player, deep, delay_ms)
+			if tween == null:
+				return 0.0
+			effect_step(tween, player, deep, risen, ms * RISE_SHARE).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			effect_step(tween, player, risen, EFFECT_REST, ms * (1.0 - RISE_SHARE))
+			return delay_ms + ms
+	return 0.0
+
+
+## The arrival's tween on the slime's picture (null without art): the picture is put at `start`
+## at once and holds there for `delay_ms` (behind the black). Shared by the stair doors and landings.
+static func arrival_tween(player: Node, start: Dictionary, delay_ms: float) -> Tween:
+	var tween: Tween = player.call(&"effect_tween")
+	if tween == null:
+		return null
+	var size := float(start["scale"])
+	player.call(&"set_effect_offset", start["offset"])
+	player.call(&"set_effect_scale", Vector2(size, size))
+	player.call(&"set_effect_alpha", float(start["alpha"]))
+	tween.tween_interval(maxf(delay_ms, 1.0) / 1000.0)
+	return tween
 
 
 ## A linked gate may open a real facade door when a bell rings. Saved-open gates restore the leaf
@@ -379,8 +464,13 @@ func _play_lead(lead: float) -> void:
 	match kind:
 		"door":
 			_cue(open_cue)
+			var swing := _leaf_open_ms()
 			if has_leaf():
-				_swing(1.0, lead)
+				_swing(1.0, swing)
+			_walk_in(player, swing, lead - swing)
+		"opening":
+			_cue(use_cue)
+			_walk_in(player, 0.0, lead)
 		"ladder_down":
 			_cue(use_cue)
 			_sink(player, lead, false)
@@ -394,6 +484,26 @@ func _play_lead(lead: float) -> void:
 			_cue(use_cue)
 
 
+## The slime's picture walks out of the room into the doorway, `WALK_IN_PAST_PX` past the door node,
+## fading into the dark, over `ms` after `delay_ms` (a leaf swinging open). Its body stays.
+func _walk_in(player: Node, delay_ms: float, ms: float) -> void:
+	if ms <= 0.0 or not has_side() or player == null or not player.has_method(&"effect_tween"):
+		return
+	var parent := get_parent() as Node2D
+	if parent == null:
+		return
+	var out := -inward()
+	var centre: Vector2 = player.call(&"get_centre")
+	var reach := clampf((parent.global_position - centre).dot(out) + WALK_IN_PAST_PX, WALK_IN_MIN_PX, WALK_IN_MAX_PX)
+	player.call(&"face", out)
+	var tween: Tween = player.call(&"effect_tween")
+	if tween == null:
+		return
+	if delay_ms > 0.0:
+		tween.tween_interval(delay_ms / 1000.0)
+	effect_step(tween, player, EFFECT_REST, {"offset": out * reach, "scale": 1.0, "alpha": 0.0}, ms)
+
+
 ## The slime slides to the hole's middle and shrinks into it (spinning when it falls).
 func _sink(player: Node, ms: float, spin: bool) -> void:
 	if player == null or not player.has_method(&"effect_tween"):
@@ -405,14 +515,8 @@ func _sink(player: Node, ms: float, spin: bool) -> void:
 	var target := trigger_global().get_center() + Vector2(0.0, SINK_DEPTH_PX)
 	var seconds := maxf(ms, 1.0) / 1000.0
 	tween.set_parallel(true)
-	tween.tween_method(func(t: float) -> void:
-		if not is_instance_valid(player):
-			return
-		player.call(&"set_effect_offset", (target - start) * t)
-		var size := lerpf(1.0, 0.0 if spin else SINK_SCALE, t)
-		player.call(&"set_effect_scale", Vector2(size, size))
-		player.call(&"set_effect_alpha", 1.0 if spin else lerpf(1.0, 0.0, t * t)), 0.0, 1.0, seconds) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	effect_step(tween, player, EFFECT_REST, {"offset": target - start, "scale": 0.0 if spin else SINK_SCALE,
+		"alpha": 1.0 if spin else 0.0}, ms).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	var visual: Node2D = player.call(&"get_visual")
 	if spin and visual != null:
 		tween.tween_property(visual, "rotation", TAU * FALL_TURNS, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -426,11 +530,25 @@ func _climb(player: Node, ms: float) -> void:
 	if tween == null:
 		return
 	player.call(&"face", Vector2.UP)
-	tween.tween_method(func(t: float) -> void:
+	effect_step(tween, player, EFFECT_REST, {"offset": Vector2(0.0, -CLIMB_RISE_PX), "scale": 1.0, "alpha": 0.0}, ms)
+
+
+## One step of the slime's art (not its body) on the player's effects channel (player.gd
+## `set_effect_offset`, `set_effect_scale`, `set_effect_alpha`), added to `tween` (the player's
+## `effect_tween`): from `from` to `to` over `ms`, each {"offset": world px, "scale", "alpha"}
+## (`EFFECT_REST` at rest). The offset and the size follow the step (the size only when it changes),
+## the alpha t * t (it holds, then fades). The way through ladders and holes (`_sink`, `_climb`) and
+## the stair doors' walk (stair_door.gd); `player.reset_effects()` puts the art back.
+static func effect_step(tween: Tween, player: Node, from: Dictionary, to: Dictionary, ms: float) -> MethodTweener:
+	var resize := not is_equal_approx(float(from["scale"]), float(to["scale"]))
+	return tween.tween_method(func(t: float) -> void:
 		if not is_instance_valid(player):
 			return
-		player.call(&"set_effect_offset", Vector2(0.0, -CLIMB_RISE_PX * t))
-		player.call(&"set_effect_alpha", lerpf(1.0, 0.0, t * t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0)
+		player.call(&"set_effect_offset", (from["offset"] as Vector2).lerp(to["offset"], t))
+		if resize:
+			var size := lerpf(float(from["scale"]), float(to["scale"]), t)
+			player.call(&"set_effect_scale", Vector2(size, size))
+		player.call(&"set_effect_alpha", lerpf(float(from["alpha"]), float(to["alpha"]), t * t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0)
 
 
 func _swing(to: float, ms: float) -> void:

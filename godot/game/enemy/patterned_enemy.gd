@@ -7,7 +7,8 @@ class_name PatternedEnemyScript
 ##
 ## 1. the defeated path and the hit flash, as the base enemy;
 ## 2. a reaction stun (`set_hit_stun_until`): the body slides with the stun decay (or stands, when
-##    `_slides_when_stunned` says no) and the pattern waits (`_on_stunned` may react);
+##    `_slides_when_stunned` says no) and the pattern waits (`_on_stunned` may react); a sleep
+##    throw's sleep renews the stun until a damaging hit wakes it (EnemyReactions `keep_asleep`);
 ## 3. else `_step_pattern(now, delta, target, engaged)`: the subclass's phase machine. `engaged` is
 ##    true while the slime is a live target inside the enemy's arena (`configure_arena`: the
 ##    Bestiary corner's pens give each enemy its pen), or, without an arena, within its
@@ -29,6 +30,10 @@ class_name PatternedEnemyScript
 ## - **Not solid** (`set_solid(false)`): the slime passes over a mound or under a flyer.
 ## - **Airborne** (`set_airborne(true)`, a leap): no body mask, so the slime and the liftable things
 ##   pass under it; `air_blocked(motion)` is the leap's wall check (walls and water end it).
+## - **A leap** (the Hopper, the Bone Leaper, the Squint): `plan_leap(offset)` at the tell picks the
+##   landing (`landing_point`), `begin_leap()` takes off (not solid, airborne), `leap_step(t, air_ms,
+##   delta)` flies it each step (false once it is over: its time, or a wall or the water ahead) and
+##   `end_leap()` lands it (solid, on the ground); `_defeat` lands a leap cut short.
 ## - **The look**: the art is a sheet of key poses (`visual.frame`, game/runtime/sheet_sprite.gd)
 ##   hanging from `pose` (a Node2D), which the patterns lift, bob, squash and lean in code; the
 ##   reactions' hit motion keeps the Visual's own transform. The sheets face right; `face_x` mirrors
@@ -43,6 +48,8 @@ const ENEMY_TYPES_FILE := "enemy-types.json"
 const PATTERN_KEY := "pattern"
 const SHIELD_REASON := "immune"
 const THROWN_TAG := "thrown"
+## The tag the Spear's hits carry (its shape's tags, and the old spear weapons).
+const SPEAR_TAG := "spear"
 const ROLL_TAG := "roll"
 ## The tag the Roll's bonk carries while the slime is in the Heavy (Stone) form (player_roll.gd).
 const HEAVY_TAG := "heavy"
@@ -86,6 +93,10 @@ var _ground_mask: int = 0
 var _contact_ready_at: float = 0.0
 var _shadow: GroundShadowLook
 var _walked_px: float = 0.0
+## A leap (`plan_leap`): from and to (ground points), and the velocity asked of the body last step.
+var _leap_origin: Vector2 = Vector2.ZERO
+var _leap_goal: Vector2 = Vector2.ZERO
+var _leap_asked: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -127,8 +138,10 @@ func _step_enemy(delta: float) -> bool:
 	if _home == Vector2.INF:
 		_home = get_centre()
 	if now < get_hit_stun_until():
+		if ReworkMode.is_on():
+			EnemyReactions.keep_asleep(self)
 		if _slides_when_stunned():
-			var decay := EnemyReactions.slide_decay() if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
+			var decay := EnemyReactions.slide_decay_of(self) if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
 			body.velocity *= pow(decay, delta * 60.0)
 		else:
 			body.velocity = Vector2.ZERO
@@ -167,7 +180,9 @@ func _is_engaged(target: Dictionary) -> bool:
 
 # --- hits ------------------------------------------------------------------------------------------
 
-## A shielded phase refuses every hit but its kill hit ("immune": the sender clinks). The kill hit
+## A shielded phase refuses every hit but its kill hit and a sleep throw on the ground
+## (EnemyReactions `sleeps_through`: not a boss, not a `noSleep` phase; owner, 2026-11-01)
+## ("immune": the sender clinks). The kill hit
 ## gets through in every phase, past the reaction profile's `states` immunities too (the seed
 ## thrown back into a hidden Spitcap, a Heavy Roll on a sleeping Statue, the glob thrown back into a
 ## Pipe Worm's pipe).
@@ -176,7 +191,7 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 		var request: Dictionary = input.get("request", {})
 		if _kill_hit(request):
 			return {"accepted": true, "reason": ""}
-		if _shields(request):
+		if _shields(request) and not EnemyReactions.sleeps_through(self, request):
 			return {"accepted": false, "reason": SHIELD_REASON}
 	return super(input)
 
@@ -313,6 +328,43 @@ func set_airborne(on: bool) -> void:
 ## without the slime's own body). Liftables and bodies do not count: a leap passes over them.
 func air_blocked(motion: Vector2) -> bool:
 	return motion != Vector2.ZERO and _meets_solid(motion, _ground_mask, true)
+
+
+## The tell of a leap: it will go from its feet by `offset` (ground px), landing where its body may
+## stand (`landing_point`). Returns the landing point (where a tell's mark goes).
+func plan_leap(offset: Vector2) -> Vector2:
+	_leap_origin = feet()
+	_leap_goal = landing_point(_leap_origin, _leap_origin + offset)
+	_leap_asked = Vector2.ZERO
+	return _leap_goal
+
+
+## Takes off: not solid and airborne, so it passes over the slime, the other bodies and the liftable
+## things.
+func begin_leap() -> void:
+	_leap_asked = Vector2.ZERO
+	set_solid(false)
+	set_airborne(true)
+
+
+## One step of the leap planned (`t`: the share of its `air_ms` flown): the body flies toward the
+## landing. False (the body stopped) once the leap is over: `t` reached 1, or a wall or the water lies
+## ahead (`air_blocked`); the caller lands it then (`end_leap`).
+func leap_step(t: float, air_ms: float, delta: float) -> bool:
+	if t >= 1.0 or air_blocked(_leap_asked * delta):
+		body.velocity = Vector2.ZERO
+		return false
+	_leap_asked = (_leap_goal - _leap_origin) / (maxf(1.0, air_ms) / 1000.0)
+	body.velocity = _leap_asked
+	return true
+
+
+## Lands: solid and on the ground again (its mask back). Also on a defeat (`_defeat`), so a leap cut
+## short leaves no body passing through walls.
+func end_leap() -> void:
+	_leap_asked = Vector2.ZERO
+	set_solid(true)
+	set_airborne(false)
 
 
 ## A leap's landing: the furthest point of `from`→`to` (at most `to`) where the body may stand, going
@@ -455,6 +507,7 @@ func feet() -> Vector2:
 func _defeat() -> void:
 	if is_defeated():
 		return
+	end_leap()
 	set_frame(defeated_frame)
 	set_look(0.0)
 	super()
@@ -476,14 +529,29 @@ func _mirrors_side_facing() -> bool:
 
 # --- numbers ---------------------------------------------------------------------------------------
 
-## `pattern[key]` of this enemy's type in enemy-types.json, else `fallback`.
+## `pattern[key]` of this enemy's type in enemy-types.json, else `fallback`, at its tempo (`_paced`).
 func pattern(key: String, fallback: float = 0.0) -> float:
 	var value: Variant = _pattern.get(key)
 	if value is float or value is int:
 		var number := float(value)
 		if is_finite(number):
-			return number
-	return fallback
+			return _paced(key, number)
+	return _paced(key, fallback)
+
+
+## A honey throw's tempo (enemy.gd `apply_tempo`; owner, 2026-11-01: it moves and attacks 50%
+## slower) on a pattern number: a time (a key ending in "Ms") lasts 1 / tempo as long and a speed
+## ("...Speed", "...DegPerS") runs at tempo, so its walks, wind-ups, rests and leaps all slow down;
+## any other number is as it is. A phase timed before the honey keeps its start, so it stretches.
+func _paced(key: String, number: float) -> float:
+	var pace := tempo()
+	if pace >= 1.0:
+		return number
+	if key.ends_with("Ms"):
+		return number / pace
+	if key.ends_with("Speed") or key.ends_with("DegPerS"):
+		return number * pace
+	return number
 
 
 ## The `pattern` block of `type_id` in enemy-types.json ({} when none).

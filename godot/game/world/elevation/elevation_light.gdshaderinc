@@ -1,8 +1,10 @@
 // Light by height (docs/godot/ELEVATION.md), shared by the elevation shaders: the ground of a
 // hole and the lower courses of its walls get darker with every level of depth, so a pit reads
-// as deep; level 0 and above keep their colour.
+// as deep; level 0 and above keep their colour. 0.2 a level since 2026-10-31 (the owner: lower levels
+// "a little darker" for "a better optical illusion of deep"; 0.13 before). The floor trim in rooms
+// takes it too (game/world/interior/interior_trim.gdshader).
 
-const float DEPTH_DARKEN = 0.13;
+const float DEPTH_DARKEN = 0.2;
 const float DARKEST = 0.5;
 
 float level_light(float level) {

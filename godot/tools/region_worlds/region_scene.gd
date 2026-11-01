@@ -3,9 +3,8 @@ extends RefCounted
 ## other worlds (docs/godot/CONVENTIONS.md, ELEVATION.md, FORESTS.md, FENCES.md): the root (named
 ## after the world, y-sorted, with the placeholder metadata), the `ground` layer (world_ground.gd),
 ## the `forest` ForestLayer, the `elevation` layer (levels and stairs), the `fences` layer when it
-## has fences, the `world-definition`, the `player-spawn`, `player-entry-<edge>` and
-## `arrive-from-<world>-<n>` markers, one Area2D exit per opening (world_exit.gd), the `props` and
-## the `notes` (MapNote).
+## has fences, the `world-definition`, the `player-spawn`, one Area2D exit per opening
+## (world_exit.gd: across the border at the same place), the `props` and the `notes` (MapNote).
 ##
 ## Owner: world (atlas).
 
@@ -47,10 +46,6 @@ static func build(canvas: RegionCanvas, layout_hash: int) -> Node2D:
 		root.add_child(_fences(canvas))
 	root.add_child(_definition(canvas))
 	root.add_child(_marker("player-spawn", canvas.spawn))
-	for edge: String in canvas.entries:
-		root.add_child(_marker("player-entry-" + edge, canvas.entries[edge]))
-	for arrival in canvas.arrivals:
-		root.add_child(_marker(arrival["name"], arrival["position"]))
 	var exits: Array[Area2D] = []
 	for exit in canvas.exits:
 		var area := _exit(canvas, exit)
@@ -161,15 +156,12 @@ static func _definition(canvas: RegionCanvas) -> Node:
 	var definition := Node.new()
 	definition.name = "world-definition"
 	definition.set_script(load(WORLD_DEFINITION))
-	var entries := {}
-	for edge: String in canvas.entries:
-		entries[edge] = _point(canvas.entries[edge])
 	definition.set(&"map_id", canvas.world)
 	definition.set(&"tile_size", canvas.tile_size)
 	definition.set(&"columns", canvas.size.x)
 	definition.set(&"rows", canvas.size.y)
 	definition.set(&"camera_mode", "follow")
-	definition.set(&"metadata", {"objects": [], "player": {"spawn": _point(canvas.spawn), "entries": entries}})
+	definition.set(&"metadata", {"objects": [], "player": {"spawn": _point(canvas.spawn), "entries": {}}})
 	return definition
 
 
@@ -203,7 +195,6 @@ static func _exit(canvas: RegionCanvas, exit: Dictionary) -> Area2D:
 	script_node.set(&"exit_id", exit["exit_id"])
 	script_node.set(&"target_area_id", exit["target"])
 	script_node.set(&"entry", exit["entry"])
-	script_node.set(&"entry_marker", exit["entry_marker"])
 	script_node.set(&"area", area)
 	script_node.set(&"gate", {})
 	area.add_child(script_node)

@@ -116,9 +116,9 @@ static func ability_icon(id: StringName) -> Texture2D:
 	return AbilityDefinitions.icon(id) if not id.is_empty() else null
 
 
-## The energy the shape's charge costs (0 without a charge).
+## The energy the shape's charge costs, rounded for a card or a chip (ShapeDefs.charge_energy).
 static func charge_energy(id: StringName) -> int:
-	return roundi(float(ShapeDefs.charge(id).get("energy", 0.0)))
+	return roundi(ShapeDefs.charge_energy(id))
 
 
 ## A Skins cell's name: the skin's, or "Goo" for &"".

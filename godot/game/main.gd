@@ -465,7 +465,8 @@ func request_exit(request: Dictionary) -> Dictionary:
 		if not travel_through_room_door(target_area, entry_door, request["door_at"], str(request.get("door_side", ""))):
 			return {"status": "ignored"}
 		return {"status": "queued"}
-	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms, entry_along):
+	if not travel_to(target_area, entry_edge, entry_door, entry_marker, iris, lead_ms, entry_along, "",
+			bool(request.get("scroll_across", false)), float(request.get("along_shift", 0.0))):
 		return {"status": "ignored"}
 	_entered_side = str(request.get("door_side", "")) if iris else ""
 	return {"status": "queued"}
@@ -485,8 +486,11 @@ func request_exit(request: Dictionary) -> Dictionary:
 ## fade starts. A whole-edge exit into the next chunk of the same region scrolls instead
 ## (`_scroll_travel`); doors always take the iris. `entry_facing` ("up", "down", "left", "right"; ""
 ## keeps the slime's facing, or a sided door's) is the way the slime faces where it arrives (a stair
-## hatch's `arrival_facing`).
-func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0, entry_along: float = NAN, entry_facing: String = "") -> bool:
+## hatch's `arrival_facing`). `scroll_across` (a border crossing between regions or off-grid
+## neighbours, world_exit.gd; docs/design/2026-10-31-crossings-and-arrivals.md D5) scrolls across
+## an edge as between a region's chunks; `along_shift` is how far the target's frame is shifted
+## along that edge (world_exit.gd `along_offset`; 0 on the atlas grid).
+func travel_to(target_map_id: String, entry_edge: String = "", entry_door: String = "", entry_marker: String = "", iris: bool = false, lead_ms: float = 0.0, entry_along: float = NAN, entry_facing: String = "", scroll_across: bool = false, along_shift: float = 0.0) -> bool:
 	var world_service := Services.world()
 	var run := Services.run()
 	if _transitioning or world_service == null or run == null:
@@ -500,9 +504,9 @@ func travel_to(target_map_id: String, entry_edge: String = "", entry_door: Strin
 	var region_world := WorldChunks.world_of(target_map_id)
 	_travel_within_region = not region_world.is_empty() and region_world == WorldChunks.world_of(world_service.map_id())
 	# Across a whole edge into the next chunk of the region: the screen scrolls, as in Zelda.
-	if _travel_within_region and not iris and not entry_edge.is_empty() and not is_nan(entry_along) \
+	if (_travel_within_region or scroll_across) and not iris and not entry_edge.is_empty() and not is_nan(entry_along) \
 			and entry_door.is_empty() and entry_marker.is_empty() and player != null and player_root != null:
-		_scroll_travel(target_map_id, entry_edge, entry_along)
+		_scroll_travel(target_map_id, entry_edge, entry_along, along_shift)
 		return true
 	var leave_ms := _iris_ms("irisCloseMs") if iris else AreaTravel.LEAVE_FADE_MS
 	if player != null:
@@ -553,8 +557,10 @@ func _iris_ms(key: String) -> float:
 ## placed player over `irisOpenMs` (the player stays still until it is open); else the arrival fade.
 ## Arriving at a door with a side (spawn_player put the feet in its doorway) the slime walks out of
 ## it (PlayerScript.walk_out_of_door, input locked until it stops): after the iris's black hold,
-## while the iris opens. A door pairing that breaks the rule (a north door into a door that is not
-## south) is warned.
+## while the iris opens. Any other end plays its own arrival (`play_arrival`: down or up the stairs,
+## off a ladder, dropping onto a landing; docs/design/2026-10-31-crossings-and-arrivals.md), the
+## slime held until it ends. A door pairing that breaks the rule (a north door into a door that is
+## not south) is warned.
 func _start_arrival(navigation: Dictionary) -> void:
 	var entry_door := str(navigation.get("entry_door", ""))
 	var door := AreaTravel.find_door(world_root, entry_door)
@@ -562,17 +568,25 @@ func _start_arrival(navigation: Dictionary) -> void:
 		and player.walk_out_of_door(AreaTravel.door_facing(world_root, entry_door))
 	if door != null and door.has_method(&"on_arrival"):
 		door.call(&"on_arrival") # A real door stands open behind the slime, then closes.
-	if _iris == null or not is_instance_valid(_iris):
+	var iris := _iris != null and is_instance_valid(_iris)
+	var hold_ms := _iris_ms("irisHoldMs") if iris else 0.0
+	# The end's own arrival (stairs, a ladder, a landing), from the end of the black's hold; a ladder's
+	# foot plays it on the picture while the body walks out.
+	var arrival_ms := 0.0
+	if player != null and door != null and door.has_method(&"play_arrival"):
+		arrival_ms = float(door.call(&"play_arrival", player, hold_ms))
+	if not iris:
 		_iris = null
 		start_arrival_fade()
+		if player != null and arrival_ms > 0.0:
+			player.suppress_movement(arrival_ms)
 		return
-	var hold_ms := _iris_ms("irisHoldMs")
 	var open_ms := _iris_ms("irisOpenMs")
 	_iris.subject = _player_centre
 	_iris.open(hold_ms, open_ms)
 	_iris = null
 	if player != null:
-		player.suppress_movement(hold_ms if walking else hold_ms + open_ms)
+		player.suppress_movement(maxf(hold_ms if walking else hold_ms + open_ms, arrival_ms))
 	# Holes and ladders have no side: only two sided doors are checked against each other.
 	if door != null and not _entered_side.is_empty() and bool(door.call(&"has_side")):
 		var arrived_side := str(door.get(&"side"))
@@ -627,12 +641,14 @@ func _room_door_placement(_old_rect: Rect2, entry_door: String, door_at: Vector2
 		"feet": (door.call(&"arrival_point") as Vector2) + (player_root.global_position - player.get_centre())}
 
 
-## The chunk scroll (game/world/chunk_scroll.gd) into the next chunk of the region, arriving
-## `entry_along` along `entry_edge`: the old chunk lies beside the new one where it lay, and the
+## The chunk scroll (game/world/chunk_scroll.gd) into the next chunk of the region (or across a
+## border, `travel_to` `scroll_across`), arriving `entry_along` along `entry_edge`: the old chunk lies
+## beside the new one where it lay (shifted `along_shift` along the edge off the atlas grid), and the
 ## slime walks on from where it left.
-func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: float) -> void:
+func _scroll_travel(target_map_id: String, entry_edge: String, entry_along: float, along_shift: float = 0.0) -> void:
+	var shift := Vector2(0.0, along_shift) if entry_edge == "east" or entry_edge == "west" else Vector2(along_shift, 0.0)
 	_scroll_into(target_map_id, entry_edge, "", entry_along, func(old_rect: Rect2) -> Dictionary:
-		return {"offset": ChunkScroll.old_offset(entry_edge, old_rect, Services.world().world_rect()),
+		return {"offset": ChunkScroll.old_offset(entry_edge, old_rect, Services.world().world_rect()) + shift,
 			"walk": ChunkScroll.walk_direction(entry_edge), "feet": player_root.global_position})
 
 

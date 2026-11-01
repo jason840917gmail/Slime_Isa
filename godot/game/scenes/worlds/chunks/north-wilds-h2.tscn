@@ -110,26 +110,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(992, 1120)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=1989009140]
-y_sort_enabled = true
-position = Vector2(928, 224)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=1406519698]
-y_sort_enabled = true
-position = Vector2(1824, 928)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=1681096546]
-y_sort_enabled = true
-position = Vector2(1056, 1952)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=651396094]
-y_sort_enabled = true
-position = Vector2(288, 864)
-
-[node name="arrive-from-volcano-ridge-1" type="Node2D" parent="." unique_id=612760097]
-y_sort_enabled = true
-position = Vector2(160, 1664)
-
 [node name="exit-to-volcano-ridge-1" type="Area2D" parent="." unique_id=1545009927]
 position = Vector2(16, 1664)
 collision_layer = 512
@@ -145,7 +125,6 @@ map_id = "north-wilds-h2"
 exit_id = "north-wilds-to-volcano-ridge-1"
 target_area_id = "volcano-ridge"
 entry = "east"
-entry_marker = "arrive-from-north-wilds-1"
 area = NodePath("..")
 
 [node name="edge-south" type="Area2D" parent="." unique_id=2011023493]

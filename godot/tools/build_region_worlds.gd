@@ -117,10 +117,11 @@ func _is_placeholder_scene(path: String) -> bool:
 
 
 ## The openings on built worlds' edges: what such a world needs for its side of the opening (the
-## placeholder's exit already arrives at the marker named there; until the built world has it, the
-## travel falls back to its `player-entry-<edge>` marker or its spawn, and the way is one-way).
+## placeholder's exit crosses the border at the same place, into an opening the built world has to
+## draw there with an exit back; until then the slime lands at its spawn, and the way is one-way:
+## tools/check_crossings.gd lists them).
 func _print_real_openings(plan: RegionPlan) -> void:
-	print("openings on hand-made worlds (block tiles and units; one-way until the hand-made world has its exit and marker there):")
+	print("openings on hand-made worlds (block tiles; one-way until the hand-made world has its opening and exit there):")
 	for opening in plan.openings:
 		for side: String in [opening["a"], opening["b"]]:
 			var entry := plan.map.region(side)
@@ -135,10 +136,8 @@ func _print_real_openings(plan: RegionPlan) -> void:
 					tiles.position.x, tiles.end.x - 1, tiles.position.y, tiles.end.y - 1, other_entry.get("world", ""),
 					opening["kind"], ": " + str(opening["label"]) if str(opening["label"]) != "" else ""]
 			if bool(other_entry.get("placeholder", false)):
-				var arrive: Vector2 = place["arrive"]
-				line += ": an exit with target_area_id \"%s\", entry \"%s\", entry_marker \"arrive-from-%s-%d\"; a marker \"arrive-from-%s-%d\" at (%d, %d)" % [
-						other_entry.get("world", ""), RegionCanvas.OPPOSITE_EDGES[edge], entry.get("world", ""), int(opening["index"]),
-						other_entry.get("world", ""), int(opening["index"]), roundi(arrive.x), roundi(arrive.y)]
+				line += ": an opening there and an exit with target_area_id \"%s\", entry \"%s\"" % [
+						other_entry.get("world", ""), RegionCanvas.OPPOSITE_EDGES[edge]]
 			elif side != opening["a"]:
 				continue
 			else:

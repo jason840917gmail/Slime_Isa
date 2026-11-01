@@ -30,10 +30,10 @@ extends RefCounted
 ## 7. Dressing (boulders on rock and where the sketch's thin rock ridges were, crystals, broken
 ##    walls in the ruins and around any marker named a ruin, the village's houses) off roads,
 ##    corridors, water, walls and fences.
-## 8. Travel: an exit at every opening into the neighbour's world (it arrives at the neighbour's
-##    `arrive-from-<world>-<n>` marker; a hand-made world gets that marker when it gets its side of
-##    the opening), an arrival marker three tiles inside it for the neighbour's exit, a
-##    `player-entry-<edge>` marker per edge, the spawn.
+## 8. Travel: an exit at every opening into the neighbour's world (the slime comes out at the same
+##    place across the border, in the neighbour's opening: game/world/crossings/border_crossing.gd;
+##    a hand-made world needs its side of the opening), the spawn three tiles inside the first
+##    opening. No arrival markers since 2026-10-31.
 ## 9. The sketch's markers in the region as MapNote nodes.
 ##
 ## Everything is seeded by the region key, so a rebuild gives the same world.
@@ -110,6 +110,9 @@ const BRIDGE_COST := 2.5
 const COVERED_ROW_COST := 2.0
 const NEAR_BAND_COST := 0.3
 const NEAR_PIT_COST := 1.0
+## A cell on a chunk's side (its first or last cell column or row): roads cross chunk lines straight
+## instead of running along them (owner, 2026-11-01: walking along one changed chunks for nothing).
+const CHUNK_SIDE_COST := 1.5
 const ROAD_ATTEMPTS := 6
 const CARVE_ATTEMPTS := 2
 ## The id of a Wilds trail among the road targets (openings count from 0, markers are -1), and of
@@ -223,12 +226,10 @@ var stairs := PackedInt32Array()
 var trees := PackedInt32Array()
 var fences := PackedByteArray()
 var flags := PackedInt32Array()
-## Nodes: {scene, position, name}; {name, rect (world units), target, entry, entry_marker, exit_id};
-## {name, position}; edge -> position; {kind, label, notes, position}.
+## Nodes: {scene, position, name}; {name, rect (world units), target, entry, exit_id};
+## {kind, label, notes, position}.
 var props: Array[Dictionary] = []
 var exits: Array[Dictionary] = []
-var arrivals: Array[Dictionary] = []
-var entries := {}
 var notes: Array[Dictionary] = []
 var spawn := Vector2.ZERO
 var warnings := PackedStringArray()
@@ -496,6 +497,8 @@ func _road_cost(cell: Vector2i) -> float:
 	if road[_cell_index(cell)] == 1:
 		cost *= 0.5
 	cost += COVERED_ROW_COST * _covered_rows(cell)
+	if _on_chunk_side(cell):
+		cost += CHUNK_SIDE_COST
 	for dy in range(-1, 2):
 		for dx in range(-1, 2):
 			var near := cell + Vector2i(dx, dy)
@@ -506,6 +509,15 @@ func _road_cost(cell: Vector2i) -> float:
 			if _level(near) < 0:
 				cost += NEAR_PIT_COST
 	return cost
+
+
+## True when `cell` lies in the first or last cell column or row of its chunk.
+func _on_chunk_side(cell: Vector2i) -> bool:
+	var size := plan.map.chunk_cells()
+	var at := block.position + cell
+	var x := posmod(at.x, size.x)
+	var y := posmod(at.y, size.y)
+	return x == 0 or x == size.x - 1 or y == 0 or y == size.y - 1
 
 
 ## A flight from `top` (the top it leaves, a level above) down `step` onto the next cell, its foot on the
@@ -1731,18 +1743,14 @@ func _place_travel() -> void:
 		var place := opening_place(plan, opening, key)
 		var edge: String = place["edge"]
 		var arrive: Vector2 = place["arrive"]
-		arrivals.append({"name": "arrive-from-%s-%d" % [target, int(opening["index"])], "position": arrive})
-		if not entries.has(edge):
-			entries[edge] = arrive
 		if spawn == Vector2.ZERO:
 			spawn = arrive
-		# Into the neighbour's marker for this opening: a placeholder has it; a hand-made world gets
-		# it with its side of the opening (until then the travel falls back to its edge's entry).
+		# Across the border at the same place, into the neighbour's side of this opening (a hand-made
+		# world gets it with its side; until then the slime lands at its spawn).
 		exits.append({
 			"name": "exit-to-%s-%d" % [target, int(opening["index"])],
 			"exit_id": "%s-to-%s-%d" % [world, target, int(opening["index"])],
 			"rect": place["exit"], "target": target, "entry": OPPOSITE_EDGES[edge],
-			"entry_marker": "arrive-from-%s-%d" % [world, int(opening["index"])],
 		})
 	if spawn == Vector2.ZERO:
 		spawn = _open_centre()
@@ -1751,7 +1759,7 @@ func _place_travel() -> void:
 ## Where `opening` lies in region `key`'s world (its block of chunks; units and tiles from the
 ## block's corner): {edge (the world's edge it leads out of), tiles (Rect2i: the opening's tiles in
 ## the cells on the border), arrive (Vector2: ARRIVAL_TILES inside the border, in the middle of the
-## opening: the `arrive-from-<neighbour world>-<n>` marker), exit (Rect2: a strip EXIT_DEPTH deep
+## opening: the spawn's spot for the first opening), exit (Rect2: a strip EXIT_DEPTH deep
 ## just past the border, the last strip inside the world on its edge, as wide as the opening)}.
 static func opening_place(source: RegionPlan, opening: Dictionary, region_key: String) -> Dictionary:
 	var map := source.map

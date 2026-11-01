@@ -76,7 +76,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   and `-hole.png` (and the ground sheet in `godot/asset/MAPS/grounds/` as the colour reference) and writes
   `godot/asset/MAPS/terrain-edges/<ground>-edges.png` and `-edges-rim.png` ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md));
   `--grounds-2x` also turns `<ground>-2x-padded-upscale.jpg` into the 128 px ground sheet
-  `godot/asset/MAPS/grounds/128x128-tile_19x19_<sheet>.webp`.
+  `godot/asset/MAPS/grounds/128x128-tile_19x19_<sheet>.webp`. Then run
+  `python scripts/art/build-water-bank.py --check`: the deep-water bank's top must stay under every
+  ground's edge art.
 - `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
   a seamless wall per wall style (nine: meadow rock, snow rock, sandstone, cave rock, crystal rock,
   mossy rock, masonry, root rock, red rock) and the stairs kit (treads, risers, a coping per wall
@@ -136,6 +138,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   fixed column per style, and `godot/game/world/interior/interior_wall_tileset.tres`, its uid kept).
   Then `"<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd` saves
   `palette.png` as `palette.res`, the texture the tileset uses (no editor import needed).
+- `python scripts/art/pack-floor-trims.py [--preview=<png>]` (**numpy**) — the interior rooms' floor
+  trims ([godot/INTERIOR_WALLS.md "Floor trim"](godot/INTERIOR_WALLS.md#floor-trim)): cuts each shape's
+  blocks from its Magnific strip render (`asset/Originals/dungeon-kit/interior-walls/trims/`), lays them a
+  cell long in grey into `godot/asset/MAPS/walls/interior/floor-trims.webp` with `floor-trims.json`
+  (each colour a gradient map there, which `interior_trim.gdshader` lays over the grey), and the InteriorTrimLayer
+  palette (`trim-palette.png`, a column per shape, a row per colour, and
+  `godot/game/world/interior/interior_trim_tileset.tres`, its uid kept). Then run
+  `tools/pack_interior_palette.gd` (above), which saves `trim-palette.res` too.
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
   ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
@@ -443,12 +453,13 @@ See [assets/README.md](assets/README.md) for the art workflow.
   grids from Magnific), each frame aligned on its ring, into
   `godot/asset/MAPS/water/224x128-tile_4x2-water-wake.webp`, which `game/world/water_wake.gd` draws
   ([godot/specs/water.md](godot/specs/water.md#9-wading-godot-only)).
-- `python scripts/art/build-water-bank.py [--height 24] [--side 11] [--preview DIR]` (**numpy**) — the
+- `python scripts/art/build-water-bank.py [--height 24] [--side 11] [--preview DIR] [--check]` (**numpy**) — the
   deep-water bank: its 16 shore shapes (`godot/asset/MAPS/water/water-bank-shapes.png`, the edge sheets'
-  layout, checked to stay inside every ground's edge art) and its earth strip (`water-bank-earth.png`, the
-  three strips of `asset/Originals/water/generated/bank-earth-a.png` joined end to end), drawn by the
-  shoreline water fill ([godot/specs/water.md](godot/specs/water.md#11-banks-godot-only)). Both import
-  lossless (the shapes are data).
+  layout) and its earth strip (`water-bank-earth.png`, the three strips of
+  `asset/Originals/water/generated/bank-earth-a.png` joined end to end), drawn by the shoreline water fill
+  ([godot/specs/water.md](godot/specs/water.md#11-banks-godot-only)). It checks first and stops on a
+  failure: the bank must end inside a tile (`--height`, `--side` up to 27 units) and its top stay inside
+  every ground's edge art; `--check` only checks. Both import lossless (the shapes are data).
 - `python scripts/art/despill-magenta-fringe.py [--all] [--min-blue N] [--write] <image>...` (**numpy**) —
   removes magenta chroma-key fringe from sprite sheets. Dry run by default.
 

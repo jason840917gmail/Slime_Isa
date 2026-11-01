@@ -41,6 +41,7 @@ extends Node2D
 ## Owner: world (fences).
 
 const Self := preload("res://game/world/fences/fences.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
 const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlusion.gd")
@@ -665,14 +666,7 @@ func _add_edge_front(style: String, kit: Dictionary, level: int, rect: Rect2, to
 	var x1 := rect.end.x - trim_right
 	var arrays := MeshData.new()
 	var silhouette := MeshData.new()
-	var corners := [[Vector2(x0, foot - top), 0.0, -top], [Vector2(x1, foot - top), 0.0, -top],
-			[Vector2(x1, foot - bottom), strip_h, -bottom], [Vector2(x0, foot - bottom), strip_h, -bottom]]
-	for index: int in [0, 1, 2, 0, 2, 3]:
-		var point: Vector2 = corners[index][0]
-		var uv := Vector2(point.x * 2.0, float(corners[index][1]))
-		var dy := float(corners[index][2])
-		arrays.add(point, uv, _color(SHADE_FRONT, dy, KIND_RAILS, level))
-		silhouette.add(point, uv - Vector2(0.0, DEPTH_UV_OFFSET), ElevationOcclusion.encode(level, dy))
+	_add_rail_strip(arrays, silhouette, Vector2(x0, foot), Vector2(x1, foot), top, bottom, strip_h, SHADE_FRONT, level)
 	_add_piece(style, kit, foot - 0.5, arrays)
 	depth.append([foot + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
 	var reach := SHADOW_FALL * (top + bottom) * 0.5 * SHADOW_PER_HEIGHT
@@ -707,14 +701,7 @@ func _add_edge_column(style: String, kit: Dictionary, level: int, rect: Rect2, t
 		_add_edge_end(style, kit, level, Vector2(x, y1), shadows, depth)
 	var arrays := MeshData.new()
 	var silhouette := MeshData.new()
-	var corners := [Vector2(x - half, y0), Vector2(x + half, y0), Vector2(x + half, y1), Vector2(x - half, y1)]
-	var us := [0.0, float(side["size"][0]), float(side["size"][0]), 0.0]
-	for index: int in [0, 1, 2, 0, 2, 3]:
-		var point: Vector2 = corners[index]
-		var uv := Vector2(float(us[index]), point.y * 2.0)
-		var dy := point.y - y0
-		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_SIDE, level))
-		silhouette.add(point, uv - Vector2(DEPTH_UV_OFFSET, 0.0), ElevationOcclusion.encode(level, dy))
+	_add_side_strip(arrays, silhouette, x, half, float(side["size"][0]), y0, y1, y0, 0.0, level)
 	_add_piece(style, kit, y0 - 0.5, arrays)
 	depth.append([y0 + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
 	var reach := SHADOW_FALL * float(side["top"]) * SHADOW_PER_HEIGHT
@@ -753,16 +740,9 @@ func _add_edge_piece(style: String, kit: Dictionary, level: int, place: Rect2, p
 	var u1 := u0 + float(piece[2])
 	var v1 := v0 + float(piece[3])
 	var foot := place.end.y
-	var corners := [[place.position, Vector2(u0, v0)], [Vector2(place.end.x, place.position.y), Vector2(u1, v0)],
-			[place.end, Vector2(u1, v1)], [Vector2(place.position.x, place.end.y), Vector2(u0, v1)]]
 	var arrays := MeshData.new()
 	var silhouette := MeshData.new()
-	for index: int in [0, 1, 2, 0, 2, 3]:
-		var point: Vector2 = corners[index][0]
-		var uv: Vector2 = corners[index][1]
-		var dy := point.y - foot
-		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
-		silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
+	_add_post_quad(arrays, silhouette, place, Rect2(u0, v0, u1 - u0, v1 - v0), foot, level)
 	_add_piece(style, kit, foot, arrays)
 	depth.append([foot + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
 	_add_contact(shadows, Vector2(place.get_center().x, foot))
@@ -820,14 +800,7 @@ func _add_rail_end(style: String, kit: Dictionary, level: int, end: Vector2, fac
 		# under the north-south rails' strip (fences.gd `_add_span`: along the posts' inner side)
 		var x := end.x - float(side["offset"])
 		var strip_h := float(rails["size"][1])
-		var corners := [[Vector2(x - half, end.y - top), 0.0], [Vector2(x + half, end.y - top), 0.0],
-				[Vector2(x + half, end.y - bottom), strip_h], [Vector2(x - half, end.y - bottom), strip_h]]
-		for index: int in [0, 1, 2, 0, 2, 3]:
-			var point: Vector2 = corners[index][0]
-			var uv := Vector2(point.x * 2.0, float(corners[index][1]))
-			var dy := point.y - end.y
-			arrays.add(point, uv, _color(SHADE_FRONT, dy, KIND_RAILS, level))
-			silhouette.add(point, uv - Vector2(0.0, DEPTH_UV_OFFSET), ElevationOcclusion.encode(level, dy))
+		_add_rail_strip(arrays, silhouette, Vector2(x - half, end.y), Vector2(x + half, end.y), top, bottom, strip_h, SHADE_FRONT, level)
 	else:
 		var top := float(rails["top"])
 		var centre_px := float(kit["posts"]["cell"][0]) * 0.5
@@ -837,16 +810,8 @@ func _add_rail_end(style: String, kit: Dictionary, level: int, end: Vector2, fac
 		var u0 := centre_px + side_px - RAIL_END_PX if east else centre_px - side_px
 		var x0 := end.x - RAIL_END_PX / 2.0 if east else end.x
 		var x1 := x0 + RAIL_END_PX / 2.0
-		var corners := [
-			[Vector2(x0, end.y - top), Vector2(u0, foot_row - top * 2.0)], [Vector2(x1, end.y - top), Vector2(u0 + RAIL_END_PX, foot_row - top * 2.0)],
-			[Vector2(x1, end.y - bottom), Vector2(u0 + RAIL_END_PX, foot_row - bottom * 2.0)], [Vector2(x0, end.y - bottom), Vector2(u0, foot_row - bottom * 2.0)],
-		]
-		for index: int in [0, 1, 2, 0, 2, 3]:
-			var point: Vector2 = corners[index][0]
-			var uv: Vector2 = corners[index][1]
-			var dy := point.y - end.y
-			arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
-			silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
+		_add_post_quad(arrays, silhouette, Rect2(x0, end.y - top, x1 - x0, top - bottom),
+				Rect2(u0, foot_row - top * 2.0, RAIL_END_PX, (top - bottom) * 2.0), end.y, level)
 	# after the rails, before the gate (which stands in front of their ends)
 	_add_piece(style, kit, end.y - 0.5, arrays)
 	depth.append([end.y + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
@@ -987,18 +952,10 @@ func _add_post(style: String, kit: Dictionary, level: int, foot: Vector2, shadow
 	var top := foot.y - foot_row * 0.5
 	var bottom := foot.y + (cell_size.y - foot_row) * 0.5
 	var u0 := float(variant) * cell_size.x
-	var corners := [
-		[Vector2(foot.x - half, top), Vector2(u0, 0.0)], [Vector2(foot.x + half, top), Vector2(u0 + cell_size.x, 0.0)],
-		[Vector2(foot.x + half, bottom), Vector2(u0 + cell_size.x, cell_size.y)], [Vector2(foot.x - half, bottom), Vector2(u0, cell_size.y)],
-	]
 	var arrays := MeshData.new()
 	var silhouette := MeshData.new()
-	for index: int in [0, 1, 2, 0, 2, 3]:
-		var point: Vector2 = corners[index][0]
-		var uv: Vector2 = corners[index][1]
-		var dy := point.y - foot.y
-		arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_POST, level))
-		silhouette.add(point, uv, ElevationOcclusion.encode(level, dy))
+	_add_post_quad(arrays, silhouette, Rect2(foot.x - half, top, half * 2.0, bottom - top),
+			Rect2(u0, 0.0, cell_size.x, cell_size.y), foot.y, level)
 	if art:
 		_add_piece(style, kit, foot.y, arrays)
 		depth.append([foot.y + float(level) * ElevationOcclusion.LEVEL_UNITS, silhouette])
@@ -1025,17 +982,10 @@ func _add_span(style: String, kit: Dictionary, level: int, a: Vector2, b: Vector
 		var half := float(side["size"][0]) * 0.25
 		# The rail runs along the posts' inner side, so posts and rail read apart.
 		var x := north.x - outward.x * float(side["offset"])
-		var corners := [Vector2(x - half, north.y - height), Vector2(x + half, north.y - height),
-				Vector2(x + half, south.y - height), Vector2(x - half, south.y - height)]
-		var us := [0.0, float(side["size"][0]), float(side["size"][0]), 0.0]
-		for index: int in [0, 1, 2, 0, 2, 3]:
-			var point: Vector2 = corners[index]
-			var uv := Vector2(float(us[index]), (point.y + height) * 2.0)
-			# The rail lies as deep as its north post (in 3D its start would cover the post's foot;
-			# the posts stay in front of it, as on front runs).
-			var dy := point.y - north.y
-			arrays.add(point, uv, _color(SHADE_TOP, dy, KIND_SIDE, level))
-			silhouette.add(point, uv - Vector2(DEPTH_UV_OFFSET, 0.0), ElevationOcclusion.encode(level, dy))
+		# The rail lies as deep as its north post (in 3D its start would cover the post's foot; the
+		# posts stay in front of it, as on front runs).
+		_add_side_strip(arrays, silhouette, x, half, float(side["size"][0]), north.y - height, south.y - height,
+				north.y, height, level)
 		# Before the north post, which covers the rail's start.
 		sort_y = north.y - 0.5
 		depth_y = north.y
@@ -1057,14 +1007,7 @@ func _add_span(style: String, kit: Dictionary, level: int, a: Vector2, b: Vector
 		var bottom := float(rails["bottom"])
 		var strip_h := float(rails["size"][1])
 		var shade := SHADE_FRONT if absf(slope) < 0.01 else (SHADE_SOUTH_WEST if slope > 0.0 else SHADE_SOUTH_EAST)
-		var corners := [[Vector2(x0, y0 - top), 0.0, -top], [Vector2(x1, y1 - top), 0.0, -top],
-				[Vector2(x1, y1 - bottom), strip_h, -bottom], [Vector2(x0, y0 - bottom), strip_h, -bottom]]
-		for index: int in [0, 1, 2, 0, 2, 3]:
-			var point: Vector2 = corners[index][0]
-			var uv := Vector2(point.x * 2.0, float(corners[index][1]))
-			var dy := float(corners[index][2])
-			arrays.add(point, uv, _color(shade, dy, KIND_RAILS, level))
-			silhouette.add(point, uv - Vector2(0.0, DEPTH_UV_OFFSET), ElevationOcclusion.encode(level, dy))
+		_add_rail_strip(arrays, silhouette, Vector2(x0, y0), Vector2(x1, y1), top, bottom, strip_h, shade, level)
 		# Put the rail at the visible feet of its posts for a consistent depth order.
 		sort_y = (maxf(y0, y1) if outward.y >= 0.0 else minf(y0, y1)) - 0.5
 		depth_y = (y0 + y1) * 0.5
@@ -1115,6 +1058,49 @@ static func _add_contact(arrays: MeshData, foot: Vector2) -> void:
 ## ((dy + 128) / 512), b = kind, a = level ((level + 4) / 8).
 static func _color(shade: float, dy: float, kind: float, level: int) -> Color:
 	return Color(shade, clampf((dy + 128.0) / 512.0, 0.0, 1.0), kind, (float(level) + 4.0) / 8.0)
+
+
+## The quad `points` (four corners in order round it, their UVs `uvs`, their heights `dys` above the
+## foot) as two triangles into `arrays`, coloured by `shade` and `kind` (`_color`), and into
+## `silhouette` for the depth map, its UVs moved by `depth_uv` (a strip's place in the depth sheet).
+static func _add_quad(arrays: MeshData, silhouette: MeshData, points: Array[Vector2], uvs: Array[Vector2],
+		dys: Array[float], shade: float, kind: float, level: int, depth_uv: Vector2 = Vector2.ZERO) -> void:
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		arrays.add(points[index], uvs[index], _color(shade, dys[index], kind, level))
+		silhouette.add(points[index], uvs[index] - depth_uv, ElevationOcclusion.encode(level, dys[index]))
+
+
+## A front rail strip from `left` to `right` (feet on the foot line, a diagonal run's slanting), from
+## `top` to `bottom` above them, its picture the rails' strip (`strip_h` tall), in `shade`.
+static func _add_rail_strip(arrays: MeshData, silhouette: MeshData, left: Vector2, right: Vector2, top: float,
+		bottom: float, strip_h: float, shade: float, level: int) -> void:
+	_add_quad(arrays, silhouette, [left - Vector2(0.0, top), right - Vector2(0.0, top), right - Vector2(0.0, bottom),
+			left - Vector2(0.0, bottom)], [Vector2(left.x * 2.0, 0.0), Vector2(right.x * 2.0, 0.0),
+			Vector2(right.x * 2.0, strip_h), Vector2(left.x * 2.0, strip_h)], [-top, -top, -bottom, -bottom],
+			shade, KIND_RAILS, level, Vector2(0.0, DEPTH_UV_OFFSET))
+
+
+## A north-south rail strip seen from above: `half` each side of `x` from `y_top` to `y_bottom`, its
+## picture the side strip (`width_px` wide, rows `v_shift` below the screen's y, doubled), as deep as
+## `foot_y`.
+static func _add_side_strip(arrays: MeshData, silhouette: MeshData, x: float, half: float, width_px: float,
+		y_top: float, y_bottom: float, foot_y: float, v_shift: float, level: int) -> void:
+	_add_quad(arrays, silhouette, [Vector2(x - half, y_top), Vector2(x + half, y_top), Vector2(x + half, y_bottom),
+			Vector2(x - half, y_bottom)], [Vector2(0.0, (y_top + v_shift) * 2.0), Vector2(width_px, (y_top + v_shift) * 2.0),
+			Vector2(width_px, (y_bottom + v_shift) * 2.0), Vector2(0.0, (y_bottom + v_shift) * 2.0)],
+			[y_top - foot_y, y_top - foot_y, y_bottom - foot_y, y_bottom - foot_y], SHADE_TOP, KIND_SIDE, level,
+			Vector2(DEPTH_UV_OFFSET, 0.0))
+
+
+## A post's (or a kit piece's) picture: `uv` of the sheet over `place` (world), its corners' heights
+## above `foot_y`.
+static func _add_post_quad(arrays: MeshData, silhouette: MeshData, place: Rect2, uv: Rect2, foot_y: float, level: int) -> void:
+	var points: Array[Vector2] = [place.position, Vector2(place.end.x, place.position.y), place.end, Vector2(place.position.x, place.end.y)]
+	var dys: Array[float] = []
+	for point in points:
+		dys.append(point.y - foot_y)
+	_add_quad(arrays, silhouette, points, [uv.position, Vector2(uv.end.x, uv.position.y), uv.end, Vector2(uv.position.x, uv.end.y)],
+			dys, SHADE_TOP, KIND_POST, level)
 
 
 # --- art -----------------------------------------------------------------------------------
@@ -1239,9 +1225,7 @@ static func _level_bit(level: int) -> int:
 	_level_bits[level] = bit
 	return bit
 
+
 ## The fences under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
-	for child: Node in parent.get_children():
-		if child is Self:
-			return child as Self
-	return null
+	return NodeFind.child_of(parent, Self) as Self

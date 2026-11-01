@@ -131,7 +131,7 @@ origin (§1), `p` the player centre.
 | `world-beds` | `:1097-1125` | out of tree | `bed.interactRadius` (90) | **85** | `world-beds:<runtimeId>` | `bed.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
 | `quest-npcs` reoffer | `QuestNpcController.ts:152-188` | | 96 | **85** | `quest-npcs:<instanceId>:reoffer` | `Resume quest with <name>` | as above | as above | [OUT] |
 | `managed-chests` | `:891-917` | (no tree check) | **112** (literal) | **80** | `managed-chests:<instanceId>` | see §3.4 | o + (0, -56) | o + (0, -24) | [IN] |
-| `world-usables` (Godot only, 2026-10-17: group `usable`; Fatty's Lair's worm levers, its inner winch, Burr outside) | | `can_use()` false | `interact_radius` | **70** | `world-usables:<node path>` | `prompt` | o + (0, -badge_rise) | `origin()` | [IN] |
+| `world-usables` (Godot only, 2026-10-17: group `usable`; Fatty's Lair's worm levers, Burr outside, the Weaver Hollow's gate winch) | | `can_use()` false | `interact_radius` | **70** | `world-usables:<node path>` | `prompt` | o + (0, -badge_rise) | `origin()` | [IN] |
 | `gulp-spots` (Godot since 2026-10-08: `essences`, "Pick up <essence>", into the bag) | `WorldScene.ts:1109-1128` | | spot radius | **60** | `gulp-spots:<round x>:<round y>` | `Gulp the <material>` | none (no badge) | spot | [OUT] |
 | `quest-npcs` talk | `QuestNpcController.ts:189-209` | | 96 | **50** | `quest-npcs:<instanceId>:talk` | `Talk to <name>` | NPC + (30, -30) | NPC + (0, -24) | [IN] (§2.9) |
 | `placed-furniture` | `:1074-1095` | furniture with its own script | 90 (literal) | **40** | `placed-furniture:<placementId>` | `Pick up` | (x, y - 72) | (x, y - 24) | [OUT] |
@@ -391,10 +391,20 @@ counter resets when the slime lets go or leaves the trigger, while it walks out 
   (opening; the hole's trigger is the wall's `passage` rect); `cave-ladder` (ladder_up, side north:
   arriving there the slime walks down off the ladder); `cracked-ground`'s sinkhole (ladder_down);
   `cracked-floor`'s blown hole (fall, no side, a one-way way in).
-- **One-way doors** (not in Phaser, 2026-10-17): with no `target_door_id`, `target_marker` (a
-  Node2D's name in the target world) is sent as `request_exit`'s `entry_marker`, so the slime lands
-  there (snapped to its tile centre) and nothing has to lead back. A door with no `target_area_id`
-  never travels (an arrival point only).
+- **One-way doors** (not in Phaser, 2026-10-17; the markers went 2026-10-31): a fall names a
+  **landing** in its `target_door_id` (`object.landing`, game/scripts/landing.gd): the slime drops
+  in onto it from above (`landingDropPx`, `landingDropMs`, `DropLand`, a squash over
+  `landingSquashMs`) and nothing has to lead back. A door with no `target_door_id` arrives at the
+  target world's `player-spawn` (sent as `request_exit`'s `entry_marker`). A door with no
+  `target_area_id` never travels (an arrival point only: the mine's mouth, the Lookout).
+- **Leaving and arriving** (not in Phaser, 2026-10-31,
+  [design/2026-10-31-crossings-and-arrivals.md](../../design/2026-10-31-crossings-and-arrivals.md)):
+  a door with a side walks the slime's picture into its doorway (`doorWalkInMs` 240, after a real
+  door's leaf has opened), fading, before the iris; arriving, every end plays its own arrival from
+  `play_arrival` (main.gd `_start_arrival`, after the iris's hold): a ladder's foot slides the slime
+  down onto it, a ladder's hole raises it out, a stair door brings it down or up its flight
+  (stair_door.gd), a landing drops it in; a sided door walks it out as before. Ends found by
+  `door_id` in the `door` group: doors, stair doors (`hatch_id`), landings.
 
 | Property | TS read (`DoorScript.ts:29-40`) | Fallback | Godot export |
 |---|---|---|---|
@@ -521,7 +531,10 @@ lockedMessage}`. `requestAuthoredExit` (`WorldScene.ts:1027-1063`) checks the sa
 the same transaction, shows the hard-coded `"The Verdant Gate unlocks!"` (green big) and travels.
 Level-1's gate object and its exit use the same id `level-1-east-verdant-gate`, so unlocking
 either one opens both (the object on its next `_enter_tree`). The Godot `main._pass_gate` already
-ports the exit half.
+ports the exit half. **Godot since 2026-11-01 (owner):** level-1's exit (`level-1-d4` `exit-1`) has
+no `gate`: the gate object stands before it and takes the key, so the border is never reached
+locked. `_pass_gate` stays for the other gated exits (`test_travel.gd` tries it on `exit-1` with a
+gate of its own).
 
 #### 3.3.2 Plates and bells (callers of `open`)
 
@@ -1204,8 +1217,8 @@ check, `target_door_id` wins over `entry`, gate check via `_pass_gate`, `travel_
 `travel_to(target, edge, door, marker = "")` (stop + clear input + `suppress_movement(520)`, music fade, 320 ms
 `#0b1020` fade on layer 5, then `RunState.capture_player`, `request_navigation`,
 `_teardown_world`, `_build_world`), `AreaTravel.arrival_point(navigation, fallback)` (door arrival
-via group `door` -> `door_id` / `arrival_point()`, else the exit's `entry_marker` (a Node2D of that
-name; 2026-10-10, [specs/world.md](world.md)), else `player-entry-<edge>`, else spawn marker,
+via group `door` -> `door_id` / `arrival_point()`, else a named spot `entry_marker` (a Node2D of that
+name, [specs/world.md](world.md)), else the place along the edge, else spawn marker,
 then `find_spawn_point`), fixed camera (`world_camera.hold_fixed`), HUD rebinding, the new player
 instance facing down. That is exactly the Phaser flow minus the page reload, so a door only needs:
 

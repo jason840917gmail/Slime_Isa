@@ -10,7 +10,9 @@ extends RefCounted
 ## `impact` effect instead of the old knockback, and it may hand every target's outcome to an
 ## `on_outcome` callback (the sender's clink and feel). The improved Squash Slam
 ## (slam_sequence.gd) strikes a ground ellipse on the slime's own height level
-## (`hurtboxes_in_ellipse`, `strike_targets`).
+## (`hurtboxes_in_ellipse`, `strike_targets`). A thrown thing (thrown_object.gd) strikes only what
+## it can reach (owner: "nothing should cross walls"): hurtboxes on its own height level with no
+## wall between it and them (`hurtboxes_in_reach`, `clear_line`).
 ##
 ## Owner: abilities.
 
@@ -30,6 +32,8 @@ const HURTBOX_MASK := 8
 const WORLD_MASK := 1
 ## Static bodies smaller than this in both directions never block a line (PhaserNodeContext).
 const SMALL_BODY_PX := 20.0
+## A line whose reach stops more than this short of its end met a wall (`clear_line`).
+const CLEAR_LINE_SLACK_PX := 0.5
 ## The lash: a goo hook 16 px wide each side; bell posts right next to the slime are skipped.
 const LASH_HALF_WIDTH := 16.0
 const LASH_NEAR_PX := 24.0
@@ -124,11 +128,46 @@ static func is_clink(result: Dictionary) -> bool:
 	return reaction is Dictionary and str((reaction as Dictionary).get("verb", "")) == HitReaction.VERB_CLINK
 
 
-## The hurtboxes (not the player's, not a "resource") whose shape meets the circle at `centre`.
-static func hurtboxes_at(player: Node, centre: Vector2, radius: float) -> Array[Area2D]:
+## The hurtboxes (not the player's, not a "resource") whose shape meets the circle at `centre`, and,
+## unless `level` is ANY_LEVEL, only those of targets on height level `level` (`target_level`).
+static func hurtboxes_at(player: Node, centre: Vector2, radius: float, level: int = ANY_LEVEL) -> Array[Area2D]:
 	var shape := CircleShape2D.new()
 	shape.radius = radius
-	return _hurtboxes_in(player, shape, centre, ANY_LEVEL)
+	return _hurtboxes_in(player, shape, centre, level)
+
+
+## What a thrown thing at `centre` reaches (thrown_object.gd): the hurtboxes of `hurtboxes_at` on
+## height level `level` (unless ANY_LEVEL) with no wall between `centre` and each (`clear_line`, past
+## `exclude` and the target's own body).
+static func hurtboxes_in_reach(player: Node, centre: Vector2, radius: float, level: int, exclude: Array[RID]) -> Array[Area2D]:
+	var reached: Array[Area2D] = []
+	var router := Services.router()
+	for area: Area2D in hurtboxes_at(player, centre, radius, level):
+		var skip := exclude.duplicate()
+		var body := _target_body(area, router.receiver_for_area(area) if router != null else null)
+		if body is CollisionObject2D:
+			skip.append((body as CollisionObject2D).get_rid())
+		if clear_line(centre, area.global_position, skip):
+			reached.append(area)
+	return reached
+
+
+## True when the line from `from` to `to` meets no wall (`line_reach`: static world bodies past
+## `exclude`; tiles, the world bounds and small bodies never block, as for a flying throw).
+static func clear_line(from: Vector2, to: Vector2, exclude: Array[RID]) -> bool:
+	return line_reach(from, to, exclude).distance_to(to) <= CLEAR_LINE_SLACK_PX
+
+
+## The height level `body` stands on: its level when the elevation tracks it, else the ground's
+## under it; ANY_LEVEL without elevation.
+static func body_level(body: Node2D) -> int:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or body == null or not is_instance_valid(body):
+		return ANY_LEVEL
+	if elevation.bodies.has(body):
+		return elevation.level_of(body)
+	return elevation.level_at(body.global_position)
 
 
 ## The improved Slam's ground ellipse (body-shapes plan section 4): the hurtboxes (not the
@@ -162,11 +201,7 @@ static func target_level(area: Area2D, receiver: Object, fallback: int) -> int:
 	var elevation: Elevation = world.elevation if world != null else null
 	if elevation == null or area == null:
 		return fallback
-	var body: Node2D = null
-	if receiver != null and receiver.has_method(&"get_body"):
-		body = receiver.call(&"get_body") as Node2D
-	if body == null:
-		body = _body_above(area)
+	var body := _target_body(area, receiver)
 	if body != null and elevation.bodies.has(body):
 		return elevation.level_of(body)
 	var ground := area.global_position
@@ -203,6 +238,15 @@ static func _hurtboxes_in(player: Node, shape: Shape2D, centre: Vector2, level: 
 			continue
 		targets.append(area)
 	return targets
+
+
+## The body of the target behind `area`: its receiver's (`get_body`), else the nearest physics body
+## above it; null when none.
+static func _target_body(area: Area2D, receiver: Object) -> Node2D:
+	var body: Node2D = null
+	if receiver != null and is_instance_valid(receiver) and receiver.has_method(&"get_body"):
+		body = receiver.call(&"get_body") as Node2D
+	return body if body != null else _body_above(area)
 
 
 ## The nearest physics body above `area` in the tree (its owner's body), or null.

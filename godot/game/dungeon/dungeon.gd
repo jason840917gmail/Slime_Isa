@@ -150,7 +150,8 @@ var _page: Control
 var _registered := false
 var _room_mask: CanvasLayer
 ## The layout's rooms, read once at registration: [{"key", "name", "world", "rect", "outline",
-## "node", "scene"}] in this world's coordinates, and its marks [{"mark", "at", "rotation"}].
+## "node", "scene", "floor", "camera_offset"}] in this world's coordinates, and its marks [{"mark",
+## "at", "rotation"}].
 var _layout_rooms: Array[Dictionary] = []
 var _layout_marks: Array[Dictionary] = []
 
@@ -324,7 +325,9 @@ func layout_marks() -> Array[Dictionary]:
 
 
 ## The layout's rooms in other worlds than this one ([] without a layout): {"key", "name", "world",
-## "rect" (this world's coordinates), "outline", "scene" (the room's world scene)}.
+## "rect" (this world's coordinates), "outline", "scene" (the room's world scene), "floor",
+## "camera_offset" (where the room's CameraRoom lies in that scene: a point P of the scene is at
+## `rect.position - camera_offset + P` here)}.
 func layout_rooms_elsewhere() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var world := Services.world()
@@ -389,7 +392,8 @@ func _read_layout() -> void:
 			rect.position -= offset
 			_layout_rooms.append({"key": "%s/%s" % [_record_id(), child.get(&"room_name")], "name": str(child.get(&"room_name")),
 				"world": str(child.get(&"world_id")), "rect": rect, "outline": points, "node": null,
-				"scene": str(child.get(&"room_scene")), "floor": int(child.get(&"floor_level"))})
+				"scene": str(child.get(&"room_scene")), "floor": int(child.get(&"floor_level")),
+				"camera_offset": child.get(&"camera_offset") as Vector2})
 		elif &"mark" in child and child is Node2D:
 			_layout_marks.append({"mark": str(child.get(&"mark")), "at": (child as Node2D).position - offset,
 				"rotation": (child as Node2D).rotation})

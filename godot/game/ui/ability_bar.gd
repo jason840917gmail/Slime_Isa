@@ -24,7 +24,8 @@ extends Control
 ## Slam or Teleport slot of their own:
 ## - the **Ability slot** (`BOX_SLOT`): the box ability chosen in the bag window
 ##   (game/player/abilities/ability_box.gd): its icon, the `ability_use` key in the badge (F; S in
-##   keys-only), its energy cost in a chip at the top left (warning-coloured while the energy is
+##   keys-only, A in the throw mode's keys-only layout), its energy cost in a chip at the top left
+##   (warning-coloured while the energy is
 ##   short) and the cooldown sweep; hidden while the box is empty. A click opens the bag window, where
 ##   the box is (body-shapes plan section 6);
 ## - the **Roll slot** (`dodge`), as before, only once the Roll is learned.

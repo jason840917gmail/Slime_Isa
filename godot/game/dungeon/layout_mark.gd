@@ -2,7 +2,7 @@
 extends Node2D
 class_name LayoutMark
 ## A mark on a dungeon's map layout (game/dungeon/dungeon_layout.gd), dragged where it shows:
-## - "boss": the compass's skull over the boss's room, until the Dungeon node's `boss_id` is beaten;
+## - "boss": the skull over the boss's room once the map is held, until the Dungeon node's `boss_id` is beaten;
 ## - "seal": a red bar across a seal's doorway while the dungeon is sealed (turn the node with the
 ##   doorway: 0 for a north or south doorway, 90 degrees for an east or west one).
 ##

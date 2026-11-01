@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://game/scripts/heavy_block.gd" id="2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(58, 50)
+size = Vector2(54, 50)
 
 [node name="heavy-statue" type="CharacterBody2D" node_paths=PackedStringArray("visual", "shape_node")]
 y_sort_enabled = true
@@ -14,13 +14,14 @@ script = ExtResource("2")
 visual = NodePath("Visual")
 shape_node = NodePath("BodyShape")
 kind = "statue"
+contact_centre = Vector2(-0.5, 13.8)
+contact_half = Vector2(26.4, 14.5)
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
 
 [node name="Visual" type="Sprite2D" parent="."]
 position = Vector2(0, 27)
-scale = Vector2(1.1, 1.1)
 texture = ExtResource("1")
 centered = false
 offset = Vector2(-59, -121)

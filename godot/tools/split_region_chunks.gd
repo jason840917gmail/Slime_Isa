@@ -7,8 +7,8 @@ extends SceneTree
 ##
 ## Each chunk gets the region world's cells in it (ground, forest, fences; the elevation with
 ## Elevation.MAX_ROWS_ABOVE rows above it, so the walls of the tops just north of it still hang in),
-## its props, notes, arrival markers and exits to other regions; a `player-spawn` (the open cell
-## nearest its middle) and `player-entry-<edge>` markers; and, along every edge it shares with
+## its props, notes and exits to other regions; a `player-spawn` (the open cell nearest its
+## middle); and, along every edge it shares with
 ## another of the region's chunks, an exit the whole edge long (world_exit.gd `keep_along`): the
 ## player arrives at the same place along the neighbour's opposite edge. The scenes are registered
 ## in scene_index.json and kept out of the release "Web" export, and game/data/world-chunks.json
@@ -192,17 +192,15 @@ func _split(map: WorldMapData, entry: Dictionary, ids: PackedStringArray) -> Dic
 			written[id] = FileAccess.get_file_as_string(path).hash()
 		print("%s %s: %d props, %d exits to other regions, %d chunk edges, spawn %s" % [
 				"wrote" if err == OK else "FAILED (%d)" % err, path, stats["props"], stats["exits"], stats["edges"], stats["spawn"]])
-	for child in source.get_children():
-		if str(child.name).begins_with("arrive-from-") and not arrivals.has(str(child.name)):
-			print("  ! %s lies in none of %s's chunks: travel to it goes to the region's spawn chunk" % [child.name, world])
 	source.free()
 	if spawn.is_empty() and not names.is_empty():
 		spawn = names.keys()[0]
 	return {} if failed else {"chunks": names, "arrivals": arrivals, "doors": {}, "spawn": spawn, "written": written}
 
 
-## Markers travel arrives at: a neighbour's exit's `arrive-from-<world>-<n>`, an edge's
-## `player-entry-<edge>`.
+## The old arrival markers' names (a neighbour's `arrive-from-<world>-<n>`, an edge's
+## `player-entry-<edge>`): no scene has one since 2026-10-31 (border crossings arrive by coordinates:
+## game/world/crossings/border_crossing.gd); a scene that still has one is read as before.
 static func _is_arrival(node_name: String) -> bool:
 	return node_name.begins_with("arrive-from-") or node_name.begins_with("player-entry-")
 
@@ -299,15 +297,8 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 		root.add_child(_copy_layer(fences, origin_tiles, own))
 	# The spawn: the open cell nearest the middle (the region's own may lie on a chunk's edge).
 	var spawn := _open_spot(root, tiles / 2, tiles, tile)
-	var entries := {}
-	for edge: String in EDGES:
-		var dir: Vector2i = EDGES[edge]
-		var middle := tiles / 2 + Vector2i(dir.x * (tiles.x / 2 - 2), dir.y * (tiles.y / 2 - 2))
-		entries[edge] = _open_spot(root, middle, tiles, tile)
-	root.add_child(_definition(id, map.tile_size, tiles, spawn, entries))
+	root.add_child(_definition(id, map.tile_size, tiles, spawn, {}))
 	root.add_child(_marker("player-spawn", spawn))
-	for edge: String in entries:
-		root.add_child(_marker("player-entry-" + edge, entries[edge]))
 	var exits: Array[Area2D] = []
 	for child in source.get_children():
 		if child is Area2D and child.has_node(^"world-exit-script"):
@@ -317,10 +308,7 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 				continue
 			var script_node := child.get_node(^"world-exit-script")
 			exits.append(_exit(str(child.name), Rect2(part.position - origin, part.size), id,
-					str(script_node.get(&"exit_id")), str(script_node.get(&"target_area_id")), str(script_node.get(&"entry")),
-					str(script_node.get(&"entry_marker")), false))
-		elif child is Node2D and str(child.name).begins_with("arrive-from-") and area.has_point((child as Node2D).position):
-			root.add_child(_marker(str(child.name), (child as Node2D).position - origin))
+					str(script_node.get(&"exit_id")), str(script_node.get(&"target_area_id")), str(script_node.get(&"entry")), false))
 	var to_other_regions := exits.size()
 	for edge: String in EDGES:
 		var next: Vector2i = chunk + EDGES[edge]
@@ -337,7 +325,7 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 			_:
 				strip = Rect2(size.x - EDGE_STRIP, 0.0, EDGE_STRIP, size.y)
 		var next_id := chunk_id(world, next)
-		exits.append(_exit("edge-" + edge, strip, id, "%s-to-%s" % [id, next_id], next_id, OPPOSITE[edge], "", true))
+		exits.append(_exit("edge-" + edge, strip, id, "%s-to-%s" % [id, next_id], next_id, OPPOSITE[edge], true))
 	for exit in exits:
 		root.add_child(exit)
 	var props := Node2D.new()
@@ -493,7 +481,7 @@ static func _marker(marker_name: String, position: Vector2) -> Node2D:
 
 
 ## An exit over `rect` (chunk units) as the region worlds have them (region_scene.gd).
-static func _exit(exit_name: String, rect: Rect2, map_id: String, exit_id: String, target: String, entry: String, entry_marker: String, keep_along: bool) -> Area2D:
+static func _exit(exit_name: String, rect: Rect2, map_id: String, exit_id: String, target: String, entry: String, keep_along: bool) -> Area2D:
 	var area := Area2D.new()
 	area.name = exit_name
 	area.position = rect.get_center()
@@ -514,7 +502,6 @@ static func _exit(exit_name: String, rect: Rect2, map_id: String, exit_id: Strin
 	script_node.set(&"exit_id", exit_id)
 	script_node.set(&"target_area_id", target)
 	script_node.set(&"entry", entry)
-	script_node.set(&"entry_marker", entry_marker)
 	script_node.set(&"keep_along", keep_along)
 	script_node.set(&"area", area)
 	script_node.set(&"gate", {})
@@ -745,7 +732,7 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 				_:
 					strip = Rect2(area.size.x - EDGE_STRIP, 0.0, EDGE_STRIP, area.size.y)
 			var next_id := chunk_id(world, next)
-			var exit := _exit("edge-" + edge, strip, id, "%s-to-%s" % [id, next_id], next_id, OPPOSITE[edge], "", true)
+			var exit := _exit("edge-" + edge, strip, id, "%s-to-%s" % [id, next_id], next_id, OPPOSITE[edge], true)
 			root.add_child(exit)
 			edges.append(exit)
 		RegionScene._own(root, root)

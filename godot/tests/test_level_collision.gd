@@ -43,8 +43,7 @@ func test_the_painted_collision_replaces_the_automatic_one(t: TestContext) -> vo
 		if not str(body.name).begins_with("Level"):
 			continue
 		levels.append(str(body.name))
-		for shape: Node in body.get_children():
-			t.check((shape as CollisionShape2D).shape is RectangleShape2D, "%s has an automatic outline" % body.name)
+		t.check(bool(body.get_meta(&"painted", false)), "%s has an automatic outline" % body.name)
 	levels.sort()
 	t.equal(levels, ["Level-1", "Level0", "Level1"], "the painted levels' bodies")
 
@@ -132,7 +131,8 @@ func test_an_empty_layer_leaves_the_automatic_collision(t: TestContext) -> void:
 	var outline := false
 	for body: Node in elevation.get_node("Collision").get_children():
 		for shape: Node in body.get_children():
-			if shape is CollisionShape2D and (shape as CollisionShape2D).shape is ConcavePolygonShape2D:
+			if shape is CollisionShape2D and (shape as CollisionShape2D).shape is ConcavePolygonShape2D \
+					and not bool(body.get_meta(&"painted", false)):
 				outline = true
 	var found := []
 	for body: Node in elevation.get_node("Collision").get_children():

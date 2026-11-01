@@ -1,17 +1,24 @@
 extends Node2D
 class_name StairHatchScript
-## Scene script `game.stair-hatch` (`object.stair-hatch`, `object.stair-ladder`; Fatty's Lair,
-## docs/godot/DUNGEONS.md "Fatty's Lair (built)"): a stair between two floors laid side by side in one
-## world, the Inner Stair from the Pit Hall down to the Guard Crypt and its ladder back up. Walking
-## onto its open well (the slime's centre inside `trigger_rect`, moving) fades the picture out,
-## puts the slime at the `target` marker facing `arrival_facing`, and fades back in: no key, as a
-## door (docs/godot/CONVENTIONS.md "Doors").
+## The stair's logic (Fatty's Lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)"), the base of
+## the stair door (game/scripts/stair_door.gd, `object.stair-door`: the Inner Stair from the Pit Hall
+## down to the Guard Crypt, the crypt's stair back up, the playground's pair). Its own scenes, the
+## floor hatch and the ladder, were replaced by the stair door on 2026-10-24. Walking into its open
+## well (the slime's centre inside `trigger_rect`, moving) fades the picture out, puts the slime at
+## the stair it leads to, and fades back in; with `target_world` it travels to that world (main.gd
+## `travel_to`, with the fade): no key, as a door (docs/godot/CONVENTIONS.md "Doors").
 ##
-## - **The hatch** starts shut (frame 0) unless `start_open` or its story flag `open_flag` is set:
-##   shut it is walkable floor, and standing on it says `refusal_text` once per visit to it. `open`
-##   swings it up (frame 1) with the chain sound and sets the flag (Burr's winch:
-##   game/fattys_lair/lair_director.gd).
-## - **The ladder** (`object.stair-ladder`) is the same script with `start_open` on.
+## Stairs pair like doors (2026-10-31, docs/design/2026-10-31-crossings-and-arrivals.md):
+## `target_door` names the stair the slime comes out of (its `hatch_id`, in this world or in
+## `target_world`), which plays its arrival (`play_arrival`: the subclass's steps) from its
+## `arrival_point` (an "arrival" child, else the node plus `arrival_offset`), the slime facing out of
+## it (`inward`: down, a stair door stands in a north wall). It is an end of a crossing like a door
+## (the `door` group, `door_id` = `hatch_id`; area_travel.gd finds it). Without `target_door` it
+## leads nowhere (tools/check_crossings.gd lists it); the old markers went on 2026-10-31.
+##
+## It starts shut unless `start_open` or its story flag `open_flag` is set: shut, walking into it says
+## `refusal_text` once per visit to it. `open` opens it for good with the chain sound and sets the
+## flag (Burr's winch: game/fattys_lair/lair_director.gd). Its picture (`_show`) is the subclass's.
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -38,27 +45,78 @@ signal opened(payload: Dictionary)
 ## Story flag that keeps it open ("" = none).
 @export var open_flag: String = ""
 @export var start_open: bool = false
-## Where the slime arrives (a Node2D in the same world).
-@export var target: NodePath
-## Where the slime arrives when the stair leads into another world (Fatty's Lair is one world per
-## room since 2026-10-18: the Inner Stair goes from the hub's world down to the crypt's): that
-## world's id and the name of the Node2D there it arrives at (main.gd `travel_to`, with the fade).
-## Set, they win over `target`.
+## The stair the slime comes out of: its `hatch_id`, in this world, or in `target_world` when set.
+@export var target_door: String = ""
+## Where the slime stands arriving by this stair, from the node (an "arrival" child wins).
+@export var arrival_offset: Vector2 = Vector2(0.0, 80.0)
+## The world the stair leads into ("" = this one): Fatty's Lair is one world per room since
+## 2026-10-18, so the Inner Stair goes from the hub's world down to the crypt's (main.gd `travel_to`,
+## with the fade).
 @export var target_world: String = ""
-@export var target_marker: String = ""
-@export_enum("down", "up", "left", "right") var arrival_facing: String = "down"
 ## The well the slime walks into (relative to the node).
 @export var trigger_rect: Rect2 = Rect2(-30, -40, 60, 40)
-@export var refusal_text: String = "An old hatch. Its winch is behind the cell door."
+@export var refusal_text: String = "An old stair door, shut. Its winch is behind the cell door."
 @export var visual: Sprite2D
 
 var _open := false
 var _travelling := false
 var _spoke := false
 
+## Its id as an end of a crossing (area_travel.gd finds ends by `door_id` in the `door` group).
+var door_id: String:
+	get:
+		return hatch_id
+
 
 func _enter_tree() -> void:
 	add_to_group(GROUP)
+	add_to_group(AreaTravel.DOOR_GROUP)
+
+
+## Where the slime stands arriving by this stair: the "arrival" child, else the node plus
+## `arrival_offset`; rounded.
+func arrival_point() -> Vector2:
+	var arrival := get_node_or_null(^"arrival") as Node2D
+	var point := arrival.global_position if arrival != null else global_position + arrival_offset
+	return Vector2(floorf(point.x + 0.5), floorf(point.y + 0.5))
+
+
+## The slime stands exactly at `arrival_point` (its steps play from there), not on a tile centre.
+func exact_arrival() -> bool:
+	return true
+
+
+## No side to push into: the slime walks into the well.
+func has_side() -> bool:
+	return false
+
+
+## Out of the stair, into the room: the facing on arriving (a stair door stands in a north wall).
+func inward() -> Vector2:
+	return Vector2.DOWN
+
+
+## The slime came out of this stair (main.gd `_start_arrival`, or `_arrive` here): a shut stair
+## stands open while it is here, since it came through it (the flag stays as it is).
+func on_arrival() -> void:
+	if not _open:
+		_open = true
+		_show()
+
+
+## The arrival's own animation (see door.gd `play_arrival`); the subclass's steps. None here.
+func play_arrival(_player: Node, _delay_ms: float) -> float:
+	return 0.0
+
+
+## The stair this one leads to in this world (`target_door`), or null.
+func _paired_here() -> StairHatchScript:
+	if target_door.is_empty() or not is_inside_tree():
+		return null
+	for node: Node in get_tree().get_nodes_in_group(GROUP):
+		if node != self and node is StairHatchScript and (node as StairHatchScript).hatch_id == target_door:
+			return node
+	return null
 
 
 func _ready() -> void:
@@ -114,27 +172,31 @@ func _physics_process(_delta: float) -> void:
 			if feel != null:
 				feel.floating_text(global_position - Vector2(0.0, REFUSAL_RISE), refusal_text, &"white", false, 2200.0)
 		return
-	var intent: Vector2 = player.call(&"get_move_intent") if player.has_method(&"get_move_intent") else Vector2.ZERO
+	# A rolling ball goes in as a walk does (player.gd `get_travel_intent`).
+	var intent: Vector2 = player.call(&"get_travel_intent") if player.has_method(&"get_travel_intent") else Vector2.ZERO
 	if intent == Vector2.ZERO:
 		return
 	_travel(player)
 
 
-## The fade, the move to `target`, the fade back; or the travel to `target_world`.
+## The fade, the move to the stair it leads to (`target_door`), the fade back; or the travel to
+## `target_world`, arriving at its stair `target_door`.
 func _travel(player: Node) -> void:
+	if target_door.is_empty():
+		return
 	if not target_world.is_empty():
 		var main := get_tree().get_first_node_in_group(&"world_main")
 		if main != null and main.has_method(&"travel_to"):
 			_travelling = true
 			# The step sounds only when the travel starts (refused, another travel under way, it is
 			# asked again next frame: no cue every frame).
-			if bool(main.call(&"travel_to", target_world, "", "", target_marker, false, 0.0, NAN, arrival_facing)):
+			if bool(main.call(&"travel_to", target_world, "", target_door)):
 				_travel_cue()
 				used.emit({"hatchId": hatch_id})
 			else:
 				_travelling = false
 		return
-	var marker := get_node_or_null(target) as Node2D
+	var marker: Node2D = _paired_here()
 	if marker == null:
 		return
 	_travelling = true
@@ -154,11 +216,15 @@ func _travel_cue() -> void:
 		feel.audio_cue(CUE_STEP)
 
 
-## Behind the black: the slime moves to `marker`, then the same black layer fades away.
+## Behind the black: the slime moves to `marker` (the paired stair: its arrival point, and its
+## arrival plays while the black lifts), then the same black layer fades away.
 func _arrive(player: Node, marker: Node2D, holder: Array[CanvasLayer]) -> void:
-	if is_instance_valid(player):
-		player.call(&"arrive_at", marker.global_position)
-		player.call(&"face", AreaTravel.facing_vector(arrival_facing))
+	var stair := marker as StairHatchScript
+	if is_instance_valid(player) and stair != null:
+		player.call(&"arrive_at", stair.arrival_point())
+		player.call(&"face", stair.inward())
+		stair.on_arrival()
+		player.call(&"suppress_movement", stair.play_arrival(player, HOLD_MS))
 	used.emit({"hatchId": hatch_id})
 	await get_tree().create_timer(HOLD_MS / 1000.0, true, false, true).timeout
 	var layer: CanvasLayer = holder[0] if not holder.is_empty() else null

@@ -9,7 +9,8 @@ bank from these two images; this tool does not run in the game.
 Inputs:
   asset/Originals/water/generated/bank-earth-a.png
       Magnific GPT 2.5: three straight horizontal strips of an earthen pond bank seen from the
-      front, each running edge to edge, on transparency.
+      front, each running edge to edge, on transparency. (bank-earth-b.png beside it is the
+      other take from the same prompt, plainer orange earth without roots; unused.)
   godot/asset/MAPS/terrain-edges/<ground>-edges.png
       Every ground's edge tiles: the bank's land shape must stay inside each of them, so the
       grass (sand, snow ...) always covers the bank's top.
@@ -27,7 +28,12 @@ Outputs (derived; re-run the tool instead of editing them), in godot/asset/MAPS/
       The earth strip, periodic along its width, 2 px a unit: its height is the bank's face
       (HEIGHT units) plus a tenth under the waterline, where the art's damp foot fades out.
 
-Usage: python scripts/art/build-water-bank.py [--height 24] [--side 11] [--preview DIR]
+Checks, before writing anything (it stops on a failure): the bank's face and side walls must end
+inside a tile (a tile knows only its own four cells, so a bank reaching past the tile's edge would
+be cut off there: --height and --side stay under 27 units), and the land shape must stay
+inside every ground's edge art. Re-run with --check after re-baking any ground's edge tiles.
+
+Usage: python scripts/art/build-water-bank.py [--height 24] [--side 11] [--preview DIR] [--check]
 """
 from __future__ import annotations
 
@@ -52,6 +58,9 @@ LAND_LEVEL = 0.72     # ... and this level of the blur insets its straight edges
 NEAR = 36.0           # units: the reach (down and sideways) where the surface's shore foam fades
 FOOT = 0.1            # the strip carries this much of the face again under the waterline
 JOIN = 28             # px: crossfade between the strip's three bands
+VISIBLE = 1.35        # rho past which terrain_edge_water.gdshader draws nothing: its foam's reach
+                      # (v 1.24) where the waterline's wobble lowers the face (by up to 9%)
+OUTSIDE_MAX = 0.01    # the share of the land shape allowed outside a ground's edge art
 
 
 def box_blur(a: np.ndarray, r: int) -> np.ndarray:
@@ -131,9 +140,21 @@ def shapes(height: float, side: float) -> dict[int, np.ndarray]:
     return tiles
 
 
+def check_reach(height: float, side: float) -> None:
+    """The face (straight down) and the side walls (sideways) must end inside the tile: the tile
+    past its edge knows nothing of this land and draws no bank, so the bank would be cut off."""
+    land = land_shape(3)[PAD:PAD + TILE, PAD:PAD + TILE]   # land on top: its edge, inset
+    room = TILE - (int(np.where(land[:, TILE // 2])[0].max()) + 1)   # the same sideways
+    for name, size in (("--height", height), ("--side", side)):
+        if VISIBLE * size * PX > room:
+            raise SystemExit(f"{name} {size:g}: the bank would reach {VISIBLE * size:.1f} units past the land's edge, "
+                             f"past the tile's edge {room / PX:.1f} units away; at most {room / PX / VISIBLE:.1f}")
+    print(f"bank reach: face {VISIBLE * height:.1f}, side walls {VISIBLE * side:.1f} of {room / PX:.1f} units")
+
+
 def check_against_edges() -> None:
     """How much of the bank's land shape lies outside each ground's edge art (where water
-    would show between the grass and the bank's top)."""
+    would show between the grass and the bank's top); stops past OUTSIDE_MAX."""
     sheets = sorted(p for p in EDGES.glob("*-edges.png"))
     worst = 0.0
     for index in range(1, 15):
@@ -145,9 +166,12 @@ def check_against_edges() -> None:
             alpha = np.asarray(Image.open(sheet).convert("RGBA"))[y0:y0 + TILE, x0:x0 + TILE, 3] / 255.0
             outside = (land & (alpha < 0.5)).sum() / max(land.sum(), 1)
             worst = max(worst, outside)
-            if outside > 0.01:
+            if outside > OUTSIDE_MAX:
                 print(f"  index {index:2d} {sheet.name}: {outside * 100:.1f}% of the land shape is outside the art")
     print(f"land shape outside the edge art: worst {worst * 100:.2f}%")
+    if worst > OUTSIDE_MAX:
+        raise SystemExit(f"the land shape leaves the edge art by more than {OUTSIDE_MAX * 100:g}%: "
+                         "water would show between the ground and the bank (raise LAND_LEVEL or fix that art)")
 
 
 def sheet_of(tiles: dict[int, np.ndarray]) -> np.ndarray:
@@ -207,8 +231,12 @@ def main() -> None:
     parser.add_argument("--height", type=float, default=24.0, help="the front face, units (default 24)")
     parser.add_argument("--side", type=float, default=11.0, help="the side walls' width, units (default 11)")
     parser.add_argument("--preview", type=Path, help="also write the shapes as pictures here")
+    parser.add_argument("--check", action="store_true", help="only run the checks; write nothing")
     args = parser.parse_args()
+    check_reach(args.height, args.side)
     check_against_edges()
+    if args.check:
+        return
     tiles = shapes(args.height, args.side)
     save(sheet_of(tiles), OUT / "water-bank-shapes.png")
     save(strip(args.height), OUT / "water-bank-earth.png")

@@ -21,7 +21,8 @@
 [ext_resource type="Script" uid="uid://bm87fr8rbytvl" path="res://game/scripts/world_exit.gd" id="21_l5w0e"]
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="door_end_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7"]
 size = Vector2(128, 256)
@@ -37,6 +38,9 @@ size = Vector2(288, 224)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ulu0r"]
 blend_mode = 1
+
+[sub_resource type="RectangleShape2D" id="shape_exit_to_north_wilds_1"]
+size = Vector2(256, 32)
 
 [node name="crystal-caverns-h4" type="Node2D" unique_id=913963502]
 y_sort_enabled = true
@@ -62,7 +66,7 @@ script = ExtResource("4_x6lsn")
 
 [node name="forest" type="TileMapLayer" parent="." unique_id=1276540499]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAALAAMA//////////8LAAQA//////////8MAAEA//////////8MAAIA//////////8MAAMA//////////8MAAQA//////////8NAAIA//////////8NAAMA//////////8NAAQA//////////8NAAUA//////////8OAAEA//////////8OAAIA//////////8OAAMA//////////8OAAQA//////////8OAAUA//////////8PAAEA//////////8PAAIA//////////8PAAMA//////////8PAAQA//////////8PAAUA//////////8QAAIA//////////8QAAMA//////////8QAAQA//////////8RAAIA//////////8RAAMA//////////8RAAQA//////////8SABIAAAAOAAAAAAASABMAAAAOAAAAAAASABQAAAAOAAAAAAATABEAAAAOAAAAAAATABIAAAAOAAAAAAATABMAAAAOAAAAAAATABQAAAAOAAAAAAAUABEAAAAOAAAAAAAUABIAAAAOAAAAAAAUABMAAAAOAAAAAAAUABQAAAAOAAAAAAAVABIAAAAOAAAAAAAVABMAAAAOAAAAAAAVABQAAAAOAAAAAAAWABIAAAAOAAAAAAAWABMAAAAOAAAAAAAWABQAAAAOAAAAAAAXAAMAAAAOAAAAAAAXAAQAAAAOAAAAAAAYAAIAAAAOAAAAAAAYAAMAAAAOAAAAAAAYAAQAAAAOAAAAAAAYAAUAAAAOAAAAAAAYAAsAAAAOAAAAAAAYAAwAAAAOAAAAAAAYAA0AAAAOAAAAAAAZAAIAAAAOAAAAAAAZAAMAAAAOAAAAAAAZAAQAAAAOAAAAAAAZAAUAAAAOAAAAAAAZAAYAAAAOAAAAAAAZAAoAAAAOAAAAAAAZAAsAAAAOAAAAAAAZAAwAAAAOAAAAAAAZAA0AAAAOAAAAAAAZAA4AAAAOAAAAAAAZAA8AAAAOAAAAAAAaAAIAAAAOAAAAAAAaAAMAAAAOAAAAAAAaAAQAAAAOAAAAAAAaAAUAAAAOAAAAAAAaAAYAAAAOAAAAAAAaAAkAAAAOAAAAAAAaAAoAAAAOAAAAAAAaAAsAAAAOAAAAAAAaAAwAAAAOAAAAAAAaAA0AAAAOAAAAAAAaAA4AAAAOAAAAAAAbAAIAAAAOAAAAAAAbAAMAAAAOAAAAAAAbAAQAAAAOAAAAAAAbAAUAAAAOAAAAAAAbAAYAAAAOAAAAAAAbAAoAAAAOAAAAAAAbAAsAAAAOAAAAAAAbAAwAAAAOAAAAAAAbAA0AAAAOAAAAAAAbAA4AAAAOAAAAAAAcAAMAAAAOAAAAAAAcAAQAAAAOAAAAAAAcAAUAAAAOAAAAAAAcAAYAAAAOAAAAAAAcAAoAAAAOAAAAAAAcAAsAAAAOAAAAAAAcAAwAAAAOAAAAAAAcAA0AAAAOAAAAAAAdAAQAAAAOAAAAAAA=")
+tile_map_data = PackedByteArray("AAALAAMA//////////8LAAQA//////////8MAAEA//////////8MAAIA//////////8MAAMA//////////8MAAQA//////////8NAAIA//////////8NAAMA//////////8NAAQA//////////8NAAUA//////////8OAAEA//////////8OAAIA//////////8OAAMA//////////8OAAQA//////////8OAAUA//////////8PAAEA//////////8PAAIA//////////8PAAMA//////////8PAAQA//////////8PAAUA//////////8QAAIA//////////8QAAMA//////////8QAAQA//////////8RAAIA//////////8RAAMA//////////8RAAQA//////////8SABIAAAAOAAAAAAASABMAAAAOAAAAAAASABQAAAAOAAAAAAATABEAAAAOAAAAAAATABIAAAAOAAAAAAATABMAAAAOAAAAAAATABQAAAAOAAAAAAAUABEAAAAOAAAAAAAUABIAAAAOAAAAAAAUABMAAAAOAAAAAAAUABQAAAAOAAAAAAAVABIAAAAOAAAAAAAVABMAAAAOAAAAAAAVABQAAAAOAAAAAAAWABIAAAAOAAAAAAAWABMAAAAOAAAAAAAWABQAAAAOAAAAAAAXAAMAAAAOAAAAAAAXAAQAAAAOAAAAAAAYAAIAAAAOAAAAAAAYAAMAAAAOAAAAAAAYAAQAAAAOAAAAAAAYAAUAAAAOAAAAAAAYAAsAAAAOAAAAAAAYAAwAAAAOAAAAAAAYAA0AAAAOAAAAAAAZAAIAAAAOAAAAAAAZAAMAAAAOAAAAAAAZAAQAAAAOAAAAAAAZAAUAAAAOAAAAAAAZAAYAAAAOAAAAAAAZAAoAAAAOAAAAAAAZAAsAAAAOAAAAAAAZAAwAAAAOAAAAAAAZAA0AAAAOAAAAAAAZAA4AAAAOAAAAAAAZAA8AAAAOAAAAAAAaAAIAAAAOAAAAAAAaAAMAAAAOAAAAAAAaAAQAAAAOAAAAAAAaAAUAAAAOAAAAAAAaAAYAAAAOAAAAAAAaAAkAAAAOAAAAAAAaAAoAAAAOAAAAAAAaAAsAAAAOAAAAAAAaAAwAAAAOAAAAAAAaAA0AAAAOAAAAAAAaAA4AAAAOAAAAAAAbAAIAAAAOAAAAAAAbAAMAAAAOAAAAAAAbAAQAAAAOAAAAAAAbAAUAAAAOAAAAAAAbAAYAAAAOAAAAAAAbAAoAAAAOAAAAAAAbAAsAAAAOAAAAAAAbAAwAAAAOAAAAAAAbAA0AAAAOAAAAAAAbAA4AAAAOAAAAAAAcAAMAAAAOAAAAAAAcAAQAAAAOAAAAAAAcAAUAAAAOAAAAAAAcAAYAAAAOAAAAAAAcAAoAAAAOAAAAAAAcAAsAAAAOAAAAAAAcAAwAAAAOAAAAAAAcAA0AAAAOAAAAAAAdAAQAAAAOAAAAAAAAAAAAAAAOAAAAAAABAAAAAAAOAAAAAAACAAAAAAAOAAAAAAADAAAAAAAOAAAAAAAAAAEAAAAOAAAAAAABAAEAAAAOAAAAAAACAAEAAAAOAAAAAAADAAEAAAAOAAAAAAAIAAAAAAAOAAAAAAAJAAAAAAAOAAAAAAAKAAAAAAAOAAAAAAALAAAAAAAOAAAAAAAIAAEAAAAOAAAAAAAJAAEAAAAOAAAAAAAKAAEAAAAOAAAAAAALAAEAAAAOAAAAAAA=")
 tile_set = ExtResource("forest_tileset")
 script = ExtResource("forest_layer")
 
@@ -121,10 +125,6 @@ area_kind = "enemy-safe-zone"
 area_id = "enemy-safe-2"
 area = NodePath("..")
 shape = NodePath("../collision-shape")
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=1368999186]
-y_sort_enabled = true
-position = Vector2(1792, 1728)
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=2028653190]
 y_sort_enabled = true
@@ -216,8 +216,13 @@ position = Vector2(998.4, 140.8)
 [node name="rock-crystals-4" parent="MineOutside" unique_id=201784911 instance=ExtResource("19_5hsaw")]
 position = Vector2(1049.6, 460.8)
 
-[node name="arrive-from-crystal-mine" type="Node2D" parent="MineOutside" unique_id=744515513]
+[node name="lookout-from-mine" type="Node2D" parent="MineOutside" unique_id=744515513]
 position = Vector2(480, 294.4)
+
+[node name="DoorScript" type="Node" parent="MineOutside/lookout-from-mine" unique_id=813897141]
+script = ExtResource("door_end_script")
+map_id = "crystal-caverns-h4"
+door_id = "lookout-from-mine"
 
 [node name="lookout-daylight" type="Node2D" parent="MineOutside" unique_id=1388197850]
 z_index = 3
@@ -238,5 +243,23 @@ position = Vector2(627.2, 179.2)
 [node name="lookout-ore" parent="MineOutside" unique_id=928415761 instance=ExtResource("18_ulu0r")]
 position = Vector2(870.4, 332.8)
 
+[node name="exit-to-north-wilds-1" type="Area2D" parent="." unique_id=627239347]
+position = Vector2(384, 16)
+collision_layer = 512
+collision_mask = 130
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="exit-to-north-wilds-1" unique_id=1539681852]
+shape = SubResource("shape_exit_to_north_wilds_1")
+
+[node name="world-exit-script" type="Node" parent="exit-to-north-wilds-1" unique_id=1900858931 node_paths=PackedStringArray("area")]
+script = ExtResource("21_l5w0e")
+map_id = "crystal-caverns-h4"
+exit_id = "crystal-caverns-to-north-wilds-1"
+target_area_id = "north-wilds"
+entry = "south"
+area = NodePath("..")
+
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-west" to="edge-west/world-exit-script" method="on_body_entered"]
+[connection signal="body_entered" from="exit-to-north-wilds-1" to="exit-to-north-wilds-1/world-exit-script" method="on_body_entered"]

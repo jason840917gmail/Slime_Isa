@@ -6,7 +6,8 @@ extends RefCounted
 ## - `decide(profile, hit, state, now_ms)`: what one rework hit does to an enemy with that reaction
 ##   profile (ReactionProfile.for_enemy) and memory (ReactionState), in the plan's order:
 ##   1. clink (an immune class, or a shut hurtbox gate; a gated hit the profile maps to daze or
-##      knockdown still lands, with 0 damage: `gate`),
+##      knockdown still lands, with 0 damage: `gate`; a sleep lands through the immunities on the
+##      ground: `sleeps_through`),
 ##   2. the wake guard and the break-free armor (damage and a flash only),
 ##   3. the phase's armor (a hit of that tier or lower is armor),
 ##   4. the class verb (`byTag`, then the phase's `classes`, then the enemy's `classes`, which hold the
@@ -44,6 +45,10 @@ const VERB_LAUNCH := "launch"
 const VERB_STAGGER := "stagger"
 const VERB_KNOCKDOWN := "knockdown"
 const VERB_DAZE := "daze"
+## A sleep throw's (owner, 2026-11-01): it sleeps until a hit that deals damage wakes it
+## (EnemyReactions `wake`); its stun (`combat.verbs.sleep.stunMs`) is renewed every step meanwhile
+## (`keep_asleep`).
+const VERB_SLEEP := "sleep"
 const VERB_ARMOR := "armor"
 const VERB_CLINK := "clink"
 const VERB_PULLED := "pulled"
@@ -84,6 +89,8 @@ const SUCK_PULLED := "pulled"
 const SUCK_RESIST := "resist"
 ## The weight whose kills pop.
 const WEIGHT_TINY := "tiny"
+## The weight that never sleeps.
+const WEIGHT_BOSS := "boss"
 ## `immune` wildcard: every class.
 const ANY_CLASS := "*"
 ## Verbs that move the body (only a `last` hit may send one).
@@ -93,7 +100,7 @@ const WAKE_VERBS: Array[String] = [VERB_KNOCKBACK, VERB_LAUNCH, VERB_BOWL, VERB_
 ## Verbs that stop or move the enemy and cancel its attack (everything but armor, clink and the
 ## suck's resist; the break-free move cancels its own way).
 const STUN_VERBS: Array[String] = [VERB_HOLD, VERB_BOUNCE, VERB_KNOCKBACK, VERB_LAUNCH, VERB_STAGGER,
-	VERB_KNOCKDOWN, VERB_DAZE, VERB_PULLED, VERB_BOWL, VERB_BONK]
+	VERB_KNOCKDOWN, VERB_DAZE, VERB_SLEEP, VERB_PULLED, VERB_BOWL, VERB_BONK]
 
 
 ## What `hit` does to an enemy with `profile` (ReactionProfile.for_enemy) and `state` (its
@@ -182,9 +189,10 @@ static func decide(profile: Dictionary, hit: Dictionary, state: RefCounted, now_
 		return answer
 	if stun > 0.0:
 		var until := now_ms + stun
-		if until >= memory.stun_until_ms or not memory.in_stun(now_ms):
+		# A sleep always takes over (its stun is renewed until a damaging hit wakes it).
+		if until >= memory.stun_until_ms or not memory.in_stun(now_ms) or verb == VERB_SLEEP:
 			memory.verb = verb
-			memory.stun_until_ms = until
+			memory.stun_until_ms = maxf(until, memory.stun_until_ms) if verb == VERB_SLEEP else until
 			memory.damage_taken = 1.0
 			if verb == VERB_KNOCKDOWN:
 				memory.damage_taken = float(entry.get("damageTaken", _number("combat.verbs.knockdown.damageTaken")))
@@ -209,22 +217,36 @@ static func preview(profile: Dictionary, hit: Dictionary, state: RefCounted, now
 
 
 ## Whether `hit` gets through: GATE_CLINK when its class is immune (the profile's `immune` or the
-## phase's; "*" = all), or the part it landed on (`state.part`, the profile's `parts`) is shut (its
-## `tags` must all be on the hit, and its `open` phases must hold the current one) and the class verb
-## is neither daze nor knockdown; GATE_ZERO when the part is shut but the verb is daze or knockdown
-## (it lands with 0 damage); else GATE_OPEN.
+## phase's; "*" = all) and it is no sleep that lands anyway (`sleeps_through`), or the part it landed
+## on (`state.part`, the profile's `parts`) is shut (its `tags` must all be on the hit, and its `open`
+## phases must hold the current one) and the class verb is neither daze nor knockdown; GATE_ZERO when
+## the part is shut but the verb is daze or knockdown (it lands with 0 damage); else GATE_OPEN.
 static func gate(profile: Dictionary, hit: Dictionary, state: RefCounted) -> String:
 	var memory := state as ReactionState
 	var phase_name := memory.phase if memory != null else ""
 	var hit_class := str(hit.get("class", ""))
 	var phase := phase_entry(profile, phase_name)
-	if _listed(profile.get("immune", []), hit_class) or _listed(phase.get("immune", []), hit_class):
+	if (_listed(profile.get("immune", []), hit_class) or _listed(phase.get("immune", []), hit_class)) \
+			and not sleeps_through(profile, hit, phase_name):
 		return GATE_CLINK
 	var part := part_entry(profile, memory.part if memory != null else "")
 	if part.is_empty() or part_open(part, hit, phase_name):
 		return GATE_OPEN
 	var verb := str(class_entry(profile, hit, phase).get("verb", ""))
 	return GATE_ZERO if verb == VERB_DAZE or verb == VERB_KNOCKDOWN else GATE_CLINK
+
+
+## True when `hit` puts the enemy to sleep even while it cannot be hurt (owner, 2026-11-01: so an
+## invulnerable enemy can be slipped past): its class verb is a sleep, the enemy is no boss, and the
+## phase is not one off the ground (`states.<phase>.noSleep`: in the air, burrowed, hidden in a pipe).
+## The gate's immunities and a patterned enemy's shield (`_shields`) let it through.
+static func sleeps_through(profile: Dictionary, hit: Dictionary, phase_name: String) -> bool:
+	if str(profile.get("weight", "")) == WEIGHT_BOSS:
+		return false
+	var phase := phase_entry(profile, phase_name)
+	if bool(phase.get("noSleep", false)):
+		return false
+	return str(class_entry(profile, hit, phase).get("verb", "")) == VERB_SLEEP
 
 
 ## The damage multiplier of `hit` on the enemy now: 0 through a shut gate (GATE_ZERO), times the
@@ -308,6 +330,8 @@ static func reaction(verb: String, stun_ms: float = 0.0, slime: String = SLIME_N
 ## A `hit` Dictionary of impact class `hit_class` (tap, finisher, smash, charge, ring, slam, thrown,
 ## roll, suck): `tier`, `poise` and `counts_as_hold` from `combat.hits[hit_class]`, every other
 ## field at its contract default, then `fields` on top (a step may override tier and poise).
+## `knock_px` (a thrown thing's) is how far a damaging hit slides a body its reaction would stop,
+## `knock_speed_scale` how many times as fast as a stun slide.
 static func build_hit(hit_class: String, fields: Dictionary = {}) -> Dictionary:
 	var constants := Services.constants()
 	var row: Variant = constants.value("combat.hits.%s" % hit_class, {}) if constants != null else {}
@@ -324,6 +348,8 @@ static func build_hit(hit_class: String, fields: Dictionary = {}) -> Dictionary:
 		"launch_speed": 0.0,
 		"hop_px": 0.0,
 		"knock": Vector2.ZERO,
+		"knock_px": 0.0,
+		"knock_speed_scale": 1.0,
 		"counts_as_hold": bool(table.get("countsAsHold", true)),
 		"attacker": "player",
 	}
@@ -416,6 +442,8 @@ static func _stun_ms(verb: String, entry: Dictionary, hit: Dictionary, profile: 
 			return (given if given > 0.0 else _number("combat.verbs.knockdown.stunMs")) * scale
 		VERB_DAZE:
 			return (given if given > 0.0 else _number("combat.verbs.daze.stunMs")) * scale
+		VERB_SLEEP:
+			return given if given > 0.0 else _number("combat.verbs.sleep.stunMs")
 		VERB_PULLED:
 			return _number("combat.verbs.pulled.holdMs") * scale
 		VERB_BREAK_FREE:
@@ -430,14 +458,15 @@ static func _stun_scale(profile: Dictionary) -> float:
 
 
 ## Whether a hold counts toward the cap: it `counts_as_hold` (not a ring, a throw or the suck) and
-## it lands outside a daze, a knockdown and an open phase (a phase entry with `open`, or with its own
-## `classes`), whose own timers end those holds.
+## it lands outside a daze, a knockdown, a sleep and an open phase (a phase entry with `open`, or
+## with its own `classes`), whose own timers end those holds.
 static func _counts_hold(hit: Dictionary, phase: Dictionary, memory: ReactionState, now_ms: float) -> bool:
 	if not bool(hit.get("counts_as_hold", true)):
 		return false
 	if bool(phase.get("open", phase.has("classes"))):
 		return false
-	return not memory.in_stun(now_ms, VERB_DAZE) and not memory.in_stun(now_ms, VERB_KNOCKDOWN)
+	return not memory.in_stun(now_ms, VERB_DAZE) and not memory.in_stun(now_ms, VERB_KNOCKDOWN) \
+		and not memory.in_stun(now_ms, VERB_SLEEP)
 
 
 ## The break-free move's memory: the armor for `stun` ms (`combat.rules.breakFreeArmorMs`), then the

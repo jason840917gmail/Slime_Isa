@@ -362,9 +362,7 @@ func _throw() -> void:
 	var aim := _aim()
 	# Throw combat: the aim help (off unless switched on) bends the throw onto a near enemy.
 	if ThrowMode.is_on():
-		var body := _body()
-		if body != null:
-			aim = ThrowMode.assist(aim, body.global_position)
+		aim = ThrowMode.assist(aim, _body())
 	_player.call(&"face", aim)
 	if _mouth.throw(aim):
 		_player.call(&"play_action_clip", CLIP_SPIT)
@@ -414,10 +412,7 @@ func _say(text: String, color: StringName = MESSAGE_COLOR) -> void:
 	if text.is_empty() or _said.has(text):
 		return
 	_said[text] = true
-	var feel := Services.feel()
-	if feel != null:
-		var centre: Vector2 = _player.call(&"get_centre")
-		feel.floating_text(centre - Vector2(0.0, GulpController.MESSAGE_RISE), text, color, false)
+	GulpController.say_over(_player, text, color)
 
 
 # --- the ring and its sound ----------------------------------------------------------------------

@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://game/dev/interior/rooms/a-square.tscn" id="10_1wirp"]
 [ext_resource type="PackedScene" path="res://game/dev/interior/rooms/b-l-room.tscn" id="11_oxv6e"]
 [ext_resource type="PackedScene" path="res://game/dev/interior/rooms/c-hall.tscn" id="12_cgpfv"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
 [node name="box-room-lab" type="Node2D" unique_id=26173798]
 y_sort_enabled = true
@@ -28,6 +30,10 @@ metadata/rows = 28
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1999223774]
 tile_set = ExtResource("4_utahy")
 script = ExtResource("5_6vqmg")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=101672964]
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="world-definition" type="Node" parent="." unique_id=1307283971]
 script = ExtResource("6_t4oqd")
@@ -78,7 +84,6 @@ script = ExtResource("9_aqbn6")
 map_id = "box-room-lab"
 door_id = "box-room-lab-way-out"
 target_area_id = "playground"
-target_marker = "player-spawn"
 side = "south"
 trigger_rect = Rect2(-64, 0, 128, 24)
 

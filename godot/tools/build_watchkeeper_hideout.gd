@@ -12,7 +12,7 @@ func _initialize() -> void:
 	_root = (load("res://game/scenes/worlds/rooms/gloop-forest-e4/gloop-hut.tscn") as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	_root.name = "watchkeeper-hideout"
 	for child: Node in _root.get_children():
-		if str(child.name) not in ["ground", "old-props", "cell-props", "details", "world-definition", "player-spawn", "player-entry-south", "house-door", "house-door-art", "Ambience", "MusicPlayer"]:
+		if str(child.name) not in ["ground", "old-props", "cell-props", "details", "world-definition", "player-spawn", "house-door", "house-door-art", "Ambience", "MusicPlayer"]:
 			_root.remove_child(child)
 			child.free()
 	# The storehouse plays the second interior track (the hut plays interior-a).

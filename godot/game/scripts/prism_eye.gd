@@ -26,9 +26,9 @@ class_name PrismEyeScript
 ## - **Cool** (`coolMs`): the crystal petals shut over the orb, then it watches again.
 ## - **Its back is open, its front clinks** (`_shields`, every phase): a hit from an attacker it looks
 ##   away from (`backDot`: the attacker behind it, against its gaze) lands, any other clinks. The
-##   Spear from behind while its gaze is turned away (30 health: two jabs). A hit from behind alarms
-##   it: for `alertMs` it turns toward the slime (free aim at `alertTurnDegPerS`; line aim: its next
-##   turn is to the slime's line, over `alertStepMs`).
+##   Spear from behind while its gaze is turned away (28 health: two jabs or two Lunges). A hit from
+##   behind alarms it: for `alertMs` it turns toward the slime (free aim at `alertTurnDegPerS`; line
+##   aim: its next turn is to the slime's line, over `alertStepMs`).
 ## - **The Bow's hook** (`on_arrow_hit`): an arrow into its eye (from in front of it) shatters it.
 ##
 ## The Watcher Eye (row 33, game/scripts/watcher_eye.gd) is this beam on a levitating stone eye that

@@ -3,7 +3,7 @@ extends RefCounted
 ## ground, the player dot and the camera view, the shared marker API, the world map opened by the
 ## `map` action and the pause menu's Map button (GameWindows' `modal` pause, the region labels of
 ## res://game/data/world-map.json, Escape, `map`, `menu` and Close), refused over other windows,
-## its regions (names without planning notes, shared with the area banner), the links of two-way
+## its regions (names without planning notes, shared with the area banner), the links of the
 ## passages and the missing-layout message, and both rebuilt after a travel to gloop-forest.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md): the tests start in its chunk C4
 ## (`level-1-c4`, 32 x 32 tiles, the village), whose map id the minimap's markers carry.
@@ -329,8 +329,8 @@ func test_world_map_regions_and_passages(t: TestContext) -> void:
 		var label := WorldMapWindow.region_label(region, WorldMapWindow.region_maps(region), "")
 		t.check(not label.ends_with(")") and not AreaTitles.area_name(world).ends_with(")"),
 			"%s shows a planning note (map %s, banner %s)" % [world, label, AreaTitles.area_name(world)])
-	# Links: only for a passage of the layout that can be travelled both ways (both regions hand-made,
-	# or both placeholders), once both of its regions are discovered.
+	# Links: for every passage of the layout (each is drawn on both sides), once both of its regions
+	# are discovered.
 	var copy := map.duplicate_map()
 	var passages: Array = [{"a": meadow.get("key"), "b": forest.get("key"), "x": 0, "y": 0, "w": 1, "h": 1}]
 	var placeholders := map.regions().filter(func(region: Dictionary) -> bool: return bool(region.get("placeholder", false)))
@@ -346,10 +346,10 @@ func test_world_map_regions_and_passages(t: TestContext) -> void:
 	if placeholders.size() >= 2:
 		var first := str(placeholders[0].get("world", ""))
 		var second := str(placeholders[1].get("world", ""))
-		t.check(WorldMapWindow.has_passage("level-1", first) and not WorldMapWindow.is_two_way(meadow, placeholders[0]),
-			"level-1 / %s is not a one-way passage" % first)
-		t.check(not WorldMapWindow.link_shown("level-1", first, PackedStringArray(["level-1", first])),
-			"a link between hand-made level-1 and the placeholder %s (no exit back)" % first)
+		t.check(not WorldMapWindow.link_shown("level-1", first, PackedStringArray(["level-1"])),
+			"a link between level-1 and the undiscovered placeholder %s" % first)
+		t.check(WorldMapWindow.link_shown("level-1", first, PackedStringArray(["level-1", first])),
+			"no link between hand-made level-1 and the placeholder %s once both are discovered" % first)
 		t.check(WorldMapWindow.link_shown(first, second, PackedStringArray([first, second])),
 			"no link between the placeholders %s and %s once both are discovered" % [first, second])
 	WorldMapWindow.reload_map()

@@ -103,26 +103,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(1056, 1056)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=1559694636]
-y_sort_enabled = true
-position = Vector2(1056, 160)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=687157090]
-y_sort_enabled = true
-position = Vector2(1824, 928)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=1777876995]
-y_sort_enabled = true
-position = Vector2(928, 1824)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=1360928087]
-y_sort_enabled = true
-position = Vector2(160, 1056)
-
-[node name="arrive-from-south-wilds-1" type="Node2D" parent="." unique_id=2063511682]
-y_sort_enabled = true
-position = Vector2(1888, 1408)
-
 [node name="exit-to-south-wilds-1" type="Area2D" parent="." unique_id=426263459]
 position = Vector2(2032, 1408)
 collision_layer = 512
@@ -138,7 +118,6 @@ map_id = "desert-b8"
 exit_id = "desert-to-south-wilds-1"
 target_area_id = "south-wilds"
 entry = "west"
-entry_marker = "arrive-from-desert-1"
 area = NodePath("..")
 
 [node name="edge-north" type="Area2D" parent="." unique_id=1033906228]

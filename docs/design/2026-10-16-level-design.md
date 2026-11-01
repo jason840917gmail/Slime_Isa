@@ -64,6 +64,12 @@ Read it with:
    enemy and a new power in one room.
 10. **The slime is never trapped.** No drop without a way back it already has; no lock that can
     eat its own key; no puzzle that costs more than the starting max energy.
+11. **Chunks meet only at their crossings** (owner, 2026-11-01). Terrain closes every chunk line:
+    cliffs, water and canals, forest bands, walls. Two chunks meet at one to three crossings, each
+    joining those two chunks only (never at a chunk corner) and no wider than a road, marked so the
+    slime sees it is leaving: a bridge, a ford, stairs, a gate, a trail gap between lantern posts.
+    Walking about must never flip between chunks: no open ground along a line, no road along one
+    ([§9](#9-landmarks-and-guidance-per-chunk)).
 
 ## Principles
 
@@ -328,6 +334,27 @@ Walking across a chunk's edge scrolls to the next one, as in *A Link to the Past
 - **Walls of land shape the journey.** *A Link to the Past* fences its overworld with ridges, tree
   lines and rivers, so travel feels like a journey and a later shortcut feels like progress. Our
   tree bands, cliffs and rivers do the same inside a region.
+- **Chunk lines are closed; crossings are few and plain** (owner, 2026-11-01: "the player can walk
+  in zigzag from one chunk to another, what makes the game experience bad"). Every edge a chunk
+  shares with another chunk, of its region or the next, is closed by terrain along its whole
+  length: a cliff or ridge, a river, canal or lake, a forest band, a wall. Mostly terrain, not a
+  fence line: "separate most of the chunk by the terrain, mountains, water, canals, forest".
+  - **One to three crossings** per pair of touching chunks. Each lies inside the two chunks it
+    joins, at least a cell (two tiles) from the chunk's corners, so walking through it touches two
+    chunks only.
+  - **No wider than a road** (two to four tiles), and nothing open along a line: no long gaps, no
+    road running beside or along a line, no clearing spilling across one.
+  - **Marked as a way out**, seen from inside the chunk: a road leads to it on both sides and the
+    crossing itself says "this leads on": a bridge over the river, a ford, a flight of stairs, a
+    gate, a trail gap in the tree band between two lantern posts.
+  - **Each side closes on its own.** A chunk world is loaded alone, so its own cells must close its
+    side of the line (a tree band, water or a cliff in the chunk itself); a neighbour's trees drawn
+    past the edge are only a backdrop. Big trees are drawn about three tiles tall: keep them off the
+    rows just south of a road or a camp (use water there) so they do not hide the way.
+  - *Built first in Gloop Forest* (2026-11-01, picture `docs/design/chunk-lines/gloop-forest.png`):
+    a stream with a bridge on the E|F line in row 4, canals with a ford and forest bands with
+    lantern-marked trail gaps on the others, sand trails joining every crossing, and the silk nook
+    and the weaver nest made rooms with one way in.
 - **Framing:** place the landmark so the slime sees it as it enters a screen, often at the far
   edge of the view. Hide a reward behind a rise, a tree clump or a house so it shows only once the
   slime is close: *Breath of the Wild*'s triangle rule (big shapes are landmarks, middle ones hide
@@ -636,6 +663,9 @@ main path, locks and secrets drawn on it, and check it against any approved mock
       leads.
 - [ ] Each chunk has its landmark, seen from its entries.
 - [ ] Exits have road on both sides; the atlas shows every exit green (it leads back).
+- [ ] Every chunk line is closed by terrain except one to three crossings per pair of chunks, each
+      inside two chunks, a road wide at most, marked (bridge, ford, stairs, gate, lanterns);
+      `tools/check_chunk_lines.gd` lists every open stretch along every chunk's edges.
 
 **The clarity rule**
 - [ ] Every lock is in the [look book](#the-look-book) with its one power.

@@ -113,7 +113,7 @@ barriers (crossed); the climb; the Spear's fast steps.
 
 | Object | Script | Notes |
 |---|---|---|
-| `object.plank-barricade`, `object.rotten-timbers`, `object.old-trunk`, `object.old-fence` | `game/scripts/plank_barricade.gd` | Wood: blocks as a wall, a Heavy Roll smashes it (a heap that no longer collides), `flag_id` keeps it smashed; anything else clinks with `refusal_text`. Exports `smash_text`, `smash_cue`, `splinter_rise` |
+| `object.plank-barricade`, `object.rotten-timbers`, `object.old-trunk`, `object.old-fence` | `game/scripts/plank_barricade.gd` | Wood: blocks as a wall, a Heavy Roll smashes it (a heap that no longer collides, lying under the bodies; the plank barricade's smashed picture keeps its standing arch, so it stays sorted with the bodies from its heap's back edge, `heap_reach` 80 units north of the root: what stands behind the arch, a chest, is drawn behind it, owner 2026-11-01), `flag_id` keeps it smashed; anything else clinks with `refusal_text`. Exports `smash_text`, `smash_cue`, `splinter_rise`, `heap_reach` |
 | `object.rubble-heap`, `object.loose-rock` | `game/scripts/rubble_heap.gd` | Rocks: the same, with pebbles (`rock_tint`) and `break_text`. Rubble heaps break under a Heavy Roll, no longer a Goo Bomb (owner, 2026-10-16); `breaks_by_blast` keeps the old blast heap, used only on the playground Bomb corner's islet until its cracked rock face (question 72) |
 | `object.loose-prize` | `game/scripts/loose_prize.gd` | A prize caught up high (a coin pouch in a tree) `hang_height` over its root: a heavy shake within reach knocks it down, it pays `coins` and spills `contents`, `flag_id` keeps it taken; a plain bonk only makes it sway with `hint_text` |
 
@@ -140,7 +140,7 @@ listen to the same heavy shake (BESTIARY.md "Hooks").
   swaying hand over hand; the movement key the other way climbs it back. Its body does not collide
   on the face and is drawn in front of it; claws show. At the far end it takes the level there
   (Elevation `track`) and the wall's `climbed` fires (a wall can lead out of the world:
-  `exit_area_id`, `exit_marker`). Letting go midway, or a hit, drops it to the lower end over
+  `exit_area_id`, `exit_door`). Letting go midway, or a hit, drops it to the lower end over
   `skins.feral.dropMs` with a landing squash: no damage. Without the skin the wall is not offered,
   and pushing along it says `refusal_text` (at most every `skins.feral.refusalEveryMs`).
 - **A wall that ends on the face** (`holds_at_top`; added by the dungeons for the Crystal Colossus's

@@ -100,13 +100,29 @@ def panels_in_row(image: Image.Image, count: int) -> list[Image.Image]:
 	return out
 
 
+def split_near(occupied: np.ndarray, middle: int) -> int:
+	"""The empty line (no solid pixel) nearest `middle`, so a piece that runs past the middle of the
+	grid (the energy flower's stem does) stays whole and out of its neighbour's cell; `middle` when
+	no line within a quarter of the image is empty."""
+	for d in range(len(occupied) // 4):
+		for line in (middle + d, middle - d):
+			if not occupied[line]:
+				return line
+	return middle
+
+
 def grid_cells(image: Image.Image) -> list[Image.Image]:
-	"""A 2 x 2 grid's pieces (row by row), each trimmed."""
-	out = []
+	"""A 2 x 2 grid's pieces (row by row), each trimmed, split at the empty lines nearest the middle."""
+	mask = solid(image)
 	half_w, half_h = image.width // 2, image.height // 2
+	split_y = [split_near(mask[:, :half_w].any(axis=1), half_h), split_near(mask[:, half_w:].any(axis=1), half_h)]
+	split_x = [split_near(mask[:half_h].any(axis=0), half_w), split_near(mask[half_h:].any(axis=0), half_w)]
+	out = []
 	for row in range(2):
 		for col in range(2):
-			piece = image.crop((col * half_w, row * half_h, (col + 1) * half_w, (row + 1) * half_h))
+			x0, x1 = (0, split_x[row]) if col == 0 else (split_x[row], image.width)
+			y0, y1 = (0, split_y[col]) if row == 0 else (split_y[col], image.height)
+			piece = image.crop((x0, y0, x1, y1))
 			out.append(piece.crop(piece.getchannel("A").point(lambda a: 255 if a > ALPHA_CUT else 0).getbbox()))
 	return out
 

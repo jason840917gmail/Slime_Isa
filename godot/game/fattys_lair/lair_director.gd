@@ -6,9 +6,9 @@ extends Node2D
 ## - **Burr's cell** (question 134): Burr (`burr`, game/fattys_lair/burr_actor.gd) waits behind his
 ##   cell door (`cell_door`: the dungeon kit's door with two keyholes, a node with `is_open()` and an
 ##   `opened` signal). The first time the slime comes into the Pit Hall (`call_rect`) he calls out
-##   (once, the flag FLAG_CALLED); later he calls the short line over his hatch. When his door opens
-##   he is freed (`free_burr`): his lines, he winds the Inner Stair's hatch up (`hatch`,
-##   game/scripts/stair_hatch.gd), the only way down to the Deep, then walks to `burr_plate` (one of
+##   (once, the flag FLAG_CALLED); later he calls the short line over his cell. When his door opens
+##   he is freed (`free_burr`): his lines, he opens the Inner Stair's door (`hatch`: the stair door,
+##   game/scripts/stair_door.gd), the only way down to the Deep, then walks to `burr_plate` (one of
 ##   the drawbridge's pair of plates, heavy_plate.gd `pair_id`: two bodies, one each) and holds it
 ##   (owner, 2026-10-19). While the drawbridge (`bridge`) is up he stands there, each time the hub is
 ##   built; once the slime sinks the other plate and the bridge is down for good, he says goodbye,
@@ -27,16 +27,17 @@ extends Node2D
 ##   The arena's shutters (the dungeon kit's game/dungeon/shutter.gd with `boss_shutter_fight` as
 ##   their `fight_id`) shut while he lives and open when he falls. His fall is kept in the dungeon's
 ##   record too (DungeonState mark_boss_beaten). Until then the director, standing in the arena, is
-##   the compass's boss mark (group `dungeon_map_mark`, `mark` "boss").
-## - **Blocked gaps** (`blocked_gaps`: the map nook): a Node2D holding light things (liftables) and a
-##   `Barrier` body; once every light thing is taken the barrier goes and the secret jingle plays,
-##   and `gap_flag` is set: the gap stays open for good (its room built again has it clear).
+##   the map's boss mark (group `dungeon_map_mark`, `mark` "boss"; it shows once the map is held).
+## - **Blocked gaps** (`blocked_gaps`): a Node2D holding light things (liftables) and a `Barrier`
+##   body; once every light thing is taken the barrier goes and the secret jingle plays, and
+##   `gap_flag` is set: the gap stays open for good (its room built again has it clear). No room uses
+##   one since 2026-10-28: R4's way into the map nook is a shutter of its room fight.
 ##
 ## Since 2026-10-18 the Lair is one world per room (docs/godot/DUNGEON_ROOMS.md): a director stands
 ## in each room that needs one, with only that room's paths set: the hub's (Burr, his cell door, the
 ## Inner Stair, `call_room`), the arena's (Fatty's camp, the clods, his heart, the shutters), the
-## Larder's (the Pearl and its glow), R4's (the map nook's gap). Only the arena's is the compass's
-## boss mark (`boss_mark`).
+## Larder's (the Pearl and its glow). R4's has none set (`boss_mark` off). Only the arena's is the
+## map's boss mark (`boss_mark`).
 ## - **Heavy blocks reset with their room** (the guide's no-softlock rule): each room is its own
 ##   world, built afresh when the slime walks in, so every heavy block and statue stands where the
 ##   room scene puts it again, as the room's enemies and pots come back. A statue pushed into a
@@ -65,7 +66,7 @@ const CLOD_SPOT_FREE_PX := 40.0
 const CUE_CLOD := &"DropPop"
 const SHORT_CALL_EVERY_MS := 6000
 const SHUTTER_GROUP := &"shutter"
-## game/dungeon/dungeon_map_draw.gd MARK_GROUP: the compass marks this node's spot.
+## game/dungeon/dungeon_map_draw.gd MARK_GROUP: the map marks this node's spot (once the map is held).
 const MAP_MARK_GROUP := &"dungeon_map_mark"
 const LIFTABLE_SCRIPT := preload("res://game/scripts/liftable.gd")
 const CUE_SECRET := &"SecretFound"
@@ -86,7 +87,7 @@ const SHORT_CALL := "Two keys: the dens east and west!"
 const FREED_LINES: Array[String] = [
 	"Both keys! You got me out. I am Burr, the gatekeeper of this old fort.",
 	"My boy taught you the trick, didn't he? Curl up and roll. Good lad.",
-	"This hatch is the Inner Stair. The worms never learned the trick of its winch. There.",
+	"This door is the Inner Stair. The worms never learned the trick of its winch. There.",
 	"Mind the bones below: my old comrades of the Thorn Guard. Gorge's lot raised them to stand guard.",
 	"One more thing. That drawbridge takes two: one on each plate. I'll hold this one. You take the other.",
 ]
@@ -136,7 +137,7 @@ signal burr_freed(payload: Dictionary)
 @export var blocked_gaps: Array[NodePath] = []
 ## The story flag set when a blocked gap is cleared (read when the room is built: the gap is clear).
 @export var gap_flag: String = ""
-## This director is the compass's mark of Fatty's room (only the arena's; off in the other rooms).
+## This director is the map's mark of Fatty's room (only the arena's; off in the other rooms).
 @export var boss_mark: bool = true
 
 ## Read by the dungeon map (dungeon_map_draw.gd `boss_points`).
@@ -145,6 +146,8 @@ var _freeing := false
 ## Burr stands on his plate, waiting for the bridge.
 var _holding := false
 var _leaving := false
+## The slime Burr's speech holds still (`_freeze_player`).
+var _frozen_player: Node
 var _was_inside := false
 var _next_short_call_ms := 0
 var _bound_boss: Node = null
@@ -243,10 +246,7 @@ func free_burr() -> void:
 	_freeing = true
 	var run := Services.run()
 	var actor := get_node_or_null(burr) as BurrActor
-	var world := Services.world()
-	var player: Node = world.player if world != null else null
-	var hold := func() -> void: PrologueScene.hold(player)
-	get_tree().physics_frame.connect(hold)
+	_freeze_player()
 	if actor != null:
 		actor.wave(1.2)
 	await PrologueScene.say(get_tree(), SPEAKER, FREED_LINES.slice(0, 3))
@@ -257,8 +257,7 @@ func free_burr() -> void:
 	await PrologueScene.say(get_tree(), SPEAKER, FREED_LINES.slice(3))
 	if run != null:
 		run.set_flag(FLAG_FREED)
-	if get_tree().physics_frame.is_connected(hold):
-		get_tree().physics_frame.disconnect(hold)
+	_release_player()
 	burr_freed.emit({})
 	var door := get_node_or_null(burr_door) as Node2D
 	if actor != null and door != null:
@@ -314,18 +313,33 @@ func _watch_bridge() -> void:
 	_say_goodbye()
 
 
+## Holds the slime still each physics frame while Burr speaks (`_keep_player_still`), until
+## `_release_player`. A method of this node, not a lambda: a room freed mid-speech takes the
+## connection with it (a lambda stayed on the tree, its slime freed: an error every frame).
+func _freeze_player() -> void:
+	var world := Services.world()
+	_frozen_player = world.player if world != null else null
+	if not get_tree().physics_frame.is_connected(_keep_player_still):
+		get_tree().physics_frame.connect(_keep_player_still)
+
+
+func _release_player() -> void:
+	if is_inside_tree() and get_tree().physics_frame.is_connected(_keep_player_still):
+		get_tree().physics_frame.disconnect(_keep_player_still)
+
+
+func _keep_player_still() -> void:
+	PrologueScene.hold(_frozen_player)
+
+
 func _say_goodbye() -> void:
 	var actor := get_node_or_null(burr) as BurrActor
-	var world := Services.world()
-	var player: Node = world.player if world != null else null
-	var hold := func() -> void: PrologueScene.hold(player)
 	await PrologueScene.wait(get_tree(), 700.0)
-	get_tree().physics_frame.connect(hold)
+	_freeze_player()
 	if actor != null:
 		actor.wave(1.2)
 	await PrologueScene.say(get_tree(), SPEAKER, GOODBYE_LINES)
-	if get_tree().physics_frame.is_connected(hold):
-		get_tree().physics_frame.disconnect(hold)
+	_release_player()
 	if actor != null:
 		actor.remove_from_group(&"plate_weights")
 	_holding = false
@@ -534,8 +548,9 @@ func _drop_clod(at: Vector2) -> void:
 	clod.add_to_group(CLOD_GROUP)
 	# A Roll's bonk breaks it (clod_hurtbox.gd); the loot it hides is left where it stood.
 	clod.add_child(ClodHurtbox.new())
-	# What a mud ball leaves when the slime sucks it up: a heart or an energy shard, at random (liftable_root.gd `under`).
-	clod.set(&"under", "heart" if randf() < 0.5 else "energy")
+	# What a mud ball leaves when the slime sucks it up: a heart or an energy shard, at random
+	# (`dungeon.lair.clodHeartShare` of them a heart; liftable_root.gd `under`).
+	clod.set(&"under", "heart" if randf() < DungeonState.number("lair.clodHeartShare", 0.5) else "energy")
 	var parent := get_parent()
 	parent.add_child(clod)
 	clod.global_position = at

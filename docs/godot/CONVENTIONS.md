@@ -52,9 +52,10 @@ windows built on the theme replace them (table below).
   maps in whole chunks of 32 × 32 tiles (level-1 is 64 × 64), interiors no bigger than one screen.
 - Where the worlds sit is the layout `godot/game/data/world-map.json` ([WORLD_ATLAS.md](WORLD_ATLAS.md)):
   each region names its overworld scene (`world`) and interiors. Touching regions connect only at
-  designated openings (one per stretch of shared border, its exit on both sides, `entry_marker`
-  naming the arrival marker; an opening into a hand-made world is one-way until that world gets
-  its own exit and `arrive-from-<world>-1` marker there: the atlas shows which). See and rearrange the whole world in `game/dev/world_atlas.tscn`;
+  designated openings (one per stretch of shared border, its exit on both sides; the slime comes
+  out at the same place across the border: `game/world/crossings/border_crossing.gd`; an opening
+  into a hand-made world is one-way until that world gets its own opening and exit there:
+  `tools/check_crossings.gd` and the atlas show which). See and rearrange the whole world in `game/dev/world_atlas.tscn`;
   rebuild the placeholder regions with `tools/build_region_worlds.gd` after a layout change; a
   region you start building by hand: set its `placeholder` to false (or drop the scene root's
   `world_map_placeholder` metadata) so the tool leaves it alone.
@@ -128,11 +129,26 @@ pushes to go through it (`north` = walking up into it), and a `kind`:
 
 | `kind` | What it is | Going through |
 |---|---|---|
-| `door` | a real door: house front doors, interior exits | the leaf swings open (`doorOpenMs` 250, `DoorOpen`), then the iris; arriving through it the leaf stands open while the slime walks out, then closes (`doorCloseMs` 250, `DoorClose`) |
-| `opening` | a gap, a cave mouth, a hole in a wall | the iris at once (`use_cue`) |
-| `ladder_down` | a hole with a ladder (the sinkholes) | the slime sinks and shrinks into the hole (`ladderClimbMs` 450), then the iris |
-| `ladder_up` | a ladder's foot (`cave-ladder`, side north) | the slime climbs a little and fades (`ladderClimbMs`), then the iris |
-| `fall` | a hole without a ladder into another scene | the slime spins and shrinks into the hole (`holeFallMs` 550, `FallDown`), then the iris. Plain pits painted on the elevation are not doors and keep their falls |
+| `door` | a real door: house front doors, interior exits | the leaf swings open (`doorOpenMs` 250, `DoorOpen`), the slime walks into the doorway (`doorWalkInMs` 240), then the iris; arriving through it the leaf stands open while the slime walks out, then closes (`doorCloseMs` 250, `DoorClose`) |
+| `opening` | a gap, a cave mouth, a hole in a wall | the slime walks into the doorway, fading into the dark (`doorWalkInMs` 240, `use_cue`), then the iris |
+| `ladder_down` | a hole with a ladder (the sinkholes) | the slime sinks and shrinks into the hole (`ladderClimbMs` 450), then the iris; arriving at one (it came up) it rises out of the hole, small to full size |
+| `ladder_up` | a ladder's foot (`cave-ladder`, side north) | the slime climbs a little and fades (`ladderClimbMs`), then the iris; arriving at one (it came down) it slides down onto the foot, fading in, while it walks out |
+| `fall` | a hole without a ladder into another scene | the slime spins and shrinks into the hole (`holeFallMs` 550, `FallDown`), then the iris; it lands on a **landing** there (below). Plain pits painted on the elevation are not doors and keep their falls |
+
+**Every crossing has two ends, and arriving plays the leaving backwards** (owner, 2026-10-31;
+[design/2026-10-31-crossings-and-arrivals.md](../design/2026-10-31-crossings-and-arrivals.md)): the
+slime comes out of the end paired with the one it went in by, never at a loose marker, and the end
+plays its arrival (main.gd `_start_arrival` asks it for `play_arrival`). The ends are the doors
+above, the stair doors (`object.stair-door`: `target_door` names the stair it leads to, in this
+world or in `target_world`; arriving it comes down the flight, or up out of the dark, into the
+doorway's mouth and walks out: `stairArrivalStepMs` 380 a step, `stairArrivalWalkMs` 260) and the
+**landings** (`object.landing`, game/scripts/landing.gd: where a one-way fall comes down; the slime
+drops in from `landingDropPx` 320 above over `landingDropMs` 420, then lands with `DropLand` and a
+squash, `landingSquashMs` 180). They all answer the same calls (door.gd's notes); `player-spawn`
+is only the fallback when a link is broken. Check every link with
+`"<Godot console exe>" --headless --path godot -s res://tools/check_crossings.gd` (broken pairs,
+one-way pairs, ends still arriving at markers, border crossings); every kind can be tried on the
+playground's crossings corner (east of the webs corner; `tools/build_crossings_lab.gd`).
 
 **Push to enter:** the player body's collision rect must touch the door's trigger (`walk_area`, an
 Area2D, else `trigger_rect` around the door node: default (-16, -20, 32, 40)) while the movement
@@ -141,7 +157,11 @@ within `doorPushAlignment` (0.7), or for a door without a side toward the trigge
 (`holePushAlignment` 0.35); in a hole any walking counts once the slime's centre is over it. Size
 the trigger so the slime touches it where it stops against the wall (the level-1 mushroom door's is
 taller, the house stands on a hill). A click order in the mouse schemes leans into the door the same
-way (MOUSE_CONTROLS.md). **Locked doors:** fill `gate` (`id`, `requiredItemId`, `consumeOnUnlock`,
+way (MOUSE_CONTROLS.md). **A Roll goes through an open door as a walk does** (owner, 2026-10-31):
+while the ball rolls, its way counts as the input (player.gd `get_travel_intent`) and the door
+travels as soon as the ball touches its trigger, without the push wait, so it does not bonk off the
+room's edge behind the doorway; stair doors take a rolling ball too. A shut door or gate still
+stops it (a bonk). **Locked doors:** fill `gate` (`id`, `requiredItemId`, `consumeOnUnlock`,
 `lockedMessage`, optional `unlockedMessage`, as a world exit's lock). Without the key the push
 shows the locked line once per push; with it the push unlocks the door (the key is spent,
 `GateUnlock`), opens it and goes through.
@@ -179,11 +199,16 @@ When you build the scene behind a door:
   door has a `north` door outside and a `south` way out at the bottom of the room.
 - Point the two doors at each other: `target_area_id` = the other world's map id,
   `target_door_id` = the other door's `door_id`.
-- **One-way ways in** (2026-10-17): a door with no `target_door_id` and a `target_marker` arrives at
-  the Node2D of that name in the target world (any depth, snapped to its tile centre, the slime's
-  facing kept), so nothing there has to lead back: the Weaver Hollow's blown Well Room floor
-  (`object.cracked-floor`, a `fall` hole) drops onto a marker on a ledge in `weaver-hollow-roots`.
-  A door with no `target_area_id` is an arrival point only: pushing into it never travels.
+- **One-way ways in** (2026-10-31): a fall names a landing (`object.landing`) in the target world in
+  its `target_door_id`, as a door names its pair; nothing there leads back. The Weaver Hollow's
+  blown Well Room floor (`object.cracked-floor`, a `fall` hole) drops onto `roots-landing` in
+  `weaver-hollow-roots`, the Crown's bough drop onto `weaver-hollow-silk-drop` in gloop-forest-f4.
+  A door with no `target_door_id` arrives at the target world's `player-spawn` (the dev labs' ways
+  back to the playground). A door with no `target_area_id` is an arrival point only: pushing into it
+  never travels; a world exit that is no border (the mine's mouth) or a climb out of a world
+  (`climb_wall.gd` `exit_door`) names one in its `target_door_id`. The old arrival markers
+  (`player-entry-<edge>`, `arrive-from-*`, `target_marker`, an exit's `entry_marker`) went on
+  2026-10-31.
 - Put the door node in the doorway: on the threshold, its feet where the opening is in the wall or
   building. Arriving there, the slime appears in the doorway facing into the room and **walks
   out** (`game/player/door_walk_out.gd`, owner 2026-10-14): it waits out the iris's black hold,
@@ -202,9 +227,14 @@ When you build the scene behind a door:
 - A door does not travel while the slime walks out of a door, nor for
   `worldNavigation.edgeTransitionGraceMs` after it enters the tree.
 - Doors travel with the Zelda iris (`game/world/iris_transition.gd`; durations
-  `worldNavigation.irisCloseMs`, `irisHoldMs`, `irisOpenMs`) after their lead-in; walking off a map
-  edge (world exits) keeps the fade. A sided door whose target door has another side than the
-  opposite one logs a warning on arrival (doors without a side are not checked).
+  `worldNavigation.irisCloseMs`, `irisHoldMs`, `irisOpenMs`) after their lead-in. Walking off a map
+  edge scrolls where the far side lies beside this one: between the chunks of a region, across a
+  border into a neighbouring region where the far chunk has an exit back at that place
+  (`game/world/crossings/border_crossing.gd`, `worldNavigation.regionBorderScroll`; the slime comes
+  out at the same place across the border), and between two worlds laid side by side by hand
+  (`keep_along` with `along_offset`: the playground and its annex). Other world exits keep the fade
+  and their marker. A sided door whose target door has another side than the opposite one logs a
+  warning on arrival (doors without a side are not checked).
 
 Example: the playground's Bomb corner hole (`game/dev/corners/bomb_corner.tscn`, `door_side`
 north, kind opening, its trigger the wall's `passage`) and `playground-bomb-cave`'s `south-door`
@@ -284,7 +314,7 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
 - Each body is moved only by its own scene script, with `ArcadeMover.move(body, delta)` (`game/shared/arcade_mover.gd`); never `move_and_slide()`, whose floating-mode slide differs from Phaser's Arcade.
 - Gameplay values come from `game/data/game-constants.json` (through
   `Services.constants()`) or from scene properties, never new literals.
-- Find a scene's node by its class (`child is LevelCollisionLayer`), never by a name: names are typed by hand in the editor and drift (a room's painted layer was named `LevelCollisionLayer` and was silently ignored). A name stays only for a node the code creates and names itself.
+- Find a scene's node by its class (`child is LevelCollisionLayer`), or a layer by its tile set or its data layer, never by a name: names are typed by hand in the editor and drift (a room's painted layer was named `LevelCollisionLayer` and was silently ignored; R4's `elevation` layer is named `Elevation`). `game/shared/node_find.gd` does it (`child_of`, `layer_with_tile_set`, `layer_with_data`). A name stays only for a node the code creates and names itself.
 - Commit the `*.gd.uid` files Godot creates next to scripts.
 
 ## Checking your work

@@ -43,6 +43,8 @@ const NODE_NAME := "AbilityCeremony"
 const WORLD_MAIN_GROUP := &"world_main"
 ## What a tool harvests, in the card's how-to.
 const HARVEST_TARGETS := {"wood": "trees", "stone": "rocks", "iron": "iron ore"}
+## How many quarters make a heart, in words (`request_heart`; a larger count stays a number).
+const COUNT_WORDS: Array[String] = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"]
 const LAYER := 95
 const PAUSE_REASON := &"ceremony"
 const CUE_FANFARE := &"Ceremony"
@@ -138,8 +140,9 @@ static func shape_entry(shape_id: StringName) -> Dictionary:
 ## max HP the heart it completed gives (0: not complete yet); `icon` its picture.
 static func request_heart(tree: SceneTree, filled: int, per: int, bonus: int, icon: Texture2D) -> void:
 	if bonus > 0:
+		var count := COUNT_WORDS[per] if per >= 0 and per < COUNT_WORDS.size() else str(per)
 		_enqueue(tree, {"kicker": "Heart Quarter", "name": "+%d max HP" % bonus,
-			"line": "Four quarters make a heart: your goo grows tougher, and you are healed in full.", "how": "", "icon": icon})
+			"line": "%s quarters make a heart: your goo grows tougher, and you are healed in full." % count, "how": "", "icon": icon})
 		return
 	var missing := maxi(0, per - filled)
 	_enqueue(tree, {"kicker": "Heart Quarter", "name": "%d of %d" % [filled, per],

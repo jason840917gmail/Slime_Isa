@@ -1014,10 +1014,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(640, 704)
 
-[node name="player-entry-south" type="Node2D" parent="." unique_id=92877962]
-y_sort_enabled = true
-position = Vector2(1081, 990)
-
 [node name="home-door" type="Node2D" parent="." unique_id=1074419373]
 y_sort_enabled = true
 position = Vector2(1081, 903)
@@ -1055,8 +1051,18 @@ y_sort_enabled = true
 [node name="sally-port-hole" parent="SallyPort" unique_id=1045539946 instance=ExtResource("sally_open_hole")]
 position = Vector2(352, 548)
 
+[node name="DoorScript" parent="SallyPort/sally-port-hole" index="1"]
+map_id = "level-1-c4"
+door_id = "sally-port-hole"
+target_area_id = "slimeshire-sally-port"
+target_door_id = "sally-port-landing"
+
 [node name="sally-port-way-out" parent="SallyPort" unique_id=1656194373 instance=ExtResource("sally_hatch_exit")]
 position = Vector2(1732, 954)
+
+[node name="DoorScript" parent="SallyPort/sally-port-way-out" index="2"]
+map_id = "level-1-c4"
+door_id = "sally-port-way-out"
 
 [node name="Nature" type="Node2D" parent="." unique_id=1340982034]
 y_sort_enabled = true
@@ -1743,10 +1749,6 @@ position = Vector2(1182, 1574)
 enemy_type = "worm-swordsman"
 wander_area_id = "level-1-starter-camp"
 
-[node name="arrive-from-west-village-1" type="Node2D" parent="." unique_id=1342301389]
-y_sort_enabled = true
-position = Vector2(96, 1696)
-
 [node name="exit-to-west-village-1" type="Area2D" parent="." unique_id=622744841]
 position = Vector2(16, 1696)
 collision_layer = 512
@@ -1762,7 +1764,6 @@ map_id = "level-1-c4"
 exit_id = "level-1-to-west-village-1"
 target_area_id = "west-village-b4"
 entry = "east"
-entry_marker = "arrive-from-level-1-1"
 area = NodePath("..")
 
 [node name="PrologueMeeting" type="Node2D" parent="." unique_id=2120362790 node_paths=PackedStringArray("spot")]

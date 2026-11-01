@@ -11,9 +11,10 @@ class_name DropGateScript
 ##   (tuned in the playground as the slabs are, question 71: the numbers are this scene's exports).
 ##   While it is up its `doors` body stops blocking. A slime caught under the leaf as it drops is
 ##   shoved out on the side it came from, bonked, never shut inside the leaf.
-## - **Held up for good** (`hold_open_for_good`): the gatehouse's winch (game/scripts/gate_winch.gd)
-##   holds it up; its record (`map_id`, `gate_id`) is unlocked in RunState, read when the scene is
-##   built, so the race is played once (the design's open point 9).
+## - **Held up for good** (`hold_open_for_good`): a gate winch (game/scripts/gate_winch.gd; the
+##   Weaver Hollow's R3) holds it up; its record (`map_id`, `gate_id`) is unlocked in RunState, read
+##   when the scene is built. The Lair's outer gate has no winch since 2026-10-24: its race is played
+##   each time (a save from before forgets the old record: RunState `install`).
 ## - **Pushed while shut:** the slime pushing into the leaf hears `refusal_text` (once per push).
 ##
 ## The node stands at the middle of the doorway's foot; the slime comes from the south (+y) and goes

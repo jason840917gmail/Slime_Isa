@@ -22,10 +22,10 @@ class_name WatcherEyeScript
 ## - **Cool** (`coolMs`), then it drifts and turns on.
 ## - **Its back is open, its front clinks** (`_shields`): a hit from an attacker it is looking away
 ##   from (`backDot`) lands, any other clinks. The right tool: hide, wait until it looks away, then
-##   the Spear from behind (24 health: two jabs). A hit from behind alarms it: for `alertMs` it turns
-##   toward the slime (free aim at `alertTurnDegPerS`; line aim: its next turn is to the slime's
-##   line, over `alertStepMs`). The back, the alarm and the Bow's hook (`on_arrow_hit`: an arrow into
-##   its eye) are the Prism Eye's.
+##   the Spear from behind (28 health: two jabs or two Lunges). A hit from behind alarms it: for
+##   `alertMs` it turns toward the slime (free aim at `alertTurnDegPerS`; line aim: its next turn is
+##   to the slime's line, over `alertStepMs`). The back, the alarm and the Bow's hook
+##   (`on_arrow_hit`: an arrow into its eye) are the Prism Eye's.
 ##
 ## Owner: enemy builder.
 

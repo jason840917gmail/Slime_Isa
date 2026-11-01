@@ -136,6 +136,9 @@ var dungeon_session: Dictionary = {}
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
 const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
 const CELEBRATED_ITEMS := "celebrated_item_ids"
+## [map id, gate id] of the Lair's outer gate, which the removed gatehouse winch held up for good:
+## a loaded save forgets it (`install`).
+const OBSOLETE_HELD_GATE: Array[String] = ["level-1-d5", "fatty-lair-gate"]
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "entry_marker"?, "respawn_home"?}. Empty when none. Never saved:
@@ -214,6 +217,22 @@ func quarters_per_heart() -> int:
 ## The whole hearts the quarters found make.
 func quarter_hearts() -> int:
 	return heart_quarters() / quarters_per_heart()
+
+
+## The quarters found toward the next heart (0 .. perHeart - 1: 0 right after one completed a heart).
+func heart_quarters_toward_next() -> int:
+	return heart_quarters() % quarters_per_heart()
+
+
+## How full the next heart is once `count` more quarters are found: 1 .. perHeart, perHeart when the
+## last of them completes it (with `count` 0, the level the last quarter found reached); 0 with none
+## found and none to come. A quarter's picture shows it (goo_heart.gd).
+func heart_level_after(count: int = 0) -> int:
+	var total := heart_quarters() + maxi(0, count)
+	if total == 0:
+		return 0
+	var level := total % quarters_per_heart()
+	return quarters_per_heart() if level == 0 else level
 
 
 ## Max energy: `stats.maxEnergy` plus `player.max_energy_bonus` (the raises a beaten boss gives,
@@ -736,10 +755,11 @@ func notify_quests_changed(quest_id: String) -> void:
 	quests_changed.emit({"quest_id": quest_id})
 
 
-## One more heart quarter; true when it completes a heart (max HP grows and HP fills).
+## One more heart quarter; true when it completes a heart (max HP grows and HP fills). The one place
+## that says so: the pickup, the chest and the ceremony take this answer (goo_heart.gd `grant`).
 func add_heart_quarter() -> bool:
 	player["heart_quarters"] = heart_quarters() + 1
-	var completed := heart_quarters() % quarters_per_heart() == 0
+	var completed := heart_quarters_toward_next() == 0
 	if completed:
 		player["hp"] = max_hp()
 	return completed
@@ -1121,6 +1141,12 @@ func install(data: Dictionary) -> bool:
 	if player.has("goo_hearts"):
 		player["heart_quarters"] = heart_quarters() + int(player.get("goo_hearts", 0))
 		player.erase("goo_hearts")
+	# Saves from before 2026-10-24: the Lair gatehouse's inner winch held its outer gate up for good,
+	# recorded as the gate unlocked. The winch is gone and the gate drops again each time.
+	var maps: Variant = world.get("maps")
+	var gate_map: Variant = (maps as Dictionary).get(OBSOLETE_HELD_GATE[0]) if maps is Dictionary else null
+	if gate_map is Dictionary and (gate_map as Dictionary).get("unlocked_gate_ids") is Array:
+		((gate_map as Dictionary)["unlocked_gate_ids"] as Array).erase(OBSOLETE_HELD_GATE[1])
 	if int(player.get("hp", 0)) <= 0:
 		player["hp"] = max_hp()
 	player["hp"] = mini(int(player.get("hp", 0)), max_hp())

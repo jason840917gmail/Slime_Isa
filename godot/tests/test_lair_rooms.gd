@@ -4,7 +4,7 @@ extends RefCounted
 ## every room door names a door of another room that names it back; every door pair travels both
 ## ways with the screen scroll and arrives at the right spot; the doors whose lock stands in the
 ## other room refuse until its record is set (the bolts' far sides, R10's plate for R9's stone door,
-## the nook's crates, the store's planks); what the slime does in one room is there when another room
+## R4's shutter to the nook, the store's planks); what the slime does in one room is there when another room
 ## is built and after a quit and a load (chests, keys, doors, barricades, plates and statues, the
 ## blown crack, the seal, the Pearl, the bosses); ordinary enemies come back when their room is
 ## entered again, won fights and bosses do not; and the Lair is walked from D5's mouth to Fatty's
@@ -12,7 +12,7 @@ extends RefCounted
 ## editor's link check passes every door and catches a wrong wall; the compass shows the other
 ## rooms' chests; every room world is the Lair on the world map; a sealed Lair lets the slime from
 ## room to room but not out; a faint in the arena wakes at the entrance; the Inner Stair arrives
-## facing its `arrival_facing`; the music carries on through a room door.
+## facing out of the crypt's stair; the music carries on through a room door.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -41,7 +41,9 @@ const DOOR_GROUPS := [
 
 func test_every_room_is_a_world_on_the_layout_and_its_doors_pair_up(t: TestContext) -> void:
 	var rooms := _layout_rooms()
-	t.equal(rooms.size(), 24, "rooms on the layout")
+	# 21 since b4ca2a64 (2026-10-20): the Old Armoury, the Glow-Moss Burrow and the Sally Port moved out
+	# into Slimeshire with the come-back secrets
+	t.equal(rooms.size(), 21, "rooms on the layout")
 	var index: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://game/scenes/scene_index.json"))
 	var doors := {}
 	var scenes := {}
@@ -68,7 +70,7 @@ func test_every_room_is_a_world_on_the_layout_and_its_doors_pair_up(t: TestConte
 			doors[key] = {"world": str(room["world"]), "id": str(door.get(&"door_id")), "target_room": str(door.get(&"target_room")),
 				"target_door": str(door.get(&"target_door")), "side": str(door.get(&"side"))}
 		scene.free()
-	t.equal(doors.size(), 50, "room doors")
+	t.equal(doors.size(), 44, "room doors")
 	for key: String in doors:
 		var door: Dictionary = doors[key]
 		if not t.check(rooms.has(door["target_room"]), "%s leads to no room on the layout (%s)" % [key, door["target_room"]]):
@@ -104,13 +106,16 @@ func test_a_door_whose_lock_is_in_the_other_room_waits_for_its_record(t: TestCon
 	if not await _push_from(t, "r1-gatehouse", "r1-to-r5-lower", false):
 		t.check(t.in_world("fatty-lair"), "R1's west doorway let the slime through before the lower hall's bolt")
 	DungeonState.mark_done(t.tree, "fatty-lair:fatty-lair-r5-way-back")
+	# R1's bolted leaf reads the bolt's record when R1 is built (the slime comes from the lower hall,
+	# where it slid the bolt): out to the store and back first.
+	await _enter(t, "r1-store")
 	t.check(await _push_from(t, "r1-gatehouse", "r1-to-r5-lower", true), "R1's west doorway refused with the lower hall's bolt slid")
 	# R10's doorway down: R9's stone door, held only by R10's plate (a session record).
 	if not await _push_from(t, "r10-dung-roller-run", "r10-to-r9", false):
 		t.check(t.in_world("fatty-lair-r10-dung-roller-run"), "R10's doorway down let the slime through with R9's door shut")
-	# The map nook: the crates jammed in R4's west gap (a physical block, and the flag on the door).
+	# The map nook: R4's west shutter, shut (`starts_shut`) until its room fight is won (the Squints).
 	await _push_from(t, "r4-squint-den", "r4-to-nook", false)
-	t.check(t.in_world("fatty-lair-r4-squint-den"), "the slime got into the map nook past the crates")
+	t.check(t.in_world("fatty-lair-r4-squint-den"), "the slime got into the map nook past R4's shut shutter")
 	# The hub's ledge: R11's bolt.
 	await _push_from(t, "r3-pit-hall", "hub-to-r11", false)
 	t.check(t.in_world("fatty-lair-r3-pit-hall"), "the hub's north doorway let the slime into R11 before its bolt")
@@ -132,7 +137,7 @@ func test_a_door_whose_lock_is_in_the_other_room_waits_for_its_record(t: TestCon
 func test_what_is_done_stays_done_across_rooms_and_a_load(t: TestContext) -> void:
 	var run := Services.run()
 	run.set_flag(LairDirector.FLAG_CALLED)
-	# The map nook's map: the chest opened in its world (the gap cleared first: the crates taken).
+	# The map nook's map: the chest opened in its world.
 	run.set_flag("fatty-lair.nook-gap-open")
 	if not await _enter(t, "map-nook"):
 		return
@@ -243,9 +248,8 @@ func test_the_lair_is_walked_from_the_mouth_to_the_arena_and_out_by_the_bolt_hol
 	run.set_flag(LairDirector.FLAG_CALLED)
 	run.set_flag("fatty-lair.bolt-hole-smashed")
 	DungeonState.give_item(run, MAP_ID, DungeonState.BIG_KEY)
-	(run.world.get_or_add("defeated_boss_ids", []) as Array).append("fatty-one-eye")
-	DungeonState.mark_boss_beaten(run, MAP_ID, "fatty-one-eye")
-	# D5: into the mouth (its gate opened for this test).
+	# D5: into the mouth (its gate opened for this test). Fatty falls only once the slime is in: with
+	# him beaten the mouth caves in (lair_collapse.gd).
 	run.mark_gate_unlocked("level-1-d5", "fatty-lair-gate")
 	if not await _travel(t, "level-1-d5"):
 		return
@@ -260,6 +264,8 @@ func test_the_lair_is_walked_from_the_mouth_to_the_arena_and_out_by_the_bolt_hol
 	if not t.check(inside, "the mouth did not lead into R1 (in %s)" % t.world().map_id()):
 		return
 	await _settled(t)
+	(run.world.get_or_add("defeated_boss_ids", []) as Array).append("fatty-one-eye")
+	DungeonState.mark_boss_beaten(run, MAP_ID, "fatty-one-eye")
 	var path := [["r1-gatehouse", "r1-to-r2", "fatty-lair-r2-slab-steps"], ["r2-slab-steps", "r2-to-hub", "fatty-lair-r3-pit-hall"],
 		["r3-pit-hall", "hub-to-r13", "fatty-lair-r13-fattys-arena"], ["r13-fattys-arena", "r13-to-r14", "fatty-lair-r14-postern"],
 		["r14-postern", "r14-to-bolt", "fatty-lair-bolt-hole"]]
@@ -312,7 +318,7 @@ func test_every_room_doors_editor_check_passes_and_catches_a_wrong_wall(t: TestC
 			wrong_room = scene
 		else:
 			scene.free()
-	t.equal(checked, 50, "room doors checked")
+	t.equal(checked, 44, "room doors checked")
 	if t.check(wrong != null, "no room door to turn"):
 		wrong.set(&"side", DoorScript.opposite(str(wrong.get(&"side"))))
 		t.check("wall" in str(wrong.call(&"pairing_problem")), "a door turned to the wrong wall passed the check")
@@ -388,26 +394,28 @@ func test_a_faint_in_fattys_arena_wakes_at_the_entrance(t: TestContext) -> void:
 	t.near_vec(t.player().get_centre(), Vector2(float(entrance["x"]), float(entrance["y"])), 2.0, "where the fainted slime woke")
 
 
-## The Inner Stair goes to the Crypt's world and the slime arrives facing the stair's
-## `arrival_facing` (up), not the way it walked in (down).
-func test_the_inner_stair_arrives_facing_its_arrival_facing(t: TestContext) -> void:
+## The Inner Stair (a stair door in the hub's north wall since 2026-10-24) goes to the Crypt's world
+## and the slime comes out of the crypt's stair (its pair, `target_door`) facing down into the room,
+## not the way it walked in (up).
+func test_the_inner_stair_arrives_facing_out_of_the_crypts_stair(t: TestContext) -> void:
 	var run := Services.run()
 	run.set_flag(LairDirector.FLAG_CALLED)
 	run.set_flag("fatty-lair.inner-stair-open")
 	if not await _enter(t, "r3-pit-hall"):
 		return
-	var hatch := _lair(t, "inner-stair")
-	var rect: Rect2 = hatch.get(&"trigger_rect")
-	t.teleport_player(hatch.global_position + rect.get_center())
-	t.player().face(Vector2.DOWN)
+	var stair := _lair(t, "inner-stair")
+	t.equal(str(stair.get(&"target_door")), "fatty-lair-crypt-north-stair", "the Inner Stair's pair")
+	var rect: Rect2 = stair.get(&"trigger_rect")
+	t.teleport_player(stair.global_position + rect.get_center())
+	t.player().face(Vector2.UP)
 	await t.steps(2)
-	t.press(&"move_down")
+	t.press(&"move_up")
 	var down := await t.until(func() -> bool: return t.in_world("fatty-lair-r8-guard-crypt"), 5000.0)
-	t.release(&"move_down")
+	t.release(&"move_up")
 	if not t.check(down, "the Inner Stair did not lead to the Crypt (in %s)" % t.world().map_id()):
 		return
 	await _settled(t)
-	t.near_vec(t.player().get_facing(), Vector2.UP, 0.01, "the slime's facing at the stair's foot")
+	t.near_vec(t.player().get_facing(), Vector2.DOWN, 0.01, "the slime's facing at the stair's foot")
 
 
 ## The music carries on through a room door: the same track, not started over.
@@ -455,12 +463,15 @@ func _walk_doors(t: TestContext, room_names: Array) -> void:
 	for room_name: String in room_names:
 		if not await _enter(t, room_name):
 			return
+		_win_fights(t)
 		var ids: Array[String] = []
 		for door: Node in t.world().world_root.get_node("RoomDoors").get_children():
 			ids.append(str(door.get(&"door_id")))
 		for door_id: String in ids:
-			if not t.in_world(rooms[room_name]["world"]) and not await _enter(t, room_name):
-				return
+			if not t.in_world(rooms[room_name]["world"]):
+				if not await _enter(t, room_name):
+					return
+				_win_fights(t)
 			var room_door := t.world().world_root.get_node("RoomDoors/" + door_id) as Node2D
 			if door_id == "r10-to-r9":
 				# R9's stone door: held only while R10's statue stands on its plate.
@@ -498,6 +509,13 @@ func _walk_doors(t: TestContext, room_names: Array) -> void:
 				var slack := ARRIVAL_SLACK + (float(far.get(&"arrival_inset")) if iris else 0.0)
 				t.check(t.player().get_centre().distance_to(spot) <= slack,
 					"%s/%s came out at %s, not at %s's arrival %s" % [room_name, door_id, t.player().get_centre(), target_door, spot])
+
+
+## Wins the room fights of the world the slime is in (RoomFight.finish_quietly): their shutters open.
+## R4's fight is not `once`: its `starts_shut` shutters shut again each time its world is built.
+func _win_fights(t: TestContext) -> void:
+	for fight: Node in t.tree.get_nodes_in_group(&"room_fight"):
+		fight.call(&"finish_quietly")
 
 
 ## Every lock of the Lair opened by its record (bolts slid, Burr's door and the boss door open,

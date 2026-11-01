@@ -22,9 +22,9 @@ static var _loaded := false
 
 
 ## The world to load for travel to `map_id`: when `map_id` was cut into chunks, the chunk that holds
-## the Node2D `entry_marker`, else the door `entry_door`, else the `player-entry-<entry_edge>` marker,
-## else the region's spawn; `map_id` itself otherwise.
-static func redirect(map_id: String, entry_marker: String = "", entry_edge: String = "", entry_door: String = "") -> String:
+## the Node2D `entry_marker`, else the door `entry_door`, else the region's spawn; `map_id` itself
+## otherwise. (A border crossing names its chunk itself: game/world/crossings/border_crossing.gd.)
+static func redirect(map_id: String, entry_marker: String = "", _entry_edge: String = "", entry_door: String = "") -> String:
 	_load()
 	if not _worlds.has(map_id):
 		return map_id
@@ -35,8 +35,6 @@ static func redirect(map_id: String, entry_marker: String = "", entry_edge: Stri
 		return str(arrivals[entry_marker])
 	if not entry_door.is_empty() and doors.has(entry_door):
 		return str(doors[entry_door])
-	if not entry_edge.is_empty() and arrivals.has("player-entry-" + entry_edge):
-		return str(arrivals["player-entry-" + entry_edge])
 	return str(world.get("spawn", map_id))
 
 

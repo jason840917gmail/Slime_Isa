@@ -221,7 +221,7 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 	t.check(elevation.grid.bands.size() > 100, "few walls in the park")
 	# The walls' meshes (sides/elevation_sides.gd) are named "<level> <style> <top ground> <lower
 	# ground>": every wall style the park shows (by ground or painted on a stretch of a top's wall),
-	# a top of every ground, and walls standing in water (the lake's island: foam at their feet).
+	# a top of every ground, and walls standing in water (the lake's island: the water lapping at their feet).
 	var styles := {}
 	var tops := {}
 	var lows := {}
@@ -674,7 +674,9 @@ func test_rim_holds_then_drops_in_front_of_its_wall(t: TestContext) -> void:
 	t.press(&"move_left")
 	await t.steps(1)
 	var before := body.global_position
-	t.tap(&"jump")
+	# The body-shapes mode (on everywhere) gives the jump no key: its hop (Elevation.hop_target) is
+	# started as the ability itself.
+	t.player().call(&"use_ability", &"jump")
 	var jumped := await t.until(func() -> bool: return t.player().is_ability_busy(), 200.0)
 	t.release_all()
 	if not t.check(jumped, "no jump after the drop"):

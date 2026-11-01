@@ -114,7 +114,7 @@ feature "until promoted into game constants"). Only the dodge reads `game-consta
 | id | title | action (key) | earnedBy (ability bar) | cooldownMs | energyCost | distance | durationMs | radius | damage |
 |---|---|---|---|---|---|---|---|---|---|
 | `jump` | Jump | `jump` (Space) | Quest | 700 | 0 | 168 | 420 | — | — |
-| `dodge` | Roll (Phaser: Dodge; the Roll since 2026-10-09, player spec §5) | `dodge` (Phaser 1; Godot 2) | Quest | `rollSpinUpMs + rollMinMs + rollCooldownMs` = 260 + 450 + 250 = **960** (Phaser: `dodgeDurationMs + dodgeCooldownMs` = 500 + 250 = 750) | 0 (the held part drains `rollEnergyPerSecond` 12) | — | — (Phaser 500) | — | — |
+| `dodge` | Roll (Phaser: Dodge; the Roll since 2026-10-09, player spec §5) | `dodge` (Phaser 1; Godot 2) | Quest | `rollSpinUpMs + rollMinMs + rollCooldownMs` = 260 + 450 + 1000 = **1710** (quick roll, body-shapes mode: 330 + 1000 = 1330) (Phaser: `dodgeDurationMs + dodgeCooldownMs` = 500 + 250 = 750) | 0 (the held part drains `rollEnergyPerSecond` 12) | — | — (Phaser 500) | — | — |
 | `teleport` | Teleport | `teleport` (4) | Later | 1800 | 35 | 240 | — | — | — |
 | `squash-slam` | Squash Slam | `squash-slam` (3) | Boss | 2500 | 30 | — | — | 90 | 30 |
 | `stretch-lash` | Stretch Lash | `stretch-lash` (2) | Quest | 2000 | 20 | 180 | — | — | — (no damage, `:44`) |
@@ -1382,7 +1382,7 @@ Nothing in the playground teaches jump, slam or teleport; tests teach them throu
 | `character.player.stats.energyRegenPerSecond` | 8 | Regen (§4) |
 | `character.player.stats.maxHp` | 100 | Base max HP (Goo Hearts add) |
 | `character.player.heartQuarter.perHeart` / `heartMaxHpBonus` | 4 / 20 | Quarters per heart, max HP per whole heart (§13.7, Godot) |
-| `character.player.movement.rollSpinUpMs` / `rollMinMs` / `rollCooldownMs` | 260 / 450 / 250 | Roll cooldown 960 (§1); replaced `dodgeDurationMs` / `dodgeCooldownMs` (500 / 250) on 2026-10-09 |
+| `character.player.movement.rollSpinUpMs` / `rollMinMs` / `rollCooldownMs` | 260 / 450 / 1000 | Roll cooldown 1710 (§1; `rollCooldownMs` 250 until 2026-10-31); replaced `dodgeDurationMs` / `dodgeCooldownMs` (500 / 250) on 2026-10-09 |
 | `character.player.movement.rollLaunchSpeed` / `rollSpeed` / `rollInvulnerabilityMs` / `rollEnergyPerSecond` | 460 / 340 / 400 / 12 | The Roll itself (player spec §5); `rollTurnRadPerS` was removed on 2026-10-09 (the Roll goes straight) |
 | `character.player.movement.rollBonkShakeMs` / `rollBonkShakeIntensity` / `rollBonkHitStopMs` / `rollBonkWobbleRadiusPx` | 220 / 0.008 / 60 / 140 | The Roll's bonk: shake, hit-stop, the things that wobble (player spec §5) |
 | `character.player.movement.rollBonkDamage` / `rollBonkKnockback` / `rollBonkHitRadiusPx` | 10 / 300 / 34 | The bonk's hit on an enemy (damage 0 turns it off) |
@@ -1516,7 +1516,7 @@ Changes elsewhere: `player_input_buffer.gd` (actions), `pointer_aim.gd` (distanc
 `squash_stretch.gd` (`jump`/`land`/`gulp` presets, `busy` callable, `force`), `particle_fx.gd`
 (`loot-sparkle`, `goo-dust`, `dust-puff` presets; feel owner), `damage_router.gd` (optional
 `registered_areas()`; combat owner), `hud.gd` (energy from `energy_changed`; world owner),
-`run_state.gd` (`player.energy` round-trip; `add_goo_heart()`; world-objects owner).
+`run_state.gd` (`player.energy` round-trip; `add_heart_quarter()`, `add_goo_heart()` until the heart quarters of 2026-10-26; world-objects owner).
 
 ### 19.2 `player.gd` step order (after the paused return)
 
@@ -1557,7 +1557,7 @@ if not _abilities.owns_body(): ArcadeMover.move(body, delta)     # the lash flig
 | `eat() -> String` (`spot`/`burp`/`nothing`), `eat_material(item_id) -> String` | §11.2 (+ eat clip) | interaction candidate, wheel [OUT] |
 | `nearest_gulp_spot() -> Node` | §11.2 | interaction candidate, HUD |
 | `teleport_to(centre: Vector2)` | stop + place + reset interpolation | webs |
-| `grant_goo_heart()` | RunState hearts + 1, `_max_hp = run.max_hp()`, `_hp = _max_hp`, `health_changed` | `goo_heart.gd` |
+| `grant_heart_quarter() -> bool` (`grant_goo_heart()` until 2026-10-26) | RunState `add_heart_quarter()` (true when it completed a heart: then `_max_hp = run.max_hp()`, `_hp = _max_hp`), `health_changed`; returns RunState's answer | `goo_heart.gd` `grant` |
 | `is_rooted() -> bool` | false until status effects are ported | §3.2 |
 
 World side the abilities read: groups `&"gulp-spot"`, `&"lash-bell"` (with `damage_area`: the

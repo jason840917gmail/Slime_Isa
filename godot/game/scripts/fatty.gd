@@ -86,7 +86,6 @@ const STATE_BLOCKED_REASON := "state-blocked"
 ## Presentation: how far he sways while out of balance (radians), and how far he lies down when he falls.
 @export var phase_two_unbalance_lean_rad: float = 0.16
 @export var phase_two_fall_lean_rad: float = 0.25
-@export var phase_two_topple_lean_rad: float = 0.45
 @export var phase_two_thrown_text: String = "It splats. Fatty hardly notices."
 @export var phase_two_ripple_damage: float = 18.0
 @export var phase_two_ripple_knockback: float = 220.0
@@ -113,7 +112,7 @@ signal dizzied(payload: Dictionary)
 ## Spear's too) except while he is off balance; each landing asks the lair for `clods_per_landing`
 ## light mud clods (`clods_requested`); **a Heavy Roll into him while he is on the ground** (the
 ## Roll's bonk carrying the `heavy` tag: game/fattys_lair/heavy_check.gd) knocks him off balance for
-## `dizzy_ms`: he rocks back (`topple_lean_rad`), stars over him, his eye wide open, and the Spear
+## `dizzy_ms`: he rocks back (`fall_lean_rad`), stars over him, his eye wide open, and the Spear
 ## lands then; a thrown thing only splats (`thrown_text`, the clink); a plain Roll bonks off him; and
 ## the second landing sends a mud ripple over the floor (game/fattys_lair/mud_ripple.gd) that hits for
 ## `ripple_damage` where its crest meets the slime, unless the Roll's i-frames carry it through.
@@ -167,7 +166,7 @@ var _dizzy_until: float = 0.0
 var _next_thrown_text_ms: float = 0.0
 var _topple_side: float = 1.0
 ## How far the topple leans this time (the fall lies him down; the unbalance only sways).
-var _lean_rad: float = 0.45
+var _lean_rad: float = 0.0
 var _ripple: Node2D = null
 var _ripple_from: Vector2 = Vector2.ZERO
 var _ripple_started: float = 0.0
@@ -223,8 +222,7 @@ func configure_phase_two(config: Dictionary = {}) -> void:
 	_two = {"health_share": phase_two_health_share, "second_air_time_ms": phase_two_second_air_time_ms,
 		"clods_per_landing": phase_two_clods_per_landing, "dizzy_ms": phase_two_dizzy_ms,
 		"unbalance_ms": phase_two_unbalance_ms, "fall_lean_rad": phase_two_fall_lean_rad,
-		"unbalance_lean_rad": phase_two_unbalance_lean_rad,
-		"topple_lean_rad": phase_two_topple_lean_rad, "thrown_text": phase_two_thrown_text,
+		"unbalance_lean_rad": phase_two_unbalance_lean_rad, "thrown_text": phase_two_thrown_text,
 		"ripple_damage": phase_two_ripple_damage, "ripple_knockback": phase_two_ripple_knockback,
 		"ripple_speed": phase_two_ripple_speed, "ripple_width": phase_two_ripple_width,
 		"ripple_max_radius": phase_two_ripple_max_radius}
@@ -536,12 +534,16 @@ func _resume_chase(now: float) -> bool:
 
 
 ## A mud ball thrown at him throws him out of balance for `unbalance_ms`: his eye stays shut, and a Heavy
-## Roll now knocks him down (`can_receive_damage`).
+## Roll now knocks him down (`can_receive_damage`). No leap right after it: one it cut short (in its
+## small hops, its landing or its recovery) ends there, the unbalance standing for its recovery, and
+## the next comes `leap_cadence_ms` after it; else not before `recovery_ms` after it (as after a fall).
 func _begin_unbalanced(now: float) -> void:
 	if is_defeated() or body == null:
 		return
+	var leap_cut := _phase == PHASE_SMALL_HOP or _phase == PHASE_LANDING or _phase == PHASE_RECOVERY
 	cancel_attack()
 	_unbalanced_until = now + maxf(1.0, float(_two.get("unbalance_ms", phase_two_unbalance_ms)))
+	_next_leap_at = maxf(_next_leap_at, _unbalanced_until + maxf(1.0, leap_cadence_ms if leap_cut else recovery_ms))
 	_transition_to(PHASE_UNBALANCED, now)
 	_play_animation(CLIP_OUT_OF_BALANCE, true)
 	var feel := Services.feel()
@@ -626,7 +628,7 @@ func _get_dizzy(now: float, knock: Vector2 = Vector2.ZERO) -> void:
 	dizzied.emit({"until": _dizzy_until})
 
 
-## Presentation of the topple: his art rocks back `topple_lean_rad` (in over TIP_IN_MS, back over
+## Presentation of the topple: his art rocks back `fall_lean_rad` (in over TIP_IN_MS, back over
 ## TIP_OUT_MS at the end) and wobbles on it. `now` 0 puts him upright. The hit motion
 ## (EnemyHitMotion) adds its own moves on top of what is set here.
 func _tip(now: float) -> void:

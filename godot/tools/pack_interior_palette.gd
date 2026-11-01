@@ -1,17 +1,24 @@
 extends SceneTree
-## Saves the interior walls' paint palette (asset/MAPS/walls/interior/palette.png, written by
-## scripts/art/pack-interior-walls.py) as a native texture, palette.res, which the tileset uses: it
-## needs no editor import, so a repacked palette works at once in the editor and the game, even while
-## an editor holds the project (docs/godot/INTERIOR_WALLS.md "The sheet").
+## Saves the interior walls' and floor trims' paint palettes (asset/MAPS/walls/interior/palette.png and
+## trim-palette.png, written by scripts/art/pack-interior-walls.py and pack-floor-trims.py) as native
+## textures, palette.res and trim-palette.res, which the tilesets use: they need no editor import, so a
+## repacked palette works at once in the editor and the game, even while an editor holds the project
+## (docs/godot/INTERIOR_WALLS.md "The sheet", "Floor trim").
 ##     "<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd
-const SOURCE := "res://asset/MAPS/walls/interior/palette.png"
-const OUT := "res://asset/MAPS/walls/interior/palette.res"
+const PALETTES := {
+	"res://asset/MAPS/walls/interior/palette.png": "res://asset/MAPS/walls/interior/palette.res",
+	"res://asset/MAPS/walls/interior/trim-palette.png": "res://asset/MAPS/walls/interior/trim-palette.res",
+}
 func _initialize() -> void:
-	var image := Image.load_from_file(ProjectSettings.globalize_path(SOURCE))
-	if image == null or image.is_empty():
-		print("interior palette: could not read ", SOURCE)
-		quit(1)
-		return
-	var err := ResourceSaver.save(ImageTexture.create_from_image(image), OUT, ResourceSaver.FLAG_COMPRESS)
-	print("interior palette: ", "saved " + OUT if err == OK else error_string(err))
-	quit(0 if err == OK else 1)
+	var failed := false
+	for source: String in PALETTES:
+		var image := Image.load_from_file(ProjectSettings.globalize_path(source))
+		if image == null or image.is_empty():
+			print("interior palette: could not read ", source)
+			failed = true
+			continue
+		var out: String = PALETTES[source]
+		var err := ResourceSaver.save(ImageTexture.create_from_image(image), out, ResourceSaver.FLAG_COMPRESS)
+		print("interior palette: ", "saved " + out if err == OK else error_string(err))
+		failed = failed or err != OK
+	quit(1 if failed else 0)

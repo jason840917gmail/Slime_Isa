@@ -13,7 +13,9 @@ extends RefCounted
 ##   pair of touching regions and per stretch of their shared border, OPENING_CELLS wide, with a
 ##   corridor CORRIDOR_CELLS deep on both sides. It goes where a gate marker of the sketch, an exit a
 ##   built world already has or a sketch road crosses the border, else to the middle-most spot whose
-##   corridor is walkable ground on one level, away from the stretch's ends and corners.
+##   corridor is walkable ground on one level, away from the stretch's ends and corners. Never across
+##   a chunk corner: an opening lies in one chunk on each side, CHUNK_MARGIN_CELLS off the chunks'
+##   sides, so walking through it joins two chunks only.
 ##
 ## Owner: world (atlas).
 
@@ -39,6 +41,9 @@ const SMOOTH_PASSES := 4
 ## An opening's width and its corridor's depth on each side (cells).
 const OPENING_CELLS := 2
 const CORRIDOR_CELLS := 2
+## The cells an opening keeps clear of the sides of its chunks (owner, 2026-11-01: an opening on a
+## chunk corner had the slime cross four chunks walking through it).
+const CHUNK_MARGIN_CELLS := 1
 ## How near (cells) a gate marker or a built world's exit must be to an opening's middle to pick it.
 const GATE_REACH := 2.5
 const EXIT_HINT_REACH := 2.0
@@ -411,7 +416,7 @@ func _best_opening(stretch: Array) -> Dictionary:
 	for edge: Vector3i in stretch:
 		var line := edge.z
 		var partner := edge + (Vector3i(0, 1, 0) if line == 0 else Vector3i(1, 0, 0))
-		if not place.has(partner):
+		if not place.has(partner) or not _inside_one_chunk(edge):
 			continue
 		var low := Vector2i(edge.x, edge.y)
 		var a := key_at(low)
@@ -430,6 +435,14 @@ func _best_opening(stretch: Array) -> Dictionary:
 			best_score = score
 			best = opening
 	return best
+
+
+## True when the opening starting at `edge` (OPENING_CELLS along its line) lies in one chunk on each
+## side of the border, CHUNK_MARGIN_CELLS off that chunk's sides.
+func _inside_one_chunk(edge: Vector3i) -> bool:
+	var size := map.chunk_cells().y if edge.z == 0 else map.chunk_cells().x
+	var start := posmod(edge.y if edge.z == 0 else edge.x, size)
+	return start >= CHUNK_MARGIN_CELLS and start + OPENING_CELLS <= size - CHUNK_MARGIN_CELLS
 
 
 ## How good `opening` is (it also fills in its levels, kind and label).

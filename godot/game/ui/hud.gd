@@ -19,8 +19,8 @@ class_name GameHud
 ## Data: `player.get_hud_snapshot()` once on bind, then on every `player.health_changed` and
 ## `player.energy_changed`; coins also follow `RunState.coins_changed`. The orbs show their number
 ## only when a value changes after the bind (GooOrb). The life orb's heart pips: one whole heart per
-## boss's full heart (`RunState.player["full_hearts"]`) and per four heart quarters
-## (`heart_quarters`, roadmap 5.3), then one pip part-filled with the quarters toward the next.
+## boss's full heart (`RunState.player["full_hearts"]`) and per `heartQuarter.perHeart` heart
+## quarters (`heart_quarters`, roadmap 5.3), then one pip part-filled with the quarters toward the next.
 ## Renders new-run defaults (hp/energy at their maxima from game-constants, coins 50) when no
 ## player is bound or the snapshot lacks a key.
 ##
@@ -40,8 +40,6 @@ const COIN_SIZE := 18.0
 const TONE_WARNING := UiTokens.WARNING
 ## Coins of a new run (content/initial-state/InitialRun.ts:15), shown until RunState has a run.
 const NEW_RUN_COINS := 50.0
-## A whole heart's pip on the life orb, in quarters.
-const QUARTERS_PER_HEART := 4
 
 var _player: PlayerScript
 var _snapshot: Dictionary = {}
@@ -176,15 +174,16 @@ func _default_snapshot() -> Dictionary:
 	return {"hp": max_hp, "maxHp": max_hp, "energy": max_energy, "maxEnergy": max_energy, "coins": NEW_RUN_COINS}
 
 
-## The hearts on the life orb in quarters: a whole heart per boss's full heart and per four heart
-## quarters, then a part-filled pip for the quarters toward the next heart.
+## The hearts on the life orb in quarters: a whole heart per boss's full heart and per
+## `heartQuarter.perHeart` heart quarters, then a part-filled pip for the quarters toward the next
+## heart (RunState `heart_quarters_toward_next`).
 func _heart_quarters() -> Array[int]:
 	var hearts: Array[int] = []
 	var run := Services.run()
 	if run != null:
 		for index in int(run.player.get("full_hearts", 0)) + run.quarter_hearts():
-			hearts.append(QUARTERS_PER_HEART)
-		var partial := run.heart_quarters() % run.quarters_per_heart()
+			hearts.append(run.quarters_per_heart())
+		var partial := run.heart_quarters_toward_next()
 		if partial > 0:
 			hearts.append(partial)
 	return hearts

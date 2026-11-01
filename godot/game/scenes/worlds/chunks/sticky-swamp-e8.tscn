@@ -111,26 +111,6 @@ metadata = {
 y_sort_enabled = true
 position = Vector2(1120, 992)
 
-[node name="player-entry-north" type="Node2D" parent="." unique_id=468218307]
-y_sort_enabled = true
-position = Vector2(992, 224)
-
-[node name="player-entry-east" type="Node2D" parent="." unique_id=1971327949]
-y_sort_enabled = true
-position = Vector2(1824, 928)
-
-[node name="player-entry-south" type="Node2D" parent="." unique_id=280458694]
-y_sort_enabled = true
-position = Vector2(928, 1824)
-
-[node name="player-entry-west" type="Node2D" parent="." unique_id=1323029542]
-y_sort_enabled = true
-position = Vector2(160, 1056)
-
-[node name="arrive-from-frostpeak-1" type="Node2D" parent="." unique_id=1944155693]
-y_sort_enabled = true
-position = Vector2(1888, 1408)
-
 [node name="exit-to-frostpeak-1" type="Area2D" parent="." unique_id=1210925963]
 position = Vector2(2032, 1408)
 collision_layer = 512
@@ -146,7 +126,6 @@ map_id = "sticky-swamp-e8"
 exit_id = "sticky-swamp-to-frostpeak-1"
 target_area_id = "frostpeak"
 entry = "west"
-entry_marker = "arrive-from-sticky-swamp-1"
 area = NodePath("..")
 
 [node name="edge-north" type="Area2D" parent="." unique_id=2004465533]

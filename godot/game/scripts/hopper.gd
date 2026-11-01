@@ -32,9 +32,6 @@ const BREATH_MS := 300.0
 const SHADOW_SIZE := Vector2(20.0, 7.0)
 const MARK_SIZE := Vector2(22.0, 8.0)
 
-var _from: Vector2 = Vector2.ZERO
-var _to: Vector2 = Vector2.ZERO
-var _asked: Vector2 = Vector2.ZERO
 var _mark: GroundShadowLook
 
 
@@ -79,9 +76,8 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var air_ms := maxf(1.0, pattern("airMs", 600.0))
 			var t := clampf(elapsed / air_ms, 0.0, 1.0)
 			# A wall or the water ends the hop early; the slime, the other bodies and the liftable
-			# things do not (set_airborne).
-			var blocked := air_blocked(_asked * delta)
-			if t >= 1.0 or blocked:
+			# things do not (leap_step).
+			if not leap_step(t, air_ms, delta):
 				_land(now, target, engaged)
 				return
 			var lift := sin(PI * t) * pattern("hopHeightPx", 48.0)
@@ -89,8 +85,6 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var shadow := ground_shadow()
 			if shadow != null:
 				shadow.size = SHADOW_SIZE * lerpf(1.0, 0.6, lift / maxf(1.0, pattern("hopHeightPx", 48.0)))
-			_asked = (_to - _from) / (air_ms / 1000.0)
-			body.velocity = _asked
 
 
 ## The tell: where it will land, toward `goal` (an old centre), `hopPx` at most.
@@ -101,8 +95,7 @@ func _crouch(now: float, goal: Vector2) -> void:
 	var offset := goal - centre
 	var reach := minf(offset.length(), pattern("hopPx", 120.0))
 	var step := offset.normalized() * reach if offset.length() > 0.0 else Vector2.ZERO
-	_from = feet()
-	_to = landing_point(_from, _from + step)
+	var landing := plan_leap(step)
 	face_x(step.x)
 	_clear_mark()
 	var world := Services.world()
@@ -112,24 +105,20 @@ func _crouch(now: float, goal: Vector2) -> void:
 		_mark.name = MARK_NAME
 		_mark.strength = 0.0
 		parent.add_child(_mark)
-		_mark.global_position = _to
+		_mark.global_position = landing
 
 
 func _leap(now: float) -> void:
 	_transition(PHASE_AIR, now)
 	set_frame(FRAME_AIR)
-	set_solid(false)
-	set_airborne(true)
-	_asked = Vector2.ZERO
+	begin_leap()
 	_cue(CUE_JUMP)
 	_puff(DUST, feet())
 
 
 func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	body.velocity = Vector2.ZERO
-	_asked = Vector2.ZERO
-	set_solid(true)
-	set_airborne(false)
+	end_leap()
 	set_look(0.0, Vector2(1.12, 0.88))
 	_clear_mark()
 	var shadow := ground_shadow()
@@ -165,5 +154,4 @@ func _shields(_request: Dictionary) -> bool:
 
 func _defeat() -> void:
 	_clear_mark()
-	set_solid(true)
 	super()

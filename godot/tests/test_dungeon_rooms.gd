@@ -15,7 +15,7 @@ func test_the_lairs_rooms_are_worlds_that_keep_their_links(t: TestContext) -> vo
 		return
 	var world := t.world().world_root
 	var stair := world.get_node("Lair/inner-stair")
-	t.equal([str(stair.get(&"target_world")), str(stair.get(&"target_marker"))], ["fatty-lair-r8-guard-crypt", "crypt-stair-arrival"],
+	t.equal([str(stair.get(&"target_world")), str(stair.get(&"target_door"))], ["fatty-lair-r8-guard-crypt", "fatty-lair-crypt-north-stair"],
 		"the Inner Stair's way down to the crypt's world")
 	var director := world.get_node_or_null("Lair/LairDirector")
 	if t.check(director != null, "the hub has no Lair director (Burr's)"):

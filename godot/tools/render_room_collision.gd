@@ -12,7 +12,7 @@ extends SceneTree
 ## before the capture, to show where the collision stops it (`--hold=move_down+move_right`). Prints the
 ## slime's feet and the camera's screen transform, to crop a close-up. `level` puts the slime on that
 ## level (else the one it walks on there); `automatic` clears the world's painted `level-collision`
-## for the run (never saved) to show its automatic collision.
+## for the run (never saved) to show its automatic collision (in a room: its faces' footprint).
 
 const Services := preload("res://game/shared/services.gd")
 const LevelCollision := preload("res://game/world/elevation/level_collision_layer.gd")
@@ -70,9 +70,10 @@ func _initialize() -> void:
 		var player = world.player
 		var body := world.player_body
 		player.teleport(feet - (body.global_position - player.get_centre()))
-		if level != -99:
+		# a flat room has no elevation
+		if world.elevation != null and level != -99:
 			world.elevation.track(body, level)
-		else:
+		elif world.elevation != null:
 			world.elevation.track(body)
 		body.reset_physics_interpolation()
 		world.camera.start_follow(body, true)

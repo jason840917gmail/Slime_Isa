@@ -227,7 +227,7 @@ map_ui.clear_markers()
   and the L-shaped Volcano Ridge keep their shapes), in this order: the well (`SHADOW`) under
   unplanned cells; each region's cells, in `SURFACE_INSET` fog until it is discovered, then its
   colour mixed half into `SURFACE_INSET`; the chunk lines (border at 35 %); every region's edge
-  (1.5 px border at 95 %); the two-way passages' links; the well's frame; and the current region's
+  (1.5 px border at 95 %); the passages' links; the well's frame; and the current region's
   edge as a 2.5 px warning ring. Interiors are not drawn.
   - A region is **discovered** when one of its maps (its overworld `world` or one of its
     `interiors`) is in `RunState.world.discovered_areas`, and **current** when the current world is
@@ -240,24 +240,24 @@ map_ui.clear_markers()
     banner and the save slots: without a trailing note in parentheses (the sketch tool's planning
     note on an open design slot, "Desert (open)" reads "Desert"; the file keeps it).
   - **Links**: each entry of the layout's `passages` (`{a, b, x, y, w, h}` in cells, written by
-    `godot/tools/build_region_worlds.gd`: 18 openings in the current layout) whose two regions are
-    discovered and that can be travelled both ways (`passage_shown`) gets a short bar across their
+    `godot/tools/build_region_worlds.gd`: 17 openings in the current layout, after the owner closed
+    North Wilds – Slimeshire Meadow and North Wilds – Gloop Forest on 2026-10-31) whose two regions are
+    discovered (`passage_shown`) gets a short bar across their
     border at the middle of its opening (0.18 of a chunk each way): a 2 px accent line on a 5 px
     dark one (the legacy `WorldMapUI.ts:112-115` link, darker and stronger to read on the tinted
     regions). It runs sideways when the cells left and right of the opening belong to its two
     regions, downwards when those above and below do, else across the opening's long side.
     `link_shown(a, b, discovered)` and `has_passage(a, b)` take region keys or map ids.
-  - **[DIFF] Two-way passages only (2026-10-11).** The map does not read the world scenes' exits
-    (loading level-1's scene alone takes about a second), so `is_two_way` decides from the regions'
-    `placeholder` flags: two placeholders (the region builder gives each side of every opening its
-    exit) or two hand-made worlds (their own exits: Slimeshire Meadow – Gloop Forest and Gloop
-    Forest – Crystal Caverns work both ways) get a link; a placeholder next to a hand-made world
-    does not, because only the placeholder's exit is built and level-1, gloop-forest and
-    crystal-caverns have no exit back yet (seven openings: [WORLD_ATLAS.md](../WORLD_ATLAS.md),
-    "Openings on hand-made worlds"). When a hand-made world gets its exit at such an opening, this
-    rule has to change with it (for example the region builder marking the passages whose
-    hand-made side has no exit). A release build can discover only Slimeshire Meadow, Gloop Forest
-    and Crystal Caverns (the placeholders ship only in "Web (dev)"), so it shows those two links.
+  - **[DIFF] Every passage gets its link (2026-10-31).** From 2026-10-11 the map drew only the
+    passages it judged two-way from the regions' `placeholder` flags (`is_two_way`): a placeholder
+    next to a hand-made world got no link, because level-1, gloop-forest and crystal-caverns had
+    no exit back. Since 2026-10-31 every opening is drawn on both sides (the hand-made worlds'
+    exits back: [WORLD_ATLAS.md](../WORLD_ATLAS.md), "Openings on hand-made worlds"), so every
+    passage gets its link once both regions are discovered; `tools/check_crossings.gd` lists an
+    opening drawn on one side only. The map still does not read the world scenes' exits (loading
+    level-1's scene alone takes about a second). A release build can discover only Slimeshire
+    Meadow, Gloop Forest and Crystal Caverns (the placeholders ship only in "Web (dev)"), so it
+    shows those two links.
   - **Player**: when the current world is a region's overworld, the minimap's player dot
     (`#72d8ff` r 4 on a dark r 5.25) at the player's place in the world (`player.get_centre()` over
     `WorldService.world_rect()`) mapped onto the region's chunk block (`player_dot()`), drawn on the

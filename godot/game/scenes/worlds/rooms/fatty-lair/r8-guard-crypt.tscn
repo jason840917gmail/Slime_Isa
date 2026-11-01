@@ -18,6 +18,8 @@
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="18_rw8501"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="19_rw5818"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 [ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_north"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="throw_liftable"]
 
@@ -42,6 +44,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAABAAAAAAABAAAAAAABAAAAAAACAAAAAAABAAA
 tile_set = ExtResource("4_cnvbu")
 script = ExtResource("5_rp2bd")
 
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=807024152]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAADAAkAAAABAAIAAAADAAkAAAABAAMAAAADAAkAAAACAAMAAAADAAkAAAACAAQAAAADAAkAAAACAAUAAAADAAkAAAACAAYAAAADAAkAAAACAAcAAAADAAkAAAACAAgAAAADAAkAAAACAAkAAAADAAkAAAACAAoAAAADAAkAAAACAAsAAAADAAkAAAACAAwAAAADAAkAAAACAA0AAAADAAkAAAACAA4AAAADAAkAAAACAA8AAAADAAkAAAACABAAAAADAAkAAAACABEAAAADAAkAAAACABIAAAADAAkAAAACABMAAAADAAkAAAACABQAAAADAAkAAAACABUAAAADAAkAAAACABYAAAADAAkAAAACABcAAAADAAkAAAACABgAAAADAAkAAAACABkAAAADAAkAAAACABoAAAADAAkAAAACABsAAAADAAkAAAACABwAAAADAAkAAAACAB0AAAADAAkAAAADAB0AAAADAAkAAAAEAB0AAAADAAkAAAAFAB0AAAADAAkAAAAGAB0AAAADAAkAAAAHAB0AAAADAAkAAAAIAB0AAAADAAkAAAAJAB0AAAADAAkAAAAKAB0AAAADAAkAAAALAB0AAAADAAkAAAAMAB0AAAADAAkAAAANAB0AAAADAAkAAAAOAB0AAAADAAkAAAAPAB0AAAADAAkAAAAPABwAAAADAAkAAAAPABsAAAADAAkAAAAPABoAAAADAAkAAAAPABkAAAADAAkAAAAPABgAAAADAAkAAAAPABcAAAADAAkAAAAPABYAAAADAAkAAAAPABUAAAADAAkAAAAPABQAAAADAAkAAAAPABMAAAADAAkAAAAPABIAAAADAAkAAAAPABEAAAADAAkAAAAPABAAAAADAAkAAAAPAA8AAAADAAkAAAAPAA4AAAADAAkAAAAPAA0AAAADAAkAAAAPAAwAAAADAAkAAAAPAAsAAAADAAkAAAAPAAoAAAADAAkAAAAPAAkAAAADAAkAAAAPAAgAAAADAAkAAAAPAAcAAAADAAkAAAAPAAYAAAADAAkAAAAPAAUAAAADAAkAAAAPAAQAAAADAAkAAAAPAAMAAAADAAkAAAAPAAIAAAADAAkAAAAOAAIAAAADAAkAAAANAAIAAAADAAkAAAAMAAIAAAADAAkAAAALAAIAAAADAAkAAAAKAAIAAAADAAkAAAAJAAIAAAADAAkAAAAIAAIAAAADAAkAAAAHAAIAAAADAAkAAAAGAAIAAAADAAkAAAAFAAIAAAADAAkAAAAEAAIAAAADAAkAAAADAAIAAAADAAkAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
+
 [node name="CameraRooms" type="Node2D" parent="." unique_id=1848001712]
 
 [node name="r8-guard-crypt" type="Node2D" parent="CameraRooms" unique_id=28227643]
@@ -63,16 +71,16 @@ position = Vector2(576, 614.4)
 position = Vector2(576, 1446.3999)
 
 [node name="r8-guard-west-10" parent="Scenery" unique_id=1373619389 instance=ExtResource("9_ar7bn")]
-position = Vector2(172.80005, 736)
+position = Vector2(187, 432)
 
 [node name="r8-guard-west-13" parent="Scenery" unique_id=1740462360 instance=ExtResource("9_ar7bn")]
-position = Vector2(172.80005, 928)
+position = Vector2(184, 935)
 
 [node name="r8-guard-west-16" parent="Scenery" unique_id=8028265 instance=ExtResource("9_ar7bn")]
 position = Vector2(172.80005, 1248)
 
 [node name="r8-guard-east-6" parent="Scenery" unique_id=1189157346 instance=ExtResource("9_ar7bn")]
-position = Vector2(979.19995, 480)
+position = Vector2(978, 430)
 
 [node name="r8-guard-east-10" parent="Scenery" unique_id=771528069 instance=ExtResource("9_ar7bn")]
 position = Vector2(979.19995, 736)
@@ -137,14 +145,12 @@ overrides = {
 y_sort_enabled = true
 
 [node name="crypt-north-stair" parent="Lair" unique_id=1131045910 instance=ExtResource("stair_door_north")]
-position = Vector2(581, 154)
+position = Vector2(574, 140)
 hatch_id = "fatty-lair-crypt-north-stair"
 start_open = true
+target_door = "fatty-lair-inner-stair"
+arrival_offset = Vector2(18, 7)
 target_world = "fatty-lair-r3-pit-hall"
-target_marker = "stair-door-arrival"
-
-[node name="crypt-stair-arrival" type="Node2D" parent="Lair" unique_id=1797484711]
-position = Vector2(599, 161)
 
 [node name="Objects" type="Node2D" parent="." unique_id=1462079318]
 y_sort_enabled = true
@@ -213,25 +219,26 @@ y_sort_enabled = true
 [node name="throw-r8-marcher-a-1" parent="Throwables" unique_id=1786826933 instance=ExtResource("throw_liftable")]
 position = Vector2(438, 493)
 kind = "clay-pot"
+weight = "light"
 
 [node name="throw-r8-marcher-a-2" parent="Throwables" unique_id=1256783257 instance=ExtResource("throw_liftable")]
 position = Vector2(390, 518)
 kind = "rock"
+weight = "light"
 
 [node name="throw-r8-marcher-b-1" parent="Throwables" unique_id=1807975548 instance=ExtResource("throw_liftable")]
 position = Vector2(822, 1709)
 kind = "clay-pot"
+weight = "light"
 
 [node name="throw-r8-marcher-b-2" parent="Throwables" unique_id=2062576079 instance=ExtResource("throw_liftable")]
 position = Vector2(774, 1734)
 kind = "rock"
+weight = "light"
 
 [editable path="Scenery/r8-bier-north"]
 [editable path="Scenery/r8-bier-south"]
-[editable path="Scenery/r8-guard-west-10"]
-[editable path="Scenery/r8-guard-west-13"]
 [editable path="Scenery/r8-guard-west-16"]
-[editable path="Scenery/r8-guard-east-6"]
 [editable path="Scenery/r8-guard-east-10"]
 [editable path="Scenery/r8-guard-east-14"]
 [editable path="Scenery/r8-guard-east-18"]

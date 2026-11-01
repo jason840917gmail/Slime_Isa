@@ -7,10 +7,12 @@ class_name DungeonMapDraw
 ## - with the map: every other room, a dim fill with a dashed-looking thin edge (fog lifted);
 ## - without the map, a room never visited is not drawn (fog);
 ## - the room the slime is in: a gold ring;
-## - with the compass: a red mark in the boss's room (a RoomFight with a `boss_id`, or a node in the
-##   group `dungeon_map_mark` with `mark` = "boss") and a gold dot on each chest not opened yet;
+## - with the map: a red mark in the boss's room (a RoomFight with a `boss_id`, or a node in the
+##   group `dungeon_map_mark` with `mark` = "boss"; owner, 2026-10-26: it moved from the compass);
+## - with the compass: a gold dot on each chest not opened yet;
 ## - a seal shut (dungeon_seal.gd, `mark` = "seal"): a red bar across its doorway, with or without
-##   the compass, while the dungeon is sealed (docs/godot/DUNGEONS.md "The seal").
+##   the compass, while the dungeon is sealed (docs/godot/DUNGEONS.md "The seal");
+## - in a room drawn, its doors, shutters and stairs, read from its scene (`scene_features`).
 ## `to_view` maps a global point to the canvas. The minimap draws `only_current`: the slime's room
 ## alone with the marks inside it (owner, 2026-10-19: the rooms around it, at the minimap's scale,
 ## covered the play area); the map screen (M) draws every room.
@@ -19,6 +21,7 @@ class_name DungeonMapDraw
 
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const RoomDoorScript := preload("res://game/dungeon/room_door.gd")
 
 const VISITED_FILL := Color("#d9c491")
 const VISITED_EDGE := Color("#6b4a26")
@@ -39,13 +42,41 @@ const FIGHT_GROUP := &"room_fight"
 ## Rooms are drawn this share of a room inset, so neighbours show a gap.
 const INSET_SHARE := 0.06
 
-## Room scene path -> its chests (`scene_chests`), read once a session.
+## Room scene path -> its chests (`scene_chests`) and its features (`scene_features`), read once a
+## session; script path -> {property: its default} (`_default_of`).
 static var _scene_chests: Dictionary = {}
 static var _scene_features: Dictionary = {}
+static var _defaults: Dictionary = {}
 const DOOR_MARK := Color("#c9a25a")
 const LOCKED_MARK := Color("#7f8ea3")
-const SHUTTER_MARK := Color("#e0503a")
 const STAIR_MARK := Color("#ffc866")
+## The scripts the map draws a feature for (a script that extends one is that feature too): a room
+## door (the way through), a dungeon door (key, boss and bolted doors), a shutter (not the seal, which
+## has its own bar), a plank barricade, a stair door and a door out to another world with a side.
+const ROOM_DOOR_SCRIPT := "res://game/dungeon/room_door.gd"
+const WORLD_DOOR_SCRIPT := "res://game/scripts/door.gd"
+const DUNGEON_DOOR_SCRIPT := "res://game/dungeon/dungeon_door.gd"
+const KEY_DOOR_SCRIPT := "res://game/dungeon/key_door.gd"
+const BOLTED_DOOR_SCRIPT := "res://game/dungeon/bolted_door.gd"
+const SHUTTER_SCRIPT := "res://game/dungeon/shutter.gd"
+const SEAL_SCRIPT := "res://game/dungeon/dungeon_seal.gd"
+const BARRICADE_SCRIPT := "res://game/scripts/plank_barricade.gd"
+const STAIR_SCRIPT := "res://game/scripts/stair_hatch.gd"
+## A feature on a room's edge (a room door) still belongs to it this close outside (room units).
+const EDGE_SLACK := 8.0
+## One doorway (`_doorways`, room units): its two sides' ways through lie this close along and across
+## its wall; a door leaf, shutter or barricade in it stands up to this deep in the wall (two cells and
+## a margin).
+const DOORWAY_MERGE := 72.0
+const DOORWAY_DEPTH := 160.0
+## A doorway's mark (canvas units, on a north or south wall; turned on an east or west one).
+const DOORWAY_BAR := Vector2(14.0, 6.0)
+## What a doorway shows, the first its pieces have (`_doorway_look`): the boss door, a small-key door,
+## a barricade, a bolted door, a door locked by a record elsewhere, a fight's shutter (open until its
+## fight starts: a lock in the same doorway says more); else open.
+const DOORWAY_LOOKS: PackedStringArray = ["big", "small", "barricade", "bolt", "locked", "shutter"]
+const DOORWAY_COLOURS := {"open": DOOR_MARK, "shutter": Color("#e0503a"), "barricade": Color("#8a5a2b"),
+	"big": Color("#7a1d1a"), "small": LOCKED_MARK, "bolt": LOCKED_MARK, "locked": LOCKED_MARK}
 
 
 ## The floors the dungeon's rooms lie on, the highest first ([0] alone for a one-floor dungeon).
@@ -73,7 +104,7 @@ static func bounds(dungeon: Node) -> Rect2:
 
 ## Draws the rooms on `canvas`; `to_view` (Callable: Vector2 -> Vector2) maps global points.
 ## `player_point` (global, or Vector2.INF) gets the slime's dot when `with_dot`. `only_current`: the
-## slime's room alone, and only the seals and compass marks inside it (the minimap).
+## slime's room alone, and only the seals and the marks inside it (the minimap).
 ## `floor_level`: the floor shown (the map's floor tabs; the minimap ignores it and shows the slime's room).
 static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_point: Vector2, with_dot: bool, only_current: bool = false, floor_level: int = 0) -> void:
 	var run := Services.run()
@@ -131,6 +162,10 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			canvas.draw_rect(box, Color(MAPPED_EDGE, 0.7), false, 1.0)
 		if str(room["key"]) == current:
 			canvas.draw_rect(box.grow(inset * 0.5), CURRENT_RING, false, maxf(1.5, inset * 0.6))
+	# A world of several rooms (R5) is one scene: each of its features is drawn once.
+	var drawn := {}
+	# The doors, shutters and barricades of every room drawn, merged into doorways after.
+	var walls: Array[Dictionary] = []
 	for room: Dictionary in rooms:
 		if only_current and str(room["key"]) != current:
 			continue
@@ -138,7 +173,9 @@ static func draw(canvas: CanvasItem, dungeon: Node, to_view: Callable, player_po
 			continue
 		if not DungeonState.is_visited(run, id, str(room["key"])) and not has_map:
 			continue
-		_draw_features(canvas, dungeon, room, to_view, shown)
+		_collect_features(canvas, dungeon, room, to_view, shown, drawn, walls)
+	for doorway: Dictionary in _doorways(walls):
+		_draw_doorway(canvas, to_view.call(doorway["at"]), str(doorway["axis"]), _doorway_look(doorway["states"]))
 	for seal: Node2D in seal_nodes(dungeon):
 		if bool(shown.call(seal.global_position)):
 			_draw_seal(canvas, seal, to_view)
@@ -245,42 +282,174 @@ static func chest_points(dungeon: Node) -> Array[Vector2]:
 	if not dungeon.has_method(&"layout_rooms_elsewhere"):
 		return out
 	var run := Services.run()
+	# A world of several rooms (R5) is one scene, named by each of its rooms: read once.
+	var read := {}
 	for room: Dictionary in dungeon.call(&"layout_rooms_elsewhere"):
-		for chest: Dictionary in scene_chests(str(room["scene"])):
+		var path := str(room["scene"])
+		if read.has(path):
+			continue
+		read[path] = true
+		for chest: Dictionary in scene_chests(path):
 			if _chest_full(run, chest):
-				out.append((room["rect"] as Rect2).position + (chest["at"] as Vector2))
+				out.append(_scene_origin(room) + (chest["at"] as Vector2))
 	return out
 
 
+## Where the origin of a room's scene lies in this world: its CameraRoom's place on the layout less
+## where that CameraRoom lies in its scene (`camera_offset`: R5's lower hall and key alcove are not
+## at their scene's origin); this world's own room: the world root.
+static func _scene_origin(room: Dictionary) -> Vector2:
+	if room.get("node") != null:
+		var world := Services.world()
+		return world.world_root.global_position if world != null and world.world_root != null else Vector2.ZERO
+	return (room["rect"] as Rect2).position - (room.get("camera_offset", Vector2.ZERO) as Vector2)
+
+
 ## The doors, shutters and stairs of a room, read from its scene (`scene`, or the layout's scene for
-## the room this world holds), each drawn where it stands. Doors and shutters are drawn in their wall.
-static func _draw_features(canvas: CanvasItem, dungeon: Node, room: Dictionary, to_view: Callable, shown: Callable) -> void:
+## the room this world holds), if they lie in this room (a world of several rooms holds the features
+## of all of them; `drawn` keeps each scene's feature to one). Stairs are drawn at once; the wall
+## pieces (doors, shutters, barricades) go into `walls` as {"at" (this world), "axis" ("h" on a north
+## or south wall, "v" on an east or west one), "anchor" (a room door or a door out: the way through,
+## on the wall's line), "state" (what it shows: `_doorway_look`)} for `_doorways` to merge.
+static func _collect_features(canvas: CanvasItem, dungeon: Node, room: Dictionary, to_view: Callable, shown: Callable,
+		drawn: Dictionary, walls: Array[Dictionary]) -> void:
 	var path := str(room.get("scene", ""))
 	if path.is_empty() and room.get("node") != null:
 		path = str(dungeon.call(&"layout_scene_of", str(room["name"])))
 	if path.is_empty():
 		return
-	var origin := (room["rect"] as Rect2).position
-	for feature: Dictionary in scene_features(path):
+	var origin := _scene_origin(room)
+	var records := _records_of(dungeon, room)
+	var run := Services.run()
+	var features := scene_features(path)
+	for index: int in features.size():
+		var feature: Dictionary = features[index]
 		var point: Vector2 = origin + (feature["at"] as Vector2)
-		if not bool(shown.call(point)):
+		var key := "%s#%d" % [path, index]
+		if drawn.has(key) or not _room_holds(room, point) or not bool(shown.call(point)):
 			continue
-		var at: Vector2 = to_view.call(point)
-		match str(feature["kind"]):
+		drawn[key] = true
+		var kind := str(feature["kind"])
+		if kind == "stair":
+			_draw_stair(canvas, to_view.call(point), str(feature["direction"]))
+			continue
+		var side := str(feature["side"])
+		var state := "open"
+		match kind:
 			"door":
-				_draw_wall_mark(canvas, at, str(feature["side"]), LOCKED_MARK if bool(feature["locked"]) else DOOR_MARK)
+				if _is_locked(dungeon, feature, records):
+					state = str(feature.get("lock", "locked"))
+			"barricade":
+				if run == null or not bool(run.call(&"has_flag", str(feature["flag"]))):
+					state = "barricade"
 			"shutter":
-				_draw_wall_mark(canvas, at, str(feature["side"]), SHUTTER_MARK)
-			"stair":
-				_draw_stair(canvas, at, str(feature["direction"]))
+				state = "shutter"
+		walls.append({"at": point, "axis": "h" if side == "north" or side == "south" else "v",
+			"anchor": kind == "door" and str(feature.get("via", "")) != "dungeon", "state": state})
 
 
-## A door or shutter's mark on its wall: a short bar across the opening, horizontal on a north or
-## south wall, upright on an east or west one.
-static func _draw_wall_mark(canvas: CanvasItem, at: Vector2, side: String, color: Color) -> void:
-	var size := Vector2(12.0, 4.0) if side == "north" or side == "south" else Vector2(4.0, 12.0)
-	canvas.draw_rect(Rect2(at - size * 0.5 - Vector2(0.8, 0.8), size + Vector2(1.6, 1.6)), Color(0, 0, 0, 0.55))
-	canvas.draw_rect(Rect2(at - size * 0.5, size), color)
+## The doorways the wall pieces `walls` (`_collect_features`) make, one each: the ways through
+## (room doors, doors out) on one wall line within DOORWAY_MERGE of each other are one doorway (the
+## two rooms' sides of it), drawn where they are; a door leaf, shutter or barricade standing in the
+## wall's depth (DOORWAY_DEPTH across it, DOORWAY_MERGE along it) belongs to that doorway; one with
+## no doorway near is a doorway of its own. [{"at", "axis", "states"}].
+static func _doorways(walls: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for anchors: bool in [true, false]:
+		for piece: Dictionary in walls:
+			if bool(piece["anchor"]) != anchors:
+				continue
+			var at: Vector2 = piece["at"]
+			var axis := str(piece["axis"])
+			var best: Dictionary = {}
+			var best_distance := INF
+			for doorway: Dictionary in out:
+				if str(doorway["axis"]) != axis:
+					continue
+				var d := at - (doorway["at"] as Vector2)
+				var across := absf(d.y) if axis == "h" else absf(d.x)
+				var along := absf(d.x) if axis == "h" else absf(d.y)
+				var reach := DOORWAY_MERGE if anchors else DOORWAY_DEPTH
+				if across <= reach and along <= DOORWAY_MERGE and across + along < best_distance:
+					best = doorway
+					best_distance = across + along
+			if best.is_empty():
+				out.append({"at": at, "axis": axis, "states": [piece["state"]], "count": 1})
+				continue
+			(best["states"] as Array).append(piece["state"])
+			if anchors:
+				# the doorway's two sides: drawn between them, on the wall the rooms share
+				var count := int(best["count"])
+				best["at"] = ((best["at"] as Vector2) * count + at) / (count + 1)
+				best["count"] = count + 1
+	return out
+
+
+## What a doorway shows (`states`: its pieces'): the first of DOORWAY_LOOKS any piece has, else open.
+static func _doorway_look(states: Array) -> String:
+	for look: String in DOORWAY_LOOKS:
+		if states.has(look):
+			return look
+	return "open"
+
+
+## A doorway's mark on its wall: a bar across the opening (horizontal on a north or south wall,
+## upright on an east or west one), gold while open; a bolted or barred one grey with a dark bolt, a
+## key door grey with a gold keyhole, the boss door dark crimson with a gold keyhole, a shutter red, a
+## barricade brown and slatted.
+static func _draw_doorway(canvas: CanvasItem, at: Vector2, axis: String, look: String) -> void:
+	var size := DOORWAY_BAR if axis == "h" else Vector2(DOORWAY_BAR.y, DOORWAY_BAR.x)
+	var bar := Rect2(at - size * 0.5, size)
+	canvas.draw_rect(bar.grow(0.8), Color(0, 0, 0, 0.55))
+	canvas.draw_rect(bar, DOORWAY_COLOURS.get(look, DOOR_MARK))
+	match look:
+		"locked", "bolt":
+			canvas.draw_rect(Rect2(at - Vector2(1.5, 1.5), Vector2(3.0, 3.0)), Color("#2a2f3a"))
+		"small", "big":
+			canvas.draw_circle(at, 1.8, CHEST_MARK)
+		"barricade":
+			for k in [-0.25, 0.25]:
+				var middle := at + (Vector2(size.x * k, 0.0) if axis == "h" else Vector2(0.0, size.y * k))
+				var half := size.y * 0.5 if axis == "h" else size.x * 0.5
+				canvas.draw_line(middle + Vector2(-half, half), middle + Vector2(half, -half), Color("#2a1a0a"), 1.0)
+
+
+## True while a door of the map is locked: a room door until the record its `requires` names is set
+## (RoomDoor.requirement_met), a dungeon door (key, boss, bolted) until it is opened for good (its
+## record: DungeonState.mark_done under its link). `records`: the id its world keeps them under.
+static func _is_locked(dungeon: Node, feature: Dictionary, records: String) -> bool:
+	if feature.has("requires"):
+		return not RoomDoorScript.requirement_met(dungeon.get_tree(), records, str(feature["requires"]))
+	if feature.has("link"):
+		return not DungeonState.is_done(dungeon.get_tree(), "%s:%s" % [records, feature["link"]] if not records.is_empty() else str(feature["link"]))
+	return false
+
+
+## The id a room's world keeps its kit records under (DungeonState.record_map_id): the dungeon's
+## `record_map_id` (Fatty's Lair: every room's under "fatty-lair"), else the room's world.
+static func _records_of(dungeon: Node, room: Dictionary) -> String:
+	var shared := str(dungeon.get(&"record_map_id")) if &"record_map_id" in dungeon else ""
+	if not shared.is_empty():
+		return shared
+	if room.has("world"):
+		return str(room["world"])
+	var world := Services.world()
+	return world.map_id() if world != null else ""
+
+
+## True when `point` (this world) lies in `room`: in its outline (its rectangle without one), or
+## within EDGE_SLACK of its edge.
+static func _room_holds(room: Dictionary, point: Vector2) -> bool:
+	if not (room["rect"] as Rect2).grow(EDGE_SLACK).has_point(point):
+		return false
+	var outline := room.get("outline", PackedVector2Array()) as PackedVector2Array
+	if outline.size() < 3 or Geometry2D.is_point_in_polygon(point, outline):
+		return true
+	for i: int in outline.size():
+		var edge := Geometry2D.get_closest_point_to_segment(point, outline[i], outline[(i + 1) % outline.size()])
+		if edge.distance_to(point) <= EDGE_SLACK:
+			return true
+	return false
 
 
 ## A stair's arrow: up or down, gold.
@@ -293,43 +462,57 @@ static func _draw_stair(canvas: CanvasItem, at: Vector2, direction: String) -> v
 
 
 ## The features of the room scene at `path`, read from its state once a session: [{"at" (in the scene),
-## "kind" ("door", "shutter" or "stair"), "side" (its wall; doors and shutters), "locked" (a door held
-## by a `requires`), "direction" (stairs)}]. A door is a node with a `door_id` and a `side`, a shutter
-## one with a `wall`, stairs one with a `direction`.
+## "kind" ("door", "barricade", "shutter" or "stair"), "side" (its wall; not stairs), "direction"
+## (stairs), and what says whether a door is locked: "requires" (a room door's), "link" (a dungeon
+## door's record id), "flag" (a barricade's)}]. Each is known by its script (`_script_of`; the
+## scripts above), its values read as the game builds them (`_value_of`: a value the scene leaves at
+## its default is not saved in it).
 static func scene_features(path: String) -> Array[Dictionary]:
 	if _scene_features.has(path):
 		return _scene_features[path]
 	var out: Array[Dictionary] = []
 	_scene_features[path] = out
-	if path.is_empty() or not ResourceLoader.exists(path):
-		return out
-	var state := (load(path) as PackedScene).get_state()
-	var positions := {}
-	for index: int in state.get_node_count():
-		for p: int in state.get_node_property_count(index):
-			if state.get_node_property_name(index, p) == &"position":
-				positions[str(state.get_node_path(index))] = state.get_node_property_value(index, p)
-	for index: int in state.get_node_count():
-		var props := {}
-		for p: int in state.get_node_property_count(index):
-			props[str(state.get_node_property_name(index, p))] = state.get_node_property_value(index, p)
+	for node: Dictionary in _scene_nodes(path):
+		var state: SceneState = node["state"]
+		var index: int = node["index"]
+		var script := _script_of(state, index)
+		if script == null:
+			continue
 		var feature := {}
-		if props.has("door_id") and props.has("side"):
-			feature = {"kind": "door", "side": str(props["side"]), "locked": not str(props.get("requires", "")).is_empty()}
-		elif props.has("direction"):
-			feature = {"kind": "stair", "direction": str(props["direction"])}
-		elif props.has("wall"):
-			feature = {"kind": "shutter", "side": str(props["wall"])}
+		if _extends(script, ROOM_DOOR_SCRIPT):
+			feature = {"kind": "door", "via": "room", "side": str(_value_of(state, index, script, &"side")),
+				"requires": str(_value_of(state, index, script, &"requires")), "lock": "locked"}
+		elif _extends(script, DUNGEON_DOOR_SCRIPT):
+			# Its record: its link, else its door id, else its node's name (DungeonDoor `_link`).
+			var link := str(_value_of(state, index, script, &"link_id"))
+			if link.is_empty():
+				link = str(_value_of(state, index, script, &"door_id"))
+			# what holds it shut: a key door's lock ("small", "big": the boss door), a bolt
+			var lock := "locked"
+			if _extends(script, KEY_DOOR_SCRIPT):
+				lock = str(_value_of(state, index, script, &"lock"))
+			elif _extends(script, BOLTED_DOOR_SCRIPT):
+				lock = "bolt"
+			feature = {"kind": "door", "via": "dungeon", "side": str(_value_of(state, index, script, &"wall")),
+				"link": link if not link.is_empty() else String(state.get_node_name(index)), "lock": lock}
+		elif _extends(script, SEAL_SCRIPT):
+			continue
+		elif _extends(script, SHUTTER_SCRIPT):
+			feature = {"kind": "shutter", "side": str(_value_of(state, index, script, &"wall"))}
+		elif _extends(script, BARRICADE_SCRIPT):
+			feature = {"kind": "barricade", "side": str(_value_of(state, index, script, &"wall")),
+				"flag": str(_value_of(state, index, script, &"flag_id"))}
+		elif _extends(script, STAIR_SCRIPT):
+			var direction: Variant = _value_of(state, index, script, &"direction")
+			feature = {"kind": "stair", "direction": str(direction) if direction != null else "down"}
+		elif _extends(script, WORLD_DOOR_SCRIPT):
+			# A door out of the dungeon (R1's way in); one without a side is a hole or a ladder.
+			var side := str(_value_of(state, index, script, &"side"))
+			if side != "none":
+				feature = {"kind": "door", "via": "world", "side": side}
 		if feature.is_empty():
 			continue
-		# Its own position plus its ancestors' (a door node carries its own position; the chests'
-		# root is their parent, so theirs starts one level up).
-		var at := Vector2.ZERO
-		var node_path := str(state.get_node_path(index))
-		while node_path != "." and not node_path.is_empty():
-			at += positions.get(node_path, Vector2.ZERO) as Vector2
-			node_path = node_path.get_base_dir()
-		feature["at"] = at
+		feature["at"] = node["at"]
 		out.append(feature)
 	return out
 
@@ -341,15 +524,9 @@ static func scene_chests(path: String) -> Array[Dictionary]:
 		return _scene_chests[path]
 	var out: Array[Dictionary] = []
 	_scene_chests[path] = out
-	if path.is_empty() or not ResourceLoader.exists(path):
-		return out
-	var state := (load(path) as PackedScene).get_state()
-	var positions := {}
-	for index: int in state.get_node_count():
-		for p: int in state.get_node_property_count(index):
-			if state.get_node_property_name(index, p) == &"position":
-				positions[str(state.get_node_path(index))] = state.get_node_property_value(index, p)
-	for index: int in state.get_node_count():
+	for node: Dictionary in _scene_nodes(path):
+		var state: SceneState = node["state"]
+		var index: int = node["index"]
 		if state.get_node_name(index) != CHEST_SCRIPT_NODE:
 			continue
 		var chest := {"map_id": "", "instance_id": "", "contents": {}, "heart": ""}
@@ -365,15 +542,94 @@ static func scene_chests(path: String) -> Array[Dictionary]:
 					chest["heart"] = str(state.get_node_property_value(index, p))
 		if str(chest["instance_id"]).is_empty():
 			continue
-		# The chest stands at its root (the script's parent), placed by its ancestors' positions.
-		var at := Vector2.ZERO
-		var node_path := str(state.get_node_path(index, true))
-		while node_path != "." and not node_path.is_empty():
-			at += positions.get(node_path, Vector2.ZERO) as Vector2
-			node_path = node_path.get_base_dir()
-		chest["at"] = at
+		# The chest stands at its root (the script's parent).
+		chest["at"] = node["parent_at"]
 		out.append(chest)
 	return out
+
+
+## The nodes of the scene at `path`, read from its state (nothing is built): [{"state", "index",
+## "at" (where the node stands in the scene: its position and its ancestors'), "parent_at" (its
+## parent's)}]; [] when there is no such scene.
+static func _scene_nodes(path: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return out
+	var state := (load(path) as PackedScene).get_state()
+	var positions := {}
+	for index: int in state.get_node_count():
+		var own: Array = _stored(state, index, &"position")
+		if not own.is_empty():
+			positions[str(state.get_node_path(index))] = own[0]
+	for index: int in state.get_node_count():
+		var parent_at := _place(positions, str(state.get_node_path(index, true)))
+		var own := positions.get(str(state.get_node_path(index)), Vector2.ZERO) as Vector2
+		out.append({"state": state, "index": index, "at": parent_at + own, "parent_at": parent_at})
+	return out
+
+
+## Where the node at `node_path` stands in its scene: its position and its ancestors' (the root's
+## left out: the scene's origin).
+static func _place(positions: Dictionary, node_path: String) -> Vector2:
+	var at := Vector2.ZERO
+	while node_path != "." and not node_path.is_empty():
+		at += positions.get(node_path, Vector2.ZERO) as Vector2
+		node_path = node_path.get_base_dir()
+	return at
+
+
+## `property` as a node of a scene state holds it: [its value] from the state, else from the root
+## of the scene it instances (and so on: an instance's own values are in its scene); [] when none
+## of them stores it (it is at its script's default).
+static func _stored(state: SceneState, index: int, property: StringName) -> Array:
+	var at := state
+	var node := index
+	while at != null:
+		for p: int in at.get_node_property_count(node):
+			if at.get_node_property_name(node, p) == property:
+				return [at.get_node_property_value(node, p)]
+		var instance := at.get_node_instance(node)
+		at = instance.get_state() if instance != null else null
+		node = 0
+	return []
+
+
+## The script of a node of a scene state (its own, else its instanced scene's root's); null without.
+static func _script_of(state: SceneState, index: int) -> Script:
+	var script: Array = _stored(state, index, &"script")
+	return script[0] as Script if not script.is_empty() else null
+
+
+## True when `script` is the script at `path` or extends it.
+static func _extends(script: Script, path: String) -> bool:
+	var at := script
+	while at != null:
+		if at.resource_path == path:
+			return true
+		at = at.get_base_script()
+	return false
+
+
+## `property` of a node of a scene state as the game builds it: stored (`_stored`), else its
+## script's default (`_default_of`).
+static func _value_of(state: SceneState, index: int, script: Script, property: StringName) -> Variant:
+	var stored: Array = _stored(state, index, property)
+	return stored[0] if not stored.is_empty() else _default_of(script, property)
+
+
+## The default of `script`'s `property` (Script.get_property_default_value; an exported game keeps
+## none on its scripts, so then a bare instance of the script tells it, once a session).
+static func _default_of(script: Script, property: StringName) -> Variant:
+	var value: Variant = script.get_property_default_value(property)
+	if value != null:
+		return value
+	var known: Dictionary = _defaults.get_or_add(script.resource_path, {})
+	if not known.has(property):
+		var probe: Object = script.new() if script.can_instantiate() else null
+		known[property] = probe.get(property) if probe != null else null
+		if probe != null and not probe is RefCounted:
+			probe.free()
+	return known[property]
 
 
 ## True when a chest of another room's scene (`scene_chests`) is not opened yet: its heart not taken,

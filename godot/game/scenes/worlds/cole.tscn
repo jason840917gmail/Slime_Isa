@@ -275,10 +275,6 @@ stay_shape = NodePath("../stay-shape")
 y_sort_enabled = true
 position = Vector2(1248, 928)
 
-[node name="player-entry-east" type="Node2D" parent="."]
-y_sort_enabled = true
-position = Vector2(1248, 928)
-
 [node name="wall-stone-solid-7f37f498" parent="." instance=ExtResource("4")]
 position = Vector2(864, 512)
 metadata/instance_id = "wall-stone-solid-7f37f498"

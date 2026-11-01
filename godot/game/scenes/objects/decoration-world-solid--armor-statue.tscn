@@ -1,19 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://ditsux0cr7ksh"]
 
-[ext_resource type="Texture2D" path="res://asset/MAPS/decorations/128x128-tile_8x3.webp" id="1"]
+[ext_resource type="Texture2D" uid="uid://djwkke08ux8im" path="res://asset/MAPS/decorations/128x128-tile_8x3.webp" id="1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(52, 38)
+size = Vector2(52, 45)
 
-[node name="armor-statue" type="StaticBody2D"]
+[node name="armor-statue" type="StaticBody2D" unique_id=128036420]
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=538474452]
+position = Vector2(-4, -31.5)
 shape = SubResource("RectangleShape2D_1")
-position = Vector2(-4, -28)
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1447730356]
 texture = ExtResource("1")
 centered = false
 offset = Vector2(-64, -128)

@@ -632,7 +632,8 @@ blank orb and follows its gaze; a faint wedge on the ground shows where it looks
   `alertTurnDegPerS` 150.
 - **Right tool:** do not be seen: hide behind the heavy block on its column (pen 26; the Heavy skin
   pushes the block, `heavy_block.gd`, to other cover), and
-  when it looks away, the Spear from behind (30 health: two jabs). The Bow's hook: an arrow into its
+  when it looks away, the Spear from behind (28 health: two jabs, or two Lunges; owner,
+  2026-11-01: two Spear hits). The Bow's hook: an arrow into its
   eye shatters it.
 - **Aim switch** (`aimDirections`, 0 here): 4 or 8 makes it a line shooter: the gaze holds one of the
   4 (or 8) lines for `holdMs` 1300, turns to the next over `stepMs` 320, sees the slime only on the
@@ -817,7 +818,8 @@ the same; its own are below. Pen 33 has two armour statues and a stone pedestal 
   (`beamPx` 560), `beamDamage` 24 (280 knockback), stopped by the first solid thing. **Cool**
   (`coolMs` 900).
 - **Right tool:** stay behind a statue as it drifts; when it looks away, the Spear from behind (its
-  front clinks; 24 health: two jabs). The Bow's hook: an arrow into its eye.
+  front clinks; 28 health: two jabs, or two Lunges, never one; owner, 2026-11-01: two Spear
+  hits). The Bow's hook: an arrow into its eye.
 - `aimDirections` (0) and the line numbers as the Prism Eye's.
 
 ## Art

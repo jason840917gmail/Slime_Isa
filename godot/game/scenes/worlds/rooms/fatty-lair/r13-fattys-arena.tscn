@@ -1,9 +1,9 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://qyvcaoog3ysu"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_1fcjx"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_rsqnv"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_rsqnv"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_3b5wv"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_gtnu4"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="4_gtnu4"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_0vb52"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_ikgpv"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-2.tscn" id="7_rw7os"]
@@ -11,18 +11,25 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-4.tscn" id="9_aeojn"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-5.tscn" id="10_sim5w"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="11_cferd"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/shutter.webp" id="12_20jfn"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="13_ekh4d"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/dungeon-seal.webp" id="14_vfiue"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/seal-ring.webp" id="15_w0md7"]
+[ext_resource type="Texture2D" uid="uid://ceg6x0ophbt8c" path="res://asset/MAPS/walls/interior/root-rock.webp" id="14_rw7os"]
+[ext_resource type="Texture2D" uid="uid://1c4ssghmbvcf" path="res://asset/MAPS/objects/dungeon/seal-ring.webp" id="15_w0md7"]
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/fatty-lair-boss.tscn" id="16_a563d"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/full-heart.tscn" id="17_kap8f"]
 [ext_resource type="Script" uid="uid://chb2s4byl4u2a" path="res://game/fattys_lair/lair_director.gd" id="18_g1kqi"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="19_rw0636"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="19_rw0636"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="20_rw4302"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="21_rw2493"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="22_rw3795"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="23_rw1648"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="22_rw3795"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="23_rw1648"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_00227"]
+blend_mode = 1
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_aeojn"]
+blend_mode = 1
 
 [node name="r13-fattys-arena" type="Node2D" unique_id=1538429255]
 y_sort_enabled = true
@@ -39,9 +46,17 @@ metadata/columns = 18
 metadata/rows = 16
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1590884453]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAoAAAAJAAAAAAACAAoAAAAKAAAAAAACAAAAAAALAAAAAAACAAAAAAAMAAAAAAACAAAAAAANAAAAAAACAAAAAAAOAAAAAAACAAAAAAAPAAAAAAACAAAAAAAQAAAAAAACAAAAAAARAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAoAAAAJAAEAAAACAAoAAAAKAAEAAAACAAAAAAALAAEAAAACAAAAAAAMAAEAAAACAAAAAAANAAEAAAACAAAAAAAOAAEAAAACAAAAAAAPAAEAAAACAAAAAAAQAAEAAAACAAAAAAARAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAQAAIAAAACAAAAAAARAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAQAAMAAAACAAAAAAARAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAQAAQAAAACAAAAAAARAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAQAAUAAAACAAAAAAARAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAAQAAYAAAACAAAAAAARAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAAAAAgAAAACAAAAAAABAAgAAAACAAAAAAAAAAkAAAACAAAAAAABAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAAAAAsAAAACAAAAAAABAAsAAAACAAAAAAAQAAsAAAACAAAAAAARAAsAAAACAAAAAAAAAAwAAAACAAAAAAABAAwAAAACAAAAAAAQAAwAAAACAAAAAAARAAwAAAACAAAAAAAAAA0AAAACAAAAAAABAA0AAAACAAAAAAAQAA0AAAACAAAAAAARAA0AAAACAAAAAAAAAA4AAAACAAAAAAABAA4AAAACAAAAAAACAA4AAAACAAAAAAADAA4AAAACAAAAAAAEAA4AAAACAAAAAAAFAA4AAAACAAAAAAAGAA4AAAACAAAAAAAHAA4AAAACAAAAAAAIAA4AAAACAAkAAAAJAA4AAAACAAkAAAAKAA4AAAACAAAAAAALAA4AAAACAAAAAAAMAA4AAAACAAAAAAANAA4AAAACAAAAAAAOAA4AAAACAAAAAAAPAA4AAAACAAAAAAAQAA4AAAACAAAAAAARAA4AAAACAAAAAAAAAA8AAAACAAAAAAABAA8AAAACAAAAAAACAA8AAAACAAAAAAADAA8AAAACAAAAAAAEAA8AAAACAAAAAAAFAA8AAAACAAAAAAAGAA8AAAACAAAAAAAHAA8AAAACAAAAAAAIAA8AAAACAAkAAAAJAA8AAAACAAkAAAAKAA8AAAACAAAAAAALAA8AAAACAAAAAAAMAA8AAAACAAAAAAANAA8AAAACAAAAAAAOAA8AAAACAAAAAAAPAA8AAAACAAAAAAAQAA8AAAACAAAAAAARAA8AAAACAAAAAAAQAAcAAAACAAAAAAARAAcAAAACAAAAAAAQAAgAAAACAAAAAAARAAgAAAACAAAAAAAQAAkAAAACAAAAAAARAAkAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAA=")
 tile_set = ExtResource("4_gtnu4")
 script = ExtResource("5_0vb52")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1796979302]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAADAAQAAAACAAMAAAADAAQAAAACAAQAAAADAAQAAAACAAUAAAADAAQAAAACAAgAAAADAAQAAAACAAYAAAADAAQAAAACAAcAAAADAAQAAAACAAkAAAADAAQAAAACAAoAAAADAAQAAAACAAsAAAADAAQAAAACAAwAAAADAAQAAAACAA0AAAADAAQAAAADAA0AAAADAAQAAAAEAA0AAAADAAQAAAAFAA0AAAADAAQAAAAGAA0AAAADAAQAAAAHAA0AAAADAAQAAAAIAA0AAAADAAQAAAAJAA0AAAADAAQAAAAKAA0AAAADAAQAAAAPAA0AAAADAAQAAAAOAA0AAAADAAQAAAANAA0AAAADAAQAAAAMAA0AAAADAAQAAAALAA0AAAADAAQAAAAPAAwAAAADAAQAAAAPAAsAAAADAAQAAAAPAAoAAAADAAQAAAAPAAkAAAADAAQAAAAPAAgAAAADAAQAAAAPAAcAAAADAAQAAAAPAAYAAAADAAQAAAAPAAUAAAADAAQAAAAPAAQAAAADAAQAAAAPAAMAAAADAAQAAAAPAAIAAAADAAQAAAAOAAIAAAADAAQAAAANAAIAAAADAAQAAAAMAAIAAAADAAQAAAALAAIAAAADAAQAAAAKAAIAAAADAAQAAAAJAAIAAAADAAQAAAAIAAIAAAADAAQAAAAHAAIAAAADAAQAAAAGAAIAAAADAAQAAAAFAAIAAAADAAQAAAAEAAIAAAADAAQAAAADAAIAAAADAAQAAAA=")
+tile_set = ExtResource("90_trims")
+script = ExtResource("91_triml")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=1981511721]
 
@@ -90,7 +105,14 @@ metadata/interior_door_block = "8,14"
 metadata/interior_door_kind = "shutter"
 
 [node name="Look" parent="Objects/r13-shutter-south" index="1"]
-texture = ExtResource("12_20jfn")
+visible = false
+modulate = Color(1, 1, 1, 0)
+position = Vector2(32.999996, -23.500004)
+rotation = -3.1415927
+texture = ExtResource("14_rw7os")
+offset = Vector2(0, 0)
+region_enabled = true
+region_rect = Rect2(520, 1792, 132, 128)
 
 [node name="r13-seal" parent="Objects" unique_id=744221213 instance=ExtResource("13_ekh4d")]
 position = Vector2(576, 128)
@@ -99,11 +121,24 @@ interior_style = "root-rock"
 metadata/interior_door_block = "8,0"
 metadata/interior_door_kind = "seal"
 
+[node name="Glow" parent="Objects/r13-seal" index="2"]
+material = SubResource("CanvasItemMaterial_00227")
+color = Color(0.83137256, 0.28235295, 0.18039216, 0.43491334)
+
 [node name="Look" parent="Objects/r13-seal" index="3"]
-texture = ExtResource("14_vfiue")
+position = Vector2(-33, -87.5)
+texture = ExtResource("14_rw7os")
+offset = Vector2(0, 0)
+region_enabled = true
+region_rect = Rect2(908, 1792, 132, 128)
 
 [node name="Ring" parent="Objects/r13-seal" index="4"]
+modulate = Color(1.3301961, 0.45176473, 0.28862745, 0.94386137)
+material = SubResource("CanvasItemMaterial_aeojn")
+position = Vector2(0, -55.5)
+scale = Vector2(0.155, 0.155)
 texture = ExtResource("15_w0md7")
+offset = Vector2(0, 0)
 
 [node name="Lair" type="Node2D" parent="." unique_id=29500695]
 y_sort_enabled = true
@@ -125,6 +160,38 @@ camp = NodePath("../fatty-camp/BossCampScript")
 clod_spots = NodePath("../clod-spots")
 heart = NodePath("../fatty-boss-heart")
 boss_shutter_fight = "fatty-lair-boss"
+
+[node name="clod-spots" type="Node2D" parent="Lair" unique_id=1511324465]
+
+[node name="clod-3-5" type="Node2D" parent="Lair/clod-spots" unique_id=263221405]
+position = Vector2(288, 416)
+
+[node name="clod-12-5" type="Node2D" parent="Lair/clod-spots" unique_id=2056154158]
+position = Vector2(864, 416)
+
+[node name="clod-3-10" type="Node2D" parent="Lair/clod-spots" unique_id=1064444732]
+position = Vector2(288, 736)
+
+[node name="clod-12-10" type="Node2D" parent="Lair/clod-spots" unique_id=1990354485]
+position = Vector2(864, 736)
+
+[node name="clod-8-4" type="Node2D" parent="Lair/clod-spots" unique_id=1890728943]
+position = Vector2(576, 371.2)
+
+[node name="clod-8-11" type="Node2D" parent="Lair/clod-spots" unique_id=1464143103]
+position = Vector2(576, 793.6)
+
+[node name="clod-inner-nw" type="Node2D" parent="Lair/clod-spots" unique_id=1111736698]
+position = Vector2(432, 512)
+
+[node name="clod-inner-ne" type="Node2D" parent="Lair/clod-spots" unique_id=675987940]
+position = Vector2(720, 512)
+
+[node name="clod-inner-sw" type="Node2D" parent="Lair/clod-spots" unique_id=2119766735]
+position = Vector2(432, 640)
+
+[node name="clod-inner-se" type="Node2D" parent="Lair/clod-spots" unique_id=1089430312]
+position = Vector2(720, 640)
 
 [node name="world-definition" type="Node" parent="." unique_id=189397709]
 script = ExtResource("19_rw0636")
@@ -162,39 +229,6 @@ position = Vector2(576, 0)
 door_id = "r13-to-r14"
 target_room = "r14-postern"
 target_door = "r14-to-r13"
-side = "north"
-
-[node name="clod-spots" type="Node2D" parent="Lair"]
-
-[node name="clod-3-5" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(288, 416)
-
-[node name="clod-12-5" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(864, 416)
-
-[node name="clod-3-10" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(288, 736)
-
-[node name="clod-12-10" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(864, 736)
-
-[node name="clod-8-4" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(576, 371.2)
-
-[node name="clod-8-11" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(576, 793.6)
-
-[node name="clod-inner-nw" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(432, 512)
-
-[node name="clod-inner-ne" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(720, 512)
-
-[node name="clod-inner-sw" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(432, 640)
-
-[node name="clod-inner-se" type="Node2D" parent="Lair/clod-spots"]
-position = Vector2(720, 640)
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1995012835]
 process_mode = 3

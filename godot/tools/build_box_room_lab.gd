@@ -19,6 +19,9 @@ extends SceneTree
 ##             one lock west, the seal and the way out south, a shutter south, the back of the
 ##             bolted door east
 ##
+## Each room's floor is trimmed along its walls on a `floor-trim` layer (ROOM_TRIMS; the shell has an
+## empty one its rooms' cells join).
+##
 ## Owner: world (interior walls).
 
 const SceneSave := preload("res://tools/lib/scene_save.gd")
@@ -37,6 +40,8 @@ const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"
 const WORLD_GROUND := "res://game/world/world_ground.gd"
 const INTERIOR_TILESET := "res://game/world/interior/interior_wall_tileset.tres"
 const INTERIOR_LAYER := "res://game/world/interior/interior_wall_layer.gd"
+const TRIM_TILESET := "res://game/world/interior/interior_trim_tileset.tres"
+const TRIM_LAYER := "res://game/world/interior/interior_trim_layer.gd"
 const WORLD_DEFINITION := "res://game/scripts/world_definition.gd"
 const CAMERA_ROOM := "res://game/world/camera_room.gd"
 const ROOM_SCENE := "res://game/dungeon/room_scene.gd"
@@ -72,6 +77,9 @@ var OPENINGS := [
 ]
 ## The face's depth, cells (the rim each room paints).
 const DEPTH := 2
+## Each room's floor trim (docs/godot/INTERIOR_WALLS.md "Floor trim"), painted on its floor cells
+## along the walls.
+const ROOM_TRIMS := {"a-square": "framed-cream", "b-l-room": "studded-slate", "c-hall": "bricks-umber"}
 
 var _shell: Node2D
 var _rooms: Dictionary = {}
@@ -169,8 +177,23 @@ func _room(room: String) -> Node2D:
 			continue
 		for cell: Vector2i in _block(room, str(opening[1]), int(opening[2])):
 			walls.set_cell(cell, 0, _tiles[str(opening[3])])
+	var trim := _trim_layer()
+	var trim_tile := _trim_tile(str(ROOM_TRIMS[room]))
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
+			var cell := Vector2i(x, y)
+			if not _in_room(room, cell) or walls.get_cell_source_id(cell) >= 0:
+				continue
+			# a floor cell beside the rim (or at its inner corner)
+			var edge := false
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					edge = edge or walls.get_cell_source_id(cell + Vector2i(dx, dy)) >= 0
+			if edge:
+				trim.set_cell(cell, 0, trim_tile)
 	root.add_child(ground)
 	root.add_child(walls)
+	root.add_child(trim)
 	var cameras := Node2D.new()
 	cameras.name = "CameraRooms"
 	root.add_child(cameras)
@@ -221,6 +244,24 @@ func _wall_layer() -> TileMapLayer:
 	walls.tile_set = load(INTERIOR_TILESET)
 	walls.set_script(load(INTERIOR_LAYER))
 	return walls
+
+
+func _trim_layer() -> TileMapLayer:
+	var trim := TileMapLayer.new()
+	trim.name = "floor-trim"
+	trim.tile_set = load(TRIM_TILESET)
+	trim.set_script(load(TRIM_LAYER))
+	return trim
+
+
+## The palette tile of the floor trim `name` ("<shape>-<colour>").
+func _trim_tile(name: String) -> Vector2i:
+	var source := (load(TRIM_TILESET) as TileSet).get_source(0) as TileSetAtlasSource
+	for i in source.get_tiles_count():
+		var coords := source.get_tile_id(i)
+		if str(source.get_tile_data(coords, 0).get_custom_data("floor_trim")) == name:
+			return coords
+	return Vector2i.ZERO
 
 
 # --- the pieces in the gaps --------------------------------------------------------------------
@@ -348,6 +389,7 @@ func _save_shell(instances: Array[String]) -> Error:
 	var ground := _ground_layer()
 	_shell.add_child(ground)
 	_shell.add_child(_wall_layer())
+	_shell.add_child(_trim_layer())
 	var definition := Node.new()
 	definition.name = "world-definition"
 	definition.set_script(load(WORLD_DEFINITION))
@@ -387,7 +429,6 @@ func _save_shell(instances: Array[String]) -> Error:
 	door.set(&"map_id", MAP_ID)
 	door.set(&"door_id", "box-room-lab-way-out")
 	door.set(&"target_area_id", "playground")
-	door.set(&"target_marker", "player-spawn")
 	door.set(&"kind", "opening")
 	door.set(&"side", "south")
 	door.set(&"trigger_rect", Rect2(-64, 0, 128, 24))

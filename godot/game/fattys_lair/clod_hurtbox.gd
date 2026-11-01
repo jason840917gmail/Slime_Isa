@@ -6,10 +6,10 @@ extends Area2D
 ## Owner: dungeon kit.
 
 const Services := preload("res://game/shared/services.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const ROLL_TAG := "roll"
 const ROLL_RULE := {"priority": 0, "damageMultiplier": 1}
 const TAGS: Array[String] = []
-const HIT_RADIUS := 22.0
 const HIT_LIFT := 10.0
 const CUE_BREAK := &"BreakStone"
 
@@ -22,7 +22,8 @@ func _init() -> void:
 	monitoring = false
 	var shape := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
-	circle.radius = HIT_RADIUS
+	# The ball's hurt circle (`dungeon.lair.clodHurtRadiusPx`, world units).
+	circle.radius = DungeonState.number("lair.clodHurtRadiusPx", 22.0)
 	shape.shape = circle
 	shape.position = Vector2(0.0, -HIT_LIFT)
 	add_child(shape)

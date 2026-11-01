@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="1_base"]
+
+[node name="heavy-statue-flipped" instance=ExtResource("1_base")]
+contact_centre = Vector2(0.5, 13.8)
+
+[node name="Visual" parent="."]
+flip_h = true
+offset = Vector2(-69, -121)

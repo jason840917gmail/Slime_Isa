@@ -2,8 +2,9 @@ extends RefCounted
 ## The Ability Box (body-shapes plan section 6 "The box"; BODY_SHAPES.md "Ability Box and HUD"):
 ## Zelda's item screen. Squash Slam and every later gadget sit in sockets in a fixed order
 ## (`abilityBox.sockets` in game-constants.json); the box shows only the learned ones; the chosen one
-## is used with `ability_use` (F; S in keys-only). It lives in the bag window's top band (B; a click
-## on the HUD's Ability slot opens it too), beside the Shapes row; no key of its own.
+## is used with `ability_use` (F; S in keys-only, A in the throw mode's keys-only layout:
+## key_bindings.gd). It lives in the bag window's top band (B; a click on the HUD's Ability slot opens
+## it too), beside the Shapes row; no key of its own.
 ##
 ## - **The choice** is saved with the run: `RunState.player.loadout.ability_id` (the plan's
 ##   `loadout`, section 10 "Saves"; other loadout keys are left alone). Without a run it lives for
@@ -30,8 +31,10 @@ const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 ## energy powers, before the box abilities.
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+## The choice's name over the slime (GulpController.say_over).
+const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 
-## The input action that uses the chosen box ability (F; S in keys-only).
+## The input action that uses the chosen box ability (F; S in keys-only, A in the throw mode's).
 const USE_ACTION := &"ability_use"
 ## The action that swallows in the rework mode (Q held with an essence in the mouth).
 const SWALLOW_ACTION := &"eat"
@@ -41,8 +44,9 @@ const LOADOUT_KEY := "loadout"
 const ABILITY_KEY := "ability_id"
 ## PlayerAbilities' refusal reason for an ability that is not learned ("Not learned yet").
 const REFUSAL_EMPTY := "locked"
-## Throw combat: the new choice's name floats this high over the slime's centre.
+## Throw combat: the new choice's name floats this high over the slime's centre, in this colour.
 const CHOICE_TEXT_RISE_PX := 40.0
+const CHOICE_TEXT_COLOR := &"cyan"
 
 ## The choice while there is no run (an editor scene played alone).
 static var _session_choice: StringName = &""
@@ -120,10 +124,7 @@ static func use(player: Node) -> bool:
 static func choose(player: Node, id: StringName) -> bool:
 	if not select(player, id):
 		return false
-	var feel := Services.feel()
-	if feel != null and player != null and is_instance_valid(player) and player.has_method(&"get_centre"):
-		feel.floating_text((player.call(&"get_centre") as Vector2) - Vector2(0.0, CHOICE_TEXT_RISE_PX),
-			title(id), &"cyan", false)
+	GulpController.say_over(player, title(id), CHOICE_TEXT_COLOR, CHOICE_TEXT_RISE_PX)
 	return true
 
 
@@ -168,7 +169,7 @@ static func key_action(id: StringName) -> StringName:
 ## The energy `id` spends (what the box card and the HUD chip show).
 static func energy_cost(id: StringName) -> float:
 	if ThrowMode.is_shape_power(id):
-		return float(ShapeDefs.charge(id).get("energy", 0.0))
+		return ShapeDefs.charge_energy(id)
 	return AbilityDefinitions.energy_cost(id)
 
 

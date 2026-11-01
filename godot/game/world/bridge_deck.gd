@@ -15,6 +15,8 @@ extends Node2D
 
 const Self := preload("res://game/world/bridge_deck.gd")
 const WorldGround := preload("res://game/world/world_ground.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
+const TERRAIN_TILESET := "res://game/world/terrain_tileset.tres"
 ## The editor outline of the cells the deck opens.
 const OUTLINE := Color(1.0, 0.85, 0.2, 0.9)
 const OUTLINE_WIDTH := 2.0
@@ -97,5 +99,6 @@ func _edited_ground() -> TileMapLayer:
 	var root := get_tree().edited_scene_root
 	if root == null or root == self:
 		return null
-	var ground := root.get_node_or_null(^"ground") as TileMapLayer
+	# found by its tile set, not its name
+	var ground := NodeFind.layer_with_tile_set(root, TERRAIN_TILESET)
 	return ground if ground != null and ground.tile_set != null else null

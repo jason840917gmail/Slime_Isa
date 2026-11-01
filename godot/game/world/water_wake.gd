@@ -22,6 +22,7 @@ extends Node2D
 ## Owner: world (water).
 
 const Self := preload("res://game/world/water_wake.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
 const BridgeDeck := preload("res://game/world/bridge_deck.gd")
 const SHEET := preload("res://asset/MAPS/water/224x128-tile_4x2-water-wake.webp")
 const NODE_NAME := "WaterWake"
@@ -220,7 +221,4 @@ func _airborne_check(body: CharacterBody2D) -> Callable:
 
 ## The water wake under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
-	for child: Node in parent.get_children():
-		if child is Self:
-			return child as Self
-	return null
+	return NodeFind.child_of(parent, Self) as Self

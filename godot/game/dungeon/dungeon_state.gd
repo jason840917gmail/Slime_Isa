@@ -453,6 +453,23 @@ static func mark_done(tree: SceneTree, key: String) -> void:
 	run.world_progress_changed.emit({"map_id": map_id})
 
 
+## Forgets that the kit object `key` did its thing (a held chest that sank away again).
+static func clear_done(tree: SceneTree, key: String) -> void:
+	var run := Services.run()
+	if run == null or key.is_empty():
+		return
+	var dungeon_id := current_id(tree)
+	if not dungeon_id.is_empty():
+		var done: Array = record(run, dungeon_id)["done"]
+		if key in done:
+			done.erase(key)
+			notify(run, dungeon_id)
+		return
+	var map_id := _key_map(key)
+	run.set_object_state(map_id, OBJECT_STATE_PREFIX + key, false)
+	run.world_progress_changed.emit({"map_id": map_id})
+
+
 ## The map id an `object_key` starts with ("" for a key without one).
 static func _key_map(key: String) -> String:
 	var colon := key.find(":")
@@ -516,6 +533,19 @@ static func fire(target: Node, payload: Variant = null) -> bool:
 			if child.has_method(method):
 				child.call(method, payload)
 				return true
+	return false
+
+
+## Takes back what `fire` did, on a target that can go back (`vanish`, on it or a child: a hidden
+## chest sinking away again), for a plate that holds its targets only while it is pressed
+## (heavy_plate.gd `hold_targets`). False when the target has no way back.
+static func take_back(target: Node, payload: Variant = null) -> bool:
+	if target == null:
+		return false
+	for node: Node in [target] + target.get_children():
+		if node.has_method(&"vanish"):
+			node.call(&"vanish", payload)
+			return true
 	return false
 
 

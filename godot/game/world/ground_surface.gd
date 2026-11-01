@@ -15,6 +15,7 @@ extends Node2D
 
 const SHADER := preload("res://game/world/ground_surface.gdshader")
 const Self := preload("res://game/world/ground_surface.gd")
+const NodeFind := preload("res://game/shared/node_find.gd")
 const NODE_NAME := "GroundSurface"
 const SHARP_PREFIX := "128x128-tile_19x19_"
 const SHEET_PREFIX := "64x64-tile_19x19_"
@@ -123,7 +124,4 @@ func _draw() -> void:
 
 ## The ground surface under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
-	for child: Node in parent.get_children():
-		if child is Self:
-			return child as Self
-	return null
+	return NodeFind.child_of(parent, Self) as Self

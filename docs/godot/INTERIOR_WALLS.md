@@ -4,7 +4,9 @@
 > seen from behind) and approved Zelda's "cliff view of the 4 walls": the bevel, two cells deep. Three
 > styles, each with its own plain floor: `lair-stone` (the fort's cream masonry), `cave-rock` (dark
 > slate), `root-rock` (umber stone and roots). The box-room lab and all of Fatty's Lair use them; the
-> Hollow and the Mine still have elevation-cliff walls with `doorway_art.gd`'s frames.
+> Hollow and the Mine still have elevation-cliff walls with `doorway_art.gd`'s frames. A painted
+> [floor trim](#floor-trim) along the walls' foot since 2026-10-31 (painted in the lab; every room of
+> Fatty's Lair has its empty `floor-trim` layer, for the owner to paint).
 
 The owner (2026-10-17/18): doors must be part of the wall ("see in zelda how the door looks like
 part of the map"); "remember how the sprite of zelda uses the cliff view of the 4 walls in
@@ -90,6 +92,94 @@ with `enabled = false` and the squares at alpha 0; the editor shows their square
 the `elevation` layer's holes and their edges. `tools/render_interior_palette_room.gd` renders a room
 painted with every closed-door tile.
 
+## Floor trim
+
+> **Status:** 2026-10-31, built, awaiting the owner's verdict. He asked for "a bottom edge with the
+> floor to soften the union", paintable, since not every edging suits every wall and floor (his
+> references, Zelda-like floor borders: `asset/Originals/dungeon-kit/interior-walls/reference/floor-trim-ref-*.png`).
+> He liked the first five shapes in six colours and asked the same day for "more shapes and colors
+> that can blend on the existing interior walls and floors", and for the layer in each room of Fatty's
+> Lair, which he paints himself: ten shapes in twelve colours now, the six new colours taken from the
+> three styles' walls and floors; all 19 Lair rooms have an empty `floor-trim` layer.
+
+![Every trim as a room's corner: a column per shape, a row per colour](images/floor-trims.png)
+
+A **floor trim** is a band of blocks laid on the floor along the foot of the walls, as Zelda borders
+its dungeon floors. It is painted on its own layer, an **InteriorTrimLayer**
+(`game/world/interior/interior_trim_layer.gd`), a trim per cell, so each stretch of wall gets the edging
+that suits it, or none.
+
+1. In the room scene, **Add Node > InteriorTrimLayer** beside `interior-walls` (same grid, position
+   (0, 0)), named `floor-trim`; it takes `game/world/interior/interior_trim_tileset.tres` by itself. A
+   room of a shell (the box-room lab): the shell needs an empty `floor-trim` InteriorTrimLayer too, as
+   for the walls.
+2. Pick a trim in its palette (TileMap panel, the `floor-trim` layer selected): a column per **shape**
+   (framed blocks, bricks, slim bricks, studded tiles, cushion stones, cobble setts, diamond tiles,
+   flagstones, planks, rubble), a row per **colour** (fort cream, slate, umber: the three wall styles'
+   own; moss green with a blue inset, ember orange with plum joints, brick red with a navy inset: the
+   owner's references; ochre, the lair stone's gold; khaki, the lair floor; taupe, the cave rock's
+   brown; charcoal, the cave floor; clay, the root floor, tone on tone; lichen grey with a moss
+   inset). Rubble's gaps are see-through, so the floor shows between its stones.
+3. Paint the floor cells along the walls (or the whole floor with the bucket: only the cells beside a
+   wall or a level's face draw). A painted cell draws its trim's band on every side where a wall's
+   face meets it, and a corner block where two bands meet: at the floor's corners and round a wall
+   jutting into the room (an L's inner corner). Bands of different trims may meet; a corner takes the
+   trim of the band along the north or south wall.
+4. Erase a cell to end the band there.
+
+**Doors and openings** are no exception (the owner, 2026-10-31: the paint decides): a cell painted in
+front of a doorway, a door, stairs or a blown hole draws its band across it like any wall; leave the
+cell unpainted to keep the opening clear. A cracked stretch is wall too.
+
+**Levels in a room** (the owner, 2026-10-31: "why the trim is not being paint in lower levels?"): a
+lower floor takes the trim along the foot of the faces its higher neighbours stand on it
+([Pits and holes](#pits-and-holes), ELEVATION.md "Faces in rooms"), as along a wall: below a
+front, the band lies at the top of the floor cell under it; beside a side face (24 units of the cell)
+or above a back face (24 units, or the 7-unit cap without four visible walls), it starts where the
+face ends, and the bands along the other sides stop there too, so no band covers a face (the faces
+draw under the trim). A raised floor in a pit gets its corner blocks round it, the bands carried on
+to them where the faces stand back from a cell's edge. `RoomFaces.feet` gives where each face's foot
+lies, from the same neighbour rules that draw the faces. A cell a face covers whole (a front, a
+stair) draws none. Every level's floor takes a trim; before, cells below level 0 drew none. A side
+or back flight of stairs running down into a pit is drawn in 3D and reaches over the floor below its
+cells (a level lower on screen): the bands are cut where each flight's drawing (its `silhouette`,
+Elevation's `stairs`) lies on them, read again at each of the elevation's builds (its `built`
+signal). Below level 0 the trim darkens as the floor does (`level_light`, 20% a level).
+
+The band lies on the floor under every body (z -1, as the walls), the squares show in the editor only
+(`paint_opacity`, 0.2), and it changes no collision. The trim follows the walls and the levels: it is
+laid again whenever the wall layer is (its `rebuilt` signal) and whenever the `elevation` layer is
+repainted.
+
+![The box-room lab in the game: framed cream, studded slate, umber bricks](images/floor-trims-lab.png)
+
+![New trims in R12 (cave rock: rubble charcoal and taupe, cobble charcoal, diamond lichen, flagstones taupe, slim slate) and R13 (root rock: planks, rubble umber, cobble, flagstones clay, diamond ochre, bricks umber), rendered by render_floor_trim.gd, the scenes unchanged](images/floor-trims-lair.png)
+
+**The art.** `python scripts/art/pack-floor-trims.py` cuts each shape from one Magnific render
+(`asset/Originals/dungeon-kit/interior-walls/trims/<shape>-<a|b>.png`, GPT 2.5, neutral grey stone, a
+straight strip of identical blocks; the `-b` or `-a` not used are the other tries): it finds the
+strip's inner blocks, cut from joint to joint, and lays them again `blocks` to a cell at the shape's
+`depth` (so every cell starts and ends on a joint and bands join without a seam; three variants per
+trim take other blocks), and makes the corner block from a block's two ends; a `loose` shape (rubble)
+keeps its alpha, so its gaps stay see-through. The sheet (`floor-trims.webp`, 664 x 1360, a line per
+shape) holds each shape once, in grey: its own levels stretched to 0..1. Each colour is a gradient
+map over that grey (the joints, the inset, the rim, its light; a shape without an inset takes the
+colour's `solid` ramp), which the game lays on with `game/world/interior/interior_trim.gdshader`: the
+layer gives each trim a material whose `ramp` is a GradientTexture1D of its stops
+(`InteriorTrimLayer.material_of`), so a colour costs no sheet space (baked, ten shapes in twelve
+colours would have been a 3320 x 3264 sheet). The sheet imports lossless: the ramp would show a lossy
+sheet's noise as colour. The light stays on the upper left on every side: the west and east bands
+are the north band transposed. `floor-trims.json`: `shapes` (per shape its `depth`, `variants` and
+`pieces`: `h0`.. (128 px x depth, along a north or south wall), `v0`.. (depth x 128, along a west or
+east wall), `c` (the corner)) and `trims` (per `<shape>-<colour>` its `shape`, `colour` and `ramp`).
+**A new shape:** generate its strip (the prompts ask for "one long, perfectly straight horizontal strip
+of N identical ... blocks ... plain neutral grey stone"), add it to `SHAPES` (its render, block count,
+blocks per cell, depth, inset, `loose` when its stones are round with gaps, the next free `column`);
+**a new colour:** add it to `COLOURS` (its stops and the next free `row`). Then run
+`tools/pack_interior_palette.gd`.
+`tools/render_floor_trim.gd -- --scene=<room> --out=<dir> [--trims=a,b]` renders a room with its
+floor trimmed by each trim (the scene unchanged). `--painted` renders the room once with its own trim as painted.
+
 ## Editing rooms by hand
 
 Fatty's Lair's rooms are the scenes to edit now: paint their `interior-walls`, place and move doors
@@ -139,11 +229,13 @@ cells a hazard catches on in orange.
 
 ## Painting collision
 
-A room's level changes (a pit, a raised floor) collide as the elevation's automatic outline, unless
-the room has a painted **`level-collision`** layer: then exactly what is painted collides. Orange
+A room's level changes (a pit, a raised floor) collide by their faces' footprint, square as the
+faces are drawn (2026-10-30; [Faces in rooms](ELEVATION.md#faces-in-rooms)). A painted
+**`level-collision`** layer changes that: in Replace mode exactly what is painted collides, in
+Override mode its tiles are put over the footprint (open tiles take a tile of it away). Orange
 **rims** sit on an upper floor's edge: they hold a body there, and pushing on drops it. Red
 **bases** sit at a wall's foot: they block bodies of their level. Each tile acts on its own level, on
-a 16-unit grid. The interior walls collide by themselves; leave them out. Step by step, with the
+a 16-unit grid, whole or as a 45° half. The interior walls collide by themselves; leave them out. Step by step, with the
 palette and a painted room: [ELEVATION.md "Painting collision"](ELEVATION.md#painting-collision).
 To start from today's collision, press "Fill from the automatic collision" on the layer (save the
 scene first).
@@ -268,7 +360,7 @@ and run it.
 `tools/build_box_room_lab.gd [-- --force]`: a shell with three room scenes in
 `game/dev/interior/rooms/` (`a-square` 16 x 14; `b-l-room`, an L bigger than a screen with an
 outline; `c-hall`, a long hall), every opening kind and door object, the Dungeon node, camera rooms,
-the room mask. F6 on a room runs it. `tools/render_box_room_lab.gd -- --out=<dir> [--collision]`
+the room mask, and a floor trim along each room's walls (framed cream, studded slate, umber bricks). F6 on a room runs it. `tools/render_box_room_lab.gd -- --out=<dir> [--collision]`
 (windowed) renders the whole lab, each room and close-ups.
 
 ## Fatty's Lair
@@ -291,7 +383,8 @@ door in the hub is a key2 block of the hub's rim (2026-10-19), its door drawn by
 draw as the dark beyond the frame (`interior_wall_fill.gd`). Rooms grew to 18 x 16 cells rather than
 shrinking their floors (DUNGEONS.md "Fatty's Lair (built)"). A side door's passage is
 `interior.sideGapUnits` (120) tall, as the slime walks it at its feet; a north or south door's
-`interior.gapUnits` (64) wide.
+`interior.gapUnits` (64) wide. Every room has an empty `floor-trim` layer beside its `interior-walls`
+(2026-10-31), for the owner to paint ([Floor trim](#floor-trim)).
 
 `test_interior_walls.gd` holds the Lair's rooms to their paint: every painted closed-door block has
 exactly one door tagged with it, of its kind, wall and style, on its spot, and no opening cell lies
@@ -319,9 +412,9 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 |---|---|
 | `godot/game/world/interior/interior_wall_layer.gd` | The layer: faces, corners, openings, floor, collision, leaves |
 | `godot/game/world/interior/interior_wall_tileset.tres` | The palette (packer output) |
-| `godot/asset/MAPS/walls/interior/` | The sheet, the floor, `interior-walls.json`, `palette.png` (packer output), `palette.res` (`pack_interior_palette.gd`) |
+| `godot/asset/MAPS/walls/interior/` | The sheet, the floor, `interior-walls.json`, `palette.png` (packer output), `palette.res` (`pack_interior_palette.gd`); the floor trims' `floor-trims.webp`, `floor-trims.json`, `trim-palette.png`, `trim-palette.res` |
 | `scripts/art/pack-interior-walls.py` | Builds them from the renders |
-| `godot/tools/pack_interior_palette.gd` | Saves the packed `palette.png` as `palette.res`, the texture the tileset uses (no editor import) |
+| `godot/tools/pack_interior_palette.gd` | Saves the packed `palette.png` and `trim-palette.png` as `palette.res` and `trim-palette.res`, the textures the tilesets use (no editor import) |
 | `asset/Originals/dungeon-kit/interior-walls/` | The renders |
 | `godot/tools/build_box_room_lab.gd`, `render_box_room_lab.gd` | The lab and its pictures |
 | `godot/tools/render_interior_palette_room.gd` | A room painted with every closed-door tile, its doors made by the layer |
@@ -329,6 +422,10 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 | `godot/tools/render_doorway_passes.gd` | The slime halfway through a doorway on each side of a room, in the game |
 | `godot/tools/render_room_collision.gd` | A room world in the game with its collision, decks and hazards drawn over it |
 | `godot/game/world/interior/interior_wall_fill.gd` | The dark over wall cells no piece covers |
+| `godot/game/world/interior/interior_trim_layer.gd`, `interior_trim_tileset.tres` | The floor trim layer and its palette ("Floor trim") |
+| `godot/game/world/interior/interior_trim.gdshader` | Colours a trim's grey pieces with its ramp, darker below level 0 as the floor |
+| `scripts/art/pack-floor-trims.py` | Builds `floor-trims.webp` (grey), `floor-trims.json`, `trim-palette.png` and the trim tileset from the renders in `asset/Originals/dungeon-kit/interior-walls/trims/` |
+| `godot/tools/render_floor_trim.gd` | A room with its floor trimmed by each trim |
 | `godot/game/world/painted_objects.gd` | What the layer may remove by itself: a door it made and nobody changed |
 | `godot/tools/render_lair_room.gd` | In-game captures of a dungeon's rooms at a 16:9 window (`--all-rooms`) |
 | `godot/tests/test_interior_walls.gd` | Faces and corners (the outer corners' fill and order), collision and passages, cracked to blown (every cracked block in reach), framed doors (the bolted door's far side, the barricade turned for a side wall), painted doors (also grouped under `Objects`), the Lair rooms' doors against their paint, the lab's assembly |

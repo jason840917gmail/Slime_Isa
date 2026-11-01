@@ -11,11 +11,20 @@ extends RefCounted
 ##     the new one (`set_hit_stun_until`), and until it ends the enemy's own step does nothing but
 ##     slide (no chase, territory, new attack or clip change; enemy.gd `_step_enemy`). Light and
 ##     medium enemies have no wind-up armor: only heavy enemies and bosses absorb hits (armor);
-##   - hold, bounce, stagger, knockdown and daze stop the body where it is; knockback and launch set
-##     its velocity along the knock at `launch_speed` x `knockbackScale`, capped at
+##   - a sleep (a sleep throw; owner, 2026-11-01) lasts until a hit that deals damage wakes it
+##     (`wake_if_hurt` here, enemy.gd `_react_to_damage` for old hits, `_bowl_into`): the enemy's
+##     step renews its stun every step (`keep_asleep`), it sways without stars, and it lands through
+##     immunities and a patterned enemy's shield on the ground (`sleeps_through`), never on a boss;
+##   - hold, bounce, stagger, knockdown, daze and sleep stop the body where it is, unless the hit dealt
+##     damage and carries a `knock_px` (a thrown thing's, `gulp.throwHit.knockbackPx`; owner,
+##     2026-11-01: a throw that hurts knocks back): then the body slides `knock_px` x
+##     `knockbackScale` along the knock while the stun holds it, `knock_speed_scale` times as fast as
+##     a stun slide (`_knock_slide`, `slide_decay_of`); knockback and
+##     launch set its velocity along the knock at `launch_speed` x `knockbackScale`, capped at
 ##     `combat.verbs.launch.maxSpeed` (the enemy's own stun step then slides it with
 ##     `combat.verbs.slideDecay`); a kill launches x `combat.rules.killLaunchScale` and the corpse
-##     slides to where it dies; a tiny enemy's kill pops (the pop streak raises the pitch);
+##     slides to where it dies (a kill that would not fly slides its `knock_px` instead); a tiny
+##     enemy's kill pops (the pop streak raises the pitch);
 ##   - armor on a wind-up pushes it `combat.verbs.armor.windupPushMs` later, at most `maxMs` per
 ##     attack;
 ##   - the break-free move (`breakFree`): a push away at `pushSpeedScale` x the shape's finisher
@@ -103,6 +112,8 @@ const PUFF_GOO := &"slime-splash"
 const PUFF_DUST := &"dodge-dust"
 ## Bowling looks for at most this many bodies in the way per step.
 const BOWL_QUERY_MAX := 8
+## A sleeper's daze sway lasts until `wake` stops it.
+const SLEEP_SWAY_MS := 1.0e9
 
 ## The pop streak (combat.rules.popStreak): pops so far and when the last one was.
 static var _pop_steps: int = 0
@@ -125,6 +136,7 @@ static func react(enemy: Node, commit: Dictionary, is_dead: bool) -> void:
 	var profile := ReactionProfile.for_enemy(enemy)
 	var state := _prepare(enemy, request, profile)
 	var damage := float((result as Dictionary).get("actual_damage", 0))
+	wake_if_hurt(enemy, commit)
 	var answer := HitReaction.decide(profile, hit, state, now)
 	_annotate(answer, profile)
 	var knock := _knock_of(enemy, hit, request)
@@ -239,6 +251,59 @@ static func on_defeated(enemy: Node) -> void:
 		constants.number("combat.energyShard.pickupRadiusPx"), float(fade) if (fade is float or fade is int) else 0.0)
 
 
+## True while `enemy` sleeps (a sleep throw's `HitReaction.VERB_SLEEP`, until a damaging hit).
+static func is_asleep(enemy: Node) -> bool:
+	if enemy == null or not is_instance_valid(enemy) or not enemy.has_meta(STATE_META):
+		return false
+	var state := state_of(enemy)
+	return state.verb == HitReaction.VERB_SLEEP and state.in_stun(Services.now_ms())
+
+
+## Every stunned step of a sleeping enemy (enemy.gd, patterned_enemy.gd, the training dummy): its
+## stun is renewed (`combat.verbs.sleep.stunMs` from now), so it sleeps until `wake`.
+static func keep_asleep(enemy: Node) -> void:
+	if not is_asleep(enemy):
+		return
+	var until := Services.now_ms() + _number("combat.verbs.sleep.stunMs")
+	var state := state_of(enemy)
+	state.stun_until_ms = maxf(state.stun_until_ms, until)
+	_stun(enemy, until)
+
+
+## Wakes `enemy` from a sleep (owner, 2026-11-01: it sleeps until new damage wakes it): the stun ends
+## now and the sway stops (the z's go with the sleep: throw_status_look.gd). Nothing when it is
+## awake.
+static func wake(enemy: Node) -> void:
+	if not is_asleep(enemy):
+		return
+	var state := state_of(enemy)
+	var now := Services.now_ms()
+	state.verb = ""
+	state.stun_until_ms = now
+	_stun(enemy, now, true)
+	var motion := enemy.get_node_or_null(NodePath(MOTION_NODE)) as EnemyHitMotion
+	if motion != null and motion.current() == EnemyHitMotion.DAZE:
+		motion.stop()
+
+
+## `wake` when the committed hit in `commit` dealt damage (rework hits here in `react`, old ones in
+## enemy.gd `_react_to_damage`; bowling in `_bowl_into`).
+static func wake_if_hurt(enemy: Node, commit: Dictionary) -> void:
+	var result: Variant = commit.get("result")
+	if result is Dictionary and float((result as Dictionary).get("actual_damage", 0)) > 0.0:
+		wake(enemy)
+
+
+## True when the rework hit in `request` puts `enemy` to sleep through its shield
+## (`HitReaction.sleeps_through`): patterned_enemy.gd lets it past `_shields`.
+static func sleeps_through(enemy: Node, request: Dictionary) -> bool:
+	var hit := HitReaction.hit_of(request)
+	if enemy == null or hit.is_empty():
+		return false
+	var profile := ReactionProfile.for_enemy(enemy)
+	return HitReaction.sleeps_through(profile, hit, _prepare(enemy, request, profile).phase)
+
+
 ## `enemy`'s reaction memory, made on first use.
 static func state_of(enemy: Node) -> ReactionState:
 	if enemy == null:
@@ -276,13 +341,24 @@ static func slide_decay() -> float:
 	return _number("combat.verbs.slideDecay")
 
 
-## The start speed (px/s) that makes a stunned body's slide (`slide_decay` per 60 Hz step) cover
-## `px` in `ms`.
-static func speed_for_distance(px: float, ms: float) -> float:
+## The per-step slide decay of `enemy`'s stunned body (or corpse) now: a throw's knock slide's own
+## while it runs (`_knock_slide`), else `slide_decay`. enemy.gd, patterned_enemy.gd and the
+## training dummy slow their slides by it.
+static func slide_decay_of(enemy: Node) -> float:
+	if enemy != null and enemy.has_meta(STATE_META):
+		var state := state_of(enemy)
+		if Services.now_ms() < state.slide_decay_until_ms:
+			return state.slide_decay
+	return slide_decay()
+
+
+## The start speed (px/s) that makes a stunned body's slide (`decay` per 60 Hz step; `slide_decay`
+## when < 0) cover `px` in `ms`.
+static func speed_for_distance(px: float, ms: float, decay: float = -1.0) -> float:
 	if px <= 0.0:
 		return 0.0
 	var ticks := float(maxi(1, Engine.physics_ticks_per_second))
-	var step_decay := pow(clampf(slide_decay(), 0.0, 1.0), 60.0 / ticks)
+	var step_decay := pow(clampf(decay if decay >= 0.0 else slide_decay(), 0.0, 1.0), 60.0 / ticks)
 	var steps := maxf(1.0, ms / 1000.0 * ticks)
 	var covered := steps / ticks
 	if step_decay < 1.0:
@@ -349,6 +425,7 @@ static func _apply(enemy: Node, profile: Dictionary, state: ReactionState, hit: 
 		_stun(enemy, now + stun)
 		_call(enemy, &"play_hurt", [HURT_ACTION])
 	if body != null:
+		state.slide_decay_until_ms = 0.0
 		match verb:
 			HitReaction.VERB_KNOCKBACK, HitReaction.VERB_BONK:
 				body.velocity = knock * _launch_speed(hit, profile, 1.0)
@@ -365,7 +442,7 @@ static func _apply(enemy: Node, profile: Dictionary, state: ReactionState, hit: 
 				body.velocity = knock * speed_for_distance(float(answer.get("slide_px", 0.0)), _number("combat.verbs.knockback.stunMs"))
 			_:
 				if HitReaction.STUN_VERBS.has(verb):
-					body.velocity = Vector2.ZERO
+					body.velocity = knock * _knock_slide(state, hit, profile, damage, stun, now)
 	if bool(answer.get("poise_broken", false)):
 		_puff(enemy, profile)
 	_play_motion(enemy, profile, state, hit, answer, knock)
@@ -373,7 +450,7 @@ static func _apply(enemy: Node, profile: Dictionary, state: ReactionState, hit: 
 
 ## The killing blow: a tiny enemy pops (the pop streak's pitch goes to the sender's feel); a
 ## knockback or launch flies the corpse x `combat.rules.killLaunchScale` (it dies where it lands);
-## anything else squashes in place.
+## anything else squashes, in place or, with a `knock_px` (a throw), sliding that far.
 static func _apply_kill(enemy: Node, profile: Dictionary, state: ReactionState, hit: Dictionary, answer: Dictionary,
 		knock: Vector2, damage: float, now: float) -> void:
 	answer["killed"] = true
@@ -389,6 +466,7 @@ static func _apply_kill(enemy: Node, profile: Dictionary, state: ReactionState, 
 		return
 	var verb := str(answer.get("verb", ""))
 	var body := _body_of(enemy)
+	state.slide_decay_until_ms = 0.0
 	var flies := verb == HitReaction.VERB_LAUNCH or verb == HitReaction.VERB_KNOCKBACK or verb == HitReaction.VERB_BOWL
 	var speed := _launch_speed(hit, profile, _number("combat.rules.killLaunchScale")) if flies else 0.0
 	if speed > 0.0 and knock != Vector2.ZERO and body != null and enemy.has_method(&"set_death_slide"):
@@ -399,6 +477,9 @@ static func _apply_kill(enemy: Node, profile: Dictionary, state: ReactionState, 
 		if motion != null:
 			motion.play(EnemyHitMotion.TUMBLE, knock, _tumble_params(hit))
 		return
+	var slide := _knock_slide(state, hit, profile, damage, _number("combat.verbs.knockback.stunMs"), now)
+	if slide > 0.0 and knock != Vector2.ZERO and body != null and enemy.has_method(&"set_death_slide"):
+		enemy.call(&"set_death_slide", knock * slide)
 	if motion != null:
 		motion.play(EnemyHitMotion.SQUASH, knock, _squash_params(profile, hit))
 
@@ -446,6 +527,7 @@ static func _break_free(enemy: Node, profile: Dictionary, state: ReactionState, 
 	else:
 		_call(enemy, &"cancel_attack")
 	_stun(enemy, now + armor_ms)
+	state.slide_decay_until_ms = 0.0
 	if body != null:
 		body.velocity = velocity
 	if motion != null:
@@ -509,6 +591,10 @@ static func _play_motion(enemy: Node, profile: Dictionary, state: ReactionState,
 		HitReaction.VERB_DAZE:
 			motion.play(EnemyHitMotion.DAZE, knock, {"ms": stun})
 			motion.show_stars(state.stun_until_ms)
+		HitReaction.VERB_SLEEP:
+			# The sway runs until `wake` stops it; the z's are the sleep's look (no stars).
+			motion.hide_stars()
+			motion.play(EnemyHitMotion.DAZE, knock, {"ms": SLEEP_SWAY_MS})
 		HitReaction.VERB_ARMOR, HitReaction.VERB_BREAK:
 			if HEAVY_WEIGHTS.has(weight):
 				_play_heavy(motion, weight, knock)
@@ -609,6 +695,7 @@ static func _try_splat(enemy: Node, body: CharacterBody2D, state: ReactionState,
 	state.wake_until_ms = now
 	_call(enemy, &"cancel_attack")
 	_stun(enemy, now + daze_ms)
+	state.slide_decay_until_ms = 0.0
 	body.velocity = normal * speed_for_distance(float(splat.get("bouncePx", 0.0)), daze_ms)
 	var motion := motion_of(enemy)
 	if motion != null:
@@ -660,6 +747,9 @@ static func _bowl(enemy: Node, body: CharacterBody2D, state: ReactionState, now:
 static func _bowl_into(enemy: Node, body: CharacterBody2D, other: Node, other_body: CharacterBody2D, now: float) -> void:
 	var bowling := _dictionary("combat.rules.bowling")
 	var share := float(bowling.get("speedShare", 0.0))
+	# Bowled into, a sleeper wakes (its bowling damage), and its launch then runs as on anyone.
+	if roundi(float(bowling.get("damage", 0.0))) > 0:
+		wake(other)
 	var direction := _centre_of(other) - _centre_of(enemy)
 	direction = direction.normalized() if direction != Vector2.ZERO else body.velocity.normalized()
 	var passed := body.velocity.length() * share
@@ -684,6 +774,7 @@ static func _bowl_into(enemy: Node, body: CharacterBody2D, other: Node, other_bo
 		_call(other, &"cancel_attack")
 		_stun(other, now + stun)
 		_call(other, &"play_hurt", [HURT_ACTION])
+		other_state.slide_decay_until_ms = 0.0
 		other_body.velocity = direction * speed
 		if motion != null:
 			var params := {"deg": _number("combat.verbs.launch.spinDeg"), "hop_px": _number("combat.verbs.launch.hopPx"), "ms": stun}
@@ -704,6 +795,23 @@ static func _launch_speed(hit: Dictionary, profile: Dictionary, scale: float) ->
 	var speed := float(hit.get("launch_speed", 0.0)) if (hit.get("launch_speed") is float or hit.get("launch_speed") is int) else 0.0
 	var resist := float(profile.get("knockbackScale", 1.0)) if (profile.get("knockbackScale") is float or profile.get("knockbackScale") is int) else 1.0
 	return clampf(speed * resist * scale, 0.0, _number("combat.verbs.launch.maxSpeed"))
+
+
+## A damaging hit's knock slide: the start speed that covers the hit's `knock_px` x the profile's
+## `knockbackScale` in `ms` (the stun that holds the body while it slides), slowing
+## `knock_speed_scale` times as fast as a stun slide (`slideDecay` ^ scale, kept in the memory for
+## `ms`: `slide_decay_of`), so 2 covers it in half the time; 0, and no slide, when the hit dealt no
+## damage (immune, a shut gate, a sleep throw), has no `knock_px` or no time to slide.
+static func _knock_slide(state: ReactionState, hit: Dictionary, profile: Dictionary, damage: float, ms: float,
+		now: float) -> float:
+	var px := float(hit.get("knock_px", 0.0)) if (hit.get("knock_px") is float or hit.get("knock_px") is int) else 0.0
+	var resist := float(profile.get("knockbackScale", 1.0)) if (profile.get("knockbackScale") is float or profile.get("knockbackScale") is int) else 1.0
+	var pace := float(hit.get("knock_speed_scale", 1.0)) if (hit.get("knock_speed_scale") is float or hit.get("knock_speed_scale") is int) else 1.0
+	if damage <= 0.0 or ms <= 0.0 or px * resist <= 0.0:
+		return 0.0
+	state.slide_decay = pow(clampf(slide_decay(), 0.0, 1.0), maxf(pace, 0.01))
+	state.slide_decay_until_ms = now + ms
+	return speed_for_distance(px * resist, ms, state.slide_decay)
 
 
 ## The hit's shape's finisher launch speed (the break-free push is a share of it); the hit's own, or

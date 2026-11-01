@@ -134,6 +134,12 @@ static func charge(id: StringName) -> Dictionary:
 	return raw if raw is Dictionary else {}
 
 
+## The energy the charge of shape `id` spends (0 without a charge): the ring's release, the throw
+## mode's shape power, and every card, chip and slot that shows its cost.
+static func charge_energy(id: StringName) -> float:
+	return num(charge(id), "energy")
+
+
 ## The Spin's ticks (`charge.ticks`: atMs, damageScale, last, launchSpeed, hitStopMs); [] for a charge
 ## that hits once.
 static func charge_ticks(charge_data: Dictionary) -> Array:

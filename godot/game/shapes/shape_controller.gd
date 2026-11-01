@@ -342,7 +342,7 @@ func power_strike(id: StringName) -> String:
 		return "locked"
 	if _phase != Phase.IDLE or _player.is_swimming() or not _player.held().is_empty():
 		return "busy"
-	var energy := ShapeDefs.num(charge, "energy")
+	var energy := ShapeDefs.charge_energy(id)
 	if energy > 0.0 and _player.get_energy() < energy:
 		return "energy"
 	if _current != id:
@@ -924,7 +924,7 @@ func _fire_charge() -> void:
 	if shape != _current or charge.is_empty() or _player.is_dead() or _phase != Phase.IDLE:
 		_cancel_ring(true)
 		return
-	var energy := ShapeDefs.num(charge, "energy")
+	var energy := ShapeDefs.charge_energy(shape)
 	if energy > 0.0 and not _player.spend_energy(energy):
 		_cancel_ring(true)
 		_player.action_cue(FIZZLE_CUE)

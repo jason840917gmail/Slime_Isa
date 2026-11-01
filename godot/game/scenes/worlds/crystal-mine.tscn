@@ -153,7 +153,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="151_csd5d"]
 [ext_resource type="Script" uid="uid://bpe1mn6lsdpc1" path="res://game/enemy/placed_enemy.gd" id="152_m3mop"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="door_end_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8fiiq"]
 size = Vector2(128, 24)
@@ -367,8 +368,13 @@ position = Vector2(1504, 4256)
 [node name="dungeon-entrance" type="Node2D" parent="." unique_id=1945928101]
 position = Vector2(1504, 4256)
 
-[node name="arrive-from-camp" type="Node2D" parent="." unique_id=956329274]
+[node name="mine-entrance" type="Node2D" parent="." unique_id=956329274]
 position = Vector2(1504, 4256)
+
+[node name="DoorScript" type="Node" parent="mine-entrance" unique_id=1141530014]
+script = ExtResource("door_end_script")
+map_id = "crystal-mine"
+door_id = "mine-entrance"
 
 [node name="Dungeon" type="Node2D" parent="." unique_id=152423768 instance=ExtResource("8_p64ji")]
 position = Vector2(1504, 4216)
@@ -401,7 +407,7 @@ script = ExtResource("11_jwvee")
 map_id = "crystal-mine"
 exit_id = "crystal-mine-to-camp"
 target_area_id = "crystal-caverns-g4"
-entry_marker = "arrive-from-crystal-mine"
+target_door_id = "camp-mine-mouth"
 area = NodePath("..")
 
 [node name="CameraRooms" type="Node2D" parent="." unique_id=806362454]
@@ -2849,7 +2855,7 @@ position = Vector2(3916.8, 2132)
 script = ExtResource("25_i0m0f")
 top = Vector2(0, -312)
 exit_area_id = "crystal-caverns-h4"
-exit_marker = "arrive-from-crystal-mine"
+exit_door = "lookout-from-mine"
 art_size = Vector2(104, 300)
 metadata/instance_id = "crystal-mine-M15-root-wall"
 metadata/persistence_key = "crystal-mine.crystal-mine-M15-root-wall"

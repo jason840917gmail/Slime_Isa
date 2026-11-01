@@ -23,7 +23,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-wall-hanging-roots.tscn" id="22_1tunc"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-4.tscn" id="23_k288y"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-cluster.tscn" id="24_6lh5f"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="25_3thqm"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="25_3thqm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/landing.tscn" id="landing_scene"]
 
 [node name="R1-root-fall" type="Node2D" unique_id=1678778638]
 y_sort_enabled = true
@@ -69,9 +70,10 @@ outline = PackedVector2Array()
 [node name="Doors" type="Node2D" parent="." unique_id=1750191636]
 y_sort_enabled = true
 
-[node name="roots-landing" type="Node2D" parent="Doors" unique_id=881718347]
+[node name="roots-landing" parent="Doors" unique_id=881718347 instance=ExtResource("landing_scene")]
 y_sort_enabled = true
 position = Vector2(192, 224)
+door_id = "roots-landing"
 
 [node name="Scenery" type="Node2D" parent="." unique_id=646990505]
 y_sort_enabled = true

@@ -244,14 +244,6 @@ stay_shape = NodePath("../stay-shape")
 y_sort_enabled = true
 position = Vector2(1504, 2080)
 
-[node name="player-entry-east" type="Node2D" parent="."]
-y_sort_enabled = true
-position = Vector2(3200, 1728)
-
-[node name="player-entry-west" type="Node2D" parent="."]
-y_sort_enabled = true
-position = Vector2(256, 1728)
-
 [node name="exit-1" type="Area2D" parent="."]
 y_sort_enabled = true
 position = Vector2(3440, 1728)

@@ -282,7 +282,7 @@ func _painted_layer() -> TileMapLayer:
 		return _layer if is_instance_valid(_layer) else null
 	var at: Node = get_parent()
 	while at != null:
-		var ground := at.get_node_or_null(^"ground") as TileMapLayer
+		var ground := Elevation.find_ground_in(at)
 		if ground != null:
 			var painted := Elevation.find_layer(ground)
 			_layer = painted if painted != null and painted.get_used_rect().has_area() else null
@@ -428,11 +428,10 @@ func _elevation() -> Node:
 		return world.elevation
 	var at: Node = get_parent()
 	while at != null:
-		var ground := at.get_node_or_null(^"ground")
-		if ground != null:
-			for child: Node in ground.get_children():
-				if child.has_method(&"level_at"):
-					return child
+		var ground := Elevation.find_ground_in(at)
+		var found: Node = Elevation.find_in(ground) if ground != null else null
+		if found != null:
+			return found
 		at = at.get_parent()
 	return null
 

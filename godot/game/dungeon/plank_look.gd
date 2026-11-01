@@ -10,16 +10,19 @@ extends RefCounted
 ## The lane: each piece adds a bridge deck child (game/world/bridge_deck.gd) over its rectangle when
 ## the world is built, so the deep-water cells under it lose their collision (docs/godot/specs/water.md
 ## §10) and stay open after the plank falls: the slime over a fallen plank is not held or pushed by
-## the water's collision, and the water hazard under the bridge catches it.
+## the water's collision, and the water hazard under the bridge catches it. Monsters and NPCs are
+## walled off the lane (`open_lane`).
 ##
 ## Owner: dungeon kit.
 
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const BridgeDeck := preload("res://game/world/bridge_deck.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 
 const ART := "res://asset/MAPS/objects/dungeon/plank-2x1.webp"
 const CELL := 64.0
 const LANE_NODE := "PlankLane"
+const WALL_NODE := "PlankLaneWall"
 const WHOLE := 0
 const LOOSE := 1
 ## Without the picture: the wood's colours.
@@ -57,8 +60,12 @@ static func draw(canvas: CanvasItem, texture: Texture2D, box: Rect2, size: Vecto
 			canvas.draw_set_transform(Vector2.ZERO)
 
 
-## Gives `piece` (a Node2D) its lane: a bridge deck child over the rectangle `size` from its position.
-## In the game only, before the world is registered (the piece's `_ready`).
+## Gives `piece` (a Node2D) its lane: a bridge deck child over the rectangle `size` from its position,
+## and a wall over it on the stairs layer, which every walker but the slime collides with
+## (Elevation.STAIRS_LAYER, as the stairs and the bestiary pens' fences): monsters and NPCs never
+## step onto a plank bridge, so none walks the open water once its planks have fallen (the owner,
+## 2026-10-31: "monster should not walk on water"). Walkers carry that layer in worlds with elevation
+## (Elevation.track). In the game only, before the world is registered (the piece's `_ready`).
 static func open_lane(piece: Node2D, size: Vector2) -> void:
 	if Engine.is_editor_hint() or piece.get_node_or_null(NodePath(LANE_NODE)) != null:
 		return
@@ -67,3 +74,14 @@ static func open_lane(piece: Node2D, size: Vector2) -> void:
 	lane.set_script(BridgeDeck)
 	lane.set(&"deck", Rect2(Vector2.ZERO, size))
 	piece.add_child(lane)
+	var wall := StaticBody2D.new()
+	wall.name = WALL_NODE
+	wall.collision_layer = Elevation.STAIRS_LAYER
+	wall.collision_mask = 0
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	shape.position = size * 0.5
+	wall.add_child(shape)
+	piece.add_child(wall)
