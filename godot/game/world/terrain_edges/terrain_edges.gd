@@ -6,7 +6,8 @@ extends Node2D
 ## (after the water surface, so it draws over it) with LEVELS TileMapLayers on a dual grid: each
 ## of their cells sits on a corner shared by four ground cells (the node is half a cell up and
 ## left; 128 px art at scale 0.5). Where different grounds meet at a corner, level 0 fills the
-## corner with the lowest of them (its fully covered tile, or the animated water) and each higher
+## corner with the lowest of them (its fully covered tile, or the animated water, which draws the
+## deep-water bank from one of 16 shapes picked by the corner's land cells) and each higher
 ## ground draws its edge tile on the next level: index = TL + 2*TR + 4*BL + 8*BR, with 1 where the
 ## cell's ground stacks at least that high (TerrainMaterials.ORDER). Corners touching a tile without
 ## edges (walls, interior floors) or a ground without art keep hard edges, and so do corners where
@@ -26,6 +27,10 @@ const Self := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const TerrainMaterials := preload("res://game/world/terrain_edges/terrain_materials.gd")
 const LAND_SHADER := preload("res://game/world/terrain_edges/terrain_edge.gdshader")
 const WATER_SHADER := preload("res://game/world/terrain_edges/terrain_edge_water.gdshader")
+## The deep-water bank (docs/godot/specs/water.md §11, scripts/art/build-water-bank.py): the water
+## fill's 16 shapes (the edge sheets' layout, indexed by the corner's land cells) and its earth.
+const BANK_SHAPES := "res://asset/MAPS/water/water-bank-shapes.png"
+const BANK_EARTH := "res://asset/MAPS/water/water-bank-earth.png"
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const GroundSurface := preload("res://game/world/ground_surface.gd")
 const NODE_NAME := "TerrainEdges"
@@ -54,6 +59,8 @@ var placed: int = 0
 var corners: int = 0
 ## ground -> source id in the edge tile set (grounds with art present in this world).
 var sources: Dictionary = {}
+## True when the water fill has the bank's 16 shapes (else one plain tile, no bank).
+var _bank_shapes := false
 
 var _queued := false
 var _snapping := false
@@ -153,13 +160,20 @@ func rebuild() -> int:
 			for level in stack.size():
 				var name_of_ground := TerrainMaterials.ORDER[stack[level]]
 				var index := FULL
+				var bits: Array[int] = [TL, TR, BL, BR]
 				if level > 0:
 					index = 0
-					var bits: Array[int] = [TL, TR, BL, BR]
 					for i in 4:
 						if around[i] >= stack[level]:
 							index |= bits[i]
-				var atlas := Vector2i.ZERO if name_of_ground == TerrainMaterials.WATER else Vector2i(index % 4, index / 4)
+				var atlas := Vector2i(index % 4, index / 4)
+				if name_of_ground == TerrainMaterials.WATER:
+					# The bank's shape: which of the corner's cells are land (above the water).
+					var land := 0
+					for i in 4:
+						if around[i] > stack[0]:
+							land |= bits[i]
+					atlas = Vector2i(land % 4, land / 4) if _bank_shapes else Vector2i.ZERO
 				layers[level].set_cell(corner, sources[name_of_ground], atlas)
 				placed += 1
 			corners += 1
@@ -196,8 +210,8 @@ func _order_at(cell_ground: Dictionary, order_of: Dictionary, cell: Vector2i) ->
 
 
 ## The edge tile set for this world: one source per ground with art (16 tiles, the land shader on
-## that ground's sheet) plus one water source (one opaque tile, the water shader) when the ground
-## has a mounted water surface. Fills `sources`.
+## that ground's sheet) plus one water source (the 16 bank shapes, the water shader) when the
+## ground has a mounted water surface. Fills `sources`.
 func _edge_tile_set(sheets: Dictionary) -> TileSet:
 	sources.clear()
 	var tile_set := TileSet.new()
@@ -207,7 +221,16 @@ func _edge_tile_set(sheets: Dictionary) -> TileSet:
 		if name_of_ground == TerrainMaterials.WATER:
 			var water := _water_material(origin)
 			if water != null:
-				sources[name_of_ground] = _add_source(tile_set, _opaque_texture(), water, [Vector2i.ZERO])
+				_bank_shapes = ResourceLoader.exists(BANK_SHAPES) and ResourceLoader.exists(BANK_EARTH)
+				if _bank_shapes:
+					var atlases: Array[Vector2i] = []
+					for index in 16:
+						atlases.append(Vector2i(index % 4, index / 4))
+					water.set_shader_parameter(&"bank_texture", load(BANK_EARTH))
+					sources[name_of_ground] = _add_source(tile_set, load(BANK_SHAPES) as Texture2D, water, atlases)
+				else:
+					push_warning("TerrainEdges: no bank art (%s); deep water keeps a flat shore" % BANK_SHAPES)
+					sources[name_of_ground] = _add_source(tile_set, _opaque_texture(), water, [Vector2i.ZERO])
 			continue
 		var edges_path := TerrainMaterials.edges_path(name_of_ground)
 		var rim_path := TerrainMaterials.rim_path(name_of_ground)
@@ -256,9 +279,11 @@ func _water_material(origin: Vector2) -> ShaderMaterial:
 	return water
 
 
+## One water fill tile with no bank: no land within reach (r 1), a front wall (g 0.5), no bank near
+## (b 0).
 static func _opaque_texture() -> Texture2D:
 	var image := Image.create_empty(ART_TILE + 2 * GUTTER, ART_TILE + 2 * GUTTER, false, Image.FORMAT_RGBA8)
-	image.fill(Color.WHITE)
+	image.fill(Color(1.0, 0.5, 0.0, 1.0))
 	return ImageTexture.create_from_image(image)
 
 

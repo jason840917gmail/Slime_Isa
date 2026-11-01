@@ -260,7 +260,8 @@ the edge layer first fills the tile with water, using the same maths (`water_sur
 shared with `water_surface.gdshader`), the surface's own mask and sheets and the same opaque water
 ground, so it is pixel-identical to the surface next to it, then draws the land's edge tile with its
 painted rim on top. The shore foam therefore shows only on the water side of the land's rim. Water
-and deep water still blend inside the surface (its deep factor), not with tiles.
+and deep water still blend inside the surface (its deep factor), not with tiles. Along deep water
+the fill also draws the bank under the land's edge (§11).
 
 ### 6.3 Order inside the underwater band
 Phaser orders shadows (+0.55) < plants (+0.6) < fish (+0.65). The converter maps all three to
@@ -375,3 +376,40 @@ shore drawn around the hole), so the bridge now opens the water itself.
   goes. Place a bridge so its planks sit on the lane: the slime walks the lane, its feet anywhere in
   the row.
 - Collision stays tile squares, as §0 requires; nothing is traced.
+
+## 11. Banks (Godot only)
+
+Owner request (2026-10-31), from a sketch of grass over a dirt bank over the water: an edge on the
+water where it meets the ground, on its top and sides, "at least on deep water", the art belonging
+to the water so no ground needs art of its own. He picked the earth bank from two mock-ups (earth,
+or the cliffs' rounded stones).
+
+- **Where.** Along deep water only. Where land lies above the water (north of it), the bank's front
+  face hangs 24 units down from the land's edge; where land lies beside it, a side wall 11 units
+  wide; where land lies below (south of it) the face looks away and nothing shows, the shore stays
+  as before. An island shows a face under its south edge. Deep water blocks walkers (§0), so the
+  bank says "no way in" right on the blocking line; shallow water is walkable and keeps its soft
+  shore, and where a deep shore turns shallow the bank tapers out over about a cell.
+- **Owned by the water.** The shoreline water fill (`terrain_edge_water.gdshader`, the level-0
+  tiles TerrainEdges lays under every ground's edge tiles, §6.2) draws it; the grounds' edge tiles
+  cover its top as before, so their grass, sand or snow hangs over its lip. Nothing to paint: it
+  follows the deep water, in the editor too. Corners TerrainEdges skips (hard-edged tiles such as
+  rock walls and dungeon floors, cells of different elevation levels) get no bank.
+- **Shapes.** The fill's tile is one of 16 bank shapes (`godot/asset/MAPS/water/water-bank-shapes.png`,
+  the edge sheets' layout, indexed by which of the corner's four cells are land). Each pixel holds
+  how far down the face it lies (the land extruded by a shape K: straight down for a front face,
+  sideways for a side wall, a superellipse between, as the cliffs' side walls), which way the face
+  looks, and whether the bank is near. The land there is the cells with rounded corners, inset
+  about 4 units, which the tool checks stays inside every ground's edge art (so no water shows
+  between the grass and the bank).
+- **Look.** The earth strip (`water-bank-earth.png`: soil, pebbles, hanging roots, a damp foot; three
+  Magnific GPT 2.5 strips joined end to end, about 5.5 cells before it repeats) runs in world space
+  along x on a front face and along y on a side wall. Side walls are shaded by the way they face (the
+  light comes from the upper left: east-facing dark, west-facing lit). The waterline wobbles, the
+  water just under it darkens a little, and patches of foam lap at its foot; the surface's own shore
+  foam fades out along the bank. The shader's uniforms (`bank_*`) hold these values.
+- **Art.** `python scripts/art/build-water-bank.py [--height 24] [--side 11]` builds both images from
+  `asset/Originals/water/generated/bank-earth-a.png` (re-run it to change the bank's size). Both
+  import lossless: the shapes are data.
+- Visual only: collision, wading and swimming are unchanged. A swimmer (the Frog Gulp form) can still
+  swim up to the cell line, over the face, and climb out there.

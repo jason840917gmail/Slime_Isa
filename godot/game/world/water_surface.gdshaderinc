@@ -33,9 +33,9 @@ float water_luma(vec3 c) {
 	return dot(c, vec3(0.299, 0.587, 0.114));
 }
 
-// The surface at `px`: rgb = its colour, a = its alpha (0 where Phaser discards: off the water).
-// `deep` receives the deep-water factor (0 shallow .. 1 deep) at `px`.
-vec4 water_surface_at(vec2 px, float t, out float deep) {
+// The surface at `px` with its shore foam scaled by `foam_scale` (the shore fill fades it out
+// along a deep-water bank, which laps its own foam at its foot; specs/water.md §11).
+vec4 water_surface_with_foam(vec2 px, float t, float foam_scale, out float deep) {
 	vec4 m = texture(water_mask, (px / tile_size) / grid_size);
 	float wet = m.r + m.g;
 	deep = smoothstep(0.25, 0.85, m.g / max(wet, 0.001));
@@ -76,10 +76,16 @@ vec4 water_surface_at(vec2 px, float t, out float deep) {
 	float shore = 1.0 - smoothstep(0.5, 0.95, body);
 	float lap = sin(t * 1.4 + water_noise(px * 0.02) * 6.2832) * 0.5 + 0.5;
 	float foam = shore * smoothstep(0.55, 0.85, water_noise(px * 0.09 + vec2(t * 0.5, -t * 0.35)) * 0.7 + lap * 0.45);
-	color = mix(color, vec3(0.93, 0.98, 1.0), foam * 0.6);
+	color = mix(color, vec3(0.93, 0.98, 1.0), foam * 0.6 * foam_scale);
 
 	float alpha = smoothstep(0.3, 0.62, body) * mix(0.82, 0.9, deep);
 	return vec4(color, alpha);
+}
+
+// The surface at `px`: rgb = its colour, a = its alpha (0 where Phaser discards: off the water).
+// `deep` receives the deep-water factor (0 shallow .. 1 deep) at `px`.
+vec4 water_surface_at(vec2 px, float t, out float deep) {
+	return water_surface_with_foam(px, t, 1.0, deep);
 }
 
 // The water ground under the surface at `px`: the shallow and deep sheets at the texel a water

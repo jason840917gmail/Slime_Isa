@@ -443,6 +443,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   grids from Magnific), each frame aligned on its ring, into
   `godot/asset/MAPS/water/224x128-tile_4x2-water-wake.webp`, which `game/world/water_wake.gd` draws
   ([godot/specs/water.md](godot/specs/water.md#9-wading-godot-only)).
+- `python scripts/art/build-water-bank.py [--height 24] [--side 11] [--preview DIR]` (**numpy**) — the
+  deep-water bank: its 16 shore shapes (`godot/asset/MAPS/water/water-bank-shapes.png`, the edge sheets'
+  layout, checked to stay inside every ground's edge art) and its earth strip (`water-bank-earth.png`, the
+  three strips of `asset/Originals/water/generated/bank-earth-a.png` joined end to end), drawn by the
+  shoreline water fill ([godot/specs/water.md](godot/specs/water.md#11-banks-godot-only)). Both import
+  lossless (the shapes are data).
 - `python scripts/art/despill-magenta-fringe.py [--all] [--min-blue N] [--write] <image>...` (**numpy**) —
   removes magenta chroma-key fringe from sprite sheets. Dry run by default.
 
