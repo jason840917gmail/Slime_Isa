@@ -1,6 +1,6 @@
 # Handover (2026-10-17)
 
-> **Working in `D:/projects/Slime isa-throw` (branch `exp/throw-combat`)? Start with [the throw-combat handover, 2026-10-23](2026-10-23-throw-combat.md)** (the branch, the task in progress, the owner's rules).
+> **Throw combat:** the `exp/throw-combat` branch was merged into `main` on 2026-11-01 and its worktree (`D:/projects/Slime isa-throw`) deleted; [its handover, 2026-10-23](2026-10-23-throw-combat.md) is the record (the owner's rules for throw combat still hold).
 >
 > **Start here instead: [2026-10-19 session summary](2026-10-19-session-summary.md)** (the current state, the owner's rules, what is open). The rest of this file is the 2026-10-17 record.
 >

@@ -1,10 +1,11 @@
-# Throw Combat (experiment, branch `exp/throw-combat`)
+# Throw Combat
 
 The owner's idea of 2026-10-19: killing enemies only by throwing things is more fun and more of a
 challenge, because every throw counts. The Gulp (suck and throw) becomes the whole fight; the body
 shapes become energy powers for special moments; what the slime can lift grows with the Gulp's
-level. This branch builds it on top of the body-shapes rework mode so it can be played and judged.
-Nothing here is on `main`.
+level. It is built on top of the body-shapes rework mode. It was tried on the `exp/throw-combat`
+branch from 2026-10-20 and merged into `main` on 2026-11-01 (the branch and its worktree deleted);
+it is on in every world unless `?melee` turns it off.
 
 The owner's decisions (2026-10-19/20):
 

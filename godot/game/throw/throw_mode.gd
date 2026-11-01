@@ -1,5 +1,5 @@
 extends RefCounted
-## The throw-combat experiment (branch `exp/throw-combat`; docs/godot/THROW_COMBAT.md; owner,
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md; owner,
 ## 2026-10-19): the Gulp is the whole fight. Enemies fall to what the slime throws, the attack key
 ## does nothing, and the body shapes are energy powers in the Ability Box. What the mouth can lift
 ## follows the Gulp's level: 1 light things, 2 medium, 3 heavy. A thing's weight sets its damage,

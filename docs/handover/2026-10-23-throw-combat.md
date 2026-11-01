@@ -1,5 +1,10 @@
 # Handover: the throw-combat branch (2026-10-23)
 
+> **Closed 2026-11-01:** the owner called the branch's purpose complete; `exp/throw-combat` was
+> merged into `main` (a fast-forward) and the branch and the `D:/projects/Slime isa-throw` worktree
+> were deleted. Work on throw combat continues in the main checkout. The folders and branch below
+> are history; the owner's rules still hold.
+
 For the next agent working in this folder. The owner is opening a workspace here so all work on the
 experiment happens in one place.
 
