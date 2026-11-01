@@ -40,8 +40,8 @@ skeleton's skull and bone, the Goo Bomb, essences, the enemies' shots). Dragging
 own size. Select it to change it in the Inspector, on the node itself (`game/scripts/liftable_root.gd`):
 **`kind`** (a list of the kinds; the picture follows at once) and **`under`**, what it leaves where it
 stood when the slime sucks it up (Zelda's heart under a pot; game/dungeon/pot_loot.gd): `keep` (the
-scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. On the
-`exp/throw-combat` branch also **`weight`** (`light`, `medium` or `heavy`: picking a kind fills in its
+scene's own, as the dungeon pot's random one), `none`, `heart`, `energy`, `coins` or `random`. For
+throw combat also **`weight`** (`light`, `medium` or `heavy`: picking a kind fills in its
 usual weight, [THROW_COMBAT.md](THROW_COMBAT.md)), the source of truth for that thing's weight. Like
 any part of its world scene it is back each time the map is entered, and so is what it hides.
 

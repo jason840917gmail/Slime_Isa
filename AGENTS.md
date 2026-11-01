@@ -31,7 +31,7 @@ its code is in git history.
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (lends the shapes and box abilities in any world;
   the body-shapes rework mode itself is on in every world on this branch), `?prologue` (a new
   run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
-  session), and on the `exp/throw-combat` branch `?melee` (the throw-combat experiment off: the
+  session), `?melee` (the throw-combat experiment off: the
   shapes' attack back), `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
   `-- --map=<id> ...`, `-- --shapes`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
@@ -72,7 +72,7 @@ its code is in git history.
   with their areas. Reach every autoload through `res://game/shared/services.gd`.
 - `godot/game/scenes/` — every world, object, character, weapon, effect, projectile and encounter
   scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
-- `godot/game/throw/` — the throw-combat experiment (branch `exp/throw-combat`):
+- `godot/game/throw/` — the throw-combat experiment (on in every world, `?melee` turns it off):
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md).
 - `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,
   weapons and item icons (JSON read through `GameConstants`), and the world layout

@@ -108,7 +108,7 @@ box ability (`ability_use`) on S and the Roll (`dodge`) on D (`KeyBindings.REWOR
 rework's own input layer (`game/shapes/rework_input.gd`: no number keys, the Roll on Space, the box
 ability on F) lies under this one, and each puts back only what it changed.
 
-In the throw-combat experiment (branch `exp/throw-combat`, [THROW_COMBAT.md](THROW_COMBAT.md);
+In the throw-combat experiment ([THROW_COMBAT.md](THROW_COMBAT.md);
 owner, 2026-10-22, changed 2026-10-23) the scheme goes one step further (`KeyBindings.THROW_LAYOUT`):
 **Q** is the Gulp (`eat`: suck, throw, swallow), **S** the Roll, **A** the chosen box ability, and the
 attack has no key. main.gd puts the layout on or off when the throw mode changes.

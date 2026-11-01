@@ -1,5 +1,5 @@
 extends RefCounted
-## The throw-combat experiment (branch exp/throw-combat; docs/godot/THROW_COMBAT.md): the playground
+## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the playground
 ## with the rework mode and the throw mode on. What the Gulp lifts follows its level, a thing's
 ## weight and material set its damage and effect, the attack key does nothing, the shapes are box
 ## powers, and missed arrows and a Brawler's blows make ammo.
