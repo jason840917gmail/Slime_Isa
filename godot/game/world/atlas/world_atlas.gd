@@ -65,6 +65,9 @@ const MARKER_COLORS := {
 const ELEVATION_LIGHT := 0.07
 const BACKGROUND := Color("#16181d")
 const GRID_COLOR := Color(1, 1, 1, 0.3)
+## A chunk's name, faint so the map under it shows through, with a faint outline.
+const CHUNK_NAME_COLOR := Color(1, 1, 1, 0.3)
+const CHUNK_NAME_OUTLINE := Color(0, 0, 0, 0.15)
 const FRAME_COLOR := Color("#f2e8c9")
 const TEXT_COLOR := Color("#f7f3e8")
 const PANEL_COLOR := Color(0.05, 0.06, 0.08, 0.8)
@@ -125,6 +128,14 @@ const REBUILD_PLACEHOLDERS := "\"<Godot 4.7.2 console exe>\" --headless --path g
 	set(value):
 		show_live_worlds = value
 		_worlds_switched()
+## The signs over the worlds: the regions' outlines and names, the passages, the world frames and
+## the interiors' titles, the markers and the exits (`show_markers` and `show_exits` pick among
+## them). Off, only the chunk lines and the chunks' faint names are drawn, so the maps show through
+## (owner, 2026-11-01).
+@export var show_signs := false:
+	set(value):
+		show_signs = value
+		_view_changed()
 @export var show_exits := true:
 	set(value):
 		show_exits = value
@@ -1256,7 +1267,19 @@ func _paint_marks(canvas: Node2D) -> void:
 	for y in plan.chunk_rows:
 		for x in plan.chunk_cols:
 			_text(canvas, font, Vector2(x, y) * chunk + Vector2(PAD * 0.5, PAD * 0.5 + CHUNK_FONT),
-					WorldMapData.chunk_name(Vector2i(x, y)), CHUNK_FONT, GRID_COLOR * Color(1, 1, 1, 2.2))
+					WorldMapData.chunk_name(Vector2i(x, y)), CHUNK_FONT, CHUNK_NAME_COLOR, CHUNK_NAME_OUTLINE)
+	if show_signs:
+		_paint_signs(canvas, font)
+	_paint_moves(canvas)
+	canvas.draw_rect(Rect2(Vector2.ZERO, grid), FRAME_COLOR, false, FRAME)
+	_paint_banner(canvas, font)
+	if show_interiors and _shelf.get_child_count() > 0:
+		_text(canvas, font, Vector2(0, grid.y + SHELF_GAP - PAD * 3.0), "Interiors (off the grid), under their region", NAME_FONT, TEXT_COLOR)
+
+
+## The signs over the worlds (`show_signs`): passages, region outlines, world frames, markers,
+## region names and exits.
+func _paint_signs(canvas: Node2D, font: Font) -> void:
 	for passage: Variant in plan.passages():
 		if passage is Dictionary:
 			var p := passage as Dictionary
@@ -1277,11 +1300,6 @@ func _paint_marks(canvas: Node2D) -> void:
 	if show_exits:
 		for judged in _exits:
 			_paint_exit(canvas, font, judged)
-	_paint_moves(canvas)
-	canvas.draw_rect(Rect2(Vector2.ZERO, grid), FRAME_COLOR, false, FRAME)
-	_paint_banner(canvas, font)
-	if show_interiors and _shelf.get_child_count() > 0:
-		_text(canvas, font, Vector2(0, grid.y + SHELF_GAP - PAD * 3.0), "Interiors (off the grid), under their region", NAME_FONT, TEXT_COLOR)
 
 
 ## A world smaller than its block: the unused part hatched; bigger: its spill outlined in red. On
@@ -1458,8 +1476,9 @@ func _paint_banner(canvas: Node2D, font: Font) -> void:
 		at.y += BANNER_FONT * 1.25
 
 
-func _text(canvas: Node2D, font: Font, at: Vector2, text: String, size: int, color: Color) -> void:
-	canvas.draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, maxi(4, size / 8), SHADOW_COLOR)
+func _text(canvas: Node2D, font: Font, at: Vector2, text: String, size: int, color: Color,
+		outline: Color = SHADOW_COLOR) -> void:
+	canvas.draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, maxi(4, size / 8), outline)
 	canvas.draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 

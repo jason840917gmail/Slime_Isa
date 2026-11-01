@@ -74,9 +74,11 @@ Forest, as the game's exits are):
 Open `game/dev/world_atlas.tscn` in the editor (it is a dev scene: not in `scene_index.json`, not in
 the release export).
 
-- **What it shows:** the chunk grid with the chunk names; every region's world scene, live (read
-  from disk and drawn as the game draws it, one world per frame while it loads); region outlines,
-  names and chunks; the openings; the markers; the interiors on a shelf under the grid; every exit of
+- **What it shows:** the chunk grid with the chunk names (faint, so the map shows through); every
+  region's world scene, live (read from disk and drawn as the game draws it, one world per frame
+  while it loads); the interiors on a shelf under the grid. With **`show_signs`** on (Inspector, off
+  by default since 2026-11-01, owner: the signs hid the maps): region outlines, names and chunks; the
+  openings; the markers; the interiors' titles; every exit of
   every world as an arrow: **green** (it leads to the region across its edge, which leads back),
   **amber** (no way back), **red** (it leads somewhere that is not across its edge, or arrives on an
   edge without a marker). The sketch's colours show where a region has no world yet.
@@ -96,7 +98,8 @@ the release export).
 - **After a layout change:** the placeholder worlds are out of date (the atlas says so, in its
   warnings): rebuild them (below). Hand-made worlds keep their content; check their exits' arrows.
 - **Root options (Inspector):** `map_path`, `show_sketch`, `sketch_under_worlds`,
-  `show_live_worlds`, `show_exits`, `show_markers`, `show_interiors`. A region's `live` switches its
+  `show_live_worlds`, `show_signs` (`show_exits` and `show_markers` choose among the signs),
+  `show_interiors`. `tools/render_world_atlas.gd` renders with the signs on. A region's `live` switches its
   world off (level-1 and the Wilds are big: switch them off to lighten the editor).
 - **Warnings** (the yellow sign on the root and on a slot): a world whose size is not its block's
   (the rest of the block is hatched), a region
@@ -180,7 +183,11 @@ hand ([PROLOGUE.md](PROLOGUE.md)); its file no longer has the hash `world-chunks
 the cut leaves it alone. Its exit to level-1 moved to the east edge's y 1600-1792 and leads straight
 to `level-1-c4`, which has the exit back (`exit-to-west-village-1`) at the same place:
 that opening is the prologue's forest path, so the West village's town needs its own opening onto
-Slimeshire when the layout is redrawn. The release "Web" preset ships `west-village-b4` (it
+Slimeshire when the layout is redrawn. (The layout's second West village – Slimeshire passage, at
+C4 rows 6-9, had no crossing in the scenes and was taken out on 2026-11-01, so the map draws no
+link there; the town's opening adds its passage when it is built. The same day a leftover road stub
+on the South Wilds C8 – Sticky Swamp D8 border, open on both sides with no exit, and one on D8's
+side at row 26 were planted over.) The release "Web" preset ships `west-village-b4` (it
 excludes `west-village-a*` and `west-village-b5*` only); `build_region_worlds.gd` rewrites the
 presets, so check that line after running it.
 
