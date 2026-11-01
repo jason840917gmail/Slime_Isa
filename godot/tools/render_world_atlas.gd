@@ -41,6 +41,8 @@ func _initialize() -> void:
 	camera.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
 	viewport.add_child(camera)
 	var atlas := (load(SCENE) as PackedScene).instantiate() as WorldAtlas
+	# The pictures are for checking the layout: with the regions' names, the passages and the exits.
+	atlas.show_signs = true
 	viewport.add_child(atlas)
 	var frames := 0
 	while atlas.busy() and frames < MAX_WAIT_FRAMES:
@@ -80,6 +82,8 @@ func _initialize() -> void:
 		viewport.size = Vector2i((area.size * zoom).ceil())
 		camera.position = area.position
 		for i in 4:
+			# Drawn even when the display sleeps (else the pictures come out blank).
+			RenderingServer.force_draw(false)
 			await process_frame
 		var file := out.path_join(shot_name + ".png")
 		viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(file))

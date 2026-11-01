@@ -240,8 +240,10 @@ map_ui.clear_markers()
     banner and the save slots: without a trailing note in parentheses (the sketch tool's planning
     note on an open design slot, "Desert (open)" reads "Desert"; the file keeps it).
   - **Links**: each entry of the layout's `passages` (`{a, b, x, y, w, h}` in cells, written by
-    `godot/tools/build_region_worlds.gd`: 17 openings in the current layout, after the owner closed
-    North Wilds – Slimeshire Meadow and North Wilds – Gloop Forest on 2026-10-31) whose two regions are
+    `godot/tools/build_region_worlds.gd`: 16 openings in the current layout, after the owner closed
+    North Wilds – Slimeshire Meadow and North Wilds – Gloop Forest on 2026-10-31 and a second
+    West village – Slimeshire link with no crossing behind it went on 2026-11-01; each now matches a
+    crossing in the chunk scenes) whose two regions are
     discovered (`passage_shown`) gets a short bar across their
     border at the middle of its opening (0.18 of a chunk each way): a 2 px accent line on a 5 px
     dark one (the legacy `WorldMapUI.ts:112-115` link, darker and stronger to read on the tinted
