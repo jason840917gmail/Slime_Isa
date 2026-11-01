@@ -67,7 +67,10 @@ no seam; uncovered pixels are transparent and the level below shows.
 `terrain_edge_water.gdshader` draws exactly what the water surface draws: both include
 `game/world/water_surface.gdshaderinc` and the fill copies the surface's mask, sheets and grid. The
 `TerrainEdges` node is a child of the ground after `WaterSurface`, so it draws over the surface and
-the shore foam shows only on the water side of the land's rim.
+the shore foam shows only on the water side of the land's rim. Along deep water the fill also draws
+an earth bank under the land's edge (front faces where land lies above the water, side walls beside
+it): the fill's tile is one of 16 bank shapes picked by which of the corner's cells are land
+([specs/water.md §11](specs/water.md#11-banks-godot-only)).
 
 Visual only: the ground cells stay the gameplay truth (walkability, collision, footsteps).
 
@@ -189,7 +192,8 @@ Magnific (creative, "VideoGameAssets", "subtle"; about 180 credits), save it as
 | `godot/game/world/terrain_edges/terrain_edges.gd` | `TerrainEdges`: the dual-grid tile picker (`@tool`) |
 | `godot/game/world/terrain_edges/terrain_materials.gd` | Grounds, their stacking order and art paths |
 | `godot/game/world/world_ground.gd` | The script on every world's ground layer: mounts the water and the edges in the editor (`@tool`) |
-| `godot/game/world/terrain_edges/terrain_edge.gdshader`, `terrain_edge_water.gdshader` | Land edges and the water fill |
+| `godot/game/world/terrain_edges/terrain_edge.gdshader`, `terrain_edge_water.gdshader` | Land edges and the water fill (with the deep-water bank) |
+| `scripts/art/build-water-bank.py`, `godot/asset/MAPS/water/water-bank-*.png` | The bank's 16 shapes and its earth strip |
 | `godot/game/world/water_surface.gdshaderinc` | The water maths shared by the surface and the shores |
 | `godot/tools/build_terrain_lab.gd` | Builds the lab scene |
 | `godot/tools/build_terrain_layers_lab.gd` | Builds the comparison lab (Godot Terrains, a layer per ground) and its tile set |
