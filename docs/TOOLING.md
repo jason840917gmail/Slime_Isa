@@ -460,6 +460,17 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/specs/water.md](godot/specs/water.md#11-banks-godot-only)). It checks first and stops on a
   failure: the bank must end inside a tile (`--height`, `--side` up to 27 units) and its top stay inside
   every ground's edge art; `--check` only checks. Both import lossless (the shapes are data).
+- `python scripts/art/build-tile-compare-sheets.py [--force] [--no-carry]` (**numpy**) — the tile compare
+  lab's sheets (an experiment, paused 2026-11-05), from `asset/Originals/concepts/zelda-tile-grid/`:
+  Zelda's exact 16 px tiles (a dev-only reference, from the game pixels of five screenshots, and a low
+  ledge rebuilt from a rain screenshot) laid out as six figures, their TileSet, and the lab scene unless
+  it exists (`--force` rebuilds it, keeping what was painted on its Zelda layer outside the figures by
+  tile name; `--no-carry` drops that). It also writes the templates for our art in `painted/grid/`
+  (`guide-<name>.png`, one figure with Zelda's rim, plain for the stone; `guide-<name>-numbered.png`, the
+  numbered matrix; `guide-levels.png`, the levels map) and cuts our stone and dirt sheets (`VARIANTS`)
+  from Nano Banana paintings of them, fitted to the guide's walls (`<name>-fitted.png`), every cell its
+  own tile, with `tile-compare-single.png` showing the figure in all three sets
+  ([godot/TILE_COMPARE_LAB.md](godot/TILE_COMPARE_LAB.md)). About 40 s.
 - `python scripts/art/despill-magenta-fringe.py [--all] [--min-blue N] [--write] <image>...` (**numpy**) —
   removes magenta chroma-key fringe from sprite sheets. Dry run by default.
 
