@@ -3,7 +3,7 @@ extends RefCounted
 ## 45° edges from single-cell steps, walls one cell per level, holes whose near rim hides the
 ## wall), flights of stairs (set into a face or running out from a side; levels and depth along
 ## them), the 3D ground (a capped strip behind a hill and under a hole's near rim) and, in the
-## playground's Elevation Park, wall styles by paint and by ground, stairs coloured by their ground,
+## playground's Elevation Park, wall styles by paint and by ground, stairs coloured by the wall they are cut into,
 ## walls that block, stairs on every side that change the player's level between their posts or
 ## side walls, rims that hold the player until it insists and then drop it where the picture says
 ## it falls, a jump that never climbs, walking behind a hill and the player ghosted there.
@@ -248,23 +248,25 @@ func test_park_mounts_cliffs_and_collision(t: TestContext) -> void:
 
 
 ## A wall takes the style painted on the `cliffs` layer over its top, else its ground's
-## (scripts/maps/build-elevation-park.py `cliffs`).
+## (scripts/maps/build-elevation-park.py `cliffs`; a ground's default is the owner's pick in
+## cliffs/ground_wall_styles.tres, so those probes read it).
 func test_wall_styles_follow_paint_and_ground(t: TestContext) -> void:
 	var elevation := t.world().elevation
 	if not t.check(elevation != null, "no elevation in the playground"):
 		return
+	var defaults := Elevation.ground_wall_styles()
 	# [cell x, the wall's first row, style]
 	for probe: Array in [
-		[3, 35, "meadow-rock"],    # the level-1 square: grass, unpainted
-		[17, 84, "sandstone"],     # the sand plateau: its ground
-		[30, 85, "snow-rock"],     # the snow plateau: its ground
-		[2, 120, "root-rock"],     # the ground row's forest floor
-		[33, 120, "masonry"],      # the ground row's cobble
+		[3, 35, defaults["highland"]],      # the level-1 square: grass, unpainted
+		[17, 84, defaults["sanddessert"]],  # the sand plateau: its ground
+		[30, 85, defaults["frozen"]],       # the snow plateau: its ground
+		[2, 120, defaults["forest-floor"]], # the ground row's forest floor
+		[33, 120, defaults["town-cobble"]], # the ground row's cobble
 		[23, 94, "masonry"],       # the ridge's level-2 block: painted
 		[34, 94, "sandstone"],     # the ridge's level-3 block: painted
 		[17, 94, "cave-rock"],     # the ridge's level-1 block: painted
 		[30, 103, "mossy-rock"],   # the lake cliff's east half: painted
-		[10, 103, "meadow-rock"],  # its west half
+		[10, 103, defaults["highland"]],    # its west half
 	]:
 		var tri := elevation.grid.column_tri(int(probe[0]) * 2, int(probe[1]) * 4)
 		var band := elevation.grid.tri_band[tri]
@@ -272,8 +274,9 @@ func test_wall_styles_follow_paint_and_ground(t: TestContext) -> void:
 			t.equal(elevation.band_styles[band], str(probe[2]), "wall style at cell (%d, %d)" % [probe[0], probe[1]])
 
 
-## Every flight takes its colour from the road or ground at its ends (a road first, else the top's):
-## the showcase's from the grass, the plateaus' from their own ground.
+## Every flight knows the road or ground at its ends (a road first, else the top's): the showcase's
+## the grass, the plateaus' their own ground; and since 2026-11-06 it is coloured by the wall it is
+## cut into (`stone`, a wall style with a colour), its mesh named after it.
 func test_stairs_take_the_colour_of_their_ground(t: TestContext) -> void:
 	var elevation := t.world().elevation
 	if not t.check(elevation != null, "no elevation in the playground"):
@@ -295,7 +298,9 @@ func test_stairs_take_the_colour_of_their_ground(t: TestContext) -> void:
 				found = flight
 		if t.check(found != null, "no flight at %s" % probe[0]):
 			t.equal(found.ground_name, str(probe[1]), "ground of the flight at %s" % probe[0])
-	t.check(_has_mesh_prefix(elevation, "Stairs", "sanddessert-"), "no stairs mesh in the sand's colour")
+			t.check(ElevationStairs.STONE_COLOURS.has(found.stone), "the flight at %s is cut into no known wall ('%s')" % [probe[0], found.stone])
+			if probe[1] == "sanddessert":
+				t.check(_has_mesh_prefix(elevation, "Stairs", found.stone + "-"), "no stairs mesh in the colour of the sand plateau's wall")
 
 
 static func _has_mesh_prefix(elevation: Node, group: String, prefix: String) -> bool:

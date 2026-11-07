@@ -1,0 +1,197 @@
+{
+	"mossy-rock": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			93
+		],
+		"rect": [
+			872,
+			4,
+			120,
+			98
+		]
+	},
+	"mushroom-rock": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			90
+		],
+		"rect": [
+			4,
+			120,
+			120,
+			95
+		]
+	},
+	"root-rock": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			81
+		],
+		"rect": [
+			500,
+			120,
+			120,
+			85
+		]
+	},
+	"autumn-rocks": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			87
+		],
+		"rect": [
+			128,
+			120,
+			120,
+			92
+		]
+	},
+	"dead-bush": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			60,
+			99
+		],
+		"rect": [
+			252,
+			4,
+			120,
+			103
+		]
+	},
+	"skull": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			88
+		],
+		"rect": [
+			252,
+			120,
+			120,
+			92
+		]
+	},
+	"snowy-fir": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			98
+		],
+		"rect": [
+			128,
+			4,
+			120,
+			104
+		]
+	},
+	"ice-crystals": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			95
+		],
+		"rect": [
+			624,
+			4,
+			120,
+			100
+		]
+	},
+	"snowy-rock": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			95
+		],
+		"rect": [
+			376,
+			4,
+			120,
+			101
+		]
+	},
+	"basalt-rocks": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			94
+		],
+		"rect": [
+			748,
+			4,
+			120,
+			99
+		]
+	},
+	"crystals": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			107
+		],
+		"rect": [
+			4,
+			4,
+			120,
+			112
+		]
+	},
+	"ruins": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			59,
+			96
+		],
+		"rect": [
+			500,
+			4,
+			120,
+			101
+		]
+	},
+	"lava-rock": {
+		"places": [
+			"foot"
+		],
+		"anchor": [
+			60,
+			87
+		],
+		"rect": [
+			376,
+			120,
+			120,
+			92
+		]
+	}
+}

@@ -4,8 +4,8 @@ extends TileMapLayer
 ## `cliffs` beside the ground and `elevation` layers, on the same grid, using cliff_tileset.tres.
 ## Paint a style on the cells of a top: the cliff walls hanging from that top, their corner stones
 ## and the railings of the flights of stairs leaving it take that style. Unpainted tops take the
-## style of their ground (Elevation.GROUND_WALL_STYLES); a hole's far wall hangs from the ground
-## around the hole, so paint those cells for it.
+## style of their ground (its default in ground_wall_styles.tres, edited in the Inspector); a hole's
+## far wall hangs from the ground around the hole, so paint those cells for it.
 ##
 ## In the editor the walls follow the paint at once (the elevation drawing is rebuilt); its own
 ## squares are only a painting aid: hide the layer (eye icon) to see the result. The game hides it.

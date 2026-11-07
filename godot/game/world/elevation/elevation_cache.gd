@@ -23,3 +23,7 @@ extends Resource
 @export var side_shapes: Array = []
 ## Each level's collision: level -> segments (PackedVector2Array, Elevation space).
 @export var collision: Dictionary = {}
+## A chunk world's neighbours' paint past its edges, as the bake read it (chunk_edges.gd `read`; {}
+## for any other world): an exported game builds its model from it instead of reading the
+## neighbours' scenes.
+@export var edges: Dictionary = {}

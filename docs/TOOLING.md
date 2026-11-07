@@ -80,9 +80,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `python scripts/art/build-water-bank.py --check`: the deep-water bank's top must stay under every
   ground's edge art.
 - `python scripts/art/build-elevation-art.py [name ...] [--preview DIR]` (**numpy**) — the cliff art:
-  a seamless wall per wall style (nine: meadow rock, snow rock, sandstone, cave rock, crystal rock,
-  mossy rock, masonry, root rock, red rock) and the stairs kit (treads, risers, a coping per wall
-  style), from `asset/Originals/elevation/generated/` into `godot/asset/MAPS/elevation/` (the corner-stone
+  a seamless wall per wall style (twenty-four: meadow rock, snow rock, sandstone, cave rock, crystal
+  rock, mossy rock, masonry, root rock, red rock; the earth walls mountain dirt, desert dirt and ice
+  dirt; and twelve faces from `asset/Originals/elevation/faces/` and `faces-v2/`, continuous faces
+  with no courses), from `asset/Originals/elevation/generated/` into `godot/asset/MAPS/elevation/` (the
+  old stairs kit it built went on 2026-11-07; the corner-stone
   wall ends and the grounds' lips and feet it once made belonged to the front-only cliff look, removed
   on 2026-10-17)
   ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)); `scripts/art/build-elevation-paint-tiles.py` draws
@@ -90,6 +92,16 @@ See [assets/README.md](assets/README.md) for the art workflow.
   (one swatch per wall style; run it after the walls).
 - `python scripts/maps/build-elevation-park.py` — rebuilds the playground's Elevation Park (its rows
   of ground and water, its painted levels and stairs, the wall styles on its `cliffs` layer); close the
+- `python scripts/art/build-cliff-dressing.py [--preview DIR]` (**numpy**) — the cliffs' ledge dressing
+  atlas (`godot/asset/MAPS/elevation/dressing/cliff-dressing.png` and `.json`): the cliff decor sheet's
+  pieces the game places at the walls' feet, cut out, scaled and packed with their anchors
+  ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls) "Ledge dressing"); rebake the elevation caches
+  after it.
+- `python scripts/art/build-wall-variants.py [style ...] [--preview DIR] [--seed N]` (**numpy**) — every
+  wall style's variants (`<style>-wall-variants.png`: six courses quilted from its stones, all starting
+  and ending like its wall art), which the cliffs show instead of repeating their wall art; run it
+  after `build-elevation-art.py` or `build-elevation-art-from-painting.py` changes a style's wall
+  ([godot/ELEVATION.md](godot/ELEVATION.md#wall-variation)).
   playground in the editor first. `res://tools/render_elevation_park.gd` (windowed:
   `--path godot -s res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few
   close-ups with the game's own drawing and prints how many walls each style has.
@@ -166,7 +178,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` (**numpy**) — elevation art cut from
   the aligned H painting (`asset/Originals/elevation/cliff-kit/kit-h3.png`) instead of generated: the wall
-  style `storybook-rock` (wall, stairs coping) in `godot/asset/MAPS/elevation/`; a world picks it with its
+  style `storybook-rock` (its wall) in `godot/asset/MAPS/elevation/`; a world picks it with its
   ground layer's metadata `cliff_wall_styles`; `--headless --path godot -s res://tools/build_cliff_shapes_lab.gd
   -- --force` rebuilds the cliff shapes lab that shows it ([godot/ELEVATION.md](godot/ELEVATION.md#storybook-art)).
 - `"<Godot console exe>" --path godot -s res://tools/render_heavy_grab.gd -- --out=<dir>
@@ -195,6 +207,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/DUNGEON_ROOMS.md](godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)).
 - `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
   cliffs' side walls ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
+- `python scripts/art/build-stairs-kit.py [--preview DIR]` (**numpy**) — the painted stairs
+  ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)): the front flight pieces
+  (`stairs-front-1.png`, `-2.png`), the 45° ones (`stairs-diag-1.png`, `-2.png`), the side flight pieces (`stairs-side-<levels>-<cells>.png`) and
+  the kit for back flights (`stairs-tread.png`, `stairs-blocks.png`) in `godot/asset/MAPS/elevation/`,
+  and every other art set's pieces (`stairs-<set>-<piece>.png`, writing
+  `godot/game/world/elevation/elevation_stairs_sets.gd`),
+  from the Magnific sheets and concepts in `asset/Originals/elevation/stairs-painted/`; prints the
+  textures' and every wall style's mean colour for `elevation_stairs.gd` (`KIT_MEANS`, `STONE_COLOURS`).
   and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
   sheet of four rounded stones; `--headless --path godot -s res://tools/build_cliff_sides_lab.gd`
   builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>

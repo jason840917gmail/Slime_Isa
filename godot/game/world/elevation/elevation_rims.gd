@@ -57,7 +57,11 @@ func _boundary_mode(upper: int, across: int, kind: int, upper_is_north: bool) ->
 		return RIM if grid.tri_level[across] < level else -1
 	var band: Dictionary = grid.bands[grid.tri_band[across]]
 	if int(band["top"]) > level:
-		return -1
+		# A side beside the lower courses of a higher wall (a terrace against a cliff, the wall going on
+		# down past it): the terrace's edge runs on up to that wall (2026-11-06, the owner: "the low
+		# level should reach the top wall and blend nicely with it"), drawn without a foot
+		# (ElevationSides._edge_drop: the wall is behind it, no ground).
+		return RIM if kind == ElevationGrid.VERTICAL and int(band["bottom"]) < level else -1
 	if kind != ElevationGrid.VERTICAL and upper_is_north and int(band["top"]) == level \
 			and across == grid.column_tri(int(band["column"]), int(band["start"])):
 		return LIP
