@@ -1,6 +1,7 @@
 extends SceneTree
 ## Bakes the elevation cache (docs/godot/ELEVATION.md "Baked cache") of every world in
-## game/scenes/scene_index.json that paints elevation, or of the worlds given:
+## game/scenes/scene_index.json that paints elevation (a chunk world also when only its neighbours
+## paint past its edges, "Across chunk lines"), or of the worlds given:
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/bake_elevation.gd [-- --world=<id>[,<id>...]]
 ## Each world is built from its painting (no cache read) and saved to
 ## res://game/scenes/worlds/elevation_cache/<world>.res. A game run from the project also saves the
@@ -38,7 +39,9 @@ func _initialize() -> void:
 		var world := packed.instantiate() as Node2D
 		var ground := Elevation.find_ground_in(world)
 		var painted := Elevation.find_layer(ground) if ground != null else null
-		if painted == null or painted.get_used_cells().is_empty():
+		# a chunk world with nothing of its own may still show its neighbours' walls hanging in
+		# (docs/godot/ELEVATION.md "Across chunk lines")
+		if painted == null or (painted.get_used_cells().is_empty() and not Elevation.paints_past_edges(ground)):
 			world.free()
 			continue
 		root.add_child(world)

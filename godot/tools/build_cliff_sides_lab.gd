@@ -30,7 +30,7 @@ const WATER := 11
 ## The grounds row (rows 52-80): a level-2 plateau per block, with a step cut at its front left (an
 ## inner corner) — [name, ground on top, ground around it], in rows of GROUND_BLOCKS_PER_ROW
 ## blocks GROUND_BLOCK cells wide. Each top takes its ground's own wall style (elevation.gd
-## GROUND_WALL_STYLES; grass takes the lab's storybook rock).
+## Elevation.ground_wall_styles(); grass takes the lab's storybook rock).
 const GROUND_BLOCKS := [
 	["snow", SNOW, SNOW], ["sand", SAND, SAND], ["forest floor", FOREST_FLOOR, FOREST_FLOOR],
 	["forest moss", FOREST_MOSS, FOREST_MOSS], ["fallen leaves", AMBERLEAF, AMBERLEAF], ["cavern", CAVERN, CAVERN],

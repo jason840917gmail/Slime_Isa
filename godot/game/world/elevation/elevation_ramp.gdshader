@@ -35,6 +35,6 @@ void vertex() {
 
 void fragment() {
 	float shade = shadows > 0.5 ? take * cast_shade(local, height) : 0.0;
-	vec3 ground = texture(ground_texture, world / ground_period).rgb * level_light(height);
+	vec3 ground = level_lit(texture(ground_texture, world / ground_period).rgb, level_light(height));
 	COLOR = vec4(ground * (1.0 - strength * shade), smoothstep(0.0, 1.0, opacity));
 }

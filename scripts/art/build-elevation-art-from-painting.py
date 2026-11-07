@@ -8,14 +8,13 @@ the `storybook-rock` wall from the aligned three-course painting (asset/Original
 kit-h3.png, built by scripts/art/build-cliff-kit.py: one stone course = 128 px):
 
   wall    the clean middle course of the three-course painting (h3), one row from each leg of the H,
-          resampled to 128 px and made horizontally periodic (two rows: stacked courses alternate);
-  coping  the railings' coping for stairs leaving these walls (build-elevation-art.py).
+          resampled to 128 px and made horizontally periodic (two rows: stacked courses alternate).
 
 (Its side strip and corner stones come from scripts/art/build-side-wall-art.py. The wall ends, lip
 and foot it once cut too belonged to the front-only cliff look, removed on 2026-10-17.)
 
 Outputs (derived; re-run the tool instead of editing them) in godot/asset/MAPS/elevation/:
-  storybook-rock-wall.png, storybook-rock-stairs-coping.png
+  storybook-rock-wall.png
 A world uses them through its ground layer's metadata (elevation.gd): `cliff_wall_styles`
 {"highland": "storybook-rock"}.
 
@@ -115,7 +114,6 @@ def main() -> None:
     if args.preview:
         args.preview.mkdir(parents=True, exist_ok=True)
     build_wall(args.preview)
-    E.build_coping(STYLE, args.preview)
 
 
 if __name__ == "__main__":

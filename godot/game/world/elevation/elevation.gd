@@ -8,7 +8,9 @@ extends Node2D
 ## model (elevation_grid.gd), bottom to top:
 ##   Patches  chamfered corner triangles that take the ground across the corner, and the top's own
 ##            ground over the water surface's soft edge along a rim over water;
-##   Shade    the ground of holes, darker with every level of depth (elevation_shade.gdshader);
+##   Shade    the ground of holes, darker with every level of depth (elevation_shade.gdshader), and
+##            the ground of raised tops, lighter with every level of height ("tops",
+##            elevation_top_light.gdshader; owner 2026-11-06);
 ##   Sides    every top's walls (sides/elevation_sides.gd, docs/godot/ELEVATION.md "Side walls"):
 ##            a stone course per level down the front, a narrow strip on the east and west sides,
 ##            none on the back, round front corners, back corners where the side wall starts with a
@@ -81,10 +83,11 @@ const WaterSurface := preload("res://game/world/water_surface.gd")
 const TileColours := preload("res://game/ui/map/map_terrain.gd")
 const GROUND_SHADER := preload("res://game/world/elevation/elevation_ground.gdshader")
 const SHADE_SHADER := preload("res://game/world/elevation/elevation_shade.gdshader")
-const STAIRS_SHADER := preload("res://game/world/elevation/elevation_stairs.gdshader")
+const TOP_LIGHT_SHADER := preload("res://game/world/elevation/elevation_top_light.gdshader")
 const RAMP_SHADER := preload("res://game/world/elevation/elevation_ramp.gdshader")
 const ElevationSides := preload("res://game/world/elevation/sides/elevation_sides.gd")
 const ElevationCache := preload("res://game/world/elevation/elevation_cache.gd")
+const ChunkEdges := preload("res://game/world/elevation/chunk_edges.gd")
 ## The baked cache (docs/godot/ELEVATION.md "Baked cache", elevation_cache.gd): one per world scene in
 ## CACHE_DIR, named after its path under WORLDS_DIR. Bump CACHE_VERSION when what the build makes
 ## changes (debug runs also compare the sources of CACHE_SCRIPTS, so a stale cache is rebuilt there).
@@ -96,6 +99,7 @@ const CACHE_SCRIPTS: PackedStringArray = [
 	"res://game/world/elevation/elevation_rims.gd", "res://game/world/elevation/elevation_stairs.gd",
 	"res://game/world/elevation/elevation_ramp.gd", "res://game/world/elevation/elevation_mesh.gd",
 	"res://game/world/elevation/sides/elevation_sides.gd", "res://game/world/elevation/room_faces.gd",
+	"res://game/world/elevation/sides/ledge_dressing.gd", "res://game/world/elevation/chunk_edges.gd",
 ]
 ## The drawing's groups, bottom to top.
 const GROUP_NAMES: PackedStringArray = ["Patches", "Shade", "Sides", "Ramps", "RampFeet", "Stairs"]
@@ -197,36 +201,76 @@ const HOP_STEP := 8.0
 ## How far a landing may be moved to find room (world units).
 const LANDING_SEARCH_STEP := 4.0
 
-## Wall and stairs art per style (scripts/art/build-elevation-art.py); the stairs kit: "<style>",
-## "tread" / "riser" / "coping".
+## Wall art per style (scripts/art/build-elevation-art.py); the stairs' kit is ElevationStairs.KIT.
 const WALL_ART := "res://asset/MAPS/elevation/%s-wall.png"
-const STAIRS_ART := "res://asset/MAPS/elevation/%s-stairs-%s.png"
 ## A wall's style: the one painted on the world's `cliffs` layer (cliffs/cliff_layer.gd, data layer
 ## WALL_STYLE_DATA_LAYER) over the top it hangs from, else the ground on top's (the world's own
-## choice, WORLD_WALL_STYLES_META, else GROUND_WALL_STYLES), else DEFAULT_WALL_STYLE; a style
+## choice, WORLD_WALL_STYLES_META, else its default: `ground_wall_styles`), else DEFAULT_WALL_STYLE; a style
 ## without wall art falls back to DEFAULT_WALL_STYLE.
 const WALL_STYLE_DATA_LAYER := "wall_style"
 const DEFAULT_WALL_STYLE := "meadow-rock"
 ## Ground layer metadata giving a world its own wall style per ground ({"highland": "storybook-rock"}):
 ## other worlds keep the defaults.
 const WORLD_WALL_STYLES_META := &"cliff_wall_styles"
+## Wall variation (docs/godot/ELEVATION.md "Wall variation", scripts/art/build-wall-variants.py): a
+## style's variants sheet (courses that all start and end alike, a period wide), from which the
+## shader picks one per period of a wall and per course instead of repeating the wall art. A world
+## turns it off (or on) with the ground layer metadata WALL_VARIATION_META (bool); without it,
+## WALL_VARIATION_DEFAULT (on in every world since 2026-11-05, the owner's choice).
+const WALL_VARIANTS_ART := "res://asset/MAPS/elevation/%s-wall-variants.png"
+const WALL_VARIATION_META := &"cliff_wall_variation"
+const WALL_VARIATION_DEFAULT := true
+## The seamless wall styles (the earth walls and the faces, 2026-11-05: scripts/art/build-elevation-art.py
+## WALLS with 0 courses): one continuous face with no crevices between courses, so the shader does not
+## shift their courses (`course_shift`), whose variants share their top and bottom rows instead.
+const SEAMLESS_WALL_STYLES: PackedStringArray = ["mountain-dirt", "desert-dirt", "ice-dirt",
+		"autumn-face", "castle-face", "cave-face", "crystal-face", "desert-face", "dungeon-face",
+		"forest-face", "meadow-face", "snow-face", "town-face", "volcanic-face", "desert-strata"]
+## Ledge strips (docs/godot/ELEVATION.md "Ledge variety"): a ground's lip strip (hanging over its
+## walls' tops) and foot strip (growing up the walls standing on it), the front-only look's fringe
+## art of 2026-10-05/10 brought back on 2026-11-05 (asset/MAPS/elevation/fringe/): ground -> strip
+## name. The shader shows them all along every edge (fixed ledges); a ground not listed has none
+## (plain clumps). Grass takes its own thin strip (highland; the owner, 2026-11-06: the H painting's ferns and
+## flowers, storybook-grass, were "too crowded i can't even see the wall").
+const FRINGE_ART := "res://asset/MAPS/elevation/fringe/%s-%s.png"
+const FRINGE_GROUNDS := {
+	"highland": "highland", "gravel-path": "highland", "garden-soil": "forest-floor",
+	"frozen": "frozen", "sanddessert": "sanddessert", "forest-floor": "forest-floor",
+	"forest-moss": "forest-moss", "amberleaf": "amberleaf", "cavern-floor": "cavern-floor",
+	"crystal-floor": "crystal-floor", "town-cobble": "town-cobble",
+}
+## The plant strips' painted background (the commonest colour of their opaque pixels, binned by 16),
+## keyed out by the shader (`lip_key`, `foot_key`): a foot's everywhere (the wall and the real ground
+## show between its leaves), a lip's over the top only (its soil and roots still hang over the wall).
+## Strips of snow, sand, stones or cobbles are their own material and are not keyed.
+const FRINGE_KEYS := {
+	"highland-lip": Color8(89, 105, 18), "highland-foot": Color8(71, 72, 19),
+	"forest-moss-lip": Color8(58, 86, 24), "forest-moss-foot": Color8(52, 74, 20),
+	"forest-floor-lip": Color8(37, 25, 19), "forest-floor-foot": Color8(56, 56, 17),
+	"amberleaf-lip": Color8(40, 22, 13), "amberleaf-foot": Color8(87, 41, 10),
+}
+## The ledge dressing (docs/godot/ELEVATION.md "Ledge dressing", sides/ledge_dressing.gd): its atlas
+## (scripts/art/build-cliff-dressing.py), its shader, and how far (world units) around a flight of
+## stairs' box it places nothing.
+const DRESSING_ATLAS := "res://asset/MAPS/elevation/dressing/cliff-dressing.png"
+const DRESSING_SHADER := preload("res://game/world/elevation/sides/ledge_dressing.gdshader")
+const DRESSING_STAIRS_CLEAR := 24.0
 ## The cliffs layer's tile set (`find_cliff_layer`): other layers have a `wall_style` too (the
 ## fieldstone walls' WallLayer).
 const CLIFF_TILESET_PATH := "res://game/world/elevation/cliffs/cliff_tileset.tres"
-const GROUND_WALL_STYLES := {
-	"highland": "meadow-rock", "frozen": "snow-rock", "sanddessert": "sandstone",
-	"forest-floor": "root-rock", "forest-moss": "mossy-rock", "amberleaf": "red-rock",
-	"cavern-floor": "cave-rock", "crystal-floor": "crystal-rock", "town-cobble": "masonry",
-}
-## The stone kit of every flight of stairs: its treads, risers and (the coping row) the blocks of its
-## posts and side walls, whose grain the stairs shader takes in the flight's colour.
-const STAIRS_STYLE := "meadow-rock"
-const STAIRS_BLOCK_PART := "coping"
-## A flight's colour: a road at its foot or its top end (the foot's first), else the ground of the
-## top it leaves, else the ground at its foot (`_stairs_ground`). That ground's average colour
-## made paler stone: its saturation times STAIRS_SATURATION, its value STAIRS_VALUE.x +
-## STAIRS_VALUE.y · value; STAIRS_NO_GROUND without one (`_stairs_colour`).
-const STAIRS_ROAD_GROUNDS: PackedStringArray = ["town-cobble", "sanddessert", "forest-floor"]
+## Each ground's default wall style, edited in the Inspector (cliffs/ground_wall_styles.tres: one
+## drop-down per ground; the owner, 2026-11-06: "being able to change the default wall for a
+## ground"): `ground_wall_styles()`. Part of every world's cache key, so a change rebuilds them.
+const GROUND_WALL_STYLES_PATH := "res://game/world/elevation/cliffs/ground_wall_styles.tres"
+const GroundWallStyles := preload("res://game/world/elevation/cliffs/ground_wall_styles.gd")
+## A flight's colour (since 2026-11-06): the stone of the wall it is cut into (`stone`, the wall
+## style of the top it leaves: ElevationStairs.STONE_COLOURS), drawn with the painted stairs kit
+## (ElevationStairs.KIT). Without such a style, its ground's: a road at its foot or its top end (the
+## foot's first), else the ground of the top it leaves, else the ground at its foot
+## (`_stairs_ground`). That ground's average colour made paler stone: its saturation times
+## STAIRS_SATURATION, its value STAIRS_VALUE.x + STAIRS_VALUE.y · value; STAIRS_NO_GROUND without
+## one (`_stairs_colour`).
+const STAIRS_ROAD_GROUNDS: PackedStringArray = ["town-cobble", "gravel-path", "sanddessert", "forest-floor"]
 const STAIRS_SATURATION := 0.45
 const STAIRS_VALUE := Vector2(0.38, 0.6)
 const STAIRS_NO_GROUND := Color(0.62, 0.6, 0.56)
@@ -264,6 +308,8 @@ var stairs: Array = []
 ## (InteriorTrimLayer).
 signal built
 var _ramps: Array[ElevationRamp] = []
+## The ledge dressing's material, shared by every level's dressing mesh (`_dressing_material`).
+var _dressing_shared: ShaderMaterial
 ## The terrain's depth map and the bodies' occlusion.
 var occlusion: ElevationOcclusion
 ## Bodies in the air (a hop or a drop): body -> depth (elevation_occlusion.gd) while they fly.
@@ -274,9 +320,16 @@ var fences: Fences
 ## The wall style of each wall (index into `grid.bands`).
 var band_styles := PackedStringArray()
 
-## Rows painted above the map (off-map tops whose walls hang into the map): the grid starts this
-## many rows above the map's first row, and this node sits as far up (grid cell = map cell + offset).
+## Rows painted above the map (off-map tops whose walls hang into the map), and in a chunk world the
+## cells of its neighbours read past its west edge and north edge ("Across chunk lines"): the grid
+## starts this many columns and rows before the map's first cell, and this node sits as far up and
+## left (grid cell = map cell + offset).
 var cell_offset := Vector2i.ZERO
+## A chunk world's neighbours' paint past its edges (chunk_edges.gd `read`), {} in any other world:
+## the grid reaches over it, so cliffs across a chunk line are built the same on both sides.
+var _edges: Dictionary = {}
+## The map's own cells in the grid (cells), the part a chunk world shows.
+var _own_cells := Rect2i()
 ## Passages opened at run time (`open_passage`, closed by `close_passage`): [{"rect": Rect2 (world),
 ## "level": int, "tops": {level of a top whose wall or ground it opens: true}}], applied again on
 ## every rebuild.
@@ -298,6 +351,11 @@ static var _code := "?"
 var _queued := false
 ## style -> whether its wall art exists, looked up once.
 var _wall_art: Dictionary = {}
+## Each ground's default wall style for this build (`ground_wall_styles()`, read by `rebuild`).
+var _ground_styles: Dictionary = {}
+## The table those come from, held in the editor so that the one the Inspector edits is the one
+## whose changes rebuild this world (a resource nothing holds is unloaded, and loaded anew).
+var _ground_table: Resource
 ## level -> its terrain outline (world units) while the collision is built (`_terrain_outline`).
 var _outlines: Dictionary = {}
 var _collide := false
@@ -344,7 +402,7 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 		return null
 	var existing := find_in(ground_layer)
 	var painted := find_layer(ground_layer)
-	if painted == null or painted.get_used_cells().is_empty():
+	if painted == null or (painted.get_used_cells().is_empty() and not paints_past_edges(ground_layer)):
 		if existing != null:
 			existing.queue_free()
 		Fences.mount(ground_layer, null, null, null, collide)
@@ -408,6 +466,20 @@ static func painted_wall_styles(ground_layer: TileMapLayer) -> Dictionary:
 		var data := painted.get_cell_tile_data(cell_pos)
 		if data != null:
 			styles[cell_pos] = str(data.get_custom_data(WALL_STYLE_DATA_LAYER))
+	return styles
+
+
+## The table of each ground's default wall style (GROUND_WALL_STYLES_PATH), null without it.
+static func ground_wall_table() -> Resource:
+	return load(GROUND_WALL_STYLES_PATH) if ResourceLoader.exists(GROUND_WALL_STYLES_PATH) else null
+
+
+## Ground -> its default wall style: the table's, else as shipped (GroundWallStyles.DEFAULTS).
+static func ground_wall_styles() -> Dictionary:
+	var table := ground_wall_table()
+	var styles: Dictionary = GroundWallStyles.DEFAULTS.duplicate()
+	if table != null and table.get("styles") is Dictionary:
+		styles.merge(table.get("styles") as Dictionary, true)
 	return styles
 
 
@@ -504,6 +576,11 @@ static func all_level_bits() -> int:
 func _enter_tree() -> void:
 	if not Engine.is_editor_hint() and not get_tree().node_added.is_connected(_on_node_added):
 		get_tree().node_added.connect(_on_node_added)
+	# In the editor the walls follow each ground's default style as it is changed in the Inspector.
+	if Engine.is_editor_hint():
+		_ground_table = ground_wall_table()
+		if _ground_table != null and not _ground_table.changed.is_connected(queue_rebuild):
+			_ground_table.changed.connect(queue_rebuild)
 
 
 func _ready() -> void:
@@ -551,6 +628,9 @@ func _physics_process(_delta: float) -> void:
 func _exit_tree() -> void:
 	if get_tree().node_added.is_connected(_on_node_added):
 		get_tree().node_added.disconnect(_on_node_added)
+	if _ground_table != null and _ground_table.changed.is_connected(queue_rebuild):
+		_ground_table.changed.disconnect(queue_rebuild)
+	_ground_table = null
 
 
 ## Rebuilds the model, the drawing and (in the game) the collision.
@@ -559,6 +639,7 @@ func rebuild() -> void:
 	if ground == null or ground.tile_set == null:
 		return
 	cell = float(ground.tile_set.tile_size.x)
+	_ground_styles = ground_wall_styles()
 	var used := ground.get_used_rect()
 	var columns := int(ground.get_meta("columns", used.end.x))
 	var rows := int(ground.get_meta("rows", used.end.y))
@@ -569,14 +650,39 @@ func rebuild() -> void:
 		if c.y < 0 and c.x >= 0 and c.x < columns:
 			above = maxi(above, -c.y)
 	above = mini(above, MAX_ROWS_ABOVE)
-	cell_offset = Vector2i(0, above)
-	position = Vector2(0.0, -above * cell)
 	var names := _ground_names()
 	for x in columns:
 		if names.has(Vector2i(x, 0)):
 			for y in range(-above, 0):
 				names[Vector2i(x, y)] = names[Vector2i(x, 0)]
-	grid = ElevationGrid.build(columns, rows + above, _shifted(levels), _shifted(names), setting("behindDepth") / cell)
+	# A chunk world reaches over its neighbours' edges ("Across chunk lines"); what it keeps itself
+	# past its edges (the rows above a cut copied in) gives way to their own paint.
+	var stored := _cache_file() if _collide else null
+	_edges = _read_edges(columns, rows, stored)
+	var reach := Rect2i(0, -above, columns, rows + above)
+	if not _edges.is_empty():
+		var rect: Rect2i = _edges["rect"]
+		# with no chunk north of it, the chunk's own rows above stay (a wall painted above the map)
+		var keep_above := rect.position.y == 0
+		var own := Rect2i(0, 0, columns, rows)
+		for c: Vector2i in levels.keys():
+			if not own.has_point(c) and not (keep_above and c.y < 0 and c.x >= 0 and c.x < columns):
+				levels.erase(c)
+		reach = rect.merge(reach) if keep_above else rect
+		levels.merge(_edges["levels"], true)
+		names.merge(_edges["grounds"], true)
+		var sources: Dictionary = _edges["sources"]
+		for name_of_ground: String in sources:
+			var id := int(sources[name_of_ground])
+			if not _sheets.has(name_of_ground) and ground.tile_set.has_source(id):
+				var source := ground.tile_set.get_source(id) as TileSetAtlasSource
+				if source != null:
+					_sheets[name_of_ground] = source.texture
+					_sources[name_of_ground] = source
+	cell_offset = -reach.position
+	position = Vector2(cell_offset) * -cell
+	_own_cells = Rect2i(cell_offset, Vector2i(columns, rows))
+	grid = ElevationGrid.build(reach.size.x, reach.size.y, _shifted(levels), _shifted(names), setting("behindDepth") / cell)
 	for passage: Dictionary in _passages:
 		grid.open_rect(_passage_cells(passage["rect"]), int(passage["level"]))
 		passage["tops"] = _passage_tops(_passage_cells(passage["rect"]), int(passage["level"]))
@@ -586,7 +692,7 @@ func rebuild() -> void:
 	_find_open_zone()
 	_find_open_inner()
 	_build_wall_styles()
-	var cache := _load_cache() if _collide else null
+	var cache := stored if stored != null and _cache_matches(stored) else null
 	from_cache = cache != null
 	_cache_record = ElevationCache.new() if _collide and not from_cache else null
 	if from_cache:
@@ -1437,6 +1543,21 @@ func _ground_origin() -> Vector2:
 	return ground.global_position if ground.is_inside_tree() else ground.position
 
 
+## The wall styles painted on the `cliffs` layer, in grid cells: the world's own and, in a chunk
+## world, its neighbours' past its edges (`_edges`), which win over what the chunk keeps there.
+func _painted_styles() -> Dictionary:
+	var painted := painted_wall_styles(ground)
+	if not _edges.is_empty():
+		var own := Rect2i(Vector2i.ZERO, _own_cells.size)
+		var above := Rect2i(0, -cell_offset.y, _own_cells.size.x, cell_offset.y)
+		var keep_above := (_edges["rect"] as Rect2i).position.y == 0
+		for c: Vector2i in painted.keys():
+			if not own.has_point(c) and not (keep_above and above.has_point(c)):
+				painted.erase(c)
+		painted.merge(_edges["styles"], true)
+	return _shifted(painted)
+
+
 ## `painted` (map cell -> value) in grid cells (`cell_offset`).
 func _shifted(painted: Dictionary) -> Dictionary:
 	if cell_offset == Vector2i.ZERO:
@@ -1462,8 +1583,9 @@ func _build_drawing() -> void:
 			_arrays_for(patches, name_of_ground).add_flat(_world(grid.tri_points(int(patch["tri"]))), Vector2.ZERO, Color.WHITE)
 	for tri in grid.tri_level.size():
 		var level := grid.tri_level[tri]
-		if level < 0 and grid.tri_band[tri] < 0:
-			_arrays_for(shade, "holes").add_flat(_world(grid.tri_points(tri)), Vector2.ZERO, Color(_level_channel(level), 0.0, 0.0, 1.0))
+		if level != 0 and grid.tri_band[tri] < 0:
+			# Below 0 darkened (holes), above 0 lightened (tops): elevation_light.gdshaderinc.
+			_arrays_for(shade, "holes" if level < 0 else "tops").add_flat(_world(grid.tri_points(tri)), Vector2.ZERO, Color(_level_channel(level), 0.0, 0.0, 1.0))
 	var rims_builder := ElevationRims.new()
 	rims_builder.grid = grid
 	rims_builder.cell = cell
@@ -1479,8 +1601,8 @@ func _build_drawing() -> void:
 	# A thin core of each top's depth just past its rims, so its edge's clumps hide a body too.
 	rims_builder.add_cores(depth, edges, func(level: int, dy: float) -> Color: return ElevationOcclusion.encode(level, dy))
 	_add_water_covers(rims_builder, patches)
-	# Flights are drawn back to front; a run of flights of one colour (the ground they take it from)
-	# shares a mesh ("<ground>-<run>").
+	# Flights are drawn back to front; a run of flights of one colour (the wall style they are cut
+	# into, else the ground they take it from) shares a mesh ("<style or ground>-<run>").
 	var stairs_meshes := {}
 	var ramp_meshes := {}
 	var ramp_feet := {}
@@ -1497,8 +1619,9 @@ func _build_drawing() -> void:
 			if ramp.opens() and _sheets.has(ramp.top_ground):
 				ramp.add_cap_top(_arrays_for(ramp_meshes, ramp.top_ground), _top_tris_in(ramp.cap_rect, ramp.top))
 			continue
-		if flight.ground_name != run_ground or run_key == "":
-			run_ground = flight.ground_name
+		var colour_of := flight.stone if flight.stone != "" else flight.ground_name
+		if colour_of != run_ground or run_key == "":
+			run_ground = colour_of
 			run_key = "%s-%d" % [run_ground, stairs_meshes.size()]
 		flight.add_mesh(_arrays_for(stairs_meshes, run_key))
 		# The top's ground over its edge where the flight leaves it, so the edge breaks there.
@@ -1532,7 +1655,7 @@ func _build_drawing() -> void:
 ## `cliffs` layer the painted style.
 func _add_sides(edges: Array[Dictionary]) -> void:
 	var holder := _add_holder("Sides")
-	var painted := _shifted(painted_wall_styles(ground))
+	var painted := _painted_styles()
 	var middle_of := func(edge: Dictionary) -> Array:
 		var from: Vector2 = edge["from"]
 		var way: Vector2 = (edge["to"] as Vector2) - from
@@ -1554,13 +1677,22 @@ func _add_sides(edges: Array[Dictionary]) -> void:
 		var texture := load(WALL_ART % style) as Texture2D
 		return float(texture.get_width()) if texture != null else 0.0
 	var builder := ElevationSides.new()
+	if not _edges.is_empty():
+		_place_on_overworld(builder)
 	var under_ramp := func(point: Vector2) -> bool:
 		for ramp in _ramps:
 			if ramp.bounds.has_point(point) and ramp.covers(point):
 				return true
 		return false
+	# No ledge dressing by a flight of stairs (its structure's box, grown by DRESSING_STAIRS_CLEAR).
+	var near_stairs := func(point: Vector2) -> bool:
+		for flight in stairs:
+			if (flight.bounds as Rect2).grow(DRESSING_STAIRS_CLEAR).has_point(point):
+				return true
+		return false
 	var meshes := builder.build(grid, cell, edges, style_of, grounds_of, wall_width_of,
-			under_ramp if not _ramps.is_empty() else Callable(), painted_of if not painted.is_empty() else Callable())
+			under_ramp if not _ramps.is_empty() else Callable(), painted_of if not painted.is_empty() else Callable(),
+			near_stairs if not stairs.is_empty() else Callable())
 	_side_shapes = builder.shapes
 	_index_side_shapes()
 	if _cache_record != null:
@@ -1572,6 +1704,28 @@ func _add_sides(edges: Array[Dictionary]) -> void:
 		var arrays: MeshData = entry["arrays"]
 		if not arrays.is_empty():
 			_add_instance(holder, "Sides", str(entry["key"]), arrays.to_mesh())
+
+
+## Tells the walls' builder where this chunk world lies ("Across chunk lines"): its overworld
+## position (the edges' wobble, the corner stones, each chain's start), its own cells and the lines
+## it shares with a neighbour (the art pinned where a chain crosses one), all in this node's space.
+func _place_on_overworld(builder: ElevationSides) -> void:
+	var corner: Variant = ChunkEdges.overworld_corner(ground.get_parent())
+	if corner is Vector2:
+		builder.origin = (corner as Vector2) - Vector2(cell_offset) * cell
+	var own := Rect2(Vector2(_own_cells.position) * cell, Vector2(_own_cells.size) * cell)
+	builder.own_rect = own
+	var rect: Rect2i = _edges["rect"]
+	var columns := _own_cells.size.x
+	var rows := _own_cells.size.y
+	if rect.position.x < 0:
+		builder.chunk_lines.append(Vector2(0, own.position.x))
+	if rect.end.x > columns:
+		builder.chunk_lines.append(Vector2(0, own.end.x))
+	if rect.position.y < 0:
+		builder.chunk_lines.append(Vector2(1, own.position.y))
+	if rect.end.y > rows:
+		builder.chunk_lines.append(Vector2(1, own.end.y))
 
 
 ## `_side_cells`: the shapes whose bounds touch each SHAPE_CELL cell.
@@ -1591,7 +1745,13 @@ func _index_side_shapes() -> void:
 
 ## The cache file of this world's scene ("" when it has none: not instanced from a scene file).
 func cache_path() -> String:
-	var owner_node := ground.owner if ground != null else null
+	return cache_path_of(ground)
+
+
+## The cache file of the scene `ground_layer` belongs to ("" when it is not instanced from a scene
+## file).
+static func cache_path_of(ground_layer: TileMapLayer) -> String:
+	var owner_node := ground_layer.owner if ground_layer != null else null
 	var scene := owner_node.scene_file_path if owner_node != null else ""
 	if scene == "":
 		return ""
@@ -1599,12 +1759,30 @@ func cache_path() -> String:
 	return CACHE_DIR + relative.trim_suffix(".tscn").replace("/", "__") + ".res"
 
 
+## True when a chunk world with nothing painted on its own `elevation` layer still has hills or holes
+## of its neighbours past its edges ("Across chunk lines": a wall hanging into it), so it builds its
+## cliffs all the same. An exported game reads no other scene for it: such a world was baked.
+static func paints_past_edges(ground_layer: TileMapLayer) -> bool:
+	var root := ground_layer.get_parent() if ground_layer != null else null
+	if ChunkEdges.chunk_cell_of(root) == null:
+		return false
+	if OS.has_feature("template"):
+		var path := cache_path_of(ground_layer)
+		return path != "" and ResourceLoader.exists(path)
+	var used := ground_layer.get_used_rect()
+	var tiles := Vector2i(int(ground_layer.get_meta("columns", used.end.x)), int(ground_layer.get_meta("rows", used.end.y)))
+	return not (ChunkEdges.read(root, tiles).get("levels", {}) as Dictionary).is_empty()
+
+
 ## The painting the build follows: the elevation, ground and cliffs layers' cells, the ground's
 ## metadata, the elevation settings and CACHE_VERSION, hashed.
 func _cache_key() -> String:
 	var context := HashingContext.new()
 	context.start(HashingContext.HASH_SHA256)
-	context.update(layer.tile_map_data)
+	# A chunk with nothing of its own painted (`paints_past_edges`) has an empty layer, which the hash
+	# refuses (and which would add nothing).
+	if not layer.tile_map_data.is_empty():
+		context.update(layer.tile_map_data)
 	context.update(ground.tile_map_data)
 	var cliffs := find_cliff_layer(ground)
 	if cliffs != null and not cliffs.tile_map_data.is_empty():
@@ -1618,7 +1796,10 @@ func _cache_key() -> String:
 	for key: String in DEFAULTS:
 		settings.append(setting(key))
 	var meta := [CACHE_VERSION, cell, ground.get_meta("columns", 0), ground.get_meta("rows", 0),
-		ground.get_meta(WORLD_WALL_STYLES_META, {}), settings]
+		ground.get_meta(WORLD_WALL_STYLES_META, {}), settings, ground_wall_styles()]
+	# a chunk world's neighbours' paint past its edges ("Across chunk lines") is part of what it builds
+	if not _edges.is_empty():
+		meta.append(_edges["signature"])
 	context.update(var_to_str(meta).to_utf8_buffer())
 	return context.finish().hex_encode()
 
@@ -1645,18 +1826,39 @@ static func _code_hash() -> String:
 ## This world's baked cache when it matches the painting (and, in a debug run, the build scripts),
 ## else null.
 func _load_cache() -> ElevationCache:
+	var cache := _cache_file()
+	return cache if cache != null and _cache_matches(cache) else null
+
+
+## This world's baked cache as saved (whatever it was baked from), null without one or when the bake
+## tool builds everything (`ignore_cache`).
+func _cache_file() -> ElevationCache:
 	if ignore_cache:
 		return null
 	var path := cache_path()
 	if path == "" or not ResourceLoader.exists(path):
 		return null
-	var cache := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) as ElevationCache
-	if cache == null or cache.key != _cache_key():
-		return null
+	return ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) as ElevationCache
+
+
+## True when `cache` was baked from this painting (and, in a debug run, these build scripts).
+func _cache_matches(cache: ElevationCache) -> bool:
+	if cache.key != _cache_key():
+		return false
 	var code := _code_hash()
-	if code != "" and cache.code != code:
-		return null
-	return cache
+	return code == "" or cache.code == code
+
+
+## The paint of a chunk world's neighbours past its edges (`_edges`, chunk_edges.gd `read`), {} in
+## any other world. An exported game takes it from the baked cache (`stored`), which holds what the
+## bake read, and never reads another scene for it.
+func _read_edges(columns: int, rows: int, stored: ElevationCache) -> Dictionary:
+	var root := ground.get_parent()
+	if ChunkEdges.chunk_cell_of(root) == null:
+		return {}
+	if stored != null and OS.has_feature("template"):
+		return stored.edges
+	return ChunkEdges.read(root, Vector2i(columns, rows))
 
 
 ## The drawing, the depth map and the drawn walls' shapes from `cache`.
@@ -1690,6 +1892,7 @@ func save_cache() -> Error:
 		return ERR_FILE_BAD_PATH
 	_cache_record.key = _cache_key()
 	_cache_record.code = _code_hash()
+	_cache_record.edges = _edges
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CACHE_DIR))
 	return ResourceSaver.save(_cache_record, path, ResourceSaver.FLAG_COMPRESS)
 
@@ -1709,6 +1912,7 @@ func _build_stairs() -> void:
 	stairs.clear()
 	_ramps.clear()
 	var cells := _shifted(painted_stairs(ground))
+	var painted_styles := _painted_styles() if not cells.is_empty() else {}
 	var done := {}
 	var keys := cells.keys()
 	keys.sort()
@@ -1743,10 +1947,20 @@ func _build_stairs() -> void:
 		var flight := ElevationStairs.create(stairs_direction(kind), rim_sum / run_cells.size() * cell, top, bottom,
 				run_cells.size())
 		flight.occlude(_tops_around(flight.bounds, top))
+		# A side flight comes out of the hill's side wall: the rock in front of it hides its lower part.
+		flight.cut_into(ElevationSides.reach(flight.dir, top - bottom), _is_top_at.bind(top))
 		_stairs_ground(flight)
+		# Cut from the rock of the wall it leaves: that wall's style gives it its colour.
+		flight.stone = _wall_style_at(flight.rim / cell, -flight.dir, top, painted_styles)
 		stairs.append(flight)
 	_build_ramps()
 	stairs.sort_custom(func(a: ElevationStairs, b: ElevationStairs) -> bool: return a.bounds.end.y < b.bounds.end.y)
+
+
+## True when `point` (Elevation space, on screen) lies on a top of `level` or higher.
+func _is_top_at(point: Vector2, level: int) -> bool:
+	var tri := grid.tri_at(point / cell)
+	return tri >= 0 and grid.tri_band[tri] < 0 and grid.tri_level[tri] >= level
 
 
 ## The grounds at a flight's two ends, a quarter cell past them (the top it leaves, the ground it
@@ -2053,7 +2267,7 @@ func _ramp_ground(tops: Array[Vector2i], step: Vector2i, length: int) -> String:
 
 ## The wall style of every wall (`band_styles`): the style of the top the wall hangs from.
 func _build_wall_styles() -> void:
-	var painted := _shifted(painted_wall_styles(ground))
+	var painted := _painted_styles()
 	band_styles.resize(grid.bands.size())
 	for index in grid.bands.size():
 		var band: Dictionary = grid.bands[index]
@@ -2083,7 +2297,8 @@ func _painted_style_at(edge: Vector2, into: Vector2, level: int, painted: Dictio
 
 
 ## The wall style the ground on the top that begins at `edge` (cells) towards `into` gives it: the
-## world's own choice (WORLD_WALL_STYLES_META), else GROUND_WALL_STYLES, else DEFAULT_WALL_STYLE.
+## world's own choice (WORLD_WALL_STYLES_META), else the ground's default (`ground_wall_styles`, edited
+## in cliffs/ground_wall_styles.tres), else DEFAULT_WALL_STYLE.
 func _ground_style_at(edge: Vector2, into: Vector2) -> String:
 	# inside a room with interior walls (docs/godot/INTERIOR_WALLS.md "Pits and holes"), the pit's
 	# walls take the cliff style of the room's walls (the `cliffs` layer still overrides)
@@ -2093,7 +2308,8 @@ func _ground_style_at(edge: Vector2, into: Vector2) -> String:
 	var tri := grid.tri_at(edge + into * 0.05)
 	var name_of_ground := grid.tri_ground[tri] if tri >= 0 else ""
 	var own: Dictionary = ground.get_meta(WORLD_WALL_STYLES_META, {}) if ground != null else {}
-	return _with_art(str(own.get(name_of_ground, GROUND_WALL_STYLES.get(name_of_ground, DEFAULT_WALL_STYLE))))
+	var defaults := _ground_styles if not _ground_styles.is_empty() else ground_wall_styles()
+	return _with_art(str(own.get(name_of_ground, defaults.get(name_of_ground, DEFAULT_WALL_STYLE))))
 
 
 ## Interior wall style -> the cliff style of the pits inside such a room.
@@ -2215,11 +2431,15 @@ func _material_for(group_name: String, key: String) -> Material:
 		"Patches":
 			return _ground_material(key)
 		"Shade":
-			return _shade_material()
+			return _top_light_material() if key == "tops" else _shade_material()
 		"Sides":
-			# "<level>|<style>|<top ground>|<lower ground>" (ElevationSides.build).
+			# "<level>|<style>|<top ground>|<lower ground>" (ElevationSides.build), or a level's ledge
+			# dressing, "<level>|dressing" (sides/ledge_dressing.gd).
+			if key.ends_with(ElevationSides.LedgeDressing.KEY_SUFFIX):
+				return _dressing_material()
 			var parts := key.split("|")
-			return _sides_material(parts[1], parts[2], parts[3]) if parts.size() == 4 else null
+			# (a lower terrace's side drawn after this level's walls marks its lower ground: ElevationSides.OVER_KEY)
+			return _sides_material(parts[1], parts[2], parts[3].trim_suffix(ElevationSides.OVER_KEY)) if parts.size() == 4 else null
 		"Ramps":
 			return _ramp_material(key)
 		"RampFeet":
@@ -2803,6 +3023,14 @@ func _shade_material() -> Material:
 	return material_of
 
 
+## The raised tops' ground, lighter by height (elevation_top_light.gdshader: it reads the ground drawn
+## under it back from the screen).
+func _top_light_material() -> Material:
+	var material_of := ShaderMaterial.new()
+	material_of.shader = TOP_LIGHT_SHADER
+	return material_of
+
+
 ## A ramp's slope: its ground's sheet in world space, as the ground draws it (the 128 px sheet where
 ## there is one, ground_surface.gd), so it joins the ground around it without a seam, with the
 ## shadows higher ground casts on it at its height.
@@ -2827,22 +3055,13 @@ func _ramp_material(name_of_ground: String) -> Material:
 	return material_of
 
 
-## Flights of stairs that take their colour from `name_of_ground` (`_stairs_colour`): the
-## STAIRS_STYLE kit's treads, risers and blocks in that colour; null without their art.
-func _stairs_material(name_of_ground: String) -> Material:
-	var material_of := ShaderMaterial.new()
-	material_of.shader = STAIRS_SHADER
-	var parts := {"tread": "tread", "riser": "riser", "block": STAIRS_BLOCK_PART}
-	for uniform: String in parts:
-		var path := STAIRS_ART % [STAIRS_STYLE, parts[uniform]]
-		if not ResourceLoader.exists(path):
-			push_warning("Elevation: no stairs art '%s'" % path)
-			return null
-		var texture := load(path) as Texture2D
-		material_of.set_shader_parameter(StringName(uniform + "_texture"), texture)
-		material_of.set_shader_parameter(StringName(uniform + "_size"), Vector2(texture.get_size()))
-	material_of.set_shader_parameter(&"tint", _stairs_colour(name_of_ground))
-	return material_of
+## Flights of stairs coloured by `name`: a wall style (the wall they are cut into, `stone`:
+## ElevationStairs.stone_tint; its art set, ElevationStairs.art_set), else a ground
+## (`_stairs_colour`, the default set): the painted stairs in that colour
+## (ElevationStairs.make_material); null without their art.
+func _stairs_material(name: String) -> Material:
+	var tint := ElevationStairs.stone_tint(name)
+	return ElevationStairs.make_material(tint if tint.a > 0.0 else _stairs_colour(name), name if tint.a > 0.0 else "")
 
 
 ## The colour of the flights that take it from `name_of_ground`: its average made paler stone
@@ -2879,6 +3098,18 @@ func _ground_colour(name_of_ground: String) -> Color:
 
 ## Sides (sides/elevation_sides.gdshader): `style`'s wall, and the sheets of the top's ground and
 ## the lower ground (the 128 px sheet where there is one, as the ground draws it) for the edges.
+## The ledge dressing's material (sides/ledge_dressing.gd): its atlas, one for every level (null
+## without the atlas: the dressing is left out).
+func _dressing_material() -> Material:
+	if not ResourceLoader.exists(DRESSING_ATLAS):
+		return null
+	if _dressing_shared == null:
+		_dressing_shared = ShaderMaterial.new()
+		_dressing_shared.shader = DRESSING_SHADER
+		_dressing_shared.set_shader_parameter(&"atlas", load(DRESSING_ATLAS))
+	return _dressing_shared
+
+
 func _sides_material(style: String, top_ground: String, low_ground: String) -> Material:
 	var wall := load(WALL_ART % style) as Texture2D
 	if wall == null or not _sheets.has(top_ground):
@@ -2887,6 +3118,23 @@ func _sides_material(style: String, top_ground: String, low_ground: String) -> M
 	material_of.shader = SIDES_SHADER
 	material_of.set_shader_parameter(&"wall_texture", wall)
 	material_of.set_shader_parameter(&"wall_size", Vector2(wall.get_size()))
+	if bool(ground.get_meta(WALL_VARIATION_META, WALL_VARIATION_DEFAULT)) and ResourceLoader.exists(WALL_VARIANTS_ART % style):
+		var variants := load(WALL_VARIANTS_ART % style) as Texture2D
+		if variants != null and variants.get_width() == wall.get_width():
+			material_of.set_shader_parameter(&"variant_texture", variants)
+			material_of.set_shader_parameter(&"variant_count", float(variants.get_height() / 128))
+			material_of.set_shader_parameter(&"course_shift", 0.0 if style in SEAMLESS_WALL_STYLES else 1.0)
+	# The top's lip strip and the lower ground's foot strip, all along its edges (fixed ledges).
+	for pair: Array in [["lip", top_ground], ["foot", low_ground]]:
+		var strip_name := str(FRINGE_GROUNDS.get(pair[1], ""))
+		if strip_name != "" and ResourceLoader.exists(FRINGE_ART % [strip_name, pair[0]]):
+			var strip := load(FRINGE_ART % [strip_name, pair[0]]) as Texture2D
+			material_of.set_shader_parameter(StringName("%s_strip" % pair[0]), strip)
+			material_of.set_shader_parameter(StringName("%s_strip_size" % pair[0]), Vector2(strip.get_size()))
+			material_of.set_shader_parameter(StringName("has_%s_strip" % pair[0]), 1.0)
+			var key_name := "%s-%s" % [strip_name, pair[0]]
+			if FRINGE_KEYS.has(key_name):
+				material_of.set_shader_parameter(StringName("%s_key" % pair[0]), FRINGE_KEYS[key_name])
 	if ResourceLoader.exists(SIDES_ART % [style, "side"]):
 		var side := load(SIDES_ART % [style, "side"]) as Texture2D
 		material_of.set_shader_parameter(&"side_texture", side)
@@ -3512,7 +3760,6 @@ func _with_stairs(segments: PackedVector2Array, level: int) -> PackedVector2Arra
 			out.append(a)
 			out.append(b)
 	var kept := {}
-	var has_ramps := not _ramps.is_empty()
 	for f in stairs.size():
 		var flight: ElevationStairs = stairs[f]
 		var grid_near: Array = near[f]
@@ -3538,10 +3785,11 @@ func _with_stairs(segments: PackedVector2Array, level: int) -> PackedVector2Arra
 			flight_edges.append(other_edge)
 		for edge: Array in ends:
 			pieces.append_array(split_edge(edge, flight_edges + grid_near + borders))
-		# A terrain edge near a ramp may run on to another flight further along it (a rim with a
-		# ramp at each end): cut it where that one's outline crosses it too, so each piece is judged
-		# on its own ground.
-		var further := _flights_further(f, grid_near + borders, level) if has_ramps else []
+		# A terrain edge near a flight may run on to another flight further along it (a rim with a
+		# ramp at each end, a long side with two flights of stairs): cut it where that one's outline
+		# crosses it too, so each piece is judged on its own ground; else this flight keeps the rim
+		# whole across the other's mouth (2026-11-02, the West village's east terrace).
+		var further := _flights_further(f, grid_near + borders, level)
 		for edge: Array in grid_near:
 			pieces.append_array(split_edge(edge, flight_edges + borders + further))
 		for edge: Array in borders:
@@ -3583,7 +3831,7 @@ func _end_outlines(flight: ElevationStairs, level: int) -> Array:
 
 
 ## The outline edges, at `level`, of the flights (other than flight `index`, and away from it) that
-## the terrain `edges` near flight `index` run on to, when a ramp is one of the two.
+## the terrain `edges` near flight `index` run on to.
 func _flights_further(index: int, edges: Array, level: int) -> Array:
 	var flight: ElevationStairs = stairs[index]
 	var box := flight.bounds
@@ -3593,8 +3841,7 @@ func _flights_further(index: int, edges: Array, level: int) -> Array:
 	for other: ElevationStairs in stairs:
 		if other == flight or other.bounds.intersects(flight.bounds) or not other.bounds.intersects(box):
 			continue
-		if flight is ElevationRamp or other is ElevationRamp:
-			further.append_array(other.outline_edges(level))
+		further.append_array(other.outline_edges(level))
 	return further
 
 

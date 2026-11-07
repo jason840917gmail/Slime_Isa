@@ -30,6 +30,21 @@ TILES = [
     ("masonry", "B"),
     ("root-rock", "R"),
     ("red-rock", "A"),
+    ("mountain-dirt", "EM"),
+    ("desert-dirt", "ED"),
+    ("ice-dirt", "EI"),
+    ("autumn-face", "FA"),
+    ("castle-face", "FC"),
+    ("cave-face", "FV"),
+    ("crystal-face", "FK"),
+    ("desert-face", "FD"),
+    ("dungeon-face", "FU"),
+    ("forest-face", "FF"),
+    ("meadow-face", "FM"),
+    ("snow-face", "FS"),
+    ("town-face", "FT"),
+    ("volcanic-face", "FO"),
+    ("desert-strata", "DS"),
 ]
 SWATCH_ALPHA = 170
 

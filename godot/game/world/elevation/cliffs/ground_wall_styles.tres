@@ -1,0 +1,19 @@
+[gd_resource type="Resource" format=3 uid="uid://c0yvmtlb2a6j8"]
+
+[ext_resource type="Script" uid="uid://dkvyq8ddq1h1i" path="res://game/world/elevation/cliffs/ground_wall_styles.gd" id="1_styles"]
+
+[resource]
+script = ExtResource("1_styles")
+styles = {
+"amberleaf": "red-rock",
+"cavern-floor": "cave-rock",
+"crystal-floor": "crystal-rock",
+"forest-floor": "root-rock",
+"forest-moss": "mossy-rock",
+"frozen": "snow-rock",
+"garden-soil": "root-rock",
+"gravel-path": "meadow-rock",
+"highland": "meadow-rock",
+"sanddessert": "desert-dirt",
+"town-cobble": "masonry"
+}

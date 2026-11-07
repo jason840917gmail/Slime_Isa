@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the cliff art for elevation (docs/godot/ELEVATION.md): seamless walls and the stairs' stone.
+"""Builds the cliff art for elevation (docs/godot/ELEVATION.md): seamless walls.
 
 The art is generated with Magnific (GPT 2.5) and turned into runtime textures here; this tool does
 not run in the game. Inputs are in asset/Originals/elevation/generated/, outputs (derived; re-run
@@ -11,7 +11,9 @@ are each resampled to exactly 128 px (one level = 64 world units at 2 px per uni
 middle of their crevices (stacked courses meet in a full crevice; a wall's top and foot show half
 of one), and made horizontally periodic with a minimum-error seam (image quilting). A wall texture
 is always two courses tall: stacked walls alternate them (elevation.gd, the level of a wall's top
-mod 2). The courses in a source may be a fraction (4.4: a course is 1024 / 4.4 px).
+mod 2). The courses in a source may be a fraction (4.4: a course is 1024 / 4.4 px). A seamless
+style (0 courses: the earth walls) has no crevices: one course of it, periodic both ways, twice
+(SEAMLESS_SCALE).
   -> <style>-wall.png
 
 (The wall ends, lips and feet it once built, `<style>-wall-end-*.png`, `<ground>-lip.png` and
@@ -19,17 +21,8 @@ mod 2). The courses in a source may be a fraction (4.4: a course is 1024 / 4.4 p
 stay in asset/Originals/elevation/generated/. The walls' sides and corners come from
 scripts/art/build-side-wall-art.py.)
 
-Stairs (STAIRS: style -> its kit): the stone of the flights of stairs (docs/godot/ELEVATION.md
-"Stairs", approved mockups in asset/Originals/elevation/stairs-mockups/). Each source holds rows of
-cut stone; one row, crevice to crevice, is one step: a tread seen from above, or a riser (and a
-railing's coping) seen from the front. The row is resampled to STEP_PX (one rise of 64 / 3 world
-units at 2 px per unit), made opaque and horizontally periodic. Risers are baked RISER_TONE darker;
-the coping is the riser row tinted halfway to the style's wall rock, COPING_LIGHT lighter. A
-flight's railings and posts use the wall itself.
-  -> <style>-stairs-tread.png, <style>-stairs-riser.png, <style>-stairs-coping.png
-Every other wall style gets its own coping from the kit's riser row (STAIRS_KIT), tinted the same
-way towards its own wall, so a flight's railings are of the rock of the cliff it leaves.
-  -> <style>-stairs-coping.png
+(The old stairs kit it once built, `<style>-stairs-tread.png`, `-riser.png` and a railing coping per
+wall style, went on 2026-11-07: the flights are painted pieces now, scripts/art/build-stairs-kit.py.)
 
 Usage: python scripts/art/build-elevation-art.py [name ...] [--preview DIR]
 """
@@ -47,8 +40,8 @@ SRC = ROOT / "asset/Originals/elevation/generated"
 OUT = ROOT / "godot/asset/MAPS/elevation"
 
 ## style -> (source file, number of courses in the source, even out its light). A cliff's style is
-## painted on the world's `cliffs` layer or picked by the ground on top (elevation.gd
-## GROUND_WALL_STYLES). The generator paints the light falling off from the upper left over the whole
+## painted on the world's `cliffs` layer or picked by the ground on top (its default in
+## godot/game/world/elevation/cliffs/ground_wall_styles.tres). The generator paints the light falling off from the upper left over the whole
 ## frame, which would repeat as a bright patch every period of the wall: evened out for every style
 ## but meadow-rock (approved as it is on 2026-10-05).
 WALLS = {
@@ -61,25 +54,44 @@ WALLS = {
     "masonry": ("masonry-wall-d.png", 4.4, True),
     "root-rock": ("root-rock-wall-a.png", 4, True),
     "red-rock": ("red-rock-wall-a.png", 4, True),
+    # The earth walls (2026-11-05, the owner: "dirt walls ... mountain, desert and ice", "we don't
+    # have to stick to the blocks styles", "we dont need to make the between lines so evident"):
+    # one continuous face of earth, no courses (0): see SEAMLESS_SCALE.
+    "mountain-dirt": ("mountain-dirt-wall-a.png", 0, True),
+    "desert-dirt": ("desert-dirt-wall-a.png", 0, True),
+    "ice-dirt": ("ice-dirt-wall-a.png", 0, True),
+    # The faces of the Phaser-era elevation experiment (asset/Originals/elevation/faces/ and
+    # faces-v2/, 2026-10-04), seamless too (the owner, 2026-11-05: "i think that art is cool").
+    "autumn-face": ("../faces/autumn-a.png", 0, True),
+    "castle-face": ("../faces/castle-a.png", 0, True),
+    "cave-face": ("../faces/cave-a.png", 0, True),
+    "crystal-face": ("../faces/crystal-a.png", 0, True),
+    "desert-face": ("../faces/desert-a.png", 0, True),
+    "dungeon-face": ("../faces/dungeon-a.png", 0, True),
+    "forest-face": ("../faces/forest-a.png", 0, True),
+    "meadow-face": ("../faces/meadow-a.png", 0, True),
+    "snow-face": ("../faces/snow-a.png", 0, True),
+    "town-face": ("../faces/town-a.png", 0, True),
+    "volcanic-face": ("../faces/volcanic-a.png", 0, True),
+    "desert-strata": ("../faces-v2/desert-a.png", 0, True),
 }
+## A seamless style (0 courses in WALLS): an earth face with no courses or crevices, its levels told
+## apart by the code (the walls' height, their top edge and foot), not by the look. Its source is
+## scaled by SEAMLESS_SCALE (as a four-course source is: a level is 256 source px), one course is cut
+## from its middle and made periodic both ways (minimum-error seams, SEAMLESS_OVERLAP source rows
+## across the vertical wrap), and the texture holds it twice: every course of its walls is alike and
+## stacked levels run on without a line.
+SEAMLESS_SCALE = 0.5
+SEAMLESS_OVERLAP = 48
+## Seamless styles whose source shows rows (of bricks or blocks): style -> rows a level holds. The
+## source is scaled so that many rows fill a level exactly (their period measured: `row_period`) and the
+## course is cut from a mortar line, so the rows run on across the vertical wrap.
+SEAMLESS_ROWS = {"castle-face": 2, "dungeon-face": 2, "town-face": 2}
+## Lags (source px) searched for a row period.
+ROW_PERIOD_RANGE = (40, 220)
 ## Evening out the light: the source's brightness averaged over LIGHT_CELLS x LIGHT_CELLS blocks
 ## (a stone or two each), smoothed, is divided out.
 LIGHT_CELLS = 4
-## style -> stairs kit: per part, (source file, first row, last row) of one step, crevice to crevice
-STAIRS = {
-    "meadow-rock": {
-        "tread": ("stairs-tread-a.png", 394, 530),
-        "riser": ("stairs-riser-b.png", 322, 471),
-    },
-}
-## The kit every flight's treads and risers come from (elevation.gd STAIRS_STYLE).
-STAIRS_KIT = "meadow-rock"
-## One step's row at game size: a rise of 64 / 3 world units at 2 px per unit.
-STEP_PX = 43
-RISER_TONE = 0.80
-COPING_LIGHT = 1.10
-## Source px cross-faded into the horizontal seam of a stairs row.
-STAIRS_OVERLAP = 64
 ## Art px per course (one level = 64 world units at 2 px per unit).
 COURSE_PX = 128
 ## Source columns blended across the horizontal wrap.
@@ -160,11 +172,59 @@ def even_light(rgb: np.ndarray) -> np.ndarray:
     return rgb * (broad.mean() / broad)[..., None]
 
 
+def periodic_rows(image: np.ndarray, overlap: int) -> np.ndarray:
+    """`periodic` down the image: its bottom `overlap` rows replace the top ones up to a seam."""
+    return periodic(image.transpose(1, 0, 2), overlap).transpose(1, 0, 2)
+
+
+def row_period(rgb: np.ndarray) -> float:
+    """The period (source px) of the rows a source shows: the strongest repeat of its rows'
+    brightness within ROW_PERIOD_RANGE."""
+    rows = rgb.mean(axis=(1, 2))
+    rows = rows - rows.mean()
+    repeat = np.correlate(rows, rows, "full")[len(rows) - 1:]
+    lo, hi = ROW_PERIOD_RANGE
+    return float(lo + int(np.argmax(repeat[lo:hi])))
+
+
+def seamless_layout(style: str, rgb: np.ndarray) -> tuple[np.ndarray, int, int]:
+    """A seamless style's source scaled for its walls, the row its course is cut from and the step
+    between rows of the same kind (a row style's row period, else 1)."""
+    rows = SEAMLESS_ROWS.get(style, 0)
+    scale = COURSE_PX / (rows * row_period(rgb)) if rows else SEAMLESS_SCALE
+    width, height = round(rgb.shape[1] * scale), round(rgb.shape[0] * scale)
+    scaled = resize(rgb, width, height)
+    top = (height - COURSE_PX - SEAMLESS_OVERLAP) // 2
+    step = 1
+    if rows:
+        # From the darkest row (a mortar line) within a row period above the middle.
+        step = COURSE_PX // rows
+        light = scaled.mean(axis=(1, 2))
+        top = top - step + int(np.argmin(light[top - step:top]))
+    return scaled, top, step
+
+
+def seamless_course(style: str, rgb: np.ndarray) -> np.ndarray:
+    """One course of a seamless style's source (`seamless_layout`), from its middle, periodic both
+    ways."""
+    scaled, top, _ = seamless_layout(style, rgb)
+    course = periodic_rows(scaled[top:top + COURSE_PX + SEAMLESS_OVERLAP], SEAMLESS_OVERLAP)
+    return periodic(course, round(OVERLAP * SEAMLESS_SCALE))
+
+
 def build_wall(style: str, preview: Path | None) -> None:
     source, courses, flatten = WALLS[style]
     rgb = np.asarray(Image.open(SRC / source).convert("RGB")).astype(np.float64)
     if flatten:
         rgb = even_light(rgb)
+    if courses == 0:
+        course = seamless_course(style, rgb)
+        out = Image.fromarray(np.clip(np.concatenate([course, course], axis=0), 0, 255).astype(np.uint8)).convert("RGBA")
+        out.save(OUT / f"{style}-wall.png")
+        print(f"wall {style}: seamless, {out.size[0]}x{out.size[1]} px")
+        if preview is not None:
+            tiled_preview(out, preview / f"{style}-wall-tiled.png")
+        return
     joints = find_joints(rgb, courses)
     spans = course_spans(joints)
     # One horizontal scale for every course (the mean), so stones keep their proportions.
@@ -179,49 +239,6 @@ def build_wall(style: str, preview: Path | None) -> None:
         tiled_preview(out, preview / f"{style}-wall-tiled.png")
 
 
-def stairs_row(source: str, first: int, last: int) -> np.ndarray:
-    """One step's row of a stairs source at game size (STEP_PX tall), opaque and periodic."""
-    rgb = np.asarray(Image.open(SRC / source).convert("RGB")).astype(np.float64)[first:last]
-    scale = STEP_PX / rgb.shape[0]
-    row = resize(rgb, round(rgb.shape[1] * scale), STEP_PX)
-    return periodic(row, round(STAIRS_OVERLAP * scale))
-
-
-def save_rgb(image: np.ndarray, path: Path) -> Image.Image:
-    out = Image.fromarray(np.clip(image, 0, 255).astype(np.uint8)).convert("RGBA")
-    out.save(path)
-    return out
-
-
-def coping_for(riser: np.ndarray, style: str) -> np.ndarray:
-    """The riser row tinted halfway to the mean colour of `style`'s wall, COPING_LIGHT lighter."""
-    wall = np.asarray(Image.open(OUT / f"{style}-wall.png").convert("RGB")).astype(np.float64)
-    tint = wall.reshape(-1, 3).mean(0) / riser.reshape(-1, 3).mean(0)
-    return riser * (0.5 + 0.5 * tint)[None, None, :] * COPING_LIGHT
-
-
-def build_stairs(style: str, preview: Path | None) -> None:
-    kit = STAIRS[style]
-    tread = stairs_row(*kit["tread"])
-    riser = stairs_row(*kit["riser"])
-    coping = coping_for(riser, style)
-    for part, image in (("tread", tread), ("riser", riser * RISER_TONE), ("coping", coping)):
-        out = save_rgb(image, OUT / f"{style}-stairs-{part}.png")
-        print(f"stairs {style} {part}: {out.size[0]}x{out.size[1]} px")
-        if preview is not None:
-            tiled_preview(out, preview / f"{style}-stairs-{part}-tiled.png", 3, 3)
-
-
-def build_coping(style: str, preview: Path | None) -> None:
-    """The railings' coping of a wall style without a stairs kit: STAIRS_KIT's riser row, tinted
-    towards this style's wall."""
-    coping = coping_for(stairs_row(*STAIRS[STAIRS_KIT]["riser"]), style)
-    out = save_rgb(coping, OUT / f"{style}-stairs-coping.png")
-    print(f"stairs {style} coping: {out.size[0]}x{out.size[1]} px")
-    if preview is not None:
-        tiled_preview(out, preview / f"{style}-stairs-coping-tiled.png", 3, 3)
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("names", nargs="*", help="wall styles to build (default: all)")
@@ -230,14 +247,9 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     if args.preview is not None:
         args.preview.mkdir(parents=True, exist_ok=True)
-    names = args.names or list(dict.fromkeys(list(WALLS) + list(STAIRS)))
-    for name in names:
+    for name in args.names or list(WALLS):
         if name in WALLS:
             build_wall(name, args.preview)
-        if name in STAIRS:
-            build_stairs(name, args.preview)
-        elif name in WALLS:
-            build_coping(name, args.preview)
 
 
 if __name__ == "__main__":

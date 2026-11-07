@@ -66,7 +66,7 @@ A raised area is drawn where it is painted, as a block seen from all four sides
 stone course (one cell, 64 units) per level of drop**, so a 3-level wall shows three courses with
 their joints lined up across every face; its east and west sides show a narrow strip of the same
 wall, its back (north) edge none. Its corners are round and its edges wobble a little. The wall is
-of one of nine **wall styles** (meadow rock, snow rock, sandstone, cave rock, crystal rock, mossy
+of one of twenty-four **wall styles** (meadow rock, snow rock, sandstone, cave rock, crystal rock, mossy
 rock, masonry, root rock, red rock): the one painted over its top, else its ground's
 ([Wall styles](#wall-styles)). The top's edge is drawn from its own ground (darkening towards the
 edge and hanging over the wall in round clumps with a dark outline), the foot from the lower
@@ -74,26 +74,57 @@ ground's (a dark line, a few clumps and a soft shadow); a wall standing in **wat
 lapping up its base to a wobbling waterline, with patches of foam, as a deep-water bank's foot. A **one-row open cliff** (below) has no back rim. Raised ground **casts a
 shadow** to the lower right from its walls' feet (the light comes from the upper left), longer for
 a taller wall. Faces are shaded by the way they look (west lit, south mid, east dark). The ground of
-a hole and the lower courses of its walls darken with every level of depth.
+a hole and the lower courses of its walls darken with every level of depth; since 2026-11-06 a
+raised top, the upper courses of its walls, its edges, ramps and stairs get lighter with every level
+of height the same way (the owner: "light the upper levels ... so the optical effect is better"), 8%
+a level, at most 24%, a colour near white lifted less so snow keeps its detail.
 
 **Stairs** (reworked 2026-10-11 after the stairs of *A Link to the Past*, at the owner's request:
-"they do not pass the bottom and on the top only the top edge of the cliff") are flights of stone
-steps between two posts of stone blocks, in one style everywhere, coloured after the road or ground
-they lead to: pale green stone on grass, sandy on sand, grey on cobble, white on snow, blue-grey in
-caves. They leave a rim in any of 8 directions:
+"they do not pass the bottom and on the top only the top edge of the cliff"; painted and set into
+the walls on 2026-11-06, the owner: they looked "painted on top of the wall instead of coming from
+inside the wall", their "perfect lines" did not match the map, and steps built from textures were
+"the same square painted stairs just a different art": "paint the whole stair at once") are flights
+of worn stone steps cut from the cliff's own rock, each **painted whole** where there is a piece for
+its size (the concepts the owner picked, **Front A** for front flights and **West C** for side
+flights; pieces and concepts in `asset/Originals/elevation/stairs-painted/`), in one of six **art
+sets**, each painted for a family of grounds (the owner, 2026-11-06: "at least 3 or 4 different art
+stairs to match our other grounds"; he picked them from two concepts each): **desert** (worn
+sandstone between round boulders: sandstone, the desert and earth walls, red rock), **meadow** (grey
+fieldstone with grass and moss: meadow rock, storybook rock), **snow** (blue-grey stone, snow on the
+treads, icicles: snow rock, ice dirt), **forest** (log steps in dark earth between root-wrapped
+rocks: root rock, mossy rock, forest faces), **town** (cut stone blocks and slabs: masonry, castle
+and town faces) and **cave** (the town's blocks, another painting: cave and crystal rock, dungeon
+and volcanic faces). A flight takes the set of the wall style it is cut into (`ElevationStairs.art_set`;
+painting a hill's `cliffs` layer changes it), drawn as painted on its set's own style and coloured
+after the wall on the others (red in red rock, pale in castle faces); a flight leaving a top with no
+wall style takes the desert set in its ground's colour. No joint lines are drawn over them. They
+leave a rim in any of 8 directions:
 - **front flights** (south, south-west, south-east) are set into the cliff's face, from its top edge
-  down to its foot and no further: no landing on the top, nothing run out over the lower ground. The
-  steps (4 per level, each a shaded riser under the nosing above, then a lit tread) and the posts
-  beside them lie flat on the face, a column of blocks each side; the top's edge breaks where the
-  flight leaves the top;
-- **side flights** (east, west) run out a cell per level beside the hill (seen from the side) and
-  **back flights** are foreshortened (north 1.5 cells per level, 45° ones a diagonal cell), as no
+  down to its foot and no further: no landing on the top, nothing run out over the lower ground.
+  Each is one painted piece (one for a one-level flight, one for two or more levels): its steps sit
+  in a notch, framed either side by big rounded boulders that overlap the steps' ends and the wall
+  beside them (their posts are not drawn, they still block), so the steps come out of the rock as
+  in Front A. A 45° flight (south-west, south-east) has pieces of its own, painted on the slanted
+  face (the steps run with it, round boulders either side); a south-east flight draws the
+  south-west piece mirrored and in shade (that face turns from the light). The top's edge breaks
+  only over the steps;
+- **side flights** (east, west) run out a cell per level beside the hill (seen from the side), each
+  one painted piece (West C's painting for two levels one cell wide, new paintings in the game's own
+  camera for one level, one or two cells wide; an eastward flight draws the westward piece
+  mirrored; a size with no piece yet is built from the kit, below). A side flight comes out of the
+  hill's side wall: where the hill runs on past its near side, the side wall's rock covers the part
+  of the flight behind the wall's surface (the owner's green line: from the rim on the flight's near
+  side down to the wall's foot), so the steps come out of the rock;
+- **back flights** are foreshortened (north 1.5 cells per level, 45° ones a diagonal cell), as no
   face of the hill shows there: steps from the rim (no landing) down onto the lower ground, between
-  two low side walls of blocks; what of a back flight lies behind the hill's top is hidden by it.
+  two low side walls, built from the painted kit (treads seen from above, side walls of big rounded
+  blocks with slabs on top); what of a back flight lies behind the hill's top is hidden by it.
 
 A flight is one or two cells wide. The flights of 2026-10-06 (a landing on the top, railings with
 newel posts in the cliff's rock, front flights running a cell per level past the wall) are in git
-history and `asset/Originals/elevation/stairs-mockups/`.
+history and `asset/Originals/elevation/stairs-mockups/`; those of 2026-10-11 to 2026-11-06 (blocks
+in a ruler grid outlined in dark lines, posts beside a front flight, in one pale stone coloured by
+the ground) are in git history.
 
 **Ramps** join the levels with no steps, as in *A Link to the Past*: ground that slopes from the
 lower level up to the top beside or behind it, drawn as flat ground, so the two levels seem to
@@ -149,7 +180,8 @@ hide nothing (the camera looks north).
   anywhere no wall stands, taking the level of where its feet are ([What you see](#what-you-see)
   has the rule); its front rim holds and drops like any other.
 - **Changing area**: the player is spawned in the new world and takes the level
-  of the ground where it appears (`track` with no level). So does a slime put somewhere inside
+  of the ground where it appears (`track` with no level); crossing a chunk line (a scroll) it keeps
+  its level where that level can stand there ([Across chunk lines](#across-chunk-lines)). So does a slime put somewhere inside
   the same world: waking from a faint at the spawn, the entrance or a bed, arriving by a stair hatch
   or at a room's entry (`player.gd` `arrive_at`), whatever level it left (2026-10-19: one that
   fainted in R7's spike pit woke under the north floor).
@@ -249,6 +281,9 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
    45° back rim), keep other hills out of it. The old `S` tile is a front flight. The flight's
    colour comes from a road at its foot or its top end (cobble, sand or forest soil), else the
    ground of the top it leaves: paint the road up to the stairs to give them the road's colour.
+   Any number of flights may leave one straight rim: each opens its own way through the rim's
+   collision (until 2026-11-02 only the first flight along a long straight side opened, so a
+   second side flight further along it could be climbed but not walked down from the top).
 5. Paint **ramps** with the green wedge tiles (row 4 of the palette; the arrow points down the
    slope) on **every cell of lower ground the ramp runs over**: along the foot of a wall (the cells
    right below a south face's wall, or the diagonal of cells in front of a 45° face), or out from a
@@ -275,6 +310,11 @@ playground's park rows, so hand edits to the park are lost when it runs again.
 [FENCES.md](FENCES.md) (`game/world/fences/`). They do not create elevation rims or cliff art; of
 the elevation they read only a cell's level and draw into its depth map.
 
+**Sky floors** (islands over the clouds) paint the sky as holes (level -2 or lower) and draw it with
+a `SkyFloor` node over an area: [SKY_FLOOR.md](SKY_FLOOR.md). It draws this drawing's own holes mesh
+again with the sky (in the Shade, under the walls) and its wall meshes again with the cloud bank up
+their feet; a drop into the sky is the dungeon kit's void fall, pinned to the sky cells (`SkyFall`).
+
 ## Wall styles
 
 Inside a dungeon room with interior walls, a hole's walls take the cliff style of the room's walls
@@ -293,15 +333,38 @@ order:
    itself in the game;
 2. else the style of the **ground on top**: the world's own choice for that ground, if its ground
    layer has the metadata `cliff_wall_styles` (a Dictionary, ground → style, e.g.
-   `{"highland": "storybook-rock"}`), else `GROUND_WALL_STYLES` in `elevation.gd` (below);
+   `{"highland": "storybook-rock"}`), else the **ground's default wall**: the table
+   `game/world/elevation/cliffs/ground_wall_styles.tres` (below);
 3. else meadow rock (`DEFAULT_WALL_STYLE`); a style without wall art also falls back to it.
+
+**Each ground's default wall** (2026-11-06, the owner: "i want to use those dirt walls, and being
+able to change the default wall for a ground"): open `ground_wall_styles.tres` in the Inspector, one
+drop-down per ground (`Grass (highland)`, `Sand (sanddessert)`, ...) offering every style the
+`cliffs` layer paints (the tile set's `wall_style` data); the revert arrow puts back the default as
+shipped (`GroundWallStyles.DEFAULTS` in `ground_wall_styles.gd`, the table in "Ground on top"
+below). An open world's walls and stairs follow at once; every world's walls of that ground change,
+and the table is part of every world's cache key (`Elevation.ground_wall_styles()`, `_cache_key`), so
+bake the caches after a change (a game run from the project rebuilds an outdated world as it loads
+it; an exported game only reads the caches). Sand takes `desert-dirt` since 2026-11-06 (the
+owner's pick there); `mountain-dirt`, `ice-dirt` and the faces are in no ground's default yet: pick them there, or paint them on a
+hill's `cliffs` layer. A preview of the earth walls as defaults (grass on mountain dirt, sand on
+desert dirt, snow on ice dirt): `asset/Originals/elevation/wall-variation/dirt-walls-preview.png`.
+
+**A world's own wall for a ground, in the Inspector** (2026-11-06, the owner: "trying different wall
+on a ground right there in the inspector"): select the world's `elevation` layer; its **Wall
+Styles** section has one drop-down per ground the world paints (`Sand (sanddessert)`, ...), first
+`default: <style>` (the ground's default above), then every style. A pick writes the ground layer's
+`cliff_wall_styles` metadata (`elevation_layer.gd`; back to `default` removes it), the walls and
+stairs follow at once, the revert arrow returns to the default, and a hill painted on the `cliffs`
+layer keeps its paint. Bake that world's cache after (its key holds the metadata). In a chunk world
+the pick is the chunk's own (see the limits under "Across chunk lines").
 
 The metadata is per world, so a world can try a style without changing the others (the cliff
 labs do, [Storybook art](#storybook-art)). The fieldstone walls' `walls` layer (WALLS.md) has a
 `wall_style` data layer too; it paints no cliff (only a layer with `cliff_tileset.tres` does,
 `Elevation.find_cliff_layer`).
 
-| Style | Tile | Look | Ground on top |
+| Style | Tile | Look | Ground on top (as shipped) |
 |---|---|---|---|
 | `meadow-rock` | M | warm grey-brown boulders with tufts of moss | grass (`highland`), and any ground not listed |
 | `snow-rock` | S | cold blue-grey granite with ice crystals in the cracks | snow (`frozen`) |
@@ -312,6 +375,21 @@ labs do, [Storybook art](#storybook-art)). The fieldstone walls' `walls` layer (
 | `masonry` | B | cut limestone blocks in a running bond, quoins at the ends | `town-cobble` |
 | `root-rock` | R | dark umber stones in forest soil, threaded with roots | `forest-floor` |
 | `red-rock` | A | terracotta and rust-red stones with fallen autumn leaves | `amberleaf` |
+| `mountain-dirt` | EM | an earth face (no courses): dark loam with half-buried grey stones and pale roots | none yet; paint it |
+| `desert-dirt` | ED | an earth face: wind-carved badland clay in wavy rust, ochre and cream bands, pebbles | sand since 2026-11-06 (the owner's pick in `ground_wall_styles.tres`; `sandstone` as shipped) |
+| `ice-dirt` | EI | an earth face: frozen brown soil with veins of blue ice, hoarfrost and small icicles | none yet; paint it |
+| `autumn-face` | FA | a face (no courses): an orange basalt-column face with autumn tufts | none yet; paint it |
+| `castle-face` | FC | a face (no courses): pale cut limestone bricks, two rows a level | none yet; paint it |
+| `cave-face` | FV | a face (no courses): blue-grey rock columns | none yet; paint it |
+| `crystal-face` | FK | a face (no courses): indigo rock columns with violet and cyan crystals | none yet; paint it |
+| `desert-face` | FD | a face (no courses): stacked sandstone blocks and ledges | none yet; paint it |
+| `dungeon-face` | FU | a face (no courses): dark slate bricks, two rows a level | none yet; paint it |
+| `forest-face` | FF | a face (no courses): mossy rock columns with roots and ferns | none yet; paint it |
+| `meadow-face` | FM | a face (no courses): golden rock columns | none yet; paint it |
+| `snow-face` | FS | a face (no courses): ice columns capped with snow, icicles | none yet; paint it |
+| `town-face` | FT | a face (no courses): mossy fieldstone masonry, two rows a level | none yet; paint it |
+| `volcanic-face` | FO | a face (no courses): dark basalt columns with glowing seams | none yet; paint it |
+| `desert-strata` | DS | a face (no courses): layered desert strata in wide bands | none yet; paint it |
 | `storybook-rock` | – | rounded grey-brown stones of the approved H plateau painting, cut from it | none; a world picks it by metadata |
 
 Exactly where: a style is read at the middle of each boundary edge of a top, a little into the top
@@ -390,12 +468,12 @@ shadows the model once drew over all the lower ground went with the front-only l
 | Node | What | Art |
 |---|---|---|
 | `Patches` | chamfered corner triangles that take the ground across the corner; the top's ground over the water surface's soft edge along a rim over water | the ground's sheet (`elevation_ground.gdshader`) |
-| `Shade` | the ground of holes, darker per level of depth (`DEPTH_DARKEN`, 20% a level since 2026-10-31, the owner: lower levels "a little darker" for the depth; 13% before; at most half, `DARKEST`) | multiply (`elevation_shade.gdshader`) |
+| `Shade` | the ground of holes, darker per level of depth (`DEPTH_DARKEN`, 20% a level since 2026-10-31, the owner: lower levels "a little darker" for the depth; 13% before; at most half, `DARKEST`); the ground of raised tops ("tops", 2026-11-06), lighter per level of height (`RAISE_LIGHTEN` 8% a level, at most `BRIGHTEST` 1.24; `level_lit` lifts a colour less the nearer it is to white, `LIFT_SOFT`), as the walls, their edges and feet, ramps and stairs light themselves (`elevation_light.gdshaderinc`) | multiply (`elevation_shade.gdshader`); the tops read the ground drawn under them back from the screen (`elevation_top_light.gdshader`, a multiply blend cannot lift above 1) |
 | `RoomShade` | in a room, the lower floor a wall more than one level high covers in the model but its face (one cell) leaves in view ([Faces in rooms](#faces-in-rooms)); built with the faces, not cached | as `Shade` |
-| `Sides` | every top's walls, top edge and foot ([Side walls](#side-walls)), grouped by level, wall style and the top/lower ground pair at each edge (`<level> <style> <top ground> <lower ground>`) | `art/<style>-wall.png`, `-side.png`, `-corners.png` and the grounds' sheets (`sides/elevation_sides.gdshader`, `_sides_material`) |
+| `Sides` | every top's walls, top edge and foot ([Side walls](#side-walls)), grouped by level, wall style and the top/lower ground pair at each edge (`<level> <style> <top ground> <lower ground>`) | `art/<style>-wall.png` (its `-wall-variants.png`: [Wall variation](#wall-variation)), `-side.png`, `-corners.png` and the grounds' sheets (`sides/elevation_sides.gdshader`, `_sides_material`) |
 | `Ramps` | every ramp's slope and skirt as its lower ground, with the shadows at its height; an open end's cap over the top edge's ends (lower ground, and the top's ground on the top); a rimmed ramp's landing as its top's ground over its edge ([Ramps](#ramps)); where a flight of stairs leaves a top, that top's ground over its edge (`add_approach`) | the ground's sheet (`elevation_ramp.gdshader`) |
 | `RampFeet` | the foot line along a slope's edge where it runs at a face (`_add_ramp_foot`) | as a wall's foot (`elevation_sides.gdshader`) |
-| `Stairs` | every flight's faces, back to front: a front flight's steps and posts on its face, the others' treads, risers and side walls; flights in a row of one colour share a mesh (`<ground>-<n>`) | the grain of meadow rock's `meadow-rock-stairs-tread.png`, `-riser.png` and `-coping.png` (blocks) in the colour of the flight's ground (`elevation_stairs.gdshader`, `_stairs_material`) |
+| `Stairs` | every flight, back to front: a front flight's painted piece over its face, a side flight's piece over its box (the kit's treads, side walls and their tops for a size without one, and for back flights), without what lies behind the hill (`occlude`) or its side wall (`cut_into`); flights in a row of one colour share a mesh (`<wall style or ground>-<n>`) | the painted pieces of the flight's art set (`stairs-front-1.png`, `-2.png`, `stairs-diag-1.png`, `-2.png`, `stairs-side-<levels>-<cells>.png` for the desert set, `stairs-<set>-…` for the others) and the kit `stairs-tread.png`, `stairs-blocks.png`, recoloured to the stone of the wall the flight is cut into (`elevation_stairs.gdshader`, `ElevationStairs.make_material`) |
 
 **Rims** (`elevation_rims.gd`): a top's boundary edges (where it meets lower ground, or a wall at
 or below its level), each with the top on its left: LIP where it hangs over the wall right below it
@@ -449,9 +527,12 @@ body on it stands at the height it is drawn at, at the face's depth. The others 
 (`end` = a cell per level, a north one 1.5) with 4 steps per level and no landing. `Elevation`
 finds the flights in the painted stairs cells (`painted_stairs`; a run of cells side by side along
 the rim with one kind is one flight; its rim is where the higher ground behind the cells begins),
-picks each one's colour (`_stairs_ground`: the grounds a quarter cell past its two ends, a road
-first, `STAIRS_ROAD_GROUNDS`; `_stairs_colour`: that ground's average colour, MapTerrain's, made a
-paler stone, `STAIRS_SATURATION`, `STAIRS_VALUE`) and asks each for:
+picks each one's colour (`stone`: the wall style of the top it leaves, `_wall_style_at` as for a
+wall, whose mean colour `ElevationStairs.STONE_COLOURS` holds, made a worn slab's,
+`STONE_SATURATION`, `STONE_VALUE`; without one, the ground's: `_stairs_ground`, the grounds a
+quarter cell past its two ends, a road first, `STAIRS_ROAD_GROUNDS`; `_stairs_colour`, that ground's
+average colour, MapTerrain's, made a paler stone, `STAIRS_SATURATION`, `STAIRS_VALUE`), tells a side
+flight the wall it comes out of (`cut_into`, below) and asks each for:
 - `walk`, the walkable surface on screen (the face between the posts; the steps' nosing line
   between the side walls): walkable by every level the flight joins; a body there takes the level
   of the height it stands at (`height_at`, `level_at`) and its depth (`depth_at`, the true ground
@@ -470,11 +551,33 @@ paler stone, `STAIRS_SATURATION`, `STAIRS_VALUE`) and asks each for:
 - its silhouette, the whole structure as drawn, and `approach`, the top's ground just behind its
   rim (`occupies`; `add_approach` draws that ground over the top's edge). Fence openings beside
   stairs are left by the painted fence cells;
-- its faces, back to front for the camera (a front flight: its steps, then its posts; else the far
-  side wall's inner face, the steps from the far end, then each side wall), drawn in one mesh per
-  colour and written to the depth map. Godot's 2D drawing has no depth test, so what of a flight
-  lies below its top level where the hill's top is drawn (`occlude`: a back flight's foot and first
-  steps behind the rim) is cut out of its faces, its depth and its silhouette.
+- its faces, back to front for the camera (a front flight: its steps; else the far side wall's
+  inner face, the steps from the far end, then each side wall), written to the depth map and,
+  where the flight has no painted piece, drawn in one mesh per colour. A front flight draws its
+  piece instead (`_piece_quads`: `FRONT_PIECES`, a 45° one `DIAG_PIECES` (mirrored for south-east,
+  `PIECE_AWAY_LIGHT` as light), the piece in three slices in the face's plane, the
+  two frames at the piece's own proportions, 52 units of the art each, the steps stretched across
+  the flight's walkable width, from the top edge to `PIECE_SINK` below the foot), a side flight of
+  a size in `SIDE_PIECES` its piece over its box (`_side_piece`: from the end of its run to the rim,
+  from the top of its far side wall to its near side's foot; transparent above the far side wall's
+  top; mirrored for an eastward flight). The pieces are its art set's
+  (`elevation_stairs_sets.gd`, generated by the art script: per set each piece's texture and mean
+  colour, where its front pieces' steps begin, the style it is painted for); every set's pieces have
+  the same proportions, so only the textures change. A material per wall style binds its set's
+  pieces (`make_material`: drawn as painted, `as_painted`, on the set's own style).
+  Godot's 2D drawing has no depth test, so what of a flight lies below its top level where the
+  hill's top is drawn (`occlude`: a back flight's foot and first steps behind the rim) is cut out of
+  its faces, its depth and its silhouette;
+- and what of a side flight lies behind the hill's side wall (`cut_into`, 2026-11-06): the side wall
+  is a slanted face from the rim at the top level to its foot `ElevationSides.reach` out along the
+  flight (39 units for two levels), the hill's rock behind it. Seen through the triangle that face
+  cuts out of the plane of the flight's near side (rim at the top, the wall's foot, the rim at the
+  bottom), every part of the flight lies behind that rock (the camera looks down at 45° from the
+  south: a ray from it rises through the rock), so that triangle is cut out of its faces and depth
+  (`rock_cuts`) and the side wall drawn under the flight shows there. Only as far down the screen
+  as the hill's straight side runs on past the flight's near side (probed every `ROCK_STEP`, less
+  `ROCK_ROUND` where the wall turns round the top's corner, nothing under `ROCK_MIN`): the side wall
+  is drawn only along it (an octagon's short side, a hole's side ending at its back edge: no cut).
 
 Each level's collision then traces the stairs too (`_with_stairs`): near a flight, the terrain's
 outline, the flight's outlines and those of flights it touches are cut where they cross, a piece
@@ -700,25 +803,86 @@ DIR]` (numpy, Pillow) into `godot/asset/MAPS/elevation/`.
   left across the frame, which would repeat as a bright patch every period: the tool evens it out
   (divides out the brightness averaged over 4 × 4 blocks) for every style but meadow rock.
 - **Lips, feet and wall ends** (2026-10-05/08) were the front-only look's art: each ground's lip and
-  foot fringe and each style's corner-stone ends. They went with it on 2026-10-17 (the runtime art
-  is in `asset/to-delete/MAPS/elevation/`; the Magnific sources and their prompts stay in
+  foot fringe and each style's corner-stone ends. They went with it on 2026-10-17 (the wall ends'
+  runtime art is in `asset/to-delete/MAPS/elevation/`; the Magnific sources and their prompts stay in
   `asset/Originals/elevation/generated/` and git history). The side walls draw their edges and feet
-  from the grounds' sheets and need neither.
-- **Stairs** (2026-10-06, the stairs session): rows of cut sandstone with the wall and the old stairs
-  as references, `stairs-tread-a.png` (treads seen from above) and `stairs-riser-b.png` (risers and
-  copings). In `STAIRS` give each part the source rows of one step, crevice to crevice; the tool
-  makes it opaque, periodic and one rise (43 px) tall, darkens the risers and tints the coping
-  towards the wall (`<style>-stairs-tread.png`, `-riser.png`, `-coping.png`). Since 2026-10-11 the
-  stairs use only meadow rock's three for their grain (the shader takes their luminance and colours
-  it by the flight's ground; the coping row makes the blocks of the posts and side walls); the other
-  styles' `-stairs-coping.png` (their old railings' caps) are no longer drawn.
-- **Cut from a painting** (2026-10-10): `storybook-rock` (wall, coping) is not generated:
+  from the grounds' sheets; since 2026-11-05 the lips and feet are back as **ledge strips**
+  (`godot/asset/MAPS/elevation/fringe/`, [Side walls](#side-walls) "Ledge variety").
+- **Stairs** (2026-10-06 … 11-06): the first stairs were drawn from rows of cut sandstone (treads,
+  risers and a railing coping per wall style, built by `build-elevation-art.py`); the painted stairs
+  below replaced them, and their art, sources and code went on 2026-11-07 (git history keeps them).
+- **The painted stairs** (2026-11-06, the owner's picks of the concepts Front A and West C, made with
+  Magnific GPT 2.5 from renders of the desert test; everything in
+  `asset/Originals/elevation/stairs-painted/`): `python scripts/art/build-stairs-kit.py [--preview DIR]`
+  builds them into `godot/asset/MAPS/elevation/`:
+  - **front pieces** (`stairs-front-1.png`, `-2.png`): cut-out sheets of a whole front flight, its
+    steps in a notch between rock frames (`piece-2x1-b.png`, `piece-2x2-b.png`), cut in three where
+    the steps begin and end (`PIECES`), the frames scaled to 52 world units across and the steps to
+    a two-cell flight's 128 (the sheets' steps are narrower), 3 px per world unit; it prints the row
+    where the steps begin (`FRONT_PIECES` "top"): the piece is drawn whole from the top edge and the
+    top's own ground runs down the face to its top step (`add_approach`), so the wall's ledge is not
+    painted over the stairs (owner, 2026-11-06; lifting the piece instead cut its boulders' tops);
+  - **side pieces** (`stairs-side-<levels>-<cells>.png`): a westward side flight painted in the
+    game's own camera over a render of it (`concept-west-c.png` for two levels one cell, the
+    `concept-side-1-*` sheets for one level), cut out along the flight's box (`SIDE_PIECES`: the box
+    in the sheet) and made transparent above the far side wall's top. A new size: render a flight
+    of it, have it repainted from that render with West C as the style reference, add its box;
+  - **45° front pieces** (`stairs-diag-1.png`, `-2.png`): a south-west flight rendered and repainted
+    in the game's own camera (`concept-diag-1-b.png`, `concept-diag-2-a.png`), its slanted face
+    unskewed into a flat piece (`DIAG_PIECES`: the rim's top in the concept and its px per world
+    unit; across, the flight's t from one frame's outer edge to the other's, 52 screen units each;
+    down, the height from the top edge to 6 below the foot), the frames' outer 10 units faded out
+    and the concept's grass keyed out (green above red, `DIAG_KEY`);
+  - **the art sets** (`SETS` in the script: per set, the wall styles that take it, the one it is
+    painted for, and how each piece is made): the desert set as above; the others from the concept
+    the owner picked of the two-level front flight (`sets/front2-<set>-<a|b>.png`, the desert piece
+    repainted in each family's wall material with its wall art as reference) and, for the other six
+    pieces, the desert pieces (or renders of the flights) repainted in that concept's style: the
+    one-level front as a cut-out, the 45° ones from the desert piece as it shows on screen (its
+    slanted face, unskewed again, `build_diag_screen`), the side ones fitted to the flight's outline
+    (`build_side_piece`). Sheets in `asset/Originals/elevation/stairs-painted/sets/`, outputs
+    `stairs-<set>-<piece>.png`, and the script writes
+    `godot/game/world/elevation/elevation_stairs_sets.gd`. A new set: a concept of the two-level
+    front, then its six pieces repainted from the desert ones, an entry in `SETS`;
+  - **the kit** for back flights and sizes without a piece: one row of treads (`tread-a.png`, two
+    rows joined along a seam and made periodic, `stairs-tread.png`) and the rounded blocks
+    (`blocks-a.png`, periodic both ways, 132 units a side, `stairs-blocks.png`).
+
+  It prints each texture's mean colour (`ElevationStairs.KIT_MEANS`: the shader recolours each texel
+  as the tint times the texel over that mean, `keep_colour` of its own hue shifts kept) and every
+  wall style's mean colour (`STONE_COLOURS`). The concepts the owner picked (`concept-front-a.png`,
+  `concept-west-c.png`) stay there; the tries he turned down (risers, boulder pillars, the pieces and
+  concepts not picked, the sets' B concepts but the cave's) were deleted on 2026-11-07.
+- **Cut from a painting** (2026-10-10): `storybook-rock` (its wall) is not generated:
   `python scripts/art/build-elevation-art-from-painting.py [--preview DIR]` cuts it from the approved
   H plateau painting as aligned by `build-cliff-kit.py` (`asset/Originals/elevation/cliff-kit/kit-h3.png`):
   the wall from the clean middle course of the three-course painting (two spans, one joint each,
   joined and made periodic through stone faces; the second row mirrored and shifted)
   ([Storybook art](#storybook-art)); its side strip and corner stones come from
   `build-side-wall-art.py` ([Side walls](#side-walls)).
+- **Earth walls** (2026-11-05, the owner: dirt walls for mountain, desert and ice; "we don't have to
+  stick to the blocks styles", "we dont need to make the between lines so evident ... since level
+  will be controlled by code and not by the look"): `mountain-dirt`, `desert-dirt` and `ice-dirt` are
+  **seamless** styles (0 courses in `WALLS`): one continuous face of earth with no courses or
+  crevices, its levels told apart by the walls' height, top edge and foot. Prompt: the style block,
+  then "a seamless tileable texture of a natural earth cliff face seen straight from the front ... one
+  continuous wall of earth with no rows, no blocks, no bricks and no straight lines across it, and it
+  tiles seamlessly on all four sides", and the earth of each (dark loam with half-buried stones and
+  dangling roots; wind-carved badland clay in wavy sediment bands; frozen soil with ice veins,
+  hoarfrost and short icicles), the only reference a crop of the approved H plateau painting
+  (`asset/Originals/concepts/zelda-tile-grid/painted/grid/style-h-plateau-crop.png`) "for the painting
+  style only". Two candidates each (`<style>-wall-a.png`, `-b.png`, 40 credits a picture). The tool
+  scales a source by `SEAMLESS_SCALE` (as a four-course source is), cuts one course from its middle
+  and makes it periodic both ways; the texture holds it twice, so stacked levels run on without a
+  line. A first try in rows of bulging soil lumps after the owner's dirt concept (he asked for
+  something less blocky) was deleted on 2026-11-07.
+- **Faces** (2026-11-05, the owner liked them: "i think that art is cool"): the eleven
+  `asset/Originals/elevation/faces/<name>-a.png` and `faces-v2/desert-a.png`, art of the Phaser-era
+  elevation experiment (2026-10-04, unused until then), are seamless styles too: `<name>-face` and
+  `desert-strata` (sources given as `../faces/...` in `WALLS`, no second candidate). The brick ones
+  (`castle-face`, `dungeon-face`, `town-face`: `SEAMLESS_ROWS`) are scaled so that two rows of bricks
+  fill a level exactly (their row period measured, `row_period`) and cut from a mortar line, so the
+  rows run on across levels; their wall art is a little wider (553-573 px), `desert-strata`'s 672.
 - The editor's paint tiles (levels, stairs, ramps in row 4, 2026-10-11):
   `python scripts/art/build-elevation-paint-tiles.py`, and for the
   `cliffs` layer `python scripts/art/build-cliff-paint-tiles.py` (a swatch of each wall).
@@ -727,8 +891,8 @@ Then let the editor import them. The 2026-10-05 sets (one wall, its two ends, st
 lips and feet, with spare candidates) used about 4,300 credits; the eight wall styles of 2026-10-08
 (a wall and two ends each, two candidates of everything) 5,000. A new wall style: generate its wall
 as above, add it to `WALLS`, run the tool with its name, add it to `build-cliff-paint-tiles.py`
-`TILES` and a tile in `cliff_tileset.tres` (the same order), and to `GROUND_WALL_STYLES` if a
-ground should take it; for side and corner stones of its own, `build-side-wall-art.py`.
+`TILES` and a tile in `cliff_tileset.tres` (the same order; the drop-downs of
+`ground_wall_styles.tres` list it then), and pick it there for a ground that should take it; for side and corner stones of its own, `build-side-wall-art.py`.
 
 `res://tools/render_elevation_park.gd` (windowed: `--path godot -s
 res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few close-ups
@@ -744,7 +908,8 @@ Godot project since 2026-10-17 so they no longer ship in the web build: 24 MB);
 `build-elevation-art-from-painting.py` cuts `storybook-rock` from them (above). A world uses it
 through its `ground` layer's metadata (Inspector > Metadata > Add Metadata, type Dictionary):
 `cliff_wall_styles` = `{"highland": "storybook-rock"}` ([Wall styles](#wall-styles)). Limits: the
-wall repeats every two stones (536 px), and `storybook-rock` has no tile on the `cliffs` paint layer
+wall art repeats every two stones (536 px; the [wall variation](#wall-variation) rearranges its
+blocks), and `storybook-rock` has no tile on the `cliffs` paint layer
 yet.
 
 The **cliff shapes lab** (`godot/game/scenes/worlds/dev/cliff-shapes-lab.tscn`,
@@ -754,6 +919,50 @@ front, and in its last rows (69-89) every kind of [ramp](#ramps); beside them (c
 84-88) the owner's level-2 U, whose two 45° arms open into the ground through ramps. Its builder
 `godot/tools/build_cliff_shapes_lab.gd` does not overwrite the lab unless given `-- --force`, which
 drops the owner's U and anything else painted there.
+
+### Wall variation
+
+> **On in every world since 2026-11-05** (the owner: "Yes, all styles", after the prototype). It
+> came from comparing our cliffs with a proposal of procedural walls (Polygon2D, edge extrusion,
+> procedural texturing): our walls already are generated geometry, but their art repeated. Before
+> and after: `asset/Originals/elevation/wall-variation/meadow-rock-compare.png`; every style's
+> variants: `<style>-variants-preview.png` there (today's art above, the variants below).
+
+A wall's art (`<style>-wall.png`) is periodic: every period (416 px, 3.25 cells, for the generated
+styles; 536 for `storybook-rock`) the same stones come back, and a course is the same as the course
+two levels below. With wall variation a wall shows a style's **variants** instead:
+`python scripts/art/build-wall-variants.py [style ...] [--preview DIR]` quilts six courses
+(`<style>-wall-variants.png`, a period wide, stacked) from the style's stone courses: its wall art's
+two and the two complete courses of its other Magnific candidate (`EXTRA`, colour matched), laid in
+patches along seams of least difference that keep to the dark gaps between stones (image quilting).
+Every variant keeps the same few columns at its two ends (the wall art's first course, its wrap
+moved to a gap between stones), so any variant follows any other without a seam. In
+`elevation_sides.gdshader` (`wall_rock`) each course of a wall (crevice to crevice) is shifted by its
+own amount and picks a variant per period, so neither the periods along a wall nor the courses down
+it repeat; each chain's art starts a whole number of periods in, picked by where it lies
+(`ElevationSides.START_PERIODS`), so two hills run different sequences. Off, a wall looks as before
+(a whole number of periods changes nothing).
+
+Every style has its variants: the generated ones from their wall art and their other
+candidate, `storybook-rock` (cut from a painting, no other candidate) from its own two courses in
+wider patches (`SIZES`: a block or more each, so the seams find the joints between its blocks).
+The seamless earth walls have no crevices to hide a course's joins: their variants are quilted from
+their two sources' other rows (not the rows their wall art was cut from, or every variant came out
+the wall art again) and also keep the wall art's top and bottom rows (`BAND`, with seams inside
+them), so any variant sits on any other without a line; the shader does not shift their courses
+(`course_shift` 0, `Elevation.SEAMLESS_WALL_STYLES`), and their kept columns sit in the plainest
+stretch of the course, since they show one above the other. A face has one source only: its
+variants come from that source's rows beside the wall art's (a brick face's from mortar line to
+mortar line, a row period apart), and `desert-strata`'s short source, with none left beside, from
+all of its rows, the patches that would copy the base where they go held back (`COPY_MIN`). A world
+turns it off with its `ground` layer's metadata `cliff_wall_variation` = `false` (Inspector >
+Metadata > Add Metadata, type bool); without it `Elevation.WALL_VARIATION_DEFAULT` (true) holds. A
+style without a variants sheet keeps its wall art. `res://tools/render_cliff_sides_lab.gd`
+`--wall-variation=on|off` sets it in memory for a render, to compare. After changing a style's wall
+art, run `build-wall-variants.py` for it again (its variants are cut from that art). Limits: side
+strips and corner stones are unchanged; `storybook-rock` has only four blocks to rearrange, and a
+seam may join two of them into one long stone; a baked cache made before 2026-11-05 starts every
+chain at the same period (all were rebaked that day).
 
 ## Side walls
 
@@ -815,22 +1024,51 @@ of the model's square cells:
   wall starts where that round begins (the back edge's end), from nothing, widening `CAP_SLOPE` (0.65) per
   unit along the side to its full width (`_caps`): a slanted end, past which the back edge visibly
   runs on behind the wall, so the ground behind the hill reads as walkable (it is: the strip behind
-  a hill).
-- **Inner corners fold.** At an inner corner of a side and a front or back wall
-  (`_is_side_inner_corner`; the top turns with `RADIUS_FOLD`, 14) the two walls are one wall folding
+  a hill). Only a wall's sideways reach is cut so. Where a back face meets a 45° front face at one
+  corner (an octagon's east and west points, 2026-11-03: the owner saw the wall there "curve"), the
+  front wall hangs its full height from the corner: the half of the corner's arc that faces the front
+  hangs that wall as it is (its fibre and light), and the wall ends there on a straight edge, its
+  stones running on to it (round a back corner the art's u runs across the fibres, not down them);
+  the foot along that edge has no clumps (`_add_foot`: where the foot runs down the wall's own
+  fibres it is the wall's end, not its base). Until then that front wall's fibres were cut like a
+  side's, so its foot slanted up into the corner over some 60 units and then jumped to full height,
+  with a light seam in the wall where it did.
+- **Inner corners fold.** At an inner corner of a true side (east or west, its normal's |x| over 0.9)
+  and a front or back wall, a 45° one too (`_is_side_inner_corner`; the top turns with `RADIUS_FOLD`,
+  14) the two walls are one wall folding
   round, as in the owner's reference: over the stretch of border round the corner (the other wall's
   reach plus `FOLD_RUN` (56) units each way, less where the runs are short) every fibre runs to the
   point as far along the foot's path (`FOLD_RUN` along one wall's foot, round a corner of
   `FOLD_FOOT_RADIUS` (28) where it meets the other's, on along that), so the fibres turn from
   straight down to straight out without crossing and every stone course runs on round the corner
   (`_fold_corners`); the light turns with them, and the feet there keep to the path (no wobble).
+- **Corners that cannot fold** (2026-11-03, the owner's octagon hole in the park: 3 levels deep, its
+  west and east walls four cells long, too short to fold under a wall that tall; until then their
+  strips sat on the 45° faces like slabs, with a flat top, a shadow over the face and dark wedges at
+  their feet). Seen from the camera a side strip is nearer than the wall beside it, so the two meet
+  along the corner's edge (`_open_corners`): beside a front wall the strip starts from nothing at the
+  top's corner and widens down that edge to its full width where the two feet meet, with no foot
+  along the edge and the front wall's foot starting there too; the half of the corner's arc on the
+  front wall's side hangs that wall on to the corner (the strip, drawn after it, covers its end), so
+  no sliver of the top shows between the two (it did until 2026-11-03). The two walls' shadows are
+  one from where their feet meet (Shadows, below). Beside a back edge (no wall) the strip runs on past
+  the corner out to its own foot line until the back edge's top hides it, with a side's foot there.
+- **Every other inner corner** of two walls (two fronts at a 45° turn, say): each wall keeps its own
+  courses, and their feet end where the two walls' foot lines meet instead of crossing there
+  (`_meet_feet`), so no loop of wall draws a dark spike under the corner; their shadows join as one
+  (Shadows, below). Until 2026-11-06 a 45° face (|x| 0.707) passed the fold's side test at 0.7, so a
+  straight front meeting one at an inner corner folded: the owner saw tall single-course slabs over
+  some three cells there ("it was good at some point"), and at a front over a lower shelf the fold
+  hung the 45° face's height over the shelf.
 - **How a wall hangs.** From each point of the border a "fibre" runs to the foot along the point's
   outward normal, as far as the shape K reaches that way (`reach`: `FRONT` 64 per level down, the
   side and back reaches out and up, a superellipse of exponent `SHAPE` 2.5 between them). The wall
   art runs along the border (u, measured `U_DEPTH` (0.6) down the fibres so the stones keep their
   width where the fibres fan out at a corner; a loop is stretched to close on whole periods of the
-  art) and down the fibres (v, a course per level). A wall something stands in front of (a cut band)
-  ends where it does.
+  art) and down the fibres (v, a course per level). Where the fibres fan out (a corner) the wall
+  between two of them is cut down its length so the art bends smoothly; both walls beside a fibre
+  cut it at the same points (until 2026-11-03 one was cut where the other was not, and the ground
+  showed through in hairlines). A wall something stands in front of (a cut band) ends where it does.
 - **The style's side art.** `python scripts/art/build-side-wall-art.py [--style S] [--source PNG]`
   builds `<style>-side.png` (four rounded stones side by side on a joint's dark, a course tall,
   periodic) and `<style>-corners.png` (the same stones on transparency) in
@@ -846,7 +1084,18 @@ of the model's square cells:
   its square cells, went with the front-only look): `FOOT_OUT` (20) units past the foot plus `SHADOW_PER_LEVEL` (22) per level
   of the wall there, as the foot faces east (`SHADOW_EAST` 1) or south (`SHADOW_SOUTH` 0.3), so a
   hill throws a round shadow to the lower right, longer for a taller one, and none past a back
-  corner's slanted end. A back edge keeps a short shadow on the ground behind.
+  corner's slanted end. A back edge keeps a short shadow on the ground behind. The shadow is
+  translucent, so it must cover the ground once: it is one ring per run of drawn foot, from the foot
+  out to its far edge (`_shadow_runs`, `_shape_shadow`). Runs whose ends lie within `SHADOW_JOIN` (16)
+  units of each other are one (at a corner `_open_corners` meets, the strip's foot and the front
+  wall's start where the feet meet, the stretch between them hidden behind the strip); its length and
+  strength are averaged along the foot over `SHADOW_SMOOTH` (24) units either way, so two walls
+  meeting at an inner corner cast the same shadow there; and wherever two neighbouring fibres of the
+  ring (foot → far edge) would cross, round an inner corner or where the foot turns in tighter than the
+  shadow is long, their ways turn towards each other, and on, until none do (at most `SHADOW_RELAX`,
+  400, passes): the shadow rounds the corner softly. Until 2026-11-03 each wall cast its own strip of
+  shadow, cut where neighbours crossed, so at inner corners two shadows overlapped (darker) or left
+  gaps, on hard lines (the octagon hole's corners).
 - **Water.** A rim over water covers the water surface's soft edge with the top's ground, 30 units
   inward onto the top (`_add_water_covers`). Where the ground at a wall's foot is water
   (`_ground_below`, checked per edge; `KIND_FOOT_WATER`) the foot draws the water itself, with the
@@ -864,19 +1113,113 @@ of the model's square cells:
   square (`RADIUS_WATER`, 3): a round one would need the moving water surface between it and the
   model's square corner.
 - **Simple edges, drawn.** Along the top edge (a piece from `EDGE_IN` (12) units over the top to
-  `EDGE_OUT` (9) past the edge) the top's own ground (its sheet in world space, as the ground draws
-  it: no seam) darkens over its last `band_width` (12) units (`band_shade` 0.22) and hangs a little
-  over the wall in round clumps of two sizes (`overhang_front` 2.5 units plus up to `clump_height`
-  4.5; less on sides), with a dark warm outline (`outline_width` 3) along them. Along the foot (`FOOT_UP` (7) up
-  the wall, `FOOT_OUT` (20) over the ground) a few clumps of the lower ground grow up the wall's base
+  `EDGE_OUT` (24; 9 before the ledge variety) past the edge; the top's ground covers only
+  `grass_reach_in` (12) of the `EDGE_IN` (36) over the top, the rest is for a lip strip's art) the top's own ground (its sheet in world
+  space, as the ground draws it: no seam) darkens over its last `band_width` (12) units (`band_shade`
+  0.22) and hangs a little over the wall in round clumps of two sizes (`overhang_front` 2.5 units plus
+  up to `clump_height` 4.5; less on sides), shaded towards their tips, with a dark warm outline
+  (`outline_width` 3) along them. Along the foot (`FOOT_UP` (30; 7 before) up
+  the wall, `FOOT_OUT` (20) over the ground; a dry foot's art is a piece of its own reaching
+  `FOOT_DOWN` (16) over the ground too, `KIND_FOOT_ART`, and its shadow ring another, `KIND_FOOT_SHADOW`) a few clumps of the lower ground grow up the wall's base
   under a dark line (`foot_outline`), and the ground takes a soft shadow, stronger facing the lower
   right (the clumps darken with it), fading out before a ramp's slope (`under_ramp`: the slope is
   drawn over it and would cut it on a line). These are uniforms of `elevation_sides.gdshader`; on a
   ground darker than `DARK_GROUND` (0.32, its average colour's value) the top edge's outline is a
   light rim of the ground's hue instead (`_sides_material`), the foot's line stays dark
   (`foot_line_colour`). The strip
-  takes its way from neighbours `FOOT_SPAN` (8) units apart and shrinks where its offsets would
-  cross, so it never folds over itself (its shadow would double there).
+  up the wall takes its way from neighbours `FOOT_SPAN` (8) units apart and shrinks where its offsets
+  would cross, so it never folds over itself; it is left out where the foot runs down the wall's own
+  fibres (a wall's end). The shadow is drawn as a ring of its own (Shadows, above). At an outer
+  corner tighter than the band over the top, the band's inner side meets in a mitre (`_mitre`), which
+  pulls in only the two runs that meet there: past them, round a narrow U (desert-b8's pocket,
+  2026-11-07, the owner: "wrong painting"), the walk went on and fanned a far edge's whole band
+  across the U as streaks of stretched lip art; it showed once the band grew to 36 units with the
+  ledge variety.
+- **Fixed ledges** (2026-11-06, the owner: "instead of random ledges let's try a fixed ledge with
+  some variation like the walls but occupying all the edge, not random spots, in the top and
+  bottom; in the bottoms ... blend with the shadow and the ground ... painting the shadow over the
+  ledger with opacity"; `elevation_sides.gdshader`): every top
+  edge shows the top ground's **lip strip** and every foot the lower ground's **foot strip** (the
+  ledge strips below) along its whole length. The lip goes all round a top (the owner: "why the top
+  lid stops at the sides and back?"): past a side edge it hangs `lip_side_out` (0.45) of its reach
+  over the narrow side wall, past a back edge (no wall) only `lip_back_out` (0.15), so its soil never
+  lies on the ground as a dark slab. Grounds without a strip keep the plain clumps. They vary as the walls do: every `ledge_period` (150) units the strip
+  is read from a place of its own (`ledge_period_of`, hashed per period from the anchored u, so two
+  chunks agree across a line), the change ragged plant by plant over `lip_blend` of a period. Over a
+  foot strip the foot's shadow is laid at `foot_shadow_over` (0.75) of its strength, as strong as over
+  the ground at the foot line and fading out `foot_shadow_up` (26) units up the wall, so the strip
+  sinks into the shadowed ground. They replaced the ledge variety's kinds (below), removed on
+  2026-11-07.
+- **Terraces against a higher wall** (2026-11-06, the owner: "the low level should reach the top wall
+  and blend nicely with it"): where a lower top stands in front of part of a higher top's wall (the
+  Sunscar shelf under the Great Mesa) the wall's foot steps between its two drops beside the
+  terrace's ends. No foot and no shadow is drawn along that step (`_add_foot`: two neighbouring
+  points whose depths differ by half a level or more); its shadow fell on the terrace as a dark
+  wedge. And the terrace's side edge runs on up to the higher wall (`ElevationRims._boundary_mode`: a
+  vertical edge beside a wall whose top is higher and whose foot is lower than the terrace is a rim),
+  drawn without a foot (`_edge_drop`: the wall stands behind it); before, it stopped a row short,
+  where the wall reached the ground beside it. Its side strip runs on up to that wall in front of the
+  wall's lower courses (the owner: "the lateral wall and lower level need to keep going to meet the
+  side wall with a join ... like an interior joint only seen on holes"): those pieces (`Border.over`,
+  `_over_level`) go in a mesh of the higher wall's level drawn after that level's walls (key marked
+  `ElevationSides.OVER_KEY`, `_draw_rank`), and the strip starts from nothing at the wall and widens
+  to its full width where its own foot begins (`_taper_against_walls`), as a hole's side strip meets
+  its far wall. So nothing of the terrace spills onto the next wall (the owner: "mitigate this shadow
+  and artifacts going to the other wall"), its top edge draws no band past the edge along that
+  stretch (`_add_top_edge`: the lip lay over the wall's stones), and its foot's shadow fades out
+  over the last `WALL_SHADOW_FADE` (72) units before the wall (`_fade_shadow_near_walls`: it fell
+  across that wall's own foot). A thin dark sliver can remain where the stretch ends.
+- **Ledge variety** (2026-11-05, the owner after the terraced meadow concept,
+  `asset/Originals/elevation/concepts/terraced-meadow-concept.png`: "not all ledges have to be painted
+  the same"; then, seeing the first try barely change anything, "check the art cause we have a bunch
+  of ledges not being used"). It first changed the lip's kind about every 150 units along an edge
+  (plain clumps, a shaggy overhang of tufts, rim stones of the wall's rock, bare soil, the lip
+  strip) and the foot's (plain, tall grass, fallen stones, the foot strip); the fixed ledges above
+  replaced that ("instead of random ledges"), and those kinds were removed on 2026-11-07. What
+  stays of it: the **ledge strips**, and the plain clumps where a ground has none.
+  The **ledge strips** are the front-only look's lips and feet (2026-10-05/10), back from
+  `asset/to-delete/` in `godot/asset/MAPS/elevation/fringe/<name>-lip.png` / `-foot.png`, periodic
+  along the edge at 2 px a unit, their edge line on row 96 (lip) / 80 (foot). `Elevation.FRINGE_GROUNDS`
+  gives each ground its strips (grass and the gravel path: `highland`, a thin band of grass with a
+  few flowers; snow, sand, forest floor, moss, fallen leaves, cavern, crystal and cobble their own).
+  Grass took `storybook-grass` (the approved H painting's big ferns and flowers) until 2026-11-06,
+  when the owner found it "too crowded i can't even see the wall, we need something more subtle"
+  (the options: `asset/Originals/elevation/wall-variation/grass-ledge-options.png`, the fern strip,
+  the thin grass strip picked, and no strip); its strips were deleted on 2026-11-07. The
+  plant strips were painted on a solid background, keyed out by the shader (`Elevation.FRINGE_KEYS`,
+  the commonest colour of each strip's opaque pixels; `key_near` 0.05 … `key_far` 0.12): a foot's
+  everywhere, so the wall and the real ground show between its ferns, a lip's over the top only (its
+  soil and roots still hang over the wall); its part over the top melts into the top's ground over
+  `strip_top_fade` (20). Strips of snow, sand, stones and cobbles are their own material, not keyed.
+  Each chain's top edge and foot measure along from their own start (`ElevationSides._edge_seed`,
+  `EDGE_SEEDS` steps of `EDGE_SEED_STEP` units by where the chain lies), so every hill runs its own
+  sequence. All are uniforms of `elevation_sides.gdshader` (`lip_of`, `foot_of`, `strip_art`). Before and after: `asset/Originals/elevation/wall-variation/ledge-strips.png`; the
+  unused art found: `unused-ledge-art.png` there.
+- **Ledge dressing** (2026-11-06, the owner: "Yes, decor and ivy"). Pieces drawn at the foot of the
+  walls as `ElevationSides` builds them (`sides/ledge_dressing.gd`, `ledge_dressing.gdshader`), just
+  past the foot line. The border is cut into `SLOT` (56) unit slots whose luck comes from where they
+  lie on the overworld (`origin`: two chunks agree along their line), with `FOOT_CHANCE` 0.36 (a side
+  wall's foot `FOOT_SIDE_SHARE` 0.2 of it: the owner, 2026-11-06, "a lot fewer in the laterals");
+  sizes `FOOT_SCALE` of the atlas piece. Nothing goes within `CORNER_CLEAR` (36) units of a corner's
+  arc or an open chain's end, on a back edge, over water, under a ramp's slope or within
+  `Elevation.DRESSING_STAIRS_CLEAR` (24) of a flight's box. What grows where follows the lower ground
+  (`FOOT_SETS`), not the wall style: grass and forest mossy rocks, roots and mushrooms; fallen leaves
+  autumn rocks; sand dead bushes and skulls; snow snowy rocks, firs and ice; cavern basalt; crystal
+  ground crystals; ash lava rock; cobble ruins. The first dressing also hung ivy (icicles on snow)
+  down front faces and stood pieces on the rim; the owner turned them down (2026-11-06: pieces "only
+  in the bottom", the golden boulders and sandstone blocks "don't fit well"; then, of the icicles,
+  "random object on the top ledger like those ices, remove them all"), and they, their art and their
+  code were removed on 2026-11-07 (before and after:
+  `asset/Originals/elevation/dressing/no-hanging-pieces.png`). The pieces are drawn, not bodies (no
+  collision, under every body), one mesh per level (`"<level>|dressing"`, ElevationSides.build) after
+  that level's walls, so higher walls, ramps and stairs cover them; holes darken them like their
+  ground. The atlas: `python scripts/art/build-cliff-dressing.py [--preview DIR]` cuts the pieces it
+  keeps from the cliff decor sheet (`asset/Originals/elevation/props/cliff-decor-a.png`, 16 pieces on
+  white, Phaser era) into `godot/asset/MAPS/elevation/dressing/cliff-dressing.png` and `.json` (each
+  piece's rect and anchor); rebake the caches after rebuilding it (the cache key does not see it).
+  The first kit: `asset/Originals/elevation/dressing/dressing-kit.png`, `ledge-dressing.png`.
+  Proposed next: a `ledges` paint layer choosing a stretch's dressing by hand, and a density per
+  world.
 - **Painter's order.** Pieces use the top and lower ground of their own edge, so a single cliff
   perimeter can change ground treatment tile by tile; wall style still follows the chain's
   commonest style, with the `cliffs` layer overriding each painted stretch: [Wall styles](#wall-styles).
@@ -934,7 +1277,7 @@ blocks of 1, 2 and 3 levels (one with a front flight), an L, U shapes from the n
 an octagon, a 1-2-3 terrace, a hole, the owner's open U with ramps, ramps along a south face and a
 diamond; below them (rows 52-80) the grounds row: a level-2 plateau with a step on snow, sand,
 forest floor, forest moss, fallen leaves, cavern, crystal and cobble (each top takes its ground's
-wall style, `GROUND_WALL_STYLES`), then grass on sand, sand on grass, snow on grass and grass in
+wall style, `ground_wall_styles.tres`), then grass on sand, sand on grass, snow on grass and grass in
 water. `godot/tools/build_cliff_sides_lab.gd` builds it (it does not overwrite the lab unless
 given `-- --force`). `res://tools/render_cliff_sides_lab.gd` (windowed: `--path godot -s
 res://tools/render_cliff_sides_lab.gd -- --out=<dir> [--only=<name prefix>] [--collision]
@@ -1228,9 +1571,10 @@ changes when its painting does, so a game build saves what it makes and later lo
   fences are still built at load (about 50 ms for level-1): gameplay queries need them.
 - **When it is used** (`_load_cache`): a game build (`mount(..., collide = true)`; the editor's
   live preview never uses it) loads the cache when its `key` matches: a hash of the `elevation`,
-  `ground` and `cliffs` layers' cells, the ground's metadata (`cliff_wall_styles`, size), the
-  elevation settings and `CACHE_VERSION` (`_cache_key`; 3 since the front-only look went,
-  2026-10-17). In a debug run
+  `ground` and `cliffs` layers' cells, the ground's metadata (`cliff_wall_styles`, size), every
+  ground's default wall (`ground_wall_styles.tres`), the elevation settings and `CACHE_VERSION` (`_cache_key`; 3 since the front-only look went,
+  2026-10-17), and in a chunk world its neighbours' paint past its edges
+  ([Across chunk lines](#across-chunk-lines)). In a debug run
   from the project it also must have been baked with the current sources of `CACHE_SCRIPTS`
   (`_code_hash`), so changing the build code rebuilds it there; an exported game trusts it. Else
   the world builds as before.
@@ -1241,13 +1585,110 @@ changes when its painting does, so a game build saves what it makes and later lo
   (`_saves_on_its_own`). Commit the files; the release export ("Web") leaves out the dev worlds'
   caches with their scenes.
 - **When to bake by hand**: after changing elevation art (a wall's width changes its meshes' UVs)
-  or a ground's tiles, which the key does not see; bump `CACHE_VERSION` when what the build makes
-  changes in code outside `CACHE_SCRIPTS`.
+  or a ground's tiles, which the key does not see; after painting a chunk world in its own tab,
+  that chunk and the chunks around it; bump `CACHE_VERSION` when what the build makes changes in
+  code outside `CACHE_SCRIPTS`.
 
 Measured (2026-10-14, desktop): level-1 loads in 233 ms instead of 600 ms (cache 278 KB), the
 cliff sides lab in 385 ms instead of 1.7 s (2 MB). A cached and a freshly built level-1 render the
 same cliffs and the same collision. On 2026-10-17 all 52 worlds that paint elevation were rebaked
 with side walls (the playground: 0.56 s from its cache, 2.1 s built).
+
+## Across chunk lines
+
+(2026-11-06, the owner: "elevation going across chunks so a mountain can cover several chunks like
+in Zelda".) A chunk world ([WORLD_ATLAS.md](WORLD_ATLAS.md#chunk-worlds-2026-10-12)) is loaded
+alone, yet its hills may run on into the chunks around it. Its cliffs are built over a grid that
+reaches past its own cells into its neighbours' paint, so a wall, a 45° face, a corner, a shadow or
+a collision line on a chunk line is worked out the same on both sides, and each chunk shows its own
+side of it. Before, each chunk saw only itself (and 6 rows the cut copied from the chunk north of
+it): a 45° face broke into a notch a cell high at the line and its stones were cut mid-stone.
+
+- **What a chunk reads** (`game/world/elevation/chunk_edges.gd`, `ChunkEdges.read`): the chunk
+  worlds around it on the atlas grid (`game/data/world-chunks.json`; a chunk's place is its root's
+  metadata `world_map_chunk`), in any region, 6 rows past its north and south edges
+  (`MAX_ROWS_ABOVE`: the tallest wall hanging in, a top in front hiding a wall's foot) and 4
+  columns past its west and east edges (a 45° face, a round corner, a fold, a wall's shadow), only
+  on the sides that have a neighbour. It reads their `elevation` levels (a stairs or ramp cell as
+  the ground it leads down to: flights are not built past the edge), their grounds and the styles
+  painted on their `cliffs` layer from their scene files (`PackedScene.get_state`, never
+  instanced), and keeps each read until the file changes. A corner no chunk covers (past the
+  overworld's edge) takes the paint across the nearer line. The neighbours' paint wins over what
+  the chunk keeps past its own edges (the rows above the cut copied in); with no chunk north of it,
+  its own rows above stay (a wall painted above the map, [Authoring](#authoring) step 2).
+- **The grid** (`Elevation.rebuild`): the chunk's cells and those margins; `cell_offset` counts the
+  columns west and the rows north, and the `Elevation` node sits as far up and left. Only the
+  chunk's own cells show in the game: the camera stops at its edges, and the scroll between chunks
+  lays the old chunk's picture over everything.
+- **The art across a line** (`sides/elevation_sides.gd`): the edges' wobble, the corner stones'
+  picks and each chain's start follow the overworld position (`origin`), not the chunk's. Where a
+  chain's border crosses a line the chunk shares with a neighbour (`chunk_lines`), the u of its
+  wall, lip and foot art is the line's own value (`_anchored_u`: the line's overworld coordinate,
+  signed by the way the chain crosses it), which both chunks work out alike, so the stones, the wall
+  variants and the ledge kinds run on across it. Between a crossing into the chunk and the next one
+  out the art stretches to meet both while that keeps it within `STRETCH_MIN` … `STRETCH_MAX`
+  (0.75 … 1.33) of its width, else it runs on from the first; outside the chunk's own cells it runs
+  back from the next crossing, so a jump lies where the game never shows it.
+- **Collision and levels**: each level's collision is traced over the whole grid, so it runs on
+  across the line as drawn. Crossing into the next chunk the slime keeps its level where that level
+  can stand at the arrival spot (`main.gd` `_arrival_level`, taken as the scroll leaves the old
+  chunk, `Elevation.is_walkable`), else it takes the ground's there. Before (2026-11-06, the owner's
+  bug report) it always took the level of the ground seen there, so a slime crossing in the strip
+  behind a hill came out on top of that hill (on the mesa behind the Sun Crown, level 2, it came out
+  on the Crown, level 3).
+- **The cache** ([Baked cache](#baked-cache)): a chunk world's key holds its neighbours' edge paint
+  (`ChunkEdges` `signature`), so painting one chunk changes the caches of the chunks around it:
+  bake them too (`tools/bake_elevation.gd -- --world=<ids>`; [Edit
+  area](WORLD_ATLAS.md#editing-an-area-2026-11-01)'s write-back bakes the written chunks'
+  neighbours by itself). The cache stores the edges it was built with (`ElevationCache.edges`): an
+  exported game builds its model from them and never reads another scene, so a chunk whose
+  neighbour was repainted and baked alone keeps that neighbour's old edges in a build until it is
+  baked itself: bake every world before an export. A debug run reads the neighbours' scenes (about
+  1 s cold beside a big scene such as Slimeshire C4, 1–2 ms once read).
+- **In the editor** a chunk's preview reads its neighbours' saved scenes: their hills show past its
+  edges (over no ground), so a mountain carried on from next door can be painted on. Save a chunk
+  for its neighbours to see its new paint.
+- **The test area: the Sunscar Mesas** (owner, 2026-11-06: "a mountain system from A7 to B8, the
+  desert ... interesting to explore with many caves and jumps"), painted over the four desert
+  chunks through Edit area (the placeholder hills and the ruin there went; picture
+  [chunk-lines/sunscar-mesas.png](../design/chunk-lines/sunscar-mesas.png)). Launch with
+  `?map=desert-a7` (or `-- --map=desert-a7`); the four chunks' spawns stand on open sand.
+  - **The Great Mesa** (level 2, A7 and B7) with a 45° face across the A7|B7 line, and on it **the
+    Sun Crown** (level 3) across the same line; a 2-level front flight up from the basin (A7) and a
+    1-level one up to the Crown (B7). Under its east face **a shelf** (level 1, B7) reached only by
+    dropping off the mesa, with a chest, left by dropping again (the ledge drops are the jumps: the
+    jump itself has no key).
+  - **The South Ridge** (level 2, A7 and A8) across the A7/A8 line, a side flight on its west side;
+    **the Butte** (level 1, its top level 2, B7 and B8) across the B7/B8 line, a side flight and a
+    front flight; **the Dry Wash** (level −1, A8 and B8) across the A8|B8 line, side flights at both
+    ends. Corners chamfered to 45°.
+  - **Five caves** (`game/scenes/worlds/rooms/desert/`, the hollow-hill cave's room, left out of the
+    release export): the **Crown cave** (a heart quarter, `desert-sunscar-crown`) behind a mouth in
+    the Crown's face; the **mesa tunnel**, in from the mesa's foot and up a ladder to a hatch on the
+    mesa (`object` scene `ladder-hatch.tscn`); the **Butte cellar**, a fall through a hole on the
+    Butte's top (`drop-hole.tscn`) onto a landing, out by a mouth in the Butte's foot; the **Ridge
+    vault** behind a cracked wall the Goo Bomb opens (a heart quarter, `desert-sunscar-ridge`); the
+    **Wash grotto** in the canyon's far wall. Mouths are cracked walls with `starts_open`.
+  - Not playtested. Rule 11's checker flags the tops running across the lines, as expected.
+- **A chunk with no hills of its own** builds its cliffs when its neighbours paint past its edges
+  (`Elevation.paints_past_edges`: a wall hanging into it), and the bake bakes it; an exported game
+  takes its baked cache as the sign. It needs an `elevation` layer, even an empty one: Gloop
+  Forest's four chunks and the Crystal Caverns' G5 and H5 have none (2026-11-06).
+- **Limits**: a style a world picks by its ground's metadata (`cliff_wall_styles`) is the chunk's
+  own over its margins too: two chunks whose worlds pick differently draw a wall across their line
+  each in its own style (paint the `cliffs` layer on both sides to make them agree). Where the
+  stretch to meet two lines would pass its limits the art jumps at the second line (seen only
+  during the scroll). A wall hanging across the line into the chunk south of it from a top whose
+  border does not cross that line starts its art from the chain's own start in each chunk; the two
+  agree where the whole top lies within 6 rows of the line (both chunks then see the same chain),
+  and may not for a taller one. Ledge dressing picked by position or u matches across a line only
+  if it follows `origin` and the anchored u. Stairs and ramps are built by the chunk that paints
+  them only: the neighbour reads their cells as the ground they lead down to, so a flight whose run
+  crosses a line (a back flight from a chunk's first rows, as North Wilds B2's at (22-23, 1), whose
+  run reaches into B1) shows only its own chunk's part, and the walls beside it in the other chunk
+  meet low ground there; keep a flight's whole run inside one chunk (2026-11-06, not seen in play). Rule 11 of the level design ([the chunk-line rule](../design/2026-10-16-level-design.md#the-rules-that-matter-most))
+  is unchanged: `tools/check_chunk_lines.gd` still counts a top running across a line as open
+  ground.
 
 ## Why this approach (what other games do)
 
@@ -1274,7 +1715,8 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 ## Limits and next steps
 
 - A new ground needs no cliff art: its walls' edges and feet are drawn from its own sheet (and its
-  wall style from `GROUND_WALL_STYLES`, else meadow rock).
+  wall style from `ground_wall_styles.tres`: add it to `GroundWallStyles.GROUNDS` to get a
+  drop-down, else meadow rock).
 - Only bodies (player, enemies, NPCs, and what is parented to them, like the swung weapon) hide
   behind hills. Props, effects, projectiles and loot do not: do not place props in the strip behind
   a hill. Two bodies on different levels that overlap on screen sort by their feet only.
@@ -1346,7 +1788,8 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 |---|---|
 | `godot/game/world/elevation/elevation_grid.gd` | The model: tris, chamfers (45° edges and ridges), walls, the 3D ground, walkability, collision segments |
 | `godot/game/world/elevation/elevation.gd` | `Elevation`: mount, drawing, collision bodies (stairs merged in), body levels, drop and hop targets, jump flights (`@tool`) |
-| `godot/game/world/elevation/elevation_stairs.gd`, `elevation_stairs.gdshader` | A flight of stairs: geometry (set into a face, or running out), walkable surface and the way past its ends, silhouette, levels and depth along it, faces back to front, occlusion by the hill; the shader draws the steps, posts and side walls in the flight's colour |
+| `godot/game/world/elevation/elevation_stairs_sets.gd` | The stairs art sets (generated by `scripts/art/build-stairs-kit.py`): each set's pieces, their colours, its steps' tops, the wall styles that take it |
+| `godot/game/world/elevation/elevation_stairs.gd`, `elevation_stairs.gdshader` | A flight of stairs: geometry (set into a face, or running out), walkable surface and the way past its ends, silhouette, levels and depth along it, faces back to front, occlusion by the hill and by the side wall it comes out of (`cut_into`), its painted piece (`_piece_quads`, `_side_piece`), the stairs' material and the wall styles' stone colours; the shader draws the pieces and the kit in the flight's colour |
 | `godot/game/world/elevation/elevation_ramp.gd`, `elevation_ramp.gdshader` | A ramp (a flight without stone): its slope, the join over a low face, the high end, open sides (strips, skirt), the tapered face, an open end (the rim left out, the cap, no shadow beyond), a rimmed ramp's landing; the slope drawn as its ground with the shadows on it |
 | `godot/game/world/elevation/elevation_cast_shadow.gdshaderinc` | The shadows' lookup through the depth map, for a ramp's slope |
 | `godot/game/player/abilities/jump_sequence.gd` | The flight of a jump or a ledge drop (`player.gd` `_press_ledge` starts a drop) |
@@ -1356,15 +1799,17 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 | `godot/game/world/elevation/elevation_occlusion.gd`, `elevation_occlusion.gdshaderinc` | The depth map and the bodies hidden behind higher ground (included by `game/feel/hit_flash.gdshader` and `game/player/gulp/form_skin.gdshader`) |
 | `godot/game/world/elevation/elevation_mesh.gd` | Mesh data the builders fill |
 | `godot/game/world/elevation/elevation_cache.gd`, `godot/game/scenes/worlds/elevation_cache/` | The baked cache of each world's elevation ([Baked cache](#baked-cache)) |
+| `godot/game/world/elevation/chunk_edges.gd` | A chunk world's neighbours' paint past its edges, read from their scenes ([Across chunk lines](#across-chunk-lines)) |
 | `godot/tools/bake_elevation.gd` | Bakes the caches |
 | `godot/game/world/elevation/level_collision_layer.gd`, `level_collision_tileset.tres`, `level_collision_palette.res` | [Painting collision](#painting-collision): the hand-painted `level-collision` layer (rims, bases, edges, open tiles, 45° halves; Replace or Override), its palette (`tools/pack_level_collision_tileset.gd`); the lab `game/dev/level-collision/` (`tools/build_level_collision_lab.gd`) |
 | `godot/game/world/elevation/room_faces.gd` | [Faces in rooms](#faces-in-rooms): the level changes inside dungeon rooms drawn as the room's own bevel faces, their footprint as level-collision cells (a room's collision, and what Fill copies there) and the back faces' marks |
 | `godot/tools/render_room_collision.gd` | Captures a world in the running game with its collision drawn over it (each level's outline or painted cells in its colour, static bodies, decks, the cells hazards catch on); run windowed |
-| `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`) |
+| `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`); its Inspector's Wall Styles section picks this world's wall per ground |
 | `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3, stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
+| `godot/game/world/elevation/cliffs/ground_wall_styles.gd`, `ground_wall_styles.tres` | Each ground's default wall style, edited in the Inspector (one drop-down per ground) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |
-| `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Ground (patches), shade (holes), stairs and ramp shaders; the light by height they and the walls share |
-| `godot/asset/MAPS/elevation/` | Tool output: walls and stairs (`scripts/art/build-elevation-art.py`), `storybook-rock-*` (`scripts/art/build-elevation-art-from-painting.py`), side strips and corner stones (`scripts/art/build-side-wall-art.py`) |
+| `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Ground (patches), shade (holes), top light (raised tops, `elevation_top_light.gdshader`), stairs and ramp shaders; the light by height they and the walls share |
+| `godot/asset/MAPS/elevation/` | Tool output: walls and stairs (`scripts/art/build-elevation-art.py`), `storybook-rock-*` (`scripts/art/build-elevation-art-from-painting.py`), side strips and corner stones (`scripts/art/build-side-wall-art.py`), wall variants (`scripts/art/build-wall-variants.py`, [Wall variation](#wall-variation)) |
 | `asset/Originals/elevation/cliff-kit/` | The aligned H paintings `kit-h2.png`, `kit-h3.png` (`scripts/art/build-cliff-kit.py`), the storybook wall's source ([Storybook art](#storybook-art)) |
 | `asset/Originals/elevation/generated/` | Generated sources |
 | `asset/Originals/elevation/stairs-mockups/` | The stairs design of 2026-10-06 (landings, railings; replaced on 2026-10-11): spec (README.md), renderer, mockups |
@@ -1375,4 +1820,4 @@ with side walls (the playground: 0.56 s from its cache, 2.1 s built).
 | `godot/tools/render_stairs_walk.gd` | Records the [stairs walk](#stairs-walk) in the running game |
 | `asset/Originals/elevation/side-walls/` | The side-wall concepts of 2026-10-13 (concept-d the target), two inner-corner concepts, and the side art's sources (`corner-stones-a.png` used; `-b`, `side-strip-a/-b` candidates) |
 | `scripts/art/build-side-wall-art.py` | A style's side strip and corner stones ([Side walls](#side-walls)) |
-| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight (the stairs walk: its time, a step sideways halfway carried to the foot), enemies kept off every flight, stairs coloured by their ground, the capped strip, closed terrain outlines and a collision with no gap a body fits through (stairs and drawn walls included), the park's walls in every style (painted or by ground), on every ground and standing in water, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), walking along a back face past a tip, a passage opened through a face walked into, walking behind a hill and the ghost |
+| `godot/tests/test_elevation.gd` | Shapes, holes, a flight's geometry and levels (set into a face, running out, the way past its ends), stairs on every side (posts and side walls, no landing, hidden parts), every showcase flight walked through both ends, climbing and walking up a side flight (the stairs walk: its time, a step sideways halfway carried to the foot), enemies kept off every flight, stairs knowing their ground and coloured by the wall they are cut into, the capped strip, closed terrain outlines and a collision with no gap a body fits through (stairs and drawn walls included), the park's walls in every style (painted or by ground), on every ground and standing in water, stairs, drop and hop targets on every shape, a rim that holds then drops (a square and a diamond), walking along a back face past a tip, a passage opened through a face walked into, walking behind a hill and the ghost |

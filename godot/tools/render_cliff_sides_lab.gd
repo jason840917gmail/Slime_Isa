@@ -10,6 +10,8 @@ extends SceneTree
 ## (`world.png`), with `--wall-style=<style>` (its grass's wall style) set in memory only: the scene
 ## file is not touched; `--rect=<x>,<y>,<w>,<h>` (cells) adds a close-up of it at 2x
 ## (`close-2x.png`).
+## `--wall-variation=on|off` sets the world's wall variation (ground metadata `cliff_wall_variation`,
+## docs/godot/ELEVATION.md "Wall variation") in memory only, for comparing the walls with and without it.
 
 const Services := preload("res://game/shared/services.gd")
 const SCENE := "res://game/scenes/worlds/dev/cliff-sides-lab.tscn"
@@ -43,6 +45,7 @@ func _initialize() -> void:
 	var collision := false
 	var scene := SCENE
 	var wall_style := ""
+	var wall_variation := ""
 	var close_rect := Rect2()
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
@@ -55,6 +58,8 @@ func _initialize() -> void:
 			scene = arg.trim_prefix("--scene=")
 		elif arg.begins_with("--wall-style="):
 			wall_style = arg.trim_prefix("--wall-style=")
+		elif arg.begins_with("--wall-variation="):
+			wall_variation = arg.trim_prefix("--wall-variation=")
 		elif arg.begins_with("--rect="):
 			var r := arg.trim_prefix("--rect=").split(",")
 			close_rect = Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
@@ -74,6 +79,8 @@ func _initialize() -> void:
 		var styles: Dictionary = ground.get_meta(&"cliff_wall_styles", {}).duplicate()
 		styles["highland"] = wall_style
 		ground.set_meta(&"cliff_wall_styles", styles)
+	if wall_variation != "":
+		ground.set_meta(&"cliff_wall_variation", wall_variation == "on")
 	var areas_1x := AREAS
 	var close_ups := CLOSE_UPS
 	if scene != SCENE:
