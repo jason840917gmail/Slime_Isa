@@ -35,7 +35,9 @@ func _process(_delta: float) -> void:
 		var npc_id := str(node.get(&"npc_definition_id"))
 		if npc_id.is_empty() or not QuestCatalog.has_npc(npc_id) or not node.has_method(&"get_phaser_position"):
 			continue
-		_add_tag(body, node.call(&"get_phaser_position"), QuestCatalog.npc_name(npc_id))
+		var rise: Variant = node.get(&"name_tag_rise")
+		_add_tag(body, node.call(&"get_phaser_position"), QuestCatalog.npc_name(npc_id),
+				float(rise) if rise != null and float(rise) > 0.0 else TAG_RISE)
 
 
 ## The tag text over the NPC whose body is `body` ("" when it has none; tests).
@@ -45,7 +47,7 @@ static func tag_text(body: Node) -> String:
 	return label.text if label != null else ""
 
 
-func _add_tag(body: Node2D, phaser_position: Vector2, text: String) -> void:
+func _add_tag(body: Node2D, phaser_position: Vector2, text: String, rise: float = TAG_RISE) -> void:
 	var tag := Node2D.new()
 	tag.name = TAG_NAME
 	tag.position = Vector2(0.0, SORT_OFFSET)
@@ -61,7 +63,8 @@ func _add_tag(body: Node2D, phaser_position: Vector2, text: String) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.add_child(label)
 	body.add_child(tag)
-	# Bottom centre at the old position - TAG_RISE, in the body's (unscaled) space.
+	# Bottom centre at the old position - the rise (TAG_RISE, or a villager's `name_tag_rise`), in
+	# the body's (unscaled) space.
 	var size := label.get_minimum_size()
-	var bottom_centre := (phaser_position - body.global_position) - Vector2(0.0, TAG_RISE + SORT_OFFSET)
+	var bottom_centre := (phaser_position - body.global_position) - Vector2(0.0, rise + SORT_OFFSET)
 	label.position = (bottom_centre - Vector2(size.x / 2.0, size.y)).round()

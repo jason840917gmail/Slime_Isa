@@ -90,14 +90,15 @@
         "sally-port-way-out": "level-1-c4",
         "burrow-hole": "level-1-d4",
         "armoury-door": "level-1-d4",
-        "watchkeeper-hideout-door": "level-1-c4"
+        "watchkeeper-hideout-door": "level-1-c4",
+        "sally-port-hole": "level-1-c4"
       },
       "spawn": "level-1-c4",
       "written": {
-        "level-1-c4": 3602641137,
-        "level-1-d4": 2042558398,
-        "level-1-c5": 4280287558,
-        "level-1-d5": 3732679025
+        "level-1-c4": 3602641137.0,
+        "level-1-d4": 2042558398.0,
+        "level-1-c5": 4280287558.0,
+        "level-1-d5": 3732679025.0
       }
     },
     "north-wilds": {
@@ -233,7 +234,15 @@
         "west-village-b5": "B5"
       },
       "arrivals": {},
-      "doors": {},
+      "doors": {
+        "west-village-shop-door": "west-village-b4",
+        "west-village-inn-door": "west-village-b4",
+        "west-village-town-hall-door": "west-village-b4",
+        "west-village-bathhouse-door": "west-village-b4",
+        "west-village-bakery-door": "west-village-b4",
+        "west-village-herbalist-door": "west-village-b4",
+        "west-village-b4-gatehouse-door": "west-village-b4"
+      },
       "spawn": "west-village-b4",
       "written": {
         "west-village-a4": 1563426300.0,

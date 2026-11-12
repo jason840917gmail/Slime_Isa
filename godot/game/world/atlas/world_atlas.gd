@@ -29,7 +29,9 @@ extends Node2D
 ##
 ## The world scenes themselves never change: the placeholder worlds are rebuilt for a new layout by
 ## godot/tools/build_region_worlds.gd, and the exits of the real worlds are fixed in their own
-## scenes ("Open world" on a slot).
+## scenes ("Open world" on a slot). "Edit area" (the root's `edit_area`, or a region's slot) opens a
+## few chunk worlds joined into one scene, to edit what crosses their lines
+## (game/dev/area_edit/area_edit.gd); the areas open for editing are outlined on the atlas.
 ##
 ## The world scenes are read from disk and instanced one per frame, so the editor stays usable
 ## while they load, as instances with no owner: never saved with the atlas and never selectable
@@ -45,6 +47,7 @@ const WorldMapData := preload("res://game/world/atlas/world_map_data.gd")
 const AtlasRegion := preload("res://game/world/atlas/atlas_region.gd")
 const WorldSurvey := preload("res://game/world/atlas/atlas_world_survey.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const EditorDialogs := preload("res://game/shared/editor_dialogs.gd")
 
 ## The sketch's colour of each terrain (TERRAINS of the sketch tool, scripts/story/world-map/index.html).
 const TERRAIN_COLORS := {
@@ -106,6 +109,10 @@ const SETTLE_MS := 600
 const SHELF_NODE := "Interiors"
 const STALE_NOTE := "is a placeholder built for another layout."
 const REBUILD_PLACEHOLDERS := "\"<Godot 4.7.2 console exe>\" --headless --path godot -s res://tools/build_region_worlds.gd"
+## The area editor (a dev tool, read when first used, so this script loads without it in exported
+## builds) and the colour of the chunks picked for it and of the areas open.
+const AREA_EDIT := "res://game/dev/area_edit/area_edit.gd"
+const AREA_COLOR := Color("#ffd166")
 
 ## The world map shown and edited.
 @export_file("*.json") var map_path: String = WorldMapData.PATH:
@@ -149,9 +156,17 @@ const REBUILD_PLACEHOLDERS := "\"<Godot 4.7.2 console exe>\" --headless --path g
 	set(value):
 		show_interiors = value
 		_worlds_switched()
+## The chunks "Edit area" joins into one scene to edit ("E4:F5", at most 6 chunks; empty: the region
+## selected in the editor).
+@export var edit_area := "":
+	set(value):
+		edit_area = value
+		if _marks != null:
+			_marks.queue_redraw()
 @export_tool_button("Reload", "Reload") var reload_button: Callable = reload
 @export_tool_button("Save layout", "Save") var save_button: Callable = save_layout
 @export_tool_button("Refresh worlds", "Reload") var refresh_button: Callable = refresh_worlds
+@export_tool_button("Edit area", "Edit") var edit_area_button: Callable = open_area
 
 ## The world map as saved, and with the pending moves applied (neither is ever changed in place).
 var map: WorldMapData
@@ -195,6 +210,10 @@ var _sketch_texture: ImageTexture
 var _sketch: Painter
 var _marks: Painter
 var _shelf: Node2D
+## The areas open for editing ({scene path: chunk rect}), read on Reload, Refresh worlds and Edit area.
+var _open_areas := {}
+static var _area_script: GDScript
+static var _area_missing := false
 
 
 func _ready() -> void:
@@ -238,6 +257,7 @@ func _get_configuration_warnings() -> PackedStringArray:
 ## Reads the world map again and rebuilds everything (pending moves are dropped).
 func reload() -> void:
 	WorldChunks.reload()
+	_open_areas = _read_open_areas()
 	var loaded := WorldMapData.load_file(map_path)
 	if loaded == null:
 		_warnings = PackedStringArray(["Cannot read the world map %s." % map_path])
@@ -345,6 +365,7 @@ func _adopt(loaded: WorldMapData) -> void:
 func refresh_worlds() -> void:
 	_index = WorldSurvey.scene_index()
 	WorldChunks.reload()
+	_open_areas = _read_open_areas()
 	for holder in holders():
 		var slot := holder as AtlasRegion
 		_assign_scene(slot)
@@ -352,6 +373,137 @@ func refresh_worlds() -> void:
 	_surveys.clear()
 	_check()
 	_queue_all()
+
+
+## Opens the chunks `edit_area` names (else the block of the region selected in the editor) joined
+## into one scene to edit (docs/godot/WORLD_ATLAS.md "Editing an area").
+func open_area() -> void:
+	if _area_tool() == null:
+		_area_notice("Edit area: the area editor (%s) is not in this build." % AREA_EDIT)
+		return
+	var rect: Rect2i = _area_tool().parse_rect(edit_area)
+	var editor := _editor()
+	if not rect.has_area() and editor != null:
+		for node: Node in (editor.call(&"get_selection") as Object).call(&"get_selected_nodes"):
+			var slot := node as AtlasRegion
+			if slot != null and not slot.interior:
+				rect = Rect2i(slot.chunk(), slot.block_size)
+	if not rect.has_area():
+		_area_notice("Edit area: type the chunks in edit_area (as E4:F5), or select a region first.")
+		return
+	open_area_rect(rect)
+
+
+## Opens the chunks of `rect` joined into one scene to edit; an area of those chunks that is already
+## open opens as it is (its edits not written back are kept). Refused while a chunk of it is open in
+## a tab (the tab keeps its own copy), another area open in a tab holds some of its chunks, or moves
+## are pending (the chunks' names follow the saved layout). Another area holding some of its chunks
+## whose tab is closed goes when it has no edits not written back; with edits (or with
+## `discard_held`) the person is asked first (`_ask_discard`).
+func open_area_rect(rect: Rect2i, discard_held: bool = false) -> void:
+	var editor := _editor()
+	var tool := _area_tool()
+	if editor == null or map == null or tool == null:
+		return
+	var path: String = tool.scene_path(rect)
+	if not FileAccess.file_exists(path):
+		var problems := PackedStringArray()
+		if not _moves.is_empty():
+			problems.append("moves are pending: Save layout or Reload first")
+		var tabs: PackedStringArray = editor.call(&"get_open_scenes")
+		for part: Dictionary in tool.parts_of(rect, map.chunk_units(), problems):
+			if tabs.has(part["path"]):
+				problems.append("%s is open in a tab (it keeps its own copy): close it first" % part["chunk"])
+		_open_areas = tool.open_areas()
+		var held := PackedStringArray()
+		for other: String in _open_areas:
+			if not (_open_areas[other] as Rect2i).intersects(rect):
+				continue
+			var other_name: String = tool.rect_name(_open_areas[other])
+			if tabs.has(other):
+				problems.append("the area %s holds some of these chunks and is open in a tab: Write back or Close area on its root first" % other_name)
+			elif tool.has_edits(other) and not discard_held:
+				held.append(other)
+			else:
+				tool.discard(other)
+				print("Edit area: dropped the area %s (%s)" % [other_name, "its edits discarded" if discard_held else "no edits in it"])
+		_open_areas = tool.open_areas()
+		if not problems.is_empty():
+			_area_notice("Edit area %s: %s." % [tool.rect_name(rect), "; ".join(problems)])
+			return
+		if not held.is_empty():
+			_ask_discard(rect, held)
+			return
+		var result: Dictionary = tool.open(rect, map, true)
+		if not str(result["error"]).is_empty():
+			_area_notice("Edit area: " + str(result["error"]))
+			return
+		for note: String in result["notes"]:
+			push_warning("Edit area: " + note)
+		(editor.call(&"get_resource_filesystem") as Object).call(&"update_file", path)
+		_open_areas = tool.open_areas()
+	_area_notice("")
+	editor.call(&"open_scene_from_path", path)
+
+
+## Asks before discarding the areas `held` (scene paths, their tabs closed), which hold some of
+## `rect`'s chunks and edits not written back: discard them and open `rect`, or open the first of
+## them (to write it back).
+func _ask_discard(rect: Rect2i, held: PackedStringArray) -> void:
+	var editor := _editor()
+	var tool := _area_tool()
+	var names := PackedStringArray()
+	for other in held:
+		names.append(tool.rect_name(_open_areas[other]))
+	var first: Rect2i = _open_areas[held[0]]
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "Edit area"
+	dialog.dialog_text = ("The area %s holds some of the chunks of %s and has edits not written back (closing its tab\n"
+			+ "keeps an area; Close area on its root drops it).\n\nDiscard those edits and open %s?") % [
+			", ".join(names), tool.rect_name(rect), tool.rect_name(rect)]
+	dialog.ok_button_text = "Discard and open"
+	dialog.add_button("Open %s instead" % names[0], true, "open_held")
+	# Freed through EditorDialogs (the editor's progress popup may have moved into it).
+	dialog.confirmed.connect(func() -> void: open_area_rect(rect, true))
+	dialog.custom_action.connect(func(_action: StringName) -> void:
+		EditorDialogs.close(dialog)
+		open_area_rect(first))
+	EditorDialogs.popup(editor, dialog)
+
+
+## Shows why Edit area did nothing: in a dialog, the atlas's banner and its warnings ("" clears it).
+func _area_notice(text: String) -> void:
+	_notice = text
+	if not text.is_empty():
+		push_warning(text)
+		var editor := _editor()
+		if editor != null:
+			EditorDialogs.notice(editor, "Edit area", text.replace("; ", ";\n"))
+	_check()
+	if _marks != null:
+		_marks.queue_redraw()
+
+
+## The area editor, read when first used; null in a build without it (an export leaves
+## game/dev/area_edit out).
+static func _area_tool() -> GDScript:
+	if _area_script == null and not _area_missing:
+		_area_script = load(AREA_EDIT) as GDScript if ResourceLoader.exists(AREA_EDIT) else null
+		_area_missing = _area_script == null
+	return _area_script
+
+
+## The areas open for editing ({scene path: chunk rect}); none without the area editor.
+static func _read_open_areas() -> Dictionary:
+	var tool := _area_tool()
+	return tool.open_areas() if tool != null else {}
+
+
+## The editor's interface, null outside the editor.
+static func _editor() -> Object:
+	if Engine.is_editor_hint() and Engine.has_singleton(&"EditorInterface"):
+		return Engine.get_singleton(&"EditorInterface")
+	return null
 
 
 # --- slots ----------------------------------------------------------------------------------
@@ -650,14 +802,14 @@ func _load(slot: AtlasRegion) -> void:
 func _load_chunks(slot: AtlasRegion) -> void:
 	var corner := Vector2i(1 << 20, 1 << 20)
 	for chunk_name: String in slot.chunk_scenes:
-		corner = corner.min(_chunk_coords(chunk_name))
+		corner = corner.min(WorldMapData.chunk_coords(chunk_name))
 	var parts: Array = []
 	var surveys: Array = []
 	for chunk_name: String in slot.chunk_names():
 		var packed := ResourceLoader.load(slot.chunk_scenes[chunk_name], "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
 		if packed == null:
 			continue
-		var offset := Vector2(_chunk_coords(chunk_name) - corner) * slot.chunk_units
+		var offset := Vector2(WorldMapData.chunk_coords(chunk_name) - corner) * slot.chunk_units
 		parts.append({"packed": packed, "offset": offset})
 		surveys.append({"survey": WorldSurvey.read(packed), "offset": offset})
 	_surveys[slot.map_id] = WorldSurvey.merge(slot.map_id, surveys) if not surveys.is_empty() else {}
@@ -670,10 +822,6 @@ func _load_chunks(slot: AtlasRegion) -> void:
 	_build_sketch()
 	_marks.queue_redraw()
 
-
-## Chunk "C6" as grid coordinates (2, 5).
-static func _chunk_coords(chunk_name: String) -> Vector2i:
-	return Vector2i(WorldMapData.COLUMN_LETTERS.find(chunk_name.left(1)), int(chunk_name.substr(1)) - 1)
 
 
 ## `_trim_to_region` for one chunk world of a cut region, `offset` (world units) into its block.
@@ -1006,6 +1154,9 @@ func _check() -> void:
 		found.append("Save layout: " + _save_note)
 	if _notice != "":
 		found.append(_notice)
+	for path: String in _open_areas:
+		found.append("Chunks %s are open as one scene (%s): edit them there and Write back on its root; a chunk saved meanwhile in its own tab stops the write-back." % [
+				_area_tool().rect_name(_open_areas[path]) if _area_tool() != null else "", path])
 	for entry: Dictionary in plan.regions():
 		var key := str(entry.get("key", ""))
 		var notes := _check_region(entry)
@@ -1271,6 +1422,7 @@ func _paint_marks(canvas: Node2D) -> void:
 	if show_signs:
 		_paint_signs(canvas, font)
 	_paint_moves(canvas)
+	_paint_areas(canvas, font)
 	canvas.draw_rect(Rect2(Vector2.ZERO, grid), FRAME_COLOR, false, FRAME)
 	_paint_banner(canvas, font)
 	if show_interiors and _shelf.get_child_count() > 0:
@@ -1398,6 +1550,23 @@ func _paint_moves(canvas: Node2D) -> void:
 			var block := Rect2(slot.position, Vector2(slot.block_size) * slot.chunk_units)
 			canvas.draw_rect(block, REFUSED_COLOR * Color(1, 1, 1, 0.3))
 			canvas.draw_rect(block, REFUSED_COLOR, false, FRAME)
+
+
+## The chunks `edit_area` names (dashed) and the areas open for editing (tinted, named); drawn with
+## the signs off too.
+func _paint_areas(canvas: Node2D, font: Font) -> void:
+	if _area_tool() == null:
+		return
+	var chunk := plan.chunk_units()
+	var picked: Rect2i = _area_tool().parse_rect(edit_area)
+	if picked.has_area():
+		_dashed(canvas, Rect2(Vector2(picked.position) * chunk, Vector2(picked.size) * chunk).grow(-OUTLINE), AREA_COLOR, OUTLINE)
+	for path: String in _open_areas:
+		var rect: Rect2i = _open_areas[path]
+		var box := Rect2(Vector2(rect.position) * chunk, Vector2(rect.size) * chunk)
+		canvas.draw_rect(box, AREA_COLOR * Color(1, 1, 1, 0.12))
+		canvas.draw_rect(box.grow(-OUTLINE * 0.5), AREA_COLOR, false, OUTLINE)
+		_text(canvas, font, box.position + Vector2(PAD, box.size.y - PAD), "Open as one scene: " + path.get_file(), INFO_FONT, AREA_COLOR)
 
 
 func _dashed(canvas: Node2D, rect: Rect2, color: Color, width: float) -> void:

@@ -24,14 +24,21 @@ class_name DoorScript
 ## - "door": a real door. The leaf swings open over `doorOpenMs` (game/world/door_leaf.gd, built
 ##   over the house's art: `house_art`, `door_rect`, `door_arch`, `hinge`, `double_leaf`; or a
 ##   separate leaf picture, `leaf_art_path`), `open_cue` plays, then the slime walks into the
-##   doorway (below). Arriving through it the leaf stands open while the slime walks out, then
+##   doorway (below). Without a `house_art` the house is found under `door_rect` (`_find_house_art`:
+##   a house painted on a prop layer is no node of the scene to point at). Without a `door_rect`
+##   the door takes the house's own door frame (game/world/door_frame.gd, `door_frame`): the leaf
+##   swings there, and the slime's picture first walks from where it stands up to the frame's sill
+##   (a porch, steps, a stair) at `doorApproachSpeed`, the leaf opening as it gets there. Without
+##   a frame or a rect nothing swings: only the cues and the walk in play. Arriving through it the leaf stands open while the slime walks out, then
 ##   closes behind it over `doorCloseMs` with `close_cue`. An interior's way out has its own door
 ##   picture as `house_art` (a Sprite2D in the room). Without leaf art only the cues play.
 ## - "opening": a gap, a cave mouth, a hole in a wall: `use_cue`, and the walk into the doorway.
 ## - The walk into the doorway (a door with a side, "door" or "opening"; docs/design/
 ##   2026-10-31-crossings-and-arrivals.md D4): the slime's picture walks out of the room, into the
 ##   doorway and `WALK_IN_PAST_PX` past the door node, fading into the dark, over `doorWalkInMs`
-##   while the iris waits; arriving it walks out on the other side (below).
+##   while the iris waits; arriving it walks out on the other side (below). With a door frame the
+##   walk goes to the frame's sill first, and arriving the picture comes down from the sill before
+##   the body walks out (`play_arrival`).
 ## - "ladder_down": a hole with a ladder: the slime slides to the hole's middle, sinking and shrinking
 ##   into it over `ladderClimbMs` (`use_cue`). Arriving at one (it came up the ladder) it rises out
 ##   of the hole, small to full size (`play_arrival`).
@@ -60,6 +67,7 @@ class_name DoorScript
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Services := preload("res://game/shared/services.gd")
 const DoorLeaf := preload("res://game/world/door_leaf.gd")
+const DoorFrame := preload("res://game/world/door_frame.gd")
 
 ## Contract of game/world/area_travel.gd: doors are found by `door_id` in this group.
 const GROUP := &"door"
@@ -125,8 +133,10 @@ signal arrived
 @export var use_cue: StringName = &"DoorUse"
 @export_group("Door leaf")
 ## The house sprite the door is painted into (its texture under `door_rect` becomes the leaf).
+## Empty: the house whose picture is under the middle of `door_rect` (`_find_house_art`).
 @export var house_art: Sprite2D
-## The painted door, relative to the door's parent (world units).
+## The painted door, relative to the door's parent (world units). Empty: the house's own door
+## frame (game/world/door_frame.gd), the nearest within `worldNavigation.doorFrameReachPx`.
 @export var door_rect: Rect2 = Rect2()
 ## The arch at the top of `door_rect` (world units; 0 = square).
 @export var door_arch: float = 0.0
@@ -154,6 +164,7 @@ var _push_ms: float = 0.0
 var _refused: bool = false
 var _leaf: DoorLeaf
 var _leaf_tween: Tween
+var _frame: DoorFrame
 ## Arrived through this door: close the leaf once the slime has walked out.
 var _close_pending: bool = false
 ## A bell opened this door for good, so arrivals must not close it behind the slime.
@@ -337,9 +348,9 @@ static func opposite(door_side: String) -> String:
 func lead_ms() -> float:
 	match kind:
 		"door":
-			return _leaf_open_ms() + _walk_in_ms()
+			return maxf(_leaf_open_ms(), _approach_ms()) + _walk_in_ms()
 		"opening":
-			return _walk_in_ms()
+			return _approach_ms() + _walk_in_ms()
 		"ladder_down", "ladder_up":
 			return _number("ladderClimbMs", 450.0)
 		"fall":
@@ -357,6 +368,36 @@ func _walk_in_ms() -> float:
 	return _number("doorWalkInMs", 0.0) if has_side() else 0.0
 
 
+## The house's door frame this door uses (game/world/door_frame.gd): a `door` or an `opening` with
+## a side and no `door_rect` of its own takes the nearest frame within `doorFrameReachPx` of the
+## door node. Null without one.
+func door_frame() -> DoorFrame:
+	if _frame != null and is_instance_valid(_frame):
+		return _frame
+	_frame = null
+	if (kind != "door" and kind != "opening") or not has_side() or door_rect.size.x > 0.0 or not is_inside_tree():
+		return null
+	var parent := get_parent() as Node2D
+	if parent != null:
+		_frame = DoorFrame.nearest(get_tree(), parent.global_position, _number("doorFrameReachPx", 120.0))
+	return _frame
+
+
+## From the slime's feet to the door frame's sill (world units); ZERO without a frame.
+func _to_sill() -> Vector2:
+	var frame := door_frame()
+	var world := Services.world()
+	if frame == null or world == null or world.player_body == null:
+		return Vector2.ZERO
+	return frame.sill() - world.player_body.global_position
+
+
+## How long the slime's picture takes to walk to the frame's sill (0 without a frame).
+func _approach_ms() -> float:
+	var speed := _number("doorApproachSpeed", 200.0)
+	return _to_sill().length() / speed * 1000.0 if speed > 0.0 else 0.0
+
+
 ## Goes through the door (UniversalSceneWorldController.doorCandidate): main's `request_exit`
 ## result. Queued, it plays the door's lead-in and cue (the gate's unlock cue first when the push
 ## unlocked it).
@@ -365,6 +406,8 @@ func use() -> Dictionary:
 	if main == null or not main.has_method(&"request_exit"):
 		return {"status": "blocked", "message": "Navigation unavailable"}
 	var was_locked := _is_locked()
+	# A house found by its place may have been built after this door (a painted prop).
+	_build_leaf()
 	var lead := lead_ms()
 	var lock := gate.duplicate()
 	if not lock.is_empty() and not lock.has("unlockedMessage"):
@@ -423,6 +466,18 @@ func play_arrival(player: Node, delay_ms: float) -> float:
 			effect_step(tween, player, deep, risen, ms * RISE_SHARE).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			effect_step(tween, player, risen, EFFECT_REST, ms * (1.0 - RISE_SHARE))
 			return delay_ms + ms
+		"door", "opening":
+			# Out of a house's door frame: the picture comes down from the sill, then the body walks out.
+			var to_sill := _to_sill()
+			var approach := _approach_ms()
+			if to_sill == Vector2.ZERO or approach <= 0.0:
+				return 0.0
+			var at_sill := {"offset": to_sill, "scale": 1.0, "alpha": 1.0}
+			var tween := arrival_tween(player, at_sill, delay_ms)
+			if tween == null:
+				return 0.0
+			effect_step(tween, player, at_sill, EFFECT_REST, approach)
+			return delay_ms + approach
 	return 0.0
 
 
@@ -463,14 +518,18 @@ func _play_lead(lead: float) -> void:
 	var player: Node = world.get(&"player") if world != null else null
 	match kind:
 		"door":
-			_cue(open_cue)
+			# The leaf is open when the slime reaches the doorway (at once, standing in it).
 			var swing := _leaf_open_ms()
+			var before := maxf(swing, _approach_ms())
 			if has_leaf():
-				_swing(1.0, swing)
-			_walk_in(player, swing, lead - swing)
+				_swing(1.0, swing, before - swing, open_cue)
+			else:
+				_cue(open_cue)
+			_walk_in(player, before, lead - before)
 		"opening":
 			_cue(use_cue)
-			_walk_in(player, 0.0, lead)
+			var approach := _approach_ms()
+			_walk_in(player, approach, lead - approach)
 		"ladder_down":
 			_cue(use_cue)
 			_sink(player, lead, false)
@@ -498,6 +557,16 @@ func _walk_in(player: Node, delay_ms: float, ms: float) -> void:
 	player.call(&"face", out)
 	var tween: Tween = player.call(&"effect_tween")
 	if tween == null:
+		return
+	var to_sill := _to_sill()
+	if to_sill != Vector2.ZERO:
+		# A house's door frame: up to its sill first (a porch, steps), then into the doorway.
+		var approach := minf(_approach_ms(), delay_ms)
+		var at_sill := {"offset": to_sill, "scale": 1.0, "alpha": 1.0}
+		effect_step(tween, player, EFFECT_REST, at_sill, approach)
+		if delay_ms > approach:
+			tween.tween_interval((delay_ms - approach) / 1000.0)
+		effect_step(tween, player, at_sill, {"offset": to_sill + out * WALK_IN_PAST_PX, "scale": 1.0, "alpha": 0.0}, ms)
 		return
 	if delay_ms > 0.0:
 		tween.tween_interval(delay_ms / 1000.0)
@@ -551,11 +620,16 @@ static func effect_step(tween: Tween, player: Node, from: Dictionary, to: Dictio
 		player.call(&"set_effect_alpha", lerpf(float(from["alpha"]), float(to["alpha"]), t * t)), 0.0, 1.0, maxf(ms, 1.0) / 1000.0)
 
 
-func _swing(to: float, ms: float) -> void:
+## Swings the leaf to `to` (0 shut, 1 open) over `ms`, after `delay_ms`, `cue` playing as it starts.
+func _swing(to: float, ms: float, delay_ms: float = 0.0, cue: StringName = &"") -> void:
 	if not has_leaf():
 		return
 	_kill_leaf_tween()
 	_leaf_tween = _leaf.create_tween()
+	if delay_ms > 0.0:
+		_leaf_tween.tween_interval(delay_ms / 1000.0)
+	if cue != &"":
+		_leaf_tween.tween_callback(_cue.bind(cue))
 	_leaf_tween.tween_property(_leaf, "progress", to, maxf(ms, 1.0) / 1000.0) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT if to > 0.5 else Tween.EASE_IN_OUT)
 
@@ -572,19 +646,40 @@ func _build_leaf() -> void:
 	if kind != "door" or has_leaf() or not is_inside_tree():
 		return
 	var parent := get_parent() as Node2D
+	if parent == null:
+		return
+	# The painted door: this door's own rect, else the house's door frame.
+	var area := door_rect
+	var rise := door_arch
+	var hinge_left := hinge == "left"
+	var two_leaves := double_leaf
 	var sprite := house_art
-	if parent == null or sprite == null or not is_instance_valid(sprite) or door_rect.size.x <= 0.0 or door_rect.size.y <= 0.0:
+	var frame := door_frame()
+	if frame != null:
+		if not frame.swings:
+			return
+		var framed := frame.world_rect()
+		area = Rect2(framed.position - parent.global_position, framed.size)
+		rise = frame.world_arch()
+		hinge_left = frame.hinge == "left"
+		two_leaves = frame.double_leaf
+		sprite = frame.house_art()
+	if area.size.x <= 0.0 or area.size.y <= 0.0:
+		return
+	if sprite == null or not is_instance_valid(sprite):
+		sprite = _find_house_art(parent.global_position + area.get_center(), parent.global_position)
+	if sprite == null:
 		return
 	var leaf := DoorLeaf.new()
 	leaf.name = "DoorLeaf"
 	var scale := sprite.global_scale
 	if is_zero_approx(scale.x) or is_zero_approx(scale.y):
 		return
-	var top_left := sprite.to_local(parent.global_position + door_rect.position)
-	leaf.rect = Rect2(top_left, door_rect.size / scale.abs())
-	leaf.arch = door_arch / absf(scale.y)
-	leaf.hinge_left = hinge == "left"
-	leaf.double = double_leaf
+	var top_left := sprite.to_local(parent.global_position + area.position)
+	leaf.rect = Rect2(top_left, area.size / scale.abs())
+	leaf.arch = rise / absf(scale.y)
+	leaf.hinge_left = hinge_left
+	leaf.double = two_leaves
 	if not leaf_art_path.is_empty():
 		leaf.texture = _load_texture(leaf_art_path)
 		if leaf.texture != null:
@@ -595,6 +690,28 @@ func _build_leaf() -> void:
 		leaf.source = _texture_region(sprite, leaf.rect)
 	sprite.add_child(leaf)
 	_leaf = leaf
+
+
+## The house a door without a `house_art` is painted into: the picture (a StaticBody2D's `Visual`
+## sprite, as the house scenes are built) that is opaque at `at`, the middle of the painted door;
+## of several, the one standing nearest to `door_at`. Looked for in the door's own scene, the
+## props its painted layers made included. Null when there is none.
+func _find_house_art(at: Vector2, door_at: Vector2) -> Sprite2D:
+	var scene := owner if owner != null else get_parent()
+	var found: Sprite2D = null
+	var nearest := INF
+	for node: Node in scene.find_children("*", "StaticBody2D", true, false):
+		var sprite := node.get_node_or_null(^"Visual") as Sprite2D
+		if sprite == null or sprite.texture == null or not sprite.is_visible_in_tree():
+			continue
+		var local := sprite.to_local(at)
+		if not sprite.get_rect().has_point(local) or not sprite.is_pixel_opaque(local):
+			continue
+		var distance := (node as Node2D).global_position.distance_squared_to(door_at)
+		if distance < nearest:
+			nearest = distance
+			found = sprite
+	return found
 
 
 ## `local` (the sprite's local space) as texture pixels of the sprite's current frame.

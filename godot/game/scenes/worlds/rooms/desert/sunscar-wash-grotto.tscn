@@ -1,0 +1,271 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_8wr20"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_xe0qo"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_q56yl"]
+[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="4_e3cjt"]
+[ext_resource type="TileSet" path="res://game/world/elevation/cliffs/cliff_tileset.tres" id="5_fp5go"]
+[ext_resource type="Script" path="res://game/world/elevation/cliffs/cliff_layer.gd" id="6_ci4pq"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="7_pie58"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="8_r7npk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="9_l5fby"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/objects/chest-wooden-2x1.webp" id="10_l88p3"]
+[ext_resource type="Script" path="res://game/scripts/chest.gd" id="11_mwhvl"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-locked.ogg" id="12_autwc"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="13_y5r3c"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="14_ca8v5"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="15_wd1pk"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="16_qui8g"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="17_k588t"]
+[ext_resource type="Script" path="res://game/scripts/liftable_root.gd" id="18_tl13t"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp" id="19_41f2h"]
+[ext_resource type="Script" path="res://game/scripts/liftable.gd" id="20_qrsca"]
+[ext_resource type="Script" path="res://game/dungeon/pot_loot.gd" id="21_m0vga"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaves-fallen.tscn" id="22_a63qg"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-acorns-leaves.tscn" id="23_oiiwq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-red.tscn" id="24_er0n3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaf-big.tscn" id="25_gd3e6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-twigs.tscn" id="26_tt7ea"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="27_4tt4h"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="28_yhcx5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(84, 39)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w15gi"]
+size = Vector2(26, 12)
+
+[node name="sunscar-wash-grotto" type="Node2D" unique_id=312194462]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1197643739]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAABAAAAAAAAAABAAAABAABAAAAAAACAAAABAACAAAAAAADAAAABAADAAAAAAAEAAAABAAEAAAAAAAFAAAABAAFAAAAAAAGAAAABAAGAAAAAAAHAAAABAAHAAAAAAAIAAAABAAIAAAAAAAJAAAABAAJAAAAAAAKAAAABAAKAAAAAAALAAAABAALAAAAAAAMAAAABAAMAAAAAAANAAAABAANAAAAAAAOAAAABAAOAAAAAAAPAAAABAAPAAAAAAAAAAEABAAAAAEAAAABAAEABAABAAEAAAACAAEABAACAAEAAAADAAEABAADAAEAAAAEAAEABAAEAAEAAAAFAAEABAAFAAEAAAAGAAEABAAGAAEAAAAHAAEABAAHAAEAAAAIAAEABAAIAAEAAAAJAAEABAAJAAEAAAAKAAEABAAKAAEAAAALAAEABAALAAEAAAAMAAEABAAMAAEAAAANAAEABAANAAEAAAAOAAEABAAOAAEAAAAPAAEABAAPAAEAAAAAAAIABAAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIABAAPAAIAAAAAAAMABAAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMABAAPAAMAAAAAAAQABAAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQABAAPAAQAAAAAAAUABAAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUABAAPAAUAAAAAAAYABAAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYABAAPAAYAAAAAAAcABAAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAQANAAcAAAAOAAcAAQAOAAcAAAAPAAcABAAPAAcAAAAAAAgABAAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAQANAAgAAAAOAAgAAQAOAAgAAAAPAAgABAAPAAgAAAAAAAkABAAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAQANAAkAAAAOAAkAAQAOAAkAAAAPAAkABAAPAAkAAAAAAAoABAAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAQANAAoAAAAOAAoAAQAOAAoAAAAPAAoABAAPAAoAAAAAAAsABAAAAAsAAAABAAsABAABAAsAAAACAAsABAACAAsAAAADAAsABAADAAsAAAAEAAsABAAEAAsAAAAFAAsABAAFAAsAAAAGAAsABAAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsABAAJAAsAAAAKAAsABAAKAAsAAAALAAsABAALAAsAAAAMAAsABAAMAAsAAAANAAsABAANAAsAAAAOAAsABAAOAAsAAAAPAAsABAAPAAsAAAAAAAwABAAAAAwAAAABAAwABAABAAwAAAACAAwABAACAAwAAAADAAwABAADAAwAAAAEAAwABAAEAAwAAAAFAAwABAAFAAwAAAAGAAwABAAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwABAAJAAwAAAAKAAwABAAKAAwAAAALAAwABAALAAwAAAAMAAwABAAMAAwAAAANAAwABAANAAwAAAAOAAwABAAOAAwAAAAPAAwABAAPAAwAAAA=")
+tile_set = ExtResource("1_8wr20")
+script = ExtResource("2_xe0qo")
+metadata/columns = 16
+metadata/rows = 13
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=1091190405]
+z_index = -1
+tile_map_data = PackedByteArray("AAAAAAAAAAAEAAAAAAABAAAAAAAEAAAAAAACAAAAAAAEAAAAAAADAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAFAAAAAAAEAAAAAAAGAAAAAAAEAAAAAAAHAAAAAAAEAAAAAAAIAAAAAAAEAAAAAAAJAAAAAAAEAAAAAAAKAAAAAAAEAAAAAAALAAAAAAAEAAAAAAAMAAAAAAAEAAAAAAANAAAAAAAEAAAAAAAOAAAAAAAEAAAAAAAPAAAAAAAEAAAAAAAAAAEAAAAEAAAAAAABAAEAAAAEAAAAAAACAAEAAAAEAAAAAAADAAEAAAAEAAAAAAAEAAEAAAAEAAAAAAAFAAEAAAAEAAAAAAAGAAEAAAAEAAAAAAAHAAEAAAAEAAAAAAAIAAEAAAAEAAAAAAAJAAEAAAAEAAAAAAAKAAEAAAAEAAAAAAALAAEAAAAEAAAAAAAMAAEAAAAEAAAAAAANAAEAAAAEAAAAAAAOAAEAAAAEAAAAAAAPAAEAAAAEAAAAAAAAAAIAAAAEAAAAAAAPAAIAAAAEAAAAAAAAAAMAAAAEAAAAAAAPAAMAAAAEAAAAAAAAAAQAAAAEAAAAAAAPAAQAAAAEAAAAAAAAAAUAAAAEAAAAAAAPAAUAAAAEAAAAAAAAAAYAAAAEAAAAAAAPAAYAAAAEAAAAAAAAAAcAAAAEAAAAAAAPAAcAAAAEAAAAAAAAAAgAAAAEAAAAAAAPAAgAAAAEAAAAAAAAAAkAAAAEAAAAAAAPAAkAAAAEAAAAAAAAAAoAAAAEAAAAAAAPAAoAAAAEAAAAAAAAAAsAAAAEAAAAAAABAAsAAAAEAAAAAAACAAsAAAAEAAAAAAADAAsAAAAEAAAAAAAEAAsAAAAEAAAAAAAFAAsAAAAEAAAAAAAGAAsAAAAEAAAAAAAJAAsAAAAEAAAAAAAKAAsAAAAEAAAAAAALAAsAAAAEAAAAAAAMAAsAAAAEAAAAAAANAAsAAAAEAAAAAAAOAAsAAAAEAAAAAAAPAAsAAAAEAAAAAAAAAAwAAAAEAAAAAAABAAwAAAAEAAAAAAACAAwAAAAEAAAAAAADAAwAAAAEAAAAAAAEAAwAAAAEAAAAAAAFAAwAAAAEAAAAAAAGAAwAAAAEAAAAAAAJAAwAAAAEAAAAAAAKAAwAAAAEAAAAAAALAAwAAAAEAAAAAAAMAAwAAAAEAAAAAAANAAwAAAAEAAAAAAAOAAwAAAAEAAAAAAAPAAwAAAAEAAAAAAA=")
+tile_set = ExtResource("3_q56yl")
+script = ExtResource("4_e3cjt")
+
+[node name="cliffs" type="TileMapLayer" parent="." unique_id=1965539004]
+tile_map_data = PackedByteArray("AAAAAAAAAAAIAAAAAAABAAAAAAAIAAAAAAACAAAAAAAIAAAAAAADAAAAAAAIAAAAAAAEAAAAAAAIAAAAAAAFAAAAAAAIAAAAAAAGAAAAAAAIAAAAAAAHAAAAAAAIAAAAAAAIAAAAAAAIAAAAAAAJAAAAAAAIAAAAAAAKAAAAAAAIAAAAAAALAAAAAAAIAAAAAAAMAAAAAAAIAAAAAAANAAAAAAAIAAAAAAAOAAAAAAAIAAAAAAAPAAAAAAAIAAAAAAAAAAEAAAAIAAAAAAABAAEAAAAIAAAAAAACAAEAAAAIAAAAAAADAAEAAAAIAAAAAAAEAAEAAAAIAAAAAAAFAAEAAAAIAAAAAAAGAAEAAAAIAAAAAAAHAAEAAAAIAAAAAAAIAAEAAAAIAAAAAAAJAAEAAAAIAAAAAAAKAAEAAAAIAAAAAAALAAEAAAAIAAAAAAAMAAEAAAAIAAAAAAANAAEAAAAIAAAAAAAOAAEAAAAIAAAAAAAPAAEAAAAIAAAAAAAAAAIAAAAIAAAAAAAPAAIAAAAIAAAAAAAAAAMAAAAIAAAAAAAPAAMAAAAIAAAAAAAAAAQAAAAIAAAAAAAPAAQAAAAIAAAAAAAAAAUAAAAIAAAAAAAPAAUAAAAIAAAAAAAAAAYAAAAIAAAAAAAPAAYAAAAIAAAAAAAAAAcAAAAIAAAAAAAPAAcAAAAIAAAAAAAAAAgAAAAIAAAAAAAPAAgAAAAIAAAAAAAAAAkAAAAIAAAAAAAPAAkAAAAIAAAAAAAAAAoAAAAIAAAAAAAPAAoAAAAIAAAAAAAAAAsAAAAIAAAAAAABAAsAAAAIAAAAAAACAAsAAAAIAAAAAAADAAsAAAAIAAAAAAAEAAsAAAAIAAAAAAAFAAsAAAAIAAAAAAAGAAsAAAAIAAAAAAAJAAsAAAAIAAAAAAAKAAsAAAAIAAAAAAALAAsAAAAIAAAAAAAMAAsAAAAIAAAAAAANAAsAAAAIAAAAAAAOAAsAAAAIAAAAAAAPAAsAAAAIAAAAAAAAAAwAAAAIAAAAAAABAAwAAAAIAAAAAAACAAwAAAAIAAAAAAADAAwAAAAIAAAAAAAEAAwAAAAIAAAAAAAFAAwAAAAIAAAAAAAGAAwAAAAIAAAAAAAJAAwAAAAIAAAAAAAKAAwAAAAIAAAAAAALAAwAAAAIAAAAAAAMAAwAAAAIAAAAAAANAAwAAAAIAAAAAAAOAAwAAAAIAAAAAAAPAAwAAAAIAAAAAAA=")
+tile_set = ExtResource("5_fp5go")
+script = ExtResource("6_ci4pq")
+
+[node name="world-definition" type="Node" parent="." unique_id=41349411]
+script = ExtResource("7_pie58")
+map_id = "sunscar-wash-grotto"
+tile_size = 64
+columns = 16
+rows = 13
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 512,
+"y": 614
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=462718513]
+position = Vector2(512, 614.4)
+
+[node name="sunscar-wash-grotto-door" type="Node2D" parent="." unique_id=345615156]
+position = Vector2(512, 808)
+
+[node name="DoorScript" type="Node" parent="sunscar-wash-grotto-door" unique_id=167749173]
+script = ExtResource("8_r7npk")
+map_id = "sunscar-wash-grotto"
+door_id = "sunscar-wash-grotto-door"
+target_area_id = "desert-b8"
+target_door_id = "sunscar-wash-grotto-mouth"
+side = "south"
+trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="Cave" type="Node2D" parent="." unique_id=533134401]
+y_sort_enabled = true
+
+[node name="sunscar-wash-grotto-chest" parent="Cave" unique_id=683169760 instance=ExtResource("9_l5fby")]
+y_sort_enabled = true
+position = Vector2(512, 332.8)
+collision_mask = 0
+
+[node name="BodyShape" parent="Cave/sunscar-wash-grotto-chest" index="0"]
+position = Vector2(0, -1.5)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Cave/sunscar-wash-grotto-chest" index="1"]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("10_l88p3")
+centered = false
+offset = Vector2(-32, -48)
+hframes = 2
+
+[node name="ChestScript" parent="Cave/sunscar-wash-grotto-chest" index="2"]
+script = ExtResource("11_mwhvl")
+map_id = "sunscar-wash-grotto"
+instance_id = "sunscar-wash-grotto-chest"
+initial_contents = {
+"coins": 15,
+"energy-potion": 2
+}
+
+[node name="LockedSfx" parent="Cave/sunscar-wash-grotto-chest" index="3"]
+process_mode = 3
+stream = ExtResource("12_autwc")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("13_y5r3c")
+min_interval_ms = 400.0
+
+[node name="OpenSfx" parent="Cave/sunscar-wash-grotto-chest" index="4"]
+process_mode = 3
+stream = ExtResource("14_ca8v5")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("13_y5r3c")
+
+[node name="CloseSfx" parent="Cave/sunscar-wash-grotto-chest" index="5"]
+process_mode = 3
+stream = ExtResource("15_wd1pk")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("13_y5r3c")
+
+[node name="TakeSfx" parent="Cave/sunscar-wash-grotto-chest" index="6"]
+process_mode = 3
+stream = ExtResource("16_qui8g")
+max_distance = 800.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("13_y5r3c")
+pitch_randomness = 0.06
+
+[node name="cave-pot-a" parent="Cave" unique_id=1565671253 instance=ExtResource("17_k588t")]
+y_sort_enabled = true
+position = Vector2(153.6, 601.6)
+collision_mask = 0
+script = ExtResource("18_tl13t")
+
+[node name="BodyShape" parent="Cave/cave-pot-a" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_w15gi")
+
+[node name="Visual" parent="Cave/cave-pot-a" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("19_41f2h")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-a" index="2"]
+script = ExtResource("20_qrsca")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-a" index="3"]
+script = ExtResource("21_m0vga")
+loot = "heart"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-b" parent="Cave" unique_id=1506249 instance=ExtResource("17_k588t")]
+y_sort_enabled = true
+position = Vector2(870.4, 588.8)
+collision_mask = 0
+script = ExtResource("18_tl13t")
+
+[node name="BodyShape" parent="Cave/cave-pot-b" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_w15gi")
+
+[node name="Visual" parent="Cave/cave-pot-b" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("19_41f2h")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-b" index="2"]
+script = ExtResource("20_qrsca")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-b" index="3"]
+script = ExtResource("21_m0vga")
+loot = "coins"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-c" parent="Cave" unique_id=1119896177 instance=ExtResource("17_k588t")]
+y_sort_enabled = true
+position = Vector2(832, 627.2)
+collision_mask = 0
+script = ExtResource("18_tl13t")
+
+[node name="BodyShape" parent="Cave/cave-pot-c" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_w15gi")
+
+[node name="Visual" parent="Cave/cave-pot-c" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("19_41f2h")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-c" index="2"]
+script = ExtResource("20_qrsca")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-c" index="3"]
+script = ExtResource("21_m0vga")
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-leaves-fallen-30" type="Node2D" parent="Cave" unique_id=959661330 instance=ExtResource("22_a63qg")]
+y_sort_enabled = true
+position = Vector2(192, 345.6)
+
+[node name="cave-acorns-leaves-124" type="Node2D" parent="Cave" unique_id=757178746 instance=ExtResource("23_oiiwq")]
+y_sort_enabled = true
+position = Vector2(793.6, 371.2)
+
+[node name="cave-mushrooms-red-54" type="Node2D" parent="Cave" unique_id=2063892252 instance=ExtResource("24_er0n3")]
+y_sort_enabled = true
+position = Vector2(345.6, 563.2)
+
+[node name="cave-leaf-big-106" type="Node2D" parent="Cave" unique_id=117240791 instance=ExtResource("25_gd3e6")]
+y_sort_enabled = true
+position = Vector2(678.4, 576)
+
+[node name="cave-twigs-70" type="Node2D" parent="Cave" unique_id=502356129 instance=ExtResource("26_tt7ea")]
+y_sort_enabled = true
+position = Vector2(448, 460.8)
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1178736625]
+process_mode = 3
+stream = ExtResource("27_4tt4h")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("28_yhcx5")
+loop = true
+autoplay_cue = true
+
+
+[editable path="Cave/sunscar-wash-grotto-chest"]
+[editable path="Cave/cave-pot-a"]
+[editable path="Cave/cave-pot-b"]
+[editable path="Cave/cave-pot-c"]

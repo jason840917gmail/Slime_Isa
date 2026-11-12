@@ -29,6 +29,9 @@ const CHARACTER_BODY_BOUNDS := {
 const GROUP_NPC := &"npc"
 const GROUP_INTERACTABLE := &"interactable"
 const ANIM_IDLE := "idle"
+## Played instead of "idle" while a dialogue holds the NPC, when its library has it (the West town's
+## villagers, docs/godot/VILLAGERS.md).
+const ANIM_TALK := "talk"
 ## Authored child names used when a node export did not resolve (converter node_paths, C1).
 const VISUAL_NAME := "Visual"
 const ANIMATION_NAME := "Animation"
@@ -91,17 +94,21 @@ func _physics_process(delta: float) -> void:
 		return
 	if _is_paused() or not _has_agent:
 		body.velocity = Vector2.ZERO
-		_play(ANIM_IDLE)
+		_play(_rest_clip())
 	else:
+		_before_step()
 		var result := NpcWanderPolicy.step(_state, get_phaser_position(), delta * 1000.0, wander_speed, _domain)
 		var next_state: Dictionary = result["state"]
 		var clip: String = result["animation"]
-		if clip == ANIM_IDLE and next_state["phase"] == NpcWanderPolicy.PHASE_PAUSE \
-				and float(next_state["pause_remaining_ms"]) == 0.0:
+		var rested: bool = clip == ANIM_IDLE and next_state["phase"] == NpcWanderPolicy.PHASE_PAUSE \
+				and float(next_state["pause_remaining_ms"]) == 0.0
+		if rested:
 			next_state = NpcWanderPolicy.create_state(random_pause(), next_state["facing"])
 		_state = next_state
+		if rested:
+			_on_rest()
 		body.velocity = result["velocity"]
-		_play(clip)
+		_play(_rest_clip() if clip == ANIM_IDLE else clip)
 	ArcadeMover.move(body, delta)
 
 
@@ -123,12 +130,7 @@ func configure_wander(perimeter: Dictionary) -> void:
 		_domain = {}
 		_state = {}
 		return
-	var bounds: Rect2 = Rect2()
-	if CHARACTER_BODY_BOUNDS.has(character_id):
-		bounds = CHARACTER_BODY_BOUNDS[character_id]
-	else:
-		push_warning("NpcScript: no wander body bounds for character '%s'; using a point body" % character_id)
-	_domain = NpcWanderPolicy.wander_domain(perimeter, bounds)
+	_domain = NpcWanderPolicy.wander_domain(perimeter, _body_bounds())
 	_state = NpcWanderPolicy.create_state(random_pause())
 	_has_agent = true
 
@@ -162,7 +164,7 @@ func acquire_interaction_lock() -> Callable:
 	_interaction_locks += 1
 	if body != null:
 		body.velocity = Vector2.ZERO
-	_play(ANIM_IDLE)
+	_play(_rest_clip())
 	_emit_lock_changed()
 	var released := [false]
 	return func() -> void:
@@ -189,6 +191,34 @@ func _is_paused() -> bool:
 
 func _emit_lock_changed() -> void:
 	interaction_lock_changed.emit({"locked": _interaction_locks > 0, "lockCount": _interaction_locks})
+
+
+## The clip of an NPC standing still: "talk" while a dialogue holds it (when it has that clip),
+## else "idle". VillagerScript also faces its last way.
+func _rest_clip() -> String:
+	if _interaction_locks > 0 and animation != null and animation.has_animation(ANIM_TALK):
+		return ANIM_TALK
+	return ANIM_IDLE
+
+
+## The wander body bounds relative to the old root (world spec 5.1): the character's entry in
+## CHARACTER_BODY_BOUNDS, else a point body (with a warning).
+func _body_bounds() -> Rect2:
+	if CHARACTER_BODY_BOUNDS.has(character_id):
+		return CHARACTER_BODY_BOUNDS[character_id]
+	push_warning("NpcScript: no wander body bounds for character '%s'; using a point body" % character_id)
+	return Rect2()
+
+
+## Called each moving tick before the wander policy steps (VillagerScript: a follower's domain).
+func _before_step() -> void:
+	pass
+
+
+## Called when a fresh pause starts (arrived, stuck, or no domain) (VillagerScript: the next stop of
+## a route).
+func _on_rest() -> void:
+	pass
 
 
 ## `NpcScript.play` (NpcScript.ts:171-178): skip the current clip and unknown clips.

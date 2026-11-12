@@ -209,6 +209,12 @@ var _dev_powers := PackedStringArray()
 var _scroll_arrival := false
 ## The facing the current travel asked for (`travel_to` `entry_facing`; "" none), used by the spawn.
 var _arrival_facing := ""
+## The level the slime walked on in the world it left by a scroll (a chunk crossing, a border by
+## coordinates; NO_ARRIVAL_LEVEL: none). The spawn keeps it where that level can stand at the arrival
+## spot (docs/godot/ELEVATION.md "Across chunk lines"): taking the level of the ground seen there put a
+## slime walking in the strip behind a hill on top of that hill in the next chunk (2026-11-06).
+var _arrival_level := NO_ARRIVAL_LEVEL
+const NO_ARRIVAL_LEVEL := -100
 var _next_gate_message_ms: int = 0
 ## The door iris while a door travel runs (closed over the old world, opened on the new one).
 var _iris: IrisTransition
@@ -674,6 +680,8 @@ func _scroll_into(target_map_id: String, entry_edge: String, entry_door: String,
 	var shot := await ChunkScroll.capture(self, get_viewport(), shot_rect, world_camera.target_zoom)
 	if player != null and is_instance_valid(player):
 		run.capture_player(world_service.map_id(), player.run_snapshot())
+	_arrival_level = world_service.elevation.level_of(player_root) \
+			if world_service.elevation != null and is_instance_valid(player_root) else NO_ARRIVAL_LEVEL
 	run.request_navigation("area", target_map_id, entry_edge, entry_door, false, "", entry_along)
 	_teardown_world()
 	_scroll_arrival = true
@@ -887,6 +895,13 @@ func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 	if not saved_spot is Vector2 and not _arrival_facing.is_empty():
 		script_node.face(AreaTravel.facing_vector(_arrival_facing))
 	_arrival_facing = ""
+	# A scroll carries the slime's level over where that level can stand here (else the ground's, as
+	# `Elevation.track` takes it by itself); tracked now, the elevation's own deferred track skips it.
+	var elevation := world_service.elevation
+	if _arrival_level != NO_ARRIVAL_LEVEL and not saved_spot is Vector2 and elevation != null \
+			and elevation.is_walkable(player_root.global_position, _arrival_level):
+		elevation.track(player_root, _arrival_level)
+	_arrival_level = NO_ARRIVAL_LEVEL
 	return script_node
 
 

@@ -44,6 +44,13 @@ const ROCK_SAMPLES := 48
 
 ## Story flag set when it is blown (and read at load: blown for good).
 @export var flag_id: String = ""
+## Open from the start: a plain cave mouth in a cliff face (the hole, its passage and its door, no
+## crack and no Goo Bomb needed), as the desert test's mesa caves (docs/godot/ELEVATION.md "Across
+## chunk lines", the Sunscar Mesas).
+@export var starts_open: bool = false:
+	set(value):
+		starts_open = value
+		_apply_look()
 ## The room's InteriorWallLayer draws the crack and the hole (docs/godot/INTERIOR_WALLS.md): a
 ## "cracked" opening painted on it where this stands. The decals stay hidden, the blast turns the
 ## wall's opening into "blown" (the layer opens its gap: no `blocker` or elevation passage needed).
@@ -127,7 +134,7 @@ func _enter_tree() -> void:
 		return
 	add_to_group(BlastBarrier.GROUP)
 	var run := Services.run()
-	_broken = not flag_id.is_empty() and run != null and run.has_flag(flag_id)
+	_broken = starts_open or (not flag_id.is_empty() and run != null and run.has_flag(flag_id))
 
 
 func _ready() -> void:
@@ -244,7 +251,7 @@ func can_receive_damage(_input: Dictionary) -> Dictionary:
 func _apply_look() -> void:
 	if not is_inside_tree():
 		return
-	var blown := _broken or (Engine.is_editor_hint() and preview_blown)
+	var blown := _broken or (Engine.is_editor_hint() and (preview_blown or starts_open))
 	var crack := get_node_or_null(^"Crack") as Sprite2D
 	var hole := get_node_or_null(^"Hole") as Sprite2D
 	if crack != null:

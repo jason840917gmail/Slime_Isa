@@ -26,12 +26,11 @@ const RegionScene := preload("res://tools/region_worlds/region_scene.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WorldServiceScript := preload("res://game/autoload/world_service.gd")
 const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
-const PropLayerScript := preload("res://game/world/props/prop_layer.gd")
-const PropPictures := preload("res://tools/lib/prop_pictures.gd")
 const WorldAreaScript := preload("res://game/scripts/world_area.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const EnemyPlacement := preload("res://tools/lib/enemy_placement.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
+const ChunkCut := preload("res://tools/lib/chunk_cut.gd")
 
 const WORLDS_DIR := "res://game/scenes/worlds/"
 const CHUNKS_DIR := "res://game/scenes/worlds/chunks/"
@@ -39,24 +38,15 @@ const SCENE_INDEX := "res://game/scenes/scene_index.json"
 const EXPORT_PRESETS := "res://export_presets.cfg"
 const RELEASE_PRESET := "Web"
 ## How deep (world units) the exit along a shared edge reaches into the chunk (a line at the edge:
-## the slime crosses only when it reaches the screen's limit, owner 2026-10-14); how far past a
-## chunk's edge an exit of the region world may lie and still be the chunk's (`_exit_part`).
+## the slime crosses only when it reaches the screen's limit, owner 2026-10-14). What a chunk keeps
+## of the region (layers, scenery across its edges, exits) follows tools/lib/chunk_cut.gd.
 const EDGE_STRIP := 4.0
-const EXIT_PULL := 64.0
 ## Clear cells around a spawn (a tree, a fence or another level within it rules the cell out), and
 ## how many cells north of it no higher top may stand (its wall would hang over the spawn).
 const SPAWN_ROOM := 1
 const MAX_WALL_ROWS := 3
 const EDGES := {"north": Vector2i(0, -1), "east": Vector2i(1, 0), "south": Vector2i(0, 1), "west": Vector2i(-1, 0)}
 const OPPOSITE := {"north": "south", "east": "west", "south": "north", "west": "east"}
-## Scenery (scene file names starting so): static props a chunk also gets from its neighbours when
-## their picture or collision reaches into it (`_overlaps`), so a house or a tree on a chunk border
-## shows on both sides; anything else (chests, items, NPCs, doors) lives in one chunk only.
-const SCENERY: PackedStringArray = ["tree-", "wall-stone-solid", "rock-world-wall", "decoration-world-",
-		"crystal-cluster-wall", "house-world-solid", "water-life"]
-## Forest cells a chunk also takes past its edges (left, top, right, bottom), for the trees whose
-## canopy reaches into it.
-const FOREST_MARGIN := [1, 1, 1, 3]
 ## Tries at writing a file an open editor may hold for a moment, and the pause between them (ms).
 const WRITE_ATTEMPTS := 10
 const WRITE_RETRY_MS := 500
@@ -81,8 +71,6 @@ const NO_STANDING_TILES: PackedStringArray = ["water", "deep-water", "rock-wall"
 const WANDER_AREA_LAYER := 512
 
 
-## Each scenery scene's reach around its origin (`_reach`), read once.
-static var _reaches := {}
 ## --force: rewrite chunks edited since they were cut; --keep-whole: keep the region's whole scene.
 var _force := false
 var _keep_whole := false
@@ -174,7 +162,7 @@ func _split(map: WorldMapData, entry: Dictionary, ids: PackedStringArray) -> Dic
 		names[id] = WorldMapData.chunk_name(chunk)
 		var area := Rect2(Vector2(chunk - block.position) * size, size)
 		for child in source.get_children():
-			if child is Node2D and _is_arrival(str(child.name)) and area.has_point((child as Node2D).position):
+			if child is Node2D and ChunkCut.is_arrival(str(child.name)) and area.has_point((child as Node2D).position):
 				arrivals[str(child.name)] = id
 			elif child is Node2D and str(child.name) == "player-spawn" and area.has_point((child as Node2D).position):
 				spawn = id
@@ -196,13 +184,6 @@ func _split(map: WorldMapData, entry: Dictionary, ids: PackedStringArray) -> Dic
 	if spawn.is_empty() and not names.is_empty():
 		spawn = names.keys()[0]
 	return {} if failed else {"chunks": names, "arrivals": arrivals, "doors": {}, "spawn": spawn, "written": written}
-
-
-## The old arrival markers' names (a neighbour's `arrive-from-<world>-<n>`, an edge's
-## `player-entry-<edge>`): no scene has one since 2026-10-31 (border crossings arrive by coordinates:
-## game/world/crossings/border_crossing.gd); a scene that still has one is read as before.
-static func _is_arrival(node_name: String) -> bool:
-	return node_name.begins_with("arrive-from-") or node_name.begins_with("player-entry-")
 
 
 ## Deletes the whole scenes of the cut `worlds` (the chunks replace them: owner, 2026-10-12) and
@@ -263,7 +244,7 @@ func _write_table(table: Dictionary) -> void:
 
 ## "south-wilds-a6" for chunk A6 of south-wilds.
 static func chunk_id(world: String, chunk: Vector2i) -> String:
-	return "%s-%s" % [world, WorldMapData.chunk_name(chunk).to_lower()]
+	return ChunkCut.chunk_id(world, WorldMapData.chunk_name(chunk))
 
 
 ## The world scene of `chunk` (map chunk coordinates) cut from the region world `source`, whose
@@ -289,9 +270,9 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 	ground.set_meta(&"columns", tiles.x)
 	ground.set_meta(&"rows", tiles.y)
 	root.add_child(ground)
-	root.add_child(_copy_layer(source.get_node(^"forest") as TileMapLayer, origin_tiles, _forest_keep(tiles)))
-	var above := Rect2i(0, -Elevation.MAX_ROWS_ABOVE, tiles.x, tiles.y + Elevation.MAX_ROWS_ABOVE)
-	root.add_child(_copy_layer(source.get_node(^"elevation") as TileMapLayer, origin_tiles, above))
+	for layer_name: NodePath in [^"forest", ^"elevation"]:
+		var layer := source.get_node(layer_name) as TileMapLayer
+		root.add_child(_copy_layer(layer, origin_tiles, ChunkCut.keep_rect(layer, tiles)))
 	var fences := source.get_node_or_null(^"fences") as TileMapLayer
 	if fences != null:
 		root.add_child(_copy_layer(fences, origin_tiles, own))
@@ -303,7 +284,7 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 	for child in source.get_children():
 		if child is Area2D and child.has_node(^"world-exit-script"):
 			var shape := (child.get_node(^"CollisionShape2D") as CollisionShape2D).shape as RectangleShape2D
-			var part := _exit_part(Rect2((child as Area2D).position - shape.size / 2.0, shape.size), area)
+			var part := ChunkCut.exit_part(Rect2((child as Area2D).position - shape.size / 2.0, shape.size), area)
 			if not part.has_area():
 				continue
 			var script_node := child.get_node(^"world-exit-script")
@@ -336,7 +317,7 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 	if source_props != null:
 		for prop in source_props.get_children():
 			if prop is Node2D and not prop.scene_file_path.is_empty() and (area.has_point((prop as Node2D).position)
-					or _overlaps(prop as Node2D, (prop as Node2D).position, area)):
+					or ChunkCut.overlaps(prop as Node2D, (prop as Node2D).position, area)):
 				var instance := (load(prop.scene_file_path) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 				instance.name = prop.name
 				instance.position = (prop as Node2D).position - origin
@@ -364,23 +345,6 @@ func _chunk_scene(map: WorldMapData, source: Node2D, key: String, world: String,
 	root.set_meta(&"split_stats", {"props": props.get_child_count(), "exits": to_other_regions,
 			"edges": exits.size() - to_other_regions, "spawn": spawn})
 	return root
-
-
-## The part of the exit over `rect` (region units) that chunk `area` gets: the generator puts an
-## exit just past the region's border, so one lying within EXIT_PULL outside an edge of `area` is
-## moved in against that edge; then what of it lies in `area` (an opening across two chunks is
-## split between them). Empty when none.
-static func _exit_part(rect: Rect2, area: Rect2) -> Rect2:
-	var moved := rect
-	if rect.position.y >= area.end.y and rect.position.y - area.end.y <= EXIT_PULL:
-		moved.position.y = area.end.y - rect.size.y
-	elif rect.end.y <= area.position.y and area.position.y - rect.end.y <= EXIT_PULL:
-		moved.position.y = area.position.y
-	if rect.position.x >= area.end.x and rect.position.x - area.end.x <= EXIT_PULL:
-		moved.position.x = area.end.x - rect.size.x
-	elif rect.end.x <= area.position.x and area.position.x - rect.end.x <= EXIT_PULL:
-		moved.position.x = area.position.x
-	return moved.intersection(area)
 
 
 ## A copy of `layer` with its cells in `keep` (chunk tiles) moved by -`origin` (region tiles).
@@ -615,7 +579,7 @@ func _write_text(path: String, text: String) -> bool:
 ## instances survive) with what lies outside the chunk taken away (`_prune`): a group whose nodes
 ## all lie in one chunk stays whole there (scripts in it keep their node paths); a group across
 ## chunks is split node by node. Nodes with no place (the definition, music, scripts) go in every
-## chunk. Exits are clipped to the chunk (`_exit_part`); every `map_id` naming the world names the
+## chunk. Exits are clipped to the chunk (`ChunkCut.exit_part`); every `map_id` naming the world names the
 ## chunk; doors are listed for travel back from interiors. Returns the world's table entry, {} when
 ## it failed.
 func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArray) -> Dictionary:
@@ -664,16 +628,16 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 			written[id] = int(before[id])
 			# Its places still count for travel.
 			var kept := (load(out_path) as PackedScene).instantiate()
-			_list_places(kept, id, arrivals, doors)
+			ChunkCut.list_places(kept, id, arrivals, doors)
 			if kept.has_node(^"player-spawn") and spawn.is_empty() and kept.has_meta(&"world_map_region_spawn"):
 				spawn = id
 			kept.free()
 			continue
 		var root := packed.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 		var notes := PackedStringArray()
-		var had_spawn := _place_in_world(root.get_node_or_null(^"player-spawn"))
+		var had_spawn := ChunkCut.place_in_world(root.get_node_or_null(^"player-spawn"))
 		_prune(root, area, Vector2.ZERO, notes)
-		for name in _drop_broken_scripts(root):
+		for name in ChunkCut.drop_broken_scripts(root):
 			notes.append("dropped %s: what it points at is in another chunk" % name)
 		var has_spawn := root.has_node(^"player-spawn")
 		if has_spawn and had_spawn != Vector2.INF:
@@ -681,10 +645,10 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 			root.set_meta(&"world_map_region_spawn", true)
 		for child in root.get_children():
 			if child is TileMapLayer:
-				_clip_layer(child as TileMapLayer, area, tile)
+				ChunkCut.clip_layer(child as TileMapLayer, area, tile)
 			elif child is Node2D:
 				(child as Node2D).position -= area.position
-		_rename_map_id(root, world, id)
+		ChunkCut.rename_map_id(root, world, id)
 		root.name = id
 		root.set_meta(RegionScene.REGION_META, key)
 		root.set_meta(CHUNK_META, WorldMapData.chunk_name(chunk))
@@ -738,7 +702,7 @@ func _split_hand_made(map: WorldMapData, entry: Dictionary, ids: PackedStringArr
 		RegionScene._own(root, root)
 		for exit in edges:
 			exit.body_entered.connect(Callable(exit.get_node(^"world-exit-script"), &"on_body_entered"), Object.CONNECT_PERSIST)
-		_list_places(root, id, arrivals, doors)
+		ChunkCut.list_places(root, id, arrivals, doors)
 		var err := RegionScene.save(root, out_path)
 		failed = failed or err != OK
 		if err == OK:
@@ -757,12 +721,12 @@ func _prune(node: Node, area: Rect2, offset: Vector2, notes: PackedStringArray) 
 		if child is TileMapLayer or not child is Node2D:
 			continue
 		var at := offset + (child as Node2D).position
-		if _exit_script(child) != null:
-			_clip_exit(child as Area2D, at, area)
+		if ChunkCut.exit_script(child) != null:
+			ChunkCut.clip_exit(child as Area2D, at, area)
 			continue
-		if _is_group(child):
+		if ChunkCut.is_group(child):
 			var spots := PackedVector2Array()
-			_spots(child, at, spots)
+			ChunkCut.spots(child, at, spots)
 			var inside := 0
 			for spot in spots:
 				if area.has_point(spot):
@@ -784,158 +748,9 @@ func _prune(node: Node, area: Rect2, offset: Vector2, notes: PackedStringArray) 
 				left += 1 if part is Node2D else 0
 			if left == 0:
 				child.free()
-		elif not area.has_point(at) and not _overlaps(child as Node2D, at, area) \
-				and not (str(node.name) == "Scenery" and _picture_overlaps(child as Node2D, at, area)):
+		elif not area.has_point(at) and not ChunkCut.overlaps(child as Node2D, at, area) \
+				and not (str(node.name) == "Scenery" and ChunkCut.picture_overlaps(child as Node2D, at, area)):
 			child.free()
-
-
-## A group: a plain Node2D of this scene (not an instance, no script) holding nodes.
-static func _is_group(node: Node) -> bool:
-	return node.scene_file_path.is_empty() and node.get_script() == null and node.get_child_count() > 0 \
-			and node.get_class() == "Node2D"
-
-
-## The places (world units) of the nodes in group `node` (at `at`): its Node2D children and their
-## groups' nodes; an instance or a scripted node is one place.
-static func _spots(node: Node, at: Vector2, out: PackedVector2Array) -> void:
-	for child: Node in node.get_children():
-		if not child is Node2D:
-			continue
-		var place := at + (child as Node2D).position
-		if _is_group(child):
-			_spots(child, place, out)
-		else:
-			out.append(place)
-
-
-## The world_exit.gd node of an exit Area2D, null for anything else.
-static func _exit_script(node: Node) -> Node:
-	if not node is Area2D:
-		return null
-	for child: Node in node.get_children():
-		var script := child.get_script() as Script
-		if script != null and script.resource_path == RegionScene.WORLD_EXIT:
-			return child
-	return null
-
-
-## Clips the exit Area2D `area_node` (at `at` in the world) to the chunk `area` (`_exit_part`), or
-## frees it when none of it is the chunk's.
-static func _clip_exit(area_node: Area2D, at: Vector2, area: Rect2) -> void:
-	var shape_node: CollisionShape2D = null
-	for child: Node in area_node.get_children():
-		if child is CollisionShape2D:
-			shape_node = child
-	var box := shape_node.shape as RectangleShape2D if shape_node != null else null
-	if box == null:
-		if not area.has_point(at):
-			area_node.free()
-		return
-	var rect := Rect2(at + shape_node.position - box.size / 2.0, box.size)
-	var part := _exit_part(rect, area)
-	if not part.has_area():
-		area_node.free()
-		return
-	var clipped := RectangleShape2D.new()
-	clipped.size = part.size
-	shape_node.shape = clipped
-	shape_node.position = Vector2.ZERO
-	area_node.position += part.get_center() - at
-
-
-## Keeps `layer`'s cells in `area` (world units), moved to the chunk's corner, each layer on its own
-## cell size: an elevation layer also MAX_ROWS_ABOVE rows above it, a ForestLayer FOREST_MARGIN past
-## its edges (canopies), a PropLayer every cell whose prop's picture reaches into the chunk (props
-## draw well past their cell), a WallLayer one cell past every edge with `shown_cells` the chunk's
-## own (the margin only shapes the joins at the edge).
-static func _clip_layer(layer: TileMapLayer, area: Rect2, tile: int) -> void:
-	var size := Vector2(layer.tile_set.tile_size) if layer.tile_set != null else Vector2(tile, tile)
-	var origin := Vector2i((area.position / size).round())
-	var tiles := Vector2i((area.size / size).round())
-	var script := layer.get_script() as Script
-	var script_path := script.resource_path if script != null else ""
-	var keep := Rect2i(Vector2i.ZERO, tiles)
-	var props := script_path.ends_with("prop_layer.gd")
-	if script_path.ends_with("elevation_layer.gd"):
-		keep = Rect2i(0, -Elevation.MAX_ROWS_ABOVE, tiles.x, tiles.y + Elevation.MAX_ROWS_ABOVE)
-	elif script_path.ends_with("forest_layer.gd"):
-		keep = _forest_keep(tiles)
-	elif script_path.ends_with("wall_layer.gd"):
-		keep = Rect2i(-1, -1, tiles.x + 2, tiles.y + 2)
-	var cells := []
-	for cell in layer.get_used_cells():
-		var at := cell - origin
-		if keep.has_point(at) or (props and _prop_reaches(layer, cell, area)):
-			cells.append([at, layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)])
-	layer.clear()
-	for cell: Array in cells:
-		layer.set_cell(cell[0], cell[1], cell[2], cell[3])
-	if script_path.ends_with("wall_layer.gd"):
-		layer.set(&"shown_cells", Rect2i(Vector2i.ZERO, tiles))
-
-
-## Each painted prop tile's picture box around its cell's corner (`_prop_reaches`), read once.
-static var _prop_boxes := {}
-
-
-## True when the prop painted at `cell` of PropLayer `layer` shows inside `area` (layer space).
-static func _prop_reaches(layer: TileMapLayer, cell: Vector2i, area: Rect2) -> bool:
-	var corner := Vector2(cell) * Vector2(layer.tile_set.tile_size)
-	var key := [layer.tile_set.resource_path, layer.get_cell_source_id(cell), layer.get_cell_atlas_coords(cell),
-			layer.get_cell_alternative_tile(cell), cell.x % 2]
-	if not _prop_boxes.has(key):
-		var box := Rect2()
-		var prop: Dictionary = layer.call(&"prop_at", cell)
-		if not prop.is_empty():
-			var node := PropLayerScript.make_prop(prop)
-			if node != null:
-				box = PropPictures.bounds(node, Transform2D.IDENTITY)
-				box.position -= corner
-				node.free()
-		_prop_boxes[key] = box
-	var reach: Rect2 = _prop_boxes[key]
-	return reach.has_area() and Rect2(reach.position + corner, reach.size).intersects(area)
-
-
-## Every `map_id` under `node` (instances' insides too) that names `world` names `chunk` instead; a
-## node inside an instance (a boss camp's script) has its instances made editable in `root` so the
-## chunk scene saves the new value.
-static func _rename_map_id(node: Node, world: String, chunk: String, root: Node = null) -> void:
-	if root == null:
-		root = node
-	var value: Variant = node.get(&"map_id")
-	if value is String and value == world:
-		node.set(&"map_id", chunk)
-		var instance := node.owner
-		while instance != null and instance != root:
-			root.set_editable_instance(instance, true)
-			instance = instance.owner
-	for child: Node in node.get_children():
-		_rename_map_id(child, world, chunk, root)
-
-
-## The places travel arrives at in chunk world `root` (`id`): its arrival markers and its doors.
-static func _list_places(root: Node, id: String, arrivals: Dictionary, doors: Dictionary) -> void:
-	for node: Node in root.find_children("*", "", true, false):
-		if node is Node2D and _is_arrival(str(node.name)):
-			arrivals[str(node.name)] = id
-		var door_id: Variant = node.get(&"door_id")
-		var script := node.get_script() as Script
-		if door_id is String and door_id != "" and script != null and script.resource_path.ends_with("/door.gd"):
-			doors[door_id] = id
-
-
-## `node`'s place in the world (its and its parents' positions), INF when it is null.
-static func _place_in_world(node: Node) -> Vector2:
-	if node == null:
-		return Vector2.INF
-	var at := Vector2.ZERO
-	var current := node
-	while current != null and current.get_parent() != null:
-		if current is Node2D:
-			at += (current as Node2D).position
-		current = current.get_parent()
-	return at
 
 
 ## A spawn for a chunk without the world's: an arrival marker or a door's arrival in it, else its
@@ -943,8 +758,8 @@ static func _place_in_world(node: Node) -> Vector2:
 static func _spawn_spot(root: Node, size: Vector2) -> Vector2:
 	for node: Node in root.find_children("*", "Node2D", true, false):
 		var node_name := str(node.name)
-		if _is_arrival(node_name) or node_name == "arrival":
-			var at := _place_in_world(node)
+		if ChunkCut.is_arrival(node_name) or node_name == "arrival":
+			var at := ChunkCut.place_in_world(node)
 			if Rect2(Vector2.ZERO, size).grow(-64.0).has_point(at):
 				return at
 	return size / 2.0
@@ -1005,8 +820,8 @@ static func _place_enemies(root: Node2D, size: Vector2, tile: int, table: Dictio
 		var arrivals: Array[Vector2] = []
 		for node: Node in root.find_children("*", "Node2D", true, false):
 			var node_name := str(node.name)
-			if node_name == "player-spawn" or node_name == "arrival" or _is_arrival(node_name):
-				arrivals.append(_place_in_world(node))
+			if node_name == "player-spawn" or node_name == "arrival" or ChunkCut.is_arrival(node_name):
+				arrivals.append(ChunkCut.place_in_world(node))
 		var spots := PackedVector2Array()
 		var y := TABLE_EDGE
 		while y <= size.y - TABLE_EDGE:
@@ -1045,7 +860,7 @@ static func _place_enemies(root: Node2D, size: Vector2, tile: int, table: Dictio
 			counts[type_id] = number
 			var node := placed_scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node2D
 			node.name = "%s-%d" % [type_id, number]
-			node.position = ((enemy[1] as Vector2) - _place_in_world(holder)).round()
+			node.position = ((enemy[1] as Vector2) - ChunkCut.place_in_world(holder)).round()
 			node.set(&"enemy_type", type_id)
 			node.set(&"wander_area_id", str(enemy[2]))
 			holder.add_child(node)
@@ -1190,7 +1005,7 @@ static func _area_shape(script: Node, property: StringName, fallback_name: Strin
 
 ## The box a world area's rectangle or circle covers (chunk units).
 static func _shape_box(shape_node: CollisionShape2D) -> Rect2:
-	var at := _place_in_world(shape_node)
+	var at := ChunkCut.place_in_world(shape_node)
 	if shape_node.shape is CircleShape2D:
 		var radius := (shape_node.shape as CircleShape2D).radius
 		return Rect2(at - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
@@ -1217,94 +1032,3 @@ static func _depth_anchor(type_id: String) -> Vector2:
 		instance.free()
 	_anchors[type_id] = anchor
 	return anchor
-
-
-# --- scenery across chunk edges ----------------------------------------------------------------
-
-## The forest cells a chunk of `tiles` keeps (chunk tiles): its own and FOREST_MARGIN past its edges.
-static func _forest_keep(tiles: Vector2i) -> Rect2i:
-	return Rect2i(-FOREST_MARGIN[0], -FOREST_MARGIN[1], tiles.x + FOREST_MARGIN[0] + FOREST_MARGIN[2],
-			tiles.y + FOREST_MARGIN[1] + FOREST_MARGIN[3])
-
-
-## True when `node` (at `at` in the world) is scenery (SCENERY) whose picture or collision reaches
-## into `area`.
-static func _overlaps(node: Node2D, at: Vector2, area: Rect2) -> bool:
-	if node == null or node.scene_file_path.is_empty():
-		return false
-	var file := node.scene_file_path.get_file()
-	var scenery := false
-	for prefix in SCENERY:
-		scenery = scenery or file.begins_with(prefix)
-	if not scenery:
-		return false
-	var reach := _reach(node.scene_file_path)
-	if not reach.has_area():
-		return false
-	return (Transform2D(node.rotation, node.scale, node.skew, at) * reach).intersects(area)
-
-
-## The box around its origin that scene `path` draws or collides in: its sprites and collision
-## shapes (read once).
-static func _reach(path: String) -> Rect2:
-	if _reaches.has(path):
-		return _reaches[path]
-	var reach := Rect2()
-	var packed := load(path) as PackedScene
-	if packed != null:
-		var instance := packed.instantiate()
-		reach = _bounds(instance, Transform2D.IDENTITY, Rect2())
-		instance.free()
-	_reaches[path] = reach
-	return reach
-
-
-static func _bounds(node: Node, transform: Transform2D, box: Rect2) -> Rect2:
-	var here := transform
-	if node is Node2D:
-		here = transform * (node as Node2D).transform
-	var rect := Rect2()
-	if node is Sprite2D:
-		rect = (node as Sprite2D).get_rect()
-	elif node is CollisionShape2D and (node as CollisionShape2D).shape != null:
-		rect = (node as CollisionShape2D).shape.get_rect()
-	elif node is CollisionPolygon2D and not (node as CollisionPolygon2D).polygon.is_empty():
-		var polygon := (node as CollisionPolygon2D).polygon
-		rect = Rect2(polygon[0], Vector2.ZERO)
-		for point in polygon:
-			rect = rect.expand(point)
-	if rect.has_area():
-		var placed := here * rect
-		box = placed if not box.has_area() else box.merge(placed)
-	for child: Node in node.get_children():
-		box = _bounds(child, here, box)
-	return box
-
-
-## True when `node` (a prop dragged in from the Scenery dock, at `at` in the world) draws inside
-## `area`.
-static func _picture_overlaps(node: Node2D, at: Vector2, area: Rect2) -> bool:
-	if node.scene_file_path.is_empty():
-		return false
-	var box := PropPictures.bounds(node, Transform2D(node.rotation, node.scale, node.skew, at) * node.transform.affine_inverse())
-	return box.intersects(area)
-
-
-## Frees the script nodes under `root` (outside instances) whose node references point at nodes
-## the cut took away (a story variant whose villagers live in another chunk); returns their names.
-static func _drop_broken_scripts(root: Node) -> PackedStringArray:
-	var dropped := PackedStringArray()
-	for node: Node in root.find_children("*", "", true, true):
-		if node is Node2D or node.get_script() == null or not is_instance_valid(node):
-			continue
-		for property: Dictionary in node.get_property_list():
-			if not (int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE):
-				continue
-			var value: Variant = node.get(property["name"])
-			var broken: bool = (value is NodePath and not (value as NodePath).is_empty() and not node.has_node(value)) \
-					or (typeof(value) == TYPE_OBJECT and not is_instance_valid(value))
-			if broken:
-				dropped.append(str(node.name))
-				node.free()
-				break
-	return dropped

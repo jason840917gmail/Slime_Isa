@@ -57,6 +57,8 @@ MATERIALS = {
     "cavern-floor": "cavern-floor",
     "amberleaf": "amberleaf",
     "town-cobble": "town-cobble",
+    "garden-soil": "garden-soil",
+    "gravel-path": "gravel-path",
 }
 
 TILE = 128            # art pixels per tile (64 world units at 2 px per unit)

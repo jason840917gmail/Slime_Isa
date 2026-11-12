@@ -64,7 +64,10 @@ made the leaf outlines shimmer while the view moved and the canopy swayed.
 3. Inspector: `variation` (another number rerolls every tree's pick, shift, size and flip, and
    which cells of a wood grow one), `shift` (how far a tree may stand from its place, units across
    and down; across goes 1.6 times as far), `size_range`, `paint_opacity` (the squares over the
-   trees in the editor; 0 hides them; always hidden in the game).
+   trees in the editor; 0 hides them; always hidden in the game). `seed_period` (zero in every
+   world) seeds the trees by their cell's place within a chunk of that many cells: the atlas's
+   area editor sets it on the forest of chunks joined into one scene, so each chunk's trees grow
+   there as in the chunk's own scene ([WORLD_ATLAS.md](WORLD_ATLAS.md#editing-an-area-2026-11-01)).
 4. A one-off tree (a landmark, a resource tree) is a placed scene: `game/scenes/objects/tree-*.tscn`.
 
 **Spacing.** The trees are two to three cells wide, so a wood grows about one tree per three
@@ -96,8 +99,9 @@ left alone and listed in the Output. Save, and delete the empty group.
 `game/world/forest/forest_layer.gd` (`ForestLayer`, `@tool`, a TileMapLayer):
 
 - Each growing cell grows one Sprite2D standing at (32, 54) in its cell (where the old wall tree
-  scenes stood on the grid), shifted, sized and flipped by a random number seeded with the cell and
-  `variation`: a region of its set's atlas with its foot as origin. The sprites live in an unowned
+  scenes stood on the grid), shifted, sized and flipped by a random number seeded with the cell (its
+  place in a chunk with `seed_period`) and `variation`: a region of its set's atlas with its foot as
+  origin. The sprites live in an unowned
   child `Trees` (y-sorted, so trees sort with the player like placed trees) and their shades in
   `Shadows`; the scene saves only the cells.
 - **Sway:** `game/world/forest/tree_sway.gdshader` (material `tree_sway_material.tres`, shared so

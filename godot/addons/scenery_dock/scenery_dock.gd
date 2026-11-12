@@ -14,7 +14,10 @@ extends VBoxContainer
 ## `Hazards`); its ids are set in the Inspector (docs/godot/DUNGEONS.md). The **Holes & hatches**
 ## category (owner, 2026-10-19) lists the ways down and up for any world: open holes (fall, ladder),
 ## cracked ground and walls (a Goo Bomb opens them), and hatches, placed the same way under `Objects`;
-## their targets are set in the Inspector (docs/godot/DUNGEONS.md "Holes and hatches").
+## their targets are set in the Inspector (docs/godot/DUNGEONS.md "Holes and hatches"). The
+## **Villagers** and **Animals** categories (2026-11-01) list the towns' people and animals by their
+## scene's picture (docs/godot/VILLAGERS.md): dragging one places its scene at its own size under the
+## world's `NPCs` or `Animals` node, where its wander circle, route or `follow` is set in the Inspector.
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
@@ -53,6 +56,12 @@ const HOLES: PackedStringArray = [
 	"open-hole", "open-hole-ladder", "cracked-floor", "cracked-ground", "cracked-wall", "hill-doorway", "hatch-exit",
 	"cave-ladder",
 ]
+## The towns' villagers and animals (docs/godot/VILLAGERS.md): every scene of the folder by its
+## picture, placed at its own size under the world's `NPCs` or `Animals` node.
+const LIFE_CATEGORIES := {
+	"Villagers": ["res://game/scenes/characters/villagers/", "NPCs"],
+	"Animals": ["res://game/scenes/objects/animals/", "Animals"],
+}
 ## The node a dungeon piece goes under, by scene file name; the rest go under DUNGEON_CONTAINER.
 const DUNGEON_CONTAINERS := {"room-door.tscn": "RoomDoors", "hazard.tscn": "Hazards", "hazard-deck.tscn": "Hazards"}
 const DUNGEON_CONTAINER := "Objects"
@@ -180,6 +189,11 @@ func _load() -> void:
 	if not holes.is_empty():
 		_props[HOLES_CATEGORY] = holes
 		_categories.add_item(HOLES_CATEGORY)
+	for category: String in LIFE_CATEGORIES:
+		var life := _folder_scenes(LIFE_CATEGORIES[category][0], LIFE_CATEGORIES[category][1])
+		if not life.is_empty():
+			_props[category] = life
+			_categories.add_item(category)
 	var dungeon := _dungeon_objects()
 	if not dungeon.is_empty():
 		_props[DUNGEON_CATEGORY] = dungeon
@@ -200,6 +214,18 @@ func _dungeon_objects() -> Array:
 	for path in paths:
 		var container: String = DUNGEON_CONTAINERS.get(path.get_file(), DUNGEON_CONTAINER)
 		out.append([_title(path), path, _scene_picture(path), {}, container])
+	out.sort_custom(func(a: Array, b: Array) -> bool: return str(a[0]) < str(b[0]))
+	return out
+
+
+## Every scene of `dir` by its picture, going under `container`: [name, scene, picture, {}, container].
+func _folder_scenes(dir: String, container: String) -> Array:
+	var out: Array = []
+	if not DirAccess.dir_exists_absolute(dir):
+		return out
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".tscn"):
+			out.append([_title(dir + file), dir + file, _scene_picture(dir + file), {}, container])
 	out.sort_custom(func(a: Array, b: Array) -> bool: return str(a[0]) < str(b[0]))
 	return out
 

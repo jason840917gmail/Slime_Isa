@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Texture2D" path="res://asset/MAPS/Houses/320-mushroom-2x1.webp" id="1"]
+[ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(240, 165)
@@ -20,3 +21,9 @@ centered = false
 offset = Vector2(-160, -286)
 hframes = 2
 frame = 1
+
+[node name="DoorFrame" type="Node2D" parent="."]
+position = Vector2(0, -43)
+script = ExtResource("door_frame")
+size = Vector2(30, 30)
+arch = 13.0

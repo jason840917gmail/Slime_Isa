@@ -31,6 +31,10 @@ mirror or scale it, edit it in the Inspector, delete it with Delete. **Reload** 
 `tools/build_prop_palettes.gd`. Use it for the props you place one by one; paint the mass of small
 scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the scene tree small.
 
+**Villagers** and **Animals** (2026-11-01): the West town's people and animals by their scene's
+picture ([VILLAGERS.md](VILLAGERS.md)); a drag places the scene at its own size under the world's
+`NPCs` or `Animals` node, where its wander circle, route or `follow` is set in the Inspector.
+
 **Suckables** (the very last category, owner 2026-10-19): every liftable kind of
 `game/data/liftables.json` (the 67 light things the Gulp sucks in and throws: pots, jars, crates,
 rocks, pinecones ...), by its picture on the liftables sheet, its hover text giving its usual weight and its throw effect;
@@ -52,7 +56,29 @@ crystal pillar, the cocoon prize) and the dungeon decor set of `game/scenes/obje
 (2026-10-19: hanging chains, wall shackles, a hanging cage, a weapon rack, a guard table and bench,
 a barrel stack, broken crates, a sarcophagus, a broken pillar, a bone pile, a worm-head statue, a
 candelabra, a bookshelf, a floor grate, stalagmites; `scripts/art/pack-dungeon-decor-art.py` cuts
-them from `asset/Originals/dungeon-kit/decor/` and writes their scenes). **Dungeon objects** (2026-10-19) lists the dungeon pieces with
+them from `asset/Originals/dungeon-kit/decor/` and writes their scenes). **Town** and **Garden** (2026-11-01, for the West village) are palette categories like the others;
+their houses are under **houses**. Houses and town buildings (`game/scenes/objects/town/houses/`):
+a jelly dome, a pumpkin, a tree stump, a snail shell, a timber townhouse, a drop-thatch cottage, a
+general store, an inn, Burr's gatekeeper house and a throwing-game booth; buildings of several
+homes, a door each: a duplex, a triplex row, two flats (the upper one up an outside stair) and twin
+mushroom houses; and two large ones, a town hall and a goo bathhouse. A building with several homes
+or a big one has a Marker2D `door-1`, `door-2` ... at the foot of each door (an upper flat's at the
+foot of its stair): place a door node there for each home's interior. Town
+(`town/props/`): a goo fountain, a market stall, a signpost, a notice board, a goo lamp, barrels,
+crates, a bench, a flower cart, a mailbox, a slime statue, a clothesline, a wheelbarrow, a rain
+barrel, a beehive and a water trough. Garden (`town/garden/`): cabbage and carrot beds, a pumpkin
+patch, a tulip bed, a gravel square and stepping stones (flat: the slime walks over them and sorts
+above them), a hedge and its corner, a picket fence piece, a herb planter, a berry bush and a
+scarecrow. A hedge of any length is painted instead, the `hedge` style of the `walls` WallLayer
+([WALLS.md](WALLS.md)); a longer picket fence, the picket style of the `fences` layer
+([FENCES.md](FENCES.md)). Everything else blocks with a foot box; a building's box covers its lower part, so the
+slime walks up to its door (a door is its own node, `game/scripts/door.gd`, placed at the door). The
+goo fountain, the goo lamp, the jelly dome and the town hall's jelly finial shimmer, the bathhouse's
+domes shimmer and its steam sways, the laundry sways and the bees fly (8-frame loops, random start). `scripts/art/pack-town-art.py` cuts them from the picked concept
+sheets in `asset/Originals/town/concepts/` and writes their pictures and scenes
+([TOOLING.md](../TOOLING.md)).
+
+**Dungeon objects** (2026-10-19) lists the dungeon pieces with
 logic by their scene's own picture (flipped when its sprite is: the statue facing the other way, 2026-10-31): every scene of `game/scenes/objects/dungeon/` but the world-level
 Dungeon nodes, and the puzzle objects among the other objects (brazier, plates, heavy blocks and
 statues (one of them flipped), cracked walls and floors, climb walls, hatches and ladders, gates, winches, barricades, the
@@ -90,7 +116,7 @@ size (a painted prop's collision kept the scene's size). The four level-1 chunks
 
    | Layer | Cell | Sources |
    |---|---|---|
-   | `cell-props` | 64 units, a ground tile | nature, rocks, water life, rock walls, crystal walls, houses, every interior set, dungeon decor |
+   | `cell-props` | 64 units, a ground tile | nature, rocks, water life, rock walls, crystal walls, houses, every interior set, dungeon decor, town, garden |
    | `details` | 32 units, a quarter of a ground tile | ground: leaves, branches, roots, pebbles, petals, clover, flowers, mushrooms, moss, stones |
 
 2. Every prop takes a **block of whole cells** just big enough for it: a flower, a rock or a lily
@@ -99,7 +125,7 @@ size (a painted prop's collision kept the scene's size). The four level-1 chunks
    palette square is a map cell. Click a prop and paint: the cell you click is the block's
    **bottom-left** cell, and the prop stands centred in the block on its floor. The brush preview
    and the painted squares show the prop exactly where it will stand.
-3. **Sizes:** a sized source (nature, rocks, crystal walls, interior decor, mushroom decor, ground) shows each prop three times side by side: small (70 %), normal and big (130 %).
+3. **Sizes:** a sized source (nature, rocks, crystal walls, interior decor, mushroom decor, dungeon decor, town, garden, ground) shows each prop three times side by side: small (70 %), normal and big (130 %).
    "Normal" is the prop's own size, or a little smaller when that lets it fit a block of one or two
    cells (a picture up to 25 % bigger than the block is shrunk to fit it; bigger props keep their
    size). **Mirror:** the TileMap panel's flip-horizontally button paints the prop mirrored, about
@@ -207,6 +233,6 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/build_old_prop_palettes.gd` | Builds the `old-props` palette |
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
-| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables, its Dungeon objects category the dungeon pieces with logic |
+| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables, its Dungeon objects category the dungeon pieces with logic, its Villagers and Animals categories the towns' people and animals |
 | `godot/game/enemy/placed_enemy.gd`, `godot/game/scenes/encounters/placed-enemy.tscn` | A placed enemy: its type, wander area and overrides, its picture in the editor |
 | `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |

@@ -50,7 +50,7 @@ const PALETTES := {
 			["water life", ["water-life"], false],
 			["rock walls", ["rock-world-wall-solid"], false],
 			["crystal walls", ["crystal-cluster-wall"], true],
-			["houses", ["house-world-solid"], false],
+			["houses", ["house-world-solid", "town/houses/"], false],
 			["interior beds", ["interiors/beds/"], false],
 			["interior decor", ["interiors/decor/"], true],
 			["interior kitchen", ["interiors/kitchen/"], false],
@@ -72,6 +72,9 @@ const PALETTES := {
 				"decoration-world-solid--worm-bunk", "weaver-hollow/", "brazier-lit", "brazier-unlit",
 				"cocoon-prize", "crystal-pillar", "ore-heap", "rock-stump", "dungeon-decor/",
 			], true],
+			# the town set (2026-11-01, the West village; its houses are under "houses")
+			["town", ["town/props/"], true],
+			["garden", ["town/garden/"], true],
 		],
 	},
 	"detail": {

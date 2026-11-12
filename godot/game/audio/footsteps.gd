@@ -37,6 +37,8 @@ const MOVING_SPEED := 8.0
 	"sanddessert-ground": &"Sand",
 	"frozen-ground": &"Snow",
 	"town-cobble": &"Stone",
+	"garden-soil": &"Forest",
+	"gravel-path": &"Sand",
 	"cavern-floor": &"Cave",
 	"rock-wall": &"Cave",
 	"crystal-floor": &"Crystal",

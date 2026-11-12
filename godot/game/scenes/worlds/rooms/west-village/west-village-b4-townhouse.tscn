@@ -1,0 +1,167 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="terrain"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="definition"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="door"]
+[ext_resource type="TileSet" path="res://game/world/props/props_tileset.tres" id="old_props"]
+[ext_resource type="Script" path="res://game/world/props/prop_layer.gd" id="prop_layer"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="cell_props"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="detail_props"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="sfx"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="ambience"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="world_ground"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/Houses/doors/interior-timber-door.webp" id="door_art"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/interior-a.wav" id="music_track"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-lantern-lit.tscn" id="s1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-plant-potted-large.tscn" id="s2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/beds/interior-beds-four-poster-s.tscn" id="s3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/tables/interior-tables-dining-blue-runner-s.tscn" id="s4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/seating/interior-seating-armchair-green-s.tscn" id="s5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-bookshelf-books-s.tscn" id="s6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-banner-blue.tscn" id="s7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-round-blue.tscn" id="s8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candles-triple-lit.tscn" id="s9"]
+
+[node name="west-village-b4-townhouse" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAADAAAAAAAAAABAAAADQAAAAAAAAACAAAADAAAAAAAAAADAAAADQAAAAAAAAAEAAAADAAAAAAAAAAFAAAADQAAAAAAAAAGAAAADAAAAAAAAAAHAAAADQAAAAAAAAAIAAAADAAAAAAAAAAJAAAADQAAAAAAAAAKAAAADAAAAAAAAAALAAAADQAAAAAAAAAMAAAADAAAAAAAAAANAAAADQAAAAAAAAAAAAEADQAAAAAAAAABAAEADAAAAAAAAAACAAEADQAAAAAAAAADAAEADAAAAAAAAAAEAAEADQAAAAAAAAAFAAEADAAAAAAAAAAGAAEADQAAAAAAAAAHAAEADAAAAAAAAAAIAAEADQAAAAAAAAAJAAEADAAAAAAAAAAKAAEADQAAAAAAAAALAAEADAAAAAAAAAAMAAEADQAAAAAAAAANAAEADAAAAAAAAAAAAAIADAAAAAAAAAABAAIADQAAAAAAAAACAAIADAAAAAAAAAADAAIADQAAAAAAAAAEAAIADAAAAAAAAAAFAAIADQAAAAAAAAAGAAIADAAAAAAAAAAHAAIADQAAAAAAAAAIAAIADAAAAAAAAAAJAAIADQAAAAAAAAAKAAIADAAAAAAAAAALAAIADQAAAAAAAAAMAAIADAAAAAAAAAANAAIADQAAAAAAAAAAAAMADQAAAAAAAAABAAMADAAAAAAAAAACAAMADQAAAAAAAAADAAMADAAAAAAAAAAEAAMADQAAAAAAAAAFAAMADAAAAAAAAAAGAAMADQAAAAAAAAAHAAMADAAAAAAAAAAIAAMADQAAAAAAAAAJAAMADAAAAAAAAAAKAAMADQAAAAAAAAALAAMADAAAAAAAAAAMAAMADQAAAAAAAAANAAMADAAAAAAAAAAAAAQADAAAAAAAAAABAAQADQAAAAAAAAACAAQADAAAAAAAAAADAAQADQAAAAAAAAAEAAQADAAAAAAAAAAFAAQADQAAAAAAAAAGAAQADAAAAAAAAAAHAAQADQAAAAAAAAAIAAQADAAAAAAAAAAJAAQADQAAAAAAAAAKAAQADAAAAAAAAAALAAQADQAAAAAAAAAMAAQADAAAAAAAAAANAAQADQAAAAAAAAAAAAUADQAAAAAAAAABAAUADAAAAAAAAAACAAUADQAAAAAAAAADAAUADAAAAAAAAAAEAAUADQAAAAAAAAAFAAUADAAAAAAAAAAGAAUADQAAAAAAAAAHAAUADAAAAAAAAAAIAAUADQAAAAAAAAAJAAUADAAAAAAAAAAKAAUADQAAAAAAAAALAAUADAAAAAAAAAAMAAUADQAAAAAAAAANAAUADAAAAAAAAAAAAAYADAAAAAAAAAABAAYADQAAAAAAAAACAAYADAAAAAAAAAADAAYADQAAAAAAAAAEAAYADAAAAAAAAAAFAAYADQAAAAAAAAAGAAYADAAAAAAAAAAHAAYADQAAAAAAAAAIAAYADAAAAAAAAAAJAAYADQAAAAAAAAAKAAYADAAAAAAAAAALAAYADQAAAAAAAAAMAAYADAAAAAAAAAANAAYADQAAAAAAAAAAAAcADQAAAAAAAAABAAcADAAAAAAAAAACAAcADQAAAAAAAAADAAcADAAAAAAAAAAEAAcADQAAAAAAAAAFAAcADAAAAAAAAAAGAAcADQAAAAAAAAAHAAcADAAAAAAAAAAIAAcADQAAAAAAAAAJAAcADAAAAAAAAAAKAAcADQAAAAAAAAALAAcADAAAAAAAAAAMAAcADQAAAAAAAAANAAcADAAAAAAAAAAAAAgADAAAAAAAAAABAAgADQAAAAAAAAACAAgADAAAAAAAAAADAAgADQAAAAAAAAAEAAgADAAAAAAAAAAFAAgADQAAAAAAAAAGAAgADAAAAAAAAAAHAAgADQAAAAAAAAAIAAgADAAAAAAAAAAJAAgADQAAAAAAAAAKAAgADAAAAAAAAAALAAgADQAAAAAAAAAMAAgADAAAAAAAAAANAAgADQAAAAAAAAAAAAkADQAAAAAAAAABAAkADAAAAAAAAAACAAkADQAAAAAAAAADAAkADAAAAAAAAAAEAAkADQAAAAAAAAAFAAkADAAAAAAAAAAGAAkADQAAAAAAAAAHAAkADAAAAAAAAAAIAAkADQAAAAAAAAAJAAkADAAAAAAAAAAKAAkADQAAAAAAAAALAAkADAAAAAAAAAAMAAkADQAAAAAAAAANAAkADAAAAAAAAAAAAAoADAAAAAAAAAABAAoADQAAAAAAAAACAAoADAAAAAAAAAADAAoADQAAAAAAAAAEAAoADAAAAAAAAAAFAAoADQAAAAAAAAAGAAoADAAAAAAAAAAHAAoADQAAAAAAAAAIAAoADAAAAAAAAAAJAAoADQAAAAAAAAAKAAoADAAAAAAAAAALAAoADQAAAAAAAAAMAAoADAAAAAAAAAANAAoADQAAAAAAAAA=")
+tile_set = ExtResource("terrain")
+script = ExtResource("world_ground")
+metadata/columns = 14
+metadata/rows = 11
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="old-props" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAIABMAEABAABsAAAAYABMAEABAABsAAAAoABMAEABAABsAAAA4ABMAEABAABsAAABIABMAEABAABsAAABYABMAEABAABsAAABoABMAEABAABsAAABuABMAEAAzABsAAAADABoAEAAaAAAAAABtABoAEAAaAAAAAAADACkAEAAaAAAAAABtACkAEAAaAAAAAAADADcAEAAaAAAAAABtADcAEAAaAAAAAAADAEYAEAAaAAAAAABtAEYAEAAaAAAAAAADAFQAEAAaAAAAAABtAFQAEAAaAAAAAAAIAFgAEAAeAAAAAAAWAFgAEAAeAAAAAAAkAFgAEAAeAAAAAABMAFgAEAAeAAAAAABaAFgAEAAeAAAAAABoAFgAEAAeAAAAAAAvAFgAEABVABIAAABCAFgAEABVABIAAAA=")
+tile_set = ExtResource("old_props")
+script = ExtResource("prop_layer")
+
+[node name="cell-props" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("cell_props")
+script = ExtResource("prop_layer")
+
+[node name="details" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("detail_props")
+script = ExtResource("prop_layer")
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("definition")
+map_id = "west-village-b4-townhouse"
+tile_size = 64
+columns = 14
+rows = 11
+metadata = {
+"objects": [],
+"player": {
+"entries": {
+"south": {
+"x": 448,
+"y": 624
+}
+},
+"spawn": {
+"x": 448,
+"y": 624
+}
+}
+}
+camera_mode = "fixed"
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(448, 624)
+
+[node name="house-door" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(448, 694)
+
+[node name="door-script" type="Node" parent="house-door" node_paths=PackedStringArray("house_art")]
+script = ExtResource("door")
+map_id = "west-village-b4-townhouse"
+door_id = "house-door"
+target_area_id = "west-village-b4"
+target_door_id = "west-village-shop-door"
+side = "south"
+kind = "door"
+house_art = NodePath("../../house-door-art")
+door_rect = Rect2(-57.5, -50.6, 114.8, 49.1)
+double_leaf = true
+
+[node name="house-door-art" type="Sprite2D" parent="."]
+position = Vector2(448, 643)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("door_art")
+centered = false
+offset = Vector2(-120, 0)
+
+[node name="Furniture" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="decor-lantern-lit" parent="Furniture" instance=ExtResource("s1")]
+position = Vector2(112, 176)
+
+[node name="decor-lantern-lit2" parent="Furniture" instance=ExtResource("s1")]
+position = Vector2(784, 176)
+
+[node name="decor-plant-potted-large" parent="Furniture" instance=ExtResource("s2")]
+position = Vector2(112, 600)
+scale = Vector2(1.3, 1.3)
+
+[node name="decor-plant-potted-large2" parent="Furniture" instance=ExtResource("s2")]
+position = Vector2(784, 600)
+scale = Vector2(1.3, 1.3)
+
+[node name="beds-four-poster-s" parent="Furniture" instance=ExtResource("s3")]
+position = Vector2(660, 250)
+
+[node name="tables-dining-blue-runner-s" parent="Furniture" instance=ExtResource("s4")]
+position = Vector2(448, 440)
+scale = Vector2(1.3, 1.3)
+
+[node name="seating-armchair-green-s" parent="Furniture" instance=ExtResource("s5")]
+position = Vector2(260, 460)
+scale = Vector2(1.3, 1.3)
+
+[node name="storage-bookshelf-books-s" parent="Furniture" instance=ExtResource("s6")]
+position = Vector2(260, 210)
+scale = Vector2(1.3, 1.3)
+
+[node name="decor-banner-blue" parent="Furniture" instance=ExtResource("s7")]
+position = Vector2(448, 180)
+scale = Vector2(1.4, 1.4)
+
+[node name="decor-rug-round-blue" parent="Furniture" instance=ExtResource("s8")]
+position = Vector2(448, 470)
+scale = Vector2(1.6, 1.6)
+
+[node name="decor-candles-triple-lit" parent="Furniture" instance=ExtResource("s9")]
+position = Vector2(760, 420)
+scale = Vector2(1.3, 1.3)
+
+[node name="NPCs" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("ambience")
+volume_db = -9.1186
+bus = &"Ambience"
+script = ExtResource("sfx")
+loop = true
+autoplay_cue = true
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("sfx")
+loop = true
+autoplay_cue = true

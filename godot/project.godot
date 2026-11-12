@@ -28,6 +28,10 @@ MusicDirector="*res://game/audio/music_director.gd"
 Shell="*res://game/shell/shell.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
+[debug]
+
+file_logging/max_log_files=50
+
 [display]
 
 window/size/viewport_width=1024

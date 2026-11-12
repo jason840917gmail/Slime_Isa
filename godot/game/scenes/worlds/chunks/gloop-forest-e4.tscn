@@ -29,6 +29,8 @@
 [ext_resource type="AudioStream" uid="uid://bhi1qaw8t4ur6" path="res://asset/audio/music/gloop-forest-ambience.mp3" id="86_34fqw"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-floor--wooden-footbridge.tscn" id="prop_floor__wooden_footbridge"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--lantern-post.tscn" id="prop_orld_solid__lantern_post"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="elevation_tiles"]
+[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="elevation_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_10"]
 size = Vector2(640, 384)
@@ -58,6 +60,11 @@ metadata/tile_seed = 37
 metadata/source_cell_count = 2916
 metadata/columns = 32
 metadata/rows = 32
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=1492263108]
+z_index = -1
+tile_set = ExtResource("elevation_tiles")
+script = ExtResource("elevation_script")
 
 [node name="forest" type="TileMapLayer" parent="." unique_id=207751007]
 self_modulate = Color(1, 1, 1, 0.3)

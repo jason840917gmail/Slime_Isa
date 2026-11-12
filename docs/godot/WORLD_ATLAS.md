@@ -85,7 +85,8 @@ the release export).
 - **What you can change:** only the layout. The worlds are instances with no owner: they are never
   saved into the atlas and cannot be selected or edited there. To change a world, select its region
   and press **Open world** (Inspector), edit it in its own tab, save, then **Refresh worlds** on
-  the atlas's root.
+  the atlas's root. To edit several chunks at once (a river or a road across their lines), press
+  **Edit area** ([below](#editing-an-area-2026-11-01)).
 - **Rearranging:** drag a region (click anywhere on it). It snaps to whole chunks. Dropped on a block
   of its size, it swaps with what is there (shown at once); dropped overlapping its old place, it
   slides. Each drag is a new move after the others (a drag follows the mouse until the button is
@@ -99,7 +100,7 @@ the release export).
   warnings): rebuild them (below). Hand-made worlds keep their content; check their exits' arrows.
 - **Root options (Inspector):** `map_path`, `show_sketch`, `sketch_under_worlds`,
   `show_live_worlds`, `show_signs` (`show_exits` and `show_markers` choose among the signs),
-  `show_interiors`. `tools/render_world_atlas.gd` renders with the signs on. A region's `live` switches its
+  `show_interiors`, `edit_area` (the chunks **Edit area** opens). `tools/render_world_atlas.gd` renders with the signs on. A region's `live` switches its
   world off (level-1 and the Wilds are big: switch them off to lighten the editor).
 - **Warnings** (the yellow sign on the root and on a slot): a world whose size is not its block's
   (the rest of the block is hatched), a region
@@ -111,6 +112,109 @@ the release export).
 Editor calls go through `Engine.get_singleton(&"EditorInterface")` guarded by
 `Engine.is_editor_hint()` (in 4.7.2 `has_singleton` is true outside the editor too), so the scripts
 load in exported builds.
+
+## Editing an area (2026-11-01)
+
+Rivers, roads and ridges cross chunk lines, and shaping them one chunk tab at a time is hard. An
+**area** is a few chunk worlds joined into one temporary scene, edited with the usual tools and
+written back into the chunk scenes (`game/dev/area_edit/area_edit.gd`; the area's root:
+`area_root.gd`). The chunk scenes stay the scenes of record.
+
+- **Open:** type the chunks in the atlas root's `edit_area` (`E4:F5`, or one chunk `E4`; at most
+  6 chunks, as a bigger scene makes the editor slow) and press **Edit area**, or press **Edit
+  area** on a region's slot (its block). The atlas writes `game/dev/area_edit/areas/area-e4-f5.tscn`
+  (not in git) and opens it; an area already open opens as it is. Any rectangle of whole chunks
+  works, across regions too. Refused (a dialog says why) while one of its chunks is open in a tab
+  (the tab keeps its own copy, and saving it would undo the write-back), while another area open in
+  a tab holds one of its chunks, or while moves are pending. Closing an area's tab keeps the area
+  (and its edits not written back) until **Close area**; another area holding some of the chunks
+  whose tab is closed is dropped when it has no edits, else a dialog asks: discard its edits and
+  open, or open that area instead (to write it back). The atlas draws the chunks
+  picked (dashed) and the areas open (tinted), with the signs off too, and lists the open areas in
+  its warnings.
+- **What it holds:** each painted layer (ground, forest, elevation, cliffs, level-collision, walls,
+  fences, the prop layers) once over the whole area; a chunk's layer joins the area's of its name,
+  else the one of its kind (script and tile set) at its offset, and a forest joins any forest
+  (level-1's `ForestLayer` joins Gloop's `forest`; `walls` and `walls-shifted-32-0` never join),
+  and paint goes back into the chunk's own layer. A joined layer stands where the first chunk's
+  stands; a chunk whose layer stands elsewhere (level-1's are offset: ground (1, 0), ForestLayer
+  (0, -23), elevation (0, -22)) or is hidden draws shifted there, and the area's root warns about it.
+  Each chunk's nodes (exits, spawn, NPCs, enemies, groups, doors, landings) stand under a locked
+  holder named after its chunk world, at the chunk's place. The chunk lines and names are drawn
+  over it. Scenery a chunk keeps from a neighbour (its picture reaches across the line) is hidden
+  in the neighbour's holder, so each piece shows once. What the chunks keep past the area's edges
+  (canopies, the walls of tops north of it) shows too, under a shade: it is not written back.
+- **Edit** as in a chunk scene: paint any layer across the lines, drag nodes, drop props and
+  enemies from the Scenery dock (they go under the area's own `Scenery` and `Enemies`), save.
+- **Write back** (the area root's Inspector) saves the area, cuts it into the chunk files and reads
+  them back into the area, then says what it did:
+  - the ground's sheet frames: the area shows its ground counted from the area's corner (set on
+    opening, so its edges meet the plain cells); a chunk whose ground is written gets every ground
+    cell's frame counted from its own corner, as the game draws it, also a cell the editor left with
+    the frame picked in the palette (noted per chunk; [TERRAIN_LAB.md "Sheet-wrap
+    frames"](TERRAIN_LAB.md));
+  - each painted, erased or changed cell inside the area goes to every chunk that keeps it: its
+    own, and the margins of `tools/lib/chunk_cut.gd` (elevation rows above, forest one cell around
+    and three below, walls one cell around, a prop cell whose picture reaches in); a cell changed
+    past the area's edge is not written (it belongs to a chunk outside the area) and is noted;
+  - a node dragged across a chunk line moves to the chunk it stands in (a `map_id` naming the old
+    chunk names the new one; a name already taken there gets a number); a new node goes to the
+    chunk under it; a node dragged out of the area, and an exit or a player spawn dragged into
+    another chunk, goes back where it stood (noted);
+  - scenery new or moved is copied into each chunk of the area its picture reaches into; a hidden
+    copy goes when its original moves or goes; scenery moved or deleted whose picture reaches past
+    the area's edge is noted (the chunk beyond keeps its copy: check it there);
+  - each chunk keeps its own root, metadata, script and layer settings; its nodes come back each
+    after the layer it followed in the file, new ones last. Only the chunks that changed are
+    written, as close to the old file as Godot allows (the resource ids, sub-resource ids and node
+    ids it had, its line endings);
+  - all or nothing: every chunk is cut first, and when one that changed cannot be written (it does
+    not come back exactly, or cannot be cut) nothing is written and the reason is shown; the edits
+    stay in the area;
+  - a door that changed chunks moves in `world-chunks.json`; every chunk written and every chunk
+    around one gets its elevation cache baked when it paints elevation
+    (`tools/bake_elevation.gd -- --world=<chunk worlds>`, run headless: the cache's key holds the
+    ground, the cliffs and the elevation, and a chunk's neighbours' paint past its edges,
+    [ELEVATION.md "Across chunk lines"](ELEVATION.md#across-chunk-lines)); an open world atlas
+    reads the worlds again;
+  - nothing is written when a chunk's file changed on disk since the area was opened (a hash per
+    chunk: **Discard edits** reads the chunks again) or one of its chunks is open in a tab.
+- **Discard edits** reads the chunks again (the edits not written back are lost); **Close area**
+  closes the tab and deletes the area.
+- **Play (F6)** on the area's tab runs the game in one of its chunk worlds, from that chunk's spawn,
+  as F6 on a chunk scene does: the chunk in the middle of the 2D view when the area was last saved
+  (Godot saves it before running; the note is `user://area_edit/area-<rect>.play.txt`), else the
+  area's first chunk. The game reads the chunk files, so edits not written back do not show: the
+  output warns when there are some. (Until 2026-11-10 F6 on an area failed: each chunk's
+  `world-definition` swapped the scene, and the ones after the first found no tree.)
+- **Exactness:** opening an area checks that each chunk comes back from it exactly as Godot saves
+  that chunk alone, with nothing edited; a write-back that would change a chunk that does not
+  writes nothing (a warning on the area's root). On 2026-11-01 all 64 chunks came back exactly.
+  An instance a chunk's file holds changes inside without its being editable (an override of a
+  node in it, a node added under one of its nodes) loses them on any save: Godot drops them. The
+  area marks such instances editable, noted when it opens, so they survive; a written chunk gains
+  their `[editable]` lines, and Godot then also stores the texture of the sprite inside them. Found
+  in level-1-c4 (the two sally-port door scripts) and level-1-d4 (the burrow trunk's door and
+  arrival); both files got their `[editable]` lines on 2026-11-01, so no chunk needs it now. Saving a chunk again (here or in its
+  own tab) brings the overrides inside its instanced scenes up to date, so a written chunk can show
+  such lines besides the edit (Gloop E5's cracked ground). A node a script wrote into a chunk without
+  its `unique_id` gets a new random one on every save, so that chunk never comes back exactly: save
+  the chunk once (in its tab, or headless as `AreaEdit.resaved` gives it) and open the area again.
+  West village A4, A5 and B4 (their villagers, animals, routes and doors, placed by a script on
+  2026-11-01) were saved so on 2026-11-11; all 64 chunks came back exactly after.
+- **Seen in the area as in the chunks:** a ForestLayer in an area seeds its trees by each cell's
+  place in its chunk (`seed_period`), so trees grow as in each chunk's scene; cliffs, stairs,
+  water, walls, fences and props look the same (checked on Gloop E4:F5 and Slimeshire C4:D5). Only
+  along a chunk line can trees differ: a chunk also draws the neighbour's trees in its forest
+  margin, seeded its own way, while the area draws each tree once, as its own chunk grows it.
+- **Headless:** `AreaEdit.open(rect, map)` joins an area, `AreaEdit.write_back(path, dry_dir)`
+  writes it back (into `dry_dir` instead of the chunks when given), `AreaEdit.round_trip(path)`
+  counts the lines each chunk would change with nothing edited.
+- **First demo** (2026-11-01, Gloop E4:F5, written to a scratch folder, not to the chunks): a pond
+  painted across the E4|F4 line, a lantern dragged from E4 into F4 and a lily pad dropped on the
+  line came back as E4 and F4 each with its half of the pond, the lantern in F4, the lily pad in F4
+  with its copy in E4; E5 and F5 unchanged.
+- Drawing rivers, roads and ridges as lines over the atlas (phase 3) is not built yet.
 
 ## Region worlds and the placeholder generator
 
@@ -323,8 +427,10 @@ by `tools/build_slimeshire_chunks.gd`, [Chapter 1](../story/chapters/chapter-1-t
 tiles each, cut from the region's world scene:
 
 - its ground, forest and fence cells in the chunk, and its elevation with `Elevation.MAX_ROWS_ABOVE`
-  rows above it (the walls of tops just north of the chunk still hang in); its props, map notes and
-  arrival markers;
+  rows above it (the walls of tops just north of the chunk still hang in; since 2026-11-06 a chunk's
+  cliffs read every neighbour's own paint past its edges instead, [ELEVATION.md "Across chunk
+  lines"](ELEVATION.md#across-chunk-lines), and the copied rows count only where no chunk lies
+  north); its props, map notes and arrival markers;
 - its exits to other regions: one lying just past the chunk's edge (the generator puts them past
   the region's border) is moved in against it, and an opening across two chunks is split between
   them (`_exit_part`);
@@ -392,7 +498,9 @@ entering the region (`Shell._on_world_registered`); quests see the region's worl
 plays the same track (`MusicDirector._adopt_world`, `Main.is_travelling_within_region`); after a
 leave fade (quit to title, a travel out of the region) the world's music fades in anew.
 
-**Editing and rebuilding.** Edit a chunk in its own scene. The atlas shows a cut region's chunks in
+**Editing and rebuilding.** Edit a chunk in its own scene, or a few at once as an area ([Editing an
+area](#editing-an-area-2026-11-01)); the rules for what a chunk keeps of its neighbours are shared
+by the cut and the area (`tools/lib/chunk_cut.gd`). The atlas shows a cut region's chunks in
 place (`AtlasRegion.show_chunks`, its exits and markers merged from the chunks,
 `WorldSurvey.merge`); the region's **Open chunk** list picks the chunk "Open world" opens. Running
 the tool again needs the region's whole scene: rebuild it from the sketch with
@@ -405,10 +513,12 @@ size; a PropLayer keeps every cell whose prop's picture reaches into the chunk (
 past their cell); the `walls` WallLayer keeps one cell past each edge with `shown_cells` the
 chunk's own, so pieces at the edge still join; props dragged in under `Scenery` count by their
 picture; a script node whose node references point into another chunk (level-1's chapter-1
-villagers' story variant outside C4) is dropped there. **No elevation cache** is baked for chunks:
-a chunk builds its cliffs in about 0.3 s (level-1's chunks load in 2.2-2.7 s from a cold start
-against 2.8 s for the whole level with its cache; a crossing is ready about 0.6 s after touching
-the edge).
+villagers' story variant outside C4) is dropped there. Chunks that paint elevation have baked
+elevation caches like any world (a chunk builds its cliffs in about 0.3 s without one; level-1's
+chunks loaded in 2.2-2.7 s from a cold start against 2.8 s for the whole level with its cache; a
+crossing is ready about 0.6 s after touching the edge). Hills and mountains run on across chunk
+lines: each chunk builds its cliffs over its neighbours' paint past its edges ([ELEVATION.md
+"Across chunk lines"](ELEVATION.md#across-chunk-lines)).
 
 Timings (headless, this machine): North Wilds' whole world builds in about 4.0 s from a cold start,
 one of its chunks in 1.4 s (both with the game's own start); walking into a chunk's edge holds

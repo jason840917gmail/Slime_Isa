@@ -31,14 +31,20 @@ const MAIN_SCENE := "res://game/main.tscn"
 ## HUD: main.tscn brings those and loads the world by id. So a world that is the current scene
 ## swaps itself for main.tscn with its own map id (the playground keeps its testbed kit: main grants
 ## it by map id). Inside the game a world is never the current scene, so nothing changes there.
+## Only a world-definition right under the current scene's root acts: in an Edit area scene (several
+## chunk worlds joined, game/dev/area_edit/) each chunk's sits under its chunk's holder, and the
+## area's root plays one chunk itself (area_root.gd); before 2026-11-10 each of them swapped the
+## scene, and every one after the first found no tree ("change_scene_to_node on a null value").
 func _ready() -> void:
 	var world := owner if owner != null else get_parent()
-	if world == null or get_tree().current_scene != world:
+	if world == null or get_parent() != world or get_tree().current_scene != world:
 		return
 	_run_in_main.call_deferred()
 
 
 func _run_in_main() -> void:
+	if not is_inside_tree():
+		return
 	var main := (load(MAIN_SCENE) as PackedScene).instantiate()
 	main.set(&"map_id", map_id)
 	# A dungeon's world run this way gets the powers the slime has by then (main `dev_powers_for`).

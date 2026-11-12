@@ -68,6 +68,8 @@ COLLISION = {
 }
 STYLES = {
     "stone": {"run_h": "run-h-b.png", "run_v": "run-v-a.png", "pillar": "pillar-c.png"},
+    # the West village's clipped boxwood hedge (2026-11-01)
+    "hedge": {"run_h": "run-h-a.png", "run_v": "run-v-a.png", "pillar": "pillar-a.png"},
 }
 
 

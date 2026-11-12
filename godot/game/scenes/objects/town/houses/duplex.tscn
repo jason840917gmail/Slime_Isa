@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
+
+[sub_resource type="RectangleShape2D" id="foot"]
+size = Vector2(258, 71)
+
+[node name="duplex" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -35.5)
+shape = SubResource("foot")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-300, -357)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/town/houses/duplex.webp"
+
+[node name="door-1" type="Marker2D" parent="."]
+position = Vector2(-57, -5)
+
+[node name="door-2" type="Marker2D" parent="."]
+position = Vector2(69, -5)
+
+[node name="DoorFrameLeft" type="Node2D" parent="."]
+position = Vector2(-56, -20.5)
+script = ExtResource("door_frame")
+size = Vector2(28.5, 38)
+arch = 14.0
+
+[node name="DoorFrameRight" type="Node2D" parent="."]
+position = Vector2(70.5, -20.5)
+script = ExtResource("door_frame")
+size = Vector2(29, 38)
+arch = 14.0

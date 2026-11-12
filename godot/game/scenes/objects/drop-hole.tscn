@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" uid="uid://bahgmyqwi4l3" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="1"]
+[ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(80, 48)
+
+[node name="drop-hole" type="Node2D" unique_id=1962303570]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="." unique_id=1362941903]
+z_index = -1
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-128, -194)
+hframes = 8
+frame = 1
+
+[node name="Wall" type="StaticBody2D" parent="." unique_id=1175907064]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Wall" unique_id=357964835]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="DoorScript" type="Node" parent="." unique_id=1653844822]
+script = ExtResource("2")
+kind = "fall"
+trigger_rect = Rect2(-40, -50, 80, 60)
+use_cue = &"FallDown"
+
+[node name="arrival" type="Node2D" parent="." unique_id=636597409]
+y_sort_enabled = true
+position = Vector2(-3, 41)

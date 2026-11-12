@@ -51,6 +51,8 @@
     "ladderClimbMs": 450,
     "holeFallMs": 550,
     "doorWalkInMs": 240,
+    "doorFrameReachPx": 120,
+    "doorApproachSpeed": 200,
     "stairArrivalStepMs": 380,
     "stairArrivalWalkMs": 260,
     "landingDropMs": 420,

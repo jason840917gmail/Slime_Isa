@@ -321,14 +321,33 @@ func _on_ground_changed() -> void:
 
 func _snap_frames() -> void:
 	_snapping = true
-	for cell: Vector2i in ground.get_used_cells():
-		var source := ground.tile_set.get_source(ground.get_cell_source_id(cell)) as TileSetAtlasSource
-		if source == null or source.get_atlas_grid_size() != Vector2i(SHEET_CELLS, SHEET_CELLS):
-			continue
-		var frame := Vector2i(posmod(cell.x, SHEET_CELLS), posmod(cell.y, SHEET_CELLS))
-		if ground.get_cell_atlas_coords(cell) != frame:
-			ground.set_cell(cell, ground.get_cell_source_id(cell), frame)
+	snap_frames(ground)
 	_snapping = false
+
+
+## The sheet-wrap frame of `cell` on a ground layer whose tile set is `tile_set`, for a tile of
+## source `source_id`: (x mod 19, y mod 19), counted from the layer's own corner, where the edges and
+## the 128 px ground draw the sheet from; null when the source is no 19 x 19 ground sheet (the
+## cell keeps its frame). In a chunk scene that corner is the chunk's, as the game draws it; an area
+## counts from its own corner (game/dev/area_edit/area_edit.gd gives each written chunk its own).
+static func sheet_frame(tile_set: TileSet, source_id: int, cell: Vector2i) -> Variant:
+	var source := tile_set.get_source(source_id) as TileSetAtlasSource if tile_set != null and tile_set.has_source(source_id) else null
+	if source == null or source.get_atlas_grid_size() != Vector2i(SHEET_CELLS, SHEET_CELLS):
+		return null
+	return Vector2i(posmod(cell.x, SHEET_CELLS), posmod(cell.y, SHEET_CELLS))
+
+
+## Sets every ground-sheet cell of `layer` to its sheet-wrap frame (sheet_frame); returns how many
+## cells changed.
+static func snap_frames(layer: TileMapLayer) -> int:
+	var changed_cells := 0
+	for cell: Vector2i in layer.get_used_cells():
+		var source_id := layer.get_cell_source_id(cell)
+		var frame: Variant = sheet_frame(layer.tile_set, source_id, cell)
+		if frame != null and layer.get_cell_atlas_coords(cell) != frame:
+			layer.set_cell(cell, source_id, frame, layer.get_cell_alternative_tile(cell))
+			changed_cells += 1
+	return changed_cells
 
 ## The terrain edges under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
