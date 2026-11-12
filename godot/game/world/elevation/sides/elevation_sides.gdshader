@@ -126,6 +126,9 @@ uniform vec4 foam_colour : source_color = vec4(0.88, 0.96, 1.0, 0.8);
 // water is open water at the wall, the surface's own again by the foot's far end, `foot_rows`
 // past the foot line (Elevation sets it: elevation_sides.gd FOOT_OUT).
 uniform float has_water = 0.0;
+// 0: the wall stands on no ground (it hangs into a sky floor, elevation.gd SKY_GROUND): no foot is
+// drawn, neither its art nor its shadow.
+uniform float has_foot = 1.0;
 uniform float foot_rows = 20.0;
 uniform float water_line_rise = 2.8;
 uniform float water_line_sway = 2.4;
@@ -321,6 +324,8 @@ void fragment() {
 		float light = data.g * light_of_level;
 		light *= 1.0 - top_shadow * (1.0 - smoothstep(0.0, top_shadow_px, depth));
 		COLOR = vec4(stone.rgb * light, stone.a * has_corners);
+	} else if (kind < 0.55 && has_foot < 0.5) {
+		discard;
 	} else if (kind > 0.52 && kind < 0.55 && has_water > 0.5) {
 		COLOR = foot_in_water(world, UV.x, UV.y, data.g, 1.0 - data.b, light_of_level, TIME);
 	} else if (kind < 0.55) {

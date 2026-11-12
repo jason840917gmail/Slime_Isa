@@ -1085,17 +1085,45 @@ of the model's square cells:
   of the wall there, as the foot faces east (`SHADOW_EAST` 1) or south (`SHADOW_SOUTH` 0.3), so a
   hill throws a round shadow to the lower right, longer for a taller one, and none past a back
   corner's slanted end. A back edge keeps a short shadow on the ground behind. The shadow is
-  translucent, so it must cover the ground once: it is one ring per run of drawn foot, from the foot
-  out to its far edge (`_shadow_runs`, `_shape_shadow`). Runs whose ends lie within `SHADOW_JOIN` (16)
-  units of each other are one (at a corner `_open_corners` meets, the strip's foot and the front
-  wall's start where the feet meet, the stretch between them hidden behind the strip); its length and
-  strength are averaged along the foot over `SHADOW_SMOOTH` (24) units either way, so two walls
-  meeting at an inner corner cast the same shadow there; and wherever two neighbouring fibres of the
-  ring (foot → far edge) would cross, round an inner corner or where the foot turns in tighter than the
-  shadow is long, their ways turn towards each other, and on, until none do (at most `SHADOW_RELAX`,
-  400, passes): the shadow rounds the corner softly. Until 2026-11-03 each wall cast its own strip of
-  shadow, cut where neighbours crossed, so at inner corners two shadows overlapped (darker) or left
-  gaps, on hard lines (the octagon hole's corners).
+  translucent, so it must cover the ground once, and two shadows that meet must be as dark on both
+  sides of the line between them. It is one ring per run of drawn foot (`_shadow_runs`; runs whose
+  ends lie within `SHADOW_JOIN` (16) units of each other are one), its length and strength averaged
+  along the foot over `SHADOW_SMOOTH` (24) units either way (`_smooth_shadow`), and all the rings are
+  laid together once every chain's feet are known (`_lay_shadows`, 2026-11-11):
+  - A shadow runs out from its foot along the foot line's normal (a "fibre"), from the feet without
+    their wobble (by the wobbled line every dent of it would notch the shadow). Each fibre ends where
+    another foot on the same floor is as near as its own: another stretch of its own chain's foot
+    (round an inner corner, where the foot turns in tighter than the shadow is long) or another
+    chain's (two hills across a narrow way, a terrace's side beside the wall it stands against). So
+    every spot is drawn by the fibre of its nearest foot, with no overlap and no gap. A fibre shorter
+    than the way to that line runs on to it where the other foot's shadow still reaches there.
+  - Along a fibre the shadow is its own foot's up to where another wall's would be darker
+    (`_darkest`: of every other foot whose shadow reaches there, by the distance from it), and that
+    wall's from there to the fibre's end. So every spot shows the darkest of all the shadows that
+    reach it, whichever fibre draws it: a tall wall's long shadow runs on under a low wall's short
+    one. A fibre cut short keeps its fade's rate. The fibres' ways are the foot line's own normals
+    over a short span (`SHADOW_SPAN`, 3): over the foot strip's wider span they turned over several
+    feet at a sharp turn of the foot and left a pocket of bare ground there.
+  - A fibre that would meet another foot from behind (that foot's wall stands between: a wall that
+    ends against this one) fades out over what is left of it, so it lies soft over that wall's end.
+  - Feet bunched within `SHADOW_BUNCH` (1.5) units of each other (a corner's finely cut arc, folded
+    onto one spot of the foot) cast one fibre.
+  - Each piece of shadow is drawn over the foot's strip, its neighbours' strips too (`SHADOW_LEAD`,
+    8, later in the painter's order): a strip leans with its foot line, and where the next stretch's
+    strip leaned over this one's shadow it was drawn after it, a light sliver across the shadowed
+    strip at every point (streaks where a fold starts and wherever the foot wobbles, until
+    2026-11-11). Stretches of foot a hair long (a corner's finely cut arc) are joined into one, in
+    the strip and in the shadow: left out one by one they added up to a gap, a light wedge at a
+    fold's corner.
+
+  Until 2026-11-03 each wall cast its own strip of shadow, cut where neighbours crossed, so at inner
+  corners two shadows overlapped (darker) or left gaps, on hard lines (the octagon hole's corners).
+  From then until 2026-11-11 each chain shaped its own ring, turning crossing fibres towards each
+  other in up to 400 passes: round a deep corner that left fans of overlapping slivers (black
+  hairlines in desert-b7), and two chains' shadows still lay over each other. A fold's stretch is
+  measured from the corner's vertex along the two runs' straight lines, as its foot path is; measured
+  along the border's rounded arc it ended a few units past the next plain point's foot, so the foot
+  line stepped back there and the shadow was drawn three times over (a dark hairline).
 - **Water.** A rim over water covers the water surface's soft edge with the top's ground, 30 units
   inward onto the top (`_add_water_covers`). Where the ground at a wall's foot is water
   (`_ground_below`, checked per edge; `KIND_FOOT_WATER`) the foot draws the water itself, with the
@@ -1162,13 +1190,45 @@ of the model's square cells:
   wall's lower courses (the owner: "the lateral wall and lower level need to keep going to meet the
   side wall with a join ... like an interior joint only seen on holes"): those pieces (`Border.over`,
   `_over_level`) go in a mesh of the higher wall's level drawn after that level's walls (key marked
-  `ElevationSides.OVER_KEY`, `_draw_rank`), and the strip starts from nothing at the wall and widens
-  to its full width where its own foot begins (`_taper_against_walls`), as a hole's side strip meets
-  its far wall. So nothing of the terrace spills onto the next wall (the owner: "mitigate this shadow
-  and artifacts going to the other wall"), its top edge draws no band past the edge along that
-  stretch (`_add_top_edge`: the lip lay over the wall's stones), and its foot's shadow fades out
-  over the last `WALL_SHADOW_FADE` (72) units before the wall (`_fade_shadow_near_walls`: it fell
-  across that wall's own foot). A thin dark sliver can remain where the stretch ends.
+  `ElevationSides.OVER_KEY`, `_draw_rank`).
+  **The joint folds** (2026-11-11, the owner on desert-b7's plateau under the frame: "this borders
+  don't look too good", "the joint can be painted in a better way ... to pass seamless"; until then
+  the strip started from nothing at the wall and widened to its full width, a straight-edged wedge
+  with its own stones laid over the wall's). Below the terrace's level that corner is a hole's inner
+  corner, and it is drawn as one (`_with_terrace_joints`): for a stretch along the wall past the
+  terrace (half of what the wall runs on straight, `JOINT_CELLS` (2) cells at most), the wall's
+  courses below the terrace's level hang from the terrace's own chain, from a line across the wall's
+  face at the terrace's level, so the terrace's side and they fold round the corner as one wall
+  (`_fold_corners`), with one foot and one shadow round it. That stretch takes the wall's style, its
+  u (`_join_u`) and its courses, so where it ends (on fibres hanging straight, `JOINT_STRAIGHT`) the
+  wall's own lower courses run on from it without a seam; the wall's own courses end `JOINT_TUCK`
+  (0.15) of a level below the terrace's level along it. The joint's corner is square
+  (`RADIUS_JOINT`), with no lip round it and none along the line. The walls collide as before
+  (`_add_chain_shape`: the wall counts down to its own foot, the terrace's side straight up to it).
+  Where the wall runs on less than `JOINT_MIN` (2) cells past the terrace (a slot a cell wide), or
+  the terrace's edge or the wall is a 45° one, the old join stays: the strip starts from nothing at
+  the wall and widens to its full width where its own foot begins (`_taper_against_walls`), its top
+  edge draws no band past the edge along that stretch, and its foot's shadow fades out over the last
+  `WALL_SHADOW_FADE` (72) units before the wall (`_fade_shadow_near_walls`).
+  The same holds the other way round (`_with_front_joints`, 2026-11-11/12, the owner on a ledge
+  between two taller walls in desert-b7: "you can see the 2 walls clashing"): where a ledge's south
+  wall ends against a taller wall's straight side that runs on down to the same floor. That side's
+  strip down to the ledge's level stays the wall's own and runs on unbroken past the ledge's edge;
+  the rest of its width (the part that stands on the lower floor) hangs from the ledge's chain for
+  a stretch below the corner, along the strip's own foot line (`inset`, `narrow`), and folds into
+  the ledge's wall as one wall with one foot and one shadow. The stretch takes the wall's style, u
+  and stones (`art_from`), so the strip runs on from it without a seam. Where the side is too short
+  to share but the wall turns 45° outward right after it, its whole run hangs from the ledge's
+  chain and the wall's own corner laps over its end. A ledge with such a joint at both ends cannot
+  run on from both walls' art: its u changes in a crease down the second joint's corner
+  (`_join_u`).
+  `tools/check_cliff_joints.gd` lists the joints that keep the plain join (45° edges against another
+  level's wall, slots too short to fold), by world and cell, for repainting:
+  `"<Godot console exe>" --headless --path godot -s res://tools/check_cliff_joints.gd [-- --world=<text>] [--all]`.
+  Where a straight wall's height steps (beside a terrace's end), the piece across the step hangs as
+  deep as its first point at both ends and the art's u is measured across the fibres there: hung
+  between the two depths it was a sheared sliver, and by the distance between the two measuring
+  points the art jumped sideways (a seam down the wall, until 2026-11-11).
 - **Ledge variety** (2026-11-05, the owner after the terraced meadow concept,
   `asset/Originals/elevation/concepts/terraced-meadow-concept.png`: "not all ledges have to be painted
   the same"; then, seeing the first try barely change anything, "check the art cause we have a bunch
@@ -1201,8 +1261,10 @@ of the model's square cells:
   lie on the overworld (`origin`: two chunks agree along their line), with `FOOT_CHANCE` 0.36 (a side
   wall's foot `FOOT_SIDE_SHARE` 0.2 of it: the owner, 2026-11-06, "a lot fewer in the laterals");
   sizes `FOOT_SCALE` of the atlas piece. Nothing goes within `CORNER_CLEAR` (36) units of a corner's
-  arc or an open chain's end, on a back edge, over water, under a ramp's slope or within
-  `Elevation.DRESSING_STAIRS_CLEAR` (24) of a flight's box. What grows where follows the lower ground
+  arc or an open chain's end, on a back edge, over water, under a ramp's slope, within
+  `Elevation.DRESSING_STAIRS_CLEAR` (24) of a flight's box, or at a foot that hangs into a sky floor
+  (its lower ground is `Elevation.SKY_GROUND`, which also draws no foot there:
+  [SKY_FLOOR.md](SKY_FLOOR.md#how-it-works)). What grows where follows the lower ground
   (`FOOT_SETS`), not the wall style: grass and forest mossy rocks, roots and mushrooms; fallen leaves
   autumn rocks; sand dead bushes and skulls; snow snowy rocks, firs and ice; cavern basalt; crystal
   ground crystals; ash lava rock; cobble ruins. The first dressing also hung ivy (icicles on snow)
@@ -1648,28 +1710,39 @@ it): a 45° face broke into a notch a cell high at the line and its stones were 
 - **In the editor** a chunk's preview reads its neighbours' saved scenes: their hills show past its
   edges (over no ground), so a mountain carried on from next door can be painted on. Save a chunk
   for its neighbours to see its new paint.
-- **The test area: the Sunscar Mesas** (owner, 2026-11-06: "a mountain system from A7 to B8, the
-  desert ... interesting to explore with many caves and jumps"), painted over the four desert
-  chunks through Edit area (the placeholder hills and the ruin there went; picture
-  [chunk-lines/sunscar-mesas.png](../design/chunk-lines/sunscar-mesas.png)). Launch with
-  `?map=desert-a7` (or `-- --map=desert-a7`); the four chunks' spawns stand on open sand.
-  - **The Great Mesa** (level 2, A7 and B7) with a 45° face across the A7|B7 line, and on it **the
-    Sun Crown** (level 3) across the same line; a 2-level front flight up from the basin (A7) and a
-    1-level one up to the Crown (B7). Under its east face **a shelf** (level 1, B7) reached only by
-    dropping off the mesa, with a chest, left by dropping again (the ledge drops are the jumps: the
-    jump itself has no key).
-  - **The South Ridge** (level 2, A7 and A8) across the A7/A8 line, a side flight on its west side;
-    **the Butte** (level 1, its top level 2, B7 and B8) across the B7/B8 line, a side flight and a
-    front flight; **the Dry Wash** (level −1, A8 and B8) across the A8|B8 line, side flights at both
-    ends. Corners chamfered to 45°.
-  - **Five caves** (`game/scenes/worlds/rooms/desert/`, the hollow-hill cave's room, left out of the
-    release export): the **Crown cave** (a heart quarter, `desert-sunscar-crown`) behind a mouth in
-    the Crown's face; the **mesa tunnel**, in from the mesa's foot and up a ladder to a hatch on the
-    mesa (`object` scene `ladder-hatch.tscn`); the **Butte cellar**, a fall through a hole on the
-    Butte's top (`drop-hole.tscn`) onto a landing, out by a mouth in the Butte's foot; the **Ridge
-    vault** behind a cracked wall the Goo Bomb opens (a heart quarter, `desert-sunscar-ridge`); the
-    **Wash grotto** in the canyon's far wall. Mouths are cracked walls with `starts_open`.
-  - Not playtested. Rule 11's checker flags the tops running across the lines, as expected.
+- **The test area: the elevation maze** (owner, 2026-11-07: "the area a7-c8 to become an elevation
+  maze, base on the mechanic of jumping to the right level to advance, it could have stairs but only
+  in the front walls, only one entrance and the destination is in a7 top left"; then "polygons also
+  and exotic forms ... don't let chunk join on wide walkable spaces, the wide joins should be walls
+  the player can never walk"), painted over the six chunks A7–C8 (the four desert chunks and South
+  Wilds C7/C8) in place of the Sunscar Mesas test of 2026-11-06 (its picture:
+  [chunk-lines/sunscar-mesas.png](../design/chunk-lines/sunscar-mesas.png)). Pictures: the game's
+  drawing [chunk-lines/elevation-maze.png](../design/chunk-lines/elevation-maze.png) and the plan
+  [chunk-lines/elevation-maze-plan.png](../design/chunk-lines/elevation-maze-plan.png) (darker is
+  higher, yellow the stairs, the green circles the stairs on the way and the red ones its drops).
+  Launch with `?map=south-wilds-c7` (the entrance) or `?map=desert-a7` (the summit's chunk).
+  - **Levels**: the slime walks on levels 0 (the floor), 1 (ledges) and 2 (mesas, the summit too).
+    Level 3 is only the frame round the desert and **a spine over every chunk line**, higher than
+    anything walkable, so no one ever stands on them; each line is crossed only at **a pass** about
+    four cells wide: P1 C7|C8 (floor), P2 B7|C7 (floor), P3 C8|B8 (ledge), P4 B8|B7 (ledge), P4b
+    B7|B8 (floor), P5 B7|A7 (ledge), P6 B8|A8 (floor), P7 A7|A8 (floor). Mesas and ledges are
+    octagons and polygons with 45° faces.
+  - **The way**: stairs only in front (south) faces, down by ledge drops. In at the gap in C7's north
+    tree line (from C6; its second gap, x 78-79 of the block, closed with trees) → P1 → stairs onto
+    Moss Ledge (C8) → P3 → stairs up Watch (B8) → **drop north** onto Pass Ledge → P4 → stairs up
+    Anvil (B7) → **drop west** onto Gate Ledge → P5 → stairs up Hawk (A7) → **drop west** onto the
+    Summit Shelf → stairs up to the Summit: a chest with a heart quarter (`desert-maze-summit`) and 50
+    coins. Each right drop lands on a ledge no stairs reach; a wrong one lands on a floor, which
+    leads back to the start through the floor passes. Lookouts with stairs and nothing past them:
+    Fern Mesa and Bramble Ledge (C7), Lantern Mesa (C8), Bone Ledge and Bone Mesa (A8).
+  - **The border**: the desert / South Wilds exits strip only P2 (`desert-to-south-wilds-2`,
+    `south-wilds-to-desert-2`, rows 21-24 of the chunks) and P3 (`...-1`, rows 14-16). The B|C
+    spine has sand under its C side, so its top is sand; its side wall facing C draws in C's meadow
+    rock, and C's hills are meadow rock.
+  - **Left over**: the Sunscar's five cave rooms (`game/scenes/worlds/rooms/desert/`) are still
+    there, but their mouths, hatch and hole went with the mesas, so their doors lead nowhere
+    (`tools/check_crossings.gd` lists them as broken) until they are deleted or given new mouths.
+  - Not playtested, the tests not run.
 - **A chunk with no hills of its own** builds its cliffs when its neighbours paint past its edges
   (`Elevation.paints_past_edges`: a wall hanging into it), and the bake bakes it; an exported game
   takes its baked cache as the sign. It needs an `elevation` layer, even an empty one: Gloop
