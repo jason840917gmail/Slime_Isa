@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bf0gmm7t2xcm2" path="res://game/world/sky/sky_floor.gd" id="1_8ynti"]
+[ext_resource type="Script" uid="uid://syem75kq80h8" path="res://game/world/sky/rope_bridge.gd" id="2_r1q2g"]
+
+[node name="sky-corner" type="Node2D" unique_id=2144634365]
+y_sort_enabled = true
+
+[node name="sky-floor" type="Node2D" parent="." unique_id=1257093919]
+position = Vector2(6400, 4288)
+script = ExtResource("1_8ynti")
+size = Vector2(1536, 1408)
+
+[node name="bridge-west" type="Node2D" parent="." unique_id=468691177]
+position = Vector2(6400, 4640)
+rotation = -1.5707964
+script = ExtResource("2_r1q2g")
+toward = "east"
+length = 4
+width = 64.0
+bridge_id = "playground-sky-bridge-west"
+starts_lowered = true
+draw_floor = false
+
+[node name="bridge-east" type="Node2D" parent="." unique_id=1371023409]
+position = Vector2(7040, 4640)
+rotation = -1.5707964
+script = ExtResource("2_r1q2g")
+toward = "east"
+length = 4
+width = 64.0
+bridge_id = "playground-sky-bridge-east"
+starts_lowered = true
+draw_floor = false
+
+[node name="bridge-south" type="Node2D" parent="." unique_id=1865026461]
+position = Vector2(6816, 4864)
+script = ExtResource("2_r1q2g")
+length = 4
+width = 64.0
+bridge_id = "playground-sky-bridge-south"
+starts_lowered = true
+draw_floor = false
+
+[node name="sign" type="Label" parent="." unique_id=1175969701]
+offset_left = 6024.0
+offset_top = 4380.0
+offset_right = 6384.0
+offset_bottom = 4530.0
+theme_override_font_sizes/font_size = 14
+text = "Sky corner (docs/godot/SKY_FLOOR.md).
+The sky is painted as holes (level -2) on the
+elevation layer; the SkyFloor node draws it.
+Cross the rope bridges; push off any edge to
+fall: you come back where you fell."

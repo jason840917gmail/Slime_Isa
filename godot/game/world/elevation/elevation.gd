@@ -255,6 +255,12 @@ const FRINGE_KEYS := {
 const DRESSING_ATLAS := "res://asset/MAPS/elevation/dressing/cliff-dressing.png"
 const DRESSING_SHADER := preload("res://game/world/elevation/sides/ledge_dressing.gdshader")
 const DRESSING_STAIRS_CLEAR := 24.0
+## Sky floors (docs/godot/SKY_FLOOR.md, game/world/sky/sky_floor.gd): the group they are in, and the
+## lower ground of a wall whose foot hangs into one. No ground lies at such a foot: it gets no foot (no
+## plants, no foot strip, no shadow: the walls' shader's `has_foot`) and no ledge dressing (the ground
+## is in no foot set).
+const SKY_GROUP := &"sky_floor"
+const SKY_GROUND := "sky"
 ## The cliffs layer's tile set (`find_cliff_layer`): other layers have a `wall_style` too (the
 ## fieldstone walls' WallLayer).
 const CLIFF_TILESET_PATH := "res://game/world/elevation/cliffs/cliff_tileset.tres"
@@ -385,6 +391,10 @@ var _open_zone: Dictionary = {}
 ## Every top's drawn shape (ElevationSides.shapes, Elevation space). The lower
 ## levels walk and collide by it (`_terrain_walkable`, `_with_sides`), not by the model's cells.
 var _side_shapes: Array = []
+## Where a top's border runs up against another level's wall in this world, and how it is drawn there
+## (ElevationSides.joints, with "cell": the place in the map's own cells). Filled when the walls are
+## built from the painting, empty in a world loaded from its cache: tools/check_cliff_joints.gd reads it.
+var side_joints: Array[Dictionary] = []
 ## The shapes whose bounds touch each SHAPE_CELL-unit cell (Vector2i -> indices into _side_shapes).
 var _side_cells: Dictionary = {}
 var _open_rect := Rect2()
@@ -1666,11 +1676,15 @@ func _add_sides(edges: Array[Dictionary]) -> void:
 	var painted_of := func(edge: Dictionary) -> String:
 		var at: Array = middle_of.call(edge)
 		return _painted_style_at(at[0], at[1], int(edge["level"]), painted)
-	# The top's ground and the ground under the wall (its own where that has no sheet: water).
+	# The top's ground and the ground under the wall (its own where that has no sheet: water; none
+	# where the wall hangs into a sky floor).
+	var sky := _sky_floors()
 	var grounds_of := func(edge: Dictionary) -> PackedStringArray:
 		var top := str(edge["ground"])
 		var low := grid.tri_ground[int(edge["x"])]
-		if not _sheets.has(low) and low != TerrainMaterials.WATER:
+		if _foot_in_sky(edge, sky):
+			low = SKY_GROUND
+		elif not _sheets.has(low) and low != TerrainMaterials.WATER:
 			low = top
 		return PackedStringArray([top, low])
 	var wall_width_of := func(style: String) -> float:
@@ -1695,6 +1709,14 @@ func _add_sides(edges: Array[Dictionary]) -> void:
 			near_stairs if not stairs.is_empty() else Callable())
 	_side_shapes = builder.shapes
 	_index_side_shapes()
+	# Where a border meets another level's wall inside the map's own cells (tools/check_cliff_joints.gd).
+	side_joints.clear()
+	for joint: Dictionary in builder.joints:
+		var at := (joint["at"] as Vector2) / cell
+		if Rect2(_own_cells).grow(0.01).has_point(at):
+			var own := joint.duplicate()
+			own["cell"] = at - Vector2(cell_offset)
+			side_joints.append(own)
 	if _cache_record != null:
 		# The shapes go in whole: `_with_sides` needs their "edges" again when a passage opens at run
 		# time (a blown wall, a slab bridge, a drawbridge) in a world loaded from its cache.
@@ -1704,6 +1726,36 @@ func _add_sides(edges: Array[Dictionary]) -> void:
 		var arrays: MeshData = entry["arrays"]
 		if not arrays.is_empty():
 			_add_instance(holder, "Sides", str(entry["key"]), arrays.to_mesh())
+
+
+## The sky floors that read this world's painting (SkyFloor nodes, in SKY_GROUP), in tree order:
+## [[their area in the painted layer's cells (Rect2i), their sky level], ...].
+func _sky_floors() -> Array:
+	var out := []
+	if not is_inside_tree():
+		return out
+	for node: Node in get_tree().get_nodes_in_group(SKY_GROUP):
+		if not node.has_method(&"sky_cells_on"):
+			continue
+		var cells: Rect2i = node.call(&"sky_cells_on", layer)
+		if cells.has_area():
+			out.append([cells, int(node.get(&"sky_level"))])
+	return out
+
+
+## True when the wall hanging from `edge` ends in one of `floors` (`_sky_floors`): the cell across the
+## edge lies in its area and the wall's foot is at its sky level or lower.
+func _foot_in_sky(edge: Dictionary, floors: Array) -> bool:
+	if floors.is_empty():
+		return false
+	var across := int(edge["x"])
+	var band_index := grid.tri_band[across]
+	var low := int(grid.bands[band_index]["bottom"]) if band_index >= 0 else grid.tri_level[across]
+	var at := grid.tri_cell(across) - cell_offset
+	for entry: Array in floors:
+		if low <= int(entry[1]) and (entry[0] as Rect2i).has_point(at):
+			return true
+	return false
 
 
 ## Tells the walls' builder where this chunk world lies ("Across chunk lines"): its overworld
@@ -1800,6 +1852,10 @@ func _cache_key() -> String:
 	# a chunk world's neighbours' paint past its edges ("Across chunk lines") is part of what it builds
 	if not _edges.is_empty():
 		meta.append(_edges["signature"])
+	# walls that hang into a sky floor have no foot (`_foot_in_sky`)
+	var sky := _sky_floors()
+	if not sky.is_empty():
+		meta.append(["sky", sky])
 	context.update(var_to_str(meta).to_utf8_buffer())
 	return context.finish().hex_encode()
 
@@ -3124,6 +3180,9 @@ func _sides_material(style: String, top_ground: String, low_ground: String) -> M
 			material_of.set_shader_parameter(&"variant_texture", variants)
 			material_of.set_shader_parameter(&"variant_count", float(variants.get_height() / 128))
 			material_of.set_shader_parameter(&"course_shift", 0.0 if style in SEAMLESS_WALL_STYLES else 1.0)
+	# A wall that hangs into a sky floor stands on no ground: no foot.
+	if low_ground == SKY_GROUND:
+		material_of.set_shader_parameter(&"has_foot", 0.0)
 	# The top's lip strip and the lower ground's foot strip, all along its edges (fixed ledges).
 	for pair: Array in [["lip", top_ground], ["foot", low_ground]]:
 		var strip_name := str(FRINGE_GROUNDS.get(pair[1], ""))
