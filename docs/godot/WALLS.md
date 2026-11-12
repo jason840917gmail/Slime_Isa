@@ -1,6 +1,8 @@
 # Walls: built walls painted cell by cell
 
-> **Status:** first version, 2026-10-13. One style, `stone` (the fieldstone wall). The stone walls
+> **Status:** first version, 2026-10-13. Two styles: `stone` (the fieldstone wall) and, since
+> 2026-11-01, `hedge` (a clipped boxwood hedge for the West village's gardens, the second auto
+> tile in the palette's top row; it joins and blocks exactly as the stone wall does). The stone walls
 > of level-1 and the chunk worlds (Gloop Forest E4, F4, F5, Northern Ruins D1, D2, E1, E2, Desert
 > A7, A8) are painted on `walls` WallLayers; the old 70 px wall art is gone. The dev worlds still
 > place the kept `wall-stone-solid` scenes, which now draw the new pieces.
@@ -55,6 +57,17 @@ two takes of each piece in `asset/Originals/walls/stone/kit/`:
 | `run-h` | one long straight east-west run, no pillars: mossy cap stones over a front face of chunky fieldstones | `run-h-b` |
 | `run-v` | one long straight north-south run seen from above: a column of cap stones | `run-v-a` |
 | `pillar` | one short squat square pillar, about as tall as it is wide, a thick flat mossy cap stone | `pillar-c` |
+
+The **hedge** (2026-11-01) has no concept of its own: its kit was generated with the town set's
+garden sheet as reference (`asset/Originals/town/concepts/garden-a.png`, whose hedge the owner
+picked) beside the interior mushroom furniture sheet, two takes each in
+`asset/Originals/walls/hedge/kit/`:
+
+| Piece | Asked for | Used |
+|---|---|---|
+| `run-h` | one long straight east-west run of the clipped boxwood hedge: a flat leafy top band over a front face of dense small leaves, a strip of soil at its foot, a few tiny white flowers | `run-h-a` |
+| `run-v` | the same hedge running north-south seen from above: a long narrow even band of its flat leafy top | `run-v-a` |
+| `pillar` | a squat square clipped boxwood block about as tall as it is wide, a softly rounded top | `pillar-a` (`pillar-b` came with a white halo) |
 
 `scripts/art/build-wall-kit.py [style]` (**numpy**) cuts each run gap to gap and wraps it into a
 seamless strip two cells long, then composes the 16 shapes for each of the four cell parities (x and

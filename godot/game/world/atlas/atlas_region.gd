@@ -37,6 +37,8 @@ const WORLD_GROUND := "res://game/world/world_ground.gd"
 ## For a region cut into chunk worlds: the chunk "Open world" opens (a list of its chunks; not saved).
 @export var open_chunk: String = ""
 @export_tool_button("Open world", "PackedScene") var open_button: Callable = open_world
+## Opens the region's block of chunks joined into one scene to edit (the atlas's "Edit area").
+@export_tool_button("Edit area", "Edit") var edit_area_button: Callable = edit_area
 
 ## Problems the atlas found with this region (shown on the slot in the Scene dock).
 var warnings := PackedStringArray()
@@ -224,3 +226,9 @@ func open_world() -> void:
 	var editor := Engine.get_singleton(&"EditorInterface") if Engine.is_editor_hint() and Engine.has_singleton(&"EditorInterface") else null
 	if editor != null:
 		editor.call(&"open_scene_from_path", path)
+
+
+func edit_area() -> void:
+	if interior or not get_parent().has_method(&"open_area_rect"):
+		return
+	get_parent().call(&"open_area_rect", Rect2i(_chunk, block_size))

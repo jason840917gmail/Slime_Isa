@@ -84,5 +84,302 @@
       "A worm's bite comes after its wind-up. Watch the shoulders, kid, then step back and thrust.",
       "Bars, gaps, a lever out of reach: if a thrust fits, the Spear reaches."
     ]
+  },
+  {
+    "id": "dollop",
+    "characterId": "dollop",
+    "displayName": "Dollop",
+    "description": "The shopkeeper of the West village's general store: potions and food ingredients.",
+    "dialogue": [
+      "Welcome to Dollop's! Potions on the left, mushrooms on the right, and no sampling the goo jars.",
+      "Coins? The worms drop them when you bonk them. Don't ask me where they get them.",
+      "A red potion puts the bounce back in a slime. Take two if you're the brave sort."
+    ]
+  },
+  {
+    "id": "burble",
+    "characterId": "burble",
+    "displayName": "Burble",
+    "description": "The innkeeper of the Bubbling Mug.",
+    "dialogue": [
+      "Welcome to the Bubbling Mug! Warmest goo cider this side of the Wellspring.",
+      "A newborn? Here? Pull up a stool, little one. Everybody wants to meet you.",
+      "The rooms are full of travellers. The roads past the Thorn Guard posts are shut, so nobody's leaving."
+    ]
+  },
+  {
+    "id": "crumb",
+    "characterId": "crumb",
+    "displayName": "Crumb",
+    "description": "The town's baker.",
+    "dialogue": [
+      "Mind the flour! Oh, too late. You look like a little sugar bun now.",
+      "Pumpkin pie, fresh from the oven. The secret is a pinch of moss. Don't tell anyone.",
+      "Burr bought two buns every morning. I still bake his... just in case."
+    ]
+  },
+  {
+    "id": "mayor-wobbleton",
+    "characterId": "mayor-wobbleton",
+    "displayName": "Mayor Wobbleton",
+    "description": "The mayor of the West village, fussy and proud.",
+    "dialogue": [
+      "Ahem! Mayor Wobbleton, at your service. Welcome to the finest village in the west.",
+      "Our gatekeeper went off to fight that one-eyed brute. Most irregular. I have filed a complaint.",
+      "If you see Burr out there, tell him the town needs him. And that his paperwork is late."
+    ]
+  },
+  {
+    "id": "bobbin",
+    "characterId": "bobbin",
+    "displayName": "Bobbin",
+    "description": "The town's tailor.",
+    "dialogue": [
+      "Hold still while I measure you! Oh... you can't, can you. You're all wobble.",
+      "A scarf, a bow, a little hat: every slime looks better with one good accessory.",
+      "I'm sewing banners for the day the Pearls come home. A bit early, maybe. I like to be ready."
+    ]
+  },
+  {
+    "id": "auntie-suds",
+    "characterId": "auntie-suds",
+    "displayName": "Auntie Suds",
+    "description": "The keeper of the goo bathhouse.",
+    "dialogue": [
+      "Welcome to the goo baths, dearie. Warm jelly, warm heart.",
+      "A good soak takes the dents out of any slime. Even the ones from worm bites.",
+      "The steam comes from deep under the hill. Some say the Wellspring's roots run all the way here."
+    ]
+  },
+  {
+    "id": "dune",
+    "characterId": "dune",
+    "displayName": "Dune",
+    "description": "A traveller stuck at the inn since the desert road closed.",
+    "dialogue": [
+      "Dune's the name. I came up the desert road, just before the Thorn Guard shut it.",
+      "Past the dunes lives a worm as long as a river. Gorge's general, they say. I didn't stay to ask.",
+      "When the roads open again I'll show you the way. Until then: another cider, Burble!"
+    ]
+  },
+  {
+    "id": "granny-thistle",
+    "characterId": "granny-thistle",
+    "displayName": "Granny Thistle",
+    "description": "An old herbalist who knows the old potions.",
+    "dialogue": [
+      "Oh my, a newborn! I haven't seen one since my own grandchildren.",
+      "Herbs, mushrooms, a drop of dew... a potion needs no forge if you know the old ways.",
+      "Bring me a red mushroom and a sprig of mint some day, and I'll show you a little secret."
+    ]
+  },
+  {
+    "id": "sprig",
+    "characterId": "sprig",
+    "displayName": "Sprig",
+    "description": "The town's gardener.",
+    "dialogue": [
+      "Careful where you bounce! These carrots took all summer.",
+      "The worms dig up my beds at night. I put a scarecrow out, but it's not very scary, is it?",
+      "Plants like a little talk. And a lot of water. Mostly the water."
+    ]
+  },
+  {
+    "id": "dot",
+    "characterId": "dot",
+    "displayName": "Dot",
+    "description": "A town gossip, always knitting.",
+    "dialogue": [
+      "Have you heard? Burr went after Fatty One Eye all by himself. Brave or silly, I can't decide.",
+      "And now a newborn slime bubbling about the place! Wait till I tell Dab.",
+      "Don't mind me, dear. I just knit and I listen. Mostly I listen."
+    ]
+  },
+  {
+    "id": "dab",
+    "characterId": "dab",
+    "displayName": "Dab",
+    "description": "Dot's gossip friend.",
+    "dialogue": [
+      "Psst. Dot says the mayor is afraid of chickens. You didn't hear it from me.",
+      "A newborn! From the Wellspring? Oh, I must sit down. I am sitting down. Oh, good.",
+      "Young Burr hasn't stopped rolling about since his father left. Bless him."
+    ]
+  },
+  {
+    "id": "bram",
+    "characterId": "bram",
+    "displayName": "Bram",
+    "description": "An apprentice of the Thorn Guard, keeping the town gate.",
+    "dialogue": [
+      "Halt! Oh, you're a slime. Carry on. I mean: state your business! ...Carry on.",
+      "Apprentice Thorn Guard Bram, West gate. Yoi says I get a real spear when I stop dropping this one.",
+      "Nothing gets past me. Except the chickens. The chickens get past me a lot."
+    ]
+  },
+  {
+    "id": "zing",
+    "characterId": "zing",
+    "displayName": "Zing",
+    "description": "Runs the throwing game at the booth.",
+    "dialogue": [
+      "Step right up! Three throws, three targets, one prize!",
+      "Got a good gulp on you? Swallow it, aim it, let it fly!",
+      "Nobody has beaten the high score. Mostly because I keep changing it."
+    ]
+  },
+  {
+    "id": "plum",
+    "characterId": "plum",
+    "displayName": "Plum",
+    "description": "The fruit seller on the plaza.",
+    "dialogue": [
+      "Fresh apples! Juicy plums! Er, I'm Plum. The plums are just plums.",
+      "The orchard is over the hill, past where the worms dig. I go early, before they wake up.",
+      "Have an apple, little one. Newborns need their vitamins."
+    ]
+  },
+  {
+    "id": "gramps-reel",
+    "characterId": "gramps-reel",
+    "displayName": "Gramps Reel",
+    "description": "An old fisher with tall tales.",
+    "dialogue": [
+      "Caught a fish once as big as the inn. Well. As big as the inn's door.",
+      "Lily over in Slimeshire? I taught her everything. Except patience. Nobody can teach that.",
+      "Fish bite best when you're not looking. So I don't look. I nap."
+    ]
+  },
+  {
+    "id": "penny",
+    "characterId": "penny",
+    "displayName": "Penny",
+    "description": "The West village's mail carrier.",
+    "dialogue": [
+      "Mail! Mail for... nobody. Nobody writes to Burr's house any more.",
+      "Every letter gets there. Rain, wind, worms. Mostly worms these days.",
+      "A letter from Slimeshire for the mayor! He'll read it, frown and file it. He always does."
+    ]
+  },
+  {
+    "id": "old-sedge",
+    "characterId": "old-sedge",
+    "displayName": "Old Sedge",
+    "description": "An old slime who walks his pup Biscuit round the town.",
+    "dialogue": [
+      "Biscuit, heel! Heel! ...He never heels.",
+      "We walk the town twice a day, Biscuit and I. Keeps the old jelly moving.",
+      "In my day the Thorn Guard marched these streets. Now it's young Bram and his spear."
+    ]
+  },
+  {
+    "id": "wick",
+    "characterId": "wick",
+    "displayName": "Wick",
+    "description": "The lamplighter who tops up the goo lamps.",
+    "dialogue": [
+      "Every goo lamp needs a top-up. Forty-two lamps. I've named them all.",
+      "This one's Gloria. She flickers when she's happy.",
+      "The glow goo comes from the fountain. Don't drink it. Trust me."
+    ]
+  },
+  {
+    "id": "tansy",
+    "characterId": "tansy",
+    "displayName": "Tansy",
+    "description": "A shopper with a basket, always on an errand.",
+    "dialogue": [
+      "Carrots, cabbage, a loaf from Crumb's... what am I forgetting? Oh! Everything else.",
+      "Dollop's prices went up again. It's the worms, she says. Everything's the worms.",
+      "Mind my basket, dear, I've only got the two arms. Well. Sort of arms."
+    ]
+  },
+  {
+    "id": "fizz",
+    "characterId": "fizz",
+    "displayName": "Fizz",
+    "description": "A kid playing tag by the fountain.",
+    "dialogue": [
+      "Tag! You're it! ...Hey, no fair, you can't roll away!",
+      "Are you really new? Like, brand new? Can you do a trick?",
+      "When I grow up I'm going to be a Thorn Guard like Bram. But better at holding the spear."
+    ]
+  },
+  {
+    "id": "tad",
+    "characterId": "tad",
+    "displayName": "Tad",
+    "description": "A kid with a ball who makes the rules.",
+    "dialogue": [
+      "I've got the ball, so I make the rules. Rule one: I win.",
+      "Young Burr rolls faster than anybody. He says his dad taught him.",
+      "This bandage? Chicken attack. Don't laugh."
+    ]
+  },
+  {
+    "id": "young-burr",
+    "characterId": "young-burr",
+    "displayName": "Young Burr",
+    "description": "Burr the gatekeeper's son, waiting for his father.",
+    "dialogue": [
+      "My dad went to fight Fatty One Eye. He said he'd be back by supper. That was ages ago.",
+      "He taught me a trick before he left. Want to see? You curl up, and you ROLL!",
+      "If you find him... tell him I've been practising."
+    ]
+  },
+  {
+    "id": "isa",
+    "characterId": "isa",
+    "displayName": "Isa",
+    "description": "The oldest of three sisters: clever, always learning and exploring.",
+    "dialogue": [
+      "I'm Isa! Did you know the fountain's goo glows brighter when it rains? I measured it.",
+      "I've read every book in the town hall. Twice. Now I'm making a map of everything.",
+      "Dany, come on! There's a cave behind the gardens and nobody has written it down yet!"
+    ]
+  },
+  {
+    "id": "dany",
+    "characterId": "dany",
+    "displayName": "Dany",
+    "description": "The middle sister, the kindest of all; she follows Isa everywhere.",
+    "dialogue": [
+      "Hi! I'm Dany. You look new. Do you want a hug? Slimes give the best hugs.",
+      "Wherever Isa goes, I go. Somebody has to carry the plasters.",
+      "I picked this flower for you! Well, for whoever came by first. That's you!"
+    ]
+  },
+  {
+    "id": "gavy",
+    "characterId": "gavy",
+    "displayName": "Gavy",
+    "description": "The youngest sister: always running, jumping and climbing where she shouldn't.",
+    "dialogue": [
+      "Can't stop! I'm racing the chickens!",
+      "I climbed the pig pen! And the fountain! And almost the inn! Don't tell Mum.",
+      "Bet you can't catch me! Nobody can! Not even Dad!"
+    ]
+  },
+  {
+    "id": "dan",
+    "characterId": "dan",
+    "displayName": "Dan",
+    "description": "The three sisters' father, always running after Gavy.",
+    "dialogue": [
+      "Gavy! Gavy, come back! ...Hello there. Have you seen a small orange blur go by?",
+      "Three girls. One of them climbs everything. I haven't sat down since spring.",
+      "Isa reads, Dany hugs, Gavy runs. And I run after Gavy. It works. Mostly."
+    ]
+  },
+  {
+    "id": "may",
+    "characterId": "may",
+    "displayName": "May",
+    "description": "The three sisters' mother, at home making dinner, always smiling.",
+    "dialogue": [
+      "Welcome, little one! Dinner's nearly ready. There's always a bowl for a guest.",
+      "Isa's off exploring, Dany's following her, and Dan is chasing Gavy. Same as every evening.",
+      "Mushroom soup tonight. Gavy says she hates mushrooms. She has seconds every time."
+    ]
   }
 ]

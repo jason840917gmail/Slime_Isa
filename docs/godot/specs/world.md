@@ -391,6 +391,15 @@ Collisions: NPC mask world|player|water; Godot CharacterBody2D vs CharacterBody2
 
 Name tags are ported (2026-10-05, `game/ui/npc_name_tags.gd`); the rest stays OUT.
 
+Since 2026-11-01 (the West town's villagers, [VILLAGERS.md](../VILLAGERS.md)): an NPC whose library
+has a `talk` clip plays it instead of `idle` while a dialogue holds it (`npc.gd` `_rest_clip`), and
+`VillagerScript` (`game/world/villagers/villager_script.gd`, extending `npc.gd` through its hooks
+`_body_bounds`, `_before_step`, `_on_rest`) adds a wander circle of its own, routes, following
+another node, facing idles and climbing over fences and walls; it runs on the villager scene's
+root (not on an `NpcScript` child), so a placed villager's settings show in the Inspector and
+survive a save. Villagers and animals (`critter.gd`) both read the §5.3 `npc-wander` area that
+names their instance id. A node's `name_tag_rise` sets its tag's height.
+
 - Name tags (`features/npcs/NpcNameTags.ts`): label = displayName (table §5.1), 14 px, colour `#f5f7ff`, stroke `#081022` 4 px, origin (0.5,1) at `(sprite.x, sprite.y - displayHeight*originY - 2)` = old root y − 73.28 − 2 **[FEET]**; quest markers bob 3 px / 900 ms, 18 px above the tag. Nice for "looks like Phaser" if time allows.
 - Dialogue/quests/interaction (QuestNpcController, `registerNpcPlacement :1962-1987`), story variant `chapter-1-villagers` (flag `chapter-1-complete`, unset in the trial → villagers present; the unported placeholder leaves them in, which is correct).
 

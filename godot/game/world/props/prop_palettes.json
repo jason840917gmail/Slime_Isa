@@ -2053,7 +2053,23 @@
 				"res://game/scenes/objects/house-world-solid--forge-red.tscn",
 				"res://game/scenes/objects/house-world-solid--house-mushroom-round.tscn",
 				"res://game/scenes/objects/house-world-solid--house-mushroom.tscn",
-				"res://game/scenes/objects/house-world-solid.tscn"
+				"res://game/scenes/objects/house-world-solid.tscn",
+				"res://game/scenes/objects/town/houses/drop-thatch-cottage.tscn",
+				"res://game/scenes/objects/town/houses/duplex.tscn",
+				"res://game/scenes/objects/town/houses/game-booth.tscn",
+				"res://game/scenes/objects/town/houses/gatekeeper-house.tscn",
+				"res://game/scenes/objects/town/houses/general-store.tscn",
+				"res://game/scenes/objects/town/houses/goo-bathhouse.tscn",
+				"res://game/scenes/objects/town/houses/inn.tscn",
+				"res://game/scenes/objects/town/houses/jelly-dome-house.tscn",
+				"res://game/scenes/objects/town/houses/pumpkin-house.tscn",
+				"res://game/scenes/objects/town/houses/snail-shell-house.tscn",
+				"res://game/scenes/objects/town/houses/stump-house.tscn",
+				"res://game/scenes/objects/town/houses/timber-townhouse.tscn",
+				"res://game/scenes/objects/town/houses/town-hall.tscn",
+				"res://game/scenes/objects/town/houses/triplex-row.tscn",
+				"res://game/scenes/objects/town/houses/twin-mushroom-house.tscn",
+				"res://game/scenes/objects/town/houses/two-flats.tscn"
 			],
 			"sized": false,
 			"slots": {
@@ -2086,6 +2102,102 @@
 					5.0,
 					5.0,
 					5.0
+				],
+				"res://game/scenes/objects/town/houses/drop-thatch-cottage.tscn|0": [
+					10.0,
+					5.0,
+					4.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/duplex.tscn|0": [
+					14.0,
+					5.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/houses/game-booth.tscn|0": [
+					0.0,
+					10.0,
+					5.0,
+					4.0
+				],
+				"res://game/scenes/objects/town/houses/gatekeeper-house.tscn|0": [
+					5.0,
+					10.0,
+					5.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/general-store.tscn|0": [
+					10.0,
+					10.0,
+					5.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/goo-bathhouse.tscn|0": [
+					0.0,
+					15.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/houses/inn.tscn|0": [
+					5.0,
+					15.0,
+					6.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/jelly-dome-house.tscn|0": [
+					11.0,
+					15.0,
+					4.0,
+					4.0
+				],
+				"res://game/scenes/objects/town/houses/pumpkin-house.tscn|0": [
+					15.0,
+					15.0,
+					4.0,
+					4.0
+				],
+				"res://game/scenes/objects/town/houses/snail-shell-house.tscn|0": [
+					0.0,
+					20.0,
+					4.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/stump-house.tscn|0": [
+					4.0,
+					20.0,
+					4.0,
+					4.0
+				],
+				"res://game/scenes/objects/town/houses/timber-townhouse.tscn|0": [
+					8.0,
+					20.0,
+					3.0,
+					5.0
+				],
+				"res://game/scenes/objects/town/houses/town-hall.tscn|0": [
+					11.0,
+					20.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/houses/triplex-row.tscn|0": [
+					0.0,
+					25.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/houses/twin-mushroom-house.tscn|0": [
+					5.0,
+					25.0,
+					5.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/houses/two-flats.tscn|0": [
+					10.0,
+					25.0,
+					4.0,
+					3.0
 				]
 			},
 			"width": 19
@@ -9126,292 +9238,292 @@
 					3.0
 				],
 				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|0": [
-					0,
-					12,
-					1,
-					1
+					0.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|1": [
-					1,
-					12,
-					2,
-					2
+					1.0,
+					12.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/barrel-stack.tscn|2": [
-					3,
-					12,
-					2,
-					2
+					3.0,
+					12.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|0": [
-					5,
-					12,
-					1,
-					1
+					5.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|1": [
-					6,
-					12,
-					1,
-					1
+					6.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bone-pile.tscn|2": [
-					7,
-					12,
-					2,
-					1
+					7.0,
+					12.0,
+					2.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|0": [
-					9,
-					12,
-					1,
-					1
+					9.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|1": [
-					10,
-					12,
-					1,
-					2
+					10.0,
+					12.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/bookshelf.tscn|2": [
-					11,
-					12,
-					2,
-					2
+					11.0,
+					12.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|0": [
-					13,
-					12,
-					1,
-					1
+					13.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|1": [
-					14,
-					12,
-					1,
-					1
+					14.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-crates.tscn|2": [
-					15,
-					12,
-					2,
-					1
+					15.0,
+					12.0,
+					2.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|0": [
-					17,
-					12,
-					1,
-					1
+					17.0,
+					12.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|1": [
-					18,
-					12,
-					1,
-					2
+					18.0,
+					12.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/broken-pillar.tscn|2": [
-					19,
-					12,
-					2,
-					2
+					19.0,
+					12.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|0": [
-					21,
-					12,
-					1,
-					2
+					21.0,
+					12.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|1": [
-					22,
-					12,
-					1,
-					2
+					22.0,
+					12.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/candelabra.tscn|2": [
-					23,
-					12,
-					1,
-					2
+					23.0,
+					12.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|0": [
-					0,
-					14,
-					1,
-					1
+					0.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|1": [
-					1,
-					14,
-					1,
-					1
+					1.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/floor-grate.tscn|2": [
-					2,
-					14,
-					2,
-					2
+					2.0,
+					14.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|0": [
-					4,
-					14,
-					1,
-					1
+					4.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|1": [
-					5,
-					14,
-					2,
-					1
+					5.0,
+					14.0,
+					2.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-bench.tscn|2": [
-					7,
-					14,
-					2,
-					2
+					7.0,
+					14.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|0": [
-					9,
-					14,
-					1,
-					1
+					9.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|1": [
-					10,
-					14,
-					2,
-					1
+					10.0,
+					14.0,
+					2.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/guard-table.tscn|2": [
-					12,
-					14,
-					2,
-					2
+					12.0,
+					14.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|0": [
-					14,
-					14,
-					1,
-					1
+					14.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|1": [
-					15,
-					14,
-					1,
-					1
+					15.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-cage.tscn|2": [
-					16,
-					14,
-					1,
-					2
+					16.0,
+					14.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|0": [
-					17,
-					14,
-					1,
-					1
+					17.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|1": [
-					18,
-					14,
-					1,
-					1
+					18.0,
+					14.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/hanging-chains.tscn|2": [
-					19,
-					14,
-					1,
-					2
+					19.0,
+					14.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|0": [
-					0,
-					16,
-					2,
-					2
+					0.0,
+					16.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|1": [
-					2,
-					16,
-					2,
-					2
+					2.0,
+					16.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/sarcophagus.tscn|2": [
-					4,
-					16,
-					3,
-					2
+					4.0,
+					16.0,
+					3.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|0": [
-					7,
-					16,
-					1,
-					1
+					7.0,
+					16.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|1": [
-					8,
-					16,
-					1,
-					2
+					8.0,
+					16.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/stalagmites.tscn|2": [
-					9,
-					16,
-					2,
-					2
+					9.0,
+					16.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|0": [
-					11,
-					16,
-					1,
-					1
+					11.0,
+					16.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|1": [
-					12,
-					16,
-					1,
-					1
+					12.0,
+					16.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/wall-shackles.tscn|2": [
-					13,
-					16,
-					1,
-					2
+					13.0,
+					16.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|0": [
-					14,
-					16,
-					1,
-					1
+					14.0,
+					16.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|1": [
-					15,
-					16,
-					1,
-					2
+					15.0,
+					16.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/weapon-rack.tscn|2": [
-					16,
-					16,
-					2,
-					2
+					16.0,
+					16.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|0": [
-					18,
-					16,
-					1,
-					1
+					18.0,
+					16.0,
+					1.0,
+					1.0
 				],
 				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|1": [
-					19,
-					16,
-					1,
-					2
+					19.0,
+					16.0,
+					1.0,
+					2.0
 				],
 				"res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn|2": [
-					20,
-					16,
-					2,
-					2
+					20.0,
+					16.0,
+					2.0,
+					2.0
 				],
 				"res://game/scenes/objects/ore-heap.tscn|0": [
 					19.0,
@@ -9541,6 +9653,556 @@
 				]
 			},
 			"width": 25
+		},
+		{
+			"name": "town",
+			"scenes": [
+				"res://game/scenes/objects/town/props/barrels.tscn",
+				"res://game/scenes/objects/town/props/beehive.tscn",
+				"res://game/scenes/objects/town/props/bench.tscn",
+				"res://game/scenes/objects/town/props/clothesline.tscn",
+				"res://game/scenes/objects/town/props/crates.tscn",
+				"res://game/scenes/objects/town/props/flower-cart.tscn",
+				"res://game/scenes/objects/town/props/goo-fountain.tscn",
+				"res://game/scenes/objects/town/props/goo-lamp.tscn",
+				"res://game/scenes/objects/town/props/mailbox.tscn",
+				"res://game/scenes/objects/town/props/market-stall.tscn",
+				"res://game/scenes/objects/town/props/notice-board.tscn",
+				"res://game/scenes/objects/town/props/rain-barrel.tscn",
+				"res://game/scenes/objects/town/props/signpost.tscn",
+				"res://game/scenes/objects/town/props/slime-statue.tscn",
+				"res://game/scenes/objects/town/props/water-trough.tscn",
+				"res://game/scenes/objects/town/props/wheelbarrow.tscn"
+			],
+			"sized": true,
+			"slots": {
+				"res://game/scenes/objects/town/props/barrels.tscn|0": [
+					0.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/barrels.tscn|1": [
+					1.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/barrels.tscn|2": [
+					2.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/beehive.tscn|0": [
+					4.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/beehive.tscn|1": [
+					5.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/beehive.tscn|2": [
+					6.0,
+					0.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/bench.tscn|0": [
+					7.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/bench.tscn|1": [
+					8.0,
+					0.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/bench.tscn|2": [
+					10.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/clothesline.tscn|0": [
+					12.0,
+					0.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/clothesline.tscn|1": [
+					14.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/clothesline.tscn|2": [
+					16.0,
+					0.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/crates.tscn|0": [
+					0.0,
+					2.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/crates.tscn|1": [
+					1.0,
+					2.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/crates.tscn|2": [
+					2.0,
+					2.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/flower-cart.tscn|0": [
+					4.0,
+					2.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/flower-cart.tscn|1": [
+					5.0,
+					2.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/flower-cart.tscn|2": [
+					7.0,
+					2.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/goo-fountain.tscn|0": [
+					9.0,
+					2.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/goo-fountain.tscn|1": [
+					11.0,
+					2.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/goo-fountain.tscn|2": [
+					13.0,
+					2.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/props/goo-lamp.tscn|0": [
+					16.0,
+					2.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/goo-lamp.tscn|1": [
+					17.0,
+					2.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/goo-lamp.tscn|2": [
+					18.0,
+					2.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/mailbox.tscn|0": [
+					0.0,
+					5.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/mailbox.tscn|1": [
+					1.0,
+					5.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/mailbox.tscn|2": [
+					2.0,
+					5.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/market-stall.tscn|0": [
+					3.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/market-stall.tscn|1": [
+					5.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/market-stall.tscn|2": [
+					7.0,
+					5.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/props/notice-board.tscn|0": [
+					10.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/notice-board.tscn|1": [
+					12.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/notice-board.tscn|2": [
+					14.0,
+					5.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/props/rain-barrel.tscn|0": [
+					17.0,
+					5.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/rain-barrel.tscn|1": [
+					18.0,
+					5.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/rain-barrel.tscn|2": [
+					19.0,
+					5.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/signpost.tscn|0": [
+					0.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/signpost.tscn|1": [
+					1.0,
+					8.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/signpost.tscn|2": [
+					2.0,
+					8.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/slime-statue.tscn|0": [
+					4.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/slime-statue.tscn|1": [
+					5.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/slime-statue.tscn|2": [
+					6.0,
+					8.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/water-trough.tscn|0": [
+					7.0,
+					8.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/water-trough.tscn|1": [
+					9.0,
+					8.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/water-trough.tscn|2": [
+					11.0,
+					8.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/props/wheelbarrow.tscn|0": [
+					14.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/wheelbarrow.tscn|1": [
+					15.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/props/wheelbarrow.tscn|2": [
+					16.0,
+					8.0,
+					2.0,
+					1.0
+				]
+			},
+			"width": 21
+		},
+		{
+			"name": "garden",
+			"scenes": [
+				"res://game/scenes/objects/town/garden/berry-bush.tscn",
+				"res://game/scenes/objects/town/garden/cabbage-bed.tscn",
+				"res://game/scenes/objects/town/garden/carrot-bed.tscn",
+				"res://game/scenes/objects/town/garden/gravel-square.tscn",
+				"res://game/scenes/objects/town/garden/hedge-corner.tscn",
+				"res://game/scenes/objects/town/garden/hedge.tscn",
+				"res://game/scenes/objects/town/garden/herb-planter.tscn",
+				"res://game/scenes/objects/town/garden/picket-fence.tscn",
+				"res://game/scenes/objects/town/garden/pumpkin-patch.tscn",
+				"res://game/scenes/objects/town/garden/scarecrow.tscn",
+				"res://game/scenes/objects/town/garden/stepping-stones.tscn",
+				"res://game/scenes/objects/town/garden/tulip-bed.tscn"
+			],
+			"sized": true,
+			"slots": {
+				"res://game/scenes/objects/town/garden/berry-bush.tscn|0": [
+					0.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/berry-bush.tscn|1": [
+					1.0,
+					0.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/berry-bush.tscn|2": [
+					2.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/cabbage-bed.tscn|0": [
+					4.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/cabbage-bed.tscn|1": [
+					6.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/cabbage-bed.tscn|2": [
+					8.0,
+					0.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/garden/carrot-bed.tscn|0": [
+					11.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/carrot-bed.tscn|1": [
+					13.0,
+					0.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/carrot-bed.tscn|2": [
+					15.0,
+					0.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/garden/gravel-square.tscn|0": [
+					0.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/gravel-square.tscn|1": [
+					2.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/gravel-square.tscn|2": [
+					4.0,
+					3.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/hedge-corner.tscn|0": [
+					7.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/hedge-corner.tscn|1": [
+					9.0,
+					3.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/hedge-corner.tscn|2": [
+					11.0,
+					3.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/hedge.tscn|0": [
+					14.0,
+					3.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/hedge.tscn|1": [
+					16.0,
+					3.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/hedge.tscn|2": [
+					18.0,
+					3.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/herb-planter.tscn|0": [
+					0.0,
+					5.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/herb-planter.tscn|1": [
+					1.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/herb-planter.tscn|2": [
+					3.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/picket-fence.tscn|0": [
+					5.0,
+					5.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/picket-fence.tscn|1": [
+					7.0,
+					5.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/picket-fence.tscn|2": [
+					9.0,
+					5.0,
+					3.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/pumpkin-patch.tscn|0": [
+					12.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/pumpkin-patch.tscn|1": [
+					14.0,
+					5.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/pumpkin-patch.tscn|2": [
+					16.0,
+					5.0,
+					3.0,
+					3.0
+				],
+				"res://game/scenes/objects/town/garden/scarecrow.tscn|0": [
+					0.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/scarecrow.tscn|1": [
+					1.0,
+					8.0,
+					1.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/scarecrow.tscn|2": [
+					2.0,
+					8.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/stepping-stones.tscn|0": [
+					4.0,
+					8.0,
+					1.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/stepping-stones.tscn|1": [
+					5.0,
+					8.0,
+					2.0,
+					1.0
+				],
+				"res://game/scenes/objects/town/garden/stepping-stones.tscn|2": [
+					7.0,
+					8.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/tulip-bed.tscn|0": [
+					9.0,
+					8.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/tulip-bed.tscn|1": [
+					11.0,
+					8.0,
+					2.0,
+					2.0
+				],
+				"res://game/scenes/objects/town/garden/tulip-bed.tscn|2": [
+					13.0,
+					8.0,
+					3.0,
+					2.0
+				]
+			},
+			"width": 21
 		}
 	],
 	"detail": [

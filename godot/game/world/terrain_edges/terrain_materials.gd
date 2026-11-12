@@ -12,10 +12,12 @@ extends RefCounted
 ## Bottom to top: where grounds meet, the higher one's edge tiles are drawn over the lower one.
 ## Phaser's transition priorities (water 4-5 < the natural grounds 10 < town-cobble 12 < forest-moss,
 ## crystal-floor 20), with the ties broken so the more "lying on top" ground wins: grass grows over
-## sand and soil, fallen leaves and snow lie on top of everything at their priority.
+## sand and soil, fallen leaves and snow lie on top of everything at their priority. The West
+## village's garden grounds (2026-11-01): grass grows over the tilled garden soil, the gravel path
+## lies over grass and under the cobble.
 const ORDER: PackedStringArray = [
-	"water", "cavern-floor", "forest-floor", "sanddessert", "highland", "amberleaf", "frozen",
-	"town-cobble", "forest-moss", "crystal-floor",
+	"water", "cavern-floor", "forest-floor", "garden-soil", "sanddessert", "highland", "amberleaf",
+	"frozen", "gravel-path", "town-cobble", "forest-moss", "crystal-floor",
 ]
 ## The water ground: no edge art of its own, filled with the animated water.
 const WATER := "water"
@@ -28,7 +30,9 @@ const TILE_GROUNDS := {
 	"forest-floor": "forest-floor",
 	"forest-moss": "forest-moss",
 	"frozen-ground": "frozen",
+	"garden-soil": "garden-soil",
 	"grass-a": "highland",
+	"gravel-path": "gravel-path",
 	"grass-b": "highland",
 	"sanddessert-ground": "sanddessert",
 	"town-cobble": "town-cobble",

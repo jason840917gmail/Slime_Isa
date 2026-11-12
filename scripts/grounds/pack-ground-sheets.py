@@ -51,7 +51,16 @@ SHEETS: dict[str, str] = {
     "water": "generated/water-a.png",
     "deep-water": "generated/deep-water-a.png",
     "town-cobble": "generated/town-cobble-a.png",
+    # the West village's garden grounds (2026-11-01)
+    "garden-soil": "generated/garden-soil-a.png",
+    "gravel-path": "generated/gravel-path-a.png",
 }
+
+# Sheets also written at 128 px per tile (128x128-tile_19x19_<name>.webp, the sharp sheet
+# game/world/ground_surface.gd draws): the wrap is made at that size from the 2048 px source and the
+# 64 px sheet is its downscale, so the two line up texel for texel. (The older grounds' 128 px sheets
+# are Magnific upscales of their 64 px sheets: build-terrain-edge-tiles.py --grounds-2x.)
+SHARP: set[str] = {"garden-soil", "gravel-path"}
 
 # (brightness, saturation) grade per ground. Neighbouring materials that meet on
 # the same map (cavern/crystal floor) are pulled closer in value so patches read
@@ -70,6 +79,7 @@ GRADES: dict[str, tuple[float, float]] = {
 # features, e.g. cobblestones that would otherwise dwarf the props.
 REPEATS: dict[str, int] = {
     "town-cobble": 2,
+    "gravel-path": 3,
 }
 
 WRAP_BAND = 0.34  # fraction of the half-size over which the offset copy fades out
@@ -113,19 +123,24 @@ def main() -> None:
         if only is not None and name not in only:
             continue
         packed += 1
-        image = Image.open(ORIGINALS / source).convert("RGBA")
-        if image.size != (SIZE, SIZE):
-            image = image.resize((SIZE, SIZE), Image.LANCZOS)
+        # opaque: a generator's "transparent" full-frame texture comes slightly see-through
+        image = Image.open(ORIGINALS / source).convert("RGB").convert("RGBA")
+        size = SIZE * 2 if name in SHARP else SIZE
+        if image.size != (size, size):
+            image = image.resize((size, size), Image.LANCZOS)
         brightness, saturation = GRADES.get(name, (1.0, 1.0))
         image = ImageEnhance.Color(ImageEnhance.Brightness(image).enhance(brightness)).enhance(saturation)
         image = make_wrap_seamless(image, seed=1000 + index)
         repeat = REPEATS.get(name, 1)
         if repeat > 1:
-            tiled = Image.new(image.mode, (SIZE * repeat, SIZE * repeat))
+            tiled = Image.new(image.mode, (size * repeat, size * repeat))
             for row in range(repeat):
                 for column in range(repeat):
-                    tiled.paste(image, (column * SIZE, row * SIZE))
-            image = tiled.resize((SIZE, SIZE), Image.LANCZOS)
+                    tiled.paste(image, (column * size, row * size))
+            image = tiled.resize((size, size), Image.LANCZOS)
+        if name in SHARP:
+            image.save(PROMOTED / f"{TILE * 2}x{TILE * 2}-tile_{GRID}x{GRID}_{name}.webp", format="WEBP", quality=90, method=6)
+            image = image.resize((SIZE, SIZE), Image.LANCZOS)
         # Lossless WebP: the same pixels as a PNG at a little over half the download (roadmap 10.1).
         image.save(PROMOTED / f"{TILE}x{TILE}-tile_{GRID}x{GRID}_{name}.webp", format="WEBP", lossless=True, quality=100, method=6)
     print(f"packed {packed} wrap-seamless ground sheets into {PROMOTED.relative_to(ROOT)}")

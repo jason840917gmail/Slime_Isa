@@ -17,7 +17,7 @@ behaviour per area is in [specs/](specs).
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `audio_cue_rules.gd`; and `sheet_sprite.gd`, the bestiary's sheet sprite (the converter's `unported_script.gd`, `modal_root.gd` and `scene_item_list.gd`, which no scene used, were removed in clean-out wave 1, 2026-10-17) |
 | `godot/game/scripts/` | hand | one file per ported scene-script id (`game.world-area` → `world_area.gd`), attached to the scenes that use it; a new `@export` gets its value in the editor |
 | `godot/game/characters/` | hand (Godot editor) | scenes Godot owns (below), e.g. `player_slime.tscn` |
-| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below), the [terrain lab](TERRAIN_LAB.md) and the [world atlas](WORLD_ATLAS.md) (`world_atlas.tscn`) |
+| `godot/game/dev/` | hand | development scenes, e.g. `playground.tscn` (below), the [terrain lab](TERRAIN_LAB.md), the [tile compare lab](TILE_COMPARE_LAB.md) and the [world atlas](WORLD_ATLAS.md) (`world_atlas.tscn`) |
 | `godot/game/**` (rest) | hand | autoloads, gameplay, UI, bootstrap (`main.tscn`) |
 | `godot/tools/` | hand | headless tools such as `verify_scenes.gd`, `build_player_clips.gd`, `build_terrain_lab.gd` and `build_region_worlds.gd` (with `region_worlds/`; [WORLD_ATLAS.md](WORLD_ATLAS.md)); excluded from exports |
 | `godot/tests/` | hand | headless integration tests: `run_tests.gd` runs every `func test_*` in `test_*.gd` against a fresh `main.tscn` (helpers in `lib/test_context.gd`; game bugs not fixed yet go in a file's `KNOWN_FAILURES`); excluded from exports |
@@ -131,9 +131,9 @@ pushes to go through it (`north` = walking up into it), and a `kind`:
 |---|---|---|
 | `door` | a real door: house front doors, interior exits | the leaf swings open (`doorOpenMs` 250, `DoorOpen`), the slime walks into the doorway (`doorWalkInMs` 240), then the iris; arriving through it the leaf stands open while the slime walks out, then closes (`doorCloseMs` 250, `DoorClose`) |
 | `opening` | a gap, a cave mouth, a hole in a wall | the slime walks into the doorway, fading into the dark (`doorWalkInMs` 240, `use_cue`), then the iris |
-| `ladder_down` | a hole with a ladder (the sinkholes) | the slime sinks and shrinks into the hole (`ladderClimbMs` 450), then the iris; arriving at one (it came up) it rises out of the hole, small to full size |
+| `ladder_down` | a hole with a ladder (the sinkholes; `object` scene `game/scenes/objects/ladder-hatch.tscn`) | the slime sinks and shrinks into the hole (`ladderClimbMs` 450), then the iris; arriving at one (it came up) it rises out of the hole, small to full size |
 | `ladder_up` | a ladder's foot (`cave-ladder`, side north) | the slime climbs a little and fades (`ladderClimbMs`), then the iris; arriving at one (it came down) it slides down onto the foot, fading in, while it walks out |
-| `fall` | a hole without a ladder into another scene | the slime spins and shrinks into the hole (`holeFallMs` 550, `FallDown`), then the iris; it lands on a **landing** there (below). Plain pits painted on the elevation are not doors and keep their falls |
+| `fall` | a hole without a ladder into another scene (`game/scenes/objects/drop-hole.tscn`) | the slime spins and shrinks into the hole (`holeFallMs` 550, `FallDown`), then the iris; it lands on a **landing** there (below). Plain pits painted on the elevation are not doors and keep their falls |
 
 **Every crossing has two ends, and arriving plays the leaving backwards** (owner, 2026-10-31;
 [design/2026-10-31-crossings-and-arrivals.md](../design/2026-10-31-crossings-and-arrivals.md)): the
@@ -173,11 +173,34 @@ and says `unlocked_message`; without it, `locked_message` once per push. Gates o
 (`open()`, this visit only) are unchanged; a bell's gate opens for good (`open_for_good()`, its
 record unlocked as a key's push leaves it; owner, 2026-10-16, question 136).
 
-**Real doors' look:** the door is painted into the house sprite. Set `house_art` (the house's
-Sprite2D), `door_rect` (the painted door, relative to the door node, world units), `door_arch` (the
-arch's height) and `hinge` (or `double_leaf`: two leaves hinged on the outer edges); door.gd then
-builds `game/world/door_leaf.gd` under the sprite: a dark doorway over the rect and the leaf cut
-from the house's own pixels, squashed toward the hinge and shaded as it swings in. A separate leaf
+**Real doors' look:** the door is painted into the house sprite. Set `door_rect` (the painted
+door, relative to the door node, world units), `door_arch` (the arch's height) and `hinge` (or
+`double_leaf`: two leaves hinged on the outer edges); door.gd then builds
+`game/world/door_leaf.gd` under the house's sprite: a dark doorway over the rect and the leaf cut
+from the house's own pixels, squashed toward the hinge and shaded as it swings in. The house is
+`house_art` (its Sprite2D) when set; left empty, door.gd finds it: the house (a StaticBody2D with a
+`Visual` sprite, placed as a node or painted on a prop layer) whose picture is opaque at the
+middle of `door_rect` (a painted house is no node of the scene to point at: gloop-forest-e4's
+hut). The house must sort by y with the slime (a `y_sort_enabled` parent), or the slime at its
+door is drawn behind it. Film a door with `tools/render_door_walk.gd` (in, the arrival, and back
+out).
+
+**Door frames** (owner, 2026-11-12): a house scene carries its painted door itself, as a
+`DoorFrame` child (`game/world/door_frame.gd`): the node stands on the painted door's sill (the
+middle of its bottom edge), `size` is the door's width and height, `arch`, `hinge`, `double_leaf`
+as above; the editor draws its outline over the house to place it. A `door` or `opening` with a
+side and no `door_rect` takes the nearest frame within `worldNavigation.doorFrameReachPx` (120) of
+the door node, so a house placed or painted anywhere opens by itself and the world's door node
+needs no look settings. With a frame the slime's picture first walks from where it stands to the
+sill at `doorApproachSpeed` (200 px/s; a porch, steps, the tailor's stair), the leaf opening as it
+gets there, then fades into the doorway; coming out it stands in the open door, comes down to its
+body, walks out, and the leaf closes. A house with several doors has a frame for each (the duplex,
+the triplex, the twin mushrooms, the two flats). `swings` off is an entrance with nothing to swing
+(the bathhouse's curtain): the walk, no leaf; its door node is an `opening`. **A building with no
+door in its art gets no frame, no door node and no room** (the general store and the game booth,
+open stalls). The West town's 16 house kinds and the three older houses used there (the blue
+cottage, the barn, the round mushroom house) have frames; a `door` with neither a frame nor a
+`door_rect` has no leaf, only the cues and the walk in. A separate leaf
 picture in `leaf_art_path` is drawn over the rect, closed too: the level-1 mushroom house's door
 (`res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`, Magnific 2026-10-14, made for the forge
 and moved here; it matches the painted door's planks, straps and ring). Not imported yet, that
@@ -316,6 +339,12 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
   `Services.constants()`) or from scene properties, never new literals.
 - Find a scene's node by its class (`child is LevelCollisionLayer`), or a layer by its tile set or its data layer, never by a name: names are typed by hand in the editor and drift (a room's painted layer was named `LevelCollisionLayer` and was silently ignored; R4's `elevation` layer is named `Elevation`). `game/shared/node_find.gd` does it (`child_of`, `layer_with_tile_set`, `layer_with_data`). A name stays only for a node the code creates and names itself.
 - Commit the `*.gd.uid` files Godot creates next to scripts.
+- A tool script's notice or question over the editor goes through `game/shared/editor_dialogs.gd`
+  (`notice`, `popup`, `close`), never `popup_dialog_centered` plus `queue_free`: the editor's
+  progress popup moves into the last dialog open when a task starts (a save, the "Scanning
+  actions..." after files change on disk) and is freed with it, and the editor's next save or scan
+  then crashes. `close` moves it back first (the editor crashes of 2026-11-01 to 11-11, from the
+  Area edit dialogs).
 
 ## Checking your work
 
@@ -358,3 +387,18 @@ The `--check-only` pass reports one error per run and does **not** catch calls t
 methods that do not exist on autoloads, so always also boot the game headless.
 Do not run headless `--import` while the Godot editor has the project open: they
 share the import cache.
+
+### When the editor crashes
+
+The editor writes no log file unless it is started with `--log-file`: Godot's file logging skips
+the editor and the project manager. Open the editor with `scripts\godot\open-editor.cmd`
+(double-click it; `GODOT_EDITOR` overrides the Godot path) and each launch logs to
+`%APPDATA%\Godot\app_userdata\Slime Isa\logs\editor-<time>.log` (the last 20 are kept). A crash
+ends that log with Godot's crash report, whose GDScript backtrace names the script and line that
+ran; its C++ backtrace shows only addresses (the official build has no symbols). Game runs and
+headless tool runs log to `godot*.log` in the same folder (the last 50,
+`debug/file_logging/max_log_files`).
+
+Windows lists each crash in the Event Viewer (Application log, event 1000) and, as set up on the
+owner's machine, keeps a dump of the last ten in `%LOCALAPPDATA%\CrashDumps\`: its stack shows what
+the editor was doing (the 2026-11-11 diagnosis named its functions by their error strings).

@@ -222,6 +222,15 @@ static func chunk_name(chunk: Vector2i) -> String:
 	return "%s%d" % [letter, chunk.y + 1]
 
 
+## The chunk "C6" names, (2, 5); (-1, -1) for anything that names no chunk.
+static func chunk_coords(chunk_name: String) -> Vector2i:
+	var column := COLUMN_LETTERS.find(chunk_name.left(1).to_upper())
+	var row := chunk_name.substr(1)
+	if column < 0 or chunk_name.length() < 2 or not row.is_valid_int() or int(row) < 1:
+		return Vector2i(-1, -1)
+	return Vector2i(column, int(row) - 1)
+
+
 ## The cells of a chunk rectangle (chunk coordinates) as a cell rectangle.
 func chunk_rect_cells(chunks: Rect2i) -> Rect2i:
 	return Rect2i(chunks.position * chunk_cells(), chunks.size * chunk_cells())

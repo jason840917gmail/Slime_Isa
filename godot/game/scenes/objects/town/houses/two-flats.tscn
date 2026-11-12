@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
+
+[sub_resource type="RectangleShape2D" id="foot"]
+size = Vector2(198, 74)
+
+[node name="two-flats" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -37)
+shape = SubResource("foot")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-230, -371)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/town/houses/two-flats.webp"
+
+[node name="door-1" type="Marker2D" parent="."]
+position = Vector2(-55, -6)
+
+[node name="door-2" type="Marker2D" parent="."]
+position = Vector2(83, -9)
+
+[node name="DoorFrameDown" type="Node2D" parent="."]
+position = Vector2(-53, -17)
+script = ExtResource("door_frame")
+size = Vector2(22.5, 35)
+arch = 11.0
+
+[node name="DoorFrameUp" type="Node2D" parent="."]
+position = Vector2(30.5, -108)
+script = ExtResource("door_frame")
+size = Vector2(19, 32.5)
+arch = 9.5

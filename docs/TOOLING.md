@@ -59,6 +59,11 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
   saves `<dir>/ceremony-<n>.png` as the ability ceremony plays (the bubble rising, the card, the gulp after a
   key press), for tuning it without playing to a quest.
 - `res://tools/build_terrain_lab.gd` — rebuilds the terrain lab scene ([godot/TERRAIN_LAB.md](godot/TERRAIN_LAB.md)).
+- `scripts\godot\open-editor.cmd [--dry-run]` — opens the project in the Godot editor with a log file
+  of its own per launch (`editor-<time>.log` in the project's user logs, the last 20 kept), so a crash
+  leaves Godot's crash report and GDScript backtrace behind
+  ([When the editor crashes](godot/CONVENTIONS.md#when-the-editor-crashes)); `GODOT_EDITOR` overrides
+  the Godot path, `--dry-run` prints the command.
 - `python scripts/godot/fit-symbol-font-metrics.py [--check]` — copies the UI font's line metrics
   (Source Sans 3) into the symbol fallback font (Noto Sans Symbols 2), so the fallback does not make every
   label taller. Rerun it after replacing either font, then let Godot reimport the font
@@ -70,7 +75,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
 
 - `pnpm grounds:pack [-- --only <sheet>]` (**numpy**) — builds each 19x19 (64x64 tile)
   `godot/asset/MAPS/grounds/64x64-tile_19x19_<ground>.webp` (lossless) from
-  `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless for sheet-wrap tiling.
+  `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless for sheet-wrap tiling;
+  a ground in `SHARP` (garden soil, gravel path) also gets its 128 px sheet
+  `128x128-tile_19x19_<ground>.webp` from the same wrap, its 64 px sheet being that one downscaled.
 - `python scripts/art/build-terrain-edge-tiles.py [ground ...] [--preview DIR] [--grounds-2x]` (**numpy**) —
   the hand-made terrain edges: reads `asset/Originals/grounds/generated/terrain-edges/<ground>-island.png`
   and `-hole.png` (and the ground sheet in `godot/asset/MAPS/grounds/` as the colour reference) and writes
@@ -90,8 +97,6 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)); `scripts/art/build-elevation-paint-tiles.py` draws
   the elevation layer's paint tiles and `scripts/art/build-cliff-paint-tiles.py` the cliffs layer's
   (one swatch per wall style; run it after the walls).
-- `python scripts/maps/build-elevation-park.py` — rebuilds the playground's Elevation Park (its rows
-  of ground and water, its painted levels and stairs, the wall styles on its `cliffs` layer); close the
 - `python scripts/art/build-cliff-dressing.py [--preview DIR]` (**numpy**) — the cliffs' ledge dressing
   atlas (`godot/asset/MAPS/elevation/dressing/cliff-dressing.png` and `.json`): the cliff decor sheet's
   pieces the game places at the walls' feet, cut out, scaled and packed with their anchors
@@ -102,6 +107,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   and ending like its wall art), which the cliffs show instead of repeating their wall art; run it
   after `build-elevation-art.py` or `build-elevation-art-from-painting.py` changes a style's wall
   ([godot/ELEVATION.md](godot/ELEVATION.md#wall-variation)).
+- `python scripts/maps/build-elevation-park.py` — rebuilds the playground's Elevation Park (its rows
+  of ground and water, its painted levels and stairs, the wall styles on its `cliffs` layer); close the
   playground in the editor first. `res://tools/render_elevation_park.gd` (windowed:
   `--path godot -s res://tools/render_elevation_park.gd -- --out=<dir>`) renders the park's rows and a few
   close-ups with the game's own drawing and prints how many walls each style has.
@@ -159,7 +166,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/game/world/interior/interior_trim_tileset.tres`, its uid kept). Then run
   `tools/pack_interior_palette.gd` (above), which saves `trim-palette.res` too.
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
-  ([godot/WALLS.md](godot/WALLS.md)): composes each style's 16 shapes in 4 pattern parities from its three
+  ([godot/WALLS.md](godot/WALLS.md); styles `stone` and `hedge`): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
   `godot/asset/MAPS/walls/sets/<style>.webp` with `walls.json` (frames, foot, collision per shape), and the
   WallLayer palette (`palette.png`, `godot/game/world/walls/wall_tileset.tres`: an auto tile per style, then
@@ -189,6 +196,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   showing in the log. `--plain` leaves the Heavy skin off (the strain); `--map` starts another world
   (`--direct`: as F6 on it, e.g. `--map=fatty-lair-c2-weigh-house --direct --block=800,352`); `--quick`
   grabs at once, without the touch ([SKINS.md](godot/SKINS.md#heavy)).
+- `"<Godot console exe>" --path godot -s res://tools/render_door_walk.gd -- --out=<dir> --map=<id>
+  --feet=<x>,<y> [--key=move_up] [--then=move_down] [--after-ms=1400] [--slow=0.25]` (windowed) —
+  records the slime going through a door in the running game: it puts the slime at `--feet` in front
+  of the door, holds the key until the world changes, films the arrival, and with `--then` goes back
+  out; a frame every 40 ms of game time (the game runs slowed), with the world, the feet and the
+  slime picture's place and alpha in the log ([CONVENTIONS.md](godot/CONVENTIONS.md#doors)).
 - `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
   [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
   in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
@@ -205,8 +218,6 @@ See [assets/README.md](assets/README.md) for the art workflow.
   then up; the world only) into `godot/asset/MAPS/objects/fattys-lair/seal-glimpse-open.res` and
   `-shut.res` (ImageTextures, no import) and PNGs in `<dir>`; run it again after repainting R1
   ([godot/DUNGEON_ROOMS.md](godot/DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)).
-- `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
-  cliffs' side walls ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
 - `python scripts/art/build-stairs-kit.py [--preview DIR]` (**numpy**) — the painted stairs
   ([godot/ELEVATION.md](godot/ELEVATION.md#making-the-art)): the front flight pieces
   (`stairs-front-1.png`, `-2.png`), the 45° ones (`stairs-diag-1.png`, `-2.png`), the side flight pieces (`stairs-side-<levels>-<cells>.png`) and
@@ -215,6 +226,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/game/world/elevation/elevation_stairs_sets.gd`),
   from the Magnific sheets and concepts in `asset/Originals/elevation/stairs-painted/`; prints the
   textures' and every wall style's mean colour for `elevation_stairs.gd` (`KIT_MEANS`, `STONE_COLOURS`).
+- `python scripts/art/build-side-wall-art.py [--style storybook-rock] [--source PNG]` (**numpy**) — the
+  cliffs' side walls ([godot/ELEVATION.md](godot/ELEVATION.md#side-walls)): a wall style's side strip
   and corner stones (`godot/asset/MAPS/elevation/<style>-side.png`, `-corners.png`) from a Magnific
   sheet of four rounded stones; `--headless --path godot -s res://tools/build_cliff_sides_lab.gd`
   builds the cliff sides lab and `--path godot -s res://tools/render_cliff_sides_lab.gd -- --out=<dir>
@@ -329,6 +342,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   prompts in its README): sixteen props at 2 px per unit in `godot/asset/MAPS/objects/dungeon/decor/`
   and their scenes in `godot/game/scenes/objects/dungeon-decor/` (written only when missing;
   `--scenes` rewrites them), listed under "dungeon decor" after `tools/build_prop_palettes.gd`.
+- `python scripts/art/pack-town-art.py [--scenes] [--only=<sheet>,...]` (**numpy**) — the town set (2026-11-01, the West
+  village) from `asset/Originals/town/concepts/` (Magnific GPT 2.5 sheets the owner picked,
+  `<sheet>-a.png`, with their 2x Magnific Precision upscales `<sheet>-a-up.jpg` for colour): houses
+  and town buildings, garden pieces and street props at 2 px per unit in `godot/asset/MAPS/town/`
+  and their scenes in `godot/game/scenes/objects/town/` (written only when missing; `--scenes`
+  rewrites them), the ambient ones as 8-frame loops, the buildings of several homes with a
+  `door-N` marker at each door; listed under "houses", "town" and "garden"
+  after `tools/build_prop_palettes.gd` ([godot/PROPS.md](godot/PROPS.md), "Town").
 - `python scripts/art/pack-mine-art.py [--only=colossus]` (**numpy**) — the Crystal Mine's art
   (2026-10-17) from `asset/Originals/mine/` (Magnific GPT 2.5, eight 2 x 2 sheets; prompts in its
   README): the Crystal Colossus's nine poses (`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`,
@@ -414,6 +435,18 @@ See [assets/README.md](assets/README.md) for the art workflow.
   air, slam, defeated; one scale for all) and its walk (three 2 x 2 sheets: side, down, up) from
   `asset/Originals/enemies/clod-stomper/` into
   `godot/asset/MAPS/enemies/256x256-tile_17x1-clod-stomper.webp`.
+- `python scripts/characters/pack-villagers.py [ids]` (**numpy**) — the West town's villagers and
+  animals (2026-11-01, docs/godot/VILLAGERS.md "Art"): each character's Magnific sheets from
+  `asset/Originals/town/villagers/generated/` (a 2 x 2 pose sheet and three 2 x 2 walks, or one 3 x 2
+  sheet) cut along their emptiest lines and drawn at one scale (2 px per world unit) into
+  `godot/asset/characters/villagers/<cell>x<cell>-tile_<cols>x<rows>-<id>.webp`, one row per sheet;
+  the layouts to `asset/Originals/town/villagers/packed.json`. Then
+  `python scripts/characters/build-villager-scenes.py [--force] [ids]` writes the missing scenes
+  (`game/scenes/characters/villagers/`, `game/scenes/objects/animals/`) with their clips and numbers,
+  and `python scripts/interiors/build-town-rooms.py [--force] [rooms]` the town's rooms
+  (`game/scenes/worlds/rooms/west-village/`); neither rewrites a scene that exists unless `--force`
+  names it. `"<Godot console exe>" --path godot -s res://tools/capture_villagers.gd -- --out=<dir>`
+  (a window) films them on grass, or a world with `--scene=<path> --center=<x>,<y>`.
 - `python scripts/characters/pack-bestiary-enemies.py` (**numpy**) — the bestiary's first batch
   (docs/godot/BESTIARY.md "Art"): each enemy's Magnific 2 x 2 pose sheet from
   `asset/Originals/enemies/bestiary/` cut along its empty lines, its four poses drawn at one scale
@@ -480,6 +513,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   ([godot/specs/water.md](godot/specs/water.md#11-banks-godot-only)). It checks first and stops on a
   failure: the bank must end inside a tile (`--height`, `--side` up to 27 units) and its top stay inside
   every ground's edge art; `--check` only checks. Both import lossless (the shapes are data).
+- `python scripts/art/build-sky-art.py` (**numpy**) — the sky floor's art, from
+  `asset/Originals/sky/generated/` into `godot/asset/MAPS/sky/`: the far forest and the cloud bank's sea
+  of clouds made seamless, the three cloud layers (no cloud touches an edge, so they tile), and the rope
+  bridge (east–west and north–south) cut into its two ends and one repeat of its railing
+  ([godot/SKY_FLOOR.md](godot/SKY_FLOOR.md#art)).
 - `python scripts/art/build-tile-compare-sheets.py [--force] [--no-carry]` (**numpy**) — the tile compare
   lab's sheets (an experiment, paused 2026-11-05), from `asset/Originals/concepts/zelda-tile-grid/`:
   Zelda's exact 16 px tiles (a dev-only reference, from the game pixels of five screenshots, and a low

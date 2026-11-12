@@ -28,6 +28,18 @@ rock wall. To paint: select `Ground`, open the TileMap panel's Tiles tab and pai
 terrain source; the edges and the water follow, in the editor too (painted frames snap to the
 cell's sheet-wrap frame).
 
+**Sheet-wrap frames.** A ground sheet is 19 x 19 frames that join without a seam; a cell shows
+frame (x mod 19, y mod 19), counted from its ground layer's own corner, because the edge tiles and
+the 128 px ground draw the sheet from that corner (`TerrainEdges.sheet_frame`). Painting in the
+editor snaps every cell of the layer to it, whatever frame was picked in the palette, so a picked
+block of frames is not kept. A chunk counts from its own corner, as the game draws it; a chunk is
+32 cells, so the frames do not run on across a chunk line. An area (WORLD_ATLAS.md "Editing an
+area") counts from the area's corner and gives each chunk it writes back its own frames. The chunks
+cut from the region worlds (2026-10-12) had kept the region's frames, so their 64 px grounds (forest
+floor, moss, cobble, cavern floor ...) did not meet their edge tiles exactly; on 2026-11-11 the
+ground of each such chunk (53 of 64) was snapped to its own corner, one chunk at a time (only the
+ground's cells changed), and every chunk's elevation cache baked again (its key holds the ground).
+
 ## How it works
 
 `game/world/terrain_edges/terrain_edges.gd` (`TerrainEdges.mount(ground)`, called by
@@ -45,9 +57,11 @@ extends it and also mounts in the game, since the lab has no WorldService.
 1. Each ground cell's **ground** comes from its tile id (`TerrainMaterials.TILE_GROUNDS`: the
    authored tile set's transition material; `water` and `deep-water` are one water ground).
 2. Grounds **stack** in `TerrainMaterials.ORDER`, bottom to top: water < cavern floor < forest
-   floor < sand < grass < fallen leaves < snow < cobble < moss < crystal. That keeps Phaser's
-   transition priorities (water 4–5 < natural grounds 10 < cobble 12 < moss, crystal 20) and breaks
-   the ties so the ground that "lies on top" wins.
+   floor < garden soil < sand < grass < fallen leaves < snow < gravel path < cobble < moss <
+   crystal. That keeps Phaser's transition priorities (water 4–5 < natural grounds 10 < cobble 12 <
+   moss, crystal 20) and breaks the ties so the ground that "lies on top" wins. The West village's
+   garden grounds (2026-11-01): grass grows over the tilled garden soil; the gravel path lies over
+   grass and under the cobble.
 3. At a corner where grounds meet, **level 0** fills the corner with the lowest of them (its fully
    covered tile, or the animated water), and **each higher ground** draws its edge tile on the next
    level: index = TL + 2·TR + 4·BL + 8·BR, with 1 where the cell's ground stacks at least that
@@ -167,6 +181,25 @@ To add a ground: pad its 64 px sheet by 152 px of wrapped content (1520 px), ups
 Magnific (creative, "VideoGameAssets", "subtle"; about 180 credits), save it as
 `asset/Originals/grounds/generated/terrain-edges/<ground>-2x-padded-upscale.jpg` and run
 `python scripts/art/build-terrain-edge-tiles.py <ground> --grounds-2x`.
+
+A ground generated at 2048 px needs no upscale: `pnpm grounds:pack` builds the 128 px sheet of a
+ground listed in `SHARP` (`scripts/grounds/pack-ground-sheets.py`) from its source, made
+wrap-seamless at 2432 px, and the 64 px sheet as its downscale, so the two match texel for texel.
+The garden soil and the gravel path (2026-11-01) were made this way.
+
+## Garden grounds (2026-11-01)
+
+For the West village's gardens: **garden soil** (`garden-soil`, tilled crumbly earth with straw
+and pebbles; footsteps `Forest`, cliffs `root-rock`) and the **gravel path** (`gravel-path`, fine
+warm pebbles, the source repeated 3 x 3 so a pebble is about a quarter of a cell; footsteps `Sand`,
+cliffs `meadow-rock`, and a road that colours a flight of stairs). Both are sources 20 and 21 of
+`terrain_tileset.tres` (tile ids `garden-soil`, `gravel-path`) with 64 and 128 px sheets and edge
+art. Their textures (`asset/Originals/grounds/generated/garden-soil-a.png`, `gravel-path-a.png`)
+were generated at 2048 px with the 128 px grass (and for the gravel the cobble) as scale reference;
+their islands and holes as in the steps above (two takes each in `terrain-edges/takes/`). The gravel
+holes came out opaque twice (a pale ground), so its hole was generated filled with flat `#FF00FF`:
+the result was transparent inside but with a crimson fringe, cleared and recoloured to the gravel's
+warm brown before the tool ran.
 
 ## Limits
 

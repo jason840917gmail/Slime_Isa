@@ -11,7 +11,9 @@ extends EditorPlugin
 ## enemy too) and goes under the world's `Enemies` node, at its own size. A suckable dragged from the
 ## Suckables category is `object.liftable` with its `kind` set (game/scripts/liftable_root.gd), under
 ## Scenery at its own size. A piece from the Dungeon objects category keeps its own size and goes
-## under the node the dock names for it (`Objects`, `RoomDoors` or `Hazards`; made when missing).
+## under the node the dock names for it (`Objects`, `RoomDoors` or `Hazards`; made when missing). A
+## villager or an animal (the Villagers and Animals categories) keeps its own size and goes under
+## `NPCs` or `Animals`.
 ##
 ## Also leaves the palette pictures out of exported games (palette_export.gd).
 ##
@@ -108,8 +110,8 @@ func _finish_drop(pending: Dictionary, dropped: Array[Node]) -> void:
 	if container == null:
 		container = Node2D.new()
 		container.name = container_name
-		# Scenery and Objects sort with the world; Enemies, RoomDoors and Hazards do not
-		container.y_sort_enabled = container_name == CONTAINER or container_name == "Objects"
+		# Scenery, Objects, NPCs and Animals sort with the world; Enemies, RoomDoors and Hazards do not
+		container.y_sort_enabled = container_name in [CONTAINER, "Objects", "NPCs", "Animals"]
 		undo.add_do_method(root, &"add_child", container, true)
 		undo.add_do_method(container, &"set_owner", root)
 		undo.add_do_reference(container)

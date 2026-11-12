@@ -1,0 +1,240 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_8bugn"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="2_vvi0b"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="3_mcvmb"]
+[ext_resource type="Script" path="res://game/world/elevation/elevation_layer.gd" id="4_35upx"]
+[ext_resource type="TileSet" path="res://game/world/elevation/cliffs/cliff_tileset.tres" id="5_pki66"]
+[ext_resource type="Script" path="res://game/world/elevation/cliffs/cliff_layer.gd" id="6_qehva"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="7_ktlhc"]
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="8_wultd"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="9_3qyn3"]
+[ext_resource type="Script" path="res://game/scripts/liftable_root.gd" id="10_4qau3"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp" id="11_xuncl"]
+[ext_resource type="Script" path="res://game/scripts/liftable.gd" id="12_gpqcx"]
+[ext_resource type="Script" path="res://game/dungeon/pot_loot.gd" id="13_0pxhi"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaves-fallen.tscn" id="14_58ruo"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-acorns-leaves.tscn" id="15_bwlyo"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-red.tscn" id="16_of1m7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaf-big.tscn" id="17_3tbvs"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-twigs.tscn" id="18_hej6p"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-ladder.tscn" id="19_sa82v"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="20_q3log"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="21_wcofp"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="22_dindv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(26, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7kg6b"]
+size = Vector2(96, 58)
+
+[node name="sunscar-mesa-tunnel" type="Node2D" unique_id=312194462]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1197643739]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAABAAAAAAAAAABAAAABAABAAAAAAACAAAABAACAAAAAAADAAAABAADAAAAAAAEAAAABAAEAAAAAAAFAAAABAAFAAAAAAAGAAAABAAGAAAAAAAHAAAABAAHAAAAAAAIAAAABAAIAAAAAAAJAAAABAAJAAAAAAAKAAAABAAKAAAAAAALAAAABAALAAAAAAAMAAAABAAMAAAAAAANAAAABAANAAAAAAAOAAAABAAOAAAAAAAPAAAABAAPAAAAAAAAAAEABAAAAAEAAAABAAEABAABAAEAAAACAAEABAACAAEAAAADAAEABAADAAEAAAAEAAEABAAEAAEAAAAFAAEABAAFAAEAAAAGAAEABAAGAAEAAAAHAAEABAAHAAEAAAAIAAEABAAIAAEAAAAJAAEABAAJAAEAAAAKAAEABAAKAAEAAAALAAEABAALAAEAAAAMAAEABAAMAAEAAAANAAEABAANAAEAAAAOAAEABAAOAAEAAAAPAAEABAAPAAEAAAAAAAIABAAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIABAAPAAIAAAAAAAMABAAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMABAAPAAMAAAAAAAQABAAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQABAAPAAQAAAAAAAUABAAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUABAAPAAUAAAAAAAYABAAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYABAAPAAYAAAAAAAcABAAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAQANAAcAAAAOAAcAAQAOAAcAAAAPAAcABAAPAAcAAAAAAAgABAAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAQANAAgAAAAOAAgAAQAOAAgAAAAPAAgABAAPAAgAAAAAAAkABAAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAQANAAkAAAAOAAkAAQAOAAkAAAAPAAkABAAPAAkAAAAAAAoABAAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAQANAAoAAAAOAAoAAQAOAAoAAAAPAAoABAAPAAoAAAAAAAsABAAAAAsAAAABAAsABAABAAsAAAACAAsABAACAAsAAAADAAsABAADAAsAAAAEAAsABAAEAAsAAAAFAAsABAAFAAsAAAAGAAsABAAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsABAAJAAsAAAAKAAsABAAKAAsAAAALAAsABAALAAsAAAAMAAsABAAMAAsAAAANAAsABAANAAsAAAAOAAsABAAOAAsAAAAPAAsABAAPAAsAAAAAAAwABAAAAAwAAAABAAwABAABAAwAAAACAAwABAACAAwAAAADAAwABAADAAwAAAAEAAwABAAEAAwAAAAFAAwABAAFAAwAAAAGAAwABAAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwABAAJAAwAAAAKAAwABAAKAAwAAAALAAwABAALAAwAAAAMAAwABAAMAAwAAAANAAwABAANAAwAAAAOAAwABAAOAAwAAAAPAAwABAAPAAwAAAA=")
+tile_set = ExtResource("1_8bugn")
+script = ExtResource("2_vvi0b")
+metadata/columns = 16
+metadata/rows = 13
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=1091190405]
+z_index = -1
+tile_map_data = PackedByteArray("AAAAAAAAAAAEAAAAAAABAAAAAAAEAAAAAAACAAAAAAAEAAAAAAADAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAFAAAAAAAEAAAAAAAGAAAAAAAEAAAAAAAHAAAAAAAEAAAAAAAIAAAAAAAEAAAAAAAJAAAAAAAEAAAAAAAKAAAAAAAEAAAAAAALAAAAAAAEAAAAAAAMAAAAAAAEAAAAAAANAAAAAAAEAAAAAAAOAAAAAAAEAAAAAAAPAAAAAAAEAAAAAAAAAAEAAAAEAAAAAAABAAEAAAAEAAAAAAACAAEAAAAEAAAAAAADAAEAAAAEAAAAAAAEAAEAAAAEAAAAAAAFAAEAAAAEAAAAAAAGAAEAAAAEAAAAAAAHAAEAAAAEAAAAAAAIAAEAAAAEAAAAAAAJAAEAAAAEAAAAAAAKAAEAAAAEAAAAAAALAAEAAAAEAAAAAAAMAAEAAAAEAAAAAAANAAEAAAAEAAAAAAAOAAEAAAAEAAAAAAAPAAEAAAAEAAAAAAAAAAIAAAAEAAAAAAAPAAIAAAAEAAAAAAAAAAMAAAAEAAAAAAAPAAMAAAAEAAAAAAAAAAQAAAAEAAAAAAAPAAQAAAAEAAAAAAAAAAUAAAAEAAAAAAAPAAUAAAAEAAAAAAAAAAYAAAAEAAAAAAAPAAYAAAAEAAAAAAAAAAcAAAAEAAAAAAAPAAcAAAAEAAAAAAAAAAgAAAAEAAAAAAAPAAgAAAAEAAAAAAAAAAkAAAAEAAAAAAAPAAkAAAAEAAAAAAAAAAoAAAAEAAAAAAAPAAoAAAAEAAAAAAAAAAsAAAAEAAAAAAABAAsAAAAEAAAAAAACAAsAAAAEAAAAAAADAAsAAAAEAAAAAAAEAAsAAAAEAAAAAAAFAAsAAAAEAAAAAAAGAAsAAAAEAAAAAAAJAAsAAAAEAAAAAAAKAAsAAAAEAAAAAAALAAsAAAAEAAAAAAAMAAsAAAAEAAAAAAANAAsAAAAEAAAAAAAOAAsAAAAEAAAAAAAPAAsAAAAEAAAAAAAAAAwAAAAEAAAAAAABAAwAAAAEAAAAAAACAAwAAAAEAAAAAAADAAwAAAAEAAAAAAAEAAwAAAAEAAAAAAAFAAwAAAAEAAAAAAAGAAwAAAAEAAAAAAAJAAwAAAAEAAAAAAAKAAwAAAAEAAAAAAALAAwAAAAEAAAAAAAMAAwAAAAEAAAAAAANAAwAAAAEAAAAAAAOAAwAAAAEAAAAAAAPAAwAAAAEAAAAAAA=")
+tile_set = ExtResource("3_mcvmb")
+script = ExtResource("4_35upx")
+
+[node name="cliffs" type="TileMapLayer" parent="." unique_id=1965539004]
+tile_map_data = PackedByteArray("AAAAAAAAAAAIAAAAAAABAAAAAAAIAAAAAAACAAAAAAAIAAAAAAADAAAAAAAIAAAAAAAEAAAAAAAIAAAAAAAFAAAAAAAIAAAAAAAGAAAAAAAIAAAAAAAHAAAAAAAIAAAAAAAIAAAAAAAIAAAAAAAJAAAAAAAIAAAAAAAKAAAAAAAIAAAAAAALAAAAAAAIAAAAAAAMAAAAAAAIAAAAAAANAAAAAAAIAAAAAAAOAAAAAAAIAAAAAAAPAAAAAAAIAAAAAAAAAAEAAAAIAAAAAAABAAEAAAAIAAAAAAACAAEAAAAIAAAAAAADAAEAAAAIAAAAAAAEAAEAAAAIAAAAAAAFAAEAAAAIAAAAAAAGAAEAAAAIAAAAAAAHAAEAAAAIAAAAAAAIAAEAAAAIAAAAAAAJAAEAAAAIAAAAAAAKAAEAAAAIAAAAAAALAAEAAAAIAAAAAAAMAAEAAAAIAAAAAAANAAEAAAAIAAAAAAAOAAEAAAAIAAAAAAAPAAEAAAAIAAAAAAAAAAIAAAAIAAAAAAAPAAIAAAAIAAAAAAAAAAMAAAAIAAAAAAAPAAMAAAAIAAAAAAAAAAQAAAAIAAAAAAAPAAQAAAAIAAAAAAAAAAUAAAAIAAAAAAAPAAUAAAAIAAAAAAAAAAYAAAAIAAAAAAAPAAYAAAAIAAAAAAAAAAcAAAAIAAAAAAAPAAcAAAAIAAAAAAAAAAgAAAAIAAAAAAAPAAgAAAAIAAAAAAAAAAkAAAAIAAAAAAAPAAkAAAAIAAAAAAAAAAoAAAAIAAAAAAAPAAoAAAAIAAAAAAAAAAsAAAAIAAAAAAABAAsAAAAIAAAAAAACAAsAAAAIAAAAAAADAAsAAAAIAAAAAAAEAAsAAAAIAAAAAAAFAAsAAAAIAAAAAAAGAAsAAAAIAAAAAAAJAAsAAAAIAAAAAAAKAAsAAAAIAAAAAAALAAsAAAAIAAAAAAAMAAsAAAAIAAAAAAANAAsAAAAIAAAAAAAOAAsAAAAIAAAAAAAPAAsAAAAIAAAAAAAAAAwAAAAIAAAAAAABAAwAAAAIAAAAAAACAAwAAAAIAAAAAAADAAwAAAAIAAAAAAAEAAwAAAAIAAAAAAAFAAwAAAAIAAAAAAAGAAwAAAAIAAAAAAAJAAwAAAAIAAAAAAAKAAwAAAAIAAAAAAALAAwAAAAIAAAAAAAMAAwAAAAIAAAAAAANAAwAAAAIAAAAAAAOAAwAAAAIAAAAAAAPAAwAAAAIAAAAAAA=")
+tile_set = ExtResource("5_pki66")
+script = ExtResource("6_qehva")
+
+[node name="world-definition" type="Node" parent="." unique_id=41349411]
+script = ExtResource("7_ktlhc")
+map_id = "sunscar-mesa-tunnel"
+tile_size = 64
+columns = 16
+rows = 13
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 512,
+"y": 614
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=462718513]
+position = Vector2(512, 614.4)
+
+[node name="sunscar-mesa-tunnel-door" type="Node2D" parent="." unique_id=345615156]
+position = Vector2(512, 808)
+
+[node name="DoorScript" type="Node" parent="sunscar-mesa-tunnel-door" unique_id=167749173]
+script = ExtResource("8_wultd")
+map_id = "sunscar-mesa-tunnel"
+door_id = "sunscar-mesa-tunnel-door"
+target_area_id = "desert-a7"
+target_door_id = "sunscar-mesa-tunnel-mouth"
+side = "south"
+trigger_rect = Rect2(-64, -24, 128, 48)
+
+[node name="Cave" type="Node2D" parent="." unique_id=533134401]
+y_sort_enabled = true
+
+[node name="cave-pot-a" parent="Cave" unique_id=1565671253 instance=ExtResource("9_3qyn3")]
+y_sort_enabled = true
+position = Vector2(153.6, 601.6)
+collision_mask = 0
+script = ExtResource("10_4qau3")
+
+[node name="BodyShape" parent="Cave/cave-pot-a" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Cave/cave-pot-a" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("11_xuncl")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-a" index="2"]
+script = ExtResource("12_gpqcx")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-a" index="3"]
+script = ExtResource("13_0pxhi")
+loot = "heart"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-b" parent="Cave" unique_id=1506249 instance=ExtResource("9_3qyn3")]
+y_sort_enabled = true
+position = Vector2(870.4, 588.8)
+collision_mask = 0
+script = ExtResource("10_4qau3")
+
+[node name="BodyShape" parent="Cave/cave-pot-b" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Cave/cave-pot-b" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("11_xuncl")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-b" index="2"]
+script = ExtResource("12_gpqcx")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-b" index="3"]
+script = ExtResource("13_0pxhi")
+loot = "coins"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-pot-c" parent="Cave" unique_id=1119896177 instance=ExtResource("9_3qyn3")]
+y_sort_enabled = true
+position = Vector2(832, 627.2)
+collision_mask = 0
+script = ExtResource("10_4qau3")
+
+[node name="BodyShape" parent="Cave/cave-pot-c" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Cave/cave-pot-c" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("11_xuncl")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Cave/cave-pot-c" index="2"]
+script = ExtResource("12_gpqcx")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Cave/cave-pot-c" index="3"]
+script = ExtResource("13_0pxhi")
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="cave-leaves-fallen-30" type="Node2D" parent="Cave" unique_id=959661330 instance=ExtResource("14_58ruo")]
+y_sort_enabled = true
+position = Vector2(192, 345.6)
+
+[node name="cave-acorns-leaves-124" type="Node2D" parent="Cave" unique_id=757178746 instance=ExtResource("15_bwlyo")]
+y_sort_enabled = true
+position = Vector2(793.6, 371.2)
+
+[node name="cave-mushrooms-red-54" type="Node2D" parent="Cave" unique_id=2063892252 instance=ExtResource("16_of1m7")]
+y_sort_enabled = true
+position = Vector2(345.6, 563.2)
+
+[node name="cave-leaf-big-106" type="Node2D" parent="Cave" unique_id=117240791 instance=ExtResource("17_3tbvs")]
+y_sort_enabled = true
+position = Vector2(678.4, 576)
+
+[node name="cave-twigs-70" type="Node2D" parent="Cave" unique_id=502356129 instance=ExtResource("18_hej6p")]
+y_sort_enabled = true
+position = Vector2(448, 460.8)
+
+[node name="sunscar-tunnel-ladder" parent="Cave" unique_id=1962303570 instance=ExtResource("19_sa82v")]
+y_sort_enabled = true
+position = Vector2(512, 230)
+
+[node name="Visual" parent="Cave/sunscar-tunnel-ladder" index="0" unique_id=1362941903]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("20_q3log")
+centered = false
+offset = Vector2(-128, -256)
+hframes = 8
+frame = 2
+
+[node name="Wall" parent="Cave/sunscar-tunnel-ladder" index="1" unique_id=1175907064]
+y_sort_enabled = true
+position = Vector2(0, -20)
+collision_mask = 0
+
+[node name="Shape" parent="Cave/sunscar-tunnel-ladder/Wall" index="0" unique_id=357964835]
+position = Vector2(-17, -14)
+shape = SubResource("RectangleShape2D_7kg6b")
+
+[node name="DoorScript" parent="Cave/sunscar-tunnel-ladder" index="2" unique_id=1653844822]
+script = ExtResource("8_wultd")
+map_id = "sunscar-mesa-tunnel"
+door_id = "sunscar-tunnel-ladder"
+target_area_id = "desert-a7"
+target_door_id = "sunscar-tunnel-hatch"
+kind = "ladder_up"
+side = "north"
+trigger_rect = Rect2(-24, -14, 48, 30)
+
+[node name="arrival" parent="Cave/sunscar-tunnel-ladder" index="3" unique_id=636597409]
+y_sort_enabled = true
+position = Vector2(0, 60)
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1178736625]
+process_mode = 3
+stream = ExtResource("21_wcofp")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("22_dindv")
+loop = true
+autoplay_cue = true
+
+[editable path="Cave/cave-pot-a"]
+[editable path="Cave/cave-pot-b"]
+[editable path="Cave/cave-pot-c"]
+[editable path="Cave/sunscar-tunnel-ladder"]

@@ -1,10 +1,9 @@
-[gd_resource type="TileSet" format=3]
+[gd_resource type="TileSet" format=3 uid="uid://dfbvr1qkuuf5r"]
 
-[ext_resource type="Texture2D" path="res://game/dev/tile_compare/zelda-tiles-16px.png" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://drqodu5axx5li" path="res://game/dev/tile_compare/zelda-tiles-16px.png" id="1_sheet"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_zelda"]
 texture = ExtResource("1_sheet")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 0:0/0/metadata/tile_name = "W3"
 1:0/0 = 0
@@ -1193,5 +1192,4 @@ texture_region_size = Vector2i(16, 16)
 6:43/0/metadata/tile_name = "Q4"
 
 [resource]
-tile_size = Vector2i(16, 16)
 sources/0 = SubResource("TileSetAtlasSource_zelda")

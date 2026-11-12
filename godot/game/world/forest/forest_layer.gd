@@ -74,6 +74,13 @@ const COLLISION := "Collision"
 	set(value):
 		paint_opacity = value
 		_apply_opacity()
+## Seeds every tree by its cell's place within a chunk of this many cells (set in an area of chunk
+## worlds joined for editing, game/dev/area_edit/area_edit.gd, so each chunk's trees grow there as
+## in the chunk's own scene); zero: by the cell itself.
+@export var seed_period := Vector2i.ZERO:
+	set(value):
+		seed_period = value
+		_queue_rebuild()
 @export_group("Absorb trees")
 ## The node whose children (wall tree instances) "Absorb trees" turns into painted cells.
 @export_node_path("Node2D") var absorb_from: NodePath
@@ -157,7 +164,8 @@ func _rebuild() -> void:
 func _placement(cell: Vector2i) -> Dictionary:
 	var trees := trees_of(cell)
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash([cell.x, cell.y, variation])
+	var seeded := _seed_cell(cell)
+	rng.seed = hash([seeded.x, seeded.y, variation])
 	var tree := trees[rng.randi_range(0, trees.size() - 1)]
 	var flip := rng.randf() < 0.5
 	var size := rng.randf_range(size_range.x, size_range.y)
@@ -230,7 +238,8 @@ func _growing_cells(cells: Array[Vector2i]) -> Dictionary:
 	order.sort()
 	for block: Vector2i in order:
 		var rng := RandomNumberGenerator.new()
-		rng.seed = hash([block.x, block.y, variation, "block"])
+		var seeded := _seed_cell(block * BLOCK) / BLOCK
+		rng.seed = hash([seeded.x, seeded.y, variation, "block"])
 		var cell := block * BLOCK + Vector2i(rng.randi_range(0, BLOCK - 1), rng.randi_range(0, BLOCK - 1))
 		if painted.has(cell) and not growing.has(cell) and not _tree_near(growing, cell, false):
 			growing[cell] = true
@@ -238,6 +247,13 @@ func _growing_cells(cells: Array[Vector2i]) -> Dictionary:
 		if painted.has(cell) and not growing.has(cell) and not _tree_near(growing, cell, true):
 			growing[cell] = true
 	return growing
+
+
+## The cell whose seed `cell` grows by (`seed_period`).
+func _seed_cell(cell: Vector2i) -> Vector2i:
+	if seed_period.x <= 0 or seed_period.y <= 0:
+		return cell
+	return Vector2i(posmod(cell.x, seed_period.x), posmod(cell.y, seed_period.y))
 
 
 ## True when a tree grows beside `cell` (the four cells across and up/down, and the diagonal ones

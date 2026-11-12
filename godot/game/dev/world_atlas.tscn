@@ -1,10 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bhcyfg4p8y1tx"]
 
-[ext_resource type="Script" path="res://game/world/atlas/world_atlas.gd" id="1_7qk4t"]
-[ext_resource type="Script" path="res://game/world/atlas/atlas_region.gd" id="2_6eg5u"]
+[ext_resource type="Script" uid="uid://bwo6fynp4xgvu" path="res://game/world/atlas/world_atlas.gd" id="1_7qk4t"]
+[ext_resource type="Script" uid="uid://l4jq34clr75o" path="res://game/world/atlas/atlas_region.gd" id="2_6eg5u"]
 
 [node name="WorldAtlas" type="Node2D" unique_id=931484850]
 script = ExtResource("1_7qk4t")
+edit_area = "b3:c4"
 
 [node name="volcano-ridge" type="Node2D" parent="." unique_id=1547797535]
 position = Vector2(10240, 0)

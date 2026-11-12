@@ -24,7 +24,9 @@ its code is in git history.
 
 ## Commands
 
-- Godot editor: open `godot/` in Godot 4.7.2. F5 runs the title screen; `game/dev/playground.tscn`
+- Godot editor: open `godot/` in Godot 4.7.2; `scripts\godot\open-editor.cmd` opens it with a log
+  file, so a crash leaves Godot's crash report behind (the editor logs nothing otherwise:
+  [When the editor crashes](docs/godot/CONVENTIONS.md#when-the-editor-crashes)). F5 runs the title screen; `game/dev/playground.tscn`
   with F6 runs the playground testbed (every weapon and ability); F6 on a world scene runs the game
   in that world.
 - Launch options: `?map=<world id>`, `?spawn=<x>,<y>`, `?weapon=<id>`, `?quest=<id>[:<stage>]`,
@@ -52,10 +54,16 @@ its code is in git history.
 - `"<Godot console exe>" --headless --path godot -s res://tools/check_chunk_lines.gd [-- --world=<text>]`
   — lists the crossings on every line two chunk worlds share and flags the ones the chunk-line rule
   forbids ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md#chunk-worlds-2026-10-12)).
+- `"<Godot console exe>" --headless --path godot -s res://tools/check_cliff_joints.gd [-- --world=<text>] [--all]`
+  — lists the joints between levels that keep the plain join instead of folding (45° edges against
+  another level's wall, runs too short to fold), by world and cell, for repainting
+  ([The joint folds](docs/godot/ELEVATION.md#side-walls)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
-  `game/dev/world_atlas.tscn` shows every region's world on it in the editor and moves regions;
+  `game/dev/world_atlas.tscn` shows every region's world on it in the editor and moves regions, and
+  its **Edit area** joins up to 6 chunks into one scene to edit across their lines, written back into
+  the chunk scenes ([Editing an area](docs/godot/WORLD_ATLAS.md#editing-an-area-2026-11-01));
   `"<Godot console exe>" --headless --path godot -s res://tools/build_region_worlds.gd` rebuilds the
   placeholder regions and `res://tools/split_region_chunks.gd -- --region=<ids>` cuts regions into
   one scene per chunk, the scenes to edit ([docs/godot/WORLD_ATLAS.md](docs/godot/WORLD_ATLAS.md)).
@@ -74,6 +82,8 @@ its code is in git history.
   scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
 - `godot/game/throw/` — the throw-combat experiment (on in every world, `?melee` turns it off):
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md).
+- `godot/game/world/villagers/` — the towns' villagers (VillagerScript) and animals (Critter), placed
+  from the Scenery dock's Villagers and Animals categories: [docs/godot/VILLAGERS.md](docs/godot/VILLAGERS.md).
 - `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,
   weapons and item icons (JSON read through `GameConstants`), and the world layout
   `world-map.json` (read through `game/world/atlas/world_map_data.gd`).
@@ -124,7 +134,9 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   gate, a trail gap between lantern posts); no open ground or road along a line (owner,
   2026-11-01: [level design rule 11](docs/design/2026-10-16-level-design.md#the-rules-that-matter-most)).
 - Hills, holes and stairs are painted on a world's `elevation` layer; the cliffs' side walls and
-  each level's collision follow (bake a world's cache after painting); a wall's rock follows its ground unless a style is painted on
+  each level's collision follow (bake a world's cache after painting; a chunk world's cliffs read
+  its neighbours' paint past its edges, so a hill runs on across a chunk line: bake the chunks
+  around a painted one too, [Across chunk lines](docs/godot/ELEVATION.md#across-chunk-lines)); a wall's rock follows its ground unless a style is painted on
   the `cliffs` layer ([docs/godot/ELEVATION.md](docs/godot/ELEVATION.md)). A world's level
   collision can be painted on a `level-collision` layer (orange rims that hold and drop, red bases
   that block, green open tiles, whole or 45° halves, per level): in Replace mode it collides exactly
@@ -135,6 +147,11 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   [Faces in rooms](docs/godot/ELEVATION.md#faces-in-rooms));
   a division inside a room is a low divider painted on the `fences` layer with a divider gate
   ([docs/godot/FENCES.md](docs/godot/FENCES.md#dungeon-dividers)).
+- A sky floor (islands over clouds) is the sky painted as holes (level -2 or lower) on the
+  `elevation` layer inside a `SkyFloor` node's area, which draws the parallax backdrop and the cloud
+  bank there; a drop into it is a void fall back to where the slime fell from, and rope bridges
+  (solid railings) cross it
+  ([docs/godot/SKY_FLOOR.md](docs/godot/SKY_FLOOR.md)).
 - Saves go through `RunState` to `user://saves/`.
 
 ## Status

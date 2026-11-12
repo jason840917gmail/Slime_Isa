@@ -12,3 +12,6 @@ asset/Originals/characters/slime-v2/shapes/prototypes/
 # Agents' review renders, captures and scratch scripts (about 200 MB), kept local
 /output/
 /godot/output/
+
+# Areas of chunk worlds joined for editing in the world atlas (docs/godot/WORLD_ATLAS.md "Editing an area"), temporary
+godot/game/dev/area_edit/areas/

@@ -1655,7 +1655,9 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   spit takes, kept for it when Sound Picker round 7 gave the Gulp a new throw).
 - **Cracked walls** (`object.cracked-wall`, `cracked_wall.gd`, `@tool`): a weak spot set on a real
   wall (an elevation cliff face of any style, or a built wall), never a wall of its own: the wall's
-  own collision blocks. Intact, a crack decal (crack-overlay.webp, drawn as it is) on the face; a
+  own collision blocks. With `starts_open` (2026-11-06) it is blown from the start: a plain cave
+  mouth in a cliff face, its hole, passage and door with no crack and no bomb (the five of the Sunscar
+  Mesas test went with it on 2026-11-07, [ELEVATION.md](ELEVATION.md#across-chunk-lines)). Intact, a crack decal (crack-overlay.webp, drawn as it is) on the face; a
   hurtbox refuses every weapon, throw and Slam as a clink ("Too deep for a hammer. It needs a
   blast."). Blown: the hole decal (hole-overlay.webp, greyscale, tinted to the rock: `hole_tint`, or
   at alpha 0 the mean of the brighter half of its wall style's art, x `tint_gain` 1.1) replaces the
