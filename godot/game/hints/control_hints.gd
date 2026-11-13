@@ -169,7 +169,7 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	_bind_sources()
 	var player := _player()
-	if player == null or _menu_paused() or bool(player.call(&"is_dead")) or bool(player.call(&"is_sleeping")):
+	if player == null or _menu_paused() or bool(player.call(&"is_dead")) or bool(player.call(&"is_resting")):
 		_show(&"")
 	else:
 		_learn_from_play(player)

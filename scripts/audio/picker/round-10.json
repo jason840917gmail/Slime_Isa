@@ -1,0 +1,82 @@
+{
+ "round": "round-10",
+ "applied": "2026-11-13 with round-10-picks.json: the turn ships option b (Chitin scuttle), its takes 1 and 3",
+ "intro": "A sound of its own for the Crystal Crawler's turn (2026-11-13). It walks round its pillar and twists at every corner, every few seconds, and until now it played the stone creak that a dozen other things play too (cracked ground, heavy plates, the skeletons' rattle), loud. Three short Magnific ideas, three takes each (the game picks one at random each turn), quieter than the creak; \"Now\" is the creak it played before, and Keep silent gives the turn no sound. Press Repeat to hear an option several times at the crawler's pace. The game plays Crystal ticks meanwhile. Pick one, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-10/takes",
+ "groups": [
+  {
+   "id": "crawler",
+   "name": "Crystal Crawler",
+   "note": "The spiked crawler of the Crystal Mine walks round a pillar's wall; the twist at each corner is its tell (its belly is open only then)."
+  }
+ ],
+ "cues": [
+  {
+   "id": "enemy.crystal-crawler-turn",
+   "group": "crawler",
+   "name": "Turn",
+   "where": "The Crystal Crawler twists round a corner of its pillar",
+   "node": "CrawlerTurn",
+   "ship": "enemy/crystal-crawler-turn",
+   "inGame": "a",
+   "rhythm": 2400,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Crystal ticks",
+     "note": "A few quick light glassy ticks of small crystal legs on stone",
+     "kind": "oneshot",
+     "even": true,
+     "max": 0.6,
+     "takes": [
+      "temp/sound-round-10/raw/turn-ticks-1.mp3",
+      "temp/sound-round-10/raw/turn-ticks-2.mp3",
+      "temp/sound-round-10/raw/turn-ticks-3.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Chitin scuttle",
+     "note": "A short dry insect scuttle, soft leg clicks",
+     "kind": "oneshot",
+     "even": true,
+     "max": 0.6,
+     "takes": [
+      "temp/sound-round-10/raw/turn-scuttle-1.mp3",
+      "temp/sound-round-10/raw/turn-scuttle-2.mp3",
+      "temp/sound-round-10/raw/turn-scuttle-3.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Gem scrape",
+     "note": "A brief soft scrape of a gemstone turning against rock",
+     "kind": "oneshot",
+     "even": true,
+     "max": 0.6,
+     "takes": [
+      "temp/sound-round-10/raw/turn-scrape-1.mp3",
+      "temp/sound-round-10/raw/turn-scrape-2.mp3",
+      "temp/sound-round-10/raw/turn-scrape-3.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: stone creak",
+     "note": "What it played before: the game's shared ground creak",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/world/ground-creak.wav"
+     ]
+    },
+    {
+     "key": "s",
+     "label": "Keep silent",
+     "note": "The turn makes no sound",
+     "takes": []
+    }
+   ]
+  }
+ ]
+}

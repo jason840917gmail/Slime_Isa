@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="player"]
 [ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
+[ext_resource type="PackedScene" path="res://game/scenes/effects/chimney-smoke.tscn" id="smoke"]
 
 [sub_resource type="Animation" id="idle"]
 resource_name = "object.ambient.idle"
@@ -62,3 +63,15 @@ script = ExtResource("door_frame")
 size = Vector2(57.5, 60)
 arch = 20.0
 double_leaf = true
+
+[node name="Smoke" type="Node2D" parent="."]
+position = Vector2(-188, 1)
+
+[node name="Puffs" parent="Smoke" instance=ExtResource("smoke")]
+position = Vector2(0, -243.5)
+
+[node name="Smoke2" type="Node2D" parent="."]
+position = Vector2(193, 1)
+
+[node name="Puffs" parent="Smoke2" instance=ExtResource("smoke")]
+position = Vector2(0, -243.5)

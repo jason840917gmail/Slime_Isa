@@ -160,8 +160,11 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-1.wav" id="sfx_water_splash_1"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-2.wav" id="sfx_water_splash_2"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/swim-enter-3.wav" id="sfx_water_splash_3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/bath-soak.wav" id="sfx_bath_soak"]
 
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/pipe-worm-spit.wav" id="sfx_154008fb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/crystal-crawler-turn-1.wav" id="sfx_28bd909b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/crystal-crawler-turn-2.wav" id="sfx_6f1dea4b"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -579,6 +582,15 @@ stream_1/stream = ExtResource("sfx_water_splash_2")
 stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_water_splash_3")
 stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_crystal_crawler_turn_CrawlerTurn"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_28bd909b")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_6f1dea4b")
+stream_1/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
 y_sort_enabled = true
@@ -1542,6 +1554,15 @@ bus = &"Effects"
 pitch_randomness = 0.06
 min_interval_ms = 60.0
 
+[node name="BathSoak" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_bath_soak")
+volume_db = -6.85
+max_polyphony = 1
+bus = &"Effects"
+loop = true
+
 [node name="WaterSplash" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
@@ -1551,3 +1572,13 @@ max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
 min_interval_ms = 60.0
+[node name="CrawlerTurn" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_crystal_crawler_turn_CrawlerTurn")
+volume_db = -9.40
+max_polyphony = 2
+bus = &"Effects"
+pitch_randomness = 0.05
+min_interval_ms = 300.0
+

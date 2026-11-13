@@ -80,7 +80,8 @@
     "sideHalfWidth": 7
   },
   "rest": {
-    "sleepHpRegenPerSec": 2
+    "sleepHpRegenPerSec": 2,
+    "bathHpRegenPerSec": 2
   },
   "gulp": {
     "suckRangePx": 80,

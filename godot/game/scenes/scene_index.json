@@ -1019,6 +1019,7 @@
   "object.lash-bell-post": "res://game/scenes/objects/lash-bell-post.tscn",
   "object.latch-door": "res://game/scenes/objects/latch-door.tscn",
   "object.barred-gate": "res://game/scenes/objects/barred-gate.tscn",
+  "object.bath-tub": "res://game/scenes/objects/bath-tub.tscn",
   "object.liftable": "res://game/scenes/objects/liftable.tscn",
   "object.dungeon": "res://game/scenes/objects/dungeon/dungeon.tscn",
   "object.key-door": "res://game/scenes/objects/dungeon/key-door.tscn",

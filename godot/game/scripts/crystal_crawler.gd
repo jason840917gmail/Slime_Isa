@@ -25,7 +25,7 @@ const FRAME_CRAWL_A := 0
 const FRAME_CRAWL_B := 1
 const FRAME_TURN := 2
 const BOW_TARGETS := &"bow_targets"
-const CUE_TURN := &"GroundCreak"
+const CUE_TURN := &"CrawlerTurn"
 const CUE_CLINK := &"HitBlocked"
 ## Presentation: the legs' step, the art's lift off the ground (its middle over its feet).
 const STEP_MS := 120.0

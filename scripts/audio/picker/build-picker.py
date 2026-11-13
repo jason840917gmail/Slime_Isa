@@ -33,7 +33,7 @@ def main() -> None:
                 takes.append("data:audio/mpeg;base64," + base64.b64encode(mp3.read_bytes()).decode("ascii"))
             options.append({"key": option["key"], "label": option["label"], "note": option.get("note", ""), "takes": takes})
         cues.append({"id": cue["id"], "group": cue["group"], "name": cue["name"], "where": cue["where"],
-                     "rhythm": cue.get("rhythm"), "rhythmLabel": cue.get("rhythmLabel"), "loop": False,
+                     "rhythm": cue.get("rhythm"), "rhythmLabel": cue.get("rhythmLabel"), "loop": bool(cue.get("loop")),
                      "inGame": cue["inGame"], "options": options})
     page = TEMPLATE.read_text(encoding="utf-8")
     title = manifest.get("title", "Sound picker, " + manifest["round"].replace("-", " "))

@@ -241,6 +241,7 @@
         "west-village-bathhouse-door": "west-village-b4",
         "west-village-bakery-door": "west-village-b4",
         "west-village-herbalist-door": "west-village-b4",
+        "west-village-b4-townhouse-door": "west-village-b4",
         "west-village-b4-gatehouse-door": "west-village-b4"
       },
       "spawn": "west-village-b4",

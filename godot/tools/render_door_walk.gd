@@ -6,9 +6,9 @@ extends SceneTree
 ## the world, the slime's feet and its picture's place and alpha in the log. Run windowed (it renders), from the repo:
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_door_walk.gd -- --out=<dir>
 ##         --map=<world id> --feet=<x>,<y> [--key=move_up] [--then=move_down] [--frame-ms=40]
-##         [--after-ms=1400] [--max-ms=4000] [--zoom=<camera zoom>] [--slow=<time scale, 0.25>]
+##         [--after-ms=1400] [--max-ms=4000] [--zoom=<camera zoom>] [--slow=<time scale, 0.25>] [--window=<w>x<h>, 960x540]
 ## Saving a frame takes real time, so the game runs slowed (`--slow`) to get close frames.
-## Writes <dir>/frame-<n>.png and prints a line per frame (key, time, world, feet, art, alpha, the feet on screen).
+## Writes <dir>/frame-<n>.png and prints a line per frame (key, time, world, feet, art, alpha, the feet on screen, the clip).
 
 const Services := preload("res://game/shared/services.gd")
 const MAIN_SCENE := "res://game/main.tscn"
@@ -27,6 +27,7 @@ func _initialize() -> void:
 	var max_ms := 4000.0
 	var zoom := 0.0
 	var slow := 0.25
+	var window := Vector2i(960, 540)
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			_out = arg.trim_prefix("--out=")
@@ -47,10 +48,13 @@ func _initialize() -> void:
 			max_ms = float(arg.trim_prefix("--max-ms="))
 		elif arg.begins_with("--zoom="):
 			zoom = float(arg.trim_prefix("--zoom="))
+		elif arg.begins_with("--window="):
+			var wh := arg.trim_prefix("--window=").split("x")
+			window = Vector2i(int(wh[0]), int(wh[1]))
 		elif arg.begins_with("--slow="):
 			slow = clampf(float(arg.trim_prefix("--slow=")), 0.05, 1.0)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_out))
-	DisplayServer.window_set_size(Vector2i(960, 540))
+	DisplayServer.window_set_size(window)
 	var main := (load(MAIN_SCENE) as PackedScene).instantiate()
 	main.set(&"map_id", map)
 	main.set(&"playground_abilities", false)
@@ -101,9 +105,9 @@ func _film(label: StringName, ms: float, done: Callable) -> void:
 		if body != null:
 			var view := body.get_viewport()
 			on_screen = view.get_screen_transform() * (view.get_canvas_transform() * body.global_position)
-		print("%03d %s t=%5.0f world=%s feet=(%.0f, %.0f) art=(%.0f, %.0f) alpha=%.2f screen=(%.0f, %.0f)" % [_frame, label,
+		print("%03d %s t=%5.0f world=%s feet=(%.0f, %.0f) art=(%.0f, %.0f) alpha=%.2f screen=(%.0f, %.0f) clip=%s" % [_frame, label,
 				Services.now_ms() - started, _world_id(), at.x, at.y, art_at.x, art_at.y,
-				art.modulate.a if art != null else 0.0, on_screen.x, on_screen.y])
+				art.modulate.a if art != null else 0.0, on_screen.x, on_screen.y, _clip()])
 		_frame += 1
 
 
@@ -119,6 +123,16 @@ func _art() -> Sprite2D:
 	var world := Services.world()
 	var player: Node = world.get(&"player") if world != null else null
 	return player.call(&"get_visual") as Sprite2D if is_instance_valid(player) else null
+
+
+## The clip the slime plays ("-" when it stands on a stopped one).
+func _clip() -> String:
+	var world := Services.world()
+	var player: Node = world.get(&"player") if world != null else null
+	var animation := player.get(&"animation") as AnimationPlayer if is_instance_valid(player) else null
+	if animation == null:
+		return "-"
+	return String(animation.assigned_animation) + ("" if animation.is_playing() else " (stopped)")
 
 
 func _world_id() -> String:

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 [ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
+[ext_resource type="PackedScene" path="res://game/scenes/effects/chimney-smoke.tscn" id="smoke"]
 
 [sub_resource type="RectangleShape2D" id="foot"]
 size = Vector2(198, 74)
@@ -38,3 +39,9 @@ position = Vector2(30.5, -108)
 script = ExtResource("door_frame")
 size = Vector2(19, 32.5)
 arch = 9.5
+
+[node name="Smoke" type="Node2D" parent="."]
+position = Vector2(-72, 1)
+
+[node name="Puffs" parent="Smoke" instance=ExtResource("smoke")]
+position = Vector2(0, -175.5)

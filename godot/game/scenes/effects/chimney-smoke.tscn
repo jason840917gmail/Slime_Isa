@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[sub_resource type="Gradient" id="Gradient_slgdg"]
+offsets = PackedFloat32Array(0, 0.6, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.95, 1, 1, 1, 0.35, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_laohx"]
+gradient = SubResource("Gradient_slgdg")
+width = 48
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Curve" id="Curve_aidf6"]
+_data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_46hoj"]
+offsets = PackedFloat32Array(0, 0.12, 0.6, 1)
+colors = PackedColorArray(0.97, 0.95, 0.9, 0, 0.97, 0.95, 0.9, 0.9, 0.92, 0.92, 0.9, 0.6, 0.9, 0.9, 0.9, 0)
+
+[node name="chimney-smoke" type="CPUParticles2D" unique_id=1809197531]
+amount = 9
+texture = SubResource("GradientTexture2D_laohx")
+lifetime = 3.4
+preprocess = 3.4
+randomness = 0.5
+lifetime_randomness = 0.25
+emission_shape = 1
+emission_sphere_radius = 3.0
+direction = Vector2(0.3, -1)
+spread = 16.0
+gravity = Vector2(6, -5)
+initial_velocity_min = 9.0
+initial_velocity_max = 15.0
+scale_amount_min = 0.5
+scale_amount_max = 0.8
+scale_amount_curve = SubResource("Curve_aidf6")
+color_ramp = SubResource("Gradient_46hoj")

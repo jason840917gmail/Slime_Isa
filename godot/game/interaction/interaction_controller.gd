@@ -36,6 +36,7 @@ const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd
 const InteractionBadge := preload("res://game/interaction/interaction_badge.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
 const BedScript := preload("res://game/scripts/bed.gd")
+const BathScript := preload("res://game/scripts/bath.gd")
 const WorkbenchScript := preload("res://game/scripts/workbench.gd")
 const PlacedFurniture := preload("res://game/building/placed_furniture.gd")
 
@@ -54,6 +55,7 @@ const NPC_BADGE_OFFSET := Vector2(30.0, -30.0)
 const NPC_BODY_RISE := 24.0
 const PRIORITY_WORKBENCH := 88
 const PRIORITY_BED := 85
+const PRIORITY_BATH := 84
 const PRIORITY_CHEST := 80
 const PRIORITY_TALK := 50
 const PRIORITY_RESTORATION := 89
@@ -114,10 +116,10 @@ func _input(event: InputEvent) -> void:
 
 func _physics_process(_delta: float) -> void:
 	var player := _player()
-	# Sleeping or placing furniture offers nothing (WorldScene.ts:820).
+	# Sleeping, bathing or placing furniture offers nothing (WorldScene.ts:820).
 	var furniture := get_tree().get_first_node_in_group(FURNITURE_GROUP)
 	var placing := furniture != null and bool(furniture.call(&"is_active"))
-	set_suppressed((player != null and bool(player.call(&"is_sleeping"))) or placing)
+	set_suppressed((player != null and bool(player.call(&"is_resting"))) or placing)
 	# The keys-only control scheme picks without the pointer (by priority, as with no mouse).
 	var pointing := _pointer_seen and ControlScheme.uses_mouse(ControlScheme.current())
 	refresh(get_global_mouse_position() if pointing else null)
@@ -311,6 +313,7 @@ func _gather_at(at: Vector2) -> Array[Dictionary]:
 	out.append_array(_npc_candidates(at))
 	_append(out, _chest_candidate(at))
 	_append(out, _nearest(at, BedScript.GROUP, PRIORITY_BED, "world-beds:", _path_id, Callable(), _use_bed))
+	_append(out, _nearest(at, BathScript.GROUP, PRIORITY_BATH, "world-baths:", _path_id, Callable(), _use_bath))
 	_append(out, _with_pick_up(_nearest(at, WorkbenchScript.GROUP, PRIORITY_WORKBENCH, "world-workbenches:", _path_id, Callable(), _use_workbench)))
 	_append(out, _nearest(at, &"restoration_site", PRIORITY_RESTORATION, "world-restorations:", _path_id, Callable(), _use_restoration))
 	_append(out, _nearest(at, USABLE_GROUP, PRIORITY_USE, "world-usables:", _path_id, _can_use, _use_usable))
@@ -480,6 +483,17 @@ func _use_bed(bed: Node) -> bool:
 	if main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning")):
 		return false
 	return bool(player.call(&"sleep_in", bed.call(&"sleep_request")))
+
+
+## A bath (game/scripts/bath.gd): refused as a bed is, while paused or travelling.
+func _use_bath(bath: Node) -> bool:
+	var player := _player()
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
+	if player == null or get_tree().paused:
+		return false
+	if main != null and main.has_method(&"is_transitioning") and bool(main.call(&"is_transitioning")):
+		return false
+	return bool(player.call(&"bathe_in", bath.call(&"bath_request")))
 
 
 func _use_restoration(site: Node) -> bool:

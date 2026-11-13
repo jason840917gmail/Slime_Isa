@@ -123,7 +123,7 @@ position = Vector2(0, 6)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("1")
 centered = false
-offset = Vector2(-114.5, -229)
+offset = Vector2(-114.5, -244)
 hframes = 6
 vframes = 5
 

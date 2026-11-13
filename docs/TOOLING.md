@@ -202,6 +202,12 @@ See [assets/README.md](assets/README.md) for the art workflow.
   of the door, holds the key until the world changes, films the arrival, and with `--then` goes back
   out; a frame every 40 ms of game time (the game runs slowed), with the world, the feet and the
   slime picture's place and alpha in the log ([CONVENTIONS.md](godot/CONVENTIONS.md#doors)).
+- `"<Godot console exe>" --path godot -s res://tools/render_bath.gd -- --out=<dir> [--map=slime-home]
+  [--soak-ms=4000]` (windowed) — records the slime taking a bath: it stands the slime at the world's
+  first bath, presses Interact, films the soak and gets out
+  ([Baths](godot/specs/interaction.md#351-baths-gamebath-godot-only-2026-11-12)).
+- `python scripts/art/build-bath-tub.py [--preview=<png>]` (**numpy**) — the bath tub's front layer
+  (its near wall and the water over the bather), cut from the tub's own tile.
 - `"<Godot console exe>" --path godot -s res://tools/render_stairs_walk.gd -- --out=<dir> [--map=<id>]
   [--feet=<x>,<y>] [--key=move_up] [--then=move_down] [--ms=2600]` (windowed) — records the stairs walk
   in the running game: it puts the slime at `--feet`, holds the key(s) and saves a frame every 80 ms
@@ -501,6 +507,18 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/art/build-ambient-decoration-sheets.py` and `build-water-life-sheets.py` (**numpy**) —
   the idle-loop sheets (campfire, cauldron, lantern post, banner, birdbath; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
   are edited in Godot ([assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md)).
+- `python scripts/art/build-ambient-strips.py [--preview=<dir>] [--boxes] [name ...]` (**numpy**) —
+  the idle loops of single pieces: interiors (lantern, candles, cauldrons, clay oven, hearth, alchemy
+  workbench, tall potion shelf, water tub, bucket and basin), dungeon art (lit brazier, candelabra,
+  guard table, worm head statue, war banner, crystals) and the town well: 8 frames from each piece's
+  sheet tile into `<the sheet's folder>/ambient/`, and its scene rewired once to play them
+  ([Interior loops](assets/AMBIENT_ANIMATION.md#interior-loops),
+  [Dungeon loops](assets/AMBIENT_ANIMATION.md#dungeon-loops-and-the-town-well)).
+- `python scripts/characters/align-npc-frames.py [--preview=<dir>] [name ...]` (**numpy**) — puts every
+  frame of the first village's six NPC sheets (`godot/asset/characters/authored/npcs/`: the elder,
+  Lili, the red boy, the fisherman, the yellow girl, the mossy scout) on one ground line and one
+  centre, so their clips no longer jump (owner, 2026-11-12); a sheet whose figures need more room
+  above gets taller cells and its scene's Visual offset follows. A second run moves nothing.
 - `python scripts/art/build-water-wake-sheet.py` (**numpy**) — the water at walkers' feet: the wading
   splash and the swim ripple (`asset/Originals/water/generated/wade-splash.png`, `swim-ripple.png`, 2 x 2
   grids from Magnific), each frame aligned on its ring, into
@@ -568,7 +586,9 @@ icon sheet would shift colour, then lossless; transparency always exact and veri
 New sounds are chosen on the
 [Slime Isa Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ) page before they ship. A
 round is one manifest, `scripts/audio/picker/round-<n>.json`: its cues, each with options (a label,
-a kind, source takes), the option the game plays meanwhile (`inGame`), the player node it drives
+a kind, source takes), the option the game plays meanwhile (`inGame`), `"loop": true` for a cue
+that loops (the page plays it round; its id also goes in `CUE_KIND` and `LOOPING` of
+`stage-round.py`, as the bath's `world.bath-soak` of round 9), the player node it drives
 and where it ships. These Python tools need `pip install miniaudio lameenc numpy`; none needs ffmpeg.
 
 - `python scripts/audio/slice-steps.py <out-prefix> <walk.mp3>...` — cuts single steps out of

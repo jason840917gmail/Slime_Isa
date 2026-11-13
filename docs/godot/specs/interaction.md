@@ -381,8 +381,9 @@ counter resets when the slime lets go or leaves the trigger, while it walks out 
 - **Arrival:** `Main._start_arrival` calls `on_arrival()` on the door the slime arrives at: a real
   door's leaf stands open until the slime has walked out and may move, then closes over
   `doorCloseMs` (250) with `close_cue` `DoorClose`.
-- The doors in the game: level-1 `home-door` (the forge's open archway, kind opening: the forge has
-  no door, owner 2026-10-15); `mushroom-home-door` (kind door, a leaf picture laid over the painted
+- The doors in the game: level-1 `home-door` (kind door, on the round mushroom house's door
+  frame: the slime's home; until 2026-11-12 it was the forge's open archway, and the forge, having
+  no door, has no way in now); `mushroom-home-door` (kind door, a leaf picture laid over the painted
   door, `res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`), gloop-forest `hut-door` (kind
   door, the leaf cut from the house art); the interiors' `house-door`s (kind door, the leaves cut
   from the room's door picture `house-door-art`: two timber leaves, `double_leaf`, in slime-home
@@ -678,6 +679,40 @@ wake(reason):                                    # 'input' | 'damage' (onPlayerH
 While sleeping the router is suppressed (no prompt, no badge). Respawning at the bed after death
 (`planRespawn`, `RespawnDestination.ts`, `WorldScene.respawnPlayer :1942-1980`, may travel to the
 bed's world) is [OUT] here (player spec owns respawn; the Godot trial respawns at the spawn).
+
+### 3.5.1 Baths (`game.bath`, Godot only, 2026-11-12)
+
+The owner: "similar to the sleep funtionality make a newone for bath where the slime can take a
+relax bath on any house bath". Built on the bed's pattern, with its own files.
+
+- **`game/scripts/bath.gd` (BathScript, group `bath`)**: a data holder, a child of a tub's root.
+  `prompt` "Bathe", `interact_radius` 90, `badge_rise` 70, `soak_point` (where the slime's art sits,
+  in the water) and `out_point` (where the body waits and the slime stands afterwards), both local
+  to the tub's root, and `front`: the tub's front layer (its near wall and the water in front of the
+  bather). The interaction controller offers it at priority 84, just under a bed's 85, and refuses
+  it as a bed, while paused or travelling.
+- **`game/rest/bath_controller.gd`**, owned by player.gd (`bathe_in`, `is_bathing`, `get_bath`):
+  the body is put at the way-out point and locked, the art is offset to the soak point, the `front`
+  layer's `z_index` is raised to 1 so it covers the slime's lower half, and the slime faces the
+  viewer. It settles (`doze`: a yawn, the eyes close), then soaks (`sleep`, looping: no new art),
+  healing `rest.bathHpRegenPerSec` (2) HP per second in whole points, the fraction carried. A soap
+  bubble rises from the water every 650 ms and pops, a wisp of steam every 900 ms (both drawn by
+  code). At full health once: "Fresh and clean" (green), silent.
+- **Getting out**: any action press or a held direction once 400 ms have passed, damage, death.
+  The art comes back, the front layer goes back down, the slime stands at the way-out point.
+- **Sound**: one only, `BathSoak`, the water's loop, from the step in to the step out
+  (`asset/audio/sfx/library/world/bath-soak.wav`; Sound Picker round 9, applied 2026-11-13: the
+  owner picked "Soft lapping" and wrote "make sure to only use the one i chose", so the splash, the
+  bubbles' pops and the full-health chime the first build played are gone).
+- **Unlike a bed**: a bath never sets the respawn point and shows no "z".
+- `player.is_resting()` is true asleep or in a bath: the control hints, the goo trail, the quest
+  idle check and the interaction prompt ask it where they asked `is_sleeping()`.
+- **The tub**: `game/scenes/objects/bath-tub.tscn` (`object.bath-tub`), the kitchen sheet's wooden
+  water tub at 1.5, animated, with its front layer `asset/MAPS/interiors/bath/bath-tub-front.webp`
+  (cut from the tub's own tile by `scripts/art/build-bath-tub.py`). Instance it in a room to give a
+  house a bath: the slime's home has one, the West town bathhouse two. Another tub becomes a bath
+  with a BathScript child and a front layer of its own.
+- `tools/render_bath.gd` films a bath in the running game. No test covers it yet.
 
 ### 3.6 `game.workbench` (`WorkbenchScript.ts`, descriptor `registrations.ts:717-731`) [IN]
 

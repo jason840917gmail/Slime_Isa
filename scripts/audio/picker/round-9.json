@@ -1,0 +1,63 @@
+{
+ "round": "round-9",
+ "applied": "2026-11-13 with round-9-picks.json: the soak ships option a (Soft lapping); by the owner's note it is the bath's only sound",
+ "intro": "The water of the bath (2026-11-12): the loop that plays while the slime soaks in a tub, from the moment it has settled until it gets out. It plays quietly under the room's music, so it should be calm and pleasant for a long soak. Four ideas, one take each; press Loop to hear an option go round as the game plays it. The game plays Fizzy lapping meanwhile. The splash getting in and out is the swim's splash, the bubbles pop with the Gulp's bubble pop and the chime at full health is the bed's: say in the note if any of those should change too. Pick one, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-9/takes",
+ "groups": [
+  {
+   "id": "bath",
+   "name": "Bath",
+   "note": "The slime takes a bath in a tub (its home, the bathhouse): Interact to get in, any move key to get out."
+  }
+ ],
+ "cues": [
+  {
+   "id": "world.bath-soak",
+   "group": "bath",
+   "name": "Soaking",
+   "where": "Loops while the slime soaks in a bath",
+   "node": "BathSoak",
+   "ship": "world/bath-soak",
+   "inGame": "b",
+   "loop": true,
+   "options": [
+    {
+     "key": "a",
+     "label": "Soft lapping",
+     "note": "Warm water lapping gently against the wooden tub, the darker and softer take",
+     "kind": "loop",
+     "takes": [
+      "temp/sound-round-9/raw/bath-soak-soft.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Fizzy lapping",
+     "note": "The same idea, brighter, with more soap fizz",
+     "kind": "loop",
+     "takes": [
+      "temp/sound-round-9/raw/bath-soak-fizzy.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Hot tub",
+     "note": "A steady low burbling, tiny bubbles rising",
+     "kind": "loop",
+     "takes": [
+      "temp/sound-round-9/raw/bath-soak-hot-tub.mp3"
+     ]
+    },
+    {
+     "key": "d",
+     "label": "Swirl and drips",
+     "note": "Slow swirling water with a single drip now and then, sparse and calm",
+     "kind": "loop",
+     "takes": [
+      "temp/sound-round-9/raw/bath-soak-drips.mp3"
+     ]
+    }
+   ]
+  }
+ ]
+}
