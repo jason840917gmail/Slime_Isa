@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import io
 import math
+import time
 from pathlib import Path
 
 import numpy as np
@@ -27,6 +28,9 @@ QUALITY = 90
 # Below this the lossy colour shift shows on small outlined icons (gems, keys,
 # weapon icons) at close zoom; above it the difference is not visible in play.
 MIN_PSNR_DB = 26.0
+# How often, and how long apart, a write is tried while Windows holds the file.
+WRITE_TRIES = 20
+WRITE_WAIT_S = 0.5
 
 
 def _has_alpha(image: Image.Image) -> bool:
@@ -69,5 +73,14 @@ def save_game_webp(image: Image.Image, path: str | Path) -> str:
         if not np.array_equal(np.asarray(image.convert('RGBA'))[..., 3], written):
             raise RuntimeError(f'{path}: transparency changed in the WebP encode')
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
+    # Windows can hold a file for a moment after its folder changed (a virus scan, a thumbnail, an
+    # import): opening it to write then fails with "Invalid argument", so try again for a few seconds.
+    for attempt in range(WRITE_TRIES):
+        try:
+            path.write_bytes(data)
+            break
+        except OSError:
+            if attempt == WRITE_TRIES - 1:
+                raise
+            time.sleep(WRITE_WAIT_S)
     return kind

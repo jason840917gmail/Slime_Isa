@@ -123,7 +123,7 @@ func _physics_process(_delta: float) -> void:
 	if player == null or not is_instance_valid(player) or not (player as Node).is_inside_tree():
 		return
 	var slime := player as Node
-	if bool(slime.call(&"is_dead")) or bool(slime.call(&"is_sleeping")):
+	if bool(slime.call(&"is_dead")) or bool(slime.call(&"is_resting")):
 		return
 	var moving := false
 	for action: StringName in MOVE_ACTIONS:

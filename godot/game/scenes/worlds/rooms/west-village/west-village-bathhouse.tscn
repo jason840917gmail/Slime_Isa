@@ -14,7 +14,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/interior-a.wav" id="music_track"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-lantern-lit.tscn" id="s1"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-plant-potted-large.tscn" id="s2"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/kitchen/interior-kitchen-tub-water.tscn" id="s3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/bath-tub.tscn" id="s3"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-towel-rack.tscn" id="s4"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-towels-folded.tscn" id="s5"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-wash-basin-soap.tscn" id="s6"]
@@ -118,13 +118,11 @@ scale = Vector2(1.3, 1.3)
 position = Vector2(784, 600)
 scale = Vector2(1.3, 1.3)
 
-[node name="kitchen-tub-water" parent="Furniture" instance=ExtResource("s3")]
+[node name="bath-tub" parent="Furniture" instance=ExtResource("s3")]
 position = Vector2(280, 300)
-scale = Vector2(2.2, 2.2)
 
-[node name="kitchen-tub-water2" parent="Furniture" instance=ExtResource("s3")]
+[node name="bath-tub-2" parent="Furniture" instance=ExtResource("s3")]
 position = Vector2(620, 300)
-scale = Vector2(2.2, 2.2)
 
 [node name="decor-towel-rack" parent="Furniture" instance=ExtResource("s4")]
 position = Vector2(160, 230)

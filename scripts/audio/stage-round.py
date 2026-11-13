@@ -48,14 +48,16 @@ TARGET_DB = {"step": -33.0, "stroke": -29.0, "blip": -30.0, "loop": -26.0, "ones
 ## Player settings per kind: (pitch randomness, min interval ms, max polyphony).
 PLAYER = {"step": (0.06, 180.0, 2), "stroke": (0.05, 300.0, 2), "blip": (0.08, 80.0, 2), "loop": (0.0, 0.0, 1), "oneshot": (0.06, 60.0, 4)}
 ## Cue -> kind where the take kind is not enough.
-CUE_KIND = {"player.swim-stroke": "stroke", "ui.talk-blip": "blip", "player.sleep-breath": "loop"}
+CUE_KIND = {"player.swim-stroke": "stroke", "ui.talk-blip": "blip", "player.sleep-breath": "loop", "world.bath-soak": "loop",
+            # it turns every few seconds for as long as the slime is near: as quiet as a swim stroke
+            "enemy.crystal-crawler-turn": "stroke"}
 ## Minimum interval (ms) where the kind's does not fit: the struggle repeats while a direction is
 ## held, and a plate on the edge of its radius can flicker; the stairs walk's footsteps
 ## (elevation.stairsFootstepMs) may be set closer than walking ones.
 CUE_INTERVAL = {"player.web-struggle": 700.0, "world.plate-press": 150.0, "world.plate-release": 150.0,
                 "footstep.stairs": 60.0}
 ## Cues whose global players loop.
-LOOPING = {"player.sleep-breath"}
+LOOPING = {"player.sleep-breath", "world.bath-soak"}
 ## Global players a cue drives besides its `node` (the shell menus also close).
 EXTRA_NODES = {"ui.shell-menu": ["MenuClose"]}
 ## Global players that existed before this round: their volume and settings stay as authored.

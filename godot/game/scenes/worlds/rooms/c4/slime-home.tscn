@@ -9,6 +9,7 @@
 [ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="6_y1j3a"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/beds/interior-beds-straw-nest-s.tscn" id="18"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-rug-green-large.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/bath-tub.tscn" id="bath_tub"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="28"]
 [ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="29"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="world_ground"]
@@ -109,6 +110,9 @@ metadata/persistence_key = "world.slime-home.west-bed"
 position = Vector2(740, 280)
 metadata/instance_id = "slime-home-east-bed"
 metadata/persistence_key = "world.slime-home.east-bed"
+
+[node name="bath-tub" parent="." instance=ExtResource("bath_tub")]
+position = Vector2(676, 544)
 
 [node name="dining-rug" parent="." unique_id=976410905 instance=ExtResource("21")]
 position = Vector2(448, 520)

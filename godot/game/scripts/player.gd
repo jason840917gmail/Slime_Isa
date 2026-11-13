@@ -47,6 +47,7 @@ const FORM_SKIN_SHADER := preload("res://game/player/gulp/form_skin.gdshader")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const SleepController := preload("res://game/rest/sleep_controller.gd")
+const BathController := preload("res://game/rest/bath_controller.gd")
 const PlayerAbilities := preload("res://game/player/abilities/player_abilities.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ElevationStairs := preload("res://game/world/elevation/elevation_stairs.gd")
@@ -173,6 +174,8 @@ var _action_locked: bool = false
 var _action_clip_until_ms: float = -1.0
 ## Sleeping in a bed (game/rest/sleep_controller.gd).
 var _sleep: SleepController = SleepController.new(self)
+## Soaking in a bath (game/rest/bath_controller.gd).
+var _bath: BathController = BathController.new(self)
 var _art_rest_position: Vector2 = Vector2.ZERO
 var _art_rest_position_known: bool = false
 ## Abilities (game/player/abilities/): rules, cooldowns and the running sequence.
@@ -388,6 +391,7 @@ func _enter_tree() -> void:
 ## Unregisters the hurtbox and clears input (scene exit).
 func _exit_tree() -> void:
 	_sleep.wake("teardown")
+	_bath.leave("teardown")
 	_abilities.cancel()
 	_unregister_receiver()
 	clear_input()
@@ -550,6 +554,10 @@ func _physics_process(delta: float) -> void:
 		# Sleep replaces player control (WorldScene.updateGameplay): presses only wake.
 		body.velocity = Vector2.ZERO
 		_sleep.update(delta * 1000.0, _wake_input())
+	elif _bath.is_bathing():
+		# A bath replaces player control as sleep does: presses only end it.
+		body.velocity = Vector2.ZERO
+		_bath.update(delta * 1000.0, _wake_input())
 	elif _walk_out.active:
 		# Walking out of a door: no input is read or consumed (presses stay buffered).
 		_step_walk_out(delta)
@@ -673,6 +681,19 @@ func face(direction: Vector2) -> void:
 		visual.flip_h = _flip_for(String(animation.assigned_animation))
 	else:
 		visual.flip_h = Directions.slime_flip_h(direction)
+
+
+## The slime's picture walks on the spot toward `direction` while its body stands frozen (a door
+## moves the picture: up to its sill, into the doorway, back down; game/scripts/door.gd), with the
+## walk's steps (footsteps.gd plays them off the clip). ZERO: it stands, facing as it did.
+func play_walk(direction: Vector2) -> void:
+	if _dead:
+		return
+	if direction == Vector2.ZERO:
+		_play_direct(_locomotion_clip(CLIP_IDLE))
+		return
+	_facing = direction.normalized()
+	_play_direct(_locomotion_clip(CLIP_WALK))
 
 
 ## True from the killing blow until respawn.
@@ -2271,7 +2292,7 @@ func _squash_on_move_start(direction: Vector2) -> void:
 ## action-locked or already asleep (WorldScene.requestSleep; the pause and travel checks are the
 ## interaction controller's).
 func sleep_in(request: Dictionary) -> bool:
-	if _dead or _action_locked or _sleep.is_sleeping():
+	if _dead or _action_locked or _sleep.is_sleeping() or _bath.is_bathing():
 		return false
 	if ReworkMode.is_on() and _mouth_hold != null:
 		_mouth_hold.cancel("sleep")
@@ -2280,6 +2301,30 @@ func sleep_in(request: Dictionary) -> bool:
 
 func is_sleeping() -> bool:
 	return _sleep.is_sleeping()
+
+
+## Soaking in a bath: `request` from `BathScript.bath_request()`. Refused (false) while dead,
+## action-locked, asleep or already in a bath.
+func bathe_in(request: Dictionary) -> bool:
+	if _dead or _action_locked or _sleep.is_sleeping() or _bath.is_bathing():
+		return false
+	if ReworkMode.is_on() and _mouth_hold != null:
+		_mouth_hold.cancel("sleep")
+	return _bath.bathe(request)
+
+
+func is_bathing() -> bool:
+	return _bath.is_bathing()
+
+
+## Asleep in a bed or soaking in a bath: the slime is out of play until it gets up.
+func is_resting() -> bool:
+	return _sleep.is_sleeping() or _bath.is_bathing()
+
+
+## The bath controller (tests read its phase).
+func get_bath() -> BathController:
+	return _bath
 
 
 ## The sleep controller (tests read its phase).
@@ -2357,6 +2402,7 @@ func _die() -> void:
 	if _dead:
 		return
 	_sleep.wake("death")
+	_bath.leave("death")
 	_roll.cancel()
 	_climb.cancel()
 	_gulp.clear()
@@ -2383,6 +2429,7 @@ func _die() -> void:
 ## `WorldScene.onPlayerHit` (player spec 6.5), only for `actual > 0`.
 func _present_hit(actual: int) -> void:
 	_sleep.wake("damage")
+	_bath.leave("damage")
 	var feel := Services.feel()
 	if feel != null:
 		feel.play(FEEL_PLAYER_HURT)

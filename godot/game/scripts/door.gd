@@ -38,7 +38,8 @@ class_name DoorScript
 ##   doorway and `WALK_IN_PAST_PX` past the door node, fading into the dark, over `doorWalkInMs`
 ##   while the iris waits; arriving it walks out on the other side (below). With a door frame the
 ##   walk goes to the frame's sill first, and arriving the picture comes down from the sill before
-##   the body walks out (`play_arrival`).
+##   the body walks out (`play_arrival`). Whenever the picture moves it plays the walk clip toward
+##   where it goes, with the walk's steps (player.gd `play_walk`); waiting for a leaf it stands.
 ## - "ladder_down": a hole with a ladder: the slime slides to the hole's middle, sinking and shrinking
 ##   into it over `ladderClimbMs` (`use_cue`). Arriving at one (it came up the ladder) it rises out
 ##   of the hole, small to full size (`play_arrival`).
@@ -96,6 +97,8 @@ const EFFECT_REST := {"offset": Vector2.ZERO, "scale": 1.0, "alpha": 1.0}
 const WALK_IN_PAST_PX := 12.0
 const WALK_IN_MIN_PX := 12.0
 const WALK_IN_MAX_PX := 56.0
+## Arriving at a house door: the feet this far in front of the house's draw line (world units).
+const HOUSE_FRONT_PX := 1.0
 ## Arriving up a ladder: the share of the climb spent rising out of the hole (the rest steps off).
 const RISE_SHARE := 0.6
 
@@ -383,6 +386,22 @@ func door_frame() -> DoorFrame:
 	return _frame
 
 
+## Where the feet stand in this doorway on arrival (area_travel.gd `doorway_feet`): the door node.
+## A north door with a house's door frame never stands behind its house's draw line (the house
+## root's y, where it sorts): a door node placed a little above the house's foot would have the
+## slime come out behind the house.
+func doorway_feet() -> Vector2:
+	var parent := get_parent() as Node2D
+	if parent == null:
+		return Vector2.ZERO
+	var at := parent.global_position
+	var frame := door_frame()
+	var house := frame.get_parent() as Node2D if frame != null else null
+	if house != null and side == "north":
+		at.y = maxf(at.y, house.global_position.y + HOUSE_FRONT_PX)
+	return at
+
+
 ## From the slime's feet to the door frame's sill (world units); ZERO without a frame.
 func _to_sill() -> Vector2:
 	var frame := door_frame()
@@ -476,6 +495,7 @@ func play_arrival(player: Node, delay_ms: float) -> float:
 			var tween := arrival_tween(player, at_sill, delay_ms)
 			if tween == null:
 				return 0.0
+			_walk(player, -to_sill)
 			effect_step(tween, player, at_sill, EFFECT_REST, approach)
 			return delay_ms + approach
 	return 0.0
@@ -558,19 +578,39 @@ func _walk_in(player: Node, delay_ms: float, ms: float) -> void:
 	var tween: Tween = player.call(&"effect_tween")
 	if tween == null:
 		return
+	# The picture walks (the walk clip and its steps) whenever it moves, and stands while it waits.
 	var to_sill := _to_sill()
 	if to_sill != Vector2.ZERO:
 		# A house's door frame: up to its sill first (a porch, steps), then into the doorway.
 		var approach := minf(_approach_ms(), delay_ms)
 		var at_sill := {"offset": to_sill, "scale": 1.0, "alpha": 1.0}
+		_walk(player, to_sill)
 		effect_step(tween, player, EFFECT_REST, at_sill, approach)
 		if delay_ms > approach:
+			tween.tween_callback(_stand.bind(player, out))
 			tween.tween_interval((delay_ms - approach) / 1000.0)
+		tween.tween_callback(_walk.bind(player, out))
 		effect_step(tween, player, at_sill, {"offset": to_sill + out * WALK_IN_PAST_PX, "scale": 1.0, "alpha": 0.0}, ms)
 		return
 	if delay_ms > 0.0:
+		_stand(player, out)
 		tween.tween_interval(delay_ms / 1000.0)
+	tween.tween_callback(_walk.bind(player, out))
 	effect_step(tween, player, EFFECT_REST, {"offset": out * reach, "scale": 1.0, "alpha": 0.0}, ms)
+
+
+## The slime's picture walks toward `direction` on the spot (player.gd `play_walk`: the walk clip
+## and its steps; the body stays where it is).
+static func _walk(player: Node, direction: Vector2) -> void:
+	if is_instance_valid(player) and player.has_method(&"play_walk"):
+		player.call(&"play_walk", direction)
+
+
+## The slime's picture stands, facing `direction` (it waits for a leaf to open).
+static func _stand(player: Node, direction: Vector2) -> void:
+	if is_instance_valid(player) and player.has_method(&"play_walk"):
+		player.call(&"face", direction)
+		player.call(&"play_walk", Vector2.ZERO)
 
 
 ## The slime slides to the hole's middle and shrinks into it (spinning when it falls).

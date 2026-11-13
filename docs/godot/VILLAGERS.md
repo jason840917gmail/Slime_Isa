@@ -6,8 +6,8 @@ react to the slime. Who they are, their lines and the owner's picks:
 [design/2026-11-01-west-town-villagers.md](../design/2026-11-01-west-town-villagers.md).
 
 **Status (2026-11-02):** all 27 villagers and 20 animals are built (art, scenes, lines) and placed in
-the town's four chunks (below); a room stands behind every house door (26 doors since 2026-11-12:
-a building with no door in its art has no room, below). The wanderers walk in `npc-wander` areas drawn in the chunks (dragged and
+the town's four chunks (below); a room stands behind every house door (27 doors; a building with
+no door in its art has no room, below). The wanderers walk in `npc-wander` areas drawn in the chunks (dragged and
 sized in the editor like the old NPCs'), and Gavy and Dan climb fences and walls (filmed in
 west-village-a4). No tests run, not played in the game with the slime.
 
@@ -140,12 +140,12 @@ to the door `<room id>-door` in its chunk, and the house ambience and music.
 
 - With villagers: `shop` (Dollop), `inn` (Burble, Dune), `bakery` (Crumb), `town-hall` (the mayor),
   `tailor` (Bobbin), `bathhouse` (Auntie Suds), `herbalist` (Granny Thistle), `family-home` (May).
-- **No door in the art, no room** (owner, 2026-11-12): the general store and the game booth are
-  open stalls, so they have no door node and no room. The shop's room moved to B4's timber
-  townhouse by the town hall (its door is `west-village-shop-door` now); that townhouse's own
-  empty home, `west-village-b4-townhouse`, is left without a door (the scene is kept, unused). The
-  bathhouse's way in is a curtain: its door is an `opening` (the slime walks up to it, nothing
-  swings).
+- **No door in the art, no room** (owner, 2026-11-12): the game booth is an open stall, so it has
+  no door node and no room. The general store was one too; the owner had it repainted with a
+  front door the same day (`asset/Originals/town/concepts/store-a.png`, the `store` sheet of
+  `scripts/art/pack-town-art.py`), so the shop's room is behind it (`west-village-shop-door`, at
+  the foot of its door). The bathhouse's way in is a curtain: its door is an `opening` (the slime
+  walks up to it, nothing swings).
 - Homes, empty for now and furnished by kind (cottage, flat, mushroom, farm, townhouse): A4's
   `a4-flat` (two-flats' ground floor), `a4-duplex-1`/`-2`, `a4-triplex-1`/`-2`/`-3`,
   `a4-twin-mushroom-1`/`-2`, `a4-thatch-cottage`, `a4-snail-house`, `a4-stump-house`, `a4-barn` (a

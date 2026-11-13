@@ -194,18 +194,25 @@ the door node, so a house placed or painted anywhere opens by itself and the wor
 needs no look settings. With a frame the slime's picture first walks from where it stands to the
 sill at `doorApproachSpeed` (200 px/s; a porch, steps, the tailor's stair), the leaf opening as it
 gets there, then fades into the doorway; coming out it stands in the open door, comes down to its
-body, walks out, and the leaf closes. A house with several doors has a frame for each (the duplex,
+body, walks out, and the leaf closes. Whenever the picture moves it plays the walk clip toward
+where it goes, with the walk's steps (player.gd `play_walk`), and it stands while it waits for a
+leaf: it walks, it never slides (owner, 2026-11-12). Arriving, the feet stand on the door node but
+never behind the house's draw line (its root's y; door.gd `doorway_feet`), so the slime coming
+out is drawn in front of its house. A house with several doors has a frame for each (the duplex,
 the triplex, the twin mushrooms, the two flats). `swings` off is an entrance with nothing to swing
 (the bathhouse's curtain): the walk, no leaf; its door node is an `opening`. **A building with no
-door in its art gets no frame, no door node and no room** (the general store and the game booth,
-open stalls). The West town's 16 house kinds and the three older houses used there (the blue
+door in its art gets no frame, no door node and no room** (the game booth, an open stall; the
+general store was one until it was repainted with a front door, 2026-11-12). The West town's 16 house kinds and the three older houses used there (the blue
 cottage, the barn, the round mushroom house) have frames; a `door` with neither a frame nor a
 `door_rect` has no leaf, only the cues and the walk in. A separate leaf
 picture in `leaf_art_path` is drawn over the rect, closed too: the level-1 mushroom house's door
 (`res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`, Magnific 2026-10-14, made for the forge
 and moved here; it matches the painted door's planks, straps and ring). Not imported yet, that
 picture is read from the file; missing, only the dark doorway opens. The level-1 forge (the slime
-home) has no door (owner, 2026-10-15): `home-door` is an `opening`, its painted fire arch shows.
+home, until 2026-11-12) has no door, so it has no way in (owner: "since the forge does not have a
+door it should no have an interior"). The slime's home is behind the round mushroom house of the
+same chunk now (owner: "for the slime houes use the second muchroom house that have not interior"):
+`home-door` stands at its painted door, a real door on the house's door frame.
 
 **Interior ways out:** the bottom wall's door is its own picture, a Sprite2D `house-door-art` in
 the room set as the door's `house_art` (the leaves are cut from it): `interior-timber-door.webp`
@@ -261,8 +268,8 @@ When you build the scene behind a door:
 
 Example: the playground's Bomb corner hole (`game/dev/corners/bomb_corner.tscn`, `door_side`
 north, kind opening, its trigger the wall's `passage`) and `playground-bomb-cave`'s `south-door`
-(side south, with a `walk_area`). The house doors: level-1 `home-door` (the forge's archway) is a
-`north` opening; `mushroom-home-door` (with the leaf picture) and gloop-forest `hut-door` are
+(side south, with a `walk_area`). The house doors: level-1 `home-door` (the round mushroom house's
+door, on its door frame; the slime's home, moved from the forge 2026-11-12); `mushroom-home-door` (with the leaf picture) and gloop-forest `hut-door` are
 `north` real doors; the slime-home, mushroom-home and gloop-hut `house-door`s are `south` real
 doors with the room's door picture. The gloop and
 playground sinkholes are `ladder_down` (no side, arrival child) and their cave ladders `ladder_up`

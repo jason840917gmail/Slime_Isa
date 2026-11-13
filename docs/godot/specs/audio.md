@@ -479,6 +479,7 @@ The player instances `game/scenes/audio/footsteps.tscn` as its child `Footsteps`
 
 | Cue | Plays when | Where |
 |---|---|---|
+| `BathSoak` (loop; Sound Picker round 9, applied 2026-11-13: "Soft lapping") | the slime is in a bath, from the step in to the step out; the bath's only sound (owner) | `rest/bath_controller.gd` ([Baths](interaction.md#351-baths-gamebath-godot-only-2026-11-12)) |
 | `GulpTransformHeavy` / `GulpTransformSticky` / `GulpTransformFrog` | that form starts or is refreshed (the form's `transform_cue` in `gulp_forms.gd`; the eat sound plays too) | `player.gd` `on_gulp_form_changed` |
 | `GulpBurp` / `GulpWearOff` | a tap away from a spot ends the form / the form's time runs out | same |
 | `LashCatch` | the tendril hooks a pickup or an anchor (a miss stays silent, the owner's pick) | `lash_sequence.gd` `_catch` |
@@ -597,6 +598,7 @@ and `picks.json`), so the new Gulp sounds are the Gulp's alone:
 | `BubbleRise` / `BubblePop` | goo-inhale / goo-ptoo | the prologue's birth bubble rises / pops | `prologue/birth_bubble.gd` |
 | `MimicWrap` / `MimicGrab` / `MimicSpit` | goo-inhale / goo-plop / goo-ptoo | the Cocoon Mimic wraps, grabs, spits the slime out | `cocoon_mimic.gd` |
 | `PipeWormSpit` | pipe-worm-spit (Sound Picker round 8, 2026-10-19; `PipeWormCharge` is left in `global.tscn`, never played: the charge is silent) | the Pipe Worm spits its glob, its only sound | `pipe_worm.gd` |
+| `CrawlerTurn` | crystal-crawler-turn (Sound Picker round 10, applied 2026-11-13: "Chitin scuttle", two takes; the owner did not like the shared `GroundCreak` it played before; levelled as a stroke, -29 dB, so it stays quiet) | the Crystal Crawler twists round a corner of its pillar, heard only where the slime could see it | `crystal_crawler.gd` `CUE_TURN` |
 | `SpitcapCharge` / `SpitcapSpit` | goo-inhale / goo-ptoo | the Spitcap charges, spits its seed | `spitcap.gd` |
 | `RookSteal` | goo-plop | the Rook Thief steals | `rook_thief.gd` |
 | `HeavyBlockGrab` | goo-plop | the slime grabs a heavy block (it played its placeholder `GulpCatch`) | `heavy_grab.gd` |

@@ -23,7 +23,7 @@ const SLOW_MULTIPLIER := 0.55
 const SLOW_MS := 400.0
 const FEET_RISE := 3.0
 
-## player.gd (get_centre, is_dead, is_sleeping, is_ability_busy, body).
+## player.gd (get_centre, is_dead, is_resting, is_ability_busy, body).
 var player: Node
 ## [{"at": Vector2, "born": float, "live": bool, "angle": float}].
 var _marks: Array[Dictionary] = []
@@ -49,7 +49,7 @@ func _physics_process(_delta: float) -> void:
 			aged = true
 	var run := Services.run()
 	var grounded := run != null and run.has_learned_ability(ABILITY_ID) and not bool(player.call(&"is_dead")) \
-		and not bool(player.call(&"is_sleeping")) and not bool(player.call(&"is_ability_busy"))
+		and not bool(player.call(&"is_resting")) and not bool(player.call(&"is_ability_busy"))
 	if grounded:
 		var body := player.get(&"body") as Node2D
 		var at := Vector2((player.call(&"get_centre") as Vector2).x, body.global_position.y - FEET_RISE) if body != null else Vector2.ZERO

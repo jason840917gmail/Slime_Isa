@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="player"]
+[ext_resource type="Script" path="res://game/scripts/bath.gd" id="bath"]
+
+[sub_resource type="Animation" id="idle"]
+resource_name = "object.ambient.idle"
+length = 1.33333
+loop_mode = 1
+step = 0.166667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.166667, 0.333333, 0.5, 0.666667, 0.833333, 1, 1.16667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+
+[sub_resource type="AnimationLibrary" id="library"]
+_data = {
+&"object.ambient.idle": SubResource("idle")
+}
+
+[sub_resource type="RectangleShape2D" id="foot"]
+size = Vector2(112, 36)
+
+[node name="bath-tub" type="StaticBody2D"]
+y_sort_enabled = true
+collision_mask = 0
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -22)
+shape = SubResource("foot")
+
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+centered = false
+offset = Vector2(-64, -124)
+hframes = 8
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/interiors/ambient/interior-kitchen-tub-water.webp"
+
+[node name="Front" type="Sprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+centered = false
+offset = Vector2(-64, -124)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/interiors/bath/bath-tub-front.webp"
+
+[node name="AmbientAnimation" type="AnimationPlayer" parent="."]
+process_mode = 3
+libraries/ = SubResource("library")
+autoplay = &"object.ambient.idle"
+script = ExtResource("player")
+randomize_start = true
+
+[node name="Bath" type="Node" parent="." node_paths=PackedStringArray("front")]
+script = ExtResource("bath")
+interact_radius = 80.0
+badge_rise = 84.0
+soak_point = Vector2(1, -72)
+out_point = Vector2(0, 24)
+front = NodePath("../Front")

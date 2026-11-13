@@ -1,0 +1,17 @@
+{
+ "round": "round-10",
+ "decidedAt": "2026-11-13T04:57:04.339Z",
+ "source": "The Sound Picker's picks/round-10 document, version 3 (final). Option b (Chitin scuttle) picked; its take 2 was dropped, so b ships with its takes 1 and 3.",
+ "note": "",
+ "picks": {
+  "enemy.crystal-crawler-turn": "b"
+ },
+ "dropped": {
+  "enemy.crystal-crawler-turn": {
+   "b": [
+    1
+   ]
+  }
+ },
+ "wishes": {}
+}

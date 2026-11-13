@@ -171,8 +171,11 @@ static func walks_out(door: Node) -> bool:
 	return constants != null and constants.number("worldNavigation.doorWalkOutMaxPx") > 0.0
 
 
-## Where the feet stand in `door`'s doorway: the door node (the DoorScript's parent).
+## Where the feet stand in `door`'s doorway: where the door says (door.gd `doorway_feet`: a house
+## door keeps the slime in front of its house), else the door node (the script's parent).
 static func doorway_feet(door: Node) -> Vector2:
+	if door != null and door.has_method(&"doorway_feet"):
+		return door.call(&"doorway_feet")
 	var parent := door.get_parent() as Node2D if door != null else null
 	return parent.global_position if parent != null else Vector2.ZERO
 

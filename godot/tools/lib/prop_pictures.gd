@@ -4,10 +4,11 @@ extends RefCounted
 
 const Props := preload("res://game/world/props/prop_layer.gd")
 const OBJECTS := "res://game/scenes/objects/"
-## Scripts a scenery scene may carry.
+## Scripts a scenery scene may carry (a house's door frame only marks its painted door).
 const PRESENTATION: PackedStringArray = [
 	"res://game/runtime/animation_player.gd", "res://game/runtime/sfx_player_2d.gd",
 	"res://game/runtime/sfx_player.gd", "res://game/runtime/sheet_sprite.gd",
+	"res://game/world/door_frame.gd",
 ]
 
 static var _images := {}
@@ -62,6 +63,10 @@ static func picture(scene: String, size: float) -> Rect2:
 static func still(node: Node) -> void:
 	for player in node.find_children("*", "AnimationPlayer", true, false):
 		(player as AnimationPlayer).autoplay = ""
+	# a house's chimney smoke is not part of its picture
+	for smoke in node.find_children("*", "CPUParticles2D", true, false):
+		(smoke as CPUParticles2D).emitting = false
+		(smoke as CPUParticles2D).visible = false
 
 
 ## The box `node`'s visible pixels cover, in the space `transform` maps `node`'s parent to.

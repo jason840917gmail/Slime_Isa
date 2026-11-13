@@ -34,7 +34,7 @@ the newborn. The roads past the Thorn Guard posts are closed, so travellers are 
 
 | # | Name | Role | Kind | Where | Look |
 |---|---|---|---|---|---|
-| V1 | Dollop | Shopkeeper (potions, food ingredients) | Indoor | Her shop's room, behind the counter (since 2026-11-12 behind the timber townhouse's door in B4: the general store is a stall with no door, so it has no room) | Plump honey-orange, red-and-cream striped apron, paper shop cap, a green goo jar |
+| V1 | Dollop | Shopkeeper (potions, food ingredients) | Indoor | General store, behind the counter (the store was repainted with a front door on 2026-11-12: a building needs a door to have a room) | Plump honey-orange, red-and-cream striped apron, paper shop cap, a green goo jar |
 | V2 | Burble | Innkeeper of the Bubbling Mug | Indoor | Inn, behind the bar | Big plum-purple, bushy white eyebrows, towel on the shoulder, a foamy mug |
 | V3 | Crumb | Baker | Indoor | Twin mushroom house (or a pumpkin house) | Cream-yellow, floury chef's hat, a pumpkin pie |
 | V4 | Mayor Wobbleton | The mayor | Indoor | Town hall | Teal, small top hat, gold monocle, green sash with the sprout badge |

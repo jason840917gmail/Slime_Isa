@@ -63,7 +63,11 @@ general store, an inn, Burr's gatekeeper house and a throwing-game booth; buildi
 homes, a door each: a duplex, a triplex row, two flats (the upper one up an outside stair) and twin
 mushroom houses; and two large ones, a town hall and a goo bathhouse. A building with several homes
 or a big one has a Marker2D `door-1`, `door-2` ... at the foot of each door (an upper flat's at the
-foot of its stair): place a door node there for each home's interior. Town
+foot of its stair): place a door node there for each home's interior. Every painted door has a
+`DoorFrame` child on its house scene, where the leaf swings and the slime walks to
+([CONVENTIONS.md](CONVENTIONS.md#doors) "Door frames"); a building with no door in its art (the
+game booth) gets no door and no room, which is why the general store was repainted with a front
+door (2026-11-12, the packer's `store` sheet). Town
 (`town/props/`): a goo fountain, a market stall, a signpost, a notice board, a goo lamp, barrels,
 crates, a bench, a flower cart, a mailbox, a slime statue, a clothesline, a wheelbarrow, a rain
 barrel, a beehive and a water trough. Garden (`town/garden/`): cabbage and carrot beds, a pumpkin
@@ -73,8 +77,14 @@ scarecrow. A hedge of any length is painted instead, the `hedge` style of the `w
 ([WALLS.md](WALLS.md)); a longer picket fence, the picket style of the `fences` layer
 ([FENCES.md](FENCES.md)). Everything else blocks with a foot box; a building's box covers its lower part, so the
 slime walks up to its door (a door is its own node, `game/scripts/door.gd`, placed at the door). The
-goo fountain, the goo lamp, the jelly dome and the town hall's jelly finial shimmer, the bathhouse's
-domes shimmer and its steam sways, the laundry sways and the bees fly (8-frame loops, random start). `scripts/art/pack-town-art.py` cuts them from the picked concept
+goo fountain runs (rings over its pool, bobbing bubbles, the blob on top squashing, falling drops:
+12 frames), the goo lamp's jar glows and swings from its hook, the jelly dome and the town hall's
+jelly finial shimmer, the bathhouse's domes shimmer and its steam sways, the laundry sways, the bees
+fly, the water of the trough and the rain barrel runs, the scarecrow leans in the wind, the
+gatekeeper's, town hall's and game booth's banners wave, the inn's and the store's signs swing
+(8-frame loops, random start) and the chimneys smoke (`effects/chimney-smoke.tscn`, placed in each
+house scene); they are made to read at the game's size:
+[Town loops](../assets/AMBIENT_ANIMATION.md#town-loops)). `scripts/art/pack-town-art.py` cuts them from the picked concept
 sheets in `asset/Originals/town/concepts/` and writes their pictures and scenes
 ([TOOLING.md](../TOOLING.md)).
 
@@ -177,7 +187,7 @@ about 42 million pixels, some 170 MB of textures a world would otherwise load.
 
 `tools/build_prop_palettes.gd` (windowed: it renders) builds the `cell-props` and `details`
 palettes: every scene under `game/scenes/objects/` whose path matches a source and whose only
-scripts are presentation (idle animation, sound, `sheet_sprite.gd`) is measured by its visible pixels, given its block,
+scripts are presentation (idle animation, sound, `sheet_sprite.gd`, a house's `door_frame.gd`) is measured by its visible pixels, given its block,
 rendered with the game's own drawing at its true size, a unit a pixel, into its slot of
 `godot/asset/MAPS/palettes/<palette>-<source>.png` (a new scene goes to the source with the longest
 prefix it matches, so the Lair's `decoration-world-solid--war-banner` is dungeon decor, not
