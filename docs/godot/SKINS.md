@@ -8,7 +8,7 @@ are the owner's ([Direction "The skins"](../story/01-direction.md#the-skins)):
 
 - **Always on once won.** A skin is never put on, taken off or switched. Every won skin works at
   once and they stack; none has a downside (Heavy does not slow the slime). No keys: the Feral
-  climb is a held interact. Skins cost no energy.
+  climb is a held interact and the movement keys. Skins cost no energy.
 - **Contextual.** Each skin acts in its own places (its gate) and changes one move.
 - **It shows while it works:** stony on a heavy plate, a grab or a Heavy Roll; silvery in a web,
   a web wall or a cut; furry with claws as it climbs or strikes. Otherwise the slime wears its
@@ -134,19 +134,32 @@ listen to the same heavy shake (BESTIARY.md "Hooks").
 
 ## Feral
 
-- **The climb** (`game/player/skins/feral_climb.gd`, player-owned): at a climbable wall's start zone,
-  facing along the climb, an interact press takes hold (or the wall's prompt, "Climb (hold)"). While
-  the key stays held the slime climbs toward the far end at `skins.feral.climbSpeed` (150 px/s),
-  swaying hand over hand; the movement key the other way climbs it back. Its body does not collide
-  on the face and is drawn in front of it; claws show. At the far end it takes the level there
-  (Elevation `track`) and the wall's `climbed` fires (a wall can lead out of the world:
-  `exit_area_id`, `exit_door`). Letting go midway, or a hit, drops it to the lower end over
-  `skins.feral.dropMs` with a landing squash: no damage. Without the skin the wall is not offered,
-  and pushing along it says `refusal_text` (at most every `skins.feral.refusalEveryMs`).
+- **The climb** (`game/player/skins/feral_climb.gd`, player-owned; reworked on 2026-11-12, the owner:
+  "with W it sticks to the wall and then you move with the arrows in the direction you want", as the
+  push and pull of a heavy block, so that a mountain can carry many climbs): an interact press where
+  the slime can take hold of a climbable surface (at its foot facing up, on its lip facing down; or a
+  placed wall's prompt, "Climb (hold)") takes hold, and the slime glides onto it. **While the key
+  stays held the slime clings; the movement keys move it over the surface, any way,** at
+  `skins.feral.climbSpeed` (150 px/s), sliding along its edges; with no movement key it stays where
+  it is. Its body does not collide on the face and is drawn in front of it; claws show; it faces
+  the wall the whole climb, its back to the camera, whichever way it moves (the owner, 2026-11-12).
+  **Pushing on past an edge with ground beyond** (up
+  over the rim, down at the foot) it gets off there and takes that level (Elevation `track`).
+  Letting go, or a hit, drops it to the foot under it over `skins.feral.dropMs` with a landing
+  squash: no damage (already standing by its landing, it just lets go). **A catch:** the key
+  pressed again while it drops takes hold right where the slime is, where the surface allows a cling
+  (vines under it; a drop past bare rock catches nothing; after a hit's drop the key must be let go
+  and pressed again). Without the skin nothing is
+  offered, and pushing up at the foot says the refusal (at most every `skins.feral.refusalEveryMs`).
+- **Climbable surfaces** (feral_climb.gd `WALL_GROUP`): **painted vines** (a `vines` VineLayer,
+  [Painting vines](#painting-vines): the way to make a climb) and the **placed climbable wall**
+  (`object.climb-wall`, below: a climb that leads out of a world or ends on the face). Each answers
+  the climb where the slime takes hold (`can_grab`, `climb_start`), where it may cling
+  (`climb_allows`), where it gets off (`climb_exit`) and where it lands (`climb_landing`).
 - **A wall that ends on the face** (`holds_at_top`; added by the dungeons for the Crystal Colossus's
   arena, [DUNGEONS.md](DUNGEONS.md#the-crystal-colossus-roadmap-124)): at the far end there is nothing
   to stand on, so the slime clings there (`hold_text` shows once each time it gets there) until it
-  lets go or climbs back (feral_climb.gd `is_holding`).
+  lets go or moves away (feral_climb.gd `is_holding`).
 - **The strike while clinging** (the plan's proposal, built by the dungeons on 2026-10-17 for the
   Colossus's claws): in the body-shapes mode an attack press while the slime climbs or clings (not
   while it drops) gives the current shape a press aimed along the face, left or right: the left or
@@ -154,19 +167,112 @@ listen to the same heavy shake (BESTIARY.md "Hooks").
   (240), else the way the last one went (feral_climb.gd `strike_side`; player.gd `_climb_strike`). It
   strikes on the release as every press (the Spear at the Feral tempo, its hits through the shape
   controller as on the ground); the slime holds still on the face while the strike runs
-  (`hold_still`), then climbs on. A hit still knocks it off. The classic game drops the press.
+  (`hold_still`), then moves on. The left or right key that aims the strike also moves the slime
+  along the wall until the strike begins. A hit still knocks it off. The classic game drops the press.
 - **The Spear hits twice as fast:** while the skin is on, every Spear chain step runs its own
   timeline at `skins.feral.spearTempo` (2): wind-up, active window, recovery, cancel point, lunge
   and the finisher's rest take half as long (shape_controller.gd `_tempo`). The link window, the
   holds, the damage and the charged Lunge stay as they are.
 - **Placing a climbable wall** (`object.climb-wall`, game/scenes/objects/climb-wall.tscn, script
-  `game/scripts/climb_wall.gd`): put its root where the slime's feet stand at the wall's foot, about
+  `game/scripts/climb_wall.gd`; for a climb that leads out of a world, `exit_area_id`, or ends on
+  the face, `holds_at_top`: every other climb is painted, below): put its root where the slime's feet
+  stand at the wall's foot, about
   20 px below the face's foot line, and set `top` to where the slime's centre ends (on the ledge,
   about 40 px inside the rim). `art_size` sizes the roots' picture over the face; `grab_width` the
-  zone across (default: the picture's width). To climb back down, place a second one on the lip
+  zone across (default: the picture's width). The slime moves in the strip that wide between the
+  root and `top` (from where it stood as it took hold), and gets off at either end by pushing on.
+  To climb back down, place a second one on the lip
   facing down: its root about 20 px inside the rim, `top.y` > 0 ending about 30 px below the
   face's foot line, `show_art` off. A climbable wall never stands beside a heavy block or the
-  root-rock wall style (questions 91 and 129). Painting roots on a layer is not built.
+  root-rock wall style (questions 91 and 129). In the Scenery dock's **Feral skin** category.
+
+### Painting vines
+
+Climbs are painted (owner, 2026-11-12: "how do I paint those vines on a wall?"): a **VineLayer**
+(`game/world/vines/vine_layer.gd`, tile set `vine_tileset.tres`, one tile).
+
+1. In the world scene: Add Node > **VineLayer**, name it `vines`, beside the ground and `elevation`
+   layers (same grid, position (0, 0)). It takes its tile set by itself.
+2. Select it and paint its tile **on the cells of the wall's face**: the rows under a raised edge, one
+   row per level of the drop (a two-level wall is two rows tall). What is painted is what is
+   climbed, and the vines are drawn over the painted cells at once.
+3. Paint as many cells as the climb is to cover: a column, a band along the wall, an L, a zigzag up
+   a tall wall. The slime moves over them cell to cell, any way.
+
+The rules the paint follows:
+
+- **Getting on** needs vines that reach the wall's **foot** (the slime takes hold there, facing up)
+  or its **rim** (from the ledge above, facing down, within `lipStandPx` + `grabReachPx` of the rim).
+- **Getting off** is pushing up at the rim or down at the foot. A column that stops short of the rim
+  or the foot has no way off at that end: the slime moves on sideways, or lets go.
+- **Letting go** drops the slime before the wall's foot under it (`landBelowFootPx`), unhurt, from
+  any height.
+- The slime's centre stays on painted cells, `sideInsetPx` (14) off the vines' open sides.
+- The wall is read from the `elevation` paint: the nearest raised edge above a painted cell (found
+  beside the layer or beside any node above it, so a layer in a corner scene reads its world's).
+  **Front walls only** (the south faces): a cell painted anywhere else (flat ground, a side wall, a
+  45° face) shows a warning on the node and is not a way on or off. With no elevation paint at all
+  each painted column is taken as a wall from its top cell to its bottom one.
+- Without the Feral skin, pushing up at the vines' foot says the layer's `refusal_text`.
+
+The picture is the root wall's (`asset/MAPS/props/mine/256x256-root-wall.webp`), one per painted
+rectangle and repeated across a wide one (about as wide as tall each, two cells at most, every
+other one mirrored): a patch two cells wide on a two-level wall shows it as painted, other sizes
+stretch it. **On a tall wall** (a rectangle over 1.4 times as tall as the picture at its width) it
+is drawn in pieces instead: the picture's mossy top at the rim, its bottom at the foot, and its
+middle repeated between them. Walls go up to nineteen courses
+([High levels](ELEVATION.md#high-levels)); the climb lab (`?map=climb-lab`) has twelve-course ones
+to try. The palette
+squares show at `paint_opacity` in the editor and never in the game. `tools/render_vines.gd` renders
+the playground's painted plateau (`--scene`, `--cells` for another world) and, with `--probe`, prints
+where the slime takes hold, gets off and lands on every painted rectangle.
+
+![The playground's Feral plateau, vines painted on cells 113-115 x 34-35](images/vines-painted-plateau.png)
+
+### Balconies
+
+A rock ledge that steps out of a tall wall part-way up, to stand on (the owner, 2026-11-13, after A
+Link to the Past's ledges on its mountain walls: "a step out balcony where the slime can fall from
+above"; the wall runs on unchanged behind it). It is **painted with the vines' layer**: the
+palette's second tile.
+
+1. Select the world's `vines` VineLayer and pick the **balcony** tile (the stone-coloured square).
+2. Paint it **in one row of the wall's face**, as many cells side by side as the balcony is wide
+   (three to five look as painted; the picture is scaled to the width, so a wider one is deeper
+   too). The balcony's back edge lies on the top of that row; its rim and underside hang into the
+   row below.
+3. Paint vines right **under** it (their top cell in the row below it) for a way up to it from the
+   ground, and right **over** it (their bottom cell in the row above it) for a way on up.
+
+What a balcony does:
+
+- **Landing.** A drop off the rim above it lands on it instead of the wall's foot, and so does a
+  let-go from vines over it: a mountain's balconies are where a fall stops. No damage.
+- **Standing.** Its grass is a floor: the slime walks on it as on ground, kept on it by its edge
+  (half an ellipse, `FLOOR_HALF` 0.34 of the width each way, `FLOOR_DEPTH` 0.2 deep). No skin is
+  needed to stand on one. Wherever the slime's feet come to be on a floor, it stands on it (so a
+  door or an arrival placed there works).
+- **Leaving.** Pushing on against the floor's edge for `elevation.dropPushMs`, forward or sideways,
+  drops the slime to the next balcony under it, else to the wall's foot. With the Feral skin, an
+  interact press under vines takes hold of them from the floor (facing up), and at its front over
+  vines that hang under it (facing down).
+- **Doors** go on the wall at its back edge: any door object (the hill doorway,
+  `object.hill-doorway`, is a stone doorway made for a hill's face).
+
+How it is built: the layer draws the picture (`asset/MAPS/objects/balcony-meadow-rock.webp`, made
+to match the meadow rock wall; sources in `asset/Originals/elevation/balcony/`) over the painted
+cells with a faint shadow on the wall, and answers `game/player/balcony_stand.gd`
+(`balcony_holds`, `balcony_step`, `balcony_catch`, `balcony_drop`, `balcony_depth`), which
+player.gd asks every step. The slime is drawn before the wall at the depth of the wall's foot
+(Elevation `set_flight`) and moves with no collision up there. `tools/pack_vine_tileset.gd`
+writes the palette (vines at (0, 0), the balcony at (1, 0)). The climb lab's sheer wall has two
+(`?map=climb-lab`); `tests/test_balcony.gd` plays them.
+
+![Two balconies painted on the climb lab's sheer wall, vines to and from the lower one](images/climb-lab-balconies.png)
+
+Not built yet: balcony art for the other wall styles (one picture, the meadow rock's), a wide
+balcony drawn in pieces instead of scaled, a cave mouth made for these walls, attacks and throws
+from a balcony checked (they are not blocked), and enemies or objects standing on one.
 
 ## The bag's Skins row
 
@@ -187,8 +293,10 @@ classic playground drops it; its plateau stays painted). Three lanes, each with 
 - **Silk** (y 1330 to 1700): twelve floor webs, a web wall between stone walls hiding a silk parcel,
   a silk parcel in the open.
 - **Feral** (y 1800 to 2500): a level-2 plateau painted on the playground's elevation (cells 110-117
-  x 30-33) with a climbable wall up its face and one down from its lip, and a training dummy for the
-  fast Spear.
+  x 30-33) with vines painted on its face (the playground's `vines` VineLayer, a layer of the world
+  scene beside `elevation`, not of the corner's scene, so it is painted with the wall in view; cells
+  113-115 x 34-35:
+  clung to from its foot or its lip and crossed any way), and a training dummy for the fast Spear.
 
 None of its breakables keeps a flag: they come back with the world. The Heavy corner and the Webs
 corner have a pedestal each too (their stone and silk essences went).
@@ -217,6 +325,8 @@ the player scene by `tools/build_player_clips.gd -- --only=push-,pull-,grab-`; r
 | `game/player/skins/skin_state.gd` | The API |
 | `game/player/skins/skin_look.gd`, `feral_claws.gd` | The looks; the claws |
 | `game/player/skins/feral_climb.gd`, `game/scripts/climb_wall.gd` | The climb; the climbable wall |
+| `game/world/vines/vine_layer.gd`, `vine_tileset.tres`, `tools/render_vines.gd`, `tools/pack_vine_tileset.gd` | The painted vines and balconies; their render and probe; the palette's packer |
+| `game/player/balcony_stand.gd` | The slime on a balcony: landing on it, kept on its floor, dropping off it |
 | `game/autoload/run_state.gd` | The record (`skin_ids`, `skin_look`, lending, the old flags) |
 | `game/fattys_lair/heavy_check.gd`, `game/player/roll/player_roll.gd` | The Heavy Roll |
 | `game/scripts/plank_barricade.gd`, `rubble_heap.gd`, `loose_prize.gd` | The Heavy Roll's locks |
@@ -226,14 +336,16 @@ the player scene by `tools/build_player_clips.gd -- --only=push-,pull-,grab-`; r
 | `game/hints/control_hints.gd` (`heavy-grab`), `game/shell/control_labels.gd` (`with_keys`) | The Heavy touch hint; key names in the skins' texts |
 | `game/player/heavy_grab.gd` (`pose`), `game/scripts/player.gd` (`_step_grab`), `scripts/characters/pack-slime-heavy-grab.py`, `tools/render_heavy_grab.gd` | The push and pull poses |
 | `game/dev/corners/skins_corner.*`, `skin_pedestal.gd` | The playground corner |
-| `tests/test_skins.gd` | The record, the grant, stacking and the look, the Heavy Roll and the prize, the climb, the Spear's tempo, the Skins row |
+| `tests/test_skins.gd` | The record, the grant, stacking and the look, the Heavy Roll and the prize, the climb (a placed wall, painted vines), the Spear's tempo, the Skins row |
 
 Numbers: game-constants.json `skins` (`order`, `defs`, `lookShowMs`, `lookFadeInMs`,
-`lookFadeOutMs`, `ceremonyTextMs`, `heavy`, `feral`).
+`lookFadeOutMs`, `ceremonyTextMs`, `heavy`, `feral` with the vines' `feral.vines`).
 
 ## Not built yet
 
-- Roots painted on a layer (a climbable wall is a placed object).
+- Vines on side walls, 45° faces and back edges (front walls only), and across a chunk line.
+- Vine art that joins: one picture is repeated, so a wide band shows where each begins.
+- A prompt on painted vines (a placed wall shows "Climb (hold)"; vines show nothing until the press).
 - The Heavy Roll knocking the grey, leaning old tree over the river as a bridge (question 101).
 - The Swim, Polar, Sand, Cloud and Lava skins (later releases); the Swim form stays as it is.
 - Removing the Gulp forms, essences and Swallow (roadmap 7.11).

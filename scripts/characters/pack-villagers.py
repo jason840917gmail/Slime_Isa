@@ -1,4 +1,7 @@
-"""Packs the West town's villagers and animals (docs/godot/VILLAGERS.md "Art").
+"""Packs the West town's villagers and animals and the cave animals (docs/godot/VILLAGERS.md "Art").
+
+A cave animal (`"family": "cave"`) reads its sheets from `asset/Originals/cave-animals/generated/`
+and is packed into `godot/asset/characters/cave-animals/`; the rest is the same.
 
 Each character's generated sheets (`asset/Originals/town/villagers/generated/<id>-<sheet>.png`,
 Magnific GPT 2.5 on a transparent background, a grid of frames each) are cut along their emptiest
@@ -32,6 +35,12 @@ from game_webp import save_game_webp  # noqa: E402
 SOURCES = REPO / "asset" / "Originals" / "town" / "villagers" / "generated"
 MANIFEST = REPO / "asset" / "Originals" / "town" / "villagers" / "packed.json"
 OUTPUT = REPO / "godot" / "asset" / "characters" / "villagers"
+# A character's `family` (the town's when it names none): where its sheets are and where it is packed.
+FAMILIES = {
+    "town": (SOURCES, OUTPUT),
+    "cave": (REPO / "asset" / "Originals" / "cave-animals" / "generated",
+        REPO / "godot" / "asset" / "characters" / "cave-animals"),
+}
 PX_PER_UNIT = 2.0
 ALPHA_CUT = 24
 # Faint haze the generator leaves around the art is cleared below this alpha.
@@ -97,7 +106,23 @@ CHARACTERS: dict[str, dict] = {
     "duckling": {"height": 12, "sheets": [("poses", (3, 2))]},
     "snail": {"height": 12, "sheets": [("poses", (3, 2))]},
     "butterflies": {"height": 14, "sheets": [("poses", (3, 2))]},
+    # the cave animals (2026-11-12), one 3 x 2 sheet each: firefly (wings up, level, down with the
+    # tail bright, then dim), glow-worm (long, humped, half; tail bright, tail dim and a blink, front),
+    # pill bug (stand, two steps, ball, peeking, front), cave newt (stand, two steps, looking up,
+    # blink, front), crystal snail (three crawl lengths, hidden, crystals shining, front), lantern
+    # moth (wings open, half, closed, half lowered, resting, open with a blink)
+    "firefly": {"height": 16, "sheets": [("poses", (3, 2))], "family": "cave"},
+    "glow-worm": {"height": 16, "sheets": [("poses", (3, 2))], "family": "cave"},
+    "pill-bug": {"height": 20, "sheets": [("poses", (3, 2))], "family": "cave"},
+    "cave-newt": {"height": 22, "sheets": [("poses", (3, 2))], "family": "cave"},
+    "crystal-snail": {"height": 24, "sheets": [("poses", (3, 2))], "family": "cave"},
+    "lantern-moth": {"height": 22, "sheets": [("poses", (3, 2))], "family": "cave"},
 }
+
+
+def folders(character: str) -> tuple[Path, Path]:
+    """Where the character's sheets are and where it is packed."""
+    return FAMILIES[CHARACTERS[character].get("family", "town")]
 
 
 def splits(counts: np.ndarray, parts: int) -> list[int]:
@@ -152,9 +177,10 @@ def mass_x(frame: Image.Image) -> float:
 
 def pack(character: str) -> dict:
     spec = CHARACTERS[character]
+    sources, output = folders(character)
     rows: list[tuple[str, list[Image.Image]]] = []
     for sheet, grid in spec["sheets"]:
-        path = SOURCES / f"{character}-{sheet}.png"
+        path = sources / f"{character}-{sheet}.png"
         if not path.exists():
             raise SystemExit(f"{character}: missing {path.relative_to(REPO)}")
         rows.append((sheet, cut_frames(path, grid)))
@@ -176,9 +202,9 @@ def pack(character: str) -> dict:
             left = column * cell + cell // 2 - round(mass_x(frame))
             top = row * cell + cell - FOOT - frame.height
             out.alpha_composite(frame, (left, top))
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    path = OUTPUT / f"{cell}x{cell}-tile_{columns}x{len(scaled)}-{character}.webp"
-    for old in OUTPUT.glob(f"*-tile_*-{character}.webp"):
+    output.mkdir(parents=True, exist_ok=True)
+    path = output / f"{cell}x{cell}-tile_{columns}x{len(scaled)}-{character}.webp"
+    for old in output.glob(f"*-tile_*-{character}.webp"):
         if old != path:
             old.unlink()
     save_game_webp(out, path)
@@ -194,7 +220,7 @@ def pack(character: str) -> dict:
 
 
 def main() -> None:
-    wanted = sys.argv[1:] or [c for c in CHARACTERS if (SOURCES / f"{c}-{CHARACTERS[c]['sheets'][0][0]}.png").exists()]
+    wanted = sys.argv[1:] or [c for c in CHARACTERS if (folders(c)[0] / f"{c}-{CHARACTERS[c]['sheets'][0][0]}.png").exists()]
     unknown = [c for c in wanted if c not in CHARACTERS]
     if unknown:
         raise SystemExit(f"unknown: {', '.join(unknown)}")

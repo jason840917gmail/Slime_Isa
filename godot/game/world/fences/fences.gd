@@ -41,6 +41,7 @@ extends Node2D
 ## Owner: world (fences).
 
 const Self := preload("res://game/world/fences/fences.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 const NodeFind := preload("res://game/shared/node_find.gd")
 const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
@@ -133,8 +134,6 @@ var _occluders: Array = []
 ## The last build's inputs, to build again when a cracked post breaks (`_rebuild_after_break`).
 var _painted: TileMapLayer
 var _collide := false
-## level -> its physics layer's bit (`_level_bit`), read from the project settings once.
-static var _level_bits := {}
 ## The painted cells outside the grid already warned about (layer path and cell), once a session.
 static var _outside_warned := {}
 
@@ -1055,9 +1054,9 @@ static func _add_contact(arrays: MeshData, foot: Vector2) -> void:
 
 
 ## Fence vertex data (fence.gdshader): r = shade, g = how far below its foot line
-## ((dy + 128) / 512), b = kind, a = level ((level + 4) / 8).
+## and a = level as level_code.gd writes them, b = kind.
 static func _color(shade: float, dy: float, kind: float, level: int) -> Color:
-	return Color(shade, clampf((dy + 128.0) / 512.0, 0.0, 1.0), kind, (float(level) + 4.0) / 8.0)
+	return Color(shade, LevelCode.dy(dy), kind, LevelCode.of(level))
 
 
 ## The quad `points` (four corners in order round it, their UVs `uvs`, their heights `dys` above the
@@ -1213,17 +1212,9 @@ func _build_collision() -> void:
 		holder.add_child(body)
 
 
-## The physics layer bit project.godot names "level <n>", 0 when none is (looked up once a level).
+## The physics layer bit of `level`'s collision (ElevationGrid.physics_bit, as the elevation's own).
 static func _level_bit(level: int) -> int:
-	if _level_bits.has(level):
-		return int(_level_bits[level])
-	var bit := 0
-	for i in range(1, 33):
-		if str(ProjectSettings.get_setting("layer_names/2d_physics/layer_%d" % i, "")) == "level %d" % level:
-			bit = 1 << (i - 1)
-			break
-	_level_bits[level] = bit
-	return bit
+	return ElevationGrid.physics_bit(level)
 
 
 ## The fences under `parent`, found by class (a node's name is typed by hand in the editor).

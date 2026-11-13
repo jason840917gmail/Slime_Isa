@@ -9,8 +9,10 @@ extends Node2D
 ##   pouch caught in a tree that a Heavy Roll's bonk shakes loose.
 ## - **Silk** (middle): floor webs (a walk is halved and a Roll sticks without the skin), a web wall
 ##   between stone walls (the Spear cuts it with the skin; it hides a silk parcel), a silk parcel.
-## - **Feral** (south): a level-2 plateau with a climbable wall up its face and one back down from its
-##   lip, and a training dummy to feel the Spear strike twice as fast.
+## - **Feral** (south): a level-2 plateau with vines painted on its face (the playground's own
+##   `vines` VineLayer, beside its `elevation` layer, game/world/vines/vine_layer.gd: clung to and
+##   crossed any way, from its foot or its lip), and a
+##   training dummy to feel the Spear strike twice as fast.
 ## None of the breakables keeps a flag: building the world again brings them back.
 ##
 ## It is a rework-mode testbed: with the mode off (the classic game, the test runner's playground)

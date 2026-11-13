@@ -3,23 +3,21 @@ extends Node2D
 ## climbs). A child "FeralClaws" of the player's body, made by game/player/skins/feral_climb.gd the
 ## first time it climbs: two hands of three curved claws gripping the face on either side of the
 ## slime, drawn over it, popping in as it grabs and out as it lets go (real time, presentation
-## only). Climbing up the slime shows its back, so the hands grip above its middle; climbing down
-## they grip lower.
+## only). The slime faces the wall the whole climb (its back to the camera), so the hands grip above
+## its middle.
 ##
 ## Owner: skins.
 
 const FILL := Color("#f2e8d2")
 const SHADE := Color("#c9b48f")
 const LINE := Color("#3b2a1b")
-## Each hand from the body's root (the slime's feet), world px: climbing up and climbing down.
-const HANDS_UP: Array[Vector2] = [Vector2(-21.0, -34.0), Vector2(21.0, -34.0)]
-const HANDS_DOWN: Array[Vector2] = [Vector2(-21.0, -10.0), Vector2(21.0, -10.0)]
+## Each hand from the body's root (the slime's feet), world px.
+const HANDS: Array[Vector2] = [Vector2(-21.0, -34.0), Vector2(21.0, -34.0)]
 const CLAW_LENGTH := 18.0
 const CLAW_WIDTH := 6.5
 const CLAW_GAP := 8.0
 const POP_S := 0.12
 
-var _hands: Array[Vector2] = HANDS_UP
 var _shown := false
 var _grip := 0.0
 
@@ -30,9 +28,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
-## Shows (or hides) the claws, gripping for a climb along `facing` (UP or DOWN).
-func set_shown(on: bool, facing: Vector2) -> void:
-	_hands = HANDS_DOWN if facing.y > 0.0 else HANDS_UP
+## Shows (or hides) the claws.
+func set_shown(on: bool) -> void:
 	if on == _shown:
 		return
 	_shown = on
@@ -54,9 +51,9 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	for index in _hands.size():
+	for index in HANDS.size():
 		var side := -1.0 if index == 0 else 1.0
-		var hand := _hands[index]
+		var hand := HANDS[index]
 		var flex := sin(_grip + index * PI) * 1.2
 		for claw in 3:
 			var base := hand + Vector2(side * (claw - 1) * CLAW_GAP * 0.55, (claw - 1) * 1.5 + flex)

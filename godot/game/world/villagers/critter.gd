@@ -1,9 +1,11 @@
 extends CharacterBody2D
 class_name Critter
 ## A West town animal (docs/godot/VILLAGERS.md "Animals"): pigs, the pup, the cat, hens and chicks,
-## sheep, ducks, birds, the snail, the hedgehog, the squirrel. Placed by hand from the Scenery dock's
-## Animals category under the world's `Animals` node; nothing spawns them. It moves only through
-## `ArcadeMover.move` and never hurts or blocks the slime's attacks.
+## sheep, ducks, birds, the snail, the hedgehog, the squirrel; and a cave animal ("Cave animals":
+## fireflies, the glow-worm, the pill bug, the cave newt, the crystal snail, the lantern moth). Placed
+## by hand from the Scenery dock's Animals and Cave animals categories under the world's `Animals`
+## node; nothing spawns them. It moves only through `ArcadeMover.move` and never hurts or blocks the
+## slime's attacks.
 ##
 ## Where it goes (the villagers' rules, villager_script.gd): after `follow` (piglets after the
 ## sow, chicks after the hen, the pup at Old Sedge's heels: within `follow_radius` of its feet,
@@ -27,7 +29,16 @@ class_name Critter
 ## a bird with `flight_chance` takes off instead: its picture rises `flight_height` over `fly_ms`
 ## (its shadow stays on the ground and shrinks), it flies at `flight_speed` to a random spot of its
 ## circle over walls and roofs (no collision while up), and comes down there. `always_flying` (the
-## swallow) never lands: it flies from spot to spot round its circle.
+## swallow) never lands: it flies from spot to spot round its circle. One that never lands and
+## has the reaction "flee" (the fireflies) scatters instead of running: it makes for a far spot of
+## its circle at `flee_speed` for `flee_ms`. `flight_wobble_px` sways a flier's picture about its
+## path (a firefly's drift, a moth's flutter).
+##
+## **A glow** (`glow`, cave animals: the firefly's and the glow-worm's tail, the crystal snail's
+## crystals): a soft light under its Visual whose brightness its clips animate. It stays on its side
+## of the picture when the picture is mirrored, and in a dark room that is still dark it is drawn
+## over the darkness (as the enemies' eyes, game/enemy/dark_eyes.gd), so there only the glow shows.
+## It is a picture, not a light source: it lights nothing and no enemy or puzzle reads it.
 ##
 ## All its numbers are scene properties, tuned per animal in its scene (game/scenes/objects/animals/).
 ##
@@ -37,6 +48,7 @@ const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const NpcWanderPolicy := preload("res://game/world/npc_wander_policy.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
+const DarkRoom := preload("res://game/world/darkness/dark_room.gd")
 
 const PLAYER_GROUP := &"player"
 const ANIM_IDLE := "idle"
@@ -55,6 +67,14 @@ const SHADOW_NAME := "Shadow"
 const SHADOW_HIGH_SCALE := 0.55
 ## How near (world units) a flight's spot counts as reached (the wander policy's arrival).
 const FLIGHT_ARRIVAL := 6.0
+## Over a dark room's darkness overlay (dark_room.gd OVERLAY_Z 45), where a glow is drawn in the dark.
+const GLOW_DARK_Z := 46
+## How many spots of its circle a scattering flier looks at for the one farthest from the slime.
+const SCATTER_TRIES := 6
+## A flier's sway (flight_wobble_px): its turns a second sideways and up and down, and how much of
+## the sway goes up and down.
+const WOBBLE_RATE := Vector2(1.7, 2.9)
+const WOBBLE_RISE_SHARE := 0.6
 
 ## The sprite and its AnimationPlayer (clips idle, walk-left/-right/-down/-up; fly-left/-right,
 ## curl, hide and rest clips by animal).
@@ -91,6 +111,11 @@ const FLIGHT_ARRIVAL := 6.0
 @export var flight_height: float = 0.0
 @export var flight_speed: float = 0.0
 @export var always_flying: bool = false
+## How far (px) a flier's picture sways about its path while it is up (0: a straight flight).
+@export var flight_wobble_px: float = 0.0
+## Its glow (a node under its Visual; see above): mirrored with the picture, over the dark in a
+## dark room.
+@export var glow: Node2D
 ## Its body bounds for the wander domain, relative to its feet.
 @export var body_bounds: Rect2 = Rect2()
 
@@ -116,6 +141,11 @@ var _shadow: Node2D
 ## Whether the world's `npc-wander` areas were looked at (once, on its first step: the world
 ## registers its areas after its nodes are ready).
 var _area_read: bool = false
+## The glow's own place and depth (as the scene has them) and whether it is drawn over a dark room.
+var _glow_x: float = 0.0
+var _glow_z: int = 0
+var _glow_dark: bool = false
+var _wobble_phase: float = 0.0
 
 
 func _ready() -> void:
@@ -131,6 +161,10 @@ func _ready() -> void:
 	elif not _home.is_empty():
 		_domain = _home
 	_state = NpcWanderPolicy.create_state(_random_pause())
+	_wobble_phase = randf() * TAU
+	if glow != null:
+		_glow_x = glow.position.x
+		_glow_z = glow.z_index
 	_play(ANIM_IDLE)
 	if always_flying:
 		_take_off(Services.now_ms())
@@ -180,6 +214,16 @@ func _physics_process(delta: float) -> void:
 			if now >= _until_ms:
 				_mode = STATE_FLIGHT
 		STATE_FLIGHT:
+			var scatters := always_flying and reaction == "flee"
+			if scatters and near and now >= _until_ms and not _home.is_empty():
+				_flight_target = _far_spot(player)
+				_until_ms = now + flee_ms
+			var speed := maxf(flee_speed, flight_speed) if scatters and now < _until_ms else flight_speed
+			if flight_wobble_px > 0.0:
+				# Presentation, on real time: the picture sways, the body flies straight.
+				var t := float(Time.get_ticks_msec()) / 1000.0 + _wobble_phase
+				visual.position = Vector2(sin(t * WOBBLE_RATE.x) * flight_wobble_px,
+						-_height + sin(t * WOBBLE_RATE.y) * flight_wobble_px * WOBBLE_RISE_SHARE)
 			var to_target := _flight_target - global_position
 			if to_target.length() <= FLIGHT_ARRIVAL:
 				velocity = Vector2.ZERO
@@ -189,7 +233,7 @@ func _physics_process(delta: float) -> void:
 					_mode = STATE_LANDING
 					_until_ms = now + fly_ms
 			else:
-				velocity = to_target.normalized() * minf(flight_speed, to_target.length() / maxf(delta, 0.001))
+				velocity = to_target.normalized() * minf(speed, to_target.length() / maxf(delta, 0.001))
 				_play("fly-left" if velocity.x < 0.0 else "fly-right")
 		STATE_LANDING:
 			velocity = Vector2.ZERO
@@ -202,6 +246,7 @@ func _physics_process(delta: float) -> void:
 			if not (near and _react(player, now)):
 				_wander(delta)
 	ArcadeMover.move(self, delta)
+	_show_glow()
 
 
 func _wander(delta: float) -> void:
@@ -310,6 +355,29 @@ func _flight_spot() -> Vector2:
 	if _home.is_empty():
 		return global_position
 	return Perimeter.random_point(_home) + (global_position - FeetAnchor.phaser_position(self))
+
+
+## The spot of its circle farthest from `from`, of a few tries: where a scattering flier makes for.
+func _far_spot(from: Node2D) -> Vector2:
+	var best := _flight_spot()
+	for i in SCATTER_TRIES - 1:
+		var spot := _flight_spot()
+		if spot.distance_squared_to(from.global_position) > best.distance_squared_to(from.global_position):
+			best = spot
+	return best
+
+
+## Keeps its glow on its side of a mirrored picture, and over the darkness of a dark room.
+func _show_glow() -> void:
+	if glow == null:
+		return
+	glow.position.x = -_glow_x if visual.flip_h else _glow_x
+	var dark := DarkRoom.is_dark_at(get_tree(), global_position)
+	if dark == _glow_dark:
+		return
+	_glow_dark = dark
+	glow.z_as_relative = not dark
+	glow.z_index = GLOW_DARK_Z if dark else _glow_z
 
 
 ## How far (0..1) the current take-off or landing is.

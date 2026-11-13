@@ -21,6 +21,7 @@ extends RefCounted
 ## Owner: world (elevation).
 
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 
 const ATLAS_META := "res://asset/MAPS/elevation/dressing/cliff-dressing.json"
 const KEY_SUFFIX := "|dressing"
@@ -160,7 +161,7 @@ func _add_piece(mesh_level: int, name: String, at: Vector2, scale: float, light:
 	var verts := PackedVector2Array()
 	var uvs := PackedVector2Array()
 	var colors := PackedColorArray()
-	var colour := Color(light, 0.0, 0.0, (level + 4.0) / 8.0)
+	var colour := Color(light, 0.0, 0.0, LevelCode.of(level))
 	for index: int in [0, 1, 2, 0, 2, 3]:
 		verts.append(quad[index])
 		uvs.append(uv[index])

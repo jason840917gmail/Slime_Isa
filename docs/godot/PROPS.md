@@ -34,6 +34,9 @@ scenery (grass, flowers, pebbles, leaves) on the layers below, which keeps the s
 **Villagers** and **Animals** (2026-11-01): the West town's people and animals by their scene's
 picture ([VILLAGERS.md](VILLAGERS.md)); a drag places the scene at its own size under the world's
 `NPCs` or `Animals` node, where its wander circle, route or `follow` is set in the Inspector.
+**Cave animals** (2026-11-12) lists the caves' harmless animals the same way (fireflies and a
+swarm, the glow-worm, the pill bug, the cave newt, the crystal snail, the lantern moth; under
+`Animals` too): [VILLAGERS.md](VILLAGERS.md#cave-animals-2026-11-12).
 
 **Suckables** (the very last category, owner 2026-10-19): every liftable kind of
 `game/data/liftables.json` (the 67 light things the Gulp sucks in and throws: pots, jars, crates,
@@ -88,6 +91,12 @@ house scene); they are made to read at the game's size:
 sheets in `asset/Originals/town/concepts/` and writes their pictures and scenes
 ([TOOLING.md](../TOOLING.md)).
 
+**Heavy skin**, **Silk skin** and **Feral skin** (2026-11-12, the owner: the skins' objects "need
+their tab") list what each skin works on, placed as the dungeon pieces below under `Objects`: the
+heavy plate, block, statues and ore crate, the Heavy Roll's breakables (plank barricade, rotten
+timbers, old trunk, old fence, rubble heap, loose rock) and the loose prize; the floor web, web wall
+and silk parcel; the climbable wall (vines are painted: [SKINS.md](SKINS.md#painting-vines)).
+
 **Dungeon objects** (2026-10-19) lists the dungeon pieces with
 logic by their scene's own picture (flipped when its sprite is: the statue facing the other way, 2026-10-31): every scene of `game/scenes/objects/dungeon/` but the world-level
 Dungeon nodes, and the puzzle objects among the other objects (brazier, plates, heavy blocks and
@@ -96,6 +105,16 @@ mine cart, ore lift, lens and veil, Gulp spots, Pearls, the full heart). Draggin
 at its own size under the room's `Objects` node (a room door under `RoomDoors`, a hazard under
 `Hazards`; made when missing); set its ids in the Inspector ([DUNGEONS.md](DUNGEONS.md)). The list
 is `DUNGEON_EXTRAS` and `DUNGEON_SKIP` in `addons/scenery_dock/scenery_dock.gd`.
+
+**A piece with no sprite in its scene** (2026-11-12; owner: "some objects ... show like this with
+the film, why?"): the dock lists a scene by its biggest sprite, so a piece whose script draws it
+or builds its look when it runs showed Godot's scene icon (a film clapper). Such a piece now gets
+the picture `addons/scenery_dock/scene_pictures.gd` names for it: its own art's first frame (the
+brazier, crystal veil, divider gate, dungeon key, falling plank and slab, floor web, heavy plate,
+shadow path, silk parcel, web wall), or an icon in its editor colours for a marker with no art (the
+room door, room fight, hazard, hazard deck, plank landing, prize glint:
+`asset/MAPS/palettes/dock/`, drawn by `scripts/art/build-dock-icons.py`, left out of exported games
+with the palettes). A new piece that shows the film icon needs a line in that table.
 
 **Enemies** (2026-10-16, roadmap 5.25): every enemy type with a scene, by its
 picture. Dragging one places a **placed enemy** (`game/scenes/encounters/placed-enemy.tscn`) of that

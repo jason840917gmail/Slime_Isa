@@ -5,7 +5,7 @@ shader_type canvas_item;
 // one with the ground around it and the levels seem to meet (the illusion of A Link to the Past).
 // Drawn over the wall it runs beside, it leaves of that wall only what stands above the slope. It
 // takes the shadows higher ground casts on it (elevation_cast_shadow.gdshaderinc) at its own
-// height. Vertex colour g = the slope's height in levels ((L + 4) / 8): in a hole it darkens as the
+// height. Vertex colour g = the slope's height in levels ((L + 4) / 32): in a hole it darkens as the
 // ground there does (elevation_light.gdshaderinc); a = its opacity (a rimmed ramp's landing at its
 // sides and an open end's cap fade out); r = how much of the cast shadows it takes (an open end's cap none near the end,
 // elevation_ramp.gd `shadow_take`; 1 elsewhere).

@@ -1,15 +1,19 @@
-"""Writes the scenes of the West town's villagers and animals (docs/godot/VILLAGERS.md "Scenes").
+"""Writes the scenes of the West town's villagers and animals and of the cave animals
+(docs/godot/VILLAGERS.md "Scenes", "Cave animals").
 
 For each character packed by `pack-villagers.py` (its layout in
 `asset/Originals/town/villagers/packed.json`) and listed in `CAST` below, writes
 `godot/game/scenes/characters/villagers/<id>.tscn` (a villager: an NPC with VillagerScript) or
-`godot/game/scenes/objects/animals/<id>.tscn` (an animal: Critter), the script on the scene's root
+`godot/game/scenes/objects/animals/<id>.tscn` (an animal: Critter; a cave animal, `"cave": True`,
+goes to `godot/game/scenes/objects/cave-animals/`), the script on the scene's root
 (so a placed one's settings are its own, in the Inspector), with its AnimationPlayer clips:
 
 - villagers: `idle` (the first pose, a blink every 4 s, a soft jelly breath on the Visual's scale),
   `talk` (talk and laugh poses), and for walkers `walk-left/-right/-down/-up` (4 steps, the side row
   mirrored for left) and `idle-left/-right/-up` (a walk's first frame, breathing);
-- animals: the clips named in their entry (frames by row and column).
+- animals: the clips named in their entry (frames by row and column). An animal with a `glow`
+  gets a soft light under its Visual (`Glow`, game/prologue/soft_glow.gd) whose brightness each
+  clip animates (`glow`: [(time, alpha)]; a clip that names none holds the entry's `alpha`).
 
 A scene that exists is left alone (the owner may have edited it in Godot); `--force` rewrites the
 named ones. Run it with the Godot editor closed or reload the scenes there after.
@@ -28,6 +32,7 @@ REPO = Path(__file__).resolve().parents[2]
 MANIFEST = REPO / "asset" / "Originals" / "town" / "villagers" / "packed.json"
 VILLAGER_DIR = REPO / "godot" / "game" / "scenes" / "characters" / "villagers"
 ANIMAL_DIR = REPO / "godot" / "game" / "scenes" / "objects" / "animals"
+CAVE_DIR = REPO / "godot" / "game" / "scenes" / "objects" / "cave-animals"
 SCALE = 0.5  # 2 px per world unit
 STEP_S = 0.12  # a walk step
 BREATH = (1.012, 0.985)  # the Visual's scale at the top of a breath, x and y, times its own
@@ -204,6 +209,113 @@ for _index, _colour in enumerate(("orange", "blue", "yellow")):
             "fly_ms": 400.0, "reaction": "none"}}
 
 
+# The cave animals (2026-11-12; docs/godot/VILLAGERS.md "Cave animals"), one 3 x 2 sheet each.
+# `glow`: a soft light under the Visual: `at` and `radius` in sheet px from the feet (the Visual is
+# drawn at half size), its colour, and the brightness (`alpha`) a clip holds when it names no `glow`.
+FLAP_S = 0.07
+# A clip that holds its last pose (a rolled-up pill bug): long enough that its loop never shows.
+HOLD_S = 600.0
+
+
+def firefly_clips() -> dict:
+    """Wings up, level, down (bright tail: frames 0-2; dim: 3-5): it flaps all the time and its
+    tail shines 1.4 s, then goes dim 0.84 s."""
+    wings = [0, 1, 2, 1]
+    frames = [("poses", wings[i % 4] + (0 if i < 20 else 3), i * FLAP_S) for i in range(32)]
+    flap = {"frames": frames, "length": 32 * FLAP_S, "free": True,
+        "glow": [(0.0, 1.0), (1.26, 1.0), (1.4, 0.1), (2.1, 0.1)]}
+    return {"idle": flap, "fly-right": flap, "fly-left": dict(flap, flip=True)}
+
+
+def moth_clips() -> dict:
+    """Wings open, half, closed, half lowered, resting, open blinking: it flutters; `idle` (a moth
+    with `always_flying` off, between flights) rests with its wings folded."""
+    flap = {"frames": [("poses", f, i * 0.06) for i, f in enumerate([0, 1, 2, 1])], "length": 0.24, "free": True}
+    return {"idle": {"frames": [("poses", 4, 0.0)], "length": 2.0, "breath": True},
+        "fly-right": flap, "fly-left": dict(flap, flip=True)}
+
+
+def glow_worm_clips() -> dict:
+    """Long, humped, half; tail bright; tail dim with a blink; front. It inches along, and standing
+    its tail swells bright and fades."""
+    pulse = {"frames": [("poses", 0, 0.0), ("poses", 3, 1.0), ("poses", 0, 1.8), ("poses", 4, 2.6), ("poses", 0, 2.9)],
+        "length": 3.4, "breath": True, "glow": [(0.0, 0.45), (1.0, 1.0), (1.8, 0.45), (2.6, 0.1), (2.9, 0.45)]}
+    inch = {"frames": [("poses", 0, 0.0), ("poses", 2, 0.3), ("poses", 1, 0.6), ("poses", 2, 0.9)], "length": 1.2,
+        "glow": [(0.0, 0.6)]}
+    return {"idle": {"frames": [("poses", 5, 0.0)], "length": 3.0, "breath": True,
+            "glow": [(0.0, 0.25), (1.5, 0.6)]},
+        "idle-right": pulse, "idle-left": dict(pulse, flip=True),
+        "walk-right": inch, "walk-left": dict(inch, flip=True)}
+
+
+def pill_bug_clips() -> dict:
+    """Stand, two steps, ball, peeking, front: it scuttles, and rolls up when the slime is near."""
+    scuttle = {"frames": [("poses", 1, 0.0), ("poses", 0, 0.09), ("poses", 2, 0.18), ("poses", 0, 0.27)], "length": 0.36}
+    return {"idle": {"frames": [("poses", 5, 0.0)], "length": 2.0, "breath": True},
+        "idle-right": {"frames": [("poses", 0, 0.0)], "length": 2.0, "breath": True},
+        "idle-left": {"frames": [("poses", 0, 0.0)], "length": 2.0, "flip": True, "breath": True},
+        "walk-right": scuttle, "walk-left": dict(scuttle, flip=True),
+        "curl": {"frames": [("poses", 4, 0.0), ("poses", 3, 0.12)], "length": HOLD_S},
+        "peek": {"frames": [("poses", 3, 0.0), ("poses", 4, 0.5)], "length": HOLD_S}}
+
+
+def newt_clips() -> dict:
+    """Stand, two steps, looking up, blink, front: it pads about, looks up, runs from the slime."""
+    stand = {"frames": [("poses", 0, 0.0), ("poses", 4, BLINK_AT), ("poses", 0, BLINK_AT + BLINK_S)],
+        "length": IDLE_S, "breath": True}
+    pad = {"frames": [("poses", 1, 0.0), ("poses", 0, 0.11), ("poses", 2, 0.22), ("poses", 0, 0.33)], "length": 0.44}
+    return {"idle": {"frames": [("poses", 5, 0.0)], "length": 2.0, "breath": True},
+        "idle-right": stand, "idle-left": dict(stand, flip=True),
+        "walk-right": pad, "walk-left": dict(pad, flip=True),
+        "look": {"frames": [("poses", 3, 0.0)], "length": 2.0, "breath": True}}
+
+
+def crystal_snail_clips() -> dict:
+    """Three crawl lengths, hidden, crystals shining, front: the village snail's clips, and its
+    crystals glint while it stands."""
+    glint = {"frames": [("poses", 0, 0.0), ("poses", 4, 1.4), ("poses", 0, 1.9)], "length": 3.2, "breath": True,
+        "glow": [(0.0, 0.25), (1.3, 0.25), (1.5, 1.0), (1.9, 0.25)]}
+    crawl = {"frames": [("poses", 0, 0.0), ("poses", 2, 0.3), ("poses", 1, 0.6), ("poses", 2, 0.9)], "length": 1.2}
+    return {"idle": {"frames": [("poses", 5, 0.0)], "length": 2.0, "breath": True},
+        "idle-right": glint, "idle-left": dict(glint, flip=True),
+        "walk-right": crawl, "walk-left": dict(crawl, flip=True),
+        "hide": {"frames": [("poses", 3, 0.0)], "length": 2.4, "glow": [(0.0, 0.2), (1.2, 0.7)]}}
+
+
+CAST.update({
+    "firefly": {"kind": ANIMAL, "cave": True, "body": (8, 4), "layer": 0, "mask": 0, "clips": firefly_clips(),
+        "glow": {"at": (-1, -7), "radius": (34, 34), "color": (0.8, 1.0, 0.4, 0.9), "alpha": 1.0},
+        "props": {"wander_radius": 72.0, "always_flying": True, "flight_height": 22.0, "flight_speed": 20.0,
+            "fly_ms": 500.0, "flight_wobble_px": 5.0, "reaction": "flee", "notice_px": 56.0, "flee_speed": 90.0,
+            "flee_ms": 900.0}},
+    "lantern-moth": {"kind": ANIMAL, "cave": True, "body": (10, 6), "layer": 0, "mask": 0, "clips": moth_clips(),
+        "props": {"wander_radius": 60.0, "always_flying": True, "flight_height": 38.0, "flight_speed": 46.0,
+            "fly_ms": 400.0, "flight_wobble_px": 7.0, "reaction": "none"}},
+    "glow-worm": {"kind": ANIMAL, "cave": True, "body": (18, 8), **SMALL, "clips": glow_worm_clips(),
+        "glow": {"at": (-29, -11), "radius": (30, 24), "color": (0.3, 1.0, 0.85, 0.95), "alpha": 0.45},
+        "props": {"walk_speed": 5.0, "pause_min_ms": 2500.0, "pause_max_ms": 7000.0, "wander_radius": 40.0,
+            "reaction": "none"}},
+    "pill-bug": {"kind": ANIMAL, "cave": True, "body": (16, 8), **SMALL, "clips": pill_bug_clips(),
+        "props": {"walk_speed": 30.0, "pause_min_ms": 500.0, "pause_max_ms": 2200.0, "wander_radius": 96.0,
+            "rest_clips": ["peek"], "rest_clip_chance": 0.2, "reaction": "curl", "notice_px": 52.0,
+            "calm_ms": 2200.0}},
+    "cave-newt": {"kind": ANIMAL, "cave": True, "body": (22, 10), **SMALL, "clips": newt_clips(),
+        "props": {"walk_speed": 24.0, "pause_min_ms": 1500.0, "pause_max_ms": 4500.0, "wander_radius": 80.0,
+            "rest_clips": ["look"], "rest_clip_chance": 0.6, "reaction": "flee", "notice_px": 60.0,
+            "flee_speed": 110.0, "flee_ms": 800.0}},
+    "crystal-snail": {"kind": ANIMAL, "cave": True, "body": (14, 8), **SMALL, "clips": crystal_snail_clips(),
+        "glow": {"at": (-9, -26), "radius": (38, 36), "color": (0.75, 0.65, 1.0, 0.5), "alpha": 0.25},
+        "props": {"walk_speed": 4.0, "pause_min_ms": 2000.0, "pause_max_ms": 6000.0, "wander_radius": 48.0,
+            "reaction": "hide", "notice_px": 30.0, "calm_ms": 3000.0}},
+})
+
+
+def out_dir(spec: dict) -> Path:
+    if spec["kind"] == VILLAGER:
+        return VILLAGER_DIR
+    return CAVE_DIR if spec.get("cave") else ANIMAL_DIR
+
+
 def fmt(value: float) -> str:
     text = f"{value:.4f}".rstrip("0").rstrip(".")
     return text if text not in ("", "-0") else "0"
@@ -248,7 +360,7 @@ def track(index: int, path: str, times: list[float], values: list[str], update: 
 def clip(scene: Scene, name: str, spec: dict, layout: dict, scale: float) -> str:
     """One Animation sub-resource: frames (row name, column, time), `length`, `flip`, `breath`
     (the Visual's scale breathing), `bob` [(time, px up)], `free` (no position track: code moves
-    the picture, a bird's flight)."""
+    the picture, a bird's flight), `glow` [(time, alpha)] (the brightness of its Glow)."""
     columns = layout["columns"]
     times = [t for _, _, t in spec["frames"]]
     frames = [str(layout["rows"][row]["row"] * columns + column) for row, column, _ in spec["frames"]]
@@ -262,9 +374,14 @@ def clip(scene: Scene, name: str, spec: dict, layout: dict, scale: float) -> str
         body += track(2, "Visual:scale", [0.0, half, half * 2, half * 3], [base, top, base, top], 0, 2)
     else:
         body += track(2, "Visual:scale", [0.0], [base], 1)
+    index = 3
     if not spec.get("free"):
         bob = spec.get("bob", [(0.0, 0)])
-        body += track(3, "Visual:position", [t for t, _ in bob], [f"Vector2(0, {fmt(-px)})" for _, px in bob], 1)
+        body += track(index, "Visual:position", [t for t, _ in bob], [f"Vector2(0, {fmt(-px)})" for _, px in bob], 1)
+        index += 1
+    if spec.get("glow"):
+        body += track(index, "Visual/Glow:modulate", [t for t, _ in spec["glow"]],
+            [f"Color(1, 1, 1, {fmt(a)})" for _, a in spec["glow"]], 0)
     rid = f"Animation_{name.replace('-', '_')}"
     return scene.add_sub("Animation", rid, body)
 
@@ -319,6 +436,9 @@ def build(cid: str, manifest: dict) -> Path:
         clips = {k: v for k, v in source.items() if isinstance(v, dict)}
         if source.get("walk"):
             clips.update(walk_clips(layout["rows"], bool(source.get("bob"))))
+    glow = spec.get("glow")
+    if glow:
+        clips = {name: c if c.get("glow") else dict(c, glow=[(0.0, glow["alpha"])]) for name, c in clips.items()}
     ids = {name: clip(scene, name, c, layout, scale) for name, c in clips.items()}
     library = ["_data = {"] + [f'&"{name}": SubResource("{rid}"),' for name, rid in ids.items()]
     library[-1] = library[-1].rstrip(",")
@@ -333,7 +453,7 @@ def build(cid: str, manifest: dict) -> Path:
     # The script sits on the root, so a placed villager's or animal's settings (its wander circle,
     # route, follow, climbing) are the instance's own: shown in the Inspector and kept on save.
     root = [f'[node name="{cid}" type="CharacterBody2D" node_paths=PackedStringArray('
-        + ('"body", ' if villager else "") + '"visual", "animation")]',
+        + ('"body", ' if villager else "") + '"visual", "animation"' + (', "glow"' if glow else "") + ')]',
         f"collision_layer = {spec.get('layer', 128)}",
         f"collision_mask = {spec.get('mask', 1027)}",
         "motion_mode = 1",
@@ -355,6 +475,8 @@ def build(cid: str, manifest: dict) -> Path:
         root.append(f"name_tag_rise = {fmt(layout['height'] * spec.get('size', 1.0) + 6)}")
     else:
         root += [f'script = ExtResource("{main_script}")', 'visual = NodePath("Visual")', 'animation = NodePath("Animation")']
+        if glow:
+            root.append('glow = NodePath("Visual/Glow")')
         for key, value in spec.get("props", {}).items():
             if isinstance(value, list):
                 root.append(f"{key} = PackedStringArray({', '.join(json.dumps(v) for v in value)})")
@@ -381,6 +503,15 @@ def build(cid: str, manifest: dict) -> Path:
         "centered = false", f"offset = Vector2({-cell // 2}, {-(cell - foot)})",
         f"hframes = {layout['columns']}", f"vframes = {len(layout['rows'])}", f'script = ExtResource("{sheet_script}")',
         f'sheet_path = "{layout["sheet"]}"']))
+    if glow:
+        # Under the Visual, so it rises, fades and hides with the picture (a flight, a fly-off).
+        scene.nodes.append("\n".join([
+            '[node name="Glow" type="Node2D" parent="Visual"]',
+            f"modulate = Color(1, 1, 1, {fmt(glow['alpha'])})",
+            f"position = Vector2({fmt(glow['at'][0])}, {fmt(glow['at'][1])})",
+            f'script = ExtResource("{glow_script}")',
+            f"radius = Vector2({fmt(glow['radius'][0])}, {fmt(glow['radius'][1])})",
+            f"color = Color({', '.join(fmt(v) for v in glow['color'])})", "pulse = 0.0"]))
     scene.nodes.append("\n".join([
         '[node name="Animation" type="AnimationPlayer" parent="."]', f'script = ExtResource("{anim_script}")',
         "libraries/ = SubResource(\"AnimationLibrary_1\")", "callback_mode_process = 0", 'autoplay = &"idle"',
@@ -390,7 +521,7 @@ def build(cid: str, manifest: dict) -> Path:
         f'script = ExtResource("{guide_script}")', 'source = NodePath("..")']))
     if route:
         scene.nodes.append("\n".join(['[node name="Route" type="Path2D" parent="."]', 'curve = SubResource("Curve2D_route")']))
-    out = (VILLAGER_DIR if villager else ANIMAL_DIR) / f"{cid}.tscn"
+    out = out_dir(spec) / f"{cid}.tscn"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(scene.text(), encoding="utf-8")
     return out
@@ -407,7 +538,7 @@ def main() -> None:
         if CAST[cid].get("sheet", cid) not in manifest:
             print(f"skip {cid}: not packed")
             continue
-        out = (VILLAGER_DIR if CAST[cid]["kind"] == VILLAGER else ANIMAL_DIR) / f"{cid}.tscn"
+        out = out_dir(CAST[cid]) / f"{cid}.tscn"
         if out.exists() and not force:
             print(f"keep {out.relative_to(REPO)}")
             continue

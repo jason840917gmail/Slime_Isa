@@ -10,7 +10,8 @@
 // rim hides a body under it. A hidden pixel shows as a ghost: the body's own colour mixed with
 // `elevation_silhouette_color`, at `elevation_silhouette` opacity (the player's ghost is stronger).
 //
-// Texel: r = level ((L + 4) / 8), g = (dy + 128) / 512 where depth = y − dy + 64·L (dy: how far
+// Texel (level_code.gd writes it, elevation_code.gdshaderinc reads it): r = level ((L + 4) / 32),
+// g = (dy + 128) / 1536 where depth = y − dy + 64·L (dy: how far
 // below the wall's top edge, or past a rim's edge), b = 1 terrain, 0.5 a structure (stairs: it hides
 // like terrain; the cast shadows read its height, level − dy / 64), 0.875 a ramp's slope (hides like
 // ground of level L; g holds its height above L, 8 · g levels, for the cast shadows), 0 = level-0
@@ -20,6 +21,8 @@
 //
 // The including shader sets `elevation_world` in vertex() (`elevation_world_position(VERTEX,
 // MODEL_MATRIX)`) and passes its colour through `elevation_occlude(COLOR)` last in fragment().
+
+#include "res://game/world/elevation/elevation_code.gdshaderinc"
 
 uniform sampler2D elevation_depth : filter_nearest, repeat_disable;
 // World rect the depth map covers: origin xy, size zw (zw = 0: no elevation).
@@ -52,9 +55,9 @@ float elevation_terrain_depth(vec2 world) {
 	if (texel.b < 0.25) {
 		return world.y;
 	}
-	float level = floor(texel.r * 8.0 - 4.0 + 0.5);
+	float level = floor(decode_level(texel.r) + 0.5);
 	// A ramp's slope (b = 0.875) hides as ground of its level; its g is a height, not a dy.
-	float dy = abs(texel.b - 0.875) < 0.0625 ? 0.0 : texel.g * 512.0 - 128.0;
+	float dy = abs(texel.b - 0.875) < 0.0625 ? 0.0 : decode_dy(texel.g);
 	return world.y - dy + level * ELEVATION_LEVEL_UNITS;
 }
 

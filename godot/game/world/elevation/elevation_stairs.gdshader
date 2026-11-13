@@ -14,7 +14,7 @@ shader_type canvas_item;
 // colour = tint · the texture over its mean (`keep_colour` of its own hue shifts, the rest of its
 // light and dark only). No joint lines are drawn: the kit's stones have their own.
 // Vertex colour: r = light / 2 (the face's shade by the way it looks, contact shadows), g = height
-// in levels ((L + 4) / 8, elevation_light.gdshaderinc).
+// in levels ((L + 4) / 32, elevation_light.gdshaderinc).
 
 #include "res://game/world/elevation/elevation_light.gdshaderinc"
 

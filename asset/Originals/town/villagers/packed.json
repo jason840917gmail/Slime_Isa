@@ -127,6 +127,19 @@
 		},
 		"height": 30
 	},
+	"cave-newt": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-cave-newt.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 22
+	},
 	"chick": {
 		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-chick.webp",
 		"cell": 48,
@@ -152,6 +165,19 @@
 			}
 		},
 		"height": 78
+	},
+	"crystal-snail": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-crystal-snail.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 24
 	},
 	"dab": {
 		"sheet": "res://asset/characters/villagers/160x160-tile_4x1-dab.webp",
@@ -294,6 +320,19 @@
 		},
 		"height": 72
 	},
+	"firefly": {
+		"sheet": "res://asset/characters/cave-animals/64x64-tile_6x1-firefly.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 16
+	},
 	"fizz": {
 		"sheet": "res://asset/characters/villagers/128x128-tile_4x4-fizz.webp",
 		"cell": 128,
@@ -343,6 +382,19 @@
 			}
 		},
 		"height": 44
+	},
+	"glow-worm": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-glow-worm.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 16
 	},
 	"goldfinch": {
 		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-goldfinch.webp",
@@ -458,6 +510,19 @@
 		},
 		"height": 62
 	},
+	"lantern-moth": {
+		"sheet": "res://asset/characters/cave-animals/80x80-tile_6x1-lantern-moth.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 22
+	},
 	"may": {
 		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-may.webp",
 		"cell": 176,
@@ -558,6 +623,19 @@
 			}
 		},
 		"height": 46
+	},
+	"pill-bug": {
+		"sheet": "res://asset/characters/cave-animals/80x80-tile_6x1-pill-bug.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 20
 	},
 	"plum": {
 		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-plum.webp",

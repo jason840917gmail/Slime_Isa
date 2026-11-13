@@ -5,6 +5,8 @@
 // pixel looks back towards the light along three rays through the depth map (elevation_occlusion.gd,
 // in the space of the Elevation node) for ground high enough to shade it.
 
+#include "res://game/world/elevation/elevation_code.gdshaderinc"
+
 uniform sampler2D elevation_depth : filter_nearest, repeat_disable;
 // The depth map's rect in the ground layer's space: origin xy, size zw.
 uniform vec4 depth_rect = vec4(0.0, 0.0, 1.0, 1.0);
@@ -28,11 +30,11 @@ float height_at(vec2 p) {
 	if (texel.b < 0.25) {
 		return 0.0;
 	}
-	float top = floor(texel.r * 8.0 - 4.0 + 0.5);
+	float top = floor(decode_level(texel.r) + 0.5);
 	if (texel.b > 0.8125 && texel.b < 0.9375) {
 		return top + texel.g * 8.0;
 	}
-	return texel.b < 0.75 ? top - (texel.g * 512.0 - 128.0) / 64.0 : top;
+	return texel.b < 0.75 ? top - decode_dy(texel.g) / 64.0 : top;
 }
 
 // How much the ground along `dir` (towards the light) shades `at` (of height `level`), 0..1.

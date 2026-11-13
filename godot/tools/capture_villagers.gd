@@ -4,9 +4,10 @@ extends SceneTree
 ## so their art and moves can be checked without a world. Needs a window (not --headless):
 ##
 ##   "<Godot console exe>" --path godot -s res://tools/capture_villagers.gd -- --out=<dir>
-##       [--only=penny,pig] [--villagers | --animals] [--seconds=8] [--every=4] [--zoom=2] [--per-row=6]
+##       [--only=penny,pig] [--villagers | --animals | --cave] [--seconds=8] [--every=4] [--zoom=2] [--per-row=6]
 ##
-## Frames go to <dir>/frame-0000.png ...; the cast's names to <dir>/cast.txt.
+## Frames go to <dir>/frame-0000.png ...; the cast's names to <dir>/cast.txt. `--cave` films the
+## cave animals (docs/godot/VILLAGERS.md "Cave animals") on a cavern-floor colour instead.
 ##
 ## With `--scene=res://...tscn --center=<x>,<y>` it films that world instead (a town chunk, a room),
 ## the camera at that point, its villagers and animals living as placed: the world's areas are
@@ -14,7 +15,9 @@ extends SceneTree
 
 const VILLAGER_DIR := "res://game/scenes/characters/villagers/"
 const ANIMAL_DIR := "res://game/scenes/objects/animals/"
+const CAVE_DIR := "res://game/scenes/objects/cave-animals/"
 const GRASS := Color(0.41, 0.52, 0.27)
+const CAVE_FLOOR := Color(0.27, 0.25, 0.31)
 const SPACING := 140.0
 const ROW_GAP := 200.0
 ## Who follows whom in the capture (in a world the owner sets `follow` in the Inspector).
@@ -24,6 +27,7 @@ const FOLLOWS := {"dany": "isa", "dan": "gavy", "biscuit": "old-sedge", "piglet"
 var _out := ""
 var _per_row := 6
 var _dirs: PackedStringArray = PackedStringArray([VILLAGER_DIR, ANIMAL_DIR])
+var _floor := GRASS
 var _only: PackedStringArray = PackedStringArray()
 var _seconds := 8.0
 var _every := 4
@@ -50,6 +54,9 @@ func _initialize() -> void:
 			_dirs = PackedStringArray([VILLAGER_DIR])
 		elif arg == "--animals":
 			_dirs = PackedStringArray([ANIMAL_DIR])
+		elif arg == "--cave":
+			_dirs = PackedStringArray([CAVE_DIR])
+			_floor = CAVE_FLOOR
 		elif arg.begins_with("--scene="):
 			_scene = arg.trim_prefix("--scene=")
 		elif arg.begins_with("--center="):
@@ -100,7 +107,7 @@ func _run() -> void:
 	var rows := ceili(paths.size() / float(_per_row))
 	var size := Vector2(_per_row * SPACING + SPACING, rows * ROW_GAP + ROW_GAP)
 	var grass := ColorRect.new()
-	grass.color = GRASS
+	grass.color = _floor
 	grass.size = size
 	grass.position = -size / 2.0
 	grass.z_index = -10

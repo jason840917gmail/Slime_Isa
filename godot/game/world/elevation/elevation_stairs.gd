@@ -38,6 +38,7 @@ extends RefCounted
 ## Owner: world (elevation).
 
 const Self := preload("res://game/world/elevation/elevation_stairs.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const ElevationOcclusion := preload("res://game/world/elevation/elevation_occlusion.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
@@ -924,7 +925,7 @@ func _wall_faces(side: float, with_inner: bool) -> void:
 
 ## The faces into `mesh` (the stairs shader): UV.x texture px (blocks: block units), UV.y the
 ## kind's texture coordinate + kind · KIND_OFFSET; colour r = light / 2, g = height in levels
-## ((L + 4) / 8), b and a = where on the face (0 … 1 across both ways). A front flight draws its
+## ((L + 4) / 32), b and a = where on the face (0 … 1 across both ways). A front flight draws its
 ## painted piece instead (its steps face stays for the depth map): UV over the piece, colour b which
 ## piece (/ 4).
 func add_mesh(mesh: MeshData) -> void:
@@ -946,7 +947,7 @@ func add_mesh(mesh: MeshData) -> void:
 		var span: Vector2 = slice[1]
 		var h := float(slice[3])
 		var away := PIECE_AWAY_LIGHT if absf(dir.x) > 0.1 and dir.x > 0.0 else 1.0
-		var colour := Color(0.5 * away, (h / LEVEL + 4.0) / 8.0, (float(slice[2]) + 0.5) / 8.0, 1.0)
+		var colour := Color(0.5 * away, LevelCode.of(h / LEVEL), (float(slice[2]) + 0.5) / 8.0, 1.0)
 		var corners: Array = []
 		for k in 4:
 			var uv := Vector2(span.y if k == 1 or k == 2 else span.x, 1.0 if k >= 2 else 0.0)
@@ -956,7 +957,7 @@ func add_mesh(mesh: MeshData) -> void:
 	if not side_piece.is_empty():
 		var quad: PackedVector2Array = side_piece[0]
 		var us: Vector2 = side_piece[1]
-		var colour := Color(0.5, (float(side_piece[3]) / LEVEL + 4.0) / 8.0, (float(side_piece[2]) + 0.5) / 8.0, 1.0)
+		var colour := Color(0.5, LevelCode.of(float(side_piece[3]) / LEVEL), (float(side_piece[2]) + 0.5) / 8.0, 1.0)
 		var heights: Vector2 = side_piece[4]
 		var corners: Array = []
 		for k in 4:
@@ -984,7 +985,7 @@ func add_depth(depth: MeshData) -> void:
 ## where the flight leaves the top.
 func add_approach(mesh: MeshData) -> void:
 	var height := LEVEL * (top - bottom)
-	var level_of := (float(top) + 4.0) / 8.0
+	var level_of := LevelCode.of(top)
 	var solid := Color(1.0, level_of, 0.0, 1.0)
 	var clear := Color(1.0, level_of, 0.0, 0.0)
 	var outer := half + POST
@@ -1091,7 +1092,7 @@ func _vertex(face: Dictionary, f: Vector2, inside: Vector2) -> Array:
 		# A side wall's inner face, cut in bands: its joint lines only along the whole face's ends.
 		lines = Vector2(f.x, 0.5)
 	return [screen(w), Vector2(uv.x, uv.y + kind * KIND_OFFSET),
-			Color(clampf(light * 0.5, 0.0, 1.0), (w.z / LEVEL + 4.0) / 8.0, lines.x, lines.y), w.z]
+			Color(clampf(light * 0.5, 0.0, 1.0), LevelCode.of(w.z / LEVEL), lines.x, lines.y), w.z]
 
 
 ## One triangle of vertices [screen point, UV, colour, height] into `mesh`, without what of it lies

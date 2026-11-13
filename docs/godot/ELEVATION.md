@@ -257,12 +257,13 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
 1. Give the world an `elevation` TileMapLayer beside its ground layer (same grid), with the tile
    set `game/world/elevation/elevation_tileset.tres` and the script
    `game/world/elevation/elevation_layer.gd`.
-2. Paint the **top you walk on** with a level tile (−3 … 3; unpainted cells are level 0). The wall
+2. Paint the **top you walk on** with a level tile (−3 … 16; unpainted cells are level 0; the
+   levels over 3: [High levels](#high-levels)). The wall
    appears by itself below the area's south edges and covers the cells there: leave as many free
    rows below a south edge as the levels it drops. A hole is painted the same way with a negative
    level; its far wall covers its first rows. A wall along the map's north edge with its top off
    the map: paint the top on the rows **above the map** (row −1 and up, at most `MAX_ROWS_ABOVE` =
-   6): the elevation starts its grid that many rows higher (`cell_offset`; its node moves up as far),
+   19, the tallest wall's courses): the elevation starts its grid that many rows higher (`cell_offset`; its node moves up as far),
    so only the wall and its top edge hang into the map. Its top takes the ground of the map's first
    row.
 3. Shapes come from the steps of the paint: **single-cell steps make a straight 45° edge**, steps
@@ -314,6 +315,47 @@ the elevation they read only a cell's level and draw into its depth map.
 a `SkyFloor` node over an area: [SKY_FLOOR.md](SKY_FLOOR.md). It draws this drawing's own holes mesh
 again with the sky (in the Shade, under the walls) and its wall meshes again with the cloud bank up
 their feet; a drop into the sky is the dungeon kit's void fall, pinned to the sky cells (`SkyFall`).
+
+### High levels
+
+Levels go up to **16** since 2026-11-12 (3 before; the owner: "more than 10 levels for my new ideas
+of climbable chunks"), so one wall can be nineteen courses tall (−3 to 16).
+
+- **Painting.** The tile set's last two rows hold the levels 4 … 16 (red through purple to pale
+  blue, their number on them). A wall still takes a row a level: leave as many free rows below a
+  south edge as the levels it drops (twelve rows under a level-12 top that comes down to level 0),
+  and paint a ledge on the way down as its own level from under the higher top's edge (its first
+  rows lie under that wall).
+- **16 is the most.** Each level's collision is on a physics layer of its own and there are 32:
+  levels −3 … 3 on layers 12 … 18, 4 … 16 on 20 … 32 (`ElevationGrid.physics_bit`; 19 is the
+  stairs').
+- **Levels in colours.** The shaders get a level in a vertex colour or a depth-map texel, 8 bits
+  each: (level + 4) / 32, and a depth below a wall's top edge as (dy + 128) / 1536
+  (`level_code.gd` writes them, `elevation_code.gdshaderinc` reads them; / 8 and / 512 before, which
+  ended at level 4 and six courses). A depth texel's step is 6 units now (2 before); the hiding of
+  bodies behind higher ground allows 12.
+- **Light.** The tops get lighter up to level 3 and no further (`BRIGHTEST`), so a mountain's high
+  ledges share one light.
+- **Chunks** read 19 rows of their north and south neighbours' paint instead of 6
+  (`MAX_ROWS_ABOVE`), as far as the tallest wall hangs.
+- **Caches.** `CACHE_VERSION` is 4: every world's cache was baked again.
+- **The climb lab** (`world.climb-lab`, `?map=climb-lab`; `game/scenes/worlds/dev/climb-lab.tscn`,
+  first painted by `tools/build_climb_lab.gd`, then the owner's to repaint): a sheer wall twelve
+  courses tall with two balconies ([Balconies](SKINS.md#balconies)) and terraces at 12, 8 and 4,
+  with vines to climb them ([Painting vines](SKINS.md#painting-vines)); it lends the Feral skin.
+
+![The climb lab: a sheer twelve-course wall and terraces at 12, 8 and 4](images/climb-lab-tall-walls.png)
+
+Not looked at yet on tall walls: the drop off a high rim (`dropBaseMs` + `dropMsPerLevel` a level:
+1.3 s from level 12), stairs and ramps over many levels (a ramp's height in the depth map ends at
+8 levels, `RAMP_LEVELS`), and a wall taller than the screen under the camera.
+
+- **Tall walls' sides** (2026-11-13). A side wall is no wider than a three-level one (52 units,
+  `SIDE_FULL_DROP`; grown on with the height, a twelve-level side was 140 wide and buried the ledges
+  beside it), and a wall over three levels turns its corner as a three-level one does under a
+  straight stretch (`reach`, `TALL_TURN`): its side stays a strip all the way down and rounds off
+  over its last courses only. No outdoor wall was over three levels before, so the worlds painted
+  until then draw as they did.
 
 ## Wall styles
 
@@ -484,7 +526,8 @@ Depth darkening is shared by every shader
 (`elevation_light.gdshaderinc`).
 
 **Collision and levels.** Each level has a static body (`Collision/Level<n>`) on its own physics
-layer (12 + level + 3: `level -3` … `level 3` in project.godot) whose segments surround exactly
+layer (`ElevationGrid.physics_bit`: levels −3 … 3 on layers 12 … 18, 4 … 16 on 20 … 32, `level <n>`
+in project.godot) whose segments surround exactly
 the ground that level can walk on (the 3D ground above). Nothing is placed by hand: the painted
 tiles give the model and `collision_segments` traces the outline from it on a finer grid, every
 cell quadrant cut by its two diagonals (16 parts per cell). Each tri is two of those parts and a
@@ -1000,7 +1043,8 @@ of the model's square cells:
 - **Every side has a wall.** Besides the front (south) wall, one stone course per level as before,
   the east and west sides show a narrow strip of the same wall seen from the side (`SIDE`, 24 units
   for one level, growing as the drop to the power `THIN_GROWTH` (0.7), so a tall side stays a strip:
-  39 units for two levels, 52 for three). A back (north) edge shows no wall at all: the side's reach
+  39 units for two levels, 52 for three, and no wider for more, `SIDE_FULL_DROP`:
+  [High levels](#high-levels)). A back (north) edge shows no wall at all: the side's reach
   fades out as the normal turns north (`BACK_FADE`); its edge keeps its grass clumps, outlined in a
   dark green (`back_outline_colour`) instead of the walls' brown, and a shadow on the ground behind
   (`backness`). The west strip is lit, the east one in shade (`shade`). A side strip shows a single
@@ -1668,8 +1712,8 @@ it): a 45° face broke into a notch a cell high at the line and its stones were 
 
 - **What a chunk reads** (`game/world/elevation/chunk_edges.gd`, `ChunkEdges.read`): the chunk
   worlds around it on the atlas grid (`game/data/world-chunks.json`; a chunk's place is its root's
-  metadata `world_map_chunk`), in any region, 6 rows past its north and south edges
-  (`MAX_ROWS_ABOVE`: the tallest wall hanging in, a top in front hiding a wall's foot) and 4
+  metadata `world_map_chunk`), in any region, 19 rows past its north and south edges
+  (`MAX_ROWS_ABOVE`, 6 until 2026-11-12: the tallest wall hanging in, a top in front hiding a wall's foot) and 4
   columns past its west and east edges (a 45° face, a round corner, a fold, a wall's shadow), only
   on the sides that have a neighbour. It reads their `elevation` levels (a stairs or ramp cell as
   the ground it leads down to: flights are not built past the edge), their grounds and the styles
@@ -1753,7 +1797,7 @@ it): a 45° face broke into a notch a cell high at the line and its stones were 
   stretch to meet two lines would pass its limits the art jumps at the second line (seen only
   during the scroll). A wall hanging across the line into the chunk south of it from a top whose
   border does not cross that line starts its art from the chain's own start in each chunk; the two
-  agree where the whole top lies within 6 rows of the line (both chunks then see the same chain),
+  agree where the whole top lies within `MAX_ROWS_ABOVE` rows of the line (both chunks then see the same chain),
   and may not for a taller one. Ledge dressing picked by position or u matches across a line only
   if it follows `origin` and the anchored u. Stairs and ramps are built by the chunk that paints
   them only: the neighbour reads their cells as the ground they lead down to, so a flight whose run
@@ -1859,6 +1903,8 @@ it): a 45° face broke into a notch a cell high at the line and its stones were 
 
 | Path | What |
 |---|---|
+| `godot/game/world/elevation/level_code.gd`, `elevation_code.gdshaderinc` | How a level and a depth travel to the shaders in a colour, written and read back ([High levels](#high-levels)) |
+| `godot/tools/build_climb_lab.gd`, `godot/game/scenes/worlds/dev/climb-lab.tscn` | The climb lab: walls twelve courses tall with vines |
 | `godot/game/world/elevation/elevation_grid.gd` | The model: tris, chamfers (45° edges and ridges), walls, the 3D ground, walkability, collision segments |
 | `godot/game/world/elevation/elevation.gd` | `Elevation`: mount, drawing, collision bodies (stairs merged in), body levels, drop and hop targets, jump flights (`@tool`) |
 | `godot/game/world/elevation/elevation_stairs_sets.gd` | The stairs art sets (generated by `scripts/art/build-stairs-kit.py`): each set's pieces, their colours, its steps' tops, the wall styles that take it |
@@ -1878,7 +1924,7 @@ it): a 45° face broke into a notch a cell high at the line and its stones were 
 | `godot/game/world/elevation/room_faces.gd` | [Faces in rooms](#faces-in-rooms): the level changes inside dungeon rooms drawn as the room's own bevel faces, their footprint as level-collision cells (a room's collision, and what Fill copies there) and the back faces' marks |
 | `godot/tools/render_room_collision.gd` | Captures a world in the running game with its collision drawn over it (each level's outline or painted cells in its colour, static bodies, decks, the cells hazards catch on); run windowed |
 | `godot/game/world/elevation/elevation_layer.gd` | The painted layer: hides itself in the game, previews the cliffs in the editor (`@tool`); its Inspector's Wall Styles section picks this world's wall per ground |
-| `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 3, stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
+| `godot/game/world/elevation/elevation_tileset.tres`, `elevation_paint_tiles.png` | Paint tiles: levels −3 … 16 (4 … 16 in rows 4 and 5), stairs in 8 directions (two rows, once a railed and an open landing; since 2026-10-11 the same flights), ramps in 8 directions (`elevation_level`, `elevation_kind`) |
 | `godot/game/world/elevation/cliffs/ground_wall_styles.gd`, `ground_wall_styles.tres` | Each ground's default wall style, edited in the Inspector (one drop-down per ground) |
 | `godot/game/world/elevation/cliffs/cliff_layer.gd`, `cliff_tileset.tres`, `cliff_paint_tiles.png` | The `cliffs` layer: wall styles painted over tops (`wall_style`; tiles by `scripts/art/build-cliff-paint-tiles.py`) |
 | `godot/game/world/elevation/*.gdshader`, `elevation_light.gdshaderinc` | Ground (patches), shade (holes), top light (raised tops, `elevation_top_light.gdshader`), stairs and ramp shaders; the light by height they and the walls share |

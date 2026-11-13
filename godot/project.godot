@@ -205,6 +205,19 @@ control_scheme_next={
 2d_physics/layer_17="level 2"
 2d_physics/layer_18="level 3"
 2d_physics/layer_19="stairs"
+2d_physics/layer_20="level 4"
+2d_physics/layer_21="level 5"
+2d_physics/layer_22="level 6"
+2d_physics/layer_23="level 7"
+2d_physics/layer_24="level 8"
+2d_physics/layer_25="level 9"
+2d_physics/layer_26="level 10"
+2d_physics/layer_27="level 11"
+2d_physics/layer_28="level 12"
+2d_physics/layer_29="level 13"
+2d_physics/layer_30="level 14"
+2d_physics/layer_31="level 15"
+2d_physics/layer_32="level 16"
 
 [physics]
 

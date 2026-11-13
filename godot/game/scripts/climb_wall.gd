@@ -6,10 +6,13 @@ extends Node2D
 ## the slime's centre ends the climb (on the ledge above, or with `top.y` > 0 at the foot below: a
 ## wall climbed down from its lip). Its picture (`Visual`) covers the face.
 ##
-## - **With the Feral skin** (SkinState, Pearl 3's) the slime climbs it while the interact key is
-##   held (game/player/skins/feral_climb.gd): the press at its start zone facing along the climb
-##   (`can_grab`: within `grab_width` across and `skins.feral.grabReachPx` of this node), or its
-##   prompt `prompt` (`use`). Letting go midway drops the slime to the lower end; a fall costs
+## - **With the Feral skin** (SkinState, Pearl 3's) the slime clings to it while the interact key is
+##   held and the movement keys move it over the face (game/player/skins/feral_climb.gd, whose
+##   climbable surface this is: `climb_start`, `climb_allows`, `climb_exit`, `climb_landing`): the
+##   press at its start zone facing along the climb (`can_grab`: within `grab_width` across and
+##   `skins.feral.grabReachPx` of this node), or its prompt `prompt` (`use`). The slime moves in the
+##   strip `grab_width` wide between this node and `top`, and gets off at either end by pushing on.
+##   Letting go midway drops the slime to the lower end; a fall costs
 ##   nothing. At the top `climbed` fires, and with `exit_area_id` set the climb goes on out of the
 ##   world (the Colossus arena's way out to the Lookout): the slime travels to that world's
 ##   `exit_door`. While its dungeon is sealed (the Pearl taken, the boss standing) such a climb
@@ -37,6 +40,12 @@ const DEFAULT_WIDTH := 96.0
 const FACING_DOT := 0.5
 ## The roots fill this share of their 256 px picture (the packer leaves a margin).
 const ART_FILL := Vector2(0.86, 0.9)
+## The slime's feet below its centre (its `metadata/depth_anchor`), when the body gives none.
+const FEET_BELOW_CENTRE := 27.56
+## How near an end (the slime's feet) counts as being there.
+const END_PX := 6.0
+## Letting go this near the upper end, where there is ground, the slime stands there (no fall).
+const UPPER_END_PX := 20.0
 
 ## Where the climb ends, from this node (world units: the slime's centre there).
 @export var top: Vector2 = Vector2(0, -192)
@@ -69,6 +78,9 @@ signal climbed(payload: Dictionary)
 signal grabbed(payload: Dictionary)
 
 var _next_refusal_ms := 0.0
+## Where the slime stood (its feet's y) as it last took hold: the strip reaches there, so it gets
+## off, and lands, where it stood (NAN before the first hold).
+var _held_from_y := NAN
 
 
 func _enter_tree() -> void:
@@ -97,7 +109,7 @@ func start_feet() -> Vector2:
 func end_feet(body: Node2D = null) -> Vector2:
 	var anchor := FeetAnchor.depth_anchor(body) if body != null else Vector2.ZERO
 	if anchor == Vector2.ZERO:
-		anchor = Vector2(0.0, 27.56)
+		anchor = Vector2(0.0, FEET_BELOW_CENTRE)
 	return global_position + top + anchor
 
 
@@ -133,9 +145,68 @@ func on_grabbed() -> void:
 	grabbed.emit({})
 
 
-## True when the climb ends on the face (`holds_at_top`): the slime clings at the far end.
-func holds_at_end() -> bool:
-	return holds_at_top
+# --- the climbable surface (feral_climb.gd): a strip between this node and `top` ------------------
+
+## Where the slime takes hold from `feet`: in the strip, as near as it stands.
+func climb_start(feet: Vector2, _facing: Vector2 = Vector2.ZERO) -> Vector2:
+	_held_from_y = feet.y
+	var strip := _strip()
+	return Vector2(clampf(feet.x, strip.position.x, strip.end.x), clampf(feet.y, strip.position.y, strip.end.y))
+
+
+## True when the slime's feet may be at `feet` while it clings: inside the strip.
+func climb_allows(feet: Vector2) -> bool:
+	return _strip().grow(0.5).has_point(feet)
+
+
+## Pushing `way` at an end of the strip: where the slime stands when it gets off there, or
+## Vector2.INF (it is not at an end, or the far end has nothing to stand on: `holds_at_top`).
+func climb_exit(feet: Vector2, way: Vector2) -> Vector2:
+	var push := way.dot(climb_direction())
+	var far := end_feet().y
+	if push > FACING_DOT and absf(feet.y - far) <= END_PX and not holds_at_top:
+		return Vector2(feet.x, far)
+	if push < -FACING_DOT and absf(feet.y - _start_y()) <= END_PX:
+		return Vector2(feet.x, _start_y())
+	return Vector2.INF
+
+
+## Where a let-go from `feet` lands: the lower end under the slime, or the upper end when it is
+## already there and there is ground to stand on.
+func climb_landing(feet: Vector2) -> Vector2:
+	var strip := _strip()
+	var upper_stands := top.y > 0.0 or not holds_at_top
+	if upper_stands and feet.y - strip.position.y <= UPPER_END_PX:
+		return Vector2(feet.x, strip.position.y)
+	return Vector2(feet.x, strip.end.y)
+
+
+## True when the slime clings at the far end of a climb that ends on the face (`holds_at_top`).
+func climb_holds(feet: Vector2) -> bool:
+	return holds_at_top and absf(feet.y - end_feet().y) <= END_PX
+
+
+## The climb ended with the slime standing at `feet`: at the far end it is climbed (`on_climbed`).
+func climb_left(feet: Vector2) -> void:
+	if not holds_at_top and absf(feet.y - end_feet().y) <= END_PX:
+		on_climbed(feet)
+
+
+## The strip's near end (the slime's feet's y): this node, or past it where the slime stood as it
+## took hold (within reach of the node, before the face's foot or back from the lip).
+func _start_y() -> float:
+	var own := start_feet().y
+	if is_nan(_held_from_y):
+		return own
+	return minf(own, _held_from_y) if top.y > 0.0 else maxf(own, _held_from_y)
+
+
+## The strip the slime's feet move in (world): `_width()` across, from its near end to the far end.
+func _strip() -> Rect2:
+	var from := _start_y()
+	var to := end_feet().y
+	var half := _width() * 0.5
+	return Rect2(global_position.x - half, minf(from, to), half * 2.0, absf(to - from))
 
 
 ## The slime got to the far end of a climb that ends on the face: `hold_text` over it.
@@ -173,7 +244,7 @@ func can_use() -> bool:
 	return player != null and not bool(player.call(&"is_climbing"))
 
 
-## Starts the climb (the prompt): the slime takes hold and climbs while the key stays held.
+## Starts the climb (the prompt): the slime takes hold and clings while the key stays held.
 func use() -> bool:
 	var player := _player()
 	if player == null or not can_use():

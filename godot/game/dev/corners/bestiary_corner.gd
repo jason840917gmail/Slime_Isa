@@ -4,7 +4,8 @@ extends Node2D
 ## the world's origin, so its children stand at world positions east of the old east edge (x 3392
 ## to 6592, y 384 to 4736): one pen per bestiary enemy (game/dev/corners/bestiary_pen.gd), 33 in the
 ## bestiary's order (the seventh row: every dungeon's skeletons and the Watcher Eye), five to a row,
-## each with a sign giving its enemy's name, kind and right tool.
+## each with a sign giving its enemy's name, kind and right tool. Pen 34 (beside 33) is an extra:
+## Gloomlings in a dark pen with a burning brazier (`pen-34-brazier`), to try their hunt.
 ## The built enemies stand in their pens; the rest are "coming next".
 ##
 ## RESPAWN_KEY (F4, the shapes testbed's pen key) brings every pen's enemies back at once. It is read

@@ -533,7 +533,7 @@ func add_mesh(mesh: MeshData) -> void:
 	var height := LEVEL * (top - bottom)
 	# r = the cast shadows it takes: none on a one-row open cliff (`no_shadow`).
 	var take := 0.0 if no_shadow else 1.0
-	var shown := func(_p: Vector3, w: Vector3) -> Color: return Color(take, (w.z / LEVEL + 4.0) / 8.0, 0.0, 1.0)
+	var shown := func(_p: Vector3, w: Vector3) -> Color: return Color(take, LevelCode.of(w.z / LEVEL), 0.0, 1.0)
 	if near == 0.0:
 		_emit_fan(mesh, [Vector3(0.0, -half, height), Vector3(ramp, -half, 0.0), Vector3(ramp, half, 0.0), Vector3(0.0, half, height)], shown)
 	else:
@@ -579,7 +579,7 @@ func _cap_triangles(level: int) -> Array:
 	if not opens():
 		return triangles
 	var vertex := func(point: Vector2) -> Array:
-		return [point, Vector2.ZERO, Color(shadow_take(point), (float(level) + 4.0) / 8.0, 0.0, _cap_alpha(point)), LEVEL * level]
+		return [point, Vector2.ZERO, Color(shadow_take(point), LevelCode.of(level), 0.0, _cap_alpha(point)), LEVEL * level]
 	var count := ceili(cap_rect.size.x / CAP_CELL)
 	for iy in count:
 		for ix in count:
@@ -610,7 +610,7 @@ func _cap_alpha(point: Vector2) -> float:
 func add_landing(mesh: MeshData) -> void:
 	if not rimmed:
 		return
-	var level_of := (float(top) + 4.0) / 8.0
+	var level_of := LevelCode.of(top)
 	var solid := Color(1.0, level_of, 0.0, 1.0)
 	var clear := Color(1.0, level_of, 0.0, 0.0)
 	var inner := _landing_quad(0.0)

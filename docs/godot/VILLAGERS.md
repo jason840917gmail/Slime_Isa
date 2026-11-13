@@ -183,3 +183,63 @@ the viewer, away). Sources and prompts: `asset/Originals/town/villagers/` (READM
   the frames (`--villagers`, `--animals`, `--only=`, `--seconds=`, `--every=`, `--zoom=`,
   `--per-row=`); with `--scene=<world> --center=<x>,<y>` it films a world instead (a room, a town
   chunk), its areas registered as the game does (the `npc-wander` areas count).
+
+## Cave animals (2026-11-12)
+
+Harmless life for caves and caverns, the same Critter as the town's animals: scenes in
+`game/scenes/objects/cave-animals/` (scene ids `object.cave-animal.<id>`), dragged from the Scenery
+dock's **Cave animals** category under the world's `Animals` node, and tuned in the Inspector like
+any animal (wander circle, `npc-wander` area, route, `follow`). The pick board:
+`asset/Originals/cave-animals/board/cave-animals-board.jpg` (C1 to C6 built; the bat, C7, is left
+out: its rough is the same brown bat as the Glint Bat enemy).
+
+**Status:** built, placed in the playground's cave corner and filmed there in the running game;
+the owner has not judged them yet. No tests run. Not seen: the dock category in the editor.
+
+| Animal | Scene | How it lives | Suits |
+|---|---|---|---|
+| Firefly, firefly swarm (five fireflies under one node) | `firefly`, `firefly-swarm` | always in the air, drifting and swaying about its circle, its tail shining 1.4 s and dim 0.8 s; scatters to a far spot of its circle when the slime comes near | dark rooms (the Mine, the glow-moss burrow, Weaver Hollow), any cave |
+| Glow-worm | `glow-worm` | inches along, its tail swelling bright and fading; takes no notice of the slime | cave floors by the walls |
+| Pill bug | `pill-bug` | scuttles about; rolls into a ball while the slime is near (`curl`), sometimes peeks out of its ball in a pause | cavern floors, the Lair, the desert caves |
+| Cave newt | `cave-newt` | pads about, sits and looks up, blinks; runs from the slime (`flee`); stops at walls and water | pool banks of the Crystal Caverns and Gloop |
+| Crystal snail | `crystal-snail` | the village snail's crawl and `hide`; its crystals glint while it stands | Crystal Caverns, the Crystal Mine |
+| Lantern moth | `lantern-moth` | always in the air, fluttering in a small circle at flame height: place it at a light's foot. With `always_flying` off and a `flight_chance` it rests with folded wings between flights | braziers, lamps, lanterns |
+
+They are bigger than the town's small animals (a pill bug is 20 units tall, the village snail 12):
+at the village sizes they did not read on a cave floor.
+
+**The test spot: the playground's cave corner** (owner, 2026-11-12: "set a cave in the playground
+to see the cave animals"): `game/dev/corners/cave_corner.tscn`, instanced in the playground at
+(6592, 2752), east of the Bestiary corner's pens, between the Skins corner and the Sky corner, 21 x
+14 cells against the playground's east edge; `?map=playground&spawn=7296,3760` (desktop
+`-- --map=playground --spawn=7296,3760`) stands the slime at its mouth, a gap in the south wall.
+Its floor is painted on the playground's `ground` layer (cavern floor and crystal floor, cells 103
+to 123 by 43 to 56); the corner scene holds the crystal walls (`crystal-walls`), a lit brazier
+(`moth-brazier`), a small dark room in the west corner (`dark-nook`, no candles: to see the glows
+in the dark) and the animals under `Animals`: two swarms and two fireflies, three glow-worms, three
+pill bugs, two newts, three crystal snails, two moths at the brazier. Open the corner scene to add,
+move or tune them. It is not a rework-mode testbed: it stands in the classic playground too.
+
+A ground cell shows the piece of its sheet (one 19 x 19 picture that wraps) at its own place in
+the world: its atlas tile is (column mod 19, row mod 19). Cells copied from another world keep the
+other world's pieces and draw as hard squares; give them their own place's pieces.
+
+Critter options added for them (scene properties, unused by the town's animals):
+
+- `glow`: a soft light under the Visual (`Visual/Glow`, `game/prologue/soft_glow.gd`: its size and
+  colour are tuned there), its brightness animated by the clips (a `Visual/Glow:modulate` track).
+  It stays on its side of the picture when the picture is mirrored, and in a dark room that is
+  still dark it is drawn over the darkness (z 46, like the enemies' eyes), so there only the glow
+  shows. It is a picture, not a light source ([DARKNESS.md](DARKNESS.md)): it lights nothing, and no
+  enemy or puzzle reads it.
+- `flight_wobble_px`: a flier's picture sways about its path (real time, presentation).
+- A flier that never lands with the reaction `flee` scatters: it makes for a far spot of its circle
+  at `flee_speed` for `flee_ms`, and again while the slime stays near.
+
+Art: one 3 x 2 sheet each, Magnific GPT 2.5 on a transparent background, the animal's rough as the
+reference; sources, prompts and the board in `asset/Originals/cave-animals/` (README). Packed by
+`pack-villagers.py` (its `"family": "cave"` entries) into `godot/asset/characters/cave-animals/`;
+the scenes are written by `build-villager-scenes.py` (its `"cave": True` entries; `glow` gives the
+light's place, size and colour). `capture_villagers.gd -- --cave` films them on a cavern-floor
+colour; `godot/tools/render_door_walk.gd -- --map=playground-cavern --feet=<x>,<y> --key=move_right`
+films the slime walking among them in the game.

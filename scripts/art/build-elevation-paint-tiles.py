@@ -7,8 +7,9 @@ written on it (TILES, then the old stairs "S"); row 1, stairs, one arrow per dir
 down the stairs (STAIRS order); row 2, the same in a dashed square (once a railed and an open
 landing; since 2026-10-11 no flight has a landing and both rows paint the same flights, kept for
 the worlds already painted with them); row 3, ramps (green, a wedge falling along the arrow: the
-slope, the arrow pointing down it; STAIRS order). The game never draws them (the elevation layer
-hides itself at run time).
+slope, the arrow pointing down it; STAIRS order); rows 4 and 5, the high levels 4 ... 16 (HIGH, eight
+a row; added 2026-11-12 for walls over ten levels, after the rows the painted worlds already use).
+The game never draws them (the elevation layer hides itself at run time).
 
 Usage: python scripts/art/build-elevation-paint-tiles.py
 """
@@ -40,7 +41,15 @@ STAIRS = [("s", (0, 1)), ("sw", (-1, 1)), ("w", (-1, 0)), ("nw", (-1, -1)), ("n"
 STAIRS_RGB = (150, 150, 150)
 RAMP_RGB = (110, 170, 80)
 COLUMNS = max(len(TILES), len(STAIRS))
-ROWS = 4
+## The high levels (rows 4 and 5, COLUMNS a row): 4 ... 16, from red through purple to pale blue.
+HIGH = [
+    ("4", (205, 45, 70)), ("5", (200, 45, 110)), ("6", (190, 50, 150)), ("7", (170, 60, 185)),
+    ("8", (145, 70, 210)), ("9", (120, 85, 225)), ("10", (100, 105, 235)), ("11", (90, 130, 240)),
+    ("12", (95, 155, 240)), ("13", (110, 180, 240)), ("14", (135, 200, 240)), ("15", (170, 220, 245)),
+    ("16", (215, 235, 250)),
+]
+HIGH_ROW = 4
+ROWS = HIGH_ROW + -(-len(HIGH) // COLUMNS)
 
 
 def stairs_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, direction: tuple[int, int], open_landing: bool) -> None:
@@ -85,6 +94,14 @@ def ramp_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, direction: tuple[int,
     draw.polygon(head, fill=(255, 255, 255, 235), outline=(20, 20, 30, 235))
 
 
+def level_tile(draw: ImageDraw.ImageDraw, x0: int, y0: int, label: str, rgb: tuple[int, int, int], font: ImageFont.ImageFont) -> None:
+    draw.rectangle((x0, y0, x0 + SIZE - 1, y0 + SIZE - 1), fill=rgb + (90,), outline=rgb + (230,), width=3)
+    box = draw.textbbox((0, 0), label, font=font)
+    tx = x0 + (SIZE - (box[2] - box[0])) / 2 - box[0]
+    ty = y0 + (SIZE - (box[3] - box[1])) / 2 - box[1]
+    draw.text((tx, ty), label, font=font, fill=(255, 255, 255, 235), stroke_width=2, stroke_fill=(20, 20, 30, 235))
+
+
 def main() -> None:
     image = Image.new("RGBA", (SIZE * COLUMNS, SIZE * ROWS), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
@@ -93,12 +110,9 @@ def main() -> None:
     except OSError:
         font = ImageFont.load_default()
     for i, (label, rgb) in enumerate(TILES):
-        x0 = i * SIZE
-        draw.rectangle((x0, 0, x0 + SIZE - 1, SIZE - 1), fill=rgb + (90,), outline=rgb + (230,), width=3)
-        box = draw.textbbox((0, 0), label, font=font)
-        tx = x0 + (SIZE - (box[2] - box[0])) / 2 - box[0]
-        ty = (SIZE - (box[3] - box[1])) / 2 - box[1]
-        draw.text((tx, ty), label, font=font, fill=(255, 255, 255, 235), stroke_width=2, stroke_fill=(20, 20, 30, 235))
+        level_tile(draw, i * SIZE, 0, label, rgb, font)
+    for i, (label, rgb) in enumerate(HIGH):
+        level_tile(draw, (i % COLUMNS) * SIZE, (HIGH_ROW + i // COLUMNS) * SIZE, label, rgb, font)
     for row, open_landing in ((1, False), (2, True)):
         for i, (_name, direction) in enumerate(STAIRS):
             stairs_tile(draw, i * SIZE, row * SIZE, direction, open_landing)
@@ -106,7 +120,7 @@ def main() -> None:
         ramp_tile(draw, i * SIZE, 3 * SIZE, direction)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     image.save(OUT)
-    print(f"wrote {OUT.relative_to(ROOT)} ({len(TILES)} level tiles, {2 * len(STAIRS)} stairs tiles, {len(STAIRS)} ramp tiles)")
+    print(f"wrote {OUT.relative_to(ROOT)} ({len(TILES) + len(HIGH)} level tiles, {2 * len(STAIRS)} stairs tiles, {len(STAIRS)} ramp tiles)")
 
 
 if __name__ == "__main__":

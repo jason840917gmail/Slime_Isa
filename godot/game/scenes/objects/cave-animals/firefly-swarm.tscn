@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/firefly.tscn" id="1"]
+
+[node name="firefly-swarm" type="Node2D"]
+y_sort_enabled = true
+
+[node name="firefly-1" parent="." instance=ExtResource("1")]
+position = Vector2(-34, -10)
+
+[node name="firefly-2" parent="." instance=ExtResource("1")]
+position = Vector2(22, -26)
+
+[node name="firefly-3" parent="." instance=ExtResource("1")]
+position = Vector2(0, 14)
+
+[node name="firefly-4" parent="." instance=ExtResource("1")]
+position = Vector2(40, 12)
+
+[node name="firefly-5" parent="." instance=ExtResource("1")]
+position = Vector2(-18, 30)

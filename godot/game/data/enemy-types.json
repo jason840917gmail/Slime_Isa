@@ -156,7 +156,7 @@
     },
     "gloomling": {
       "id": "gloomling", "visualSetId": "enemy.gloomling", "maxHp": 1,
-      "pattern": { "bodyRadiusPx": 18, "flinchMs": 260, "fleeSpeed": 150, "boltSpeed": 240, "boltMs": 600, "dreadMs": 2400, "recoverMs": 3000, "flameDread": 0.4, "calmMs": 600, "creepSpeed": 40, "homeSlackPx": 6, "minScale": 0.4, "corpseMs": 700, "corpseFadeMs": 500 },
+      "pattern": { "bodyRadiusPx": 18, "flinchMs": 260, "fleeSpeed": 150, "boltSpeed": 240, "boltMs": 600, "dreadMs": 2400, "recoverMs": 3000, "flameDread": 0.4, "calmMs": 600, "creepSpeed": 40, "homeSlackPx": 6, "minScale": 0.4, "huntTellMs": 450, "huntSpeed": 110, "contactReachPx": 26, "contactDamage": 12, "contactKnockback": 180, "contactCooldownMs": 900, "biteRestMs": 500, "corpseMs": 700, "corpseFadeMs": 500 },
       "drop": {},
       "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": ["*"], "states": {} }
     },

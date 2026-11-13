@@ -7,7 +7,7 @@ shader_type canvas_item;
 // owner's reference (2026-10-13: "simpler borders").
 // Vertex colour r = the kind of piece: 0 … 0.2 wall (front … side), 0.3 corner stone, 0.5 foot
 // (0.54 where that edge's lower ground is water: the water lapping up the wall),
-// 0.6 / 0.7 the lower / the top's ground filling a corner, 1 top edge; a = the height in levels ((level + 4) / 8, elevation_light.gdshaderinc).
+// 0.6 / 0.7 the lower / the top's ground filling a corner, 1 top edge; a = the height in levels ((level + 4) / 32, elevation_light.gdshaderinc).
 // - Wall: UV = (px along the border, px down the fibre + the course of its level); g = the face's
 //   light, b = px down the fibre / 512 (the top edge's shadow on the wall). r / 0.2 = how much it is
 //   a side's: the style's side strip art (`side_texture`, one course tall) blends in by it.

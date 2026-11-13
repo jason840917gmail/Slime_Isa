@@ -3,8 +3,9 @@ extends RefCounted
 ## Caverns' rows"): the light sources of the Lantern's contract (group `light_sources`,
 ## `light_circle() -> Vector3`, game/world/fire/fire_targets.gd; docs/godot/DARKNESS.md) that reach
 ## a point. The Gloomling shrinks and runs from any of them, the Glint Bat wakes in them, and the
-## Shardback's shell turns brittle in fire light (every source but the slime's own ember). It only
-## reads the lights: nothing here changes how they work.
+## Shardback's shell turns brittle in fire light (every source but the slime's own ember). It also
+## tells where a dark room is still dark (`dark_at`: where the Gloomling hunts, where eyes shine).
+## It only reads the lights and the rooms: nothing here changes how they work.
 ##
 ## Owner: enemy builder.
 
@@ -14,6 +15,8 @@ const FireTargets := preload("res://game/world/fire/fire_targets.gd")
 ## (paths, not preloads, so this file loads nothing of the player's).
 const EMBER_SCRIPT := "res://game/player/abilities/lantern_glow.gd"
 const FLAME_SCRIPT := "res://game/player/abilities/lantern_flame.gd"
+## The dark rooms' group (game/world/darkness/dark_room.gd GROUP).
+const DARK_ROOM_GROUP := &"dark_rooms"
 
 
 ## How strongly light reaches the global `point` (a body of radius `pad` there): 0 when no light
@@ -56,6 +59,17 @@ static func brightest_from(tree: SceneTree, point: Vector2, pad: float = 0.0) ->
 			var circle: Vector3 = node.call(&"light_circle")
 			at = Vector2(circle.x, circle.y)
 	return at
+
+
+## True when the global `point` lies in a dark room that is still dark (dark_room.gd `is_dark_at`,
+## read through the group so this file loads nothing of the room's).
+static func dark_at(tree: SceneTree, point: Vector2) -> bool:
+	if tree == null:
+		return false
+	for room: Node in tree.get_nodes_in_group(DARK_ROOM_GROUP):
+		if room.has_method(&"rect") and bool(room.call(&"is_dark")) and (room.call(&"rect") as Rect2).has_point(point):
+			return true
+	return false
 
 
 ## The slime's ember (lantern_glow.gd).

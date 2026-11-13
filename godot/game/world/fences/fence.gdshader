@@ -5,7 +5,7 @@ shader_type canvas_item;
 // x · 2, row px): it repeats along every front and diagonal run, which shears it) and the upper rail seen from above from `side_texture` (UV = (column px, ground y · 2),
 // east and west runs). Vertex colour: r = shade (the way the run's face looks), g = how far the
 // point lies below its piece's foot line ((dy + 128) / 512 world units, as the depth map), b = kind
-// (0 post, 0.5 rails, 1 side), a = level ((level + 4) / 8, elevation_light.gdshaderinc). A fence
+// (0 post, 0.5 rails, 1 side), a = level (elevation_code.gdshaderinc). A fence
 // pixel behind nearer terrain (a higher hill in front of it) is not drawn; fences in holes darken
 // with depth like the cliffs.
 
@@ -37,7 +37,7 @@ void fragment() {
 	}
 	float level = floor(decode_level(data.a) + 0.5);
 	if (elevation_rect.z > 0.0) {
-		float dy = data.g * 512.0 - 128.0;
+		float dy = decode_dy(data.g);
 		float depth = elevation_world.y - dy + level * ELEVATION_LEVEL_UNITS;
 		if (elevation_terrain_depth(elevation_world) > depth + ELEVATION_MARGIN) {
 			discard;

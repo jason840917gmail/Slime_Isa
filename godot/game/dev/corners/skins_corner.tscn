@@ -17,7 +17,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/web-wall.tscn" id="web_wall"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/wall-stone-solid--horizontal-04.tscn" id="wall"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/silk-parcel.tscn" id="parcel"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/climb-wall.tscn" id="climb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/training-dummy.tscn" id="dummy"]
 
 [node name="skins-corner" type="Node2D"]
@@ -206,7 +205,7 @@ offset_right = 7900
 offset_bottom = 1840
 mouse_filter = 2
 theme_override_font_sizes/font_size = 13
-text = "FERAL: hold interact facing the roots at the plateau's foot to climb (the other way climbs back; let go and you drop, unhurt). Climb down from the lip. The Spear jabs twice as fast (try the dummy)."
+text = "FERAL: hold interact facing the vines at the plateau's foot (or on its lip, facing down) to cling, and move over them with the movement keys; push on past the rim or the foot to get off, let go and you drop, unhurt. The Spear jabs twice as fast (try the dummy)."
 
 [node name="feral-pedestal" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -216,16 +215,6 @@ skin_id = "feral"
 
 [node name="stone" parent="feral-pedestal" instance=ExtResource("stone")]
 position = Vector2(0, 0)
-
-[node name="climb-up" parent="." instance=ExtResource("climb")]
-position = Vector2(7328, 2304)
-top = Vector2(0, -170)
-art_size = Vector2(150, 150)
-
-[node name="climb-down" parent="." instance=ExtResource("climb")]
-position = Vector2(7328, 2150)
-top = Vector2(0, 165)
-show_art = false
 
 [node name="training-dummy" parent="." instance=ExtResource("dummy")]
 position = Vector2(6980, 2460)
