@@ -38,18 +38,23 @@ extends RefCounted
 ## Owner: world (elevation).
 
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 const ElevationRims := preload("res://game/world/elevation/elevation_rims.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const LedgeDressing := preload("res://game/world/elevation/sides/ledge_dressing.gd")
 
 ## A wall's reach (world units): down a front face FRONT per level of drop (one stone course), out
 ## from a side SIDE for one level, growing as the drop to the power THIN_GROWTH for more (a tall
-## side stays a strip); between them a superellipse of exponent SHAPE (2 an ellipse, higher
+## side stays a strip) up to SIDE_FULL_DROP levels and no wider beyond (`side_width`: on the walls
+## over ten levels, 2026-11-13, a side grown on was 140 units wide and buried the ledges and
+## balconies beside it; no outdoor wall was over three levels before); between them a superellipse of exponent SHAPE (2 an ellipse, higher
 ## squarer). A back edge shows no wall (the owner, 2026-10-13: "in the top not black wall hint"):
 ## the side's reach fades out as the normal turns north (`BACK_FADE`).
 const FRONT := 64.0
 const SIDE := 24.0
 const THIN_GROWTH := 0.7
+const SIDE_FULL_DROP := 3.0
+const TALL_TURN := 0.12
 const BACK_FADE := Vector2(0.2, 0.6)
 const SHAPE := 2.5
 ## The wall art's u runs along the curve this far down the fibres (0 the top edge, 1 the foot): at a
@@ -428,15 +433,27 @@ func build(the_grid: ElevationGrid, cell_size: float, edges: Array[Dictionary], 
 	return out
 
 
+## How wide a side wall `drop` levels high is (world units): SIDE for one level, growing as the
+## drop to the power THIN_GROWTH, no wider than at SIDE_FULL_DROP levels.
+static func side_width(drop: float) -> float:
+	return SIDE * pow(minf(drop, SIDE_FULL_DROP), THIN_GROWTH)
+
+
 ## The reach of a wall `drop` levels high for outward normal `n` (world units): the point of the
-## shape K (FRONT · drop down, SIDE · drop^THIN_GROWTH out, a superellipse of exponent SHAPE)
+## shape K (FRONT · drop down, `side_width` out, a superellipse of exponent SHAPE)
 ## furthest along `n`; facing north, the side's reach fading to nothing (BACK_FADE).
+## A wall over SIDE_FULL_DROP levels is that shape for SIDE_FULL_DROP levels under a straight
+## stretch for the levels above them (TALL_TURN: how soon past a side's normal it comes in): its
+## side stays a strip all the way down and its corner rounds off over its last courses only, as a
+## three-level hill's does (stretched to its height, the round became a long taper to the foot).
 static func reach(n: Vector2, drop: float) -> Vector2:
 	if drop <= 0.0:
 		return Vector2.ZERO
-	var side := SIDE * pow(drop, THIN_GROWTH)
+	var side := side_width(drop)
 	if n.y < 0.0:
 		return Vector2(side * signf(n.x) * (1.0 - smoothstep(BACK_FADE.x, BACK_FADE.y, -n.y)), 0.0)
+	if drop > SIDE_FULL_DROP:
+		return reach(n, SIDE_FULL_DROP) + Vector2(0.0, FRONT * (drop - SIDE_FULL_DROP) * smoothstep(0.0, TALL_TURN, n.y))
 	var down := FRONT * drop
 	var a := side * n.x
 	var c := down * n.y
@@ -733,8 +750,8 @@ func _with_front_joints(edges: Array[Dictionary]) -> Array[Dictionary]:
 			# rest of its width (`narrow` of a side wall as tall as the ledge's).
 			var raise := float(top - level)
 			var low := float(level - floor_level)
-			var inset := SIDE * pow(raise, THIN_GROWTH)
-			var narrow := (SIDE * pow(raise + low, THIN_GROWTH) - inset) / (SIDE * pow(low, THIN_GROWTH))
+			var inset := side_width(raise)
+			var narrow := (side_width(raise + low) - inset) / side_width(low)
 			# The ledge's wall must run on straight past the strip's width: the fold starts beyond it.
 			var straight := 0.0
 			var walk := i
@@ -759,7 +776,7 @@ func _with_front_joints(edges: Array[Dictionary]) -> Array[Dictionary]:
 					"from": twin["from"], "to": twin["to"], "mode": ElevationRims.RIM, "level": level, "ground": edge["ground"],
 					"x": twin["x"], "twin": twin, "drop": low, "lift": 0.0, "raise": raise, "inset": inset, "narrow": narrow,
 					"trim": trim if whole else 0.0,
-					"art_from": inset / (inset + narrow * SIDE * pow(low, THIN_GROWTH)),
+					"art_from": inset / (inset + narrow * side_width(low)),
 				})
 			out.append_array(made)
 			joints.append({"at": corner * cell, "level": level, "against": top, "kind": "fold"})
@@ -1345,7 +1362,7 @@ func _caps(border: Border, loop: bool) -> PackedFloat32Array:
 		var forward := (corner["n_a"] as Vector2).y < -0.5
 		var k := first if forward else last
 		var previous := points[k]
-		var widest := SIDE * pow(maxf(float(corner["drop_a"]), float(corner["drop_b"])), THIN_GROWTH)
+		var widest := side_width(maxf(float(corner["drop_a"]), float(corner["drop_b"])))
 		var distance := 0.0
 		var steps := 0
 		while steps < count and CAP_SLOPE * distance < widest:
@@ -3273,4 +3290,4 @@ static func _hash(x: int, y: int) -> float:
 
 ## A level (or a height between levels) in a vertex colour channel (elevation_light.gdshaderinc).
 static func _level_channel(level: float) -> float:
-	return (level + 4.0) / 8.0
+	return LevelCode.of(level)

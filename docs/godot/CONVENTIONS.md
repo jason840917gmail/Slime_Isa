@@ -303,7 +303,7 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
   | 9 | `projectile` | Projectile CharacterBody2D bodies |
   | 10 | `trigger` | World trigger Area2Ds (exits, navigation and encounter areas) |
   | 11 | `water` | Water tiles: walking bodies (player, enemies, NPCs) mask it, projectiles fly over it |
-  | 12-18 | `level -3` … `level 3` | The walls of each elevation level: a walking body collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)) |
+  | 12-18, 20-32 | `level -3` … `level 3`, `level 4` … `level 16` | The walls of each elevation level (`ElevationGrid.physics_bit`): a walking body collides with its own level's layer only ([ELEVATION.md](ELEVATION.md)) |
   | 19 | `stairs` | The steps of every flight of stairs: every walking body but the player collides with it, so enemies and NPCs stay off stairs ([Stairs walk](ELEVATION.md#stairs-walk)) |
 
   60 physics ticks per second (enemy AI rolls per step depend on it); physics

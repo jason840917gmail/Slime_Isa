@@ -500,7 +500,9 @@
     "heavy": {"rollBonkShakeMs": 420, "rollBonkShakeIntensity": 0.02, "rollBonkHitStopMs": 90,
       "looseRadiusPx": 200},
     "feral": {"climbSpeed": 150, "grabReachPx": 44, "faceInsetPx": 18, "dropMs": 320, "dropHopPx": 10,
-      "spearTempo": 2.0, "refusalEveryMs": 2500, "strikeSeekPx": 240}
+      "spearTempo": 2.0, "refusalEveryMs": 2500, "strikeSeekPx": 240,
+      "vines": {"sideInsetPx": 14, "footStandPx": 20, "topInsidePx": 40, "lipStandPx": 20, "lipHangPx": 10,
+        "landBelowFootPx": 30}}
   },
   "dungeon": {
     "devPowers": {
@@ -517,7 +519,8 @@
       "weaver-hollow-crown": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "crystal-mine": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
       "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
-      "box-room-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"]
+      "box-room-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
+      "climb-lab": ["shape-spear", "dodge", "skin.feral"]
     },
     "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500, "lineMs": 2000 },
     "boltHole": { "clearPx": 72, "minOpenMs": 350, "closeAfterMs": 2500, "shakeMs": 160, "shakeIntensity": 0.004 },

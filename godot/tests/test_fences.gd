@@ -10,6 +10,9 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
+## How near its place a post's foot read back from the mesh's colours must be.
+const FOOT_READ_PX := LevelCode.DY_SPAN / 255.0 * 0.5 + 1.0
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
 const Fences := preload("res://game/world/fences/fences.gd")
 const FenceLayer := preload("res://game/world/fences/fence_layer.gd")
@@ -97,14 +100,16 @@ func test_lone_tile_is_two_posts_the_way_its_arrow_points(t: TestContext) -> voi
 			for i in colors.size():
 				left = minf(left, vertices[i].x)
 				right = maxf(right, vertices[i].x)
-				foot_y += vertices[i].y - (colors[i].g * 512.0 - 128.0)
+				foot_y += vertices[i].y - LevelCode.dy_from(colors[i].g)
 			drawn.append(piece.position + Vector2((left + right) * 0.5, foot_y / colors.size()))
 		t.equal(drawn.size(), 2, label + ": posts drawn")
 		var has_own := false
 		var has_far := false
 		for point: Vector2 in drawn:
-			has_own = has_own or point.distance_to(foot) < 1.0
-			has_far = has_far or point.distance_to(far) < 1.0
+			# a post's foot is read back from its depth in the mesh's colours: half a step of 8 bits off
+			# at most (LevelCode: 6 units a step since the walls go up to level 16)
+			has_own = has_own or point.distance_to(foot) < FOOT_READ_PX
+			has_far = has_far or point.distance_to(far) < FOOT_READ_PX
 		t.check(has_own and has_far, label + ": posts not at the cell and %s along the arrow (%s)" % [expected[direction], drawn])
 		# Collision: both posts and the band between them, nothing on the other side.
 		var body := fences.get_node_or_null("Collision/Level0") as StaticBody2D
@@ -545,9 +550,9 @@ func _check_post_feet_match_collision(t: TestContext) -> void:
 		for i in colors.size():
 			left = minf(left, vertices[i].x)
 			right = maxf(right, vertices[i].x)
-			foot_y += vertices[i].y - (colors[i].g * 512.0 - 128.0)
+			foot_y += vertices[i].y - LevelCode.dy_from(colors[i].g)
 		var feet := piece.to_global(Vector2((left + right) * 0.5, foot_y / colors.size()))
-		var level := roundi(colors[0].a * 8.0 - 4.0)
+		var level := roundi(LevelCode.level_from(colors[0].a))
 		t.check(fences.blocks_point(feet + raise, level), "drawn fence post is outside its collision at %s, level %d" % [feet, level])
 		posts += 1
 	t.check(posts > 0, "no drawn fence posts checked")

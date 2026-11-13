@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://game/dev/corners/bestiary_pen.gd" id="pen"]
 [ext_resource type="Script" path="res://game/world/darkness/dark_room.gd" id="dark_d"]
 [ext_resource type="Script" path="res://game/enemy/route_preview.gd" id="route_e"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier.tscn" id="brazier_b"]
 
 [node name="bestiary-corner" type="Node2D"]
 y_sort_enabled = true
@@ -504,3 +505,24 @@ supplies = Array[Dictionary]([{
 "at": Vector2(270, 395),
 "scene": "object.decoration-world-solid.armor-statue"
 }])
+
+[node name="pen-34" type="Node2D" parent="."]
+position = Vector2(5376, 4224)
+script = ExtResource("pen")
+number = 34
+enemy_name = "Gloomlings in the dark"
+kind = "Shadow"
+right_tool = "light: stay in the brazier's glow or drop a Goo Bomb (F); in full dark they bite"
+enemy_types = PackedStringArray("gloomling", "gloomling", "gloomling")
+posts = PackedVector2Array(70, 90, 442, 90, 256, 400)
+size = Vector2(512, 448)
+box_ability = &"goo-bombs"
+
+[node name="dark-room" type="Node2D" parent="pen-34"]
+script = ExtResource("dark_d")
+size = Vector2(512, 448)
+
+[node name="pen-34-brazier" parent="." instance=ExtResource("brazier_b")]
+position = Vector2(5632, 4474)
+lit_at_start = true
+burn_ms = -1.0

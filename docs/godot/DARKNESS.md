@@ -102,13 +102,19 @@ layout is in [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-1
 
 ## Enemies that answer to light
 
-The Bestiary's pens 23, 24 and 28 each hold a `DarkRoom` the size of the pen, with no candles, so
+The Bestiary's pens 23, 24, 28 and 34 each hold a `DarkRoom` the size of the pen, with no candles, so
 they stay dark. Three enemies there read the light sources (they only read them:
 `game/enemy/light_sense.gd`, [BESTIARY.md](BESTIARY.md#what-the-patterned-enemies-share)): the
 Gloomling flees any light and the Glint Bat is awake while the room is dark (it sleeps once every
 candle burns) (and a Gloomling sitting on a candle smothers
 it, above); the Shardback's shell turns brittle in fire light (every source but the slime's own
 ember), and its slam puts out the braziers in its ring.
+
+**Full darkness** (2026-11-13): where no light source reaches the slime in a dark room that is still
+dark (`light_sense.gd` `dark_at`), the Gloomlings of the room come for it and bite on contact
+([BESTIARY.md "23. Gloomling"](BESTIARY.md#23-gloomling-shadow)). A light is the slime's shelter: its
+ember (the Lantern chosen), a burning candle or brazier, a Goo Bomb while it glows. Pen 34 shows it:
+three Gloomlings round a brazier that burns, the Goo Bomb on the box.
 
 ## The Crystal Mine's dark-room pieces
 

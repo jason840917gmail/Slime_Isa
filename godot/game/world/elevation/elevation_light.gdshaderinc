@@ -28,7 +28,5 @@ vec3 level_lit(vec3 colour, float light) {
 	return colour * light / (1.0 + colour * (light - 1.0) * LIFT_SOFT);
 }
 
-// Levels travel in vertex colours as (level + 4) / 8.
-float decode_level(float channel) {
-	return channel * 8.0 - 4.0;
-}
+// Levels travel in vertex colours as elevation_code.gdshaderinc reads them (`decode_level`).
+#include "res://game/world/elevation/elevation_code.gdshaderinc"

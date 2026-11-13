@@ -31,7 +31,9 @@ The owner sees every enemy in the playground before it goes into its chapter.
   dungeon's skeletons and the Watcher Eye), five to a row: pen *n* is 512 x 448 px with
   its top-left at x 3456 + 640 x ((*n* - 1) mod 5), y 576 + 608 x floor((*n* - 1) / 5). A sign over
   each gives the row's number, name, kind and right tool; the pens of enemies not built yet are
-  grey and say "coming next". Rows 1 to 10 (Chapter 1) are the top two rows.
+  grey and say "coming next". Rows 1 to 10 (Chapter 1) are the top two rows. **Pen 34** (2026-11-13,
+  beside pen 33) is no bestiary row: three Gloomlings in a dark pen round a brazier that burns, to
+  try their hunt in full darkness ("23. Gloomling").
 - **The fence:** posts and a rope, and a body on the `stairs` physics layer (19), the layer every
   walking body but the slime collides with ([ELEVATION.md](ELEVATION.md#stairs-walk)): the enemies
   stay in, the slime walks in and out, and the Bramble Boar crashes into it.
@@ -61,7 +63,10 @@ The owner sees every enemy in the playground before it goes into its chapter.
 - **The dark pens** (23 Gloomling, 24 Glint Bat, 28 Shardback): each holds a `DarkRoom`
   (`game/world/darkness/dark_room.gd`, a child of the pen, its size) with no candles, so it stays
   dark; the slime glows in it (its ember, 160 px) and lights what it comes near. Their
-  `box_ability` is `&"lantern"` (F puffs a flame, 10 energy).
+  `box_ability` is `&"lantern"` (F puffs a flame, 10 energy). **Pen 34** is dark too, but lends the
+  Goo Bomb (`box_ability = &"goo-bombs"`), so the slime has no ember there: the only light is its
+  brazier (`pen-34-brazier`, the corner's child: `object.brazier`, `lit_at_start`, `burn_ms` -1,
+  120 px) and a bomb's own glow.
 - **The Goo Bomb pens** (19 to 21, `box_ability = &"goo-bombs"`): walking into the pen puts the Goo
   Bomb on the Ability Box (F; S in keys-only), named over the slime ("F: Goo Bomb"). It stays chosen
   after the slime walks out, so a bomb can be cast at the fence and spat (or thrown) in; the bag (B)
@@ -178,8 +183,9 @@ energy shard stay the base enemy's.
 - **The Lantern's flame:** its hit carries the tags `fire` + `lantern` (`lantern_flame.gd`,
   unchanged) and it is a light source while it flies: it is the Glint Bat's kill hit, it makes the
   Shardback's shell brittle, and its light makes the Gloomling bolt. The ember's glow (in a dark
-  room) drives the Gloomling; the Glint Bat is awake while its room is dark and sleeps once every
-  candle burns.
+  room) drives the Gloomling, and with no light on the slime in a dark room the Gloomling hunts it
+  (`light_sense.gd` `dark_at`: a dark room that is still dark); the Glint Bat is awake while its
+  room is dark and sleeps once every candle burns.
 - **The Goo Bomb's blast:** its hit carries the tag `blast` (`goo_blast.gd`, unchanged): the
   Thornball's spikes let it through and it flips it (`commit_damage`), and it is the egg sac's and
   the Cocoon Mimic's kill hit. The Thornball also reads the `goo_bombs` group: a bomb resting near it
@@ -208,7 +214,7 @@ energy shard stay the base enemy's.
 | 20 | Broodling | `broodling.tscn`, `broodling.gd`; its nest `egg-sac.tscn` (`egg_sac.gd`), the pen's enemy | tiny, goo; the sac heavy, silk |
 | 21 | Cocoon Mimic | `cocoon-mimic.tscn`, `cocoon_mimic.gd`; the real cocoon `object.cocoon-prize` (`objects/cocoon-prize.tscn`, a picture) | medium, silk |
 | 22 | Brood Warden | `brood-warden.tscn`, `brood_warden.gd` | heavy, chitin |
-| 23 | Gloomling | `gloomling.tscn`, `gloomling.gd` | light, silk (nothing reaches it) |
+| 23 | Gloomling | `gloomling.tscn`, `gloomling.gd` (pens 23 and 34) | light, silk (nothing reaches it) |
 | 24 | Glint Bat | `glint-bat.tscn`, `glint_bat.gd` | light, silk |
 | 25 | Crystal Crawler | `crystal-crawler.tscn`, `crystal_crawler.gd`; its pillar `object.crystal-pillar` | light, chitin |
 | 26 | Prism Eye | `prism-eye.tscn`, `prism_eye.gd` (with `game/enemy/prism_look.gd`) | medium, stone |
@@ -558,7 +564,9 @@ forelegs, drawn about twice the slime's size.
 
 A blob of living shadow with two pale lilac eyes that sits on something the slime wants (pen 23: a
 crystal key). The one enemy nothing hurts: no hurtbox, no solid body, so jabs, throws, bombs and
-flames pass through it. Pen 23 is dark: only its eyes show (`dark_eyes.gd`).
+flames pass through it. Pen 23 is dark: only its eyes show (`dark_eyes.gd`). It runs from every
+light, and in full darkness it comes for the slime and hurts it on contact (owner, 2026-11-13: "they
+run away when there is light but if there is all dark they attack the slime").
 - **Sit:** on its post. **Flinch** (the tell, `flinchMs` 260): light reaches it (any light source
   within its `bodyRadiusPx` 18, `light_sense.gd`: the slime's 160 px ember, a candle, a flame, a
   bomb): it squeezes tall, eyes wide.
@@ -566,15 +574,35 @@ flames pass through it. Pen 23 is dark: only its eyes show (`dark_eyes.gd`).
   200), shrinking as its dread grows: light on it fills the dread in `dreadMs` 2400 all told, out
   of the light it drains in `recoverMs` 3000; it is drawn from 1 down to `minScale` 0.4.
 - **Creep:** `calmMs` 600 out of the light, it creeps back to its post at `creepSpeed` 40.
+- **Full darkness** is what it hunts in: no light source reaches it, none reaches the slime's centre
+  (its ember, a candle or brazier it stands by, a bomb), both are in a dark room that is still dark
+  (`light_sense.gd` `dark_at`), and the slime is in its arena (its pen, its camera room). The ember
+  shows only while the Lantern is the Ability Box's choice
+  ([DARKNESS.md](DARKNESS.md#dark-rooms-gameworlddarknessdark_roomgd)), so a slime with another
+  ability chosen (or without the Lantern) is in full darkness. Outside a dark room, or in one lit by
+  its candles, it never hunts.
+- **Rise** (the tell, `huntTellMs` 450): it swells (x 1.15) and its eyes turn from lilac to red,
+  larger and narrowed, with the GroundCreak cue (a stand-in).
+- **Hunt:** straight at the slime at `huntSpeed` 110 (the slime's 200 outruns it); touching it
+  (centres within `contactReachPx` 26, at most every `contactCooldownMs` 900) it bites for
+  `contactDamage` 12 with `contactKnockback` 180 (the HitDull cue, a stand-in), then holds still for
+  `biteRestMs` 500. Light on it: it flinches and flees as ever (a light between it and the slime
+  stops it each time it tries to cross). Light on the slime, or the slime out of the dark or out of
+  its arena: the hunt is off and it creeps home, its eyes lilac again; back in the dark, it rises
+  again.
 - **Chased off:** full dread, it breaks into wisps and is gone (it counts as beaten; the pen brings
   it back).
 - **Right tool:** the Lantern: walk in glowing and it runs off its key; corner it in your light and
   it is chased off. A puff whose light touches it adds `flameDread` 0.4 at once and makes it bolt
-  (`boltSpeed` 240 for `boltMs` 600).
+  (`boltSpeed` 240 for `boltMs` 600). Without a light there is no fighting it: keep away from it,
+  or stand in a light (pen 34: the brazier's glow, or a Goo Bomb's while its fuse burns).
 - **Smothers a candle** (2026-10-17, the Crystal Mine's Dark Maze): it is in the group
   `candle_smotherers`; while its body is within `SMOTHER_RADIUS_PX` 40 of a candle's foot, that
   candle refuses a flame ("The shadow smothers the wick.";
-  [DARKNESS.md](DARKNESS.md#candles-gameworldfirecandlegd)).
+  [DARKNESS.md](DARKNESS.md#candles-gameworldfirecandlegd)). A Gloomling that leaves its candle to
+  hunt frees the wick until it is back.
+- Filmed in the running game by `tools/render_gloomling.gd` (`--scene=flee` in pen 23, `attack` in
+  pen 34; [TOOLING.md](../TOOLING.md)).
 
 ### 24. Glint Bat (flyer)
 
@@ -962,6 +990,11 @@ files the editor makes for them.
   range, the Marcher's pace, the pile's 3 s); the owner kept the bone pile as built (2026-10-16, question 123). No
   dungeon is built yet, so they stand only in their pens. They have no sound of their own (wood
   clacks and the global cues).
+- The Gloomling's hunt (2026-11-13) is a first take: its speed, bite and tell are untuned, its
+  sounds are stand-ins (the owner picks them in the Sound Picker), it has no art of its own (the
+  scuttle frame, red eyes), it walks straight at the slime (a light in its way stops it, it does not
+  go round), and no test covers it. In the Crystal Mine it changes M5 and M8: with the Goo Bomb
+  chosen (M5's cracked wall) the slime has no ember, so M5's Gloomling comes for it.
 - The Caverns' seven and the Watcher Eye are first takes too (the Gloomling's dread, the bats' wake
   reach and wave, the crawler's speed and turn, the eyes' turn rate and 200 ms charge, the mole's
   lane and arcs, the Shardback's shell shares, the mites' beat). No Caverns world exists yet, so the

@@ -2,7 +2,7 @@
 extends TileMapLayer
 ## The painted ground levels of a world (docs/godot/ELEVATION.md): a TileMapLayer named
 ## `elevation` beside the ground layer, on the same grid, using elevation_tileset.tres. Paint a
-## level (−3 … 3; unpainted cells are level 0) on the cells whose top you walk on; the cliff wall
+## level (−3 … 16; unpainted cells are level 0) on the cells whose top you walk on; the cliff wall
 ## hangs below the painted area's south edges by itself. Single-cell steps make 45° edges.
 ##
 ## In the editor the cliffs follow the paint (and the ground's paint) at once: this layer mounts

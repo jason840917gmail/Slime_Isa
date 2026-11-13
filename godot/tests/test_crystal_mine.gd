@@ -336,10 +336,13 @@ func test_the_root_wall_needs_the_feral_skin_and_climbs_to_the_shelf(t: TestCont
 	SkinState.lend(SkinState.FERAL)
 	_stand(t, (wall as Node2D).global_position + Vector2(0, 24))
 	await t.steps(4)
-	# The Feral skin climbs while the interact key is held (game/player/skins/feral_climb.gd).
+	# The Feral skin clings while the interact key is held and climbs with the movement keys
+	# (game/player/skins/feral_climb.gd).
 	t.press(&"interact")
-	t.check(bool(wall.call(&"use")), "the Feral skin did not climb the roots")
+	t.check(bool(wall.call(&"use")), "the Feral skin did not take hold of the roots")
+	t.press(&"move_up")
 	await t.until(func() -> bool: return not bool(wall.call(&"is_climbing")), 4000.0)
+	t.release(&"move_up")
 	t.release(&"interact")
 	await t.steps(3)
 	t.equal(t.world().elevation.level_of(t.player_body()), 1, "the slime's level on the shelf")
@@ -598,7 +601,11 @@ func test_his_fall_breaks_the_seal_and_the_climb_out_leads_to_the_lookout(t: Tes
 	await t.steps(4)
 	t.press(&"interact")
 	t.check(bool(wall.call(&"use")), "the climb out did not start")
+	# The held key only clings: the movement key along the wall climbs it.
+	var along: StringName = &"move_down" if (wall.call(&"climb_direction") as Vector2).y > 0.0 else &"move_up"
+	t.press(along)
 	var out := await t.until(func() -> bool: return t.in_world(LOOKOUT_ID) and t.player_body() != null, 8000.0)
+	t.release(along)
 	t.release(&"interact")
 	t.check(out, "the climb out did not bring the slime to the Lookout (%s)" % LOOKOUT_ID)
 
@@ -627,8 +634,8 @@ func _start_fight(t: TestContext) -> Dictionary:
 	return {"arena": arena, "boss": arena.call(&"get_live_boss")}
 
 
-## The climb up or down `wall` from its start (the slime's feet there), the interact key held until it
-## ends. True when it finished there (not dropped).
+## The climb up or down `wall` from its start (the slime's feet there), the interact key and the
+## movement key along it held until it ends. True when it finished there (not dropped).
 func _climb(t: TestContext, wall: Node) -> bool:
 	_stand(t, (wall as Node2D).global_position)
 	await t.steps(4)
@@ -636,7 +643,10 @@ func _climb(t: TestContext, wall: Node) -> bool:
 	if not t.check(bool(wall.call(&"use")), "%s could not be climbed" % wall.name):
 		t.release(&"interact")
 		return false
+	var along: StringName = &"move_down" if (wall.call(&"climb_direction") as Vector2).y > 0.0 else &"move_up"
+	t.press(along)
 	var done := await t.until(func() -> bool: return not t.player().is_climbing(), 6000.0)
+	t.release(along)
 	t.release(&"interact")
 	await t.steps(4)
 	return done
@@ -654,14 +664,17 @@ func _onto_the_wall(t: TestContext, boss: Node) -> bool:
 	return true
 
 
-## The slime up CLAW_ROOTS to their top beside him, clinging there (the interact key kept held).
+## The slime up CLAW_ROOTS to their top beside him, clinging there (the interact key kept held, the
+## movement key let go once it is there).
 func _cling_at_top(t: TestContext, roots: Node2D) -> bool:
 	_stand(t, roots.global_position)
 	await t.steps(4)
 	t.press(&"interact")
 	if not t.check(bool(roots.call(&"use")), "the roots beside his spot could not be climbed"):
 		return false
+	t.press(&"move_up")
 	var holding := await t.until(func() -> bool: return bool(t.player().get_climb().call(&"is_holding")), 4000.0)
+	t.release(&"move_up")
 	return t.check(holding, "the slime did not cling at the top of the roots beside him")
 
 

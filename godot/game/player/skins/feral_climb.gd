@@ -1,30 +1,49 @@
 extends RefCounted
 ## The Feral skin's climb (docs/godot/SKINS.md "Feral"; Direction "The skins": Pearl 3's skin
-## climbs walls with thick living roots and rocky handholds while the interact key is held, claws
-## showing; it climbs up and down; letting go midway drops the slime, and a fall costs nothing:
-## owner, 2026-10-16, questions 68 and 86). Owned by player.gd, which starts it on an interact press
-## (`try_begin`, or a climbable wall's `use` through `begin`) and lets it own the step while it holds
-## (`step`).
+## climbs walls with thick living roots and rocky handholds, claws showing; letting go drops the
+## slime, and a fall costs nothing: owner, 2026-10-16, questions 68 and 86). Since 2026-11-12 it
+## works as the push and pull of a heavy block (the owner: "with W it sticks to the wall and then
+## you move with the arrows in the direction you want", so a mountain can carry many climbs): the
+## held interact key clings, the movement keys move the slime over the wall, any way. Owned by
+## player.gd, which starts it on an interact press (`try_begin`, or a climbable wall's `use` through
+## `begin`) and lets it own the step while it holds (`step`).
 ##
-## - **Grab:** with the Feral skin on, the slime's feet within a climbable wall's start zone
-##   (game/scripts/climb_wall.gd `can_grab`: its foot, or its lip for a wall climbed down), facing
-##   along the climb. The slime's body stops colliding (the rock between the levels), its art is drawn
-##   in front of the face (Elevation `set_flight` at the lower end's depth), and claws show.
-## - **Climb:** while the interact key stays held the slime climbs toward the wall's far end at
-##   `skins.feral.climbSpeed`; the movement key the other way climbs it back. It faces the wall and
-##   walks its clip (a back view going up, a front view going down).
-## - **Top out:** at the far end it stands on the ground there and takes its level (Elevation
-##   `track`); the wall's `on_climbed` follows (a wall can lead out of the world).
-## - **Back at the start:** it lets go where it started.
-## - **Let go midway** (the key released): the slime drops straight to the lower end over
+## What is climbed is a **climbable surface** in WALL_GROUP: vines painted on a VineLayer
+## (game/world/vines/vine_layer.gd) or a placed climbable wall (game/scripts/climb_wall.gd). Each
+## answers, in the slime's feet (world):
+## - `can_grab(feet, facing) -> bool`: the slime can take hold from there;
+## - `climb_start(feet, facing) -> Vector2`: where on the surface it takes hold;
+## - `climb_allows(feet) -> bool`: it may cling there;
+## - `climb_exit(feet, way) -> Vector2`: pushing `way` at the surface's edge, where it stands when it
+##   gets off there (a ledge above, the ground at the foot), or Vector2.INF;
+## - `climb_landing(feet) -> Vector2`: where it lands when it lets go;
+## and optionally `climb_holds(feet) -> bool` (it clings at an end with nothing to stand on),
+## `on_grabbed()`, `on_held_at_end()`, `climb_left(feet)` (the climb ended there, not cancelled).
+##
+## - **Grab:** with the Feral skin on, an interact press where a surface's `can_grab` says so (its
+##   foot facing up, its lip facing down). The slime's body stops colliding (the rock between the
+##   levels), its art is drawn in front of the face (Elevation `set_flight` at its landing's depth),
+##   claws show, and it glides onto the surface (`climb_start`).
+## - **Cling and move:** while the interact key stays held the slime clings; the movement keys move
+##   it at `skins.feral.climbSpeed` wherever the surface allows, sliding along its edges. It faces
+##   the wall the whole climb, whichever way it moves: its back to the camera (the owner,
+##   2026-11-12: "it should always face the wall while climbing").
+## - **Getting off:** pushing on past an edge with ground beyond (`climb_exit`: up over the rim, down
+##   at the foot) it glides there, stands and takes that level (Elevation `track`); the surface's
+##   `climb_left` follows (a climbable wall can lead out of the world).
+## - **Let go** (the key released): the slime drops straight to its landing over
 ##   `skins.feral.dropMs` with a little hop and a landing squash, and takes that level. No damage.
-## - **A wall that ends on the face** (climb_wall.gd `holds_at_end`: roots beside the Colossus's climb
-##   spots, a climb-out while the dungeon is sealed): at the far end the slime clings there, nothing
-##   to top out onto, until it lets go or climbs back; the wall's `on_held_at_end` says why.
+##   Already standing by its landing, it just lets go.
+## - **A catch** (the owner, 2026-11-12): the key pressed again while the slime drops takes hold of
+##   the surface right where it is, when the surface allows a cling there (vines under it; a drop
+##   past bare rock catches nothing). After a hit's drop the key must be let go and pressed again.
+## - **An end with nothing to stand on** (climb_wall.gd `holds_at_top`: roots beside the Colossus's
+##   climb spots): the slime clings there (`is_holding`) until it lets go or moves away; the
+##   surface's `on_held_at_end` says why.
 ## - **The strike while clinging** (the plan's proposal, for the Colossus's claws; player.gd
 ##   `_climb_strike`): an attack press thrusts the slime's shape along the face, left or right
 ##   (`strike_side`); the slime holds still on the face while the strike runs.
-## - A hit, a door or death ends it (`cancel`: the slime is put down at the lower end).
+## - A hit drops it (`drop`); a door or death ends it (`cancel`: the slime is put down at its landing).
 ##
 ## The body moves through player.gd's ArcadeMover step: this only sets its velocity.
 ##
@@ -43,29 +62,39 @@ const CUE_LAND := &"Land"
 const CLAWS_NAME := "FeralClaws"
 ## A pull cue every this many px climbed.
 const PULL_EVERY_PX := 48.0
-## The sway across the face while climbing (px, per px climbed).
-const SWAY_PX := 2.5
-const SWAY_WAVE := 0.06
-const ARRIVE_PX := 1.5
+## A glide ends this near its target: on it, to the eye and to the surface's own limits (a slime left
+## a fraction of a px outside them could not move along the edge it took hold at).
+const ARRIVE_PX := 0.05
+## A let-go this near its landing just stands there (no fall).
+const NEAR_LANDING_PX := 14.0
+## Taking hold and getting off glide at this many times the climb's speed.
+const GLIDE_SPEED := 1.6
+## The way the slime looks on a wall: at it, its back to the camera (walls face the camera).
+const FACING := Vector2.UP
 
 var _player: Node
 var _body: CharacterBody2D
 var _wall: Node2D
 var _active := false
 var _falling := false
-## The climb's line in the slime's feet positions (world).
-var _from := Vector2.ZERO
-var _to := Vector2.ZERO
 var _mask := 0
 var _fall_from := Vector2.ZERO
+var _fall_to := Vector2.ZERO
 var _fall_started_ms := 0.0
+## The interact key has been up during this fall: held again, it catches the surface.
+var _fall_released := false
 var _climbed_px := 0.0
 var _next_pull_px := PULL_EVERY_PX
 var _claws: Node2D
-## Clinging at the far end of a wall that ends on the face (`holds_at_end`).
+## Clinging at an end with nothing to stand on (the surface's `climb_holds`).
 var _holding := false
 ## The way the last strike along the face went (RIGHT or LEFT).
 var _last_side := Vector2.RIGHT
+## Gliding to `_glide_to` (the slime's feet): onto the surface as it takes hold, or off it
+## (`_leaving`) to where it stands. No key moves the slime meanwhile.
+var _gliding := false
+var _leaving := false
+var _glide_to := Vector2.ZERO
 
 
 func is_active() -> bool:
@@ -80,8 +109,8 @@ func wall() -> Node2D:
 	return _wall if _active else null
 
 
-## On an interact press: the climbable wall whose start zone holds the slime's feet and that it
-## faces along the climb (the Feral skin on). True when a climb began.
+## On an interact press: the climbable surface the slime can take hold of from where it stands,
+## facing `facing` (the Feral skin on). True when a climb began.
 func try_begin(player: Node, body: CharacterBody2D, facing: Vector2) -> bool:
 	if _active or body == null or not SkinState.is_on(player, SkinState.FERAL):
 		return false
@@ -90,13 +119,13 @@ func try_begin(player: Node, body: CharacterBody2D, facing: Vector2) -> bool:
 		if climb_wall == null or not climb_wall.is_visible_in_tree():
 			continue
 		if bool(climb_wall.call(&"can_grab", body.global_position, facing)):
-			return begin(player, body, climb_wall)
+			return begin(player, body, climb_wall, facing)
 	return false
 
 
-## Starts climbing `climb_wall` (a climbable wall's `use`). False without the Feral skin, or when a
-## climb is on.
-func begin(player: Node, body: CharacterBody2D, climb_wall: Node2D) -> bool:
+## Takes hold of `climb_wall` (a climbable wall's `use`, or `try_begin`). False without the Feral
+## skin, or when a climb is on.
+func begin(player: Node, body: CharacterBody2D, climb_wall: Node2D, facing: Vector2 = Vector2.ZERO) -> bool:
 	if _active or body == null or climb_wall == null or not SkinState.is_on(player, SkinState.FERAL):
 		return false
 	_player = player
@@ -105,19 +134,18 @@ func begin(player: Node, body: CharacterBody2D, climb_wall: Node2D) -> bool:
 	_active = true
 	_falling = false
 	_holding = false
-	# Straight along the face from where the slime stands (its offset across the wall kept).
-	_from = body.global_position
-	var across := body.global_position.x - (climb_wall.call(&"start_feet") as Vector2).x
-	_to = (climb_wall.call(&"end_feet", body) as Vector2) + Vector2(across, 0.0)
+	_leaving = false
 	_climbed_px = 0.0
 	_next_pull_px = PULL_EVERY_PX
 	_mask = body.collision_mask
 	body.collision_mask = 0
 	body.velocity = Vector2.ZERO
-	var world := Services.world()
-	if world != null and world.elevation != null:
-		world.elevation.set_flight(body, maxf(_from.y, _to.y))
-	player.call(&"face", _climb_facing())
+	# Onto the surface from where the slime stands: from its lip it comes down over the rim.
+	var feet := body.global_position
+	_glide_to = climb_wall.call(&"climb_start", feet, facing)
+	_gliding = feet.distance_to(_glide_to) > ARRIVE_PX
+	_set_depth(_glide_to)
+	player.call(&"face", FACING)
 	player.call(&"squash", &"move-start", true)
 	_show_claws(true)
 	_cue(CUE_GRAB)
@@ -133,111 +161,146 @@ func step(now_ms: float, delta: float, held: bool, direction: Vector2) -> bool:
 	if not _active:
 		return false
 	if _body == null or not is_instance_valid(_body) or _wall == null or not is_instance_valid(_wall):
-		_finish(false)
+		_finish()
 		return false
 	SkinState.show(_player, SkinState.FERAL)
 	if _falling:
-		return _fall(now_ms, delta)
-	if not held:
-		_let_go(now_ms)
-		return false
-	var along := _to - _from
-	var length := along.length()
-	if length <= ARRIVE_PX:
-		if not _hold_at_end():
-			_top_out()
-		return false
-	var unit := along / length
-	var progress := clampf((_body.global_position - _from).dot(unit), 0.0, length)
-	# Toward the far end, unless the movement key points back along the climb.
-	var heading := 1.0
-	if direction != Vector2.ZERO and direction.normalized().dot(unit) < -0.5:
-		heading = -1.0
+		return _fall(now_ms, delta, held)
+	# At the wall every step: a strike along the face turned the slime sideways.
+	_player.call(&"face", FACING)
 	var speed := SkinState.setting("feral.climbSpeed", 150.0)
-	var goal := length if heading > 0.0 else 0.0
-	var remaining := absf(goal - progress)
-	if remaining <= ARRIVE_PX:
-		if heading > 0.0:
-			if not _hold_at_end():
-				_top_out()
-		else:
-			_finish(true)
+	if _gliding:
+		return _glide(delta, speed)
+	if not held:
+		_let_go(now_ms, true)
+		return false
+	var feet := _body.global_position
+	_set_depth(feet)
+	if direction == Vector2.ZERO:
+		_body.velocity = Vector2.ZERO
+		_cling(feet)
+		return false
+	var way := direction.normalized()
+	# Pushing on past an edge with ground beyond: off the wall, onto it.
+	var off: Vector2 = _wall.call(&"climb_exit", feet, way)
+	if off.is_finite():
+		_gliding = true
+		_leaving = true
+		_glide_to = off
+		return _glide(delta, speed)
+	# Wherever the surface allows, sliding along its edges.
+	var move := way * speed * delta
+	var next := feet
+	for candidate: Vector2 in [move, Vector2(move.x, 0.0), Vector2(0.0, move.y)]:
+		if candidate != Vector2.ZERO and bool(_wall.call(&"climb_allows", feet + candidate)):
+			next = feet + candidate
+			break
+	if next == feet:
+		_body.velocity = Vector2.ZERO
+		_cling(feet)
 		return false
 	_holding = false
-	var step_px := minf(speed * delta, remaining)
-	var next := progress + heading * step_px
-	_climbed_px += step_px
-	# On the line, swaying a little across it, hand over hand.
-	var across := Vector2(-unit.y, unit.x) * sin(next * SWAY_WAVE) * SWAY_PX
-	var target := _from + unit * next + across
-	_body.velocity = (target - _body.global_position) / maxf(delta, 0.0001)
-	_player.call(&"face", _climb_facing() * heading)
+	_body.velocity = (next - feet) / maxf(delta, 0.0001)
+	_climbed_px += feet.distance_to(next)
 	if _climbed_px >= _next_pull_px:
 		_next_pull_px += PULL_EVERY_PX
 		_cue(CUE_PULL)
 	return true
 
 
-## A door, a teleport, death: the slime is put down at the lower end at once.
+## A door, a teleport, death: the slime is put down at its landing at once.
 func cancel() -> void:
 	if not _active:
 		return
 	_active = false
 	if _body != null and is_instance_valid(_body) and _player != null and is_instance_valid(_player):
+		var land := _body.global_position
+		if _wall != null and is_instance_valid(_wall):
+			land = _wall.call(&"climb_landing", land)
 		# player.gd `teleport` places the slime by its centre (it cancels nothing more: off already).
 		var centre_to_feet: Vector2 = _body.global_position - (_player.call(&"get_centre") as Vector2)
-		_player.call(&"teleport", _lower_end() - centre_to_feet)
+		_player.call(&"teleport", land - centre_to_feet)
 		_body.velocity = Vector2.ZERO
-	_finish(false)
+	_finish()
 
 
-## A hit knocks the slime off the wall: it drops to the lower end (no damage from the fall).
+## A hit knocks the slime off the wall: it drops to its landing (no damage from the fall).
 func drop(now_ms: float) -> void:
 	if _active and not _falling and _body != null and is_instance_valid(_body):
-		_let_go(now_ms)
+		_let_go(now_ms, false)
 
 
-func _let_go(now_ms: float) -> void:
+## The key released (`released`) or a hit: the slime falls to its landing, or just stands when it
+## is there.
+func _let_go(now_ms: float, released: bool) -> void:
+	var feet := _body.global_position
+	var land: Vector2 = _wall.call(&"climb_landing", feet)
+	_gliding = false
+	_holding = false
+	if feet.distance_to(land) <= NEAR_LANDING_PX:
+		_body.velocity = Vector2.ZERO
+		_leave(feet)
+		return
 	_falling = true
-	_fall_from = _body.global_position
+	_fall_released = released
+	_fall_from = feet
+	_fall_to = land
 	_fall_started_ms = now_ms
+	_set_depth(land)
 	_show_claws(false)
 
 
-func _fall(now_ms: float, delta: float) -> bool:
-	var land := _lower_end()
+func _fall(now_ms: float, delta: float, held: bool) -> bool:
+	# A catch: the key down again takes hold where the slime is, where the surface allows a cling.
+	if not held:
+		_fall_released = true
+	elif _fall_released and bool(_wall.call(&"climb_allows", _body.global_position)):
+		_falling = false
+		_body.velocity = Vector2.ZERO
+		_set_depth(_body.global_position)
+		_player.call(&"squash", &"move-start", true)
+		_show_claws(true)
+		_cue(CUE_GRAB)
+		return false
 	var length := maxf(1.0, SkinState.setting("feral.dropMs", 320.0))
 	var t := clampf((now_ms - _fall_started_ms) / length, 0.0, 1.0)
 	# Falling: it speeds up (ease-in), drifting off the face, with a little hop at the start.
 	var eased := t * t
 	var hop := sin(minf(t * 2.0, 1.0) * PI) * SkinState.setting("feral.dropHopPx", 10.0) * (1.0 - t)
-	var target := _fall_from.lerp(land, eased) - Vector2(0.0, hop)
+	var target := _fall_from.lerp(_fall_to, eased) - Vector2(0.0, hop)
 	_body.velocity = (target - _body.global_position) / maxf(delta, 0.0001)
 	if t >= 1.0:
 		_body.velocity = Vector2.ZERO
 		_player.call(&"squash", &"land", true)
 		_cue(CUE_LAND)
-		_finish(false)
+		_leave(_fall_to)
 	return true
 
 
-## At the far end of a wall that ends on the face (climb_wall.gd `holds_at_end`): the slime clings
-## there (the wall's `on_held_at_end` the first step of each arrival). False when the wall tops out.
-func _hold_at_end() -> bool:
-	if _wall == null or not is_instance_valid(_wall) or not _wall.has_method(&"holds_at_end"):
+## Toward `_glide_to`, no key asked: onto the surface, or off it to where the slime stands.
+func _glide(delta: float, speed: float) -> bool:
+	var to := _glide_to - _body.global_position
+	var distance := to.length()
+	if distance <= ARRIVE_PX:
+		_body.velocity = Vector2.ZERO
+		_gliding = false
+		if _leaving:
+			_leave(_glide_to)
 		return false
-	if not bool(_wall.call(&"holds_at_end")):
-		return false
-	_body.velocity = Vector2.ZERO
-	_player.call(&"face", _climb_facing())
-	if not _holding:
-		_holding = true
-		if _wall.has_method(&"on_held_at_end"):
-			_wall.call(&"on_held_at_end")
+	_body.velocity = to / distance * minf(speed * GLIDE_SPEED, distance / maxf(delta, 0.0001))
 	return true
 
 
-## True while the slime clings at the far end of a wall that ends on the face.
+## The slime clings where it is: at an end with nothing to stand on the surface says why, once each
+## time it gets there (`on_held_at_end`).
+func _cling(feet: Vector2) -> void:
+	var holds := _wall.has_method(&"climb_holds") and bool(_wall.call(&"climb_holds", feet))
+	if holds and not _holding and _wall.has_method(&"on_held_at_end"):
+		_wall.call(&"on_held_at_end")
+	_holding = holds
+
+
+## True while the slime clings at an end with nothing to stand on (a wall that ends on the face).
 func is_holding() -> bool:
 	return _active and not _falling and _holding
 
@@ -270,20 +333,21 @@ func strike_side(player: Node, direction: Vector2) -> Vector2:
 	return _last_side
 
 
-func _top_out() -> void:
-	_body.velocity = Vector2.ZERO
+## The climb ended at `feet` (the slime stands there): the surface hears of it (`climb_left`).
+func _leave(feet: Vector2) -> void:
 	var climb_wall := _wall
-	var end := _to
-	_finish(false)
-	if climb_wall != null and is_instance_valid(climb_wall) and climb_wall.has_method(&"on_climbed"):
-		climb_wall.call(&"on_climbed", end)
+	_finish()
+	if climb_wall != null and is_instance_valid(climb_wall) and climb_wall.has_method(&"climb_left"):
+		climb_wall.call(&"climb_left", feet)
 
 
 ## Ends the climb: the mask back, the level where the feet are, the claws hidden.
-func _finish(_at_start: bool) -> void:
+func _finish() -> void:
 	_active = false
 	_falling = false
 	_holding = false
+	_gliding = false
+	_leaving = false
 	_show_claws(false)
 	if _body != null and is_instance_valid(_body):
 		_body.collision_mask = _mask
@@ -294,13 +358,12 @@ func _finish(_at_start: bool) -> void:
 	_wall = null
 
 
-func _lower_end() -> Vector2:
-	return _from if _from.y >= _to.y else _to
-
-
-## The way the slime faces on the wall: up the face going up, down it going down.
-func _climb_facing() -> Vector2:
-	return Vector2.UP if _to.y < _from.y else Vector2.DOWN
+## The slime's art is drawn at the depth of where it would land from `feet` (in front of the face).
+func _set_depth(feet: Vector2) -> void:
+	var world := Services.world()
+	if world == null or world.elevation == null or _wall == null or not is_instance_valid(_wall):
+		return
+	world.elevation.set_flight(_body, (_wall.call(&"climb_landing", feet) as Vector2).y)
 
 
 func _show_claws(on: bool) -> void:
@@ -313,7 +376,7 @@ func _show_claws(on: bool) -> void:
 		_claws.name = CLAWS_NAME
 		_body.add_child(_claws)
 	if _claws != null:
-		_claws.call(&"set_shown", on, _climb_facing())
+		_claws.call(&"set_shown", on)
 
 
 static func _cue(cue: StringName) -> void:

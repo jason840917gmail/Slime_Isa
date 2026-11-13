@@ -8,7 +8,7 @@ extends SceneTree
 ## and a base for every level below, a raised floor's north border) and **open** (green: nothing of
 ## that level collides there); then the 45° halves of rim, base and edge, four each (the solid half in
 ## the north-east, north-west, south-east and south-west corner, the rest of the tile clear). One row
-## per level, −3 … 3, its number drawn in the solid part. 16 units a tile (a quarter of a cell): fine
+## per level, −3 … 16, its number drawn in the solid part. 16 units a tile (a quarter of a cell): fine
 ## enough to follow a 24-unit side wall or a rim drawn mid-cell. The columns of the first three kinds
 ## never move, so painted scenes keep their tiles.
 ##     "<Godot console exe>" --headless --path godot -s res://tools/pack_level_collision_tileset.gd
@@ -20,6 +20,8 @@ const TILE := 16
 ## 3 x 5 pixel digits (rows top to bottom, bit 2 = left).
 const DIGITS := {
 	"0": [7, 5, 5, 5, 7], "1": [2, 6, 2, 2, 7], "2": [7, 1, 7, 4, 7], "3": [7, 1, 7, 1, 7], "-": [0, 0, 7, 0, 0],
+	"4": [5, 5, 7, 1, 1], "5": [7, 4, 7, 1, 7], "6": [7, 4, 7, 5, 7], "7": [7, 1, 1, 2, 2], "8": [7, 5, 7, 5, 7],
+	"9": [7, 5, 7, 1, 7],
 }
 ## Where a tile's level number goes, by shape ("" a whole tile).
 const NUMBER_AT := {"": Vector2i(3, 5), "ne": Vector2i(8, 2), "nw": Vector2i(1, 2), "se": Vector2i(8, 9), "sw": Vector2i(1, 9)}
@@ -81,7 +83,8 @@ func _initialize() -> void:
 ## number in white.
 func _draw_tile(image: Image, origin: Vector2i, kind: String, shape: String, level: int) -> void:
 	var colour: Color = LayerScript.KIND_COLOURS[kind]
-	var tint := colour.lightened(0.12 * float(level - LayerScript.MIN_LEVEL) / 2.0)
+	# as it was up to level 3 (the painted scenes' tiles keep their look), a little more for each above
+	var tint := colour.lightened(0.06 * float(mini(level, 3) - LayerScript.MIN_LEVEL) + 0.012 * float(maxi(level - 3, 0)))
 	var red: Color = LayerScript.KIND_COLOURS[LayerScript.BASE]
 	for y in TILE:
 		for x in TILE:

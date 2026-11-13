@@ -202,6 +202,13 @@ See [assets/README.md](assets/README.md) for the art workflow.
   of the door, holds the key until the world changes, films the arrival, and with `--then` goes back
   out; a frame every 40 ms of game time (the game runs slowed), with the world, the feet and the
   slime picture's place and alpha in the log ([CONVENTIONS.md](godot/CONVENTIONS.md#doors)).
+- `"<Godot console exe>" --path godot -s res://tools/render_gloomling.gd -- --out=<dir>
+  [--scene=flee|attack] [--see] [--zoom=<camera zoom>] [--slow=0.25]` (windowed) — records the
+  Gloomling in the playground's Bestiary corner: `flee` in pen 23 (the slime walks at it with the
+  Lantern's ember), `attack` in pen 34 (no light: the shadows come and bite, give up while the slime
+  stands in the brazier's glow, and come again); a frame every 80 ms of game time, with each shadow's
+  phase and place and the slime's health in the log. `--see` thins the darkness for the picture
+  ([BESTIARY.md](godot/BESTIARY.md#23-gloomling-shadow)).
 - `"<Godot console exe>" --path godot -s res://tools/render_bath.gd -- --out=<dir> [--map=slime-home]
   [--soak-ms=4000]` (windowed) — records the slime taking a bath: it stands the slime at the world's
   first bath, presses Interact, films the soak and gets out
@@ -453,6 +460,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   (`game/scenes/worlds/rooms/west-village/`); neither rewrites a scene that exists unless `--force`
   names it. `"<Godot console exe>" --path godot -s res://tools/capture_villagers.gd -- --out=<dir>`
   (a window) films them on grass, or a world with `--scene=<path> --center=<x>,<y>`.
+  The cave animals (2026-11-12, docs/godot/VILLAGERS.md "Cave animals") go through the same two
+  scripts: their sheets are in `asset/Originals/cave-animals/generated/` (`"family": "cave"` in the
+  packer), packed into `godot/asset/characters/cave-animals/`, their scenes written to
+  `game/scenes/objects/cave-animals/`; `capture_villagers.gd -- --cave` films them on a
+  cavern-floor colour. `asset/Originals/cave-animals/tools/` holds the board, sheet and GIF scripts.
 - `python scripts/characters/pack-bestiary-enemies.py` (**numpy**) — the bestiary's first batch
   (docs/godot/BESTIARY.md "Art"): each enemy's Magnific 2 x 2 pose sheet from
   `asset/Originals/enemies/bestiary/` cut along its empty lines, its four poses drawn at one scale
@@ -507,6 +519,10 @@ See [assets/README.md](assets/README.md) for the art workflow.
 - `python scripts/art/build-ambient-decoration-sheets.py` and `build-water-life-sheets.py` (**numpy**) —
   the idle-loop sheets (campfire, cauldron, lantern post, banner, birdbath; water life) in `godot/asset/MAPS/`; the scenes' AnimationPlayers
   are edited in Godot ([assets/AMBIENT_ANIMATION.md](assets/AMBIENT_ANIMATION.md)).
+- `python scripts/art/build-dock-icons.py` — the Scenery dock's six icons for pieces with no art of
+  their own (room door, room fight, hazard, hazard deck, plank landing, prize glint), 96 x 96, into
+  `godot/asset/MAPS/palettes/dock/` (docs/godot/PROPS.md "A piece with no sprite in its scene";
+  the table that names every such piece's picture is `godot/addons/scenery_dock/scene_pictures.gd`).
 - `python scripts/art/build-ambient-strips.py [--preview=<dir>] [--boxes] [name ...]` (**numpy**) —
   the idle loops of single pieces: interiors (lantern, candles, cauldrons, clay oven, hearth, alchemy
   workbench, tall potion shelf, water tub, bucket and basin), dungeon art (lit brazier, candelabra,

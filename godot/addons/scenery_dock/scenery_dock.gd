@@ -18,8 +18,13 @@ extends VBoxContainer
 ## **Villagers** and **Animals** categories (2026-11-01) list the towns' people and animals by their
 ## scene's picture (docs/godot/VILLAGERS.md): dragging one places its scene at its own size under the
 ## world's `NPCs` or `Animals` node, where its wander circle, route or `follow` is set in the Inspector.
+## **Cave animals** (2026-11-12) lists the caves' fireflies, glow-worm, pill bug, newt, crystal snail
+## and lantern moth the same way (under `Animals` too).
+## The **Heavy skin**, **Silk skin** and **Feral skin** categories (owner, 2026-11-12) list what each
+## skin works on (SKIN_CATEGORIES; docs/godot/SKINS.md), placed under `Objects` as the dungeon pieces.
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
+const ScenePictures := preload("res://addons/scenery_dock/scene_pictures.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const LiftableRoot := preload("res://game/scripts/liftable_root.gd")
 ## The placed enemy scene and the category listing the enemy types.
@@ -50,6 +55,15 @@ const DUNGEON_EXTRAS: PackedStringArray = [
 	"ore-lift", "crystal-lens", "crystal-veil", "gulp-spot-frog", "gulp-spot-silk", "gulp-spot-stone",
 	"loose-prize", "full-heart", "pearl", "pearl-two", "pearl-three",
 ]
+## What each skin works on (docs/godot/SKINS.md), a category per skin: scene ids under OBJECTS_DIR.
+## The Feral skin's vines are painted, not placed (a `vines` VineLayer); its placed climbable wall is
+## for a climb that leads out of a world or ends on the face.
+const SKIN_CATEGORIES := {
+	"Heavy skin": ["heavy-plate", "heavy-block", "heavy-statue", "heavy-statue-flipped", "heavy-ore-crate",
+		"plank-barricade", "rotten-timbers", "old-trunk", "old-fence", "rubble-heap", "loose-rock", "loose-prize"],
+	"Silk skin": ["floor-web", "web-wall", "silk-parcel"],
+	"Feral skin": ["climb-wall"],
+}
 ## The ways down and up, for the overworld as for rooms: scene ids under OBJECTS_DIR.
 const HOLES_CATEGORY := "Holes & hatches"
 const HOLES: PackedStringArray = [
@@ -61,6 +75,8 @@ const HOLES: PackedStringArray = [
 const LIFE_CATEGORIES := {
 	"Villagers": ["res://game/scenes/characters/villagers/", "NPCs"],
 	"Animals": ["res://game/scenes/objects/animals/", "Animals"],
+	# The caves' harmless animals (docs/godot/VILLAGERS.md "Cave animals", 2026-11-12).
+	"Cave animals": ["res://game/scenes/objects/cave-animals/", "Animals"],
 }
 ## The node a dungeon piece goes under, by scene file name; the rest go under DUNGEON_CONTAINER.
 const DUNGEON_CONTAINERS := {"room-door.tscn": "RoomDoors", "hazard.tscn": "Hazards", "hazard-deck.tscn": "Hazards"}
@@ -194,6 +210,15 @@ func _load() -> void:
 		if not life.is_empty():
 			_props[category] = life
 			_categories.add_item(category)
+	for category: String in SKIN_CATEGORIES:
+		var locks: Array = []
+		for id: String in SKIN_CATEGORIES[category]:
+			var path := OBJECTS_DIR + id + ".tscn"
+			if ResourceLoader.exists(path):
+				locks.append([_title(path), path, _scene_picture(path), {}, DUNGEON_CONTAINER])
+		if not locks.is_empty():
+			_props[category] = locks
+			_categories.add_item(category)
 	var dungeon := _dungeon_objects()
 	if not dungeon.is_empty():
 		_props[DUNGEON_CATEGORY] = dungeon
@@ -230,7 +255,9 @@ func _folder_scenes(dir: String, container: String) -> Array:
 	return out
 
 
-## The biggest visible sprite of a scene, its current frame (Godot's scene icon when it has none).
+## The biggest visible sprite of a scene, its current frame; for a scene without one (its script
+## draws it or builds its look when it runs) the picture scene_pictures.gd names for it, else
+## Godot's scene icon.
 func _scene_picture(path: String) -> Texture2D:
 	var packed := load(path) as PackedScene
 	var root := packed.instantiate() if packed != null else null
@@ -243,6 +270,8 @@ func _scene_picture(path: String) -> Texture2D:
 				best = picture
 				best_area = picture.get_size().x * picture.get_size().y
 		root.free()
+	if best == null:
+		best = ScenePictures.of(path)
 	if best != null:
 		return best
 	return EditorInterface.get_editor_theme().get_icon(&"PackedScene", &"EditorIcons")

@@ -1,0 +1,292 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--01.tscn" id="wall_3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--02.tscn" id="wall_4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="wall_5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--04.tscn" id="wall_6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="wall_7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--06.tscn" id="wall_8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="wall_9"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--08.tscn" id="wall_10"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--09.tscn" id="wall_11"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--10.tscn" id="wall_12"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="wall_13"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--12.tscn" id="wall_14"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--13.tscn" id="wall_15"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--14.tscn" id="wall_16"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--15.tscn" id="wall_17"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--16.tscn" id="wall_18"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/firefly-swarm.tscn" id="swarm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/firefly.tscn" id="firefly"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/glow-worm.tscn" id="worm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/pill-bug.tscn" id="bug"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/cave-newt.tscn" id="newt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/crystal-snail.tscn" id="snail"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/lantern-moth.tscn" id="moth"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-lit.tscn" id="brazier"]
+[ext_resource type="Script" path="res://game/world/darkness/dark_room.gd" id="dark"]
+
+[node name="cave-corner" type="Node2D"]
+y_sort_enabled = true
+position = Vector2(6592, 2752)
+
+[node name="title" type="Label" parent="."]
+offset_left = 0
+offset_top = 910
+offset_right = 1344
+offset_bottom = 970
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "Cave animals (docs/godot/VILLAGERS.md \"Cave animals\"): fireflies, glow-worms, pill bugs, newts, crystal snails,
+moths at the brazier; the west corner is a dark room. The way in is the gap in this wall."
+
+[node name="crystal-walls" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="wall-top-0-1" parent="crystal-walls" instance=ExtResource("wall_3")]
+position = Vector2(32, 118)
+
+[node name="wall-bottom-0-13" parent="crystal-walls" instance=ExtResource("wall_4")]
+position = Vector2(32, 886)
+
+[node name="wall-top-1-1" parent="crystal-walls" instance=ExtResource("wall_5")]
+position = Vector2(96, 118)
+
+[node name="wall-bottom-1-13" parent="crystal-walls" instance=ExtResource("wall_6")]
+position = Vector2(96, 886)
+
+[node name="wall-top-2-1" parent="crystal-walls" instance=ExtResource("wall_7")]
+position = Vector2(160, 118)
+
+[node name="wall-bottom-2-13" parent="crystal-walls" instance=ExtResource("wall_8")]
+position = Vector2(160, 886)
+
+[node name="wall-top-3-1" parent="crystal-walls" instance=ExtResource("wall_9")]
+position = Vector2(224, 118)
+
+[node name="wall-bottom-3-13" parent="crystal-walls" instance=ExtResource("wall_10")]
+position = Vector2(224, 886)
+
+[node name="wall-top-4-1" parent="crystal-walls" instance=ExtResource("wall_11")]
+position = Vector2(288, 118)
+
+[node name="wall-bottom-4-13" parent="crystal-walls" instance=ExtResource("wall_12")]
+position = Vector2(288, 886)
+
+[node name="wall-top-5-1" parent="crystal-walls" instance=ExtResource("wall_13")]
+position = Vector2(352, 118)
+
+[node name="wall-bottom-5-13" parent="crystal-walls" instance=ExtResource("wall_14")]
+position = Vector2(352, 886)
+
+[node name="wall-top-6-1" parent="crystal-walls" instance=ExtResource("wall_15")]
+position = Vector2(416, 118)
+
+[node name="wall-bottom-6-13" parent="crystal-walls" instance=ExtResource("wall_16")]
+position = Vector2(416, 886)
+
+[node name="wall-top-7-1" parent="crystal-walls" instance=ExtResource("wall_17")]
+position = Vector2(480, 118)
+
+[node name="wall-bottom-7-13" parent="crystal-walls" instance=ExtResource("wall_18")]
+position = Vector2(480, 886)
+
+[node name="wall-top-8-1" parent="crystal-walls" instance=ExtResource("wall_3")]
+position = Vector2(544, 118)
+
+[node name="wall-bottom-8-13" parent="crystal-walls" instance=ExtResource("wall_4")]
+position = Vector2(544, 886)
+
+[node name="wall-top-9-1" parent="crystal-walls" instance=ExtResource("wall_5")]
+position = Vector2(608, 118)
+
+[node name="wall-bottom-9-13" parent="crystal-walls" instance=ExtResource("wall_6")]
+position = Vector2(608, 886)
+
+[node name="wall-top-10-1" parent="crystal-walls" instance=ExtResource("wall_7")]
+position = Vector2(672, 118)
+
+[node name="wall-top-11-1" parent="crystal-walls" instance=ExtResource("wall_9")]
+position = Vector2(736, 118)
+
+[node name="wall-top-12-1" parent="crystal-walls" instance=ExtResource("wall_11")]
+position = Vector2(800, 118)
+
+[node name="wall-bottom-12-13" parent="crystal-walls" instance=ExtResource("wall_12")]
+position = Vector2(800, 886)
+
+[node name="wall-top-13-1" parent="crystal-walls" instance=ExtResource("wall_13")]
+position = Vector2(864, 118)
+
+[node name="wall-bottom-13-13" parent="crystal-walls" instance=ExtResource("wall_14")]
+position = Vector2(864, 886)
+
+[node name="wall-top-14-1" parent="crystal-walls" instance=ExtResource("wall_15")]
+position = Vector2(928, 118)
+
+[node name="wall-bottom-14-13" parent="crystal-walls" instance=ExtResource("wall_16")]
+position = Vector2(928, 886)
+
+[node name="wall-top-15-1" parent="crystal-walls" instance=ExtResource("wall_17")]
+position = Vector2(992, 118)
+
+[node name="wall-bottom-15-13" parent="crystal-walls" instance=ExtResource("wall_18")]
+position = Vector2(992, 886)
+
+[node name="wall-top-16-1" parent="crystal-walls" instance=ExtResource("wall_3")]
+position = Vector2(1056, 118)
+
+[node name="wall-bottom-16-13" parent="crystal-walls" instance=ExtResource("wall_4")]
+position = Vector2(1056, 886)
+
+[node name="wall-top-17-1" parent="crystal-walls" instance=ExtResource("wall_5")]
+position = Vector2(1120, 118)
+
+[node name="wall-bottom-17-13" parent="crystal-walls" instance=ExtResource("wall_6")]
+position = Vector2(1120, 886)
+
+[node name="wall-top-18-1" parent="crystal-walls" instance=ExtResource("wall_7")]
+position = Vector2(1184, 118)
+
+[node name="wall-bottom-18-13" parent="crystal-walls" instance=ExtResource("wall_8")]
+position = Vector2(1184, 886)
+
+[node name="wall-top-19-1" parent="crystal-walls" instance=ExtResource("wall_9")]
+position = Vector2(1248, 118)
+
+[node name="wall-bottom-19-13" parent="crystal-walls" instance=ExtResource("wall_10")]
+position = Vector2(1248, 886)
+
+[node name="wall-top-20-1" parent="crystal-walls" instance=ExtResource("wall_11")]
+position = Vector2(1312, 118)
+
+[node name="wall-bottom-20-13" parent="crystal-walls" instance=ExtResource("wall_12")]
+position = Vector2(1312, 886)
+
+[node name="wall-left-0-2" parent="crystal-walls" instance=ExtResource("wall_15")]
+position = Vector2(32, 182)
+
+[node name="wall-right-21-2" parent="crystal-walls" instance=ExtResource("wall_16")]
+position = Vector2(1312, 182)
+
+[node name="wall-left-0-3" parent="crystal-walls" instance=ExtResource("wall_17")]
+position = Vector2(32, 246)
+
+[node name="wall-right-21-3" parent="crystal-walls" instance=ExtResource("wall_18")]
+position = Vector2(1312, 246)
+
+[node name="wall-left-0-4" parent="crystal-walls" instance=ExtResource("wall_3")]
+position = Vector2(32, 310)
+
+[node name="wall-right-21-4" parent="crystal-walls" instance=ExtResource("wall_4")]
+position = Vector2(1312, 310)
+
+[node name="wall-left-0-5" parent="crystal-walls" instance=ExtResource("wall_5")]
+position = Vector2(32, 374)
+
+[node name="wall-right-21-5" parent="crystal-walls" instance=ExtResource("wall_6")]
+position = Vector2(1312, 374)
+
+[node name="wall-left-0-6" parent="crystal-walls" instance=ExtResource("wall_7")]
+position = Vector2(32, 438)
+
+[node name="wall-right-21-6" parent="crystal-walls" instance=ExtResource("wall_8")]
+position = Vector2(1312, 438)
+
+[node name="wall-left-0-7" parent="crystal-walls" instance=ExtResource("wall_9")]
+position = Vector2(32, 502)
+
+[node name="wall-right-21-7" parent="crystal-walls" instance=ExtResource("wall_10")]
+position = Vector2(1312, 502)
+
+[node name="wall-left-0-8" parent="crystal-walls" instance=ExtResource("wall_11")]
+position = Vector2(32, 566)
+
+[node name="wall-right-21-8" parent="crystal-walls" instance=ExtResource("wall_12")]
+position = Vector2(1312, 566)
+
+[node name="wall-left-0-9" parent="crystal-walls" instance=ExtResource("wall_13")]
+position = Vector2(32, 630)
+
+[node name="wall-right-21-9" parent="crystal-walls" instance=ExtResource("wall_14")]
+position = Vector2(1312, 630)
+
+[node name="wall-left-0-10" parent="crystal-walls" instance=ExtResource("wall_15")]
+position = Vector2(32, 694)
+
+[node name="wall-right-21-10" parent="crystal-walls" instance=ExtResource("wall_16")]
+position = Vector2(1312, 694)
+
+[node name="wall-left-0-11" parent="crystal-walls" instance=ExtResource("wall_17")]
+position = Vector2(32, 758)
+
+[node name="wall-right-21-11" parent="crystal-walls" instance=ExtResource("wall_18")]
+position = Vector2(1312, 758)
+
+[node name="wall-left-0-12" parent="crystal-walls" instance=ExtResource("wall_3")]
+position = Vector2(32, 822)
+
+[node name="wall-right-21-12" parent="crystal-walls" instance=ExtResource("wall_4")]
+position = Vector2(1312, 822)
+
+[node name="moth-brazier" parent="." instance=ExtResource("brazier")]
+position = Vector2(880, 250)
+
+[node name="Animals" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="firefly-swarm-nook" parent="Animals" instance=ExtResource("swarm")]
+position = Vector2(240, 640)
+
+[node name="glow-worm-nook" parent="Animals" instance=ExtResource("worm")]
+position = Vector2(150, 540)
+
+[node name="crystal-snail-nook" parent="Animals" instance=ExtResource("snail")]
+position = Vector2(330, 760)
+
+[node name="firefly-swarm" parent="Animals" instance=ExtResource("swarm")]
+position = Vector2(1040, 330)
+
+[node name="firefly-1" parent="Animals" instance=ExtResource("firefly")]
+position = Vector2(560, 470)
+
+[node name="firefly-2" parent="Animals" instance=ExtResource("firefly")]
+position = Vector2(620, 700)
+
+[node name="glow-worm-1" parent="Animals" instance=ExtResource("worm")]
+position = Vector2(520, 760)
+
+[node name="glow-worm-2" parent="Animals" instance=ExtResource("worm")]
+position = Vector2(1190, 300)
+
+[node name="pill-bug-1" parent="Animals" instance=ExtResource("bug")]
+position = Vector2(640, 560)
+
+[node name="pill-bug-2" parent="Animals" instance=ExtResource("bug")]
+position = Vector2(740, 640)
+
+[node name="pill-bug-3" parent="Animals" instance=ExtResource("bug")]
+position = Vector2(860, 560)
+
+[node name="cave-newt-1" parent="Animals" instance=ExtResource("newt")]
+position = Vector2(1110, 480)
+
+[node name="cave-newt-2" parent="Animals" instance=ExtResource("newt")]
+position = Vector2(1180, 600)
+
+[node name="crystal-snail-1" parent="Animals" instance=ExtResource("snail")]
+position = Vector2(980, 740)
+
+[node name="crystal-snail-2" parent="Animals" instance=ExtResource("snail")]
+position = Vector2(1200, 740)
+
+[node name="lantern-moth-1" parent="Animals" instance=ExtResource("moth")]
+position = Vector2(884, 252)
+
+[node name="lantern-moth-2" parent="Animals" instance=ExtResource("moth")]
+position = Vector2(876, 256)
+
+[node name="dark-nook" type="Node2D" parent="."]
+position = Vector2(64, 448)
+script = ExtResource("dark")
+size = Vector2(352, 384)

@@ -15,6 +15,7 @@ extends Node
 ## Owner: world (elevation).
 
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
 
 ## World units per texel of the depth map; coarser when the elevated part would need a texture
@@ -50,14 +51,14 @@ var _dirty := {}
 ## wall's top edge or past its rim (world units); `stairs`: a structure, whose height
 ## (level − dy / 64) the cast shadows read.
 static func encode(level: int, dy: float, stairs: bool = false) -> Color:
-	return Color((float(level) + 4.0) / 8.0, clampf((dy + 128.0) / 512.0, 0.0, 1.0), 0.5 if stairs else 1.0, 1.0)
+	return Color(LevelCode.of(level), LevelCode.dy(dy), 0.5 if stairs else 1.0, 1.0)
 
 
 ## A depth texel of a ramp's slope or skirt (elevation_ramp.gd): it hides like ground of its
 ## `bottom` level (the slope reads as flat ground), and the cast shadows read its `height` (levels
 ## above the bottom).
 static func encode_ramp(bottom: int, height: float) -> Color:
-	return Color((float(bottom) + 4.0) / 8.0, clampf(height / RAMP_LEVELS, 0.0, 1.0), RAMP_MARK, 1.0)
+	return Color(LevelCode.of(bottom), clampf(height / RAMP_LEVELS, 0.0, 1.0), RAMP_MARK, 1.0)
 
 
 ## Draws `depth` (ground-layer space) into a new depth map covering `rect`; `origin` = the ground

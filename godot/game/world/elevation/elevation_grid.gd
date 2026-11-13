@@ -47,9 +47,16 @@ extends RefCounted
 
 const Self := preload("res://game/world/elevation/elevation_grid.gd")
 
-## Painted levels stay in this range (physics layers exist for each, elevation.gd).
+## Painted levels stay in this range (physics layers exist for each, elevation.gd `level_bit`).
+## 3 until 2026-11-12; 16 since (the owner: "more than 10 levels" for the walls of climbable
+## chunks), the most the 32 physics layers leave.
 const MIN_LEVEL := -3
-const MAX_LEVEL := 3
+const MAX_LEVEL := 16
+## Each level's collision is on a physics layer of its own (project.godot names them "level <n>"),
+## from FIRST_PHYSICS_LAYER for MIN_LEVEL, the stairs' own layer (STAIRS_PHYSICS_LAYER) skipped:
+## levels −3 … 3 on layers 12 … 18, 4 … 16 on 20 … 32.
+const FIRST_PHYSICS_LAYER := 12
+const STAIRS_PHYSICS_LAYER := 19
 ## Quadrants of a cell.
 const TL := 0
 const TR := 1
@@ -154,6 +161,14 @@ func level_of_cell(cell: Vector2i) -> int:
 	if columns == 0 or rows == 0:
 		return 0
 	return cell_level[cell_index(Vector2i(clampi(cell.x, 0, columns - 1), clampi(cell.y, 0, rows - 1)))]
+
+
+## The physics layer bit of `level`'s collision (the level kept in MIN_LEVEL … MAX_LEVEL).
+static func physics_bit(level: int) -> int:
+	var layer := FIRST_PHYSICS_LAYER + clampi(level, MIN_LEVEL, MAX_LEVEL) - MIN_LEVEL
+	if layer >= STAIRS_PHYSICS_LAYER:
+		layer += 1
+	return 1 << (layer - 1)
 
 
 static func tri_id(cell_idx: int, quadrant: int, part: int) -> int:

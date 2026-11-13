@@ -133,7 +133,8 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   chunks (never at a corner), a road wide at most and marked as a way out (bridge, ford, stairs,
   gate, a trail gap between lantern posts); no open ground or road along a line (owner,
   2026-11-01: [level design rule 11](docs/design/2026-10-16-level-design.md#the-rules-that-matter-most)).
-- Hills, holes and stairs are painted on a world's `elevation` layer; the cliffs' side walls and
+- Hills, holes and stairs are painted on a world's `elevation` layer (levels −3 … 16:
+  [High levels](docs/godot/ELEVATION.md#high-levels)); the cliffs' side walls and
   each level's collision follow (bake a world's cache after painting; a chunk world's cliffs read
   its neighbours' paint past its edges, so a hill runs on across a chunk line: bake the chunks
   around a painted one too, [Across chunk lines](docs/godot/ELEVATION.md#across-chunk-lines)); a wall's rock follows its ground unless a style is painted on
@@ -147,6 +148,11 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   [Faces in rooms](docs/godot/ELEVATION.md#faces-in-rooms));
   a division inside a room is a low divider painted on the `fences` layer with a divider gate
   ([docs/godot/FENCES.md](docs/godot/FENCES.md#dungeon-dividers)).
+- Climbable vines (the Feral skin) and balconies (rock ledges that step out of a tall wall, to land
+  and stand on: the layer's second tile) are painted on a `vines` VineLayer, on the cells of a cliff's
+  front wall: a held interact clings and the movement keys move the slime over them; a placed
+  `climb-wall` only for a climb out of a world or one that ends on the face
+  ([docs/godot/SKINS.md](docs/godot/SKINS.md#painting-vines)).
 - A sky floor (islands over clouds) is the sky painted as holes (level -2 or lower) on the
   `elevation` layer inside a `SkyFloor` node's area, which draws the parallax backdrop and the cloud
   bank there; a drop into it is a void fall back to where the slime fell from, and rope bridges

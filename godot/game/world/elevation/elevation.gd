@@ -65,6 +65,7 @@ extends Node2D
 ## Owner: world (elevation).
 
 const Self := preload("res://game/world/elevation/elevation.gd")
+const LevelCode := preload("res://game/world/elevation/level_code.gd")
 const Services := preload("res://game/shared/services.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const MeshData := preload("res://game/world/elevation/elevation_mesh.gd")
@@ -93,7 +94,7 @@ const ChunkEdges := preload("res://game/world/elevation/chunk_edges.gd")
 ## changes (debug runs also compare the sources of CACHE_SCRIPTS, so a stale cache is rebuilt there).
 const CACHE_DIR := "res://game/scenes/worlds/elevation_cache/"
 const WORLDS_DIR := "res://game/scenes/worlds/"
-const CACHE_VERSION := 3
+const CACHE_VERSION := 4
 const CACHE_SCRIPTS: PackedStringArray = [
 	"res://game/world/elevation/elevation.gd", "res://game/world/elevation/elevation_grid.gd",
 	"res://game/world/elevation/elevation_rims.gd", "res://game/world/elevation/elevation_stairs.gd",
@@ -157,8 +158,6 @@ const TILE_ID_DATA_LAYER := "tile_id"
 const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 ## Ground sheets wrap every 19 cells (Phaser sheet-wrap).
 const SHEET_CELLS := 19
-## Physics layer of level MIN_LEVEL; one layer per level up to MAX_LEVEL (project.godot names them).
-const FIRST_PHYSICS_LAYER := 12
 ## Bodies that walk the world: player, enemy and npc layers.
 const WALKER_LAYERS := 2 | 4 | 128
 ## Gameplay values (game-constants.json `elevation`); these defaults serve the editor preview.
@@ -172,7 +171,7 @@ const DEFAULTS := {
 ## "enemies or NPCs don't walk stairs, they stay in their levels; they do walk ramps"): every
 ## flight's steps stand on STAIRS_LAYER (physics layer 19), which every tracked body but the
 ## player (PLAYER_LAYER) collides with (`track`).
-const STAIRS_LAYER := 1 << 18
+const STAIRS_LAYER := 1 << (ElevationGrid.STAIRS_PHYSICS_LAYER - 1)
 const PLAYER_LAYER := 2
 ## A walking body's collision rect around its feet (player_slime.tscn BodyShape 30 x 26, slightly
 ## inset) and how far past its edge a ledge is looked for.
@@ -195,7 +194,7 @@ const NO_LEDGE := -100
 const ON_GROUND := ElevationGrid.MAX_LEVEL + 1
 ## Rows above the map a painted top may lie on (`cell_offset`): the highest wall (MAX_LEVEL −
 ## MIN_LEVEL courses) reaches no further.
-const MAX_ROWS_ABOVE := 6
+const MAX_ROWS_ABOVE := ElevationGrid.MAX_LEVEL - ElevationGrid.MIN_LEVEL
 ## Hop path samples (world units).
 const HOP_STEP := 8.0
 ## How far a landing may be moved to find room (world units).
@@ -570,9 +569,9 @@ static func stairs_step(kind: String) -> Vector2i:
 	return Vector2i(int(d.x), int(d.y))
 
 
-## Physics layer bit of `level`'s collision.
+## Physics layer bit of `level`'s collision: one layer per level (ElevationGrid.physics_bit).
 static func level_bit(level: int) -> int:
-	return 1 << (FIRST_PHYSICS_LAYER - 1 + clampi(level, ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL) - ElevationGrid.MIN_LEVEL)
+	return ElevationGrid.physics_bit(level)
 
 
 ## Every level's bit.
@@ -3055,9 +3054,9 @@ static func _quiet_at(quiet: Dictionary, index: int, level: int) -> bool:
 	return index >= 0 and int(quiet.get(index, ElevationGrid.MIN_LEVEL - 1)) == level
 
 
-## A level (or a height between levels) in a vertex colour channel (elevation_light.gdshaderinc).
+## A level (or a height between levels) in a vertex colour channel (level_code.gd).
 static func _level_channel(level: float) -> float:
-	return (level + 4.0) / 8.0
+	return LevelCode.of(level)
 
 
 # --- materials -----------------------------------------------------------------------------

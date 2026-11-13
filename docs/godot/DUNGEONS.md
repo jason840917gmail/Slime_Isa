@@ -714,13 +714,14 @@ reached only up the Den's ledge.
 - **Heavy ore crate** (`heavy-ore-crate.tscn`): `heavy_block.gd` with the iron-banded crate.
 - **Climbable walls** (`object.climb-wall`: `game/scripts/climb_wall.gd`, `climb-wall.tscn`): thick
   living roots and rocky handholds (the Feral skin's lock). With the Feral skin
-  ([SKINS.md](SKINS.md#feral)) a held interact climbs it to `top` and back, letting go drops the
+  ([SKINS.md](SKINS.md#feral)) a held interact clings to it and the movement keys climb it to `top`
+  and back (since 2026-11-12; the held key alone climbed before), letting go drops the
   slime unhurt, the level is taken at the top. The builder places them in pairs (`_climb_pair`: the
   climb up from the foot and the climb down from the lip, sharing the roots' picture): the Den's
   ledge (one level), M11's two faces and M12's two (two levels), the shaft's north wall (one level,
   from the Den's rim at -1 to the floor at -2), M1's S5 shelf. M15's four `holds_at_top` (added
-  2026-10-17): the climb ends on the face, the slime clings at his height until it lets go or climbs
-  back. The climb out (`exit_area_id` `crystal-caverns-h4`, `exit_door` `lookout-from-mine`) refuses
+  2026-10-17): the climb ends on the face, the slime clings at his height until it lets go or moves
+  away. The climb out (`exit_area_id` `crystal-caverns-h4`, `exit_door` `lookout-from-mine`) refuses
   while the mine is sealed.
 - **The rails** (`mine_rails.gd`): drawn rails along `points` (the leading line), no collision.
 - **The world script** (`crystal_mine.gd`, node `CrystalMine`): keeps each placed enemy to the
@@ -783,7 +784,10 @@ strength the built one).
 [DARKNESS.md](DARKNESS.md) has the pieces: candles that burn until put out (`burn_ms` < 0), `put_out`
 and `put_out_near` (the Shardback's slam ring puts out the Den's braziers, the Colossus's stomp the
 nearest of his four), and candles a Gloomling smothers (the Dark Maze's north-west candle refuses a
-flame while one sits on it: "The shadow smothers the wick."). The dark rooms: M2 and M6 light for
+flame while one sits on it: "The shadow smothers the wick."). Since 2026-11-13 a Gloomling hunts a
+slime that has no light on it in a dark room ([BESTIARY.md](BESTIARY.md#23-gloomling-shadow)): in
+M5 and M8 the Lantern's ember keeps them off, and another ability on the box (the Goo Bomb for M5's
+cracked wall) brings them at the slime. The dark rooms: M2 and M6 light for
 good once their sconces burn; M5, M8, M11, M13 stay dark (in M11 the slime's ember shows the rift's
 handholds); M15 lights while its four braziers burn, and for good once he falls.
 

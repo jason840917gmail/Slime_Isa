@@ -39,6 +39,7 @@ const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const Directions := preload("res://game/shared/directions.gd")
 const PlayerInputBuffer := preload("res://game/player/player_input_buffer.gd")
+const BalconyStand := preload("res://game/player/balcony_stand.gd")
 const PointerAim := preload("res://game/player/pointer_aim.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
 const HitFlash := preload("res://game/feel/hit_flash.gd")
@@ -260,6 +261,8 @@ var _grab := HeavyGrab.new()
 ## (game/player/skins/feral_climb.gd; it owns the step while it holds).
 var _skin_look := SkinLook.new()
 var _climb := FeralClimb.new()
+## Standing on a balcony painted on a cliff's face (game/player/balcony_stand.gd).
+var _balcony := BalconyStand.new()
 var _grab_direction: Vector2 = Vector2.ZERO
 ## The way the slime was told to walk on its last free step (keys, a click order's steering), ZERO
 ## when it did not walk under control (frozen, swinging, walking out of a door). Doors read it: a
@@ -567,6 +570,7 @@ func _physics_process(delta: float) -> void:
 			_face_pointer()
 		var direction: Vector2 = _movement_input(scheme)
 		_grab_direction = direction
+		_balcony.update(body, not _climb.is_active() and not _abilities.is_busy())
 		_issue_click_order()
 		if direction != Vector2.ZERO:
 			_orders.cancel() # The movement keys take over from a click order.
@@ -614,9 +618,21 @@ func _physics_process(delta: float) -> void:
 		elif off_stairs:
 			body.velocity = _off_stairs_velocity(body.velocity)
 		var before := body.global_position
-		ArcadeMover.move(body, delta)
+		if _balcony.is_active():
+			# On a balcony: the floor's edge is all that holds the slime (the wall's own collision is
+			# the ground's, far below).
+			_balcony.confine(body, delta)
+			var mask := body.collision_mask
+			body.collision_mask = 0
+			ArcadeMover.move(body, delta)
+			body.collision_mask = mask
+		else:
+			ArcadeMover.move(body, delta)
 		if off_stairs:
 			_undo_steps_entered(before)
+		# Where the step ended: on a balcony (a drop just landed there, the vines let it off there) or
+		# off one, before the elevation draws this step.
+		_balcony.update(body, not _climb.is_active() and not _abilities.is_busy())
 
 
 ## Real-time work (runs during hit-stop): ends the 120 ms hit flash; after a death, respawns
@@ -1930,7 +1946,7 @@ func get_grabbed_block() -> Node2D:
 
 
 ## The Feral skin's climb owns the step (game/player/skins/feral_climb.gd): the other presses are
-## dropped; the held interact key climbs, the movement keys pick the way along the wall.
+## dropped; the held interact key clings, the movement keys move the slime over the wall.
 func _step_climb(delta: float) -> void:
 	var now := Services.now_ms()
 	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press; in
@@ -1946,6 +1962,8 @@ func _step_climb(delta: float) -> void:
 		_climb.hold_still()
 		return
 	var moving := _climb.step(now, delta, _input.is_held(&"interact") or _use_button_down, _grab_direction)
+	if not _climb.is_active():
+		_balcony.update(body, not _abilities.is_busy())
 	if _climb.is_active():
 		_play_direct(_locomotion_clip(CLIP_WALK if moving else CLIP_IDLE))
 	else:
@@ -1975,19 +1993,24 @@ func is_climbing() -> bool:
 	return _climb.is_active()
 
 
+## True while the slime stands on a balcony painted on a cliff's face (game/player/balcony_stand.gd).
+func is_on_balcony() -> bool:
+	return _balcony.is_active()
+
+
 ## The climb under way (the wall, its fall), for the walls and the tests.
 func get_climb() -> FeralClimb:
 	return _climb
 
 
-## A climbable wall's `use` (game/scripts/climb_wall.gd): starts climbing it while the interact
+## A climbable wall's `use` (game/scripts/climb_wall.gd): takes hold of it while the interact
 ## key is held. False without the Feral skin, when dead or when a climb is on.
 func start_climb(climb_wall: Node2D) -> bool:
 	if _dead or body == null:
 		return false
 	stop_movement()
 	_grab.release()
-	return _climb.begin(self, body, climb_wall)
+	return _climb.begin(self, body, climb_wall, _facing)
 
 
 ## A skin works now (SkinState.show): its look shows on the slime for a moment
@@ -2091,6 +2114,9 @@ func _move(direction: Vector2) -> void:
 	body.velocity = unit * speed
 	_facing = unit
 	_play_direct(_locomotion_clip(CLIP_WALK))
+	if _balcony.is_active():
+		_press_balcony_edge(unit)
+		return
 	_press_ledge(unit)
 	_enter_stairs(unit)
 
@@ -2154,7 +2180,37 @@ func _press_ledge(unit: Vector2) -> void:
 	if target.is_empty():
 		return
 	var to_centre := get_centre() - body.global_position
+	# A balcony under the rim takes the drop (game/player/balcony_stand.gd).
+	var balcony := BalconyStand.catch(get_tree(), body.global_position, target["feet"])
+	if balcony.is_finite():
+		_abilities.begin_drop(get_centre(), balcony + to_centre, level, BalconyStand.level_at(get_tree(), balcony))
+		return
 	_abilities.begin_drop(get_centre(), (target["feet"] as Vector2) + to_centre, level, int(target["level"]))
+
+
+## On a balcony the floor's edge holds the slime as a rim does, until it insists: pushing on against
+## it for `elevation.dropPushMs` drops it to the next balcony under it, else to the wall's foot
+## (game/player/balcony_stand.gd).
+func _press_balcony_edge(unit: Vector2) -> void:
+	var world := Services.world()
+	var elevation: Elevation = world.elevation if world != null else null
+	if elevation == null or body == null or _abilities.is_busy() or not _balcony.pushes_off(body, unit):
+		_ledge_push_since_ms = -1.0
+		return
+	var now := Services.now_ms()
+	if _ledge_push_since_ms < 0.0 or now - _ledge_push_seen_ms > LEDGE_PUSH_GAP_MS or unit.dot(_ledge_push_dir) < 0.95:
+		_ledge_push_since_ms = now
+		_ledge_push_dir = unit
+	_ledge_push_seen_ms = now
+	if now - _ledge_push_since_ms < Elevation.setting("dropPushMs"):
+		return
+	_ledge_push_since_ms = -1.0
+	var feet := body.global_position
+	var landing := _balcony.drop_from(body)
+	var to_centre := get_centre() - feet
+	var onto := BalconyStand.level_at(get_tree(), landing)
+	_abilities.begin_drop(get_centre(), landing + to_centre, BalconyStand.level_at(get_tree(), feet),
+		onto if onto > 0 else elevation.walkable_level_at(landing))
 
 
 ## Idle for the current facing; `force` restarts it (respawn).

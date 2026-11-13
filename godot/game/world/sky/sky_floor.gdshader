@@ -11,6 +11,8 @@
 //   backdrop draws it, so the wall's wobbling foot meets the sky without a gap;
 // - 2, without an elevation drawing to sit in: both from the field alone, cut round its silhouettes.
 shader_type canvas_item;
+
+#include "res://game/world/elevation/elevation_code.gdshaderinc"
 render_mode unshaded;
 
 // The field (sky_floor.gd `_build_field`), one texel per `field_texel` world units from
@@ -105,8 +107,8 @@ varying float piece_b;
 
 void vertex() {
 	world = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
-	tri_level = COLOR.r * 8.0 - 4.0;
-	wall_height = COLOR.a * 8.0 - 4.0;
+	tri_level = decode_level(COLOR.r);
+	wall_height = decode_level(COLOR.a);
 	piece = COLOR.r;
 	piece_b = COLOR.b;
 }
@@ -149,8 +151,8 @@ float wall_below(vec2 at, float cell_level) {
 	vec4 d = texture(depth_map, uv);
 	float terrain = smoothstep(0.2, 0.3, d.b);
 	float ramp = 1.0 - smoothstep(0.03, 0.07, abs(d.b - 0.875));
-	float level = (d.r * 8.0 - 4.0) * terrain;
-	float dy = (d.g * 512.0 - 128.0) * terrain * (1.0 - ramp);
+	float level = decode_level(d.r) * terrain;
+	float dy = decode_dy(d.g) * terrain * (1.0 - ramp);
 	if (level < cell_level + 0.5 || dy < -3.5) {
 		// the floor, or the thin core the map lays past a back rim (elevation_rims.gd `add_cores`),
 		// which the elevation draws as the floor

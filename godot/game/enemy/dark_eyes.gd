@@ -11,18 +11,30 @@ extends Node2D
 ##
 ## Owner: enemy builder.
 
-## The dark rooms' group (game/world/darkness/dark_room.gd).
-const DARK_ROOM_GROUP := &"dark_rooms"
+const LightSense := preload("res://game/enemy/light_sense.gd")
+
 ## Above the darkness overlay (dark_room.gd OVERLAY_Z 45).
 const Z := 46
 const POINTS := 12
 
 ## Frame -> PackedVector2Array of eye pixels in the sheet cell (a frame not listed shows none).
 var eyes: Dictionary = {}
-var color: Color = Color(1.0, 0.85, 0.35)
+var color: Color = Color(1.0, 0.85, 0.35):
+	set(value):
+		if value != color:
+			color = value
+			queue_redraw()
 ## The eye's radius and its soft halo's, in world px.
-var radius_px: float = 1.6
-var halo_px: float = 4.0
+var radius_px: float = 1.6:
+	set(value):
+		if value != radius_px:
+			radius_px = value
+			queue_redraw()
+var halo_px: float = 4.0:
+	set(value):
+		if value != halo_px:
+			halo_px = value
+			queue_redraw()
 var strength: float = 1.0:
 	set(value):
 		strength = clampf(value, 0.0, 1.0)
@@ -48,7 +60,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _visual == null:
 		return
-	var dark := _in_dark_room(global_position)
+	var dark := LightSense.dark_at(get_tree(), global_position)
 	if dark != _dark or _visual.frame != _frame or _visual.flip_h != _flip:
 		_dark = dark
 		_frame = _visual.frame
@@ -79,9 +91,3 @@ func _dot(at: Vector2, r: float, tint: Color) -> void:
 		polygon.append(at + Vector2(cos(angle) * r, sin(angle) * r * squint))
 	draw_colored_polygon(polygon, tint)
 
-
-func _in_dark_room(point: Vector2) -> bool:
-	for room: Node in get_tree().get_nodes_in_group(DARK_ROOM_GROUP):
-		if room.has_method(&"rect") and bool(room.call(&"is_dark")) and (room.call(&"rect") as Rect2).has_point(point):
-			return true
-	return false

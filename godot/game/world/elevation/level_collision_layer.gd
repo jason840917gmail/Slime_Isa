@@ -64,8 +64,9 @@ const SLOPED_KINDS: PackedStringArray = [RIM, BASE, EDGE]
 ## A half tile's solid corner.
 const SHAPES: PackedStringArray = ["ne", "nw", "se", "sw"]
 const KIND_COLOURS := {RIM: Color("#ff9a1f"), BASE: Color("#e3343c"), EDGE: Color("#ff9a1f"), OPEN: Color("#3ccf7a")}
+## ElevationGrid's range (its script is loaded late here: ELEVATION_SCRIPT).
 const MIN_LEVEL := -3
-const MAX_LEVEL := 3
+const MAX_LEVEL := 16
 ## The outline colours of the collision per level (the overlay; render_room_collision.gd's).
 const LEVEL_COLOURS := {-3: Color(1, 0.3, 1), -2: Color(0.8, 0.3, 1), -1: Color(0.3, 0.6, 1), 0: Color(1, 0.2, 0.2),
 	1: Color(1, 0.9, 0.2), 2: Color(0.2, 1, 1), 3: Color(0.6, 1, 0.4)}
@@ -702,10 +703,17 @@ func _draw_tiles(canvas: Node2D, source: LevelCollisionLayer, width: float) -> v
 		canvas.draw_polyline(closed, KIND_COLOURS.get(str(half["kind"]), Color.WHITE), width)
 
 
+## A level's outline colour: LEVEL_COLOURS', and round the colour wheel for the levels above them.
+static func level_colour(level: int) -> Color:
+	if LEVEL_COLOURS.has(level):
+		return LEVEL_COLOURS[level]
+	return Color.from_hsv(fposmod(0.08 + 0.17 * float(level), 1.0), 0.75, 1.0)
+
+
 ## Every level's segments (`by_level`: level -> world segments) in its level's colour.
 static func _draw_segments(canvas: Node2D, by_level: Dictionary, alpha: float, width: float) -> void:
 	for level: int in by_level:
-		var colour: Color = LEVEL_COLOURS.get(level, Color.WHITE)
+		var colour: Color = level_colour(level)
 		colour.a = alpha
 		var segments: PackedVector2Array = by_level[level]
 		for i in range(0, segments.size() - 1, 2):
