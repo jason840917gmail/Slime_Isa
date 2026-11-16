@@ -226,6 +226,24 @@
       "pattern": { "aimDirections": 0, "startGazeDeg": 90, "turnDegPerS": 40, "gazeHalfDeg": 7, "trackDegPerS": 0, "alertTurnDegPerS": 150, "holdMs": 1500, "stepMs": 360, "lineTolerancePx": 16, "sightPx": 420, "chargeMs": 200, "beamMs": 450, "beamPx": 560, "beamHalfWidthPx": 12, "slimeRadiusPx": 12, "beamDamage": 24, "beamKnockback": 280, "coolMs": 900, "backDot": 0.2, "alertMs": 1400, "alertStepMs": 160, "floatHeightPx": 40, "bobPx": 4, "wanderRadiusPx": 120, "wanderSpeed": 32, "wanderPauseMs": 1000, "wanderMaxMs": 5000, "arenaInsetPx": 48, "corpseMs": 1500, "corpseFadeMs": 500 },
       "drop": { "coins": 6 },
       "reactions": { "weight": "medium", "material": "stone", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "tap": "hold", "finisher": "hold" }, "byTag": {}, "immune": [], "states": {} }
+    },
+    "rock-chucker": {
+      "id": "rock-chucker", "visualSetId": "enemy.rock-chucker", "maxHp": 30,
+      "pattern": { "firstThrowMs": 700, "throwEveryMs": 2200, "windupMs": 600, "throwPoseMs": 300, "reachXPx": 240, "reachYPx": 1200, "handLiftPx": 56, "hopDownPx": 96, "hopMs": 380, "hopArcPx": 34, "laneHalfPx": 80, "rockScale": 0.8, "rockHitPx": 28, "rockDamage": 14, "rockKnockback": 220, "corpseMs": 900, "corpseFadeMs": 400 },
+      "drop": { "coins": 6 },
+      "reactions": { "weight": "medium", "material": "worm", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
+    },
+    "spiny-caterpillar": {
+      "id": "spiny-caterpillar", "visualSetId": "enemy.spiny-caterpillar", "maxHp": 20,
+      "pattern": { "crawlSpeed": 55, "turnMs": 500, "bodyHalfPx": 30, "trackPx": 192, "contactReachPx": 30, "contactCooldownMs": 700, "corpseMs": 900, "corpseFadeMs": 400 },
+      "drop": { "coins": 4 },
+      "reactions": { "weight": "light", "material": "chitin", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
+    },
+    "ledge-raven": {
+      "id": "ledge-raven", "visualSetId": "enemy.ledge-raven", "maxHp": 30,
+      "pattern": { "firstRestMs": 600, "wakeRangePx": 220, "tellMs": 450, "loopRadiusPx": 150, "loopRisePx": 40, "loops": 2, "loopSpeed": 340, "restMs": 1400, "contactReachPx": 30, "contactCooldownMs": 700, "corpseMs": 900, "corpseFadeMs": 400 },
+      "drop": { "coins": 4 },
+      "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
     }
   }
 }

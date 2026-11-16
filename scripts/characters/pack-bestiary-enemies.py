@@ -123,6 +123,12 @@ POSES = {
         "side-spit", "back", "back-spit", "hurt", "down"],
     "orb-weaver": ["idle", "scuttle", "rear", "spit", "side", "side-scuttle", "side-rear",
         "side-spit", "back", "back-spit", "hurt", "down"],
+    # The climb monsters (2026-11-14, the owner's tall walls): the Rock Chucker on the rim (facing
+    # the viewer), the Spiny Caterpillar on the vines (seen from above, head up: CENTRED, its scene
+    # turns it), the Ledge Raven on its balcony (its flaps face right).
+    "rock-chucker": ["ready", "windup", "thrown", "dazed"],
+    "spiny-caterpillar": ["crawl-a", "crawl-b", "turn", "flipped"],
+    "ledge-raven": ["perch", "flap-up", "flap-down", "down"],
 }
 # Poses on one source sheet: an enemy with more is drawn from `<enemy>-sheet.png`, then
 # `<enemy>-sheet-2.png`, ... in order.
@@ -139,7 +145,7 @@ WALK_MATCHED = {"squint", "big-squint", "bramble-boar", "thornball", "brood-ward
 MASS_CENTRED = {"prologue-worm", "worm-swordsman", "worm-archer", "worm-brawler"}
 # Enemies whose poses are centred in their cell instead of standing on BOTTOM: the Crystal Crawler
 # turns round its middle as it crawls round its pillar.
-CENTRED = {"crystal-crawler"}
+CENTRED = {"crystal-crawler", "spiny-caterpillar"}
 # Enemies whose poses are placed by their body instead of their box: the middle of the body (the
 # biggest blob left once BODY_CORE_PX is eroded off the opaque pixels, so legs, drips and spat goo
 # are gone) sits at the cell's centre (x CENTRE_X, y CELL / 2), so the body stays put as the legs
@@ -183,6 +189,12 @@ PROP_SHEETS = {
         ("spider-web", ["glob", "burst", "net"], 64, True, "enemies"),
         ("spider-web-cover", ["cover"], 128, True, "enemies"),
     ],
+    # The Rock Chucker's boulder (two faces, turned in turn as it bounces) and its shards.
+    "climb-props": [
+        ("climb-rock", ["rock-a", "rock-b"], 64, True, "enemies"),
+        ("climb-rock-shards", ["shards"], 128, True, "enemies"),
+        ("climb-pebble", ["pebble"], 64, True, "enemies"),
+    ],
 }
 SEED_POSE = ("spitcap", "seed")
 # Poses that hang from their top instead of standing on BOTTOM: the Pipe Worm's pipe is the same
@@ -195,13 +207,14 @@ HUNG_BAND = 0.3
 SINGLES = {"mud-glob": (64, 56)}
 # Sheets generated with a faint haze over the whole transparent background (alpha 2 or 3): alpha
 # under HAZE_ALPHA is cleared before the cut, or each pose's box shows as a pale square.
-HAZY = {"brood-props", "bone-leaper", "bone-thrower", "bone-marcher", "skeleton-props"}
+HAZY = {"brood-props", "bone-leaper", "bone-thrower", "bone-marcher", "skeleton-props", "rock-chucker",
+    "spiny-caterpillar", "ledge-raven"}
 HAZE_ALPHA = 12
 # On a hazy sheet each pose keeps only the opaque parts within this many px of its main body.
 MERGE_PX = 15
 # Sheets (by the name before `-sheet`) with a fainter haze (alpha 16 at most, far from the art): it
 # is cleared the same way, but their stray goo drops and sprays are kept (no main-body pass).
-FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs"}
+FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs", "climb-props"}
 
 
 def gap(mask: np.ndarray, axis: int) -> int:

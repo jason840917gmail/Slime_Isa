@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/scripts/door.gd" id="1_door"]
+[ext_resource type="Script" path="res://game/world/elevation/wall_door_picture.gd" id="2_picture"]
+
+[node name="cave-mouth" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+centered = false
+script = ExtResource("2_picture")
+foot_px = 21.0
+
+[node name="DoorScript" type="Node" parent="."]
+script = ExtResource("1_door")
+side = "north"
+trigger_rect = Rect2(-30, -18, 60, 26)

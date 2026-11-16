@@ -31,6 +31,7 @@ const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const FILL_SCRIPT := preload("res://game/world/interior/interior_wall_fill.gd")
 const PaintedObjects := preload("res://game/world/painted_objects.gd")
 const NodeFind := preload("res://game/shared/node_find.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 ## The `elevation` layer's level data layer (Elevation.LEVEL_DATA_LAYER): how its layer is found.
 const ELEVATION_DATA := "elevation_level"
 
@@ -728,11 +729,18 @@ func _draw_floor(size: Vector2) -> void:
 	host.move_child(holder, 0)
 	holder.position = (position - ground.position) if ground != null else Vector2.ZERO
 	var cell_px := size.x * DENSITY
-	# holes and stairs keep their own drawing (the world's elevation layer beside this one, found by
-	# its tile set's level data: a room may name it anything, R4's is "Elevation")
+	# holes keep their own drawing, and the side and back stairs and ramps down into them (the
+	# world's elevation layer beside this one, found by its tile set's level data: a room may name it
+	# anything, R4's is "Elevation"); a raised floor (a level above 0) and a flight leading down to
+	# level 0 or higher take the room's floor like level 0, which the elevation's tops then light by
+	# their height (2026-11-13, the playground's cliff cave: they showed the ground layer's tiles),
+	# and so does a front flight: it covers its cell but for the strip above its top step, the top's
+	# floor (Elevation draws no approach in a room)
 	var elevation := NodeFind.layer_with_data(get_parent(), ELEVATION_DATA)
+	var levels: Dictionary = Elevation.painted_levels(ground) if elevation != null and ground != null else {}
 	for cell: Vector2i in _floors:
-		if elevation != null and elevation.get_cell_source_id(cell) >= 0:
+		if elevation != null and elevation.get_cell_source_id(cell) >= 0 \
+				and (ground == null or (int(levels.get(cell, 0)) < 0 and not _front_flight(elevation, cell))):
 			continue
 		var style := floor_style if not floor_style.is_empty() else _nearest_wall_style(cell)
 		var entry: Dictionary = table().get(style, {})
@@ -743,6 +751,18 @@ func _draw_floor(size: Vector2) -> void:
 		var sprite := _sprite(str(entry["floor"]), Rect2(at, Vector2(cell_px, cell_px)))
 		sprite.position = Vector2(cell) * size
 		holder.add_child(sprite)
+
+
+## Whether `cell` is painted on `elevation` with a front flight of stairs (going down south, set into
+## the face it leaves).
+static func _front_flight(elevation: TileMapLayer, cell: Vector2i) -> bool:
+	var data := elevation.get_cell_tile_data(cell)
+	if data == null or not elevation.tile_set.has_custom_data_layer_by_name(Elevation.KIND_DATA_LAYER):
+		return false
+	var kind := str(data.get_custom_data(Elevation.KIND_DATA_LAYER))
+	if kind == Elevation.STAIRS_KIND:
+		return true
+	return kind.begins_with(Elevation.STAIRS_KIND + "-") and Elevation.stairs_direction(kind).begins_with("s")
 
 
 ## The world's ground layer beside this one (the terrain tile set), or null.

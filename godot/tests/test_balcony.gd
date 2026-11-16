@@ -107,6 +107,10 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "holding interact on the balcony under the vines did not take hold"):
 		t.release_all()
 		return
+	# Clinging over the balcony it is drawn before the wall (at the depth of the wall's foot), not at
+	# the balcony's own, which is behind the wall's face: the wall hid the slime there (2026-11-13).
+	await t.steps(4)
+	t.check(float(t.world().elevation.flights.get(body, 0.0)) >= FOOT_Y, "the slime clinging over the balcony is drawn behind the wall (depth %s)" % t.world().elevation.flights.get(body, 0.0))
 	# A let-go right away sets it back on the balcony, not at the wall's foot.
 	t.press(&"move_up")
 	await t.sim_wait(600.0)

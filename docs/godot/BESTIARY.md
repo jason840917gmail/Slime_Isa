@@ -16,7 +16,9 @@ Thrower and the Bone Marcher, with their bone pile. Rows 23 to 29 (the Crystal C
 mine, 2026-10-16): the Gloomling, the Glint Bat, the Crystal Crawler, the Prism Eye, the Pick Mole,
 the Shardback and the Crystal Mite; and row 33, every dungeon's Watcher Eye, on the Prism Eye's
 beam. Rows 1 to 5, Gorge's worm soldiers, were
-repainted on 2026-10-16 (the [Art](#art) section).
+repainted on 2026-10-16 (the [Art](#art) section). Rows 34 to 36, the climb monsters for the tall
+walls (2026-11-14): the Rock Chucker, the Spiny Caterpillar and the Ledge Raven
+([The climb monsters](#the-climb-monsters-rows-34-to-36)).
 
 ## The Bestiary corner
 
@@ -225,6 +227,9 @@ energy shard stay the base enemy's.
 | 31 | Bone Thrower | `bone-thrower.tscn`, `bone_thrower.gd`; its bone `projectile.bone` (`bone.gd`) | light, stone |
 | 32 | Bone Marcher | `bone-marcher.tscn`, `bone_marcher.gd` | medium, stone |
 | 33 | Watcher Eye | `watcher-eye.tscn`, `watcher_eye.gd` (on `prism_eye.gd`) | medium, stone |
+| 34 | Rock Chucker | `rock-chucker.tscn`, `rock_chucker.gd`; its boulder `game/enemy/wall_rock.gd` | medium, worm |
+| 35 | Spiny Caterpillar | `spiny-caterpillar.tscn`, `spiny_caterpillar.gd` | light, chitin |
+| 36 | Ledge Raven | `ledge-raven.tscn`, `ledge_raven.gd` | light, silk |
 
 Scenes in `godot/game/scenes/characters/` (the seed, the glob and the bone in `projectiles/`), all
 in `scene_index.json`.
@@ -850,6 +855,66 @@ the same; its own are below. Pen 33 has two armour statues and a stone pedestal 
   hits). The Bow's hook: an arrow into its eye.
 - `aimDirections` (0) and the line numbers as the Prism Eye's.
 
+### The climb monsters (rows 34 to 36)
+
+The tall walls' enemies (the owner, 2026-11-13: three monsters "for the climb dynamic"; he approved
+how they work from a sketch, and on 2026-11-14 drew the raven's flight as two loops). Each hits
+the slime it touches, and a hit knocks a climbing slime off the wall (feral_climb.gd `drop`: it
+falls to the balcony or the foot under it, the fall itself costs nothing). Their movements are
+fixed, so a climber learns them and slips by. They stand in the climb lab (`?map=climb-lab`): the
+Chucker on the sheer wall's rim over its left column, a caterpillar up and down the column over
+the first balcony, one along a band of vines across the wall, the raven on the high balcony. Place
+them from the Scenery dock's Enemies category like any placed enemy.
+
+![The climb lab: a boulder about to hit the climbing slime (left); the raven's loop and the caterpillar over the balcony (right)](images/climb-monsters.png)
+
+### 34. Rock Chucker (thrower, on a rim)
+
+A burly worm of Gorge's army in a dented iron helmet, a sack of boulders on its back. Place it on
+the high ground at the rim of a front wall: it never leaves its post (a hit does not move it).
+- **The face** under it is read from the elevation once: straight down from its feet, the first
+  point on no level is the rim, the first on a lower level again is the foot (`get_face`). Placed
+  over no wall it never throws.
+- **Throw:** while the slime is below its rim, within `reachXPx` 240 across and `reachYPx` 1200
+  down, every `throwEveryMs` 2200 (`firstThrowMs` 700) it lifts a boulder over its head
+  (`windupMs` 600, the tell) and throws it (`throwPoseMs` 300).
+- **The boulder** (game/enemy/wall_rock.gd, `rockScale` 0.8) bounces down the face from side to
+  side (the owner: "from one side to the other"): from its hands (`handLiftPx` 56 over its feet)
+  to bounces `hopDownPx` 96 apart, each on the other side of a lane `laneHalfPx` 80 each side of
+  the Chucker, the first toward the slime's side; each hop takes `hopMs` 380, bulges `hopArcPx` 34
+  up and swells as it comes off the wall, and every bounce puffs dust and thuds. At the foot it
+  shatters. The slime within `rockHitPx` 28 of it takes `rockDamage` 14 (`rockKnockback` 220) and
+  the boulder shatters there. A boulder whose thrower is beaten shatters harmless.
+- **Right tool:** get up over the rim beside it and beat it (30 health, anything hurts it).
+
+### 35. Spiny Caterpillar (wall crawler, on vines)
+
+A fat mustard-and-moss caterpillar with red spikes, seen from above as it crawls on the vines.
+- **Its track** is the run of painted vines it is placed on (VineLayer `run_rect`): their column
+  when it starts up or down, their row when it starts left or right. The way it starts is
+  `aim_direction`, set by turning its placed enemy (placed_enemy.gd "Facing": unturned it starts
+  down; turned a quarter it crawls sideways). It crawls end to end at `crawlSpeed` 55, its body
+  (`bodyHalfPx` 30) kept on the vines, curls round at each end (`turnMs` 500) and crawls back.
+  Off the vines (a climbable wall, bare rock) it crawls `trackPx` 192 along its way and back.
+- **Spikes:** the slime's centre within `contactReachPx` 30 of the line along its body takes
+  `contactDamage` 12 (200 knockback), at most every `contactCooldownMs` 700.
+- **Right tool:** the Spear's strike along the face while clinging (player.gd `_climb_strike`;
+  20 health: two jabs). Its body is neither solid nor stopped; a hit does not move it.
+
+### 36. Ledge Raven (flyer, on a balcony)
+
+A big scruffy raven with amber eyes, perched on a balcony's floor (place it there).
+- **Tell** (`tellMs` 450): the slime's centre within `wakeRangePx` 220 of its perch, `restMs` 1400
+  after it last landed (`firstRestMs` 600 at first), it caws and ruffles.
+- **Flight** (the owner's drawing, 2026-11-14: "2 circular loops, then back to its place"): it
+  sweeps out of its perch onto a circle of `loopRadiusPx` 150 round a point `loopRisePx` 40 over
+  it, flies round it `loops` 2 times (`clockwise`, the scene's export; first straight up) at
+  `loopSpeed` 340 and glides back in to land (`flight_point`), about 5.5 s in all. The path is the
+  same every time. Touching the slime on the way (`contactReachPx` 30) is `contactDamage` 10 with
+  200 knockback, at most every `contactCooldownMs` 700.
+- **Right tool:** hit it on its perch (30 health); in flight every hit clinks. It flies on the
+  wall's face as seen from the front: no height, no shadow; neither solid nor stopped.
+
 ## Art
 
 One Magnific GPT 2.5 sheet per enemy (four key poses in a 2 x 2 grid, Lili's sheet as the style
@@ -857,7 +922,11 @@ reference; 700 credits for the seven), sources and prompts in
 `asset/Originals/enemies/bestiary/README.md`, packed by `python scripts/characters/pack-bestiary-enemies.py`
 into `godot/asset/MAPS/enemies/256x256-tile_4x1-<enemy>.webp` (the Spitcap's three poses
 `256x256-tile_3x1-spitcap.webp`, its seed `64x64-spore-seed.webp`). The scenes draw them at 0.235
-to 0.33 (the Boar and the Rook biggest, the prologue worm smallest).
+to 0.33 (the Boar and the Rook biggest, the prologue worm smallest). The climb monsters (rows 34
+to 36, 160 credits, first takes) are four more sheets there: the Rock Chucker's, the Spiny
+Caterpillar's (centred, head up: its scene turns it), the Ledge Raven's (its flaps face right) and
+`climb-props` (the boulder's two faces `64x64-tile_2x1-climb-rock.webp`, its shards
+`128x128-climb-rock-shards.webp`, a pebble).
 
 Fatty's Lair's four (600 credits: five sheets and the Pipe Worm's second take, regenerated for the
 army's mark): `256x256-tile_16x1-squint.webp`, `-tile_16x1-big-squint`, `256x256-tile_4x1-pipe-worm.webp`
@@ -974,6 +1043,10 @@ instanced outside the tree (the placed enemies' editor picture) has it too. Comm
 files the editor makes for them.
 
 ## Not done yet
+
+- The climb monsters (rows 34 to 36, 2026-11-14) are first takes: none is in a region's world yet
+  (only the climb lab), their numbers are untuned, their sounds are stand-in global cues (the
+  boulder's thud is the heavy block's bump), and no test covers them.
 
 - None of them is placed in its region yet (with each chapter's work, 12.7).
 - No tests cover them yet (`pnpm test:godot`, 12.7's "done when").

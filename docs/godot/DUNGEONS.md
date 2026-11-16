@@ -377,6 +377,25 @@ category (placed under `Objects`; set the DoorScript's target in the Inspector):
   are stair doors, `object.stair-door`, [the Inner Stair](#the-lairs-own-pieces).)
 - **Hill doorway** (`object.hill-doorway`): an old fort-stone doorway with two cold iron sconces, for a
   hill's face, always open (a DoorScript of side north; set its target).
+- **Cave mouth** (`object.cave-mouth`) and **wall hole** (`object.wall-hole`), 2026-11-13: an arched
+  cave opening (160 units wide) and a small round hole (112) framed in the wall's own stones, for a
+  cliff's face: at its foot, or on the wall at a balcony's back edge
+  ([Balconies](SKINS.md#balconies)). Both are a DoorScript of side north, always open (set the
+  target); their node stands on the threshold (the hole's opening a little above it). **They take
+  the style of the wall they stand in** by themselves (2026-11-14): their Visual
+  (`game/world/elevation/wall_door_picture.gd`) reads the style the elevation draws the face in just
+  above the node and shows that style's picture, again when the node is moved in the editor or the
+  elevation is rebuilt; its **Wall Style** in the Inspector picks one by hand instead ("from the
+  wall" is the default), and **Foot Px** sets how high the picture's bottom edge stands over the
+  node. Art: `asset/MAPS/objects/cave-mouth-<style>.webp` (320 px wide) and
+  `wall-hole-<style>.webp` (224), cropped to their art (sources in
+  `asset/Originals/elevation/wall-doors/`, packed by `scripts/art/pack-wall-pictures.py`), one for
+  each of the 25 wall styles (a style added later shows the meadow rock's until its pictures are
+  made).
+- The Scenery dock's **Holes & hatches** tab lists every door object since 2026-11-13: the holes
+  (open, with a ladder, drop hole, cracked floor and ground, dry trunk hole), the doors in a wall
+  (cave mouth, wall hole, hill doorway, cracked wall, the Watchkeeper's hideout, the Lair's mouth and
+  its bolt-hole's mouth), and the ways up (hatch exit, ladder hatch, cave ladder, stair door).
 - A cracked wall's `crack_tint` (2026-10-19) tones its crack to its rock: a lower alpha hides a
   secret crack in the stone.
 

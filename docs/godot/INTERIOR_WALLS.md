@@ -212,6 +212,27 @@ any drop, the sides the side wall's strip, mitred, their cap on the upper floor'
 landings, drawbridges) draw over them. The collision, the ledge drops and the slabs are the
 outdoor ones. The room's floor lies under the elevation's drawing (on the ground layer), so the
 faces always show.
+
+**A raised floor** (a room on two levels, 2026-11-13: the playground's cliff cave, below) is painted
+the same way with a level above 0 (1 for one step up). The room's floor is drawn on it as on level 0
+(the elevation's tops light it by its height), and on a flight of stairs leading down to level 0 or
+higher, and on a front flight whatever it leads to (it covers its cell but for the strip above its
+top step, the top's floor); only the holes, and the side and back flights into them, show the
+`ground` layer's own tiles. Paint the **rim cells beside a raised floor at its level too**, and a
+doorway's block that opens onto it: a level change between a floor and its wall would put a face,
+and a ledge's rim and drop, along the wall's foot and across the doorway. A flight leaving a room's
+floor draws no approach (the patch of its top's ground sheet that breaks an outdoor rim for the way
+down): the faces leave the flight's cells open already.
+
+**The cliff cave** (`world.playground-cliff-cave`,
+`game/scenes/worlds/rooms/playground/playground-cliff-cave.tscn`, `?map=playground-cliff-cave`):
+16 x 14 cells of cave rock, the upper floor (level 1) an L along the west wall and the north wall,
+the lower floor (level 0) the south-east corner, a front flight two cells wide (cells 10-11 x 6)
+between them. Its two doorways are in the south rim: the upper one (cells 4-5) to the playground's
+`cave-mouth2` on the Feral lane's upper balcony, the lower one (cells 10-11) to `cave-mouth` on the
+lower balcony (SKINS.md "The Skins corner"), so the slime goes from one balcony to the other
+through the cliff. Its floor trim layer is empty, to paint.
+
 After painting, the next F5/F6 run that builds the world saves its cache by itself (ELEVATION.md
 "Baked cache"); bake it by hand (`tools/bake_elevation.gd -- --world=<world>`) only when you will not
 run it.

@@ -208,6 +208,9 @@ const WALL_ART := "res://asset/MAPS/elevation/%s-wall.png"
 ## without wall art falls back to DEFAULT_WALL_STYLE.
 const WALL_STYLE_DATA_LAYER := "wall_style"
 const DEFAULT_WALL_STYLE := "meadow-rock"
+## Nodes whose picture follows the style of the wall they are on (wall_pictures.gd: the vines'
+## balconies, a cave mouth, a wall hole): each build calls their `walls_built(elevation)`.
+const WALL_PICTURES_GROUP := &"wall_pictures"
 ## Ground layer metadata giving a world its own wall style per ground ({"highland": "storybook-rock"}):
 ## other worlds keep the defaults.
 const WORLD_WALL_STYLES_META := &"cliff_wall_styles"
@@ -434,6 +437,32 @@ static func mount(ground_layer: TileMapLayer, collide: bool) -> Self:
 ## The Elevation overlay under `parent`, found by class (a node's name is typed by hand in the editor).
 static func find_in(parent: Node) -> Self:
 	return NodeFind.child_of(parent, Self) as Self
+
+
+## The Elevation of the world `node` is in: the one under the ground layer beside `node` or beside
+## the nearest node above it that has one; null where there is none (a corner scene opened by
+## itself), or before it is mounted.
+static func around(node: Node) -> Self:
+	var at := node.get_parent() if node != null else null
+	while at != null:
+		var ground_layer := find_ground_in(at)
+		if ground_layer != null:
+			return find_in(ground_layer)
+		at = at.get_parent()
+	return null
+
+
+## The wall style of the cliff face drawn at `world_point` (its band's, `band_styles`: the style its
+## stones are drawn in), "" where no wall is drawn there or before the first build. The pictures made
+## for a face (WALL_PICTURES_GROUP) match their wall by it.
+func wall_style_at(world_point: Vector2) -> String:
+	if grid == null:
+		return ""
+	var tri := grid.tri_at((world_point - global_position) / cell)
+	if tri < 0:
+		return ""
+	var band := grid.tri_band[tri]
+	return band_styles[band] if band >= 0 and band < band_styles.size() else ""
 
 
 ## The painted `elevation` layer under `parent`: the TileMapLayer whose tile set has the level data
@@ -739,6 +768,9 @@ func rebuild() -> void:
 	if _cache_record != null and _saves_on_its_own():
 		save_cache()
 	built.emit()
+	# the pictures that take their wall's style (a balcony, a door in the wall) look again
+	if is_inside_tree():
+		get_tree().call_group(WALL_PICTURES_GROUP, &"walls_built", self)
 
 
 ## Opens a passage for bodies of `level` through what covers `world_rect` (world space): a wall or a
@@ -1633,8 +1665,11 @@ func _build_drawing() -> void:
 			run_ground = colour_of
 			run_key = "%s-%d" % [run_ground, stairs_meshes.size()]
 		flight.add_mesh(_arrays_for(stairs_meshes, run_key))
-		# The top's ground over its edge where the flight leaves it, so the edge breaks there.
-		if _sheets.has(flight.top_ground) and flight.top_ground != TerrainMaterials.WATER:
+		# The top's ground over its edge where the flight leaves it, so the edge breaks there; not in a
+		# room (2026-11-13): its faces leave the flight's cells open and its top is the room's floor,
+		# which the ground sheet would cover.
+		if _sheets.has(flight.top_ground) and flight.top_ground != TerrainMaterials.WATER \
+				and not _leaves_room_floor(flight):
 			flight.add_approach(_arrays_for(ramp_meshes, flight.top_ground))
 	var depth_rect := _add_depth(depth)
 	if occlusion == null:
@@ -2379,6 +2414,13 @@ func _interior_style_at(point: Vector2) -> String:
 		return ""
 	var style := walls.room_style_at(Vector2i(floori(point.x), floori(point.y)) - cell_offset)
 	return str(INTERIOR_CLIFF_STYLES.get(style, ""))
+
+
+## True when `flight` leaves a top inside a room drawn by interior walls (the point `_stairs_ground`
+## reads its top's ground at).
+func _leaves_room_floor(flight: ElevationStairs) -> bool:
+	var height := ElevationStairs.LEVEL * (flight.top - flight.bottom)
+	return not _interior_style_at(flight.screen_of(Vector3(-cell * 0.25, 0.0, height)) / cell).is_empty()
 
 
 ## `style`, or DEFAULT_WALL_STYLE when it has no wall art (warned once).

@@ -104,5 +104,6 @@ func _probe(layer: VineLayerScript) -> void:
 		print("  off over the rim from %s -> %s; off at the foot from %s -> %s" % [top_feet, layer.climb_exit(top_feet, Vector2.UP),
 			from_foot, layer.climb_exit(from_foot, Vector2.DOWN)])
 		var mid := layer.to_global(Vector2(x, (rim + foot) * 0.5 + VineLayerScript.FEET_BELOW_CENTRE))
-		print("  midway %s allowed %s, lands %s; past the side allowed %s" % [mid, layer.climb_allows(mid), layer.climb_landing(mid),
-			layer.climb_allows(layer.to_global(Vector2(patch.position.x * CELL - 4.0, layer.to_local(mid).y)))])
+		var past_side := layer.to_global(Vector2(patch.position.x * CELL - 30.0, layer.to_local(mid).y))
+		print("  midway %s allowed %s, lands %s; off the side %s lets go %s, lands %s" % [mid, layer.climb_allows(mid),
+			layer.climb_landing(mid), past_side, layer.climb_lets_go(past_side), layer.climb_landing(past_side)])

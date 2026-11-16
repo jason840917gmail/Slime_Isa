@@ -343,6 +343,9 @@ of climbable chunks"), so one wall can be nineteen courses tall (−3 to 16).
   first painted by `tools/build_climb_lab.gd`, then the owner's to repaint): a sheer wall twelve
   courses tall with two balconies ([Balconies](SKINS.md#balconies)) and terraces at 12, 8 and 4,
   with vines to climb them ([Painting vines](SKINS.md#painting-vines)); it lends the Feral skin.
+  Since 2026-11-14 it also holds the climb monsters ([BESTIARY.md](BESTIARY.md#the-climb-monsters-rows-34-to-36):
+  a Rock Chucker on the sheer wall's rim, two Spiny Caterpillars, one on a band of vines added
+  across row 14, and a Ledge Raven on the high balcony), placed by hand under its `Enemies` node.
 
 ![The climb lab: a sheer twelve-course wall and terraces at 12, 8 and 4](images/climb-lab-tall-walls.png)
 
@@ -378,6 +381,11 @@ order:
    `{"highland": "storybook-rock"}`), else the **ground's default wall**: the table
    `game/world/elevation/cliffs/ground_wall_styles.tres` (below);
 3. else meadow rock (`DEFAULT_WALL_STYLE`); a style without wall art also falls back to it.
+
+What stands in a wall follows its style too (2026-11-14): a balcony painted on it and a cave mouth
+or wall hole placed in it show the picture made for that style (SKINS.md "Balconies", DUNGEONS.md
+"Holes and hatches"). They ask `Elevation.wall_style_at(point)`, the style a face is drawn in at a
+point ("" off any wall), and look again whenever the elevation is built (the `wall_pictures` group).
 
 **Each ground's default wall** (2026-11-06, the owner: "i want to use those dirt walls, and being
 able to change the default wall for a ground"): open `ground_wall_styles.tres` in the Inspector, one
@@ -1481,6 +1489,14 @@ stops 8 units short of the drawn foot, as at the side faces; "Fill" puts the bas
 row the foot lies in. The room's walls and the
 `room_back_faces` tick are part of the baked cache's key. Not drawn yet: faces
 taller than one level (a void's walls show one cell), doors and chests set into a face.
+
+**Raised floors and stairs in rooms** (2026-11-13, the playground's cliff cave: a room on levels 0
+and 1, INTERIOR_WALLS.md "Pits and holes"): a flight whose top is a room's floor draws no approach
+(`_leaves_room_floor`; outdoors the top's ground sheet is drawn over its edge there so the rim breaks
+for the way down, but a room's faces leave the flight's cells open and the sheet would cover the
+room's floor), and the room's floor is drawn on raised cells and under the flights that need it
+(`InteriorWallLayer._draw_floor`). The approach is part of the baked cache: the two rooms with
+stairs (the cliff cave, R7) were baked again.
 
 **Decks hide what is under them** (2026-10-19, everywhere): a slab, a landing, a lowered drawbridge
 or a shadow path puts its rectangles in the terrain's depth map as ground of its level while it holds

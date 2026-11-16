@@ -17,8 +17,10 @@ extends RefCounted
 ## - `climb_exit(feet, way) -> Vector2`: pushing `way` at the surface's edge, where it stands when it
 ##   gets off there (a ledge above, the ground at the foot), or Vector2.INF;
 ## - `climb_landing(feet) -> Vector2`: where it lands when it lets go;
-## and optionally `climb_holds(feet) -> bool` (it clings at an end with nothing to stand on),
-## `on_grabbed()`, `on_held_at_end()`, `climb_left(feet)` (the climb ended there, not cancelled).
+## and optionally `climb_depth(feet) -> float` (the depth it is drawn at there, when not its
+## landing's), `climb_holds(feet) -> bool` (it clings at an end with nothing to stand on),
+## `climb_lets_go(feet) -> bool` (feet there have left it: the slime falls), `on_grabbed()`,
+## `on_held_at_end()`, `climb_left(feet)` (the climb ended there, not cancelled).
 ##
 ## - **Grab:** with the Feral skin on, an interact press where a surface's `can_grab` says so (its
 ##   foot facing up, its lip facing down). The slime's body stops colliding (the rock between the
@@ -27,7 +29,9 @@ extends RefCounted
 ## - **Cling and move:** while the interact key stays held the slime clings; the movement keys move
 ##   it at `skins.feral.climbSpeed` wherever the surface allows, sliding along its edges. It faces
 ##   the wall the whole climb, whichever way it moves: its back to the camera (the owner,
-##   2026-11-12: "it should always face the wall while climbing").
+##   2026-11-12: "it should always face the wall while climbing"). Vines have no limit at their
+##   sides (the owner, 2026-11-13): a slime moved off them there (`climb_lets_go`) falls, as from a
+##   hit; a surface without it (a climbable wall) holds the slime on.
 ## - **Getting off:** pushing on past an edge with ground beyond (`climb_exit`: up over the rim, down
 ##   at the foot) it glides there, stands and takes that level (Elevation `track`); the surface's
 ##   `climb_left` follows (a climbable wall can lead out of the world).
@@ -188,8 +192,14 @@ func step(now_ms: float, delta: float, held: bool, direction: Vector2) -> bool:
 		_leaving = true
 		_glide_to = off
 		return _glide(delta, speed)
-	# Wherever the surface allows, sliding along its edges.
 	var move := way * speed * delta
+	# Off the surface that way (vines have no limit at their sides: the owner, 2026-11-13): the slime
+	# lets go there and falls, as from a hit (the key let go and pressed again catches).
+	if _wall.has_method(&"climb_lets_go") and not bool(_wall.call(&"climb_allows", feet + move)) \
+			and bool(_wall.call(&"climb_lets_go", feet + move)):
+		_let_go(now_ms, false)
+		return is_falling()
+	# Wherever the surface allows, sliding along its edges.
 	var next := feet
 	for candidate: Vector2 in [move, Vector2(move.x, 0.0), Vector2(0.0, move.y)]:
 		if candidate != Vector2.ZERO and bool(_wall.call(&"climb_allows", feet + candidate)):
@@ -358,12 +368,14 @@ func _finish() -> void:
 	_wall = null
 
 
-## The slime's art is drawn at the depth of where it would land from `feet` (in front of the face).
+## The slime's art is drawn in front of the face: at the depth the surface names for `feet`
+## (`climb_depth`: its wall's foot, also over a balcony), else at that of where it would land.
 func _set_depth(feet: Vector2) -> void:
 	var world := Services.world()
 	if world == null or world.elevation == null or _wall == null or not is_instance_valid(_wall):
 		return
-	world.elevation.set_flight(_body, (_wall.call(&"climb_landing", feet) as Vector2).y)
+	var depth: float = float(_wall.call(&"climb_depth", feet)) if _wall.has_method(&"climb_depth") 		else (_wall.call(&"climb_landing", feet) as Vector2).y
+	world.elevation.set_flight(_body, depth)
 
 
 func _show_claws(on: bool) -> void:

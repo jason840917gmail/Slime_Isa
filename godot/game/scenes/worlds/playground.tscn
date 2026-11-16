@@ -37,7 +37,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/training-dummy.tscn" id="35"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-frog.tscn" id="39_l1w5o"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/sky_corner.tscn" id="58_r3kew"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/hill-doorway.tscn" id="62_850ao"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-mouth.tscn" id="62_850ao"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="63_jiyj6"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/barred_gate_corner.tscn" id="barred_gate_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/bestiary_corner.tscn" id="bestiary_corner"]
 [ext_resource type="PackedScene" path="res://game/dev/corners/bomb_corner.tscn" id="bomb_corner"]
@@ -100,7 +101,7 @@ script = ExtResource("cliff_layer")
 
 [node name="vines" type="TileMapLayer" parent="." unique_id=965723663]
 z_index = -1
-tile_map_data = PackedByteArray("AABzACMAAAAAAAAAAAB3ACcAAAAAAAAAAAB3ACYAAAAAAAAAAAB3ACUAAAAAAAAAAAB4ACUAAAAAAAAAAAB4ACYAAAAAAAAAAAB4ACcAAAAAAAAAAAB4ACQAAAAAAAAAAAB4ACMAAAAAAAAAAAB3ACMAAAAAAAAAAAB3ACQAAAAAAAAAAAB3ACIAAAAAAAAAAAB4ACIAAAAAAAAAAAB2ACIAAAAAAAAAAAB1ACIAAAAAAAAAAAB1ACQAAAAAAAAAAAB0ACQAAAAAAAAAAABzACQAAAAAAAAAAABvACEAAAABAAAAAABwACEAAAABAAAAAABxACEAAAABAAAAAABxACUAAAABAAAAAAByACUAAAABAAAAAABzACUAAAABAAAAAAA=")
+tile_map_data = PackedByteArray("AABzACMAAAAAAAAAAAB3ACcAAAAAAAAAAAB3ACYAAAAAAAAAAAB3ACUAAAAAAAAAAAB3ACMAAAAAAAAAAAB3ACQAAAAAAAAAAAB3ACIAAAAAAAAAAAB2ACIAAAAAAAAAAAB1ACIAAAAAAAAAAAB1ACQAAAAAAAAAAAB0ACQAAAAAAAAAAABzACQAAAAAAAAAAABvACEAAAABAAAAAABwACEAAAABAAAAAABxACEAAAABAAAAAABxACUAAAABAAAAAAByACUAAAABAAAAAABzACUAAAABAAAAAABxACAAAAAAAAAAAABxAB8AAAAAAAAAAAByAB8AAAAAAAAAAAByAB4AAAAAAAAAAAB7AB4AAAAAAAAAAAB7ACUAAAAAAAAAAAB6ACUAAAAAAAAAAAB6ACQAAAAAAAAAAAB6ACMAAAAAAAAAAAB7ACQAAAAAAAAAAAB6ACIAAAAAAAAAAAB6ACEAAAAAAAAAAAB6ACAAAAAAAAAAAAB4ACEAAAABAAAAAAB5ACEAAAABAAAAAAB5ACAAAAAAAAAAAAA=")
 tile_set = ExtResource("vine_tiles")
 script = ExtResource("vine_layer")
 
@@ -123,7 +124,7 @@ metadata = {
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1966266073]
 y_sort_enabled = true
-position = Vector2(7265, 4076)
+position = Vector2(7004, 3749)
 
 [node name="areas" type="Node2D" parent="." unique_id=826448860]
 y_sort_enabled = true
@@ -1273,8 +1274,49 @@ target_door = "playground-stair-down"
 [node name="Objects" type="Node2D" parent="." unique_id=1089419647]
 y_sort_enabled = true
 
-[node name="hill-doorway" parent="Objects" unique_id=2111299887 instance=ExtResource("62_850ao")]
-position = Vector2(7201, 2108)
+[node name="cave-mouth" parent="Objects" unique_id=1887660137 instance=ExtResource("62_850ao")]
+position = Vector2(7323, 2382)
+scale = Vector2(0.7, 0.7)
+
+[node name="DoorScript" parent="Objects/cave-mouth" index="1"]
+map_id = "playground"
+door_id = "playground-cliff-cave-lower"
+target_area_id = "playground-cliff-cave"
+target_door_id = "cliff-cave-lower"
+
+[node name="cave-mouth2" parent="Objects" unique_id=2036371050 instance=ExtResource("62_850ao")]
+position = Vector2(7196, 2126)
+scale = Vector2(0.7, 0.7)
+
+[node name="DoorScript" parent="Objects/cave-mouth2" index="1"]
+map_id = "playground"
+door_id = "playground-cliff-cave-upper"
+target_area_id = "playground-cliff-cave"
+target_door_id = "cliff-cave-upper"
+
+[node name="cave-mouth3" parent="Objects" unique_id=1085341544 instance=ExtResource("62_850ao")]
+position = Vector2(7748, 2123)
+scale = Vector2(0.7, 0.7)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1178244171]
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=507899961 instance=ExtResource("63_jiyj6")]
+position = Vector2(7416.0005, 1897)
+scale = Vector2(0.7, 0.7)
+enemy_type = "rock-chucker"
+
+[node name="@Node2D@22404" parent="Enemies" unique_id=414255667 instance=ExtResource("63_jiyj6")]
+position = Vector2(7674, 2209)
+enemy_type = "spiny-caterpillar"
+
+[node name="PlacedEnemy2" parent="Enemies" unique_id=1296518719 instance=ExtResource("63_jiyj6")]
+position = Vector2(7632, 2522)
+rotation = 3.1415927
+enemy_type = "spiny-caterpillar"
+
+[node name="PlacedEnemy3" parent="Enemies" unique_id=1572687691 instance=ExtResource("63_jiyj6")]
+position = Vector2(7705, 2141)
+enemy_type = "ledge-raven"
 
 [connection signal="pressed" from="heavy-puzzle/end-card-plate/PressurePlateScript" to="heavy-puzzle/end-card-flag" method="on_set"]
 
@@ -1306,3 +1348,5 @@ position = Vector2(7201, 2108)
 [editable path="lash-yard/lash-bell"]
 [editable path="lash-yard/lash-loot-1"]
 [editable path="lash-yard/lash-loot-2"]
+[editable path="Objects/cave-mouth"]
+[editable path="Objects/cave-mouth2"]
