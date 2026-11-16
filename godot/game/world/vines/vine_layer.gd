@@ -13,7 +13,10 @@ extends TileMapLayer
 ## - **Getting on:** an interact press at the wall's foot facing up, under vines that reach the foot;
 ##   or on the ledge above facing down, over vines that reach the rim.
 ## - **Getting off:** pushing up at the rim (onto the ledge), or down at the foot. Vines that stop
-##   short of the rim or the foot have no way off there: the slime moves on sideways or lets go.
+##   short of the rim have no way off there: the slime moves on sideways or lets go.
+## - **Falling off:** the vines have no limit at their sides (the owner, 2026-11-13): moved off
+##   their open side, or down past a run that stops short of the foot, the slime falls
+##   (`climb_lets_go`), once its centre is `letGoPastPx` past the painted cells.
 ## - **Letting go** drops the slime to the wall's foot under it, unhurt.
 ## - **Without the skin** nothing is offered; pushing up at vines' foot says `refusal_text`.
 ##
@@ -62,11 +65,12 @@ const HOLDER := "Vines"
 ## The palette's tiles (vine_tileset.tres, tools/pack_vine_tileset.gd): vines, and a balcony.
 const VINES_TILE := Vector2i(0, 0)
 const BALCONY_TILE := Vector2i(1, 0)
-## The balcony's picture (packed from asset/Originals/elevation/balcony/, 512 px wide): the row of
-## its straight back edge, which lies on the top of the painted row, and its width in the art.
-const BALCONY_ART := "res://asset/MAPS/objects/balcony-meadow-rock.webp"
-const BALCONY_ART_WIDTH := 512.0
-const BALCONY_ART_BACK := 140.0
+## The balcony's picture: the one made for the wall style of the face it is painted on
+## (game/world/elevation/wall_pictures.gd, `asset/MAPS/objects/balcony-<style>.webp`, 512 px wide,
+## meadow rock's for a style without one), its straight back edge (WallPictures.BALCONY_BACKS) on
+## the top of the painted row.
+const WallPictures := preload("res://game/world/elevation/wall_pictures.gd")
+const Elevation := preload("res://game/world/elevation/elevation.gd")
 ## Its floor, where the slime's feet may be, as shares of the balcony's width: half an ellipse from
 ## the middle of its back edge, FLOOR_HALF wide each way and FLOOR_DEPTH deep, from FLOOR_BACK out
 ## of the wall on.
@@ -90,6 +94,11 @@ const FEET_BELOW_CENTRE := 27.56
 const FACING_DOT := 0.5
 ## How near an edge (px) pushing on gets the slime off there.
 const EDGE_PX := 8.0
+## The cells a slime's centre hangs off the vines from (`_held_cell`): beside them, or under them
+## (beside and under at a run's bottom corner). Never over them: their top holds the slime in.
+const HANG_WAYS: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i(-1, -1), Vector2i(1, -1)]
+## No painted cell (`_held_cell`).
+const NO_CELL := Vector2i(-1073741824, -1073741824)
 ## How far past its limits a clinging slime may be (a glide's last step, a float's rounding).
 const SLACK_PX := 0.5
 const TEXT_RISE := 90.0
@@ -108,7 +117,6 @@ var _queued := false
 var _faces := {}
 var _next_refusal_ms := 0.0
 static var _texture: Texture2D
-static var _balcony_texture: Texture2D
 
 
 func _init() -> void:
@@ -118,6 +126,15 @@ func _init() -> void:
 func _enter_tree() -> void:
 	if not Engine.is_editor_hint():
 		add_to_group(GROUP)
+	# the balconies take the style of their wall, known once the elevation is built
+	add_to_group(Elevation.WALL_PICTURES_GROUP)
+
+
+## The elevation of this world was built (Elevation.WALL_PICTURES_GROUP): the balconies match their
+## walls again.
+func walls_built(elevation: Node) -> void:
+	if elevation == Elevation.around(self) and not get_used_cells().is_empty():
+		_queue_rebuild()
 
 
 func _ready() -> void:
@@ -274,21 +291,18 @@ func climb_start(feet: Vector2, facing: Vector2 = Vector2.ZERO) -> Vector2:
 	return feet
 
 
-## True when the slime may cling with its feet at `feet`: its centre on a painted cell, its body
-## kept on the vines at their open sides, its feet no lower than where it stands at the foot.
+## True when the slime may cling with its feet at `feet`: its centre on the vines (or hanging off
+## their open side, or under a run that stops on the face, by at most `letGoPastPx`: `_held_cell`),
+## under a top that stops on the face by `sideInsetPx`, its feet no lower than where it stands at
+## the foot.
 func climb_allows(feet: Vector2) -> bool:
 	var local := to_local(feet)
 	var centre := local - Vector2(0.0, FEET_BELOW_CENTRE)
-	var cell := local_to_map(centre)
-	if not _painted(cell):
+	var cell := _held_cell(centre)
+	if cell == NO_CELL:
 		return false
 	var size := _cell_size()
 	var inset := _setting("sideInsetPx", 14.0)
-	var across := centre.x - cell.x * size.x
-	if across < inset - SLACK_PX and not _painted(cell + Vector2i.LEFT):
-		return false
-	if across > size.x - inset + SLACK_PX and not _painted(cell + Vector2i.RIGHT):
-		return false
 	if not _painted(cell + Vector2i.UP) and not _reaches_rim(cell) and centre.y - cell.y * size.y < inset - SLACK_PX:
 		return false
 	if not _painted(cell + Vector2i.DOWN) and _reaches_foot(cell):
@@ -296,13 +310,69 @@ func climb_allows(feet: Vector2) -> bool:
 	return true
 
 
+## True when feet at `feet` have left the vines and the slime falls (the owner, 2026-11-13: "there
+## is no limits to the sides when climbing, if the player body abandons the vine it should fall"):
+## its centre more than `letGoPastPx` past their open side, or under a run that stops on the face.
+## Over their top and at the rim or the foot the slime stays on them (or gets off: `climb_exit`).
+func climb_lets_go(feet: Vector2) -> bool:
+	var centre := to_local(feet) - Vector2(0.0, FEET_BELOW_CENTRE)
+	if _held_cell(centre) != NO_CELL:
+		return false
+	var cell := local_to_map(centre)
+	for way: Vector2i in HANG_WAYS:
+		if _painted(cell + way):
+			return true
+	return false
+
+
+## The painted cell whose vines hold a centre at `centre` (local): the one it is on, else the nearest
+## it hangs off by at most `letGoPastPx` (beside it, or under it); NO_CELL when it has left them.
+func _held_cell(centre: Vector2) -> Vector2i:
+	var cell := local_to_map(centre)
+	if _painted(cell):
+		return cell
+	var size := _cell_size()
+	var past := _setting("letGoPastPx", SIDE_PX) + SLACK_PX
+	var held := NO_CELL
+	var nearest := INF
+	for way: Vector2i in HANG_WAYS:
+		var near := cell + way
+		if not _painted(near):
+			continue
+		var rect := Rect2(Vector2(near) * size, size)
+		var gap := centre.distance_to(centre.clamp(rect.position, rect.end))
+		if gap <= past and gap < nearest:
+			nearest = gap
+			held = near
+	return held
+
+
+## The painted run of vines through `point` (world), as a world rectangle: its column's run
+## (`horizontal` false) or its row's (true); an empty Rect2 where no vines are painted. A creature
+## living on the vines crawls along it (game/scripts/spiny_caterpillar.gd).
+func run_rect(point: Vector2, horizontal: bool) -> Rect2:
+	var cell := local_to_map(to_local(point))
+	if tile_set == null or not _painted(cell):
+		return Rect2()
+	var first := cell
+	var last := cell
+	var way := Vector2i.RIGHT if horizontal else Vector2i.DOWN
+	while _painted(first - way):
+		first -= way
+	while _painted(last + way):
+		last += way
+	var size := _cell_size()
+	var from := to_global(Vector2(first) * size)
+	return Rect2(from, to_global(Vector2(last + Vector2i.ONE) * size) - from)
+
+
 ## Pushing `way` at the vines' edge: where the slime stands when it gets off there (the ledge over
 ## the rim, the ground at the foot), or Vector2.INF.
 func climb_exit(feet: Vector2, way: Vector2) -> Vector2:
 	var local := to_local(feet)
 	var centre := local - Vector2(0.0, FEET_BELOW_CENTRE)
-	var cell := local_to_map(centre)
-	if not _painted(cell):
+	var cell := _held_cell(centre)
+	if cell == NO_CELL:
 		return Vector2.INF
 	var size := _cell_size()
 	if way.y < -FACING_DOT and not _painted(cell + Vector2i.UP) and _reaches_rim(cell) \
@@ -319,14 +389,30 @@ func climb_exit(feet: Vector2, way: Vector2) -> Vector2:
 
 ## Where a let-go from `feet` lands: on a balcony under the slime, else before the foot of the wall.
 func climb_landing(feet: Vector2) -> Vector2:
+	var foot := _foot_under(feet)
+	var caught := balcony_catch(feet, foot)
+	return caught if caught.is_finite() else foot
+
+
+## The depth a slime clinging (or falling) at `feet` is drawn at: before the foot of its wall,
+## whatever balcony is under it (a balcony's own y is part-way up the wall, behind its face: the
+## slime drawn at that depth was hidden behind the wall).
+func climb_depth(feet: Vector2) -> float:
+	return _foot_under(feet).y
+
+
+## Before the foot of the wall under `feet` (world): where a fall past every balcony lands.
+func _foot_under(feet: Vector2) -> Vector2:
 	var local := to_local(feet)
-	var cell := local_to_map(local - Vector2(0.0, FEET_BELOW_CENTRE))
+	var centre := local - Vector2(0.0, FEET_BELOW_CENTRE)
+	var cell := local_to_map(centre)
 	# getting off over the rim, the slime's centre is on the ledge: the wall is the one under it
 	if not _painted(cell) and _painted(cell + Vector2i.DOWN):
 		cell += Vector2i.DOWN
-	var foot := to_global(Vector2(local.x, _face_rows(cell).y * _cell_size().y + _setting("landBelowFootPx", 30.0)))
-	var caught := balcony_catch(feet, foot)
-	return caught if caught.is_finite() else foot
+	elif not _painted(cell) and _wall_rows(cell) == Vector2i.ZERO and _held_cell(centre) != NO_CELL:
+		# hanging off the vines' side past the end of their wall's face: their wall's foot
+		cell = _held_cell(centre)
+	return to_global(Vector2(local.x, _face_rows(cell).y * _cell_size().y + _setting("landBelowFootPx", 30.0)))
 
 
 # --- the balconies (game/player/balcony_stand.gd), in the slime's feet (world) ------------------------
@@ -589,7 +675,8 @@ func _rebuild() -> void:
 
 
 ## Every painted balcony's picture, as wide as its cells, its back edge on the top of their row,
-## over its own shadow on the wall.
+## over its own shadow on the wall: the picture of its wall's style (the face's in the middle of
+## its row).
 func _add_balconies(holder: Node2D, size: Vector2) -> void:
 	var seen := {}
 	for cell: Vector2i in get_used_cells():
@@ -598,16 +685,17 @@ func _add_balconies(holder: Node2D, size: Vector2) -> void:
 		var run := _balcony_run(cell)
 		for x in range(run.position.x, run.end.x):
 			seen[Vector2i(x, run.position.y)] = true
-		if _balcony_texture == null:
-			_balcony_texture = _load_picture(BALCONY_ART)
-		if _balcony_texture == null:
-			return
+		var middle := to_global(Vector2((run.position.x + run.size.x * 0.5) * size.x, (run.position.y + 0.5) * size.y))
+		var style := WallPictures.style_for(WallPictures.BALCONY, WallPictures.wall_style(self, middle))
+		var picture := WallPictures.texture(WallPictures.BALCONY, style)
+		if picture == null:
+			continue
 		var width := run.size.x * size.x
-		var ratio := width / BALCONY_ART_WIDTH
-		var at := Vector2(run.position.x * size.x, run.position.y * size.y - BALCONY_ART_BACK * ratio)
+		var ratio := width / float(picture.get_width())
+		var at := Vector2(run.position.x * size.x, run.position.y * size.y - float(WallPictures.BALCONY_BACKS[style]) * ratio)
 		for shadow: bool in [true, false]:
 			var sprite := Sprite2D.new()
-			sprite.texture = _balcony_texture
+			sprite.texture = picture
 			sprite.centered = false
 			sprite.scale = Vector2(ratio, ratio)
 			sprite.position = at + (BALCONY_SHADOW_AT * width if shadow else Vector2.ZERO)
@@ -615,14 +703,6 @@ func _add_balconies(holder: Node2D, size: Vector2) -> void:
 				sprite.modulate = BALCONY_SHADOW
 			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 			holder.add_child(sprite)
-
-
-## The picture at `path`: its import, or (a picture the editor has not imported yet) its file.
-static func _load_picture(path: String) -> Texture2D:
-	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
-	var image := Image.load_from_file(ProjectSettings.globalize_path(path))
-	return ImageTexture.create_from_image(image) if image != null else null
 
 
 ## One piece of the picture (`region`, px of the art) drawn over `area` (local units).

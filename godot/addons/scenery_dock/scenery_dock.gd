@@ -12,8 +12,10 @@ extends VBoxContainer
 ## plates, heavy blocks, braziers ...) by their scene's own picture: dragging one places its scene
 ## at its own size under the room's `Objects` node (a room door under `RoomDoors`, a hazard under
 ## `Hazards`); its ids are set in the Inspector (docs/godot/DUNGEONS.md). The **Holes & hatches**
-## category (owner, 2026-10-19) lists the ways down and up for any world: open holes (fall, ladder),
-## cracked ground and walls (a Goo Bomb opens them), and hatches, placed the same way under `Objects`;
+## category (owner, 2026-10-19; every door object since 2026-11-13) lists the ways down, in and up for
+## any world: open holes (fall, ladder), cracked ground and walls (a Goo Bomb opens them), the doors in
+## a wall's face (cave mouth, wall hole, hill doorway, the Lair's mouths), hatches, ladders and the
+## stair door, placed the same way under `Objects`;
 ## their targets are set in the Inspector (docs/godot/DUNGEONS.md "Holes and hatches"). The
 ## **Villagers** and **Animals** categories (2026-11-01) list the towns' people and animals by their
 ## scene's picture (docs/godot/VILLAGERS.md): dragging one places its scene at its own size under the
@@ -67,8 +69,12 @@ const SKIN_CATEGORIES := {
 ## The ways down and up, for the overworld as for rooms: scene ids under OBJECTS_DIR.
 const HOLES_CATEGORY := "Holes & hatches"
 const HOLES: PackedStringArray = [
-	"open-hole", "open-hole-ladder", "cracked-floor", "cracked-ground", "cracked-wall", "hill-doorway", "hatch-exit",
-	"cave-ladder",
+	"open-hole", "open-hole-ladder", "drop-hole", "cracked-floor", "cracked-ground", "dry-trunk-hole",
+	# in a wall: a hill's or a cliff's face, a balcony's back edge (docs/godot/SKINS.md "Balconies")
+	"cave-mouth", "wall-hole", "hill-doorway", "cracked-wall", "watchkeeper-hideout", "fatty-lair-mouth",
+	"fatty-lair-bolt-hole-mouth",
+	# ways up and stairs
+	"hatch-exit", "ladder-hatch", "cave-ladder", "stair-door",
 ]
 ## The towns' villagers and animals (docs/godot/VILLAGERS.md): every scene of the folder by its
 ## picture, placed at its own size under the world's `NPCs` or `Animals` node.

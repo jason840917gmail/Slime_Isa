@@ -257,13 +257,13 @@ func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void
 	var clung := body.global_position
 	await t.sim_wait(200.0)
 	t.near_vec(body.global_position, clung, 1.0, "the slime moved on the vines with no movement key held")
-	# Sideways onto the next column, and no further than the vines go.
+	# Sideways onto the next column.
 	t.press(&"move_right")
-	await t.sim_wait(900.0)
+	await t.sim_wait(450.0)
 	t.release(&"move_right")
 	var column_end := (VINES_CELL.x + 2) * 64.0
 	t.check(body.global_position.x > column_end - 64.0, "the slime did not cross onto the next column of vines (feet %s)" % body.global_position)
-	t.check(body.global_position.x < column_end - 10.0, "the slime left the vines sideways (feet %s)" % body.global_position)
+	t.check(player.is_climbing() and not player.get_climb().is_falling(), "the slime let go on the vines' second column")
 	# That column stops short of the rim: no way up it.
 	t.press(&"move_up")
 	await t.sim_wait(700.0)
@@ -294,6 +294,24 @@ func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void
 	t.release(&"interact")
 	await t.until(func() -> bool: return not player.is_climbing(), 1500.0)
 	await t.steps(3)
+	# No limit at the vines' side (the owner, 2026-11-13): moved off it, the slime falls, unhurt.
+	await _stand(t, foot, Vector2.UP)
+	t.press(&"interact")
+	await t.until(func() -> bool: return player.is_climbing(), 300.0)
+	t.press(&"move_up")
+	await t.sim_wait(300.0)
+	t.release(&"move_up")
+	t.press(&"move_left")
+	t.check(await t.until(func() -> bool: return player.get_climb().is_falling() or not player.is_climbing(), 1200.0),
+		"moving off the vines' side did not drop the slime")
+	t.release(&"move_left")
+	t.check(body.global_position.x < VINES_CELL.x * 64.0, "the slime fell before it was off the vines' side (feet %s)" % body.global_position)
+	t.check(await t.until(func() -> bool: return not player.is_climbing(), 1500.0), "the fall off the vines' side never ended")
+	t.release_all()
+	await t.steps(3)
+	t.check(body.global_position.y > FACE_FOOT_Y, "the fall off the side landed on the face (feet %s)" % body.global_position)
+	t.equal(t.world().elevation.level_of(body), 0, "the level after the fall off the side")
+	t.equal(player.get_hp(), hp, "the fall off the side cost health")
 	# Up the whole column: pushing on at the rim gets the slime onto the plateau.
 	await _stand(t, foot, Vector2.UP)
 	t.press(&"interact")

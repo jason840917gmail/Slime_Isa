@@ -140,8 +140,9 @@ listen to the same heavy shake (BESTIARY.md "Hooks").
   the slime can take hold of a climbable surface (at its foot facing up, on its lip facing down; or a
   placed wall's prompt, "Climb (hold)") takes hold, and the slime glides onto it. **While the key
   stays held the slime clings; the movement keys move it over the surface, any way,** at
-  `skins.feral.climbSpeed` (150 px/s), sliding along its edges; with no movement key it stays where
-  it is. Its body does not collide on the face and is drawn in front of it; claws show; it faces
+  `skins.feral.climbSpeed` (150 px/s), sliding along its edges, except the open sides of vines: moved
+  off those it falls ([No limit at the sides](#painting-vines), the owner, 2026-11-13); with no
+  movement key it stays where it is. Its body does not collide on the face and is drawn in front of it; claws show; it faces
   the wall the whole climb, its back to the camera, whichever way it moves (the owner, 2026-11-12).
   **Pushing on past an edge with ground beyond** (up
   over the rim, down at the foot) it gets off there and takes that level (Elevation `track`).
@@ -155,7 +156,11 @@ listen to the same heavy shake (BESTIARY.md "Hooks").
   [Painting vines](#painting-vines): the way to make a climb) and the **placed climbable wall**
   (`object.climb-wall`, below: a climb that leads out of a world or ends on the face). Each answers
   the climb where the slime takes hold (`can_grab`, `climb_start`), where it may cling
-  (`climb_allows`), where it gets off (`climb_exit`) and where it lands (`climb_landing`).
+  (`climb_allows`), where it gets off (`climb_exit`) and where it lands (`climb_landing`); vines also
+  where the slime has left them and falls (`climb_lets_go`), the placed wall holds it on.
+- **Climb monsters** (the owner, 2026-11-13): the Rock Chucker's boulders bouncing down a face, the
+  Spiny Caterpillar crawling the vines, the Ledge Raven looping round its balcony; each knocks a
+  climbing slime off the wall ([BESTIARY.md](BESTIARY.md#the-climb-monsters-rows-34-to-36)).
 - **A wall that ends on the face** (`holds_at_top`; added by the dungeons for the Crystal Colossus's
   arena, [DUNGEONS.md](DUNGEONS.md#the-crystal-colossus-roadmap-124)): at the far end there is nothing
   to stand on, so the slime clings there (`hold_text` shows once each time it gets there) until it
@@ -204,10 +209,16 @@ The rules the paint follows:
 - **Getting on** needs vines that reach the wall's **foot** (the slime takes hold there, facing up)
   or its **rim** (from the ledge above, facing down, within `lipStandPx` + `grabReachPx` of the rim).
 - **Getting off** is pushing up at the rim or down at the foot. A column that stops short of the rim
-  or the foot has no way off at that end: the slime moves on sideways, or lets go.
+  has no way off at its top: the slime moves on sideways, or lets go.
+- **No limit at the sides** (owner, 2026-11-13: "if the player body abandons the vine it should
+  fall"): moved off the vines' open side, or down past a column that stops short of the foot, the
+  slime falls as from a hit (to a balcony under it, else the wall's foot, unhurt); the interact key
+  let go and pressed again catches vines on the way down. It falls once its centre is
+  `letGoPastPx` (12, the drawn vines' overhang) past their painted cells.
 - **Letting go** drops the slime before the wall's foot under it (`landBelowFootPx`), unhurt, from
   any height.
-- The slime's centre stays on painted cells, `sideInsetPx` (14) off the vines' open sides.
+- The slime takes hold `sideInsetPx` (14) inside the vines' open sides, and stays that far under the
+  top of a column that stops short of the rim.
 - The wall is read from the `elevation` paint: the nearest raised edge above a painted cell (found
   beside the layer or beside any node above it, so a layer in a corner scene reads its world's).
   **Front walls only** (the south faces): a cell painted anywhere else (flat ground, a side wall, a
@@ -256,23 +267,40 @@ What a balcony does:
   drops the slime to the next balcony under it, else to the wall's foot. With the Feral skin, an
   interact press under vines takes hold of them from the floor (facing up), and at its front over
   vines that hang under it (facing down).
-- **Doors** go on the wall at its back edge: any door object (the hill doorway,
-  `object.hill-doorway`, is a stone doorway made for a hill's face).
+- **Doors** go on the wall at its back edge: the cave mouth and the wall hole made for these walls
+  (`object.cave-mouth`, `object.wall-hole`, the Scenery dock's Holes & hatches tab;
+  [DUNGEONS.md](DUNGEONS.md)), or any other door object. The slime goes in by pushing up into one
+  from the floor, as into any door.
 
-How it is built: the layer draws the picture (`asset/MAPS/objects/balcony-meadow-rock.webp`, made
-to match the meadow rock wall; sources in `asset/Originals/elevation/balcony/`) over the painted
-cells with a faint shadow on the wall, and answers `game/player/balcony_stand.gd`
+**Its look follows its wall** (2026-11-14): each wall style has its own balcony picture, its rim
+made of that wall's stones and its floor of what lies on such walls (grass, snow, sand, flagstones),
+and a balcony shows the one of the style its face is drawn in: the `cliffs` layer's paint over the
+top above it, else its ground's default ([Wall styles](ELEVATION.md#wall-styles)). Nothing is set by
+hand: repaint the wall's style and its balconies follow. Every one of the 25 wall styles has its
+picture; a style added later shows the meadow rock's until its picture is made.
+
+How it is built: the layer draws the picture (`asset/MAPS/objects/balcony-<style>.webp`, 512 px
+wide, cropped to its art; sources in `asset/Originals/elevation/balcony/`, packed by
+`scripts/art/pack-wall-pictures.py`) as wide as the painted cells, its straight back edge (the row
+`game/world/elevation/wall_pictures.gd` BALCONY_BACKS keeps per style) on the top of their row,
+with a faint shadow on the wall. It asks the elevation for the style of the face in the middle of
+the painted row (Elevation `wall_style_at`) and draws again whenever the elevation is built (the
+`wall_pictures` group). It answers `game/player/balcony_stand.gd`
 (`balcony_holds`, `balcony_step`, `balcony_catch`, `balcony_drop`, `balcony_depth`), which
 player.gd asks every step. The slime is drawn before the wall at the depth of the wall's foot
 (Elevation `set_flight`) and moves with no collision up there. `tools/pack_vine_tileset.gd`
 writes the palette (vines at (0, 0), the balcony at (1, 0)). The climb lab's sheer wall has two
-(`?map=climb-lab`); `tests/test_balcony.gd` plays them.
+(`?map=climb-lab`); `tests/test_balcony.gd` plays them. `tools/build_climb_lab.gd -- --styles=<style>,...`
+builds a separate lab of one wall per style, each with a balcony, a wall hole and a cave mouth, to
+render with `tools/render_vines.gd` (the builder's header has the commands).
 
 ![Two balconies painted on the climb lab's sheer wall, vines to and from the lower one](images/climb-lab-balconies.png)
 
-Not built yet: balcony art for the other wall styles (one picture, the meadow rock's), a wide
-balcony drawn in pieces instead of scaled, a cave mouth made for these walls, attacks and throws
-from a balcony checked (they are not blocked), and enemies or objects standing on one.
+![A balcony, a wall hole and a cave mouth on a wall of each of the other 24 styles (meadow rock's are in the picture above), from tools/build_climb_lab.gd --styles](images/wall-pictures-by-style.png)
+
+Not built yet: a wide balcony drawn in pieces instead of scaled, a door on a balcony played through both ways (going in
+and coming out onto it), attacks and throws from a balcony checked (they are not blocked), and
+enemies or objects standing on one.
 
 ## The bag's Skins row
 
@@ -297,6 +325,10 @@ classic playground drops it; its plateau stays painted). Three lanes, each with 
   scene beside `elevation`, not of the corner's scene, so it is painted with the wall in view; cells
   113-115 x 34-35:
   clung to from its foot or its lip and crossed any way), and a training dummy for the fast Spear.
+  The tall wall east of it has two balconies, each with a cave mouth (`cave-mouth`, lower;
+  `cave-mouth2`, upper, under `Objects`) into the cliff cave, a room on two levels whose lower
+  doorway leads to the lower balcony and upper doorway to the upper one
+  ([INTERIOR_WALLS.md "Pits and holes"](INTERIOR_WALLS.md#pits-and-holes)).
 
 None of its breakables keeps a flag: they come back with the world. The Heavy corner and the Webs
 corner have a pedestal each too (their stone and silk essences went).

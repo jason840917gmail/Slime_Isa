@@ -303,6 +303,15 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/asset/MAPS/Houses/doors/` (2 px per unit): the level-1 mushroom house's leaf and the interior
   ways out (timber, mushroom); it prints each interior picture's leaf rect for the scene's `door_rect`
   ([godot/CONVENTIONS.md](godot/CONVENTIONS.md#doors)).
+- `python scripts/art/pack-wall-pictures.py <kind>-<style>-<take>[@<style>] ... [--preview=<png>]`
+  (**numpy**) — the pictures made per wall style for a cliff's face (Magnific GPT 2.5, 2026-11-13/14):
+  the balcony, the cave mouth and the wall hole, from `asset/Originals/elevation/balcony/` and
+  `wall-doors/` into `godot/asset/MAPS/objects/<kind>-<style>.webp` (faint alpha cleared, cropped to
+  the art, 512 / 320 / 224 px wide, lossless); for a balcony it prints the back edge's row for
+  `game/world/elevation/wall_pictures.gd` BALCONY_BACKS ([godot/SKINS.md](godot/SKINS.md#balconies),
+  [godot/DUNGEONS.md](godot/DUNGEONS.md)). The prompts per style (with the two references: the
+  mushroom furniture sheet and the style's `<style>-wall-variants.png` tiled twice side by side) are
+  in `asset/Originals/elevation/wall-doors/wall-picture-prompts.py`.
 - `python scripts/props/pack-gulp-art.py` (**numpy**) — the Gulp's things to suck and throw (2026-10-09), from the
   Magnific stills in `asset/Originals/gulp/generated/` ([its README](../asset/Originals/gulp/README.md)):
   - the liftables into `godot/asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp` (8 columns × 9 rows of
@@ -489,7 +498,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `BODY_FLOOR_PX`), plus their front scuttle mirrored (`MIRRORED`), into
   `256x256-tile_13x1-<enemy>.webp`; their faint haze is cleared (`FAINT_HAZE`), and the
   `spider-webs` sheet gives the web (`64x64-tile_3x1-spider-web.webp`) and the web cover
-  (`128x128-spider-web-cover.webp`). Name enemies to pack only those
+  (`128x128-spider-web-cover.webp`). The climb monsters (rows 34 to 36) are 2 x 2 sheets (`HAZY`;
+  the Spiny Caterpillar `CENTRED`), and the `climb-props` sheet gives the Rock Chucker's boulder
+  (`64x64-tile_2x1-climb-rock.webp`), its shards and a pebble (`FAINT_HAZE`). Name enemies to pack only those
   (`... pack-bestiary-enemies.py squint mud-glob`).
 - `python scripts/characters/pack-tom.py` (**numpy**) — Tom from `asset/Originals/characters/tom/` into
   `godot/asset/characters/authored/npcs/tom.webp`, and the web he is caught in (the cocoon, then the torn web

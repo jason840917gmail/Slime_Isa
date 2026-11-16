@@ -27,13 +27,16 @@ func _load_sheet() -> void:
 		texture = picture
 
 
-## The picture at `path`: the imported texture when there is one, else the file read as an image;
-## null when neither works.
+## The picture at `path`: the imported texture when there is one, else (not imported yet, or its
+## import failed: a file the editor imported while it was still being written) the file read as an
+## image; null when neither works.
 static func load_picture(path: String) -> Texture2D:
 	if path.is_empty():
 		return null
 	if ResourceLoader.exists(path):
-		return load(path) as Texture2D
+		var imported := load(path) as Texture2D
+		if imported != null:
+			return imported
 	var file := ProjectSettings.globalize_path(path)
 	if not FileAccess.file_exists(file):
 		return null

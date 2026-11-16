@@ -728,3 +728,36 @@ isolated ..."):
   wrap of thick sticky pale silk web strands and a few lime goo blobs, criss-crossing over an empty
   round middle as if wrapped around something round, a few strands drooping at its sides, the gaps
   between the strands empty."
+
+## The climb monsters (rows 34 to 36, 2026-11-14)
+
+Four GPT 2.5 generations (`gpt-2-mini`, 1:1, 1k, transparent background, Lili's sheet as the style
+reference, 40 credits each, 160 in all), each the first take. Each prompt began with the style
+block and ended with "Each pose isolated on a transparent background, no ground shadow plate, no
+scenery, no labels, no grid lines." (the caterpillar's and the raven's also "no vines", "no
+ledge").
+
+| File | Poses (top left, top right, bottom left, bottom right) | Packed into |
+|---|---|---|
+| `rock-chucker-sheet.png` | ready (a boulder at its belly), the boulder over its head, thrown (arms out), knocked over dazed | `256x256-tile_4x1-rock-chucker.webp` |
+| `spiny-caterpillar-sheet.png` | crawling stretched, crawling humped, curled into a C turning, on its back dazed (seen from above, head up) | `256x256-tile_4x1-spiny-caterpillar.webp` |
+| `ledge-raven-sheet.png` | perched, flying right wings up, flying right wings down, fallen on its back | `256x256-tile_4x1-ledge-raven.webp` |
+| `climb-props-sheet.png` | the boulder, the boulder turned, its shards, a pebble | `64x64-tile_2x1-climb-rock.webp`, `128x128-climb-rock-shards.webp`, `64x64-climb-pebble.webp` |
+
+- **Rock Chucker:** "A sprite sheet of one mountain enemy for a top-down adventure game, the Rock
+  Chucker: a burly, mean-looking grey-brown worm warrior with a thick segmented body, a dented iron
+  helmet, a scowling face with small angry glossy eyes and a gritted underbite, two short stubby
+  strong arms, and a cloth sack of rocks slung on its back. It squats on a cliff top and throws
+  boulders down the cliff." Then the 2 x 2 grid of the four poses above, facing the viewer.
+- **Spiny Caterpillar:** "... the Spiny Caterpillar: a fat, mean caterpillar that crawls on vines up
+  a cliff wall, with a mustard-yellow and moss-green banded body, a row of long sharp toadstool-red
+  spikes along its back and sides, small mean red glossy eyes and little hooked mandibles. It is
+  seen from straight above, lying flat on the wall, its head pointing up toward the top of the
+  image and its tail toward the bottom." Then the four poses.
+- **Ledge Raven:** "... the Ledge Raven: a big scruffy glossy black raven with blue-violet sheen on
+  its feathers, a heavy sharp grey beak, mean glowing amber eyes and ragged wing tips. It nests on
+  rock ledges of a cliff wall." The flights "in strict side profile" to the right.
+- **Climb props:** "A sheet of four separate game props in a 2 by 2 grid ...: a round heavy grey
+  boulder about the size of a melon, cracked and chipped, with a speck of moss; the exact same
+  boulder turned a quarter round; the same boulder smashed into five or six sharp grey rock shards
+  and a little gravel; a small grey pebble."

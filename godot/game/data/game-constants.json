@@ -502,7 +502,7 @@
     "feral": {"climbSpeed": 150, "grabReachPx": 44, "faceInsetPx": 18, "dropMs": 320, "dropHopPx": 10,
       "spearTempo": 2.0, "refusalEveryMs": 2500, "strikeSeekPx": 240,
       "vines": {"sideInsetPx": 14, "footStandPx": 20, "topInsidePx": 40, "lipStandPx": 20, "lipHangPx": 10,
-        "landBelowFootPx": 30}}
+        "landBelowFootPx": 30, "letGoPastPx": 12}}
   },
   "dungeon": {
     "devPowers": {
