@@ -4,9 +4,13 @@ extends Node
 ## sprite's offset, scale, rotation and skew for the reactions - the hold's nudge and squash, the
 ## launch tumble (stretch, spin, hop and bounce, afterimages, landing squash), the Hammer's flatten,
 ## the ring's bounce hop, the wall splat, the knockback lean, the knockdown fall, the daze sway, the
-## heavy shake and the belly wobble - plus the overlays: the jitter of a frozen victim, the
-## break-free outline flash, the daze stars and a real-time flash for receivers without one of their
-## own (the training dummy). The body never moves here: EnemyReactions moves it through the enemy's
+## heavy shake, the belly wobble and a throw's knock (the body squashed on the hit frame, then
+## stretched as it flies back in a small hop with afterimages and skid dust, a landing squash, then
+## the stun's own motion) - plus the overlays: the jitter of a frozen victim (a hard hit's shake side
+## to side, shrinking over the freeze: `shake_in_freeze`), the break-free outline flash, the daze
+## stars and a real-time flash for receivers without one of their own (the training dummy).
+## A motion whose params carry `then` (a motion) and `then_params` plays that one when it ends, along
+## the same direction, without letting the sprite go in between. The body never moves here: EnemyReactions moves it through the enemy's
 ## own ArcadeMover step. EnemyReactions makes one per enemy (`EnemyReactions.motion_of`), a child of
 ## the enemy's script node, and calls `setup` with its sprite.
 ##
@@ -33,7 +37,8 @@ const NUDGE := &"nudge"
 ## Squash along the hit, stretch across it, spring back [along, across, ms, amplitude, elastic,
 ## nudge_px, nudge_ms, skew].
 const SQUASH := &"squash"
-## The launch: stretch, spin, hop and bounce, afterimages, landing squash [deg, hop_px, ms].
+## The launch: stretch, spin, hop and bounce, afterimages, landing squash [deg, hop_px, ms,
+## ghost_white (white afterimages: a throw's send-off)].
 const TUMBLE := &"tumble"
 ## The Thud's flatten, held, then back [x, y, ms, return_ms].
 const FLATTEN := &"flatten"
@@ -47,10 +52,27 @@ const SPLAT := &"splat"
 const WOBBLE := &"wobble"
 ## A knockback: leans with the push, then back [rad, ms].
 const LEAN := &"lean"
-## A knockdown: falls over, stays down, gets up [rad, ms].
+## A knockdown: falls over, stays down, gets up [rad, ms, down (it is down already: no fall in)].
 const FALL := &"fall"
 ## A daze: sways in place [rad, ms].
 const DAZE := &"daze"
+## A throw's knock, played while the stunned body slides back (EnemyReactions, the hit's
+## `knock_motion`): squashed along the throw on the hit frame (held through the freeze), stretched
+## along it as it leaves, a hop with afterimages, dust at the feet along the skid and where it
+## lands, a landing squash [ms (the flight), hop_px, squash_along, squash_across, stretch_along,
+## stretch_across, tilt (rad, with the push: there and back, or kept with tilt_hold: a knockdown
+## lands on its back), tilt_hold, ghosts, dust_px (a puff every so many px; 0 = none)].
+const KNOCK := &"knock"
+## A blown enemy's fates (game/combat/reactions/enemy_hazards.gd). The fall off a ledge: the art
+## rides above the falling body by what gravity adds, stretched going up and squashed coming down,
+## as the slime's ledge drop does (jump_sequence.gd) [ms, lift].
+const DROP := &"drop"
+## Into an endless hole: it spins and shrinks to nothing, sinking a little, and stays gone (the
+## slime's void fall: hazard_watch.gd) [ms, turns, sink_px].
+const HOLE_FALL := &"hole-fall"
+## Into deep water: it sinks and shrinks a little, and stays so (the fade is the body's) [ms,
+## sink_px, scale].
+const DROWN := &"drown"
 
 ## Presentation numbers (combat-feel plan section 6); the data ones (`combat.verbs`) come in the
 ## params from EnemyReactions.
@@ -102,12 +124,45 @@ const FALL_TURN_MS := 150.0
 const DAZE_RAD := 0.09
 const DAZE_MS := 1200.0
 const DAZE_SWAY_HZ := 1.4
+## The knock: the squash turns into the stretch over KNOCK_SNAP_MS, the stretch eases out over
+## KNOCK_STRETCH_MS; it lands with this share of the landing squash.
+const KNOCK_MS := 300.0
+const KNOCK_HOP_PX := 12.0
+const KNOCK_SQUASH_ALONG := 0.7
+const KNOCK_SQUASH_ACROSS := 1.25
+const KNOCK_SNAP_MS := 50.0
+const KNOCK_STRETCH_MS := 170.0
+const KNOCK_LANDING_SHARE := 0.6
+## The skid's dust (a small puff along the way, a full one where it lands).
+const KNOCK_DUST := &"dodge-dust"
+const KNOCK_SKID_DUST_SCALE := 0.55
+## A hard hit's shake in the freeze: side to side, this share of it across, never under this share
+## of its size while the freeze lasts.
+const FREEZE_SHAKE_MS := 150.0
+const FREEZE_SHAKE_CROSS := 0.25
+const FREEZE_SHAKE_FLOOR := 0.25
+## The fall's stretch and squash (the slime's: jump_sequence.gd STRETCH, SQUASH), and the fates'
+## looks (the slime's void fall and sinking: hazard_watch.gd FALL_TURNS, FALL_SINK_PX, WATER_SCALE).
+const DROP_STRETCH := Vector2(0.82, 1.35)
+const DROP_SQUASH := Vector2(1.18, 0.70)
+const DROP_MS := 350.0
+const HOLE_TURNS := 1.5
+const HOLE_SINK_PX := 10.0
+const HOLE_MS := 600.0
+const DROWN_SCALE := 0.8
+const DROWN_SINK_PX := 14.0
+const DROWN_MS := 650.0
+## A fate's last pose is held this long past its time (the body is freed before it ends).
+const FATE_HOLD_MS := 10000.0
 ## The Axe's twist: a skew along the sweep.
 const AXE_SKEW_RAD := 0.3
 const AFTERIMAGE_COUNT := 3
 const AFTERIMAGE_GAP_MS := 45.0
 const AFTERIMAGE_FADE_S := 0.22
 const AFTERIMAGE_ALPHA := 0.45
+## A throw's afterimages (the knock's, a send-off's tumble with `ghost_white`): white silhouettes.
+const WHITE_GHOST_COLOR := Color(1.0, 1.0, 1.0)
+const WHITE_GHOST_ALPHA := 0.6
 ## The break-free tell: a yellow-white outline flash.
 const OUTLINE_COLOR := Color(1.0, 0.96, 0.62, 1.0)
 const OUTLINE_PX := 2.0
@@ -132,6 +187,16 @@ var _age_ms: float = 0.0
 var _length_ms: float = 0.0
 var _side: float = 1.0
 var _ghosts_made: int = 0
+## The knock: where the body was last frame, how far it came since the last puff, landed yet.
+var _knock_at: Vector2 = Vector2.INF
+var _knock_run_px: float = 0.0
+var _knock_landed: bool = false
+## A hard hit's shake in the freeze (`shake_in_freeze`): its size and length, the time frozen so
+## far and the side it is on.
+var _shake_px: float = 0.0
+var _shake_ms: float = 0.0
+var _frozen_ms: float = 0.0
+var _shake_side: float = 1.0
 ## The base the motion is applied on (the sprite's own values) and what it last wrote.
 var _writing: bool = false
 var _base_offset: Vector2 = Vector2.ZERO
@@ -182,9 +247,23 @@ func play(motion: StringName, direction: Vector2 = Vector2.ZERO, params: Diction
 	_params = params
 	_age_ms = 0.0
 	_ghosts_made = 0
+	_knock_at = Vector2.INF
+	_knock_run_px = 0.0
+	_knock_landed = false
+	_shake_px = 0.0
 	_side = -1.0 if _direction.x < 0.0 else 1.0
 	_length_ms = _length_of(motion)
 	set_process(true)
+
+
+## A hard hit's shake (a throw's `big` hit): while the freeze that follows holds the victim, it
+## shakes side to side by `px`, shrinking over `ms` (in place of the small random jitter). Call it
+## after `play`; the next freeze uses it once.
+func shake_in_freeze(px: float, ms: float = FREEZE_SHAKE_MS) -> void:
+	_shake_px = maxf(0.0, px)
+	_shake_ms = maxf(1.0, ms)
+	_frozen_ms = 0.0
+	_shake_side = 1.0
 
 
 ## True while a motion plays.
@@ -230,12 +309,14 @@ func flash(duration_ms: float) -> void:
 	set_process(true)
 
 
-## Stars orbit the head until `until_ms` (simulation ms); a later call moves the end.
-func show_stars(until_ms: float) -> void:
+## Stars orbit the head until `until_ms` (simulation ms), `size` times as big (a throw's daze); a
+## later call moves the end and keeps the bigger size.
+func show_stars(until_ms: float, size: float = 1.0) -> void:
 	if not _has_visual():
 		return
 	if _stars != null and is_instance_valid(_stars) and not _stars.is_queued_for_deletion():
 		_stars.set(&"until_ms", maxf(float(_stars.get(&"until_ms")), until_ms))
+		_stars.set(&"size", maxf(float(_stars.get(&"size")), size))
 		return
 	var root := visual.get_parent() as Node2D
 	if root == null:
@@ -245,6 +326,7 @@ func show_stars(until_ms: float) -> void:
 	var rect := visual.get_rect()
 	stars.head = visual.transform * Vector2(rect.get_center().x, rect.position.y)
 	stars.until_ms = until_ms
+	stars.size = maxf(size, 0.1)
 	root.add_child(stars)
 	_stars = stars
 
@@ -275,10 +357,20 @@ func _process(delta: float) -> void:
 		jitter = _random_jitter(float(_params.get("px", JITTER_PX)))
 	elif frozen:
 		if bool(_params.get("jitter", true)):
-			jitter = _random_jitter(JITTER_PX)
+			jitter = _freeze_shake(real_ms) if _shake_px > 0.0 else _random_jitter(JITTER_PX)
 	elif not held:
 		_age_ms += real_ms
+		if _frozen_ms > 0.0:
+			# The freeze is over: the shake was this hit's.
+			_shake_px = 0.0
+			_frozen_ms = 0.0
 	if _age_ms >= _length_ms:
+		var next: Variant = _params.get("then")
+		if (next is StringName or next is String) and not str(next).is_empty():
+			var next_params: Variant = _params.get("then_params", {})
+			play(StringName(str(next)), _direction, next_params if next_params is Dictionary else {})
+			_apply_pose(0.0, Vector2.ZERO)
+			return
 		_motion = &""
 		_release()
 		return
@@ -313,6 +405,14 @@ func _length_of(motion: StringName) -> float:
 			return maxf(2.0 * FALL_TURN_MS, _param("ms", FALL_MS))
 		DAZE:
 			return _param("ms", DAZE_MS)
+		KNOCK:
+			return _param("ms", KNOCK_MS) + LANDING_MS
+		DROP:
+			return _param("ms", DROP_MS)
+		HOLE_FALL:
+			return _param("ms", HOLE_MS) + FATE_HOLD_MS
+		DROWN:
+			return _param("ms", DROWN_MS) + FATE_HOLD_MS
 	return 0.0
 
 
@@ -346,7 +446,7 @@ func _apply_pose(t: float, jitter: Vector2) -> void:
 				var u := t / spin_ms
 				rotation = _side * deg_to_rad(_param("deg", TUMBLE_DEG)) * (1.0 - pow(1.0 - u, 2.0))
 				offset = Vector2(0.0, -_hop_height(u, _param("hop_px", TUMBLE_HOP_PX)))
-				_make_afterimages(t)
+				_make_afterimages(t, AFTERIMAGE_COUNT, bool(_params.get("ghost_white", false)))
 			else:
 				var land := clampf((t - spin_ms) / LANDING_MS, 0.0, 1.0)
 				factor = Vector2.ONE + (LANDING_SQUASH - Vector2.ONE) * _ease_back(land)
@@ -384,12 +484,53 @@ func _apply_pose(t: float, jitter: Vector2) -> void:
 			rotation = _side * _param("rad", LEAN_RAD) * k
 		FALL:
 			var down_ms := _length_ms
-			var k := minf(1.0, t / FALL_TURN_MS)
+			var k := 1.0 if bool(_params.get("down", false)) else minf(1.0, t / FALL_TURN_MS)
 			if t > down_ms - FALL_TURN_MS:
 				k = maxf(0.0, (down_ms - t) / FALL_TURN_MS)
 			rotation = _side * _param("rad", FALL_RAD) * k
 		DAZE:
 			rotation = _param("rad", DAZE_RAD) * sin(TAU * DAZE_SWAY_HZ * t / 1000.0)
+		KNOCK:
+			var fly_ms := maxf(1.0, _param("ms", KNOCK_MS))
+			var tilt := _param("tilt", 0.0)
+			var keeps := bool(_params.get("tilt_hold", false))
+			if t < fly_ms:
+				var u := t / fly_ms
+				var squash := Vector2(_param("squash_along", KNOCK_SQUASH_ALONG), _param("squash_across", KNOCK_SQUASH_ACROSS))
+				var stretch := Vector2(_param("stretch_along", STRETCH_ALONG), _param("stretch_across", STRETCH_ACROSS))
+				var shape := stretch
+				if t < KNOCK_SNAP_MS:
+					shape = squash.lerp(stretch, t / KNOCK_SNAP_MS)
+				else:
+					shape = Vector2.ONE.lerp(stretch, _ease_back((t - KNOCK_SNAP_MS) / KNOCK_STRETCH_MS))
+				factor = _directional(shape.x, shape.y)
+				offset = Vector2(0.0, -_param("hop_px", KNOCK_HOP_PX) * sin(PI * u))
+				rotation = _side * tilt * ((1.0 - pow(1.0 - u, 2.0)) if keeps else sin(PI * u))
+				if t > 0.0:
+					_make_afterimages(t, int(_param("ghosts", 0.0)), true)
+					_knock_dust(false)
+			else:
+				var land := clampf((t - fly_ms) / LANDING_MS, 0.0, 1.0)
+				# A body that landed on its back squashes across its length.
+				var landing := Vector2(LANDING_SQUASH.y, LANDING_SQUASH.x) if keeps else LANDING_SQUASH
+				factor = Vector2.ONE + (landing - Vector2.ONE) * KNOCK_LANDING_SHARE * _ease_back(land)
+				rotation = _side * tilt if keeps else 0.0
+				_knock_dust(true)
+		DROP:
+			var u := clampf(t / maxf(1.0, _param("ms", DROP_MS)), 0.0, 1.0)
+			offset = Vector2(0.0, -_param("lift", 0.0) * u * (1.0 - u))
+			factor = Vector2.ONE.lerp(DROP_STRETCH, u * 2.0) if u < 0.5 else DROP_STRETCH.lerp(DROP_SQUASH, (u - 0.5) * 2.0)
+		HOLE_FALL:
+			var u := clampf(t / maxf(1.0, _param("ms", HOLE_MS)), 0.0, 1.0)
+			var gone := u * u
+			factor = Vector2.ONE * (1.0 - gone)
+			rotation = _side * TAU * _param("turns", HOLE_TURNS) * gone
+			offset = Vector2(0.0, _param("sink_px", HOLE_SINK_PX) * gone)
+		DROWN:
+			var u := clampf(t / maxf(1.0, _param("ms", DROWN_MS)), 0.0, 1.0)
+			var under := 1.0 - (1.0 - u) * (1.0 - u)
+			factor = Vector2.ONE * lerpf(1.0, _param("scale", DROWN_SCALE), under)
+			offset = Vector2(0.0, _param("sink_px", DROWN_SINK_PX) * under)
 	var soft := _motion_scale()
 	if soft < 1.0:
 		offset *= soft
@@ -440,6 +581,47 @@ func _random_jitter(px: float) -> Vector2:
 	return Vector2(randf_range(-px, px), randf_range(-px, px))
 
 
+## One frame of a hard hit's shake in the freeze: from side to side, `_shake_px` shrinking over
+## `_shake_ms` of freeze (never under FREEZE_SHAKE_FLOOR of it), a little of it across.
+func _freeze_shake(real_ms: float) -> Vector2:
+	var size := _shake_px * maxf(FREEZE_SHAKE_FLOOR, 1.0 - _frozen_ms / _shake_ms)
+	_frozen_ms += real_ms
+	_shake_side = -_shake_side
+	return Vector2(_shake_side * size, randf_range(-size, size) * FREEZE_SHAKE_CROSS)
+
+
+## The knock's dust: a small puff at the feet every `dust_px` the body came, and a full one where
+## it lands (`landed`, once).
+func _knock_dust(landed: bool) -> void:
+	var every := _param("dust_px", 0.0)
+	if every <= 0.0:
+		return
+	var feel := Services.feel()
+	if feel == null:
+		return
+	if landed:
+		if not _knock_landed:
+			_knock_landed = true
+			feel.burst(KNOCK_DUST, _feet(), Vector2.ZERO, Color.WHITE, 1.0)
+		return
+	var at := visual.global_position
+	if _knock_at != Vector2.INF:
+		_knock_run_px += at.distance_to(_knock_at)
+	_knock_at = at
+	if _knock_run_px >= every:
+		_knock_run_px = 0.0
+		feel.burst(KNOCK_DUST, _feet(), Vector2.ZERO, Color.WHITE, KNOCK_SKID_DUST_SCALE)
+
+
+## The feet on the ground (world): the bottom middle of the sprite at rest.
+func _feet() -> Vector2:
+	var rect := visual.get_rect()
+	var local := Vector2(rect.get_center().x, rect.end.y) - visual.offset + _base_offset
+	var parent := visual.get_parent() as CanvasItem
+	var point := visual.position + local * _base_scale
+	return parent.get_global_transform() * point if parent != null else visual.global_position
+
+
 # --- writing on top of the sprite's own values -----------------------------------------------
 
 func _write(offset_px: Vector2, factor: Vector2, rotation: float, skew: float) -> void:
@@ -448,7 +630,7 @@ func _write(offset_px: Vector2, factor: Vector2, rotation: float, skew: float) -
 	# The offset is in the sprite's turned frame: undo the rotation so a hop is screen-up.
 	var turned := _base_rotation + rotation
 	var shift := offset_px.rotated(-turned) / scale_abs
-	if _motion == TUMBLE:
+	if _motion == TUMBLE or _motion == HOLE_FALL:
 		# Spin about the art's centre, not the node origin (the dummy's origin is its feet).
 		var centre := visual.get_rect().get_center() - visual.offset + _base_offset
 		shift += centre.rotated(-rotation) - centre
@@ -571,10 +753,12 @@ func _copy_frame(copy: Sprite2D) -> void:
 	copy.offset = visual.offset
 
 
-## The tumble's afterimages: a fading copy of the sprite every AFTERIMAGE_GAP_MS, left where the body
-## was (on the world's entity layer, so they sort with it).
-func _make_afterimages(t: float) -> void:
-	while _ghosts_made < AFTERIMAGE_COUNT and t >= float(_ghosts_made) * AFTERIMAGE_GAP_MS:
+## The tumble's and the knock's afterimages: a fading copy of the sprite every AFTERIMAGE_GAP_MS,
+## `count` at most, left where the body was (on the world's entity layer, so they sort with it).
+## `white` (a throw's knock and send-off): white silhouettes, a trail that reads at game size where
+## a faint copy of a dark sprite does not.
+func _make_afterimages(t: float, count: int, white: bool = false) -> void:
+	while _ghosts_made < count and t >= float(_ghosts_made) * AFTERIMAGE_GAP_MS:
 		_ghosts_made += 1
 		var world := Services.world()
 		var parent: Node = world.entities_root() if world != null else null
@@ -589,7 +773,19 @@ func _make_afterimages(t: float) -> void:
 		parent.add_child(ghost)
 		ghost.global_transform = visual.global_transform
 		var fade := ghost.create_tween()
-		fade.tween_property(ghost, ^"modulate:a", 0.0, AFTERIMAGE_FADE_S)
+		if white:
+			if _silhouette == null:
+				_silhouette = Shader.new()
+				_silhouette.code = SILHOUETTE_CODE
+			var fill := ShaderMaterial.new()
+			fill.shader = _silhouette
+			fill.set_shader_parameter(&"tint", Color(WHITE_GHOST_COLOR, WHITE_GHOST_ALPHA))
+			ghost.material = fill
+			ghost.modulate = Color.WHITE
+			fade.tween_method(func(alpha: float) -> void:
+				fill.set_shader_parameter(&"tint", Color(WHITE_GHOST_COLOR, alpha)), WHITE_GHOST_ALPHA, 0.0, AFTERIMAGE_FADE_S)
+		else:
+			fade.tween_property(ghost, ^"modulate:a", 0.0, AFTERIMAGE_FADE_S)
 		fade.tween_callback(ghost.queue_free)
 
 

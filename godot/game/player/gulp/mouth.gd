@@ -34,6 +34,26 @@ extends RefCounted
 ## throw stretches and leans it toward the throw. The pulled thing flies in at its PULL_LOOK_PX look,
 ## shrinking (it flew at its full art size before).
 ##
+## The new throw feel (game/throw/throw_feel.gd, `gulp.throwFeel`; only while it is on): what the
+## slime holds shows bigger and solid (`heldLookPx`, `heldAlpha`, `heldRisePx` over the feet), a
+## liftable's throw plays `cues.toss` (ThrowToss; GulpSpit until that cue exists) and the strong
+## thrower's feel (GulpFeel.thrown `strong`), and a thing dropped on a hit bursts at its flying size.
+## An essence spat out keeps GulpSpit and the old feel.
+##
+## The rebound prototype (ThrowFeel.rebound_on; game/throw/throw_rebound.gd): a sturdy thing keeps
+## count of the hits it has left in `held.uses` (read from the thing sucked in: ThrowAmmo.USES_META
+## on a thing that rebounded and lies there) and shows its wear (ThrowFeel.wear_tint). **The mouth
+## catch** (`snap_catch`, from mouth_hold.gd on a Q press): a rebound still in the air goes straight
+## into the mouth, with no suck and no pull: the catch cue pitched up (`catchPitch`), a streak
+## from where it was to the mouth (`catchSnapMs`), a sparkle ring (`catchRingPx`), "Catch!" over the slime, and `held.hot`: its next throw is a hot throw (it glows
+## in the mouth and in flight: throw_glow.gd; thrown_object.gd).
+##
+## The enemy-ammo prototype (game/throw/gulpable_enemy.gd): a helpless enemy is a suckable too; the
+## mouth holds it as `{"kind": "enemy", ...}` (its own picture: held_look.gd) and throws it like a
+## thing. A hit that makes the slime drop it lets it go alive (`drop`: GulpableEnemy.release, also
+## for one still flying in); it is never saved with the run (`saved_held`), and death or a door only
+## forget it (the enemy's helper notices and puts it back).
+##
 ## Owner: abilities (the burst: mouth).
 
 const Services := preload("res://game/shared/services.gd")
@@ -67,6 +87,18 @@ const GooBomb := preload("res://game/scripts/goo_bomb.gd")
 const CUE_SUCK := &"GulpSuck"
 const CUE_CATCH := &"GulpCatch"
 const CUE_THROW := &"GulpSpit"
+## The new throw feel: its switch and numbers; a held thing's weight (its flying look's size).
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+## The rebound prototype: the hits a thing lying there has left, the catch's ring, the hot glow.
+const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
+const ThrowImpact := preload("res://game/throw/throw_impact.gd")
+const ThrowGlow := preload("res://game/throw/throw_glow.gd")
+const TEXT_CATCH := "Catch!"
+const CATCH_COLOR := &"yellow"
+const CUE_PITCH_KEY := "pitch"
+## The enemy-ammo prototype: a carried enemy in the mouth.
+const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
 
 ## {} or {"kind", "essence"}.
 var held: Dictionary = {}
@@ -308,8 +340,10 @@ func throw(direction: Vector2) -> bool:
 	thrown.name = "Thrown"
 	parent.add_child(thrown)
 	thrown.launch(_player, held, body.global_position, direction)
-	_audio(CUE_THROW)
-	GulpFeel.thrown(_player, direction)
+	# The new throw feel: the toss cue and the strong thrower's feel (never for a Goo Bomb).
+	var strong := ThrowFeel.is_on() and GooBomb.from_held(held) == null
+	_audio(_cue_or(ThrowFeel.cue("toss"), CUE_THROW) if strong else CUE_THROW)
+	GulpFeel.thrown(_player, direction, strong)
 	_set_held({})
 	return true
 
@@ -337,8 +371,39 @@ func take_item(item_id: String) -> bool:
 		return false
 	_set_held({"kind": "essence", "essence": str(form["essence"])})
 	_audio(CUE_CATCH)
-	GulpFeel.caught(_player, _inside, Vector2(0.0, -INSIDE_RISE))
+	GulpFeel.caught(_player, _inside, Vector2(0.0, -_inside_rise()))
 	return true
+
+
+## The rebound prototype's mouth catch: `flying` (a ThrowRebound in the air: `take`) goes straight
+## into the mouth and its next throw is hot. False when the mouth is busy or it was already gone.
+func snap_catch(flying: Node) -> bool:
+	if is_holding() or _sucking or not _pull.is_empty() or flying == null or not is_instance_valid(flying):
+		return false
+	var was_at: Vector2 = flying.call(&"air_point")
+	var info: Dictionary = flying.call(&"take")
+	if info.is_empty():
+		return false
+	info["hot"] = true
+	_set_held(info)
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_CATCH, {CUE_PITCH_KEY: ThrowFeel.rebound_number("catchPitch", 1.0)})
+	GulpFeel.caught(_player, _inside, Vector2(0.0, -_inside_rise()))
+	var body := _player.get(&"body") as Node2D
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if body != null and parent != null:
+		ThrowImpact.snap(parent, was_at, body.global_position - Vector2(0.0, MOUTH_RISE), ThrowFeel.rebound_number("catchSnapMs", 0.0))
+		ThrowImpact.star(parent, body.global_position - Vector2(0.0, MOUTH_RISE), Vector2.UP,
+			ThrowFeel.rebound_number("catchRingPx", 0.0), ThrowFeel.block("star"), true)
+	GulpController.say_over(_player, TEXT_CATCH, CATCH_COLOR)
+	return true
+
+
+## Shows what the slime holds again (the throw yard's F1: the held look's size follows the feel).
+func refresh_inside() -> void:
+	_show_inside()
 
 
 ## Swallowed (the Swallow ability): the mouth is empty again.
@@ -349,6 +414,10 @@ func clear_held() -> void:
 ## A hit: what the slime holds falls. A liftable bursts at its feet; an essence lands whole
 ## beside it and fades after `gulp.dropFadeMs`. A suck in progress stops.
 func drop() -> void:
+	# The enemy-ammo prototype: an enemy still flying in is let go at once.
+	var pulled: Variant = _pull.get("info")
+	if pulled is Dictionary and GulpableEnemy.is_enemy(pulled as Dictionary):
+		GulpableEnemy.release(pulled as Dictionary)
 	_cancel_pull()
 	_stop_suck()
 	if not is_holding() or _player == null:
@@ -358,6 +427,9 @@ func drop() -> void:
 	if str(held.get("kind", "")) == "essence":
 		var facing: Vector2 = _player.call(&"get_facing")
 		EssenceScript.spawn(str(held["essence"]), feet - facing * 28.0, _player.call(&"get_centre"), _constant("gulp.dropFadeMs"))
+	elif GulpableEnemy.is_enemy(held):
+		# A carried enemy comes out alive beside the slime (game/throw/gulpable_enemy.gd).
+		GulpableEnemy.release(held)
 	elif GooBomb.from_held(held) != null:
 		# A Goo Bomb falls out whole and keeps ticking (game/scripts/goo_bomb.gd).
 		var facing: Vector2 = _player.call(&"get_facing")
@@ -366,7 +438,7 @@ func drop() -> void:
 		# It breaks at the slime's feet as a thrown one breaks where it lands.
 		var material := HeldLook.material_of(held)
 		var world := Services.world()
-		var look := HeldLook.make(held, ThrownObject.LOOK_SIZE_PX)
+		var look := HeldLook.make(held, ThrowFeel.look_px(ThrowMode.weight_of_held(held), ThrownObject.LOOK_SIZE_PX))
 		if world != null and look is Sprite2D:
 			BreakBurst.burst(world.entities_root(), feet - Vector2(0.0, MOUTH_RISE * 0.5), look as Sprite2D)
 		look.free()
@@ -374,8 +446,14 @@ func drop() -> void:
 		if feel != null:
 			for preset: StringName in ThrownObject.BREAK_PARTICLES.get(material, [&"dodge-dust"]):
 				feel.particles(preset, feet)
-			feel.audio_cue(ThrownObject.BREAK_CUES.get(material, ThrownObject.CUE_FALLBACK))
+			feel.audio_cue(ThrownObject.break_cue(material))
 	_set_held({})
+
+
+## What a door or a save keeps of the held thing (player.gd `run_snapshot`): `held`, but never a
+## carried enemy (it stays in its world: game/throw/gulpable_enemy.gd).
+func saved_held() -> Dictionary:
+	return {} if GulpableEnemy.is_enemy(held) else held.duplicate()
 
 
 ## Death: the held thing and any suck are gone without a trace.
@@ -396,11 +474,19 @@ func restore(state: Dictionary) -> void:
 	if kind == "essence":
 		_set_held({"kind": kind, "essence": str(state.get("essence", ""))})
 	elif not LiftableScript.entry(kind).is_empty():
-		_set_held({"kind": kind, "essence": "", "variant": int(state.get("variant", 0)), "weight": str(state.get("weight", ""))})
+		var next := {"kind": kind, "essence": "", "variant": int(state.get("variant", 0)), "weight": str(state.get("weight", ""))}
+		# The rebound prototype: a sturdy thing keeps the hits it has left, and a caught one its heat.
+		for key: String in ["uses", "hot"]:
+			if state.has(key):
+				next[key] = state[key]
+		_set_held(next)
 
 
 func _start_pull(target: Node, now_ms: float) -> void:
 	var info: Dictionary = target.call(&"suck_info")
+	# The rebound prototype: a sturdy thing that rebounded lies there with the hits it has left.
+	if target.has_meta(ThrowAmmo.USES_META):
+		info["uses"] = int(target.get_meta(ThrowAmmo.USES_META))
 	var from: Vector2 = target.call(&"origin")
 	target.call(&"take")
 	var look := HeldLook.make(info, PULL_LOOK_PX)
@@ -435,7 +521,7 @@ func _finish_pull() -> void:
 	_stop_suck()
 	_set_held(info)
 	_audio(CUE_CATCH)
-	GulpFeel.caught(_player, _inside, Vector2(0.0, -INSIDE_RISE))
+	GulpFeel.caught(_player, _inside, Vector2(0.0, -_inside_rise()))
 
 
 func _cancel_pull() -> void:
@@ -479,12 +565,34 @@ func _show_inside() -> void:
 	var body := _player.get(&"body") as Node2D if _player != null else null
 	if held.is_empty() or body == null:
 		return
-	_inside = HeldLook.make(held, INSIDE_LOOK_PX)
+	# The new throw feel shows it bigger and solid (`heldLookPx`, `heldAlpha`).
+	var strong := ThrowFeel.is_on()
+	_inside = HeldLook.make(held, ThrowFeel.number("heldLookPx", INSIDE_LOOK_PX) if strong else INSIDE_LOOK_PX)
 	_inside.name = "HeldInside"
-	_inside.position = Vector2(0.0, -INSIDE_RISE)
-	_inside.modulate = Color(1.0, 1.0, 1.0, INSIDE_ALPHA)
+	_inside.position = Vector2(0.0, -_inside_rise())
+	_inside.modulate = Color(1.0, 1.0, 1.0, ThrowFeel.number("heldAlpha", INSIDE_ALPHA) if strong else INSIDE_ALPHA)
 	_inside.z_index = 1
 	body.add_child(_inside)
+	# The rebound prototype: a sturdy thing shows its wear, a caught one glows.
+	if ThrowFeel.rebound_on() and str(held.get("kind", "")) != "essence" and not GulpableEnemy.is_enemy(held):
+		var wear := ThrowFeel.wear_tint(held, HeldLook.material_of(held))
+		_inside.modulate = Color(wear.r, wear.g, wear.b, _inside.modulate.a)
+		if bool(held.get("hot", false)):
+			ThrowGlow.attach(_inside, ThrowFeel.number("heldLookPx", INSIDE_LOOK_PX) * ThrowFeel.rebound_number("glowShare", 1.0))
+
+
+## How high over the feet what the slime holds shows (INSIDE_RISE; the new throw feel's `heldRisePx`).
+func _inside_rise() -> float:
+	return ThrowFeel.number("heldRisePx", INSIDE_RISE) if ThrowFeel.is_on() else INSIDE_RISE
+
+
+## `cue` when the global audio scene has it, else `fallback` (a cue the sound work has not made yet).
+func _cue_or(cue: StringName, fallback: StringName) -> StringName:
+	var feel := Services.feel()
+	var root := feel.global_audio() if feel != null else null
+	if cue.is_empty() or root == null or root.find_child(String(cue), true, false) == null:
+		return fallback
+	return cue
 
 
 func _audio(cue: StringName) -> void:

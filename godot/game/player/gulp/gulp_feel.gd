@@ -19,11 +19,18 @@ extends RefCounted
 ##   for a heavy material (`heavyMaterials`) a small camera nudge along the throw (`heavyKickPx`).
 ## Reduce motion keeps SquashStretch's share of the squashes, drops the lean, and GameFeel drops the
 ## nudge.
+## The new throw feel (game/throw/throw_feel.gd, `gulp.throwFeel.thrower`): a liftable's throw is
+## `thrown(..., true)`: `stretch` over `stretchMs`, a lunge of `leanPx` that recoils `recoilPx` back
+## past the slime's place and settles over `leanMs`, and a puff ring `puffPx` across over `puffMs`
+## leaving the mouth from `puffAheadPx` ahead of it.
 ##
 ## Owner: abilities.
 
 const Services := preload("res://game/shared/services.gd")
 const GulpMotes := preload("res://game/player/gulp/gulp_motes.gd")
+## The new throw feel's numbers (`gulp.throwFeel.thrower`) and its mouth puff.
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
+const ThrowImpact := preload("res://game/throw/throw_impact.gd")
 
 const ROOT := "gulp.feel"
 ## The motes end at the mouth: this high over the feet (as suction_fx.gd MOUTH_RISE).
@@ -34,6 +41,9 @@ const DUST_PRESET := &"dodge-dust"
 ## A break counts as on the ground when it is this close to the ground point under it.
 const GROUND_EPSILON_PX := 4.0
 const LEAN_META := &"gulp_lean_tween"
+## A strong throw's lean spends this share of `leanMs` going from the lunge to the recoil, the rest
+## settling.
+const RECOIL_SHARE := 0.45
 
 
 ## Q starts a suck: the squash and the motes, from ahead along `aim`.
@@ -68,12 +78,16 @@ static func caught(player: Node, inside: Node2D, rest: Vector2) -> void:
 	tween.tween_property(inside, "scale", base_scale, settle_ms / 1000.0)
 
 
-## A throw (or an essence spat out) along `direction`: the stretch and the lean.
-static func thrown(player: Node, direction: Vector2) -> void:
-	var numbers := _block("throw")
+## A throw (or an essence spat out) along `direction`: the stretch and the lean. `strong` (a liftable
+## thrown with the new throw feel) plays `gulp.throwFeel.thrower` instead: a bigger stretch and lean,
+## a recoil, and a puff ring leaving the mouth (`_puff`).
+static func thrown(player: Node, direction: Vector2, strong: bool = false) -> void:
+	var numbers := ThrowFeel.block("thrower") if strong else _block("throw")
 	if player == null or numbers.is_empty() or direction == Vector2.ZERO:
 		return
 	var unit := direction.normalized()
+	if strong:
+		_puff(player, unit, numbers)
 	var along_x := absf(unit.x) / maxf(0.001, absf(unit.x) + absf(unit.y))
 	var stretch := _num(numbers, "stretch", 0.0)
 	var scale := Vector2(1.0 + stretch * along_x - stretch * CROSS_SHARE * (1.0 - along_x),
@@ -90,8 +104,27 @@ static func thrown(player: Node, direction: Vector2) -> void:
 	if previous is Tween and (previous as Tween).is_valid():
 		(previous as Tween).kill()
 	var tween := visual.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_method(Callable(player, &"set_effect_offset"), unit * lean_px, Vector2.ZERO, lean_ms / 1000.0)
+	var recoil_px := _num(numbers, "recoilPx", 0.0) if strong else 0.0
+	if recoil_px > 0.0:
+		# The throw's kick: the slime lunges with it, is pushed back past its place, and settles.
+		var back := -unit * recoil_px
+		tween.tween_method(Callable(player, &"set_effect_offset"), unit * lean_px, back, lean_ms * RECOIL_SHARE / 1000.0)
+		tween.tween_method(Callable(player, &"set_effect_offset"), back, Vector2.ZERO, lean_ms * (1.0 - RECOIL_SHARE) / 1000.0)
+	else:
+		tween.tween_method(Callable(player, &"set_effect_offset"), unit * lean_px, Vector2.ZERO, lean_ms / 1000.0)
 	player.set_meta(LEAN_META, tween)
+
+
+## The strong throw's puff: a small ring leaving the mouth along `unit` (game/throw/throw_impact.gd),
+## `puffPx` across over `puffMs`, from `puffAheadPx` ahead of the mouth.
+static func _puff(player: Node, unit: Vector2, numbers: Dictionary) -> void:
+	var body := player.get(&"body") as Node2D
+	var world := Services.world()
+	var parent: Node = world.entities_root() if world != null else null
+	if body == null or parent == null:
+		return
+	ThrowImpact.puff(parent, body.global_position - Vector2(0.0, MOUTH_RISE) + unit * _num(numbers, "puffAheadPx", 0.0),
+		unit, _num(numbers, "puffPx", 0.0), _num(numbers, "puffMs", 0.0))
 
 
 ## The whoosh streak behind a thrown thing: {"ms", "px", "width", "lines"} (thrown_object.gd).

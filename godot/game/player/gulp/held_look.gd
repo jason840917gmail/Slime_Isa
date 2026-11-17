@@ -9,11 +9,15 @@ extends RefCounted
 ## picture: `held.texture` (a res:// path, game/runtime/sheet_sprite.gd `load_picture`), drawn
 ## `held.art_px` across, and its `material` (`material_of`).
 ##
+## A carried enemy (the enemy-ammo prototype, game/throw/gulpable_enemy.gd: `held.kind` "enemy") is
+## its own picture, wriggling (GulpableEnemy.make_look).
+##
 ## Owner: abilities.
 
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
+const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
 const ESSENCES_SHEET := "res://asset/MAPS/items/128x128-tile_3x1-gulp-essences.webp"
 const ESSENCES_CELL := 128.0
 const LIFTABLES_CELL := 192.0
@@ -27,6 +31,9 @@ const GOO_BOMB_LOOK_SHARE := 1.3
 
 ## A Node2D showing `held` ({"kind", "essence", "variant"?}).
 static func make(held: Dictionary, size_px: float) -> Node2D:
+	# A carried enemy (the enemy-ammo prototype) is its own picture.
+	if GulpableEnemy.is_enemy(held):
+		return GulpableEnemy.make_look(held, size_px)
 	var sprite := Sprite2D.new()
 	sprite.centered = true
 	if str(held.get("kind", "")) == "essence":

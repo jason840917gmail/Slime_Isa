@@ -5,13 +5,22 @@ extends Node
 ## there is always something to throw at its enemies (the pen gets the Worm Archer and the Worm
 ## Brawler too in this mode):
 ## - **the left column**, light things (Gulp 1): a pot, a jar of honey (stick), a puffball (sleep),
-##   a snowball (freeze), a glass float (shatter), a toadstool (sleep);
+##   a snowball (freeze), a glass float (shatter), a rock (sturdy: with the rebound prototype it
+##   bounces off and can be caught; it stood in for the toadstool, a second sleep thing, on
+##   2026-11-16);
 ## - **the right column**: a crate, an ice block (freeze), a kettle (pierce), a crystal cluster
 ##   (shatter) (medium, Gulp 2), then a keg and an iron ball (pierce) (heavy, Gulp 3).
 ## Each thing comes back at its spot `respawn_ms` after it is taken (if the spot is clear). A label
 ## under the pen names the keys and the state:
 ## - **F6** steps the Gulp's level 1, 2, 3, 1 (ThrowMode.cycle_dev_level; the session only);
-## - **Shift+F6** turns the aim help on or off (ThrowMode.toggle_assist).
+## - **Shift+F6** turns the aim help on or off (ThrowMode.toggle_assist);
+## - **F1** flips the new throw feel on or off for the session (ThrowFeel.toggle: "Throw feel:
+##   new" / "old" over the slime), to compare the two live; what the slime holds is redrawn at
+##   once at the feel's size;
+## - **Shift+F1** flips the rebound prototype (ThrowFeel.toggle_rebound: sturdy things bounce off
+##   and can be caught, "Rebound: on" / "off");
+## - **Ctrl+F1** flips the enemy-ammo prototype (GulpableEnemy.toggle: helpless enemies can be
+##   gulped and thrown, "Enemy ammo: on" / "off").
 ## (F4 respawns the pen and F5 fills the energy: shapes_testbed.gd.) Everything goes with the world.
 ##
 ## Owner: throw combat (experiment).
@@ -23,13 +32,21 @@ const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 
 ## Dev keys (checked free on 2026-10-20: F2 control scheme, F3 FPS, F4 pen, F5 energy, F7/F8 sound
-## audition, F9 juice panel, shift+F10 chest menu).
+## audition, F9 juice panel, shift+F10 chest menu; F1 checked free on 2026-11-16).
 const LEVEL_KEY := KEY_F6
-const LIGHT_ROW: Array[String] = ["clay-pot", "honey-jar", "puffball", "snowball", "glass-float", "toadstool"]
+const FEEL_KEY := KEY_F1
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
+const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
+const LIGHT_ROW: Array[String] = ["clay-pot", "honey-jar", "puffball", "snowball", "glass-float", "rock"]
 const HEAVY_ROW: Array[String] = ["crate", "ice-block", "kettle", "crystal-cluster", "keg", "iron-ball"]
-const TITLE_TEXT := "Throw yard: left light (Gulp 1), right medium then heavy (Gulp 2, 3)\nF6: Gulp level %d (lifts %s)  ·  Shift+F6: aim help %s"
+const TITLE_TEXT := "Throw yard: left light (Gulp 1), right medium then heavy (Gulp 2, 3)\nF6: Gulp level %d (lifts %s)  ·  Shift+F6: aim help %s  ·  F1: throw feel %s  ·  Shift+F1: rebound %s  ·  Ctrl+F1: enemy ammo %s"
 const LEVEL_TEXT := "Gulp level %d: lifts %s things"
 const ASSIST_TEXT := "Aim help %s"
+const FEEL_TEXT := "Throw feel: %s"
+const FEEL_NEW := "new"
+const FEEL_OLD := "old"
+const REBOUND_TEXT := "Rebound: %s"
+const ENEMY_AMMO_TEXT := "Enemy ammo: %s"
 const TEXT_COLOR := &"cyan"
 const TEXT_RISE_PX := 56.0
 const LABEL_FONT_SIZE := 14
@@ -97,10 +114,22 @@ func _physics_process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo or not ThrowMode.is_on() or key.keycode != LEVEL_KEY:
+	if key == null or not key.pressed or key.echo or not ThrowMode.is_on() \
+			or (key.keycode != LEVEL_KEY and key.keycode != FEEL_KEY):
 		return
 	get_viewport().set_input_as_handled()
-	if key.shift_pressed:
+	if key.keycode == FEEL_KEY and key.ctrl_pressed:
+		_say(ENEMY_AMMO_TEXT % ("on" if GulpableEnemy.toggle() else "off"))
+	elif key.keycode == FEEL_KEY and key.shift_pressed:
+		_say(REBOUND_TEXT % ("on" if ThrowFeel.toggle_rebound() else "off"))
+	elif key.keycode == FEEL_KEY:
+		_say(FEEL_TEXT % (FEEL_NEW if ThrowFeel.toggle() else FEEL_OLD))
+		# What the slime holds follows the feel's size at once.
+		var world := Services.world()
+		var slime: Node = world.player if world != null else null
+		if slime != null and slime.has_method(&"get_mouth"):
+			(slime.call(&"get_mouth") as RefCounted).call(&"refresh_inside")
+	elif key.shift_pressed:
 		var on := ThrowMode.toggle_assist()
 		_say(ASSIST_TEXT % ("on" if on else "off"))
 	else:
@@ -151,7 +180,9 @@ func _refresh_title() -> void:
 	if _title == null or not is_instance_valid(_title):
 		return
 	var level := ThrowMode.gulp_level()
-	_title.text = TITLE_TEXT % [level, ThrowMode.level_weight(level), "on" if ThrowMode.assist_on() else "off"]
+	_title.text = TITLE_TEXT % [level, ThrowMode.level_weight(level), "on" if ThrowMode.assist_on() else "off",
+		FEEL_NEW if ThrowFeel.is_on() else FEEL_OLD, "on" if ThrowFeel.rebound_on() else "off",
+		"on" if GulpableEnemy.is_on() else "off"]
 
 
 func _say(text: String) -> void:

@@ -24,6 +24,10 @@ const LIFTABLE_GROUP := &"liftable"
 const POP_SECONDS := 0.18
 const POP_FROM := 0.3
 const POP_DUST := &"dodge-dust"
+## The liftable scene's script node, and the meta on a suckable thing that says how many hits it has
+## left (a sturdy thing that rebounded: game/throw/throw_rebound.gd; mouth.gd reads it).
+const LIFTABLE_SCRIPT_NODE := ^"LiftableScript"
+const USES_META := &"throw_uses"
 
 
 ## A melee impact of `enemy_type` standing with its feet at `feet` on height level `level`
@@ -49,7 +53,11 @@ static func knock_loose(enemy_type: String, feet: Vector2, direction: Vector2,
 
 ## A liftable of `kind` popping up at `spot` (the world's entities root), or null. It is placed
 ## before it enters the tree, so its look (LiftableScript `variant`, picked from its position) varies.
-static func spawn_liftable(kind: String, spot: Vector2) -> Node2D:
+## `options` (a thrown thing that rebounded and lies there again, throw_rebound.gd): "variant" (its
+## look), "weight", "uses" (the hits it has left: the meta USES_META on its LiftableScript, which the
+## mouth reads when it sucks it in), "tint" (its Visual's colour, its wear) and "pop": false (it
+## lands as it is: no pop, no dust).
+static func spawn_liftable(kind: String, spot: Vector2, options: Dictionary = {}) -> Node2D:
 	var world := Services.world()
 	var parent := world.entities_root() if world != null else null
 	if parent == null:
@@ -59,9 +67,21 @@ static func spawn_liftable(kind: String, spot: Vector2) -> Node2D:
 		return null
 	root.set(&"kind", kind)
 	root.set(&"under", "none")
+	if options.has("weight") and ThrowMode.WEIGHTS.has(str(options["weight"])):
+		root.set(&"weight", str(options["weight"]))
+	var script := root.get_node_or_null(LIFTABLE_SCRIPT_NODE)
+	if script != null:
+		if options.has("variant"):
+			script.set(&"variant", int(options["variant"]))
+		if options.has("uses"):
+			script.set_meta(USES_META, int(options["uses"]))
 	root.position = (parent as Node2D).to_local(spot) if parent is Node2D else spot
 	parent.add_child(root)
 	var visual := root.get_node_or_null(^"Visual") as Node2D
+	if visual != null and options.get("tint") is Color:
+		visual.modulate = options["tint"]
+	if not bool(options.get("pop", true)):
+		return root
 	if visual != null:
 		var size := visual.scale
 		visual.scale = size * POP_FROM
@@ -82,6 +102,11 @@ static func _crowded(spot: Vector2, radius: float) -> bool:
 		if node.has_method(&"origin") and ((node.call(&"origin") as Vector2) - spot).length() < radius:
 			return true
 	return false
+
+
+## `_fits` for other senders (a thrown thing's landing: thrown_object.gd, throw_rebound.gd).
+static func fits(spot: Vector2, feet: Vector2, level: int = AbilityWorld.ANY_LEVEL) -> bool:
+	return _fits(spot, feet, level)
 
 
 ## True when a body fits with its feet at `spot`: on the height level of an enemy at `feet`

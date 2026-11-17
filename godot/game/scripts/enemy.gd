@@ -36,7 +36,8 @@ class_name EnemyScript
 ## answers `result.reaction`); its flash shows without the old number (the sender's `play_hit` shows
 ## it), and a 0-damage hit plays no hurt sound. In the rework mode `after_move` runs after each
 ## step's move (wall splats, bowling), `on_defeated` on defeat (the energy shard), a kill launch
-## slides the corpse (`set_death_slide`), the stun slide decays by `EnemyReactions.slide_decay_of`
+## slides the corpse (`set_death_slide`), a throw's kill sends it off (`begin_sendoff`: it flies and
+## pops instead of lying 0.8 s), the stun slide decays by `EnemyReactions.slide_decay_of`
 ## (`combat.verbs.slideDecay`; a throw's knock slide faster), and a hurtbox the reaction profile
 ## gates as a part (Fatty's eye) registers without its
 ## `acceptedSources`: the gate decides for rework hits, and old hits still meet the old rule in
@@ -66,6 +67,10 @@ const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const EnemyReactions := preload("res://game/combat/reactions/enemy_reactions.gd")
 const DamageResolverScript := preload("res://game/combat/damage_resolver.gd")
 const LineUpAI := preload("res://game/enemy/line_up_ai.gd")
+## The enemy-ammo prototype: a helpless enemy can be gulped and thrown (game/throw/gulpable_enemy.gd).
+const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
+## What the ground does to a body a blow moves: ledges, holes, deep water, danger zones.
+const EnemyHazards := preload("res://game/combat/reactions/enemy_hazards.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -97,6 +102,12 @@ const DEFAULT_PROJECTILE_SPEED := 200.0
 const BOSS_LANDING_FEEL := &"boss-landing"
 ## `rank` of bosses: never slowed (EnemyScript.ts:935).
 const RANK_BOSS := "boss"
+## A fall: one level of height in units (the flight's depth); a fate: the share of its time the
+## corpse glides out over the hole or the water in.
+const FALL_LEVEL_UNITS := 64.0
+const FATE_GLIDE_SHARE := 0.35
+## Why a carried enemy (the enemy-ammo prototype) refuses a hit.
+const REASON_CARRIED := "carried"
 ## Four-way shooters (enemy spec 20): the Worm Archer's behaviour, and the spiders' when their type
 ## has an `alignSpeed`. The numbers are the `ai` keys below, from `attributes` or else the type's
 ## `ai` block in enemy-types.json (`_ai_value`).
@@ -227,6 +238,19 @@ var _tempo_until: float = 0.0
 ## Rework: the corpse's slide after a kill launch (ZERO = none; only EnemyReactions sets it), and
 ## whether it has started (from then on the body's own velocity, which walls cut, carries it).
 var _death_slide: Vector2 = Vector2.ZERO
+## Rework: a throw's kill send-off (`begin_sendoff`): the corpse pops at `_sendoff_at_ms`, or from
+## `_sendoff_from_ms` on once it no longer slides; -1 = no send-off (the corpse lies and goes).
+var _sendoff_from_ms: float = -1.0
+var _sendoff_at_ms: float = -1.0
+## The enemy-ammo prototype: the slime carries it (`begin_carry`), and what `end_carry` puts back
+## (the body's and the hurtbox's layers and masks, the body's `visible`).
+## Rework: the ground's fates for a body a blow moves (enemy_hazards.gd): the fall that carries it
+## over a ledge (`begin_fall`: {from, to, level_from, level_to, started, ms}; {} = none) and its
+## corpse's fate in an endless hole or deep water (`begin_fate`: {fate, from, to, started, ms}).
+var _fall: Dictionary = {}
+var _fate: Dictionary = {}
+var _ammo_carried: bool = false
+var _ammo_kept: Dictionary = {}
 var _death_sliding: bool = false
 ## Rework: the authored rule a gated hurtbox registered without ({} = registered as authored);
 ## old-style hits still meet its `acceptedSources` in `can_receive_damage`.
@@ -264,6 +288,9 @@ func _ready() -> void:
 		router.register_area(damage_area, self, _receiver_rule(), _receiver_tags())
 		_registered_area = damage_area
 	_warm_attack_scenes()
+	# The enemy-ammo prototype: a helpless enemy can be gulped and thrown (never a boss).
+	if rank != RANK_BOSS:
+		GulpableEnemy.attach(self)
 
 
 ## `cancel_attack()` and unregister the hurtbox.
@@ -282,8 +309,15 @@ func _exit_tree() -> void:
 ## after the scripts, enemy spec 4.2). In the rework mode EnemyReactions.after_move follows the move
 ## (wall splats, bowling).
 func _physics_process(delta: float) -> void:
-	if body == null:
+	if body == null or _ammo_carried:
 		return
+	# Rework: a blow sent it over a ledge: the fall owns its body until it lands (`begin_fall`).
+	if not _fall.is_empty():
+		_step_fall()
+		return
+	# Rework: the danger zone a blow put it in hurts it on the slime's rhythm (enemy_hazards.gd).
+	if ReworkMode.is_on():
+		EnemyHazards.step(self)
 	var moves := _step_enemy(delta)
 	_after_enemy_step(delta)
 	if moves and is_instance_valid(body) and not body.is_queued_for_deletion():
@@ -303,11 +337,21 @@ func _step_enemy(delta: float) -> bool:
 	_applied_slow = 1.0
 	_update_hit_flash(now)
 	if _defeated:
+		# Rework: a corpse that went into an endless hole or deep water falls or sinks away (`begin_fate`).
+		if not _fate.is_empty():
+			_step_fate(now)
+			_runtime_state = EnemyAI.STATE_DEAD
+			return false
 		# Rework: a kill launch slides the corpse to where it dies (only it sets a death slide).
 		var sliding := _death_slide != Vector2.ZERO and _step_death_slide(delta)
 		if not sliding:
 			body.velocity = Vector2.ZERO
 		_runtime_state = EnemyAI.STATE_DEAD
+		# Rework: a throw's kill send-off pops the corpse where it ends (`begin_sendoff`).
+		if _sendoff_at_ms >= 0.0 and (now >= _sendoff_at_ms or (not sliding and now >= _sendoff_from_ms)):
+			_sendoff_at_ms = -1.0
+			EnemyReactions.pop_corpse(self)
+			_dispose_at_ms = now
 		var fade_ms := _corpse_fade_ms()
 		if fade_ms > 0.0 and _dispose_at_ms >= 0.0:
 			body.modulate.a = clampf((_dispose_at_ms - now) / fade_ms, 0.0, 1.0)
@@ -322,6 +366,10 @@ func _step_enemy(delta: float) -> bool:
 			EnemyReactions.keep_asleep(self)
 		var decay := EnemyReactions.slide_decay_of(self) if ReworkMode.is_on() else HIT_STUN_VELOCITY_DECAY
 		body.velocity *= pow(decay, delta * 60.0)
+		return true
+
+	# Rework: on its legs in the danger zone a blow put it in, it walks out the shortest way first.
+	if ReworkMode.is_on() and _walk_out_of_zone():
 		return true
 
 	var target := _primary_target()
@@ -681,6 +729,132 @@ func set_death_slide(velocity: Vector2) -> void:
 	_death_sliding = false
 
 
+## Whether a throw's kill may send this corpse off (EnemyReactions `_can_send_off`): never a boss's
+## (its death is its own scene).
+func can_send_off() -> bool:
+	return body != null and rank != RANK_BOSS
+
+
+## A throw's kill send-off (EnemyReactions `_send_off`, `combat.rules.killSendoff`): the corpse pops
+## (`EnemyReactions.pop_corpse`) and goes at `latest_ms`, or from `earliest_ms` on once it no longer
+## slides (it stopped, a wall stopped it), instead of lying DISPOSE_AFTER_DEFEAT_MS and vanishing.
+## Called before or just after the defeat; the rewards, the death clip and the death sound are the
+## defeat's, as ever.
+func begin_sendoff(earliest_ms: float, latest_ms: float) -> void:
+	_sendoff_from_ms = minf(earliest_ms, latest_ms)
+	_sendoff_at_ms = latest_ms
+
+
+## A blow sent it over a ledge (enemy_hazards.gd `_fall`): its body flies in a straight line from
+## where it stands to `to_feet` on height level `to_level` over `ms` of simulation time, as the
+## slime's ledge drop does (jump_sequence.gd): nothing collides on the way, the elevation hides it
+## by the depth of the flight (`set_flight`), and on landing it is tracked on `to_level` and
+## `EnemyHazards.landed` deals with the rest. The art's arc is the hit motion's (EnemyHitMotion.DROP).
+func begin_fall(to_feet: Vector2, to_level: int, ms: float) -> void:
+	if body == null or _defeated:
+		return
+	cancel_attack()
+	var world := Services.world()
+	var from_level := to_level
+	if world != null and world.elevation != null:
+		from_level = world.elevation.level_of(body)
+	_fall = {"from": body.global_position, "to": to_feet, "level_from": from_level, "level_to": to_level,
+		"started": Services.now_ms(), "ms": maxf(1.0, ms)}
+	body.velocity = Vector2.ZERO
+
+
+## True while a fall carries it (`begin_fall`).
+func is_falling() -> bool:
+	return not _fall.is_empty()
+
+
+## A corpse's fate (enemy_hazards.gd `_die_into`: "hole" or "water"): instead of lying, sliding or
+## popping, the defeated body is taken `over` there (gliding over the first FATE_GLIDE_SHARE of `ms`
+## when `glides`, else at once), fades (a hole: late, as it shrinks; water: evenly, as it sinks) and
+## is freed after `ms`; `EnemyHazards.fate_done` is told as it goes. Its shrinking, spinning and
+## sinking are the hit motion's. Only for a defeated enemy.
+func begin_fate(fate: String, over: Vector2, ms: float, glides: bool) -> void:
+	if body == null or not _defeated:
+		return
+	_death_slide = Vector2.ZERO
+	_death_sliding = false
+	_sendoff_at_ms = -1.0
+	_dispose_at_ms = -1.0
+	body.velocity = Vector2.ZERO
+	body.set_deferred(&"collision_mask", 0)
+	if not glides:
+		body.global_position = over
+		body.reset_physics_interpolation()
+	_fate = {"fate": fate, "from": body.global_position, "to": over, "started": Services.now_ms(), "ms": maxf(1.0, ms)}
+
+
+## The enemy lives at `centre` from now on (a fall took it to another level: enemy_hazards.gd): its
+## camp territory and its arena leash are let go, so it fights where it is and never walks at the
+## cliff to get back (a patterned enemy moves its home there: patterned_enemy.gd).
+func settle_at(_centre: Vector2) -> void:
+	_territory = null
+	_arena = {}
+	_returning_to_arena = false
+
+
+## True while the slime carries it as ammo (`begin_carry` to `end_carry`).
+func is_carried() -> bool:
+	return _ammo_carried
+
+
+## The enemy-ammo prototype (game/throw/gulpable_enemy.gd): the slime gulps this enemy. It is taken
+## out of play, not killed: its attack is cancelled, its body and its hurtbox leave the physics
+## (their layers and masks are kept for `end_carry`), it is hidden, it leaves the "enemy" group (the
+## aim help, the hints and the reactions' bowling no longer see it) and its step stops
+## (`_physics_process`). It stays alive and valid: `is_defeated` is false, so a room fight, the
+## population and a placed enemy still count it standing, and nothing reports its death. False when
+## it cannot be carried (defeated, carried already, no body).
+func begin_carry() -> bool:
+	if _defeated or _ammo_carried or body == null:
+		return false
+	cancel_attack()
+	_ammo_carried = true
+	_ammo_kept = {"layer": body.collision_layer, "mask": body.collision_mask, "visible": body.visible}
+	body.velocity = Vector2.ZERO
+	body.collision_layer = 0
+	body.collision_mask = 0
+	if damage_area != null:
+		_ammo_kept["area_layer"] = damage_area.collision_layer
+		_ammo_kept["area_mask"] = damage_area.collision_mask
+		damage_area.collision_layer = 0
+		damage_area.collision_mask = 0
+	body.visible = false
+	_hit_stun_until = 0.0
+	if is_in_group(ENEMY_GROUP):
+		remove_from_group(ENEMY_GROUP)
+	return true
+
+
+## The carried enemy is back in play with its feet at `feet` (world), as it was taken: seen, its
+## body and hurtbox in the physics again, in the "enemy" group, its step running. `level` (an int;
+## null = as the elevation finds it) is the height level it stands on there (the elevation tracks
+## its body on it). What happens to it next (a daze, a landing's damage) is the caller's.
+func end_carry(feet: Vector2, level: Variant = null) -> void:
+	if not _ammo_carried or body == null:
+		return
+	_ammo_carried = false
+	body.global_position = feet
+	body.velocity = Vector2.ZERO
+	body.collision_layer = int(_ammo_kept.get("layer", body.collision_layer))
+	body.collision_mask = int(_ammo_kept.get("mask", body.collision_mask))
+	if damage_area != null:
+		damage_area.collision_layer = int(_ammo_kept.get("area_layer", damage_area.collision_layer))
+		damage_area.collision_mask = int(_ammo_kept.get("area_mask", damage_area.collision_mask))
+	body.visible = bool(_ammo_kept.get("visible", true))
+	_ammo_kept = {}
+	body.reset_physics_interpolation()
+	var world := Services.world()
+	if level is int and world != null and world.elevation != null and world.elevation.bodies.has(body):
+		world.elevation.track(body, int(level))
+	if not is_in_group(ENEMY_GROUP):
+		add_to_group(ENEMY_GROUP)
+
+
 # --- damage receiver API (combat spec 7.2) --------------------------------------------------------
 
 ## {"hp": float, "max_hp": float, "dead": bool}.
@@ -695,6 +869,9 @@ func get_damage_state() -> Dictionary:
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _defeated:
 		return {"accepted": false, "reason": "dead"}
+	# Carried as ammo: it is in the slime's mouth, nothing reaches it.
+	if _ammo_carried:
+		return {"accepted": false, "reason": REASON_CARRIED}
 	var request: Dictionary = input.get("request", {})
 	if ReworkMode.is_rework_request(request):
 		return EnemyReactions.can_receive(self, input)
@@ -1277,6 +1454,54 @@ func _receiver_rule() -> Dictionary:
 		_authored_rule = rule.duplicate(true)
 		rule.erase("acceptedSources")
 	return rule
+
+
+## Rework: one step of a fall (`begin_fall`): the body on the straight line to its landing, hidden by
+## the flight's depth; landed, it is tracked on its new level and EnemyHazards deals with the rest.
+func _step_fall() -> void:
+	var t := clampf((Services.now_ms() - float(_fall["started"])) / float(_fall["ms"]), 0.0, 1.0)
+	var from: Vector2 = _fall["from"]
+	var to: Vector2 = _fall["to"]
+	var level_from := int(_fall["level_from"])
+	var level_to := int(_fall["level_to"])
+	var world := Services.world()
+	var elevation: Node = world.elevation if world != null and world.elevation != null and is_instance_valid(world.elevation) else null
+	body.global_position = from.lerp(to, t)
+	body.velocity = Vector2.ZERO
+	if elevation != null:
+		elevation.call(&"set_flight", body, lerpf(from.y + float(level_from) * FALL_LEVEL_UNITS, to.y + float(level_to) * FALL_LEVEL_UNITS, t))
+	if t < 1.0:
+		return
+	_fall = {}
+	if elevation != null:
+		elevation.call(&"end_flight", body)
+		elevation.call(&"track", body, level_to)
+	body.reset_physics_interpolation()
+	EnemyHazards.landed(self, level_from - level_to)
+
+
+## Rework: one step of a corpse's fate (`begin_fate`): it glides out, fades and is gone.
+func _step_fate(now: float) -> void:
+	var t := clampf((now - float(_fate["started"])) / float(_fate["ms"]), 0.0, 1.0)
+	var glide := clampf(t / FATE_GLIDE_SHARE, 0.0, 1.0)
+	body.global_position = (_fate["from"] as Vector2).lerp(_fate["to"], 1.0 - (1.0 - glide) * (1.0 - glide))
+	body.velocity = Vector2.ZERO
+	body.modulate.a = 1.0 - t * t if str(_fate["fate"]) == EnemyHazards.FATE_HOLE else 1.0 - t
+	if t < 1.0 or body.is_queued_for_deletion():
+		return
+	EnemyHazards.fate_done(self)
+	body.queue_free()
+
+
+## Rework: an enemy on its legs in the danger zone a blow put it in walks out the shortest way
+## (EnemyHazards.walk_out) before anything else; true while it does.
+func _walk_out_of_zone() -> bool:
+	var way := EnemyHazards.walk_out(self)
+	if way == Vector2.ZERO:
+		return false
+	cancel_attack()
+	body.velocity = way * EnemyHazards.walk_out_speed()
+	return true
 
 
 ## Rework: one step of the corpse's slide after a kill launch (the stun slide's decay); under

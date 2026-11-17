@@ -1,0 +1,89 @@
+{
+ "round": "round-12",
+ "applied": "2026-11-17 with round-12-picks.json: snow ships option a; crystal its own copy of the glass shatter's take 2; bone option c, its take 2; stone option a, as world/break-stone-crack-<n>.wav (the round-5 stone files stay for the enemy scenes that play them by path); ice keeps its takes 2 and 3, wood its takes 2 and 3 (its third renamed break-wood-1), soft its take 2",
+ "intro": "Each material its own sound (2026-11-16), after your note on round 11: the thrown thing's own sound is the hit sound, so every material should have one. Three materials still borrowed another's: snow played the soft splat, crystal the glass shatter and bone the crate smash. Each gets its own sound here, three ideas with three takes each (the game picks one at random); \"Now\" is the borrowed sound it played until today. Two of your round-5 sounds, stone and ice, start late when measured: the loudest crack comes 60 to 165 ms after the sound begins, which is slow for a hit on an enemy. For those, \"Yours, started on the crack\" is your same three takes with the lead-in cut off, next to two new ideas; the game keeps playing yours as they are until you choose. Wood and soft have one take much quieter than the others; \"Yours, one loudness\" evens them out. Press Repeat to hear an option several times. The game plays option A of the three new sounds meanwhile (?audition and F7/F8 switch options in the game). Pick one per sound, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-12/takes",
+ "groups": [
+  {"id": "new", "name": "New material sounds", "note": "A thrown thing of this material breaking: on an enemy, on a wall or on the ground. Like the other materials' sounds, about a third to half a second."},
+  {"id": "attack", "name": "Stone and ice: start on the crack", "note": "Your stone and ice sounds begin with small clicks and tinkles; the loud crack comes 60 to 165 ms later. On a hit that reads as a late sound. \"Now\" is what the game plays (unchanged); the others start on the crack."},
+  {"id": "level", "name": "Wood and soft: one loudness", "note": "Of the three takes the game picks among, one is much quieter (wood's first take by about 10 dB, soft's second by about 8 dB). \"Yours, one loudness\" is the same three takes brought to one level."}
+ ],
+ "cues": [
+  {"id": "world.break-snow", "group": "new", "name": "Snow", "where": "A snowball or a lump of snow breaks", "node": "BreakSnow", "ship": "world/break-snow", "inGame": "a",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Crunch and poof", "note": "A soft crunch of packed snow bursting, then it scatters: 0.37 to 0.43 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/snow-burst-1.src.wav", "temp/sound-round-12/cut/snow-burst-2.src.wav", "temp/sound-round-12/cut/snow-burst-3.src.wav"]},
+    {"key": "b", "label": "Powder puff", "note": "A soft airy puff of loose powder, no crunch, the gentlest: 0.36 to 0.4 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/snow-puff-1.src.wav", "temp/sound-round-12/cut/snow-puff-2.src.wav", "temp/sound-round-12/cut/snow-puff-3.src.wav"]},
+    {"key": "c", "label": "Squeaky crunch", "note": "The creaky crunch of packed snow pressed hard, like a boot in fresh snow: 0.22 to 0.4 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/snow-squeak-1.src.wav", "temp/sound-round-12/cut/snow-squeak-2.src.wav", "temp/sound-round-12/cut/snow-squeak-3.src.wav"]},
+    {"key": "now", "label": "Now: the soft splat", "note": "What snow played until today: the soft material's sound (pumpkins, sacks, mud)", "kind": "oneshot",
+     "takes": ["godot/asset/audio/sfx/library/world/break-soft-1.wav", "godot/asset/audio/sfx/library/world/break-soft-2.wav", "godot/asset/audio/sfx/library/world/break-soft-3.wav"]}
+   ]},
+  {"id": "world.break-crystal", "group": "new", "name": "Crystal", "where": "A crystal breaks", "node": "BreakCrystal", "ship": "world/break-crystal", "inGame": "a",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Crack and ring", "note": "A hard bright crack with a clear bell note ringing under the shards (a crack and a small bell, two Magnific takes mixed): 0.35 to 0.39 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/crystal-ring-1.src.wav", "temp/sound-round-12/cut/crystal-ring-2.src.wav", "temp/sound-round-12/cut/crystal-ring-3.src.wav"]},
+    {"key": "b", "label": "Chiming shards", "note": "A crunch, then high shards tinkling like tiny wind chimes: 0.35 to 0.45 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/crystal-chime-1.src.wav", "temp/sound-round-12/cut/crystal-chime-2.src.wav", "temp/sound-round-12/cut/crystal-chime-3.src.wav"]},
+    {"key": "c", "label": "Glitter shimmer", "note": "A very high shimmering ring that fades, the most magical and the thinnest: 0.45 to 0.51 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/crystal-glitter-1.src.wav", "temp/sound-round-12/cut/crystal-glitter-2.src.wav", "temp/sound-round-12/cut/crystal-glitter-3.src.wav"]},
+    {"key": "now", "label": "Now: the glass shatter", "note": "What crystal played until today: the glass sound (jars, bottles)", "kind": "oneshot",
+     "takes": ["godot/asset/audio/sfx/library/world/break-glass-1.wav", "godot/asset/audio/sfx/library/world/break-glass-2.wav", "godot/asset/audio/sfx/library/world/break-glass-3.wav"]}
+   ]},
+  {"id": "world.break-bone", "group": "new", "name": "Bone", "where": "A bone or a skull breaks", "node": "BreakBone", "ship": "world/break-bone", "inGame": "a",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Clack and rattle", "note": "One dry crack, then a few bone pieces rattling down: 0.25 to 0.44 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/bone-clack-1.src.wav", "temp/sound-round-12/cut/bone-clack-2.src.wav", "temp/sound-round-12/cut/bone-clack-3.src.wav"]},
+    {"key": "b", "label": "Hollow clack", "note": "Two or three hollow knocks, like a skull tapped apart; shorter and rounder: 0.26 to 0.33 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/bone-hollow-1.src.wav", "temp/sound-round-12/cut/bone-hollow-2.src.wav", "temp/sound-round-12/cut/bone-hollow-3.src.wav"]},
+    {"key": "c", "label": "Bone rattle", "note": "A quick busy rattle of many small bones knocked apart: 0.27 to 0.37 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/bone-rattle-1.src.wav", "temp/sound-round-12/cut/bone-rattle-2.src.wav", "temp/sound-round-12/cut/bone-rattle-3.src.wav"]},
+    {"key": "now", "label": "Now: the crate smash", "note": "What bone played until today: the wood sound (crates, kegs)", "kind": "oneshot",
+     "takes": ["godot/asset/audio/sfx/library/world/break-wood-1.wav", "godot/asset/audio/sfx/library/world/break-wood-2.wav", "godot/asset/audio/sfx/library/world/break-wood-3.wav"]}
+   ]},
+  {"id": "world.break-stone", "group": "attack", "name": "Stone", "where": "A rock, a brick or a stone urn breaks", "node": "BreakStone", "ship": "world/break-stone-crack", "inGame": "now",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "now", "label": "Now: your rock crack (round 5)", "note": "What the game plays: the loudest crack comes 60, 90 and 130 ms after the start of the three takes", "kind": "oneshot", "shipped": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-stone-1.wav", "godot/asset/audio/sfx/library/world/break-stone-2.wav", "godot/asset/audio/sfx/library/world/break-stone-3.wav"]},
+    {"key": "t", "label": "Yours, started on the crack", "note": "The same three takes with the small clicks before the crack cut off, at one loudness: 0.37 to 0.44 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/stone-tight-1.src.wav", "temp/sound-round-12/cut/stone-tight-2.src.wav", "temp/sound-round-12/cut/stone-tight-3.src.wav"]},
+    {"key": "a", "label": "Hard crack and crumbs", "note": "New: one hard, lower crack at once, then a few crumbs: 0.29 to 0.34 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/stone-crack-1.src.wav", "temp/sound-round-12/cut/stone-crack-2.src.wav", "temp/sound-round-12/cut/stone-crack-3.src.wav"]},
+    {"key": "b", "label": "Gritty crumble", "note": "New: a knock that breaks up into gritty pieces, starting at once: 0.22 to 0.38 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/stone-gritty-1.src.wav", "temp/sound-round-12/cut/stone-gritty-2.src.wav", "temp/sound-round-12/cut/stone-gritty-3.src.wav"]}
+   ]},
+  {"id": "world.break-ice", "group": "attack", "name": "Ice", "where": "An ice block, an icicle or a frost crystal breaks", "node": "BreakIce", "ship": "world/break-ice", "inGame": "now",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "now", "label": "Now: your ice shatter (round 5)", "note": "What the game plays: the loudest crack comes 80, 160 and 165 ms after the start of the three takes", "kind": "oneshot", "shipped": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-ice-1.wav", "godot/asset/audio/sfx/library/world/break-ice-2.wav", "godot/asset/audio/sfx/library/world/break-ice-3.wav"]},
+    {"key": "t", "label": "Yours, started on the crack", "note": "The same three takes with the tinkles before the crack cut off, at one loudness: 0.35 to 0.63 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/ice-tight-1.src.wav", "temp/sound-round-12/cut/ice-tight-2.src.wav", "temp/sound-round-12/cut/ice-tight-3.src.wav"]},
+    {"key": "a", "label": "Sharp crack and shards", "note": "New: one sharp bright crack at once, then a short sprinkle of shards: 0.35 to 0.41 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/ice-crack-1.src.wav", "temp/sound-round-12/cut/ice-crack-2.src.wav", "temp/sound-round-12/cut/ice-crack-3.src.wav"]},
+    {"key": "b", "label": "Icicle snap", "note": "New: a crisp snap and a few ice chips, lower and drier: 0.29 to 0.44 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-12/cut/ice-snap-1.src.wav", "temp/sound-round-12/cut/ice-snap-2.src.wav", "temp/sound-round-12/cut/ice-snap-3.src.wav"]}
+   ]},
+  {"id": "world.break-wood", "group": "level", "name": "Wood", "where": "A crate, a keg or a log breaks", "node": "BreakWood", "ship": "world/break-wood", "inGame": "now",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "now", "label": "Now: your crate smash (round 5)", "note": "What the game plays: its first take is about 10 dB quieter than the other two", "kind": "oneshot", "shipped": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-wood-1.wav", "godot/asset/audio/sfx/library/world/break-wood-2.wav", "godot/asset/audio/sfx/library/world/break-wood-3.wav"]},
+    {"key": "t", "label": "Yours, one loudness", "note": "The same three takes brought to one level", "kind": "oneshot", "even": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-wood-1.wav", "godot/asset/audio/sfx/library/world/break-wood-2.wav", "godot/asset/audio/sfx/library/world/break-wood-3.wav"]}
+   ]},
+  {"id": "world.break-soft", "group": "level", "name": "Soft", "where": "A pumpkin, a sack or a lump of mud breaks", "node": "BreakSoft", "ship": "world/break-soft", "inGame": "now",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "now", "label": "Now: your splat (round 5)", "note": "What the game plays: its second take is about 8 dB quieter than the other two", "kind": "oneshot", "shipped": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-soft-1.wav", "godot/asset/audio/sfx/library/world/break-soft-2.wav", "godot/asset/audio/sfx/library/world/break-soft-3.wav"]},
+    {"key": "t", "label": "Yours, one loudness", "note": "The same three takes brought to one level", "kind": "oneshot", "even": true,
+     "takes": ["godot/asset/audio/sfx/library/world/break-soft-1.wav", "godot/asset/audio/sfx/library/world/break-soft-2.wav", "godot/asset/audio/sfx/library/world/break-soft-3.wav"]}
+   ]}
+ ]
+}

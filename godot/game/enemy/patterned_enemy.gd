@@ -128,6 +128,12 @@ func set_home(centre: Vector2) -> void:
 	_home = centre
 
 
+## A fall took it to another level (enemy.gd `settle_at`): its home is where it landed.
+func settle_at(centre: Vector2) -> void:
+	super(centre)
+	_home = centre
+
+
 # --- the step --------------------------------------------------------------------------------------
 
 func _step_enemy(delta: float) -> bool:
@@ -146,6 +152,9 @@ func _step_enemy(delta: float) -> bool:
 		else:
 			body.velocity = Vector2.ZERO
 		_on_stunned(now, delta)
+		return true
+	# On its legs in the danger zone a blow put it in, it walks out first (enemy.gd, enemy_hazards.gd).
+	if ReworkMode.is_on() and _walk_out_of_zone():
 		return true
 	var target := _primary_target()
 	_step_pattern(now, delta, target, _is_engaged(target))

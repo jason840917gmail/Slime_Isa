@@ -756,6 +756,11 @@ neither is left out with a warning ("leads to no higher ground"). The ramp is pa
   bottom up to its own (`sides`, `lets_off`, `_stairs_rule`). Off the slope a body takes the level
   of the ground there (`_level_off_ramp`, every physics step). So a body walks on and off a ramp
   along its open sides, as the picture says, and the top's own rims stay rims.
+- **Enemies a blow moves** (owner, 2026-11-16). An enemy never walks off a rim, but one knocked or
+  thrown against an unfenced rim the slime could drop from (`drop_target`: a rim that drops, no
+  fence, no wall, room below) goes over: it falls in the drop's arc and time, lands knocked down
+  with fall damage per level, and lives on that level from then on
+  ([THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
 - **Drops.** A drop lands on a slope only right where it falls, only below where it started, and
   never on a slope that leads back up to the level it falls from (off the tip of a 45° arm the body
   would land on its own ramp and climb straight back): at the slope's level there; never on the

@@ -1,0 +1,49 @@
+{
+ "round": "round-12",
+ "decidedAt": "2026-11-17T00:09:25.935Z",
+ "source": "The Sound Picker's picks/round-12 document, version 17 (final), as saved. Snow: option a, all three takes. Crystal: \"now\", the glass shatter, its takes 1 and 3 dropped, so BreakCrystal plays its own copy of the glass's second take. Bone: option c (Bone rattle), its takes 1 and 3 dropped, so its second take ships alone. Stone: option a (Hard crack and crumbs), all three takes; they ship as world/break-stone-crack-<n>.wav, because three enemy scenes (crystal-colossus, shardback, watcher-eye) play the round-5 stone files by path and keep them. Ice: \"now\" without its first take. Wood: \"now\" without its first take (the quiet one). Soft: \"now\", its second take alone. For ice, wood and soft the takes are the round-5 files as they are: only the players' randomizers change, and a dropped file is deleted only where no enemy scene plays it (wood's first; ice's first and soft's first and third stay for the enemies).",
+ "note": "",
+ "picks": {
+  "world.break-bone": "c",
+  "world.break-crystal": "now",
+  "world.break-ice": "now",
+  "world.break-snow": "a",
+  "world.break-soft": "now",
+  "world.break-stone": "a",
+  "world.break-wood": "now"
+ },
+ "dropped": {
+  "world.break-bone": {
+   "c": [
+    0,
+    2
+   ]
+  },
+  "world.break-crystal": {
+   "now": [
+    0,
+    2
+   ]
+  },
+  "world.break-ice": {
+   "b": [
+    2
+   ],
+   "now": [
+    0
+   ]
+  },
+  "world.break-soft": {
+   "now": [
+    0,
+    2
+   ]
+  },
+  "world.break-wood": {
+   "now": [
+    0
+   ]
+  }
+ },
+ "wishes": {}
+}

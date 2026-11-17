@@ -3,10 +3,15 @@ extends Node
 ## "Flash": taps white for 1 frame (17 ms), then the hurt tint fades over 90 ms; finishers white for
 ## 50 ms, then the tint over 120 ms). Made by `HitFlash.flash_curve` as a child named
 ## `HitFlash.CURVE_NODE` of the flashed CanvasItem, reused for every later flash of it.
+## A throw's hard hit (EnemyReactions `_flash`: the hit's `big`, a kill's send-off) adds a blink
+## between the white and the fade: the white and the tint take turns, `blink_period_ms` per pair,
+## for `blink_ms` (Zelda's struck enemy flashes all the way through its recoil).
 ##
 ## PROCESS_MODE_ALWAYS and real time (presentation): the white shows while a hit-stop freezes the
-## tree. Each frame it writes the hit-flash material's `flash_color` and `flash_amount`; at the end
-## it leaves `flash_amount` at 0 and stops processing. A new `start` restarts the curve.
+## tree. The curve's clock is the frames' own time (`_process` deltas, which run on through a pause),
+## so a film at a fixed frame time shows it as the game does. Each frame it writes the hit-flash
+## material's `flash_color` and `flash_amount`; at the end it leaves `flash_amount` at 0 and stops
+## processing. A new `start` restarts the curve.
 ##
 ## Owner: juice.
 
@@ -21,7 +26,9 @@ var _white: Color = Color.WHITE
 var _tint: Color = Color.WHITE
 var _white_ms: float = 0.0
 var _tint_ms: float = 0.0
-var _started_ms: float = 0.0
+var _blink_ms: float = 0.0
+var _blink_period_ms: float = 0.0
+var _elapsed_ms: float = 0.0
 
 
 func _ready() -> void:
@@ -29,14 +36,18 @@ func _ready() -> void:
 
 
 ## Starts the curve on `material` (a hit-flash ShaderMaterial): `white` at full strength for
-## `white_ms`, then `tint` from full strength down to none over `tint_ms` (real ms).
-func start(material: ShaderMaterial, white: Color, tint: Color, white_ms: float, tint_ms: float) -> void:
+## `white_ms`, then (with `blink_ms` > 0) the tint and the white in turns for `blink_ms`, a pair
+## every `blink_period_ms`, then `tint` from full strength down to none over `tint_ms` (real ms).
+func start(material: ShaderMaterial, white: Color, tint: Color, white_ms: float, tint_ms: float,
+		blink_ms: float = 0.0, blink_period_ms: float = 0.0) -> void:
 	_material = material
 	_white = white
 	_tint = tint
 	_white_ms = maxf(0.0, white_ms)
 	_tint_ms = maxf(0.0, tint_ms)
-	_started_ms = float(Time.get_ticks_msec())
+	_blink_period_ms = maxf(0.0, blink_period_ms)
+	_blink_ms = maxf(0.0, blink_ms) if _blink_period_ms > 0.0 else 0.0
+	_elapsed_ms = 0.0
 	set_process(true)
 	_apply(0.0)
 
@@ -46,8 +57,9 @@ func is_running() -> bool:
 	return is_processing()
 
 
-func _process(_delta: float) -> void:
-	_apply(float(Time.get_ticks_msec()) - _started_ms)
+func _process(delta: float) -> void:
+	_elapsed_ms += delta * 1000.0
+	_apply(_elapsed_ms)
 
 
 func _apply(elapsed_ms: float) -> void:
@@ -58,7 +70,14 @@ func _apply(elapsed_ms: float) -> void:
 		_material.set_shader_parameter(&"flash_color", _white)
 		_material.set_shader_parameter(&"flash_amount", WHITE_STRENGTH)
 		return
-	var fade := elapsed_ms - _white_ms
+	var blink := elapsed_ms - _white_ms
+	if blink < _blink_ms:
+		# The tint first (the white has just shown), then the white again.
+		var on_white := fmod(blink, _blink_period_ms) >= _blink_period_ms * 0.5
+		_material.set_shader_parameter(&"flash_color", _white if on_white else _tint)
+		_material.set_shader_parameter(&"flash_amount", WHITE_STRENGTH if on_white else TINT_STRENGTH)
+		return
+	var fade := blink - _blink_ms
 	if fade >= _tint_ms:
 		_material.set_shader_parameter(&"flash_amount", 0.0)
 		set_process(false)

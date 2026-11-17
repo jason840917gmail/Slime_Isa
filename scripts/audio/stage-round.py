@@ -4,7 +4,8 @@
 
 Reads the round manifest and the takes prep-takes.py wrote, then:
 1. ships each cue's game option (`inGame`, or the owner's pick with --picks): its WAV takes become
-   godot/asset/audio/sfx/library/<ship>-<n>.wav (cues whose option is `existing` keep their files);
+   godot/asset/audio/sfx/library/<ship>-<n>.wav (an option with `"shipped": true` is the cue's library
+   files as they are: nothing is copied and its player stays);
 2. without --picks, copies every option's MP3 takes to godot/asset/audio/sfx/audition/<cue>/ and
    writes audition.json there for the in-game sound audition (game/dev/sound_audition.gd); with
    --picks the audition folder is removed;
@@ -12,7 +13,8 @@ Reads the round manifest and the takes prep-takes.py wrote, then:
    whole when the round has any; the other nodes are added to, or updated in,
    game/scenes/audio/global.tscn under Effects.
    Each player's volume brings its takes to the kind's loudness (TARGET_DB), so options compare
-   evenly and steps sit under one-shots.
+   evenly and steps sit under one-shots; it is held lower where the takes' peaks would go over
+   full scale (PEAK_CEILING_DB, KEPT_MAX_DB).
 
 The picks file is the picker's saved document ({"picks": {cue: option}, "dropped": {cue: {option:
 [index]}}}); a cue picked "replace" or "s" (keep silent) ships nothing and loses its player.
@@ -56,6 +58,20 @@ CUE_KIND = {"player.swim-stroke": "stroke", "ui.talk-blip": "blip", "player.slee
 ## (elevation.stairsFootstepMs) may be set closer than walking ones.
 CUE_INTERVAL = {"player.web-struggle": 700.0, "world.plate-press": 150.0, "world.plate-release": 150.0,
                 "footstep.stairs": 60.0}
+## Pitch randomness where the kind's does not fit: the game raises the kill's pitch a step with each
+## kill of a chain (the `pitch` payload of sfx_player.gd), and a random spread would blur the steps.
+## The toss ships one take and plays on every throw, so its spread is a little wider than the kind's.
+## The break cues that ship one take (round 12: soft, crystal, bone) get the same wider spread, so
+## repeats are not identical.
+CUE_PITCH = {"player.throw-kill": 0.0, "player.throw-toss": 0.08,
+             "world.break-soft": 0.08, "world.break-crystal": 0.08, "world.break-bone": 0.08}
+## Headroom. The loudness rule (TARGET_DB) asks a positive player volume for click-like takes (a crack,
+## a splat: little energy under a tall peak), which pushes their peaks over full scale; the buses
+## have no limiter, so that clips at the output. Takes the tool ships are held to PEAK_CEILING_DB
+## after the player's volume. Takes kept as they are (an option marked `shipped`) may go up to
+## KEPT_MAX_DB, the highest volume a break cue's player had before round 12 (the owner's stone, +4.12 dB).
+PEAK_CEILING_DB = -0.3
+KEPT_MAX_DB = 4.1
 ## Cues whose global players loop.
 LOOPING = {"player.sleep-breath", "world.bath-soak"}
 ## Global players a cue drives besides its `node` (the shell menus also close).
@@ -72,6 +88,16 @@ def loudness(path: Path) -> float:
         return 20 * np.log10(max(float(np.sqrt(np.mean(samples ** 2))), 1e-6))
     energy = np.convolve(samples ** 2, np.ones(window) / window, mode="valid")
     return 20 * np.log10(max(float(np.sqrt(np.max(energy))), 1e-6))
+
+
+def peak_db(paths: list[Path]) -> float:
+    """dBFS of the loudest sample of `paths`."""
+    top = 0.0
+    for path in paths:
+        decoded = miniaudio.decode_file(str(path), output_format=miniaudio.SampleFormat.FLOAT32, nchannels=1, sample_rate=44100)
+        samples = np.frombuffer(decoded.samples, dtype=np.float32)
+        top = max(top, float(np.max(np.abs(samples))) if samples.size else 0.0)
+    return 20 * np.log10(max(top, 1e-6))
 
 
 def kind_of(cue: dict, option: dict) -> str:
@@ -97,10 +123,11 @@ def kept(option: dict, dropped: dict) -> list[int]:
 def ship(cue: dict, option: dict, takes_dir: Path, dropped: dict, round_tag: str | None = None) -> list[Path]:
     """The files the game plays for `option`. A cue with a `ship` path gets the option's prepared
     takes (as heard on the picker) as `<ship>-<n>.wav` (`<ship>.wav` for one take), replacing the ones there; a cue without one
-    plays its existing files. With `round_tag` (applying picks) each shipped take is also copied to
-    ORIGINALS."""
+    plays its existing files, and so does an option marked `"shipped": true` (its takes are the cue's
+    library files as they are: the sound before the round, kept in the game while the round is open).
+    With `round_tag` (applying picks) each shipped take is also copied to ORIGINALS."""
     indices = kept(option, dropped)
-    if "ship" not in cue:
+    if "ship" not in cue or option.get("shipped"):
         return [ROOT / option["takes"][i] for i in indices]
     target_dir = LIBRARY / Path(cue["ship"]).parent
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -189,7 +216,8 @@ class Scene:
         return None
 
 
-def player_body(scene: Scene, script_id: str, files: list[Path], kind: str, volume_db: float, loop: bool, sub_id: str, interval: float | None = None) -> str:
+def player_body(scene: Scene, script_id: str, files: list[Path], kind: str, volume_db: float, loop: bool, sub_id: str, interval: float | None = None,
+                pitch_randomness: float | None = None) -> str:
     paths = [res(f) for f in files]
     ids = [scene.ext_id(p, stream_type(p)) for p in paths]
     if len(ids) == 1:
@@ -202,6 +230,7 @@ def player_body(scene: Scene, script_id: str, files: list[Path], kind: str, volu
         stream = f'SubResource("{sub_id}")'
     pitch, kind_interval, polyphony = PLAYER[kind]
     interval = kind_interval if interval is None else interval
+    pitch = pitch if pitch_randomness is None else pitch_randomness
     body = [f'script = ExtResource("{script_id}")', "process_mode = 3", f"stream = {stream}", f"volume_db = {volume_db:.2f}",
             f"max_polyphony = {polyphony}", 'bus = &"Effects"']
     if loop:
@@ -252,14 +281,20 @@ def main() -> None:
             continue
         kind = kind_of(cue, option)
         files = ship(cue, option, takes_dir, dropped, round_tag if picks is not None else None)
-        volume = TARGET_DB[kind] - float(np.mean([loudness(f) for f in files]))
+        rule = TARGET_DB[kind] - float(np.mean([loudness(f) for f in files]))
+        volume = min(rule, KEPT_MAX_DB if option.get("shipped") else PEAK_CEILING_DB - peak_db(files))
         for each in names:
             if each in AUTHORED and scene.node_body(each, parent) is not None:
                 continue
+            # A `shipped` option's player is the one already there: its files did not change.
+            if option.get("shipped") and not dropped.get(option["key"]) and scene.node_body(each, parent) is not None:
+                continue
             script_id = "2" if in_footsteps else global_script
             sub_id = "Rnd_" + re.sub(r"[^A-Za-z0-9]", "_", f"{cue['id']}_{each}")
-            scene.node(each, parent, player_body(scene, script_id, files, kind, volume, cue["id"] in LOOPING, sub_id, CUE_INTERVAL.get(cue["id"])))
-        print(f"{cue['id']}: {choice} x{len(files)} at {volume:+.1f} dB")
+            scene.node(each, parent, player_body(scene, script_id, files, kind, volume, cue["id"] in LOOPING, sub_id, CUE_INTERVAL.get(cue["id"]),
+                                                 CUE_PITCH.get(cue["id"])))
+        held = "" if volume == rule else f" (the loudness rule asks {rule:+.1f} dB; held for headroom, peak {peak_db(files) + volume:+.1f} dBFS)"
+        print(f"{cue['id']}: {choice} x{len(files)} at {volume:+.1f} dB{held}")
         if picks is None and sum(1 for o in cue["options"] if o["takes"]) > 1:
             entry = {"node": node_path, "inGame": cue["inGame"], "options": {}}
             for each_option in cue["options"]:

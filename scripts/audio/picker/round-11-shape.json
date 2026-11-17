@@ -1,0 +1,53 @@
+{
+ "note": "Sound Picker round 11 (2026-11-16): the source takes cut from the Magnific downloads in temp/sound-round-11/raw/ by scripts/audio/shape-takes.py. The cut points were read from each file's level and spectrum over time, 20 ms apart.",
+ "out": "temp/sound-round-11/cut",
+ "takes": [
+  {"name": "toss-sling-1", "layers": [{"src": "temp/sound-round-11/raw/toss-d-1.mp3", "hp": 150, "from": 0, "onset_db": -30, "len": 170, "fade_out": 60}]},
+  {"name": "toss-sling-2", "layers": [{"src": "temp/sound-round-11/raw/toss-d-4.mp3", "hp": 150, "from": 0, "onset_db": -30, "len": 130, "fade_out": 40}]},
+  {"name": "toss-sling-3", "layers": [{"src": "temp/sound-round-11/raw/toss-d-3.mp3", "hp": 150, "from": 40, "len": 180, "fade_in": 15, "fade_out": 60}]},
+
+  {"name": "toss-airy-1", "layers": [{"src": "temp/sound-round-11/raw/toss-c-4.mp3", "hp": 200, "from": 125, "len": 160, "fade_in": 8, "fade_out": 50}]},
+  {"name": "toss-airy-2", "layers": [{"src": "temp/sound-round-11/raw/toss-c-1.mp3", "hp": 200, "from": 172, "len": 150, "fade_in": 15, "fade_out": 45}]},
+  {"name": "toss-airy-3", "layers": [{"src": "temp/sound-round-11/raw/toss-c-3.mp3", "hp": 250, "from": 50, "len": 190, "fade_in": 20, "fade_out": 60}]},
+
+  {"name": "toss-whup-1", "layers": [{"src": "temp/sound-round-11/raw/toss-a-3.mp3", "hp": 200, "from": 0, "onset_db": -26, "len": 130, "fade_out": 40}]},
+  {"name": "toss-whup-2", "layers": [{"src": "temp/sound-round-11/raw/toss-a-2.mp3", "hp": 200, "from": 75, "onset_db": -26, "len": 120, "fade_out": 40}]},
+  {"name": "toss-whup-3", "layers": [{"src": "temp/sound-round-11/raw/toss-a-4.mp3", "hp": 200, "from": 255, "len": 115, "fade_in": 10, "fade_out": 35}]},
+
+  {"name": "impact-thwack-1", "layers": [{"src": "temp/sound-round-11/raw/heavy-b-1.mp3", "hp": 45, "from": 0, "onset_db": -26, "len": 130, "fade_out": 40}]},
+  {"name": "impact-thwack-2", "layers": [{"src": "temp/sound-round-11/raw/heavy-b-4.mp3", "hp": 45, "from": 0, "onset_db": -11, "len": 130, "fade_in": 2, "fade_out": 40}]},
+  {"name": "impact-thwack-3", "layers": [{"src": "temp/sound-round-11/raw/heavy-b-2.mp3", "hp": 45, "from": 0, "onset_db": -26, "len": 150, "fade_out": 50}]},
+
+  {"name": "impact-punch-1", "layers": [{"src": "temp/sound-round-11/raw/impact-d-1.mp3", "hp": 60, "from": 20, "onset_db": -26, "len": 160, "fade_out": 40}]},
+  {"name": "impact-punch-2", "layers": [{"src": "temp/sound-round-11/raw/impact-d-2.mp3", "hp": 60, "from": 0, "onset_db": -26, "len": 120, "fade_out": 40}]},
+  {"name": "impact-punch-3", "layers": [{"src": "temp/sound-round-11/raw/impact-d-4.mp3", "hp": 60, "from": 0, "onset_db": -26, "len": 160, "fade_out": 40}]},
+
+  {"name": "impact-bonk-1", "layers": [{"src": "temp/sound-round-11/raw/impact-e-1.mp3", "hp": 45, "from": 60, "onset_db": -26, "len": 220, "fade_out": 60}]},
+  {"name": "impact-bonk-2", "layers": [{"src": "temp/sound-round-11/raw/impact-e-4.mp3", "hp": 45, "from": 0, "onset_db": -26, "len": 220, "tail": {"from": 60, "db": -24}, "fade_out": 60}]},
+  {"name": "impact-bonk-3", "layers": [{"src": "temp/sound-round-11/raw/impact-e-2.mp3", "hp": 45, "from": 0, "onset_db": -26, "len": 220, "tail": {"from": 40, "db": -26}, "fade_out": 60}]},
+
+  {"name": "heavy-slam-1", "layers": [{"src": "temp/sound-round-11/raw/heavy-e-2.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 320, "fade_out": 80}]},
+  {"name": "heavy-slam-2", "layers": [{"src": "temp/sound-round-11/raw/heavy-e-3.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 280, "fade_out": 70}]},
+  {"name": "heavy-slam-3", "layers": [{"src": "temp/sound-round-11/raw/heavy-e-4.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 270, "fade_out": 60}]},
+
+  {"name": "heavy-barrel-1", "layers": [{"src": "temp/sound-round-11/raw/heavy-d-4.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 280, "fade_out": 70}]},
+  {"name": "heavy-barrel-2", "layers": [{"src": "temp/sound-round-11/raw/heavy-d-1.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 320, "fade_out": 80}]},
+
+  {"name": "heavy-boom-1", "layers": [{"src": "temp/sound-round-11/raw/impact-b-1.mp3", "hp": 35, "from": 85, "onset_db": -9, "len": 300, "fade_in": 4, "fade_out": 80}]},
+  {"name": "heavy-boom-2", "layers": [{"src": "temp/sound-round-11/raw/impact-e-3.mp3", "hp": 35, "from": 0, "onset_db": -26, "len": 320, "tail": {"from": 100, "db": -18}, "fade_out": 80}]},
+
+  {"name": "kill-tinkle-1", "layers": [
+    {"src": "temp/sound-round-11/raw/kill-c-2.mp3", "hp": 250, "from": 0, "onset_db": -26, "len": 45, "fade_out": 20},
+    {"src": "temp/sound-round-11/raw/kill-c-2.mp3", "hp": 2000, "from": 30, "len": 225, "at": 28, "gain_db": -8, "fade_in": 6, "tail": {"from": 110, "db": -16}, "fade_out": 40}]},
+  {"name": "kill-tinkle-2", "layers": [
+    {"src": "temp/sound-round-11/raw/kill-c-4.mp3", "hp": 250, "from": 0, "onset_db": -26, "len": 60, "fade_out": 20},
+    {"src": "temp/sound-round-11/raw/kill-c-4.mp3", "hp": 2000, "from": 132, "len": 190, "at": 55, "gain_db": -9, "fade_in": 4, "tail": {"from": 50, "db": -22}, "fade_out": 40}]},
+
+  {"name": "kill-bell-1", "layers": [{"src": "temp/sound-round-11/raw/kill-a-2.mp3", "hp": 400, "from": 0, "onset_db": -26, "len": 260, "tail": {"from": 30, "db": -30}, "fade_out": 40}]},
+  {"name": "kill-bell-2", "layers": [{"src": "temp/sound-round-11/raw/kill-e-4.mp3", "hp": 400, "from": 0, "onset_db": -26, "len": 260, "tail": {"from": 30, "db": -30}, "fade_out": 40}]},
+
+  {"name": "kill-cork-1", "layers": [
+    {"src": "temp/sound-round-11/raw/kill-e-2.mp3", "hp": 150, "from": 0, "onset_db": -26, "len": 150, "fade_out": 40},
+    {"src": "temp/sound-round-11/raw/kill-b-3.mp3", "hp": 3000, "from": 0, "onset_db": -26, "len": 230, "at": 12, "gain_db": -8, "fade_in": 3, "tail": {"from": 60, "db": -20}, "fade_out": 40}]}
+ ]
+}

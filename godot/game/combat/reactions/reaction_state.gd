@@ -2,8 +2,9 @@ extends RefCounted
 ## One enemy's reaction memory (combat-feel plan section 5 "How decide picks a verb" and section 7
 ## "Anti-frustration rules"): the holds in a row, the wake guard, the break-free armor, the poise
 ## pool and its refill, the stun in force (the longer stun always wins), the knockdown's damage
-## multiplier, the launch the wall splat and bowling read, a throw's faster knock slide, the wall
-## splats of the current chain and the phase and hurtbox part of the hit being judged.
+## multiplier, the launch the wall splat and bowling read, a throw's faster knock slide and its chain
+## (what its bowling deals and how far it passes on), the wall splats of the current chain and the
+## phase and hurtbox part of the hit being judged.
 ## EnemyReactions keeps one per enemy (`EnemyReactions.state_of`) and hands it to
 ## `HitReaction.decide`, which reads and writes it.
 ## Every time is simulation ms (`Services.now_ms()`).
@@ -48,6 +49,30 @@ var bowled: Dictionary = {}
 ## (faster than the stun slide's `combat.verbs.slideDecay`: EnemyReactions `slide_decay_of`).
 var slide_decay: float = 1.0
 var slide_decay_until_ms: float = 0.0
+## A throw's chain (the hit's `chains`; EnemyReactions "A throw's new feel"): the knocked body's
+## slide is a launch while it is fast (it splats on walls and bowls), a bowling contact deals
+## `bowl_damage` (< 0: `combat.rules.bowling.damage`), and the bodies it bowls carry both on,
+## `chain_depth` one deeper each (0 = the body the throw struck); a body deeper than
+## `combat.rules.bowling.chainPasses` bowls no one.
+var chains: bool = false
+var chain_depth: int = 0
+var bowl_damage: float = -1.0
+## The kill in force is a send-off (the hit's `kill_sendoff`): the corpse flies and pops, so the
+## death puff waits for the pop; `sendoff_pitch` is the pitch of its pop's cue (the pop streak's).
+var sendoff: bool = false
+var sendoff_pitch: float = 1.0
+## The stun in force is a throw's and leaves the enemy helpless on the ground (a daze, a knockdown,
+## a stagger, a sleep; a chain's wall splat and bowl): from `helpless_from_ms` on (its knock's flight
+## is over) the slime can gulp it as ammo (EnemyReactions `is_helpless`; game/throw/gulpable_enemy.gd).
+var throw_helpless: bool = false
+var helpless_from_ms: float = 0.0
+## A blow moves the body until then (a knock slide, a launch, a bowl, a sliding corpse, while it is
+## fast): the ground's hazards take it (enemy_hazards.gd: a ledge, a hole, deep water, a danger
+## zone). The spikes or lava Hazard a blow put it in (its instance id; 0 = none) and when it hurts
+## next.
+var blown_until_ms: float = 0.0
+var zone_hazard: int = 0
+var zone_next_ms: float = 0.0
 ## Wall splats in the current chain (`combat.rules.wallSplat.perChain`); a chain's first step and
 ## every ability hit that lands on a free enemy (no stun in force, no wake guard) clear it.
 var splats_this_chain: int = 0
@@ -87,6 +112,16 @@ func copy() -> RefCounted:
 	twin.set(&"bowled", bowled.duplicate())
 	twin.set(&"slide_decay", slide_decay)
 	twin.set(&"slide_decay_until_ms", slide_decay_until_ms)
+	twin.set(&"chains", chains)
+	twin.set(&"chain_depth", chain_depth)
+	twin.set(&"bowl_damage", bowl_damage)
+	twin.set(&"sendoff", sendoff)
+	twin.set(&"sendoff_pitch", sendoff_pitch)
+	twin.set(&"throw_helpless", throw_helpless)
+	twin.set(&"helpless_from_ms", helpless_from_ms)
+	twin.set(&"blown_until_ms", blown_until_ms)
+	twin.set(&"zone_hazard", zone_hazard)
+	twin.set(&"zone_next_ms", zone_next_ms)
 	twin.set(&"splats_this_chain", splats_this_chain)
 	twin.set(&"windup_sequence", windup_sequence)
 	twin.set(&"windup_pushed_ms", windup_pushed_ms)
@@ -114,6 +149,16 @@ func reset() -> void:
 	bowled.clear()
 	slide_decay = 1.0
 	slide_decay_until_ms = 0.0
+	chains = false
+	chain_depth = 0
+	bowl_damage = -1.0
+	sendoff = false
+	sendoff_pitch = 1.0
+	throw_helpless = false
+	helpless_from_ms = 0.0
+	blown_until_ms = 0.0
+	zone_hazard = 0
+	zone_next_ms = 0.0
 	splats_this_chain = 0
 	windup_sequence = -1
 	windup_pushed_ms = 0.0

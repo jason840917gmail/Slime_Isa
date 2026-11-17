@@ -33,7 +33,7 @@ its code is in git history.
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (lends the shapes and box abilities in any world;
   the body-shapes rework mode itself is on in every world on this branch), `?prologue` (a new
   run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
-  session), `?melee` (the throw-combat experiment off: the
+  session), `?melee` (the throw combat off: the
   shapes' attack back), `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
   `-- --map=<id> ...`, `-- --shapes`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
@@ -58,6 +58,10 @@ its code is in git history.
   — lists the joints between levels that keep the plain join instead of folding (45° edges against
   another level's wall, runs too short to fold), by world and cell, for repainting
   ([The joint folds](docs/godot/ELEVATION.md#side-walls)).
+- `bash scripts/godot/film-throw.sh <name> [options]` — films one Gulp throw in the playground frame
+  by frame (windowed, one film at a time) and lays it out as a strip and GIFs in
+  `output/throw-feel/<name>/`, to judge the throw's feel
+  ([Filming a throw](docs/godot/THROW_COMBAT.md#filming-a-throw)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;

@@ -72,8 +72,11 @@ static func is_flashing(visual: CanvasItem) -> bool:
 ## The rework's white-then-tint flash on `visual` (real time): `white` at full strength for
 ## `white_ms`, then `tint` fading out over `tint_ms`. Installs the material on first use; a new call
 ## restarts the curve. `big` picks the finisher lengths when `white_ms` / `tint_ms` are < 0.
+## `blink_ms` > 0 (a throw's hard hit, a kill's send-off): between the white and the fade the tint
+## and the white take turns for that long, a pair every `blink_period_ms`.
 static func flash_curve(visual: CanvasItem, tint: Color = HURT_TINT, big: bool = false,
-		white_ms: float = -1.0, tint_ms: float = -1.0, white: Color = Color.WHITE) -> void:
+		white_ms: float = -1.0, tint_ms: float = -1.0, white: Color = Color.WHITE,
+		blink_ms: float = 0.0, blink_period_ms: float = 0.0) -> void:
 	if visual == null or not is_instance_valid(visual):
 		return
 	var material := install(visual)
@@ -86,7 +89,7 @@ static func flash_curve(visual: CanvasItem, tint: Color = HURT_TINT, big: bool =
 		visual.add_child(driver)
 	var white_length := white_ms if white_ms >= 0.0 else (BIG_WHITE_MS if big else TAP_WHITE_MS)
 	var tint_length := tint_ms if tint_ms >= 0.0 else (BIG_TINT_MS if big else TAP_TINT_MS)
-	driver.start(material, white, tint, white_length, tint_length)
+	driver.start(material, white, tint, white_length, tint_length, blink_ms, blink_period_ms)
 
 
 ## A ShaderMaterial with this shader, or another shader that keeps its parameters and says so with

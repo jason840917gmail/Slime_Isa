@@ -1,0 +1,71 @@
+{
+ "note": "Sound Picker round 12 (2026-11-16): the source takes cut by scripts/audio/shape-takes.py from the Magnific downloads in temp/sound-round-12/raw/ (the crystal's ring layers from round 11's bell takes), and the owner's stone and ice takes started on their loudest crack. The cut points were read from each file's level over time, 20 ms apart.",
+ "out": "temp/sound-round-12/cut",
+ "takes": [
+  {"name": "snow-burst-1", "layers": [{"src": "temp/sound-round-12/raw/snow-c-2.mp3", "hp": 120, "from": 0, "onset_db": -14, "len": 430, "tail": {"from": 250, "db": -14}, "fade_out": 80}]},
+  {"name": "snow-burst-2", "layers": [{"src": "temp/sound-round-12/raw/snow-c-4.mp3", "hp": 120, "from": 30, "onset_db": -8, "len": 420, "tail": {"from": 250, "db": -14}, "fade_out": 80}]},
+  {"name": "snow-burst-3", "layers": [{"src": "temp/sound-round-12/raw/snow-c-3.mp3", "hp": 120, "from": 100, "onset_db": -8, "len": 380, "fade_out": 80}]},
+
+  {"name": "snow-puff-1", "layers": [{"src": "temp/sound-round-12/raw/snow-a-2.mp3", "hp": 150, "lp": 6500, "from": 0, "onset_db": -20, "len": 400, "tail": {"from": 150, "db": -18}, "fade_out": 80}]},
+  {"name": "snow-puff-2", "layers": [{"src": "temp/sound-round-12/raw/snow-a-4.mp3", "hp": 150, "lp": 6500, "from": 0, "onset_db": -20, "len": 400, "tail": {"from": 150, "db": -18}, "fade_out": 80}]},
+  {"name": "snow-puff-3", "layers": [{"src": "temp/sound-round-12/raw/snow-a-3.mp3", "hp": 150, "lp": 6500, "from": 0, "onset_db": -20, "len": 400, "tail": {"from": 150, "db": -18}, "fade_out": 80}]},
+
+  {"name": "snow-squeak-1", "layers": [{"src": "temp/sound-round-12/raw/snow-b-1.mp3", "hp": 120, "from": 395, "len": 370, "fade_in": 3, "fade_out": 80}]},
+  {"name": "snow-squeak-2", "layers": [{"src": "temp/sound-round-12/raw/snow-b-2.mp3", "hp": 120, "from": 370, "onset_db": -10, "len": 260, "fade_out": 60}]},
+  {"name": "snow-squeak-3", "layers": [{"src": "temp/sound-round-12/raw/snow-b-3.mp3", "hp": 120, "from": 95, "onset_db": -10, "len": 400, "fade_out": 80}]},
+
+  {"name": "crystal-ring-1", "layers": [
+    {"src": "temp/sound-round-12/raw/crystal-b-3.mp3", "hp": 300, "from": 30, "onset_db": -12, "len": 420, "fade_out": 80},
+    {"src": "temp/sound-round-11/raw/kill-a-2.mp3", "hp": 400, "from": 0, "onset_db": -26, "len": 450, "at": 5, "gain_db": -7, "tail": {"from": 60, "db": -26}, "fade_out": 80}]},
+  {"name": "crystal-ring-2", "layers": [
+    {"src": "temp/sound-round-12/raw/crystal-b-4.mp3", "hp": 300, "from": 10, "onset_db": -12, "len": 420, "fade_out": 80},
+    {"src": "temp/sound-round-11/raw/kill-a-1.mp3", "hp": 400, "from": 0, "onset_db": -26, "len": 450, "at": 5, "gain_db": -7, "tail": {"from": 60, "db": -26}, "fade_out": 80}]},
+  {"name": "crystal-ring-3", "layers": [
+    {"src": "temp/sound-round-12/raw/crystal-b-1.mp3", "hp": 300, "from": 0, "onset_db": -8, "len": 380, "fade_out": 80},
+    {"src": "temp/sound-round-11/raw/kill-e-4.mp3", "hp": 400, "from": 0, "onset_db": -26, "len": 450, "at": 5, "gain_db": -7, "tail": {"from": 60, "db": -26}, "fade_out": 80}]},
+
+  {"name": "crystal-chime-1", "layers": [{"src": "temp/sound-round-12/raw/crystal-c-1.mp3", "hp": 300, "from": 0, "onset_db": -20, "len": 460, "fade_out": 80}]},
+  {"name": "crystal-chime-2", "layers": [{"src": "temp/sound-round-12/raw/crystal-c-3.mp3", "hp": 300, "from": 0, "onset_db": -10, "len": 400, "fade_out": 80}]},
+  {"name": "crystal-chime-3", "layers": [{"src": "temp/sound-round-12/raw/crystal-c-4.mp3", "hp": 300, "from": 0, "onset_db": -8, "len": 380, "fade_out": 80}]},
+
+  {"name": "crystal-glitter-1", "layers": [{"src": "temp/sound-round-12/raw/crystal-a-1.mp3", "hp": 300, "from": 0, "onset_db": -20, "len": 520, "tail": {"from": 200, "db": -14}, "fade_out": 100}]},
+  {"name": "crystal-glitter-2", "layers": [{"src": "temp/sound-round-12/raw/crystal-a-4.mp3", "hp": 300, "from": 0, "onset_db": -20, "len": 480, "tail": {"from": 120, "db": -26}, "fade_out": 100}]},
+  {"name": "crystal-glitter-3", "layers": [{"src": "temp/sound-round-12/raw/crystal-a-3.mp3", "hp": 300, "from": 50, "len": 480, "fade_in": 3, "tail": {"from": 120, "db": -26}, "fade_out": 100}]},
+
+  {"name": "bone-clack-1", "layers": [{"src": "temp/sound-round-12/raw/bone-a-2.mp3", "hp": 150, "from": 0, "onset_db": -20, "len": 440, "fade_out": 60}]},
+  {"name": "bone-clack-2", "layers": [{"src": "temp/sound-round-12/raw/bone-a-4.mp3", "hp": 150, "from": 45, "onset_db": -8, "len": 420, "fade_out": 60}]},
+  {"name": "bone-clack-3", "layers": [{"src": "temp/sound-round-12/raw/bone-a-3.mp3", "hp": 150, "from": 185, "onset_db": -8, "len": 260, "fade_out": 60}]},
+
+  {"name": "bone-hollow-1", "layers": [{"src": "temp/sound-round-12/raw/bone-b-2.mp3", "hp": 150, "from": 0, "onset_db": -20, "len": 280, "fade_out": 60}]},
+  {"name": "bone-hollow-2", "layers": [{"src": "temp/sound-round-12/raw/bone-b-1.mp3", "hp": 150, "from": 170, "onset_db": -10, "len": 320, "fade_out": 60}]},
+  {"name": "bone-hollow-3", "layers": [{"src": "temp/sound-round-12/raw/bone-b-4.mp3", "hp": 150, "from": 375, "onset_db": -8, "len": 330, "fade_out": 60}]},
+
+  {"name": "bone-rattle-1", "layers": [{"src": "temp/sound-round-12/raw/bone-c-1.mp3", "hp": 150, "from": 15, "onset_db": -8, "len": 380, "fade_out": 60}]},
+  {"name": "bone-rattle-2", "layers": [{"src": "temp/sound-round-12/raw/bone-c-3.mp3", "hp": 150, "from": 110, "onset_db": -8, "len": 300, "fade_out": 60}]},
+  {"name": "bone-rattle-3", "layers": [{"src": "temp/sound-round-12/raw/bone-c-2.mp3", "hp": 150, "from": 190, "onset_db": -8, "len": 330, "fade_out": 60}]},
+
+  {"name": "stone-tight-1", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-stone-1.wav", "from": 70, "onset_db": -6, "len": 430, "fade_out": 30}]},
+  {"name": "stone-tight-2", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-stone-2.wav", "from": 105, "onset_db": -6, "len": 410, "fade_out": 30}]},
+  {"name": "stone-tight-3", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-stone-3.wav", "from": 50, "onset_db": -6, "len": 510, "fade_out": 30}]},
+
+  {"name": "stone-crack-1", "layers": [{"src": "temp/sound-round-12/raw/stone-a-2.mp3", "hp": 80, "from": 0, "onset_db": -10, "len": 330, "fade_out": 60}]},
+  {"name": "stone-crack-2", "layers": [{"src": "temp/sound-round-12/raw/stone-a-4.mp3", "hp": 80, "from": 30, "onset_db": -6, "len": 320, "fade_out": 60}]},
+  {"name": "stone-crack-3", "layers": [{"src": "temp/sound-round-12/raw/stone-a-3.mp3", "hp": 80, "from": 0, "onset_db": -10, "len": 400, "fade_out": 60}]},
+
+  {"name": "stone-gritty-1", "layers": [{"src": "temp/sound-round-12/raw/stone-b-1.mp3", "hp": 80, "from": 0, "onset_db": -20, "len": 330, "fade_out": 60}]},
+  {"name": "stone-gritty-2", "layers": [{"src": "temp/sound-round-12/raw/stone-b-4.mp3", "hp": 80, "from": 10, "onset_db": -8, "len": 380, "fade_out": 60}]},
+  {"name": "stone-gritty-3", "layers": [{"src": "temp/sound-round-12/raw/stone-b-2.mp3", "hp": 80, "from": 10, "onset_db": -8, "len": 300, "fade_out": 60}]},
+
+  {"name": "ice-tight-1", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-ice-1.wav", "from": 70, "onset_db": -6, "len": 640, "fade_out": 30}]},
+  {"name": "ice-tight-2", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-ice-2.wav", "from": 130, "onset_db": -8, "len": 380, "fade_out": 30}]},
+  {"name": "ice-tight-3", "layers": [{"src": "godot/asset/audio/sfx/library/world/break-ice-3.wav", "from": 90, "onset_db": -8, "len": 460, "fade_out": 30}]},
+
+  {"name": "ice-crack-1", "layers": [{"src": "temp/sound-round-12/raw/ice-a-1.mp3", "hp": 200, "from": 0, "onset_db": -20, "len": 420, "fade_out": 80}]},
+  {"name": "ice-crack-2", "layers": [{"src": "temp/sound-round-12/raw/ice-a-3.mp3", "hp": 200, "from": 30, "onset_db": -6, "len": 380, "fade_out": 80}]},
+  {"name": "ice-crack-3", "layers": [{"src": "temp/sound-round-12/raw/ice-a-4.mp3", "hp": 200, "from": 0, "onset_db": -12, "len": 420, "fade_out": 80}]},
+
+  {"name": "ice-snap-1", "layers": [{"src": "temp/sound-round-12/raw/ice-b-2.mp3", "hp": 200, "from": 10, "onset_db": -10, "len": 400, "fade_out": 80}]},
+  {"name": "ice-snap-2", "layers": [{"src": "temp/sound-round-12/raw/ice-b-4.mp3", "hp": 200, "from": 0, "onset_db": -12, "len": 440, "fade_out": 80}]},
+  {"name": "ice-snap-3", "layers": [{"src": "temp/sound-round-12/raw/ice-b-1.mp3", "hp": 200, "from": 10, "onset_db": -10, "len": 300, "fade_out": 60}]}
+ ]
+}

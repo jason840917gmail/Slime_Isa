@@ -83,7 +83,7 @@
       "id": "rook-thief", "visualSetId": "enemy.rook-thief", "maxHp": 30,
       "pattern": { "loopRadiusX": 170, "loopRadiusY": 120, "loopSpeed": 150, "carrySpeedScale": 1.4, "flyHeightPx": 90, "carryHeightPx": 130, "climbSpeed": 120, "firstSwoopMs": 1200, "swoopEveryMs": 2600, "swoopReachPx": 160, "tellMs": 650, "swoopMs": 900, "swoopLowPx": 12, "swoopOvershootPx": 140, "lowHeightPx": 34, "stealRadiusPx": 28, "stealCoins": 5, "carryMs": 3200, "riseMs": 700, "fallMs": 250, "downMs": 2200, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 4 },
-      "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": { "thrown": { "verb": "knockdown", "stunMs": 400 } }, "byTag": {}, "immune": [], "states": {} }
+      "reactions": { "flies": true, "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": { "thrown": { "verb": "knockdown", "stunMs": 400 } }, "byTag": {}, "immune": [], "states": {} }
     },
     "squint": {
       "id": "squint", "visualSetId": "enemy.squint", "maxHp": 32,
@@ -164,7 +164,7 @@
       "id": "glint-bat", "visualSetId": "enemy.glint-bat", "maxHp": 20,
       "pattern": { "roostHeightPx": 100, "climbSpeed": 160, "wakeMs": 650, "restMs": 1200, "swoopMs": 1300, "swoopDipShare": 1.5, "swoopLowPx": 12, "lowHeightPx": 36, "waveCount": 1.5, "waveAmpPx": 36, "swoopOvershootPx": 120, "arenaInsetPx": 32, "biteRadiusPx": 26, "biteDamage": 12, "biteKnockback": 160, "returnMs": 1400, "fallMs": 280, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 3 },
-      "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "asleep": { "immune": ["*"] }, "wake": { "immune": ["*"] } } }
+      "reactions": { "flies": true, "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "asleep": { "immune": ["*"] }, "wake": { "immune": ["*"] } } }
     },
     "crystal-crawler": {
       "id": "crystal-crawler", "visualSetId": "enemy.crystal-crawler", "maxHp": 24,
@@ -243,7 +243,7 @@
       "id": "ledge-raven", "visualSetId": "enemy.ledge-raven", "maxHp": 30,
       "pattern": { "firstRestMs": 600, "wakeRangePx": 220, "tellMs": 450, "loopRadiusPx": 150, "loopRisePx": 40, "loops": 2, "loopSpeed": 340, "restMs": 1400, "contactReachPx": 30, "contactCooldownMs": 700, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 4 },
-      "reactions": { "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
+      "reactions": { "flies": true, "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
     }
   }
 }

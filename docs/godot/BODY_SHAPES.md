@@ -828,6 +828,13 @@ hit = {
 }
 ```
 
+Optional fields, set only by a thrown thing while the throw's reworked feel is on
+([THROW_COMBAT.md](THROW_COMBAT.md#the-throws-feel-2026-11-16)); a hit without them reacts as
+before: `big` (the hard flash and the freeze shake when it dealt damage; `HitJuice.is_big` also
+shows the big number), `knock_motion` (the knocked-back motion before the verb's own), `chains` and
+`bowl_damage` (a stun slide may splat and bowl), `kill_sendoff` (a kill flies off and pops; the
+reaction then carries `sendoff: true`).
+
 Build it with the shared helpers in `res://game/combat/reactions/hit_reaction.gd`:
 
 ```gdscript
