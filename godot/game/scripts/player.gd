@@ -871,7 +871,7 @@ func _step_walk_out(delta: float) -> void:
 func run_snapshot() -> Dictionary:
 	var centre: Vector2 = get_centre()
 	return {"hp": _hp, "energy": _energy, "facing": Directions.cardinal_name(_facing), "x": centre.x, "y": centre.y,
-		"gulp_form": String(current_form_id()), "held": _mouth.held.duplicate()}
+		"gulp_form": String(current_form_id()), "held": _mouth.saved_held()}
 
 
 ## Takes the run's HP (`RunState.player`, GameState semantics: max HP grows with Goo Hearts).
@@ -1639,8 +1639,9 @@ func get_slam_area() -> Area2D:
 
 ## `WorldScene.playActionAnimation` (WorldScene.ts:1855-1877), e.g. the purple berry's `eat`:
 ## skipped while dead or while knockback has priority; otherwise action lock, stop, play the clip,
-## and after its length (simulation time) unlock and go back to idle.
-func play_action_clip(clip: String) -> void:
+## and after its length (simulation time) unlock and go back to idle. `lock_ms` >= 0 ends the lock
+## (and the clip) after that long at most (the new throw feel's throw: mouth_hold.gd `_throw`).
+func play_action_clip(clip: String, lock_ms: float = -1.0) -> void:
 	if _dead or Services.now_ms() < _knockback_anim_until_ms or animation == null:
 		return
 	if not animation.has_animation(_directional_clip(clip)):
@@ -1656,6 +1657,8 @@ func play_action_clip(clip: String) -> void:
 		length_ms = float(animation.call(&"clip_length_ms", StringName(_directional_clip(clip))))
 	else:
 		length_ms = animation.get_animation(_directional_clip(clip)).length * 1000.0
+	if lock_ms >= 0.0:
+		length_ms = minf(length_ms, lock_ms)
 	_action_clip_until_ms = Services.now_ms() + length_ms
 
 

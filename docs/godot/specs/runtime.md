@@ -212,6 +212,11 @@ Phaser semantics (`AudioPlaybackController`):
 - **Voices.** A loop owns one voice. A one-shot allocates up to `polyphony` voices; when all are busy, the **oldest** is cut, which is Godot's `max_polyphony` behaviour. Voices are created lazily.
 - **One-shot play.** Picks `[assetId, ...variants]` uniformly (repeats allowed) and sets `rate = pitch · (1 + U(−r, +r))` with `r = pitchRandomness` (multiplicative and uniform; Godot's `random_pitch` is a different distribution, so set `pitch_scale` per play in the helper and leave `AudioStreamRandomizer.random_pitch = 1`).
   Body-shapes rework (branch `exp/body-shapes`): `sfx_player.gd` also reads the Dictionary payload keys `pitch` (multiplies the base pitch) and `pitch_randomness` (replaces `r` for that play); no old payload has them ([BODY_SHAPES.md](../BODY_SHAPES.md) "Juice").
+  Since 2026-11-16 it also reads `volume_db`, an offset for that play only (a thrown thing's miss
+  plays quieter: [THROW_COMBAT.md](../THROW_COMBAT.md#the-throws-feel-2026-11-16)): the play goes
+  to a one-off copy of the player, freed when it ends, so voices already playing and the player's
+  own volume are untouched (`stop_cue` does not stop such a copy); `sfx_player_2d.gd` has none of
+  the three keys.
 - **Variants.** `AudioStreamRandomizer` with `playback_mode = 1` (PLAYBACK_RANDOM) and equal weights. 140 resources have variants; no looped stream does.
 - **minIntervalMs.** For non-loop plays only, a play requested less than `minIntervalMs` after the previous **accepted** play is dropped. Measured on wall-clock time (`Date.now()`), so it keeps running during pause: use `Time.get_ticks_msec()`.
 - **loop.** Plays `loop: true` on one voice, and a repeated `play` while it is playing is ignored. Godot: the loop flag belongs to the stream. The looped files are wav ×6, ogg ×2 and mp3 ×2 (`audio.music.level-1-home-town`, `gloop-forest`, `gloop-forest-ambience`, `audio.sfx.world.*-loop.1`, `meadow-ambience`, `interior-ambience`, `player.sleep-breath`), and they are only ever used looped. Either set the loop import parameter for those files in `sync-assets` (`.import`: wav `edit/loop_mode=2`, ogg and mp3 `loop=true`), or have the helper `stream = stream.duplicate()` at `_ready` and set `loop = true` (Ogg/MP3) or `loop_mode = LOOP_FORWARD` with `loop_end = int(get_length() * mix_rate)` (WAV).

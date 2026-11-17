@@ -336,7 +336,8 @@ The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling
   them). It draws nothing (the water shows). Fallen in, the slime sinks with a splash
   (`dungeon.water.fallMs`), loses `dungeon.water.damage` (10) and is put back on its bank: the
   hazard's `Return...` children (put one on each bank: the nearest to the slime's last safe ground
-  wins), else that ground. A form that swims (the Frog) never falls in; enemies never fall.
+  wins), else that ground. A form that swims (the Frog) never falls in; enemies never walk in (one knocked in by a blow
+  drowns: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
 - **The lane:** every plank and landing opens the deep water's collision under its cells when the
   world is built (`plank_look.gd` adds a `bridge_deck.gd` child, docs/godot/specs/water.md §10), and
   the cells stay open after a plank falls, so the slime over a fallen plank is caught by the hazard,
@@ -609,8 +610,10 @@ numbers.
 - A door, a shutter or a bolt in an east, west or south wall shows the front art turned (foreshortened
   in a side wall); no side or back views are drawn, so a bolted door in a side wall shows its bolt
   from both rooms.
-- The void watches the player only: enemies do not fall (they keep to their wander areas and do
-  not drop off rims).
+- The void watches the player only for walking: enemies do not walk in (they keep to their wander
+  areas and do not drop off rims). An enemy a blow knocks or throws over a void's rim dies falling,
+  one knocked into spikes or lava is hurt on the slime's rhythm until it is out or dead (owner,
+  2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
 - Rooms reset only within one world: a dungeon of several worlds rebuilds a world on each travel
   (all its enemies and pots back), as any world does.
 - The map shows the rooms of the world the slime is in.

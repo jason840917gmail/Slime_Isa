@@ -102,6 +102,11 @@ var reduce_motion: bool = false
 ## The "Damage numbers" setting (GameSettings `damage_numbers`, on by default): rework hits show
 ## their damage only while it is on (`play_hit`). The old damage numbers do not read it.
 var show_damage_numbers: bool = true
+## Filming only (godot/tools/film_throw.gd): above 0, this node's "real" time (the hit-stop, the
+## room clear's stutter) counts drawn frames of this many ms each instead of the wall clock. A film
+## saves every frame and so runs many times slower than real time (about 215 ms a frame); with the
+## frame clock a 90 ms hit-stop still lasts its five or six frames of the film. 0 in the game.
+var frame_clock_ms: float = 0.0
 
 var _frozen_until_real_ms: float = 0.0
 var _floating_text: FloatingTextLayer
@@ -460,7 +465,10 @@ func stop_audio_cue(cue: StringName) -> void:
 
 # --- private ---------------------------------------------------------------------------------
 
+## Real time (ms), or the frame clock's while a film runs (`frame_clock_ms`).
 func _now_real() -> float:
+	if frame_clock_ms > 0.0:
+		return float(Engine.get_process_frames()) * frame_clock_ms
 	return float(Time.get_ticks_msec())
 
 

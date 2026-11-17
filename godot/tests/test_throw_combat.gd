@@ -7,10 +7,14 @@ extends RefCounted
 ## run_tests.gd starts every test of this file in the playground (the rework mode on, as in every
 ## world, and the throw mode off: main.gd `throw_combat`); each test travels there again with the
 ## throw mode on.
+##
+## The new throw feel (game/throw/throw_feel.gd, `gulp.throwFeel`) changes a throw's damage, so the
+## damage expectations are read from the constants (`_throw_damage`), whichever feel is on.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
 const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
@@ -19,6 +23,8 @@ const MAP_ID := "playground"
 ## A clear stretch of grass north of the playground's spawn, for the throws.
 const RANGE_FROM_SPAWN := Vector2(0.0, -260.0)
 const WORM_AHEAD_PX := 150.0
+## Health for a worm that must live through every throw of a test (test setup only).
+const PLENTY_HP := 1000.0
 
 
 func test_the_yard_the_box_and_no_attack(t: TestContext) -> void:
@@ -46,10 +52,11 @@ func test_weight_follows_the_gulp_level(t: TestContext) -> void:
 	await _enter(t)
 	var player := t.player()
 	var worm := t.spawn_worm(Vector2(WORM_AHEAD_PX, 0.0), true)
+	t.set_enemy_health(worm, PLENTY_HP)
 	await t.steps(2)
 	await _catch(t, "clay-pot")
 	t.equal(str(player.held().get("kind", "")), "clay-pot", "held")
-	t.near(await _throw_at(t, worm), 25.0, 0.5, "a light pot's damage")
+	t.near(await _throw_at(t, worm), _throw_damage(ThrowMode.LIGHT), 0.5, "a light pot's damage")
 	await t.sim_wait(1500.0)
 	ThrowAmmo.spawn_liftable("crate", player.body.global_position + Vector2(0.0, 30.0))
 	await t.steps(2)
@@ -63,7 +70,7 @@ func test_weight_follows_the_gulp_level(t: TestContext) -> void:
 	await t.sim_wait(600.0)
 	t.equal(str(player.held().get("kind", "")), "crate", "held at level 2")
 	await t.sim_wait(1500.0)
-	t.near(await _throw_at(t, worm), 45.0, 0.5, "a medium crate's damage")
+	t.near(await _throw_at(t, worm), _throw_damage(ThrowMode.MEDIUM), 0.5, "a medium crate's damage")
 
 
 func test_effects_freeze_sleep_and_pierce(t: TestContext) -> void:
@@ -71,6 +78,8 @@ func test_effects_freeze_sleep_and_pierce(t: TestContext) -> void:
 	ThrowMode.set_dev_level(2)
 	var worm := t.spawn_worm(Vector2(WORM_AHEAD_PX, 0.0), true)
 	var other := t.spawn_worm(Vector2(WORM_AHEAD_PX + 80.0, 0.0), true)
+	t.set_enemy_health(worm, PLENTY_HP)
+	t.set_enemy_health(other, PLENTY_HP)
 	await t.steps(2)
 	await _catch(t, "snowball")
 	await _throw_at(t, worm)
@@ -153,6 +162,13 @@ func _enter(t: TestContext) -> void:
 	t.teleport_player(t.player().get_centre() + RANGE_FROM_SPAWN if world == null
 		else world.player_spawn_point() + RANGE_FROM_SPAWN)
 	await t.steps(2)
+
+
+## What a thing whose material deals x 1 (clay, wood) deals at `weight`: the throw's base damage (the
+## new throw feel's `throwDamage` while it is on, else `gulp.throwCombat.throwDamage`) x the weight's
+## `damageScale`.
+func _throw_damage(weight: String) -> float:
+	return ThrowFeel.base_damage() * ThrowMode.weight_number(weight, "damageScale")
 
 
 ## Lays a `kind` liftable just under the slime and sucks it in.

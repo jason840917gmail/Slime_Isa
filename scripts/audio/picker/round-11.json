@@ -1,0 +1,63 @@
+{
+ "round": "round-11",
+ "applied": "2026-11-16 with round-11-picks.json: the toss ships option a (Quick whup), its take 3 alone; the kill option a (Pop and tinkle), its take 1 alone; the two hit cues were left unpicked and are removed by his note (the thrown thing's own material sound is the hit sound)",
+ "intro": "Sounds for the throw's new feel (2026-11-16): the toss, the thrown thing hitting an enemy's body (a light or medium thing, and a heavy one), and a throw that kills. Until now a hit on an enemy only played the thing's breaking sound, the same as a miss on the floor, and a kill only the enemy's own death sound. The hit sounds are the body blow alone: the pot or rock still breaks with its own sound on top of it. Options A to C are short Magnific takes (the game picks one of an option's takes at random), D is made by the game's own synth; for the toss, \"Now\" is your three throws from round 7, which it played until today. Press Repeat to hear an option several times at the game's small pitch spread. The game plays option A of each meanwhile (?audition and F7/F8 switch options in the game). Pick one per sound, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-11/takes",
+ "groups": [
+  {"id": "toss", "name": "Toss", "note": "Q while holding a pot, a rock or a keg: the slime throws it. It plays on every throw, so it should be short and pleasant: a toss, not a spit. (An essence spat out whole keeps the old throw sound.)"},
+  {"id": "hit", "name": "Hit on an enemy", "note": "The thrown thing strikes an enemy's body: the blow itself, a thump with a sharp start. The thing's own breaking sound (clay, stone, wood...) plays over it, so listen for the punch under the shatter."},
+  {"id": "kill", "name": "Kill", "note": "The throw kills the enemy: a small reward sound over the enemy's own death sound. The game raises its pitch a step with each kill of a chain."}
+ ],
+ "cues": [
+  {"id": "player.throw-toss", "group": "toss", "name": "Toss", "where": "Q while holding a liftable: it is thrown", "node": "ThrowToss", "ship": "player/throw-toss", "inGame": "a",
+   "rhythm": 600, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Quick whup", "note": "A soft, dry swish of something tossed by hand, low and round like your own throws but half as long: 0.11 to 0.13 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/toss-whup-1.src.wav", "temp/sound-round-11/cut/toss-whup-2.src.wav", "temp/sound-round-11/cut/toss-whup-3.src.wav"]},
+    {"key": "b", "label": "Airy swish", "note": "A lighter, breathier swish, more air than body: 0.15 to 0.19 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/toss-airy-1.src.wav", "temp/sound-round-11/cut/toss-airy-2.src.wav", "temp/sound-round-11/cut/toss-airy-3.src.wav"]},
+    {"key": "c", "label": "Slingshot fwip", "note": "A small elastic snap into a swish that falls in pitch, the most cartoon of the three: 0.13 to 0.18 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/toss-sling-1.src.wav", "temp/sound-round-11/cut/toss-sling-2.src.wav", "temp/sound-round-11/cut/toss-sling-3.src.wav"]},
+    {"key": "d", "label": "Synth: springy fling", "note": "Made by the game's synth: a falling whoosh with a small springy note under it, 0.15 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/synth-toss-1.src.wav", "temp/sound-round-11/cut/synth-toss-2.src.wav", "temp/sound-round-11/cut/synth-toss-3.src.wav"]},
+    {"key": "now", "label": "Now: your three throws (round 7)", "note": "What a throw played until today: your throwing, throwing2 and throwing3, 0.27 to 0.38 s", "kind": "oneshot", "even": true,
+     "takes": ["godot/asset/audio/sfx/library/player/gulp-spit-1.wav", "godot/asset/audio/sfx/library/player/gulp-spit-2.wav", "godot/asset/audio/sfx/library/player/gulp-spit-3.wav"]}
+   ]},
+  {"id": "player.throw-impact", "group": "hit", "name": "Hit (light or medium thing)", "where": "A thrown pot or rock strikes an enemy's body", "node": "ThrowImpact", "ship": "player/throw-impact", "inGame": "a",
+   "rhythm": 600, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Punchy thwack", "note": "A tight, round thump with a hard start and no ring, the plainest body blow: 0.13 to 0.15 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/impact-thwack-1.src.wav", "temp/sound-round-11/cut/impact-thwack-2.src.wav", "temp/sound-round-11/cut/impact-thwack-3.src.wav"]},
+    {"key": "b", "label": "Meaty punch", "note": "A smack on top of a low thud, like a punch on a padded dummy; brighter and deeper at once: 0.12 to 0.16 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/impact-punch-1.src.wav", "temp/sound-round-11/cut/impact-punch-2.src.wav", "temp/sound-round-11/cut/impact-punch-3.src.wav"]},
+    {"key": "c", "label": "Hollow bonk", "note": "A round, hollow knock with a short note in it, like a mallet on a melon, the most cartoon: 0.22 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/impact-bonk-1.src.wav", "temp/sound-round-11/cut/impact-bonk-2.src.wav", "temp/sound-round-11/cut/impact-bonk-3.src.wav"]},
+    {"key": "d", "label": "Synth: thump and knock", "note": "Made by the game's synth: a low thump under a dull snap and a small wooden knock, 0.13 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/synth-impact-1.src.wav", "temp/sound-round-11/cut/synth-impact-2.src.wav", "temp/sound-round-11/cut/synth-impact-3.src.wav"]}
+   ]},
+  {"id": "player.throw-impact-heavy", "group": "hit", "name": "Hit (heavy thing)", "where": "A thrown keg or iron ball strikes an enemy's body", "node": "ThrowImpactHeavy", "ship": "player/throw-impact-heavy", "inGame": "a",
+   "rhythm": 900, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Body slam", "note": "A firm smack into a deep, thick whump, like a medicine ball into a padded wall: 0.27 to 0.32 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/heavy-slam-1.src.wav", "temp/sound-round-11/cut/heavy-slam-2.src.wav", "temp/sound-round-11/cut/heavy-slam-3.src.wav"]},
+    {"key": "b", "label": "Barrel thud", "note": "A hard wooden knock that falls into a low thud, like a full barrel dropped on boards: 0.28 to 0.32 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/heavy-barrel-1.src.wav", "temp/sound-round-11/cut/heavy-barrel-2.src.wav"]},
+    {"key": "c", "label": "Round boom", "note": "A soft, round low boom with no hard edge, like a big drum hit with a soft mallet: 0.3 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/heavy-boom-1.src.wav", "temp/sound-round-11/cut/heavy-boom-2.src.wav"]},
+    {"key": "d", "label": "Synth: deep thump", "note": "Made by the game's synth: a deep thump that falls in pitch under a dark burst, 0.26 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/synth-heavy-1.src.wav", "temp/sound-round-11/cut/synth-heavy-2.src.wav", "temp/sound-round-11/cut/synth-heavy-3.src.wav"]}
+   ]},
+  {"id": "player.throw-kill", "group": "kill", "name": "Kill", "where": "A throw kills an enemy", "node": "ThrowKill", "ship": "player/throw-kill", "inGame": "a",
+   "rhythm": 700, "rhythmLabel": "▶ Repeat",
+   "options": [
+    {"key": "a", "label": "Pop and tinkle", "note": "A small round pop, then a few tiny high bells: 0.25 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/kill-tinkle-1.src.wav", "temp/sound-round-11/cut/kill-tinkle-2.src.wav"]},
+    {"key": "b", "label": "Bell ting", "note": "One small clear bell note that dies away fast, no pop: 0.26 s", "kind": "oneshot", "even": true,
+     "takes": ["temp/sound-round-11/cut/kill-bell-1.src.wav", "temp/sound-round-11/cut/kill-bell-2.src.wav"]},
+    {"key": "c", "label": "Cork pop and glitter", "note": "A round cork pop with a pinch of glitter over it (two Magnific takes mixed): 0.24 s", "kind": "oneshot",
+     "takes": ["temp/sound-round-11/cut/kill-cork-1.src.wav"]},
+    {"key": "d", "label": "Synth: blip and glass note", "note": "Made by the game's synth: a rising pop, one glass note and a little sparkle, 0.18 s", "kind": "oneshot",
+     "takes": ["temp/sound-round-11/cut/synth-kill-1.src.wav"]}
+   ]}
+ ]
+}

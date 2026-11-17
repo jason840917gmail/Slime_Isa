@@ -1,0 +1,26 @@
+{
+ "round": "round-11",
+ "decidedAt": "2026-11-16T23:37:40.945Z",
+ "source": "The Sound Picker's picks/round-11 document, version 45 (final). The toss: option a (Quick whup), its takes 1 and 2 dropped, so its take 3 ships alone. The kill: option a (Pop and tinkle), its take 2 dropped, so its take 1 ships alone. He left the two hit cues (player.throw-impact, player.throw-impact-heavy) unpicked on purpose and his note drops them: the thrown thing's own material sound is the hit sound. They are entered here as \"s\" (ships nothing, the player goes), which stage-round.py needs to remove them: the saved document's picks held only the toss and the kill.",
+ "note": "i believe the hit sound depends of the object that hits, already the  pot make a sound when it breaks on an enemy and that should be enough , the other materials should have their sound as much as possible, that will give identity to each type of material.",
+ "picks": {
+  "player.throw-toss": "a",
+  "player.throw-kill": "a",
+  "player.throw-impact": "s",
+  "player.throw-impact-heavy": "s"
+ },
+ "dropped": {
+  "player.throw-kill": {
+   "a": [
+    1
+   ]
+  },
+  "player.throw-toss": {
+   "a": [
+    0,
+    1
+   ]
+  }
+ },
+ "wishes": {}
+}

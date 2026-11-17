@@ -119,19 +119,12 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-1.wav" id="sfx_12abaec6"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-2.wav" id="sfx_550bd416"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-glass-3.wav" id="sfx_686bfda6"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-1.wav" id="sfx_dd359ab4"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-2.wav" id="sfx_9a95e064"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-3.wav" id="sfx_a7f5c9d4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-wood-1.wav" id="sfx_a7f5c9d4"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-1.wav" id="sfx_454e00c7"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-2.wav" id="sfx_02ee7a17"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-metal-3.wav" id="sfx_3f8e53a7"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-1.wav" id="sfx_138f8e0f"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-2.wav" id="sfx_542ff4df"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-3.wav" id="sfx_694fdd6f"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="sfx_ac4fbd2b"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-2.wav" id="sfx_ebefc7fb"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-3.wav" id="sfx_d68fee4b"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-1.wav" id="sfx_d94a9d1c"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-2.wav" id="sfx_9eeae7cc"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-ice-3.wav" id="sfx_a38ace7c"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/roll-rev-1.wav" id="sfx_260ebfee"]
@@ -165,6 +158,16 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/pipe-worm-spit.wav" id="sfx_154008fb"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/crystal-crawler-turn-1.wav" id="sfx_28bd909b"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/crystal-crawler-turn-2.wav" id="sfx_6f1dea4b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/throw-toss.wav" id="sfx_8a49b8c3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/throw-kill.wav" id="sfx_5c321e63"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-snow-1.wav" id="sfx_9593a8de"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-snow-2.wav" id="sfx_d233d20e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-snow-3.wav" id="sfx_ef53fbbe"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-crystal.wav" id="sfx_f1b37395"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-bone.wav" id="sfx_ff7f4736"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-1.wav" id="sfx_0eb4ca83"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-2.wav" id="sfx_4914b053"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-3.wav" id="sfx_747499e3"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -442,17 +445,6 @@ stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_686bfda6")
 stream_2/weight = 1.0
 
-[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_wood_BreakWood"]
-playback_mode = 1
-random_pitch = 1.0
-streams_count = 3
-stream_0/stream = ExtResource("sfx_dd359ab4")
-stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_9a95e064")
-stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_a7f5c9d4")
-stream_2/weight = 1.0
-
 [sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_metal_BreakMetal"]
 playback_mode = 1
 random_pitch = 1.0
@@ -462,39 +454,6 @@ stream_0/weight = 1.0
 stream_1/stream = ExtResource("sfx_02ee7a17")
 stream_1/weight = 1.0
 stream_2/stream = ExtResource("sfx_3f8e53a7")
-stream_2/weight = 1.0
-
-[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_stone_BreakStone"]
-playback_mode = 1
-random_pitch = 1.0
-streams_count = 3
-stream_0/stream = ExtResource("sfx_138f8e0f")
-stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_542ff4df")
-stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_694fdd6f")
-stream_2/weight = 1.0
-
-[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_soft_BreakSoft"]
-playback_mode = 1
-random_pitch = 1.0
-streams_count = 3
-stream_0/stream = ExtResource("sfx_ac4fbd2b")
-stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_ebefc7fb")
-stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_d68fee4b")
-stream_2/weight = 1.0
-
-[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_ice_BreakIce"]
-playback_mode = 1
-random_pitch = 1.0
-streams_count = 3
-stream_0/stream = ExtResource("sfx_d94a9d1c")
-stream_0/weight = 1.0
-stream_1/stream = ExtResource("sfx_9eeae7cc")
-stream_1/weight = 1.0
-stream_2/stream = ExtResource("sfx_a38ace7c")
 stream_2/weight = 1.0
 
 [sub_resource type="AudioStreamRandomizer" id="Rnd_player_roll_rev_RollRev"]
@@ -590,6 +549,46 @@ streams_count = 2
 stream_0/stream = ExtResource("sfx_28bd909b")
 stream_0/weight = 1.0
 stream_1/stream = ExtResource("sfx_6f1dea4b")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_snow_BreakSnow"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_9593a8de")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_d233d20e")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_ef53fbbe")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_stone_BreakStone"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_0eb4ca83")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_4914b053")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_747499e3")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_ice_BreakIce"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_9eeae7cc")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a38ace7c")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_break_wood_BreakWood"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_9a95e064")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a7f5c9d4")
 stream_1/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
@@ -1448,7 +1447,7 @@ min_interval_ms = 60.0
 script = ExtResource("1")
 process_mode = 3
 stream = SubResource("Rnd_world_break_wood_BreakWood")
-volume_db = -5.02
+volume_db = -8.56
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1468,7 +1467,7 @@ min_interval_ms = 60.0
 script = ExtResource("1")
 process_mode = 3
 stream = SubResource("Rnd_world_break_stone_BreakStone")
-volume_db = 4.12
+volume_db = 0.70
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1477,18 +1476,18 @@ min_interval_ms = 60.0
 [node name="BreakSoft" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
-stream = SubResource("Rnd_world_break_soft_BreakSoft")
-volume_db = 2.01
+stream = ExtResource("sfx_ebefc7fb")
+volume_db = 4.10
 max_polyphony = 4
 bus = &"Effects"
-pitch_randomness = 0.06
+pitch_randomness = 0.08
 min_interval_ms = 60.0
 
 [node name="BreakIce" type="AudioStreamPlayer" parent="Effects"]
 script = ExtResource("1")
 process_mode = 3
 stream = SubResource("Rnd_world_break_ice_BreakIce")
-volume_db = 3.42
+volume_db = 4.08
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1581,4 +1580,52 @@ max_polyphony = 2
 bus = &"Effects"
 pitch_randomness = 0.05
 min_interval_ms = 300.0
+[node name="ThrowToss" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_8a49b8c3")
+volume_db = -2.24
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.08
+min_interval_ms = 60.0
+
+[node name="ThrowKill" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_5c321e63")
+volume_db = 0.14
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.0
+min_interval_ms = 60.0
+[node name="BreakSnow" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_break_snow_BreakSnow")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BreakCrystal" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_f1b37395")
+volume_db = -0.94
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.08
+min_interval_ms = 60.0
+
+[node name="BreakBone" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_ff7f4736")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.08
+min_interval_ms = 60.0
 

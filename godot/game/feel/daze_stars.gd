@@ -24,6 +24,9 @@ const SPIN_TURNS_PER_S := 1.5
 var until_ms: float = 0.0
 ## Where the head is, in this node's space (the orbit's centre).
 var head: Vector2 = Vector2.ZERO
+## How many times the look's size (the orbit and the stars): a throw's daze shows bigger ones
+## (`combat.verbs.knock.starScale`).
+var size: float = 1.0
 
 var _age_s: float = 0.0
 
@@ -39,7 +42,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	for index: int in STAR_COUNT:
 		var angle := _age_s * TAU * ORBIT_TURNS_PER_S + float(index) * TAU / float(STAR_COUNT)
-		var point := head + Vector2(cos(angle) * ORBIT_RADIUS.x, sin(angle) * ORBIT_RADIUS.y)
+		var point := head + Vector2(cos(angle) * ORBIT_RADIUS.x, sin(angle) * ORBIT_RADIUS.y) * size
 		var alpha := 1.0 if sin(angle) >= 0.0 else BEHIND_ALPHA
 		_draw_star(point, _age_s * TAU * SPIN_TURNS_PER_S + float(index), alpha)
 
@@ -47,7 +50,7 @@ func _draw() -> void:
 func _draw_star(centre: Vector2, turn: float, alpha: float) -> void:
 	var points := PackedVector2Array()
 	for corner: int in 8:
-		var radius := STAR_OUTER_PX if corner % 2 == 0 else STAR_INNER_PX
+		var radius := (STAR_OUTER_PX if corner % 2 == 0 else STAR_INNER_PX) * size
 		var angle := turn + float(corner) * TAU / 8.0
 		points.append(centre + Vector2(cos(angle), sin(angle)) * radius)
 	var fill := Color(STAR_COLOR, STAR_COLOR.a * alpha)

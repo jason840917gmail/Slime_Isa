@@ -204,8 +204,11 @@ static func number_spec(damage: int, hit: Dictionary) -> Dictionary:
 
 
 ## True when `hit`'s class is one of `combat.damageNumbers.bigClasses` (finisher, smash, charge,
-## slam): the big number, the long flash and the finisher sparks.
+## slam), or the hit says so itself (`"big": true`: a throw with the new throw feel,
+## thrown_object.gd `rework_hit`): the big number, the long flash and the finisher sparks.
 static func is_big(hit: Dictionary) -> bool:
+	if bool(hit.get("big", false)):
+		return true
 	var constants := Services.constants()
 	var big_classes: Variant = constants.value("combat.damageNumbers.bigClasses", []) if constants != null else []
 	return big_classes is Array and (big_classes as Array).has(str(hit.get("class", "")))

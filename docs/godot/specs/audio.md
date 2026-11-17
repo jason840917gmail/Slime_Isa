@@ -7,7 +7,10 @@ A GDScript engineer should be able to port this without opening the TypeScript.
 Godot targets: autoload `MusicDirector` → `res://game/audio/music_director.gd` (reached as
 `Services.music()`); global cues stay on `GameFeel.audio_cue(cue)` (`game/feel/game_feel.gd`);
 converted audio players stay on `game/runtime/sfx_player(_2d).gd` (runtime spec 4.12); buses
-`Master`, `Effects`, `Music`, `Ambience` (`godot/default_bus_layout.tres`).
+`Master`, `Effects`, `Music`, `Ambience` (`godot/default_bus_layout.tres`). Since 2026-11-16 the
+`Master` bus ends in a hard limiter (`AudioEffectHardLimiter`, ceiling -0.3 dB): several break cues
+peak over full scale at their player volume (the loudness rule on click-like takes), and without
+it they clipped.
 
 ---
 
@@ -514,8 +517,10 @@ what the game plays. A corner panel names the set (its key and its options' labe
 under the slime. The release Web export excludes the audition folder; applying the picks deletes
 it. It holds only the open round's cues. Round 4 was applied on 2026-10-06, round 5 (§11) on
 2026-10-09, round 6 (the stairs step, `scripts/audio/picker/round-6.json`) on 2026-10-14 and
-round 7 (§12, the Gulp's suck, catch and throw) on 2026-10-17, so no round is open and the folder
-is gone until the next one is staged; the panel then says no round is staged.
+round 7 (§12, the Gulp's suck, catch and throw) on 2026-10-17; rounds 8 to 10 are applied too.
+Round 11 (§13, the throw's toss and kill) was applied on 2026-11-16 and round 12 (§14, each material
+its own sound) on 2026-11-17, so no round is open: the folder is gone and the panel says no round
+is staged.
 
 ### 10.4 Tests
 
@@ -547,12 +552,12 @@ defaults on 2026-10-09 ("sound the defaults are ok"): option A of each ships, ap
 | `GulpCatch` | Gloop plop / Cork plunk (replaced in round 7, §12) | the sucked thing reaches the mouth, or the bag's Use puts an essence in it; also the slime gulping down the ceremony's bubble | `mouth.gd`; `ability_ceremony.gd` |
 | `GulpSpit` | Ptoo / Boing pop (replaced in round 7, §12) | Q throws what the mouth holds | `mouth.gd` `throw` |
 | `BreakClay` | Pot shatter / Jar pop and tinkle | a clay thing breaks (pots, jugs, urns, shells) | `thrown_object.gd` `BREAK_CUES` (a throw), `mouth.gd` `drop` (knocked out by a hit) |
-| `BreakGlass` | Glass shatter | glass and crystal (jars, bottles, floats, crystals, obsidian) | same |
-| `BreakWood` | Crate smash | wood (crates, kegs, buckets, logs, coconuts) | same |
+| `BreakGlass` | Glass shatter | glass; crystal has `BreakCrystal` since round 12 (§14) (jars, bottles, floats, crystals, obsidian) | same |
+| `BreakWood` | Crate smash (two takes since round 12, §14) | wood; bone has `BreakBone` since round 12 (crates, kegs, buckets, logs, coconuts) | same |
 | `BreakMetal` | Clang | metal (kettles, lanterns, the iron ball) | same |
-| `BreakStone` | Rock crack | stone (rocks, bricks, stone urns, coral) | same |
-| `BreakSoft` | Splat | soft and snow (pumpkins, sacks, mud, snow) | same |
-| `BreakIce` | Ice shatter | ice (ice blocks, icicles, frost crystals, frosted jars) | same |
+| `BreakStone` | Rock crack (replaced in round 12, §14) | stone (rocks, bricks, stone urns, coral) | same |
+| `BreakSoft` | Splat (one take since round 12, §14) | soft; snow has `BreakSnow` since round 12 (pumpkins, sacks, mud, snow) | same |
+| `BreakIce` | Ice shatter (two takes since round 12, §14) | ice (ice blocks, icicles, frost crystals, frosted jars) | same |
 | `RollRev` | Squeaky screech / Peel-out | the Roll's spin-up | `player_roll.gd` `begin` |
 | `RollLaunch` | Zip / Boing whoosh | the ball shoots off | `player_roll.gd` `_launch` |
 | `RollBonk` | Thud bonk / Crash and boing | the ball bonks into a wall, a rock or an enemy | `player_roll.gd` `_bonk` |
@@ -635,3 +640,80 @@ The names that must stay are the game's: the players `GulpSuck`, `GulpCatch` and
 take, `<cue>-<n>.wav` for several). A quick swap without the tools: overwrite one of those WAVs with
 a mono or stereo 16-bit WAV of the same name (keep the count of files), and let the editor import
 it; its volume stays the one measured for the old take, so re-stage when the level differs.
+
+---
+
+## 13. Round 11: the throw's toss and kill
+
+Opened and applied 2026-11-16. The owner on the throw: "it was a strong hit and the monster got
+pushed back with nice effects and sounds" (Zelda). Until this round a liftable's throw played
+`GulpSpit` and a kill only the enemy's own death sound. Manifest `scripts/audio/picker/round-11.json`,
+picks `round-11-picks.json` (the picker's `picks/round-11`, version 45). The cues are named in
+`gulp.throwFeel.cues` of `game-constants.json` and played by the throw's feel code while
+`gulp.throwFeel.enabled` is on (`game/throw/throw_feel.gd`, `mouth.gd`, `thrown_object.gd`;
+[THROW_COMBAT.md](../THROW_COMBAT.md)).
+
+| Cue | Plays when | Options | Shipped (the owner's picks) |
+|---|---|---|---|
+| `ThrowToss` | a liftable is thrown (an essence spat out whole keeps `GulpSpit`) | A Quick whup, B Airy swish, C Slingshot fwip, D Synth: springy fling, now: his three throws (`GulpSpit`'s takes) | A, its third take alone: `player/throw-toss.wav`, 0.105 s, a dry mid swish (centre 0.8 kHz, loudest 38 ms in). One take on every throw, so its player's pitch randomness is 0.08 (the kind's is 0.06) |
+| `ThrowKill` | a throw kills; the game raises its pitch with each kill of a chain (the `pitch` payload), so its player has no pitch randomness | A Pop and tinkle, B Bell ting, C Cork pop and glitter, D Synth: blip and glass note | A, its first take alone: `player/throw-kill.wav`, 0.25 s, a round pop (0.8 kHz) then tiny bells near 8.6 kHz |
+
+**No body-blow cue.** The round also offered `ThrowImpact` and `ThrowImpactHeavy`, a thump under the
+material's break sound for a thrown thing striking an enemy (light or medium, and heavy). The owner
+picked neither, on purpose: "i believe the hit sound depends of the object that hits, already the
+pot make a sound when it breaks on an enemy and that should be enough, the other materials should
+have their sound as much as possible, that will give identity to each type of material." Their
+players, files and audition copies are removed; the thrown thing's own material cue is the hit
+sound (§11, §14). Their options stay in the manifest and in `temp/sound-round-11/` as the record.
+
+Options A to C were Magnific (ElevenLabs) sound effects, 19 prompts of four one-second takes each
+(`temp/sound-round-11/raw/`), cut to their attack and length by `scripts/audio/shape-takes.py`
+(`scripts/audio/picker/round-11-shape.json`); D was the game's own synth
+(`scripts/audio/picker/round-11-synth.mjs`). The shipped takes are kept as
+`asset/Originals/audio/magnific/player-throw-toss-r11-1.wav` and `player-throw-kill-r11-1.wav` and
+registered in `cues.mjs` and `picks.json` ([TOOLING.md](../../TOOLING.md#sound-picker-rounds)).
+
+---
+
+## 14. Round 12: each material its own sound
+
+Opened 2026-11-16, applied 2026-11-17, after the owner's note on round 11 (§13). Manifest
+`scripts/audio/picker/round-12.json`, picks `round-12-picks.json` (the picker's `picks/round-12`,
+version 17). The Magnific downloads are in `temp/sound-round-12/raw/` (13 prompts of four
+one-second takes), the cut sources in `temp/sound-round-12/cut/`
+(`scripts/audio/picker/round-12-shape.json`), the prepared takes in `temp/sound-round-12/takes/`.
+
+Snow, crystal and bone borrowed the soft, glass and wood cues; each has its own player now, named
+by `thrown_object.gd` `BREAK_CUES`. Four round-5 cues had options because they measured weak as hit
+sounds: stone and ice start with small clicks and their loudest crack comes 63 to 166 ms in, and
+wood and soft each had one take 8 to 10 dB quieter than its others.
+
+| Cue | Options | Shipped (the owner's picks) | Player |
+|---|---|---|---|
+| `BreakSnow` | A Crunch and poof, B Powder puff, C Squeaky crunch, now: the soft splat | A, all three takes: `world/break-snow-<n>.wav`, 0.37 to 0.43 s | +0.70 dB (the rule asks +2.6) |
+| `BreakCrystal` | A Crack and ring, B Chiming shards, C Glitter shimmer, now: the glass shatter | now, its second take alone: crystal keeps the glass sound, as its own file `world/break-crystal.wav` (0.58 s), so a later change to glass does not change it | -0.94 dB, pitch randomness 0.08 |
+| `BreakBone` | A Clack and rattle, B Hollow clack, C Bone rattle, now: the crate smash | C, its second take alone: `world/break-bone.wav`, 0.27 s | +0.70 dB (the rule asks +3.1), pitch randomness 0.08 |
+| `BreakStone` | now; T Yours, started on the crack; A Hard crack and crumbs; B Gritty crumble | A, all three takes: `world/break-stone-crack-<n>.wav`, 0.29 to 0.34 s, the crack within 5 ms. The round-5 `break-stone-<n>.wav` stay: three enemy scenes play them | +0.70 dB (the rule asks +2.3; it was +4.12 with the old takes) |
+| `BreakIce` | now; T Yours, started on the crack; A Sharp crack and shards; B Icicle snap | now, without its first take: `break-ice-2.wav` and `break-ice-3.wav` (the file of take 1 stays: the Prism Eye plays it) | +4.08 dB (it was +3.42) |
+| `BreakWood` | now; T Yours, one loudness | now, without its quiet first take: `break-wood-2.wav` and the old third take, now `break-wood-1.wav` (the old first is deleted) | -8.56 dB (it was -5.02) |
+| `BreakSoft` | now; T Yours, one loudness | now, its second take alone: `break-soft-2.wav` (takes 1 and 3 stay: 17 enemy and projectile scenes play them) | +4.10 dB (the rule asks +7.3; it was +2.01), pitch randomness 0.08 |
+
+Glass, clay and metal were not in the round and are unchanged.
+
+**Levels.** Each player's volume follows the loudness rule (the takes' loudest 100 ms at -17 dB),
+held lower where the peaks would go over full scale, since the buses have no limiter
+(`stage-round.py` `PEAK_CEILING_DB`, `KEPT_MAX_DB`; [TOOLING.md](../../TOOLING.md#sound-picker-rounds)).
+The new takes (snow, bone, stone) peak at -0.3 dBFS after the volume, so they sit 1.6 to 2.4 dB
+under the rule. The owner's kept takes are not altered: ice plays at the rule's volume and soft at
++4.1 dB, the most a break player had before this round; both peak about 3 dB over full scale, as
+his stone and ice did before. Soft's one take is the quiet one of its three: it plays 2.1 dB louder
+than it did and measures 3.2 dB under the rule. A limiter on the Effects bus would let every player
+take the rule's volume.
+
+**Files other scenes play.** Enemy and projectile scenes name some break files by path as their
+hurt and death sounds (`break-soft-<n>`: 17 scenes; `break-stone-<n>`: crystal-colossus, shardback,
+watcher-eye; `break-ice-1` and `-2`: prism-eye; `break-wood-2`: the three bone enemies; glass: five
+crystal enemies). Those files are untouched, so those enemies sound as before; only the global
+players changed. The shipped takes of the new and changed cues are kept as
+`asset/Originals/audio/magnific/world-break-{snow,crystal,bone,stone-crack}-r12-<n>.wav` and
+registered in `cues.mjs` and `picks.json`; nobody had listened to the takes before the owner did.

@@ -106,7 +106,10 @@ reads its floor and rim from the paint, which would turn every hole on a level-0
   `dungeon.void.damage` (10). A fall that faints it wakes it as any faint does.
 - To send every fall to fixed spots instead, give the SkyFloor a `SkyFall` child of its own: it is
   used instead, with its `return_points` (or children named `Return...`) or `fixed_return`. Wherever it is placed, its rectangle is the SkyFloor's area.
-- Enemies never fall: they keep to their wander areas and do not drop off rims, as in the dungeons.
+- Enemies never walk off: they keep to their wander areas and do not drop off rims, as in the
+  dungeons. One a blow moves is another matter (owner, 2026-11-16): an enemy knocked or thrown over
+  the sky's rim dies falling, spinning and shrinking away over the clouds, its loot left on the
+  rim ([THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
 
 ## Rope bridges
 

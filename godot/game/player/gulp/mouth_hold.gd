@@ -29,6 +29,25 @@ extends RefCounted
 ## Roll presses are dropped (player.gd `_rework_owns_step`). All times are on `Services.now_ms()`;
 ## the ring's drain and the sound are presentation.
 ##
+## The new throw feel (game/throw/throw_feel.gd, `gulp.throwFeel`; only while it is on):
+## - `throwOnPress`: a liftable held is thrown on the Q **press** (the release does nothing more); an
+##   essence keeps its tap and hold rules.
+## - the throw's `spit` clip locks the slime for `thrower.lockMs` only (the whole clip, 300 ms, with
+##   the feel off), so it walks on at once.
+## - `bufferThrowMs` (0 = off, the default): a Q press during the last `bufferThrowMs` of a suck that
+##   catches a liftable throws it the moment it is in the mouth.
+## - `emptyBurstMs`: an empty-mouth burst into which nothing has started to fly (no pull, no pickup
+##   swept in) after that long ends there, with the puff and the "Too heavy" line as at its full
+##   time, and only `emptyCooldownMs` of cooldown: a wasted Q roots the slime for 180 ms, not 500. A
+##   thing that comes into reach within it is still caught. The press itself goes on while Q is held,
+##   so the form's spit ring still starts at `tapMs`.
+## - The rebound prototype (ThrowFeel.rebound_on; game/throw/throw_rebound.gd): a Q press with an
+##   empty mouth while a sturdy thing's rebound is in the air within `rebound.catchRangePx` of the
+##   slime's feet catches it at once (Mouth.snap_catch): no burst, no root, whatever the cooldown.
+## The slime is free again the moment a thing is caught, with the feel on or off: the catch ends the
+## burst in the same physics step (`_follow_burst`), and the burst cooldown only holds back a new
+## suck, never a throw.
+##
 ## player.gd makes it in the rework mode (`PlayerScript.get_mouth_hold`, on first use) and calls:
 ## `press()` on every `eat` press, `step(now_ms, held)` every physics step while alive (instead of
 ## `Mouth.update`), `cancel(reason)` on the cancels above.
@@ -43,6 +62,10 @@ const GooRing := preload("res://game/shapes/goo_ring.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 ## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the Gulp's level, the aim help.
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
+## The new throw feel: the throw on the press, its short lock, the buffered throw.
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
+## The rebound prototype: the things in the air the mouth can catch.
+const ThrowRebound := preload("res://game/throw/throw_rebound.gd")
 ## Throw combat: what the mouth says when only a thing too heavy for its level was in reach.
 const TEXT_TOO_HEAVY := "Too heavy! (Gulp %d needed)"
 const TOO_HEAVY_COLOR := &"orange"
@@ -109,6 +132,12 @@ var _said: Dictionary = {}
 var _burst_on: bool = false
 ## No new burst before this (simulation ms).
 var _cooldown_until_ms: float = -INF
+## The new throw feel's buffered throw: when Q was pressed during the burst (simulation ms).
+var _buffered_press_ms: float = -INF
+## When the burst began (simulation ms), and whether it ended early for being empty (the new throw
+## feel's `emptyBurstMs`: its cooldown is then `emptyCooldownMs`).
+var _burst_started_ms: float = -INF
+var _burst_ended_empty: bool = false
 
 var _ring: Ring = Ring.NONE
 var _ring_fill: float = 0.0
@@ -129,6 +158,7 @@ func press() -> void:
 		return
 	var now := Services.now_ms()
 	if _burst_on or _mouth.is_sucking():
+		_buffered_press_ms = now
 		return
 	if _press != Press.NONE:
 		# Q went up and down again between two physics steps: the old press ends as a release.
@@ -139,11 +169,24 @@ func press() -> void:
 		if str(_press_held.get("kind", "")) == "essence":
 			kind = Press.ESSENCE
 		_begin_press(kind, now)
+		# The new throw feel: a liftable flies on the press, not on the release.
+		if kind == Press.LIFTABLE and ThrowFeel.flag("throwOnPress"):
+			_throw()
+			_end_press()
 		return
+	# The rebound prototype: a sturdy thing bouncing back within reach is caught out of the air.
+	if ThrowFeel.rebound_on():
+		var body := _body()
+		var flying: Node = ThrowRebound.nearest_catchable(body.global_position,
+			ThrowFeel.rebound_number("catchRangePx", 0.0)) if body != null else null
+		if flying != null and _mouth.snap_catch(flying):
+			return
 	if now < _cooldown_until_ms:
 		return
 	if _mouth.begin_burst(now, _number("gulp.rework.suckBurstMs")):
 		_burst_on = true
+		_burst_started_ms = now
+		_burst_ended_empty = false
 		_press_held = {}
 		_begin_press(Press.EMPTY, now)
 
@@ -155,6 +198,7 @@ func step(now_ms: float, held: bool) -> void:
 		return
 	_mouth.update(now_ms, held, _aim())
 	if _burst_on:
+		_end_empty_burst(now_ms)
 		_follow_burst(now_ms)
 	if _press == Press.NONE and not _burst_on:
 		return
@@ -269,6 +313,18 @@ func _release(held_ms: float) -> void:
 	_end_press()
 
 
+## The new throw feel: a burst into which nothing has started to fly after `emptyBurstMs` (no pull,
+## no pickup swept in) ends now (`_follow_burst` then gives it the short `emptyCooldownMs`).
+func _end_empty_burst(now_ms: float) -> void:
+	if not ThrowFeel.is_on() or not _mouth.is_sucking() or _mouth.is_pulling() or _mouth.swept_loot():
+		return
+	var empty_ms := ThrowFeel.number("emptyBurstMs", 0.0)
+	if empty_ms <= 0.0 or now_ms - _burst_started_ms < empty_ms:
+		return
+	_burst_ended_empty = true
+	_mouth.end_burst()
+
+
 ## The burst after this step's Mouth update: a pull starting cancels the spit ring; the suck's end
 ## (a catch, or its time with nothing in reach) ends the burst and starts the cooldown.
 func _follow_burst(now_ms: float) -> void:
@@ -277,10 +333,18 @@ func _follow_burst(now_ms: float) -> void:
 	if _mouth.is_sucking():
 		return
 	_burst_on = false
-	_cooldown_until_ms = now_ms + _number("gulp.rework.burstCooldownMs")
+	_cooldown_until_ms = now_ms + (ThrowFeel.number("emptyCooldownMs", 0.0) if _burst_ended_empty
+		else _number("gulp.rework.burstCooldownMs"))
+	_burst_ended_empty = false
 	if _mouth.is_holding():
 		# Caught: it waits for the next press.
 		if _press == Press.EMPTY:
+			_end_press()
+		# The new throw feel: a press late in the suck (`bufferThrowMs`, 0 = off) throws it at once.
+		var buffer_ms := ThrowFeel.number("bufferThrowMs", 0.0) if ThrowFeel.is_on() else 0.0
+		if buffer_ms > 0.0 and now_ms - _buffered_press_ms <= buffer_ms and str(_mouth.held.get("kind", "")) != "essence":
+			_press_held = _mouth.held.duplicate()
+			_throw()
 			_end_press()
 	elif not _mouth.swept_loot():
 		_puff()
@@ -364,8 +428,12 @@ func _throw() -> void:
 	if ThrowMode.is_on():
 		aim = ThrowMode.assist(aim, _body())
 	_player.call(&"face", aim)
+	# The new throw feel: a liftable's throw locks the slime for `thrower.lockMs` only.
+	var lock_ms := -1.0
+	if ThrowFeel.is_on() and str(_mouth.held.get("kind", "")) != "essence":
+		lock_ms = ThrowFeel.number("thrower.lockMs", -1.0)
 	if _mouth.throw(aim):
-		_player.call(&"play_action_clip", CLIP_SPIT)
+		_player.call(&"play_action_clip", CLIP_SPIT, lock_ms)
 
 
 ## The swallow ring filled: the Swallow ability swallows the essence held (the swap rule in

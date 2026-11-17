@@ -118,6 +118,53 @@
       "throw": { "stretch": 0.2, "stretchMs": 200, "leanPx": 4, "leanMs": 170, "streakMs": 160, "streakPx": 40, "streakWidthPx": 4, "streakLines": 3 },
       "land": { "dustScale": 0.7, "heavyMaterials": ["metal", "stone"], "heavyKickPx": 3 }
     },
+    "throwFeel": {
+      "enabled": true,
+      "throwDamage": 40,
+      "throwSpeed": 860,
+      "throwRangePx": 320,
+      "throwOnPress": true,
+      "lookPx": { "light": 46, "medium": 56, "heavy": 66 },
+      "heldLookPx": 34,
+      "heldAlpha": 0.95,
+      "hit": {
+        "light": { "hitStopMs": 90, "trauma": 0.45, "kickPx": 6, "sparks": 14, "knockbackPx": 150, "knockbackSpeedScale": 2, "launchSpeed": 540 },
+        "medium": { "hitStopMs": 120, "trauma": 0.6, "kickPx": 9, "sparks": 18, "knockbackPx": 190, "knockbackSpeedScale": 2, "launchSpeed": 640 },
+        "heavy": { "hitStopMs": 150, "trauma": 0.8, "kickPx": 12, "sparks": 24, "knockbackPx": 230, "knockbackSpeedScale": 2, "launchSpeed": 720 }
+      },
+      "chains": true,
+      "bowlDamage": 15,
+      "enemyAmmo": { "enabled": true, "holdMs": 3000, "tellMs": 700, "outDazeMs": 400, "outPx": 52, "damageScale": 1.5, "missDamageScale": 0.75, "hitClass": "thrown-medium", "hintRangePx": 140, "flightSafetyMs": 2500, "landTryPx": 12, "landTries": 8, "fateBackPx": 40, "hint": { "color": "#7be08a", "pulseMs": 700, "ringPx": 2.5, "outlineAlpha": 0.9 } },
+      "cues": { "toss": "ThrowToss", "kill": "ThrowKill" },
+      "breakPitch": { "light": 1, "medium": 0.9, "heavy": 0.8 },
+      "heldRisePx": 17,
+      "bufferThrowMs": 0,
+      "contactPx": 4,
+      "contactFlightPx": 60,
+      "killStopMs": 30,
+      "hitStopCapMs": 200,
+      "streak": { "ms": 240, "px": 72, "widthPx": 6, "lines": 3 },
+      "star": { "share": 1.25, "maxPx": 130, "starMs": 85, "ringFromMs": 35, "ringMs": 200, "rays": 10, "weightScale": { "light": 1, "medium": 1.2, "heavy": 1.45 } },
+      "shards": {
+        "hit": { "pieces": 4, "forwardMin": 260, "forwardMax": 640, "spreadMin": 30, "spreadMax": 120, "liftMin": 90, "liftMax": 240, "spin": 14, "bounce": 0.45, "lifeMs": 1100, "fadeFromMs": 750 },
+        "miss": { "pieces": 3, "forwardMin": 20, "forwardMax": 110, "spreadMin": 40, "spreadMax": 130, "liftMin": 80, "liftMax": 170, "lifeMs": 800, "fadeFromMs": 520 },
+        "wall": { "pieces": 3, "forwardMin": -140, "forwardMax": -30, "spreadMin": 40, "spreadMax": 140, "liftMin": 80, "liftMax": 180, "lifeMs": 800, "fadeFromMs": 520 }
+      },
+      "thrower": { "stretch": 0.36, "stretchMs": 240, "leanPx": 8, "recoilPx": 3, "leanMs": 260, "puffPx": 32, "puffMs": 170, "puffAheadPx": 14, "lockMs": 100 },
+      "missVolumeDb": -5,
+      "emptyBurstMs": 180,
+      "emptyCooldownMs": 120,
+      "rebound": {
+        "enabled": true,
+        "uses": { "stone": 3, "metal": 5, "bone": 2 },
+        "returnShortPx": 44, "reboundMinPx": 30, "reboundMaxPx": 280, "reboundMs": 520, "reboundSpeed": 300, "arcPx": 46,
+        "missReboundPx": 40, "missReboundMs": 260, "missArcPx": 14,
+        "tries": 4, "clearPx": 26, "chips": 0.75, "wearTint": 0.7,
+        "catchRangePx": 110, "catchFromMs": 120, "catchPitch": 1.35, "catchRingPx": 44, "catchSnapMs": 110,
+        "hotDamageScale": 1.25, "hotSpeedScale": 1.15, "glowShare": 1.5,
+        "landPitch": 0.7, "landVolumeDb": -8, "landDustScale": 0.5, "shotLifeMs": 12000
+      }
+    },
     "throwCombat": {
       "enabled": true,
       "throwDamage": 25,
@@ -256,6 +303,7 @@
       "thrown-heavy": { "tier": 3, "poise": 4, "countsAsHold": false },
       "thrown-freeze": { "tier": 2, "poise": 2, "countsAsHold": false },
       "thrown-sleep": { "tier": 2, "poise": 1, "countsAsHold": false },
+      "landing": { "tier": 3, "poise": 4, "countsAsHold": false },
       "roll": { "tier": 2, "poise": 1, "countsAsHold": true },
       "suck": { "tier": 1, "poise": 0, "countsAsHold": false }
     },
@@ -263,7 +311,8 @@
       "hold": { "nudgePx": 4, "nudgeMs": 120 },
       "bounce": { "hopPx": 10 },
       "knockback": { "stunMs": 500 },
-      "launch": { "stunMs": 600, "maxSpeed": 600, "spinDeg": 360, "hopPx": 12 },
+      "launch": { "stunMs": 600, "maxSpeed": 960, "spinDeg": 360, "hopPx": 12 },
+      "knock": { "flightMs": 300, "hopPx": 13, "hopFloor": 0.4, "squashAlong": 0.68, "squashAcross": 1.28, "stretchAlong": 1.22, "stretchAcross": 0.84, "tiltRad": 0.28, "afterimages": 3, "dustEveryPx": 56, "shakePx": 5, "shakeMs": 150, "starScale": 1.7, "flash": { "whiteMs": 80, "blinkMs": 200, "blinkPeriodMs": 100, "tintMs": 140 } },
       "stagger": { "stunMs": 1050 },
       "knockdown": { "stunMs": 1200, "damageTaken": 1.5 },
       "daze": { "stunMs": 1550 },
@@ -275,23 +324,23 @@
     },
     "weights": {
       "tiny": {
-        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "slam": "launch", "ring": "launch", "roll": "launch" },
+        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "launch", "roll": "launch" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "light": {
-        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "slam": "launch", "ring": "bounce", "roll": "launch" },
+        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "launch" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "medium": {
-        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "thrown-medium": { "verb": "knockdown", "stunMs": 1600 }, "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 2600 }, "thrown-sleep": "sleep", "slam": "launch", "ring": "bounce", "roll": "knockback" },
+        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "thrown-medium": { "verb": "knockdown", "stunMs": 1600 }, "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 2600 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "knockback" },
         "roll": "bonk", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "heavy": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "thrown-medium": { "verb": "stagger", "stunMs": 900 }, "thrown-heavy": { "verb": "knockdown", "stunMs": 1500 }, "thrown-freeze": { "verb": "stagger", "stunMs": 2000 }, "thrown-sleep": "sleep", "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "thrown-medium": { "verb": "stagger", "stunMs": 900 }, "thrown-heavy": { "verb": "knockdown", "stunMs": 1500 }, "thrown-freeze": { "verb": "stagger", "stunMs": 2000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 1150 }
       },
       "boss": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "landing": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       }
     },
@@ -307,7 +356,9 @@
       "poiseBreakMs": 1150,
       "killLaunchScale": 1.3,
       "wallSplat": { "minSpeed": 140, "damageShare": 0.4, "hitStopMs": 50, "trauma": 0.25, "dazeMs": 1050, "bouncePx": 24, "perChain": 1, "squashX": 0.6, "squashY": 1.3, "squashMs": 100 },
-      "bowling": { "speedShare": 0.6, "damage": 4, "minSpeed": 140 },
+      "bowling": { "speedShare": 0.6, "damage": 4, "minSpeed": 140, "chainPasses": 1, "chainDazeMs": 900, "chainFeel": { "hitStopMs": 45, "trauma": 0.2, "sparks": 8, "ring": true, "dust": true } },
+      "hazards": { "enabled": true, "minSpeed": 140, "fall": { "damagePerLevel": 15, "stunMs": 1200 }, "hole": { "overPx": 60 }, "water": { "overPx": 56 }, "zone": { "walkOutSpeed": 70 } },
+      "killSendoff": { "minScale": 0.5, "pace": 1.6, "minMs": 140, "maxMs": 340, "stillMs": 160, "popScale": 2.2, "puff": "dodge-dust", "ring": "impact-ring", "puffs": { "goo": "goo-splat-sheet", "mud": "mud-chunk", "stone": "stone-chip", "silk": "silk-tuft", "straw": "silk-tuft" }, "cue": "ThrowKill", "flash": { "whiteMs": 80, "blinkMs": 600, "blinkPeriodMs": 100, "tintMs": 0 } },
       "popStreak": { "windowMs": 1000, "semitones": 2, "maxSteps": 6 },
       "rollBowlPassMs": 300
     },

@@ -16,12 +16,19 @@ extends AudioStreamPlayer
 ##   with a PAYLOAD_PITCH number plays the one-shot at `pitch_scale · pitch`, and
 ##   its PAYLOAD_PITCH_RANDOMNESS (when given) replaces `pitch_randomness` for that
 ##   play (GameFeel's rising impact pitch). No old payload carries either key.
+## - The throw feel (docs/godot/THROW_COMBAT.md): a Dictionary payload with a PAYLOAD_VOLUME_DB
+##   number plays that one-shot that many dB louder (or, negative, quieter) than the cue's own
+##   `volume_db` (a miss's duller break, a rebound's thud). It plays on a one-off copy of the player
+##   (`_play_offset`), freed when it ends: setting `volume_db` on this player would change every
+##   voice of it still playing (and stick until the next play), so the offset never touches it.
+##   `stop_cue` does not stop such a copy (short one-shots).
 ##
-## Owner: converter builder (the pitch payload: juice).
+## Owner: converter builder (the pitch payload: juice; the volume payload: throw combat's sender).
 
 const CueRules := preload("res://game/runtime/audio_cue_rules.gd")
 const PAYLOAD_PITCH := "pitch"
 const PAYLOAD_PITCH_RANDOMNESS := "pitch_randomness"
+const PAYLOAD_VOLUME_DB := "volume_db"
 
 @export var pitch_randomness: float = 0.0
 @export var min_interval_ms: float = 0.0
@@ -75,9 +82,39 @@ func play_cue(payload: Variant = null) -> void:
 		return
 	_last_accepted_ms = now
 	cues_played += 1
-	pitch_scale = CueRules.randomized_pitch(_base_pitch * _payload_number(payload, PAYLOAD_PITCH, 1.0),
+	var pitch := CueRules.randomized_pitch(_base_pitch * _payload_number(payload, PAYLOAD_PITCH, 1.0),
 		_payload_number(payload, PAYLOAD_PITCH_RANDOMNESS, pitch_randomness))
+	var offset_db := _payload_offset_db(payload)
+	if not is_zero_approx(offset_db) and is_inside_tree():
+		_play_offset(pitch, offset_db)
+		return
+	pitch_scale = pitch
 	play()
+
+
+## One play at `pitch` and `offset_db` from the cue's own volume, on a copy of this player that
+## frees itself when it ends (see the header).
+func _play_offset(pitch: float, offset_db: float) -> void:
+	var copy := AudioStreamPlayer.new()
+	copy.name = "%sOffset" % name
+	copy.stream = stream
+	copy.bus = bus
+	copy.volume_db = volume_db + offset_db
+	copy.pitch_scale = pitch
+	copy.process_mode = Node.PROCESS_MODE_ALWAYS
+	copy.finished.connect(copy.queue_free)
+	add_child(copy)
+	copy.play()
+
+
+## `payload[PAYLOAD_VOLUME_DB]` as a finite number of dB (negative = quieter), else 0.
+static func _payload_offset_db(payload: Variant) -> float:
+	if not (payload is Dictionary) or not (payload as Dictionary).has(PAYLOAD_VOLUME_DB):
+		return 0.0
+	var raw: Variant = (payload as Dictionary)[PAYLOAD_VOLUME_DB]
+	if typeof(raw) != TYPE_FLOAT and typeof(raw) != TYPE_INT:
+		return 0.0
+	return float(raw) if is_finite(float(raw)) else 0.0
 
 
 ## Stops every voice if `payload` passes the filter (JSON handler `stop`).

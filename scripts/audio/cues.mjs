@@ -71,6 +71,9 @@ const creak = ({ at = 0, dur = 0.5, freq = [70, 110], gain = 0.5, cutoff = 1400 
   env: { a: 0.04, s: 1, r: 0.08 }, filters: [{ type: 'bp', cutoff, q: 3 }],
 });
 
+/** The building blocks, for a Sound Picker round's synth options (scripts/audio/picker/round-<n>-synth.mjs). */
+export const BLOCKS = { whoosh, thump, burst, metal, wood, crystal, blip, blorp, squelch, notes, sparkle, gravel, creak };
+
 /** Holds a loop layer at full level from start to end (the loop fold hides the edges). */
 const SUSTAIN = { a: 0.01, s: 1, r: 0.01 };
 
@@ -150,6 +153,11 @@ export const CUES = {
     'gulp-suck': { library: ['magnific/player-gulp-suck-r7-1'], variants: 1 },
     'gulp-catch': { library: ['magnific/player-gulp-catch-r7-1'], variants: 1 },
     'gulp-spit': { library: ['magnific/player-gulp-spit-r7-1', 'magnific/player-gulp-spit-r7-2', 'magnific/player-gulp-spit-r7-3'], variants: 3 },
+    // Sound Picker round 11 (2026-11-16, the owner's picks): a liftable's toss (Quick whup, its third take alone) and a
+    // throw's kill (Pop and tinkle, its first take alone). He dropped the round's two body-blow cues: the thrown thing's own
+    // material sound is the hit sound.
+    'throw-toss': { library: ['magnific/player-throw-toss-r11-1'], variants: 1 },
+    'throw-kill': { library: ['magnific/player-throw-kill-r11-1'], variants: 1 },
     // The round-5 Gulp takes kept for the cues that borrowed them (Sound Picker round 7 gave the Gulp new ones): the inhale
     // plays GulpThroat, BubbleRise, MimicWrap and SpitcapCharge (PipeWormCharge's player is left, silent since round 8); the
     // plop HeavyBlockGrab, MimicGrab and RookSteal; the ptoo GooBombSpit, LanternSpit, BubblePop, MimicSpit, SpitcapSpit and
@@ -216,6 +224,8 @@ export const CUES = {
     // Magnific takes (sound picks 2026-09-30, "if this is being trapped by a web it should look more dramatic").
     // Sound Picker round 8 (2026-10-19): the Pipe Worm's one sound, its spit (the owner kept take 2 of "Wet ptuh").
     'pipe-worm-spit': { library: ['magnific/enemy-pipe-worm-spit-r8-1'], variants: 1 },
+    // Sound Picker round 10 (applied 2026-11-13, registered 2026-11-17): the Crystal Crawler's turn, Chitin scuttle.
+    'crystal-crawler-turn': { library: ['magnific/enemy-crystal-crawler-turn-r10-1', 'magnific/enemy-crystal-crawler-turn-r10-2'], variants: 2 },
     'web-splat': { library: ['magnific/enemy-web-splat-1', 'magnific/enemy-web-splat-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.26, gain: 0.9, cutoff: [1300 * k, 280] }), thump({ f0: 160 * k, f1: 60, dur: 0.16, gain: 0.6 }), ...[0.06, 0.12].map((at) => blip({ at, f0: 300, f1: 600, dur: 0.05, wave: 'sine', gain: 0.25 }))] }) },
     // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Clod Stomper's slam.
     'stomper-slam': { library: ['magnific/enemy-stomper-slam-r5-1', 'magnific/enemy-stomper-slam-r5-2', 'magnific/enemy-stomper-slam-r5-3'], variants: 3 },
@@ -328,11 +338,25 @@ export const CUES = {
     // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): a thrown liftable breaking, per material (thrown_object.gd BREAK_CUES).
     'break-clay': { library: ['magnific/world-break-clay-r5-1', 'magnific/world-break-clay-r5-2', 'magnific/world-break-clay-r5-3'], variants: 3 },
     'break-glass': { library: ['magnific/world-break-glass-r5-1', 'magnific/world-break-glass-r5-2', 'magnific/world-break-glass-r5-3'], variants: 3 },
-    'break-wood': { library: ['magnific/world-break-wood-r5-1', 'magnific/world-break-wood-r5-2', 'magnific/world-break-wood-r5-3'], variants: 3 },
+    // Round 12: the owner dropped wood's quiet first take; its third is break-wood-1 now (break-wood-2 keeps its name:
+    // the bone enemies' scenes play it by path).
+    'break-wood': { library: ['magnific/world-break-wood-r5-3', 'magnific/world-break-wood-r5-2'], variants: 2 },
     'break-metal': { library: ['magnific/world-break-metal-r5-1', 'magnific/world-break-metal-r5-2', 'magnific/world-break-metal-r5-3'], variants: 3 },
+    // Round 12: the global BreakStone plays break-stone-crack below. These round-5 takes stay for the enemy scenes that
+    // play them by path (crystal-colossus, shardback, watcher-eye).
     'break-stone': { library: ['magnific/world-break-stone-r5-1', 'magnific/world-break-stone-r5-2', 'magnific/world-break-stone-r5-3'], variants: 3 },
+    // Round 12: the global BreakSoft plays take 2 alone and BreakIce takes 2 and 3 (the owner's picks); the other takes
+    // stay for the enemy and projectile scenes that play them by path.
     'break-soft': { library: ['magnific/world-break-soft-r5-1', 'magnific/world-break-soft-r5-2', 'magnific/world-break-soft-r5-3'], variants: 3 },
     'break-ice': { library: ['magnific/world-break-ice-r5-1', 'magnific/world-break-ice-r5-2', 'magnific/world-break-ice-r5-3'], variants: 3 },
+    // Sound Picker round 12 (2026-11-17, the owner's picks): snow, crystal and bone have their own sounds, and stone a new
+    // one. Snow: Crunch and poof. Crystal: his pick was the glass shatter's second take, kept as crystal's own file. Bone:
+    // Bone rattle, its second take. Stone: Hard crack and crumbs.
+    'bath-soak': { library: ['magnific/world-bath-soak-r9-1'], variants: 1 }, // round 9 (applied 2026-11-13, registered 2026-11-17): the bath's loop
+    'break-snow': { library: ['magnific/world-break-snow-r12-1', 'magnific/world-break-snow-r12-2', 'magnific/world-break-snow-r12-3'], variants: 3 },
+    'break-crystal': { library: ['magnific/world-break-crystal-r12-1'], variants: 1 },
+    'break-bone': { library: ['magnific/world-break-bone-r12-1'], variants: 1 },
+    'break-stone-crack': { library: ['magnific/world-break-stone-crack-r12-1', 'magnific/world-break-stone-crack-r12-2', 'magnific/world-break-stone-crack-r12-3'], variants: 3 },
   },
 
   ui: {

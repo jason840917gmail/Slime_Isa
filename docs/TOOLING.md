@@ -613,7 +613,9 @@ icon sheet would shift colour, then lossless; transparency always exact and veri
 New sounds are chosen on the
 [Slime Isa Sound Picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ) page before they ship. A
 round is one manifest, `scripts/audio/picker/round-<n>.json`: its cues, each with options (a label,
-a kind, source takes), the option the game plays meanwhile (`inGame`), `"loop": true` for a cue
+a kind, source takes), the option the game plays meanwhile (`inGame`), `"shipped": true` on an
+option that is the cue's library files as they are (the sound before the round, kept in the game
+untouched while the owner compares: round 12's stone, ice, wood and soft), `"loop": true` for a cue
 that loops (the page plays it round; its id also goes in `CUE_KIND` and `LOOPING` of
 `stage-round.py`, as the bath's `world.bath-soak` of round 9), the player node it drives
 and where it ships. These Python tools need `pip install miniaudio lameenc numpy`; none needs ffmpeg.
@@ -621,6 +623,18 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 - `python scripts/audio/slice-steps.py <out-prefix> <walk.mp3>...` — cuts single steps out of
   generated walks (Magnific gives textures, not clean steps). It keeps the clearest onsets, each
   shaped into one percussive step (`--count`, `--length`, `--decay`).
+- `python scripts/audio/shape-takes.py scripts/audio/picker/round-<n>-shape.json` — cuts tight source
+  takes out of Magnific's sound effects (one-second files: the event starts late or swells in, rings
+  on, often sits on a sub-bass rumble, and one file can hold several events). The shape file lists
+  each take's layers: the source, a high-pass or low-pass, where the cut starts (with `onset_db`, on
+  the attack: 2 ms before the first sample that loud under the cut's peak), its length, fades, a
+  `tail` ramp that brings a long ring down inside the cut, and for a mix of two files each layer's
+  start and level. It writes `<out>/<name>.src.wav` (the manifest names these as takes) and prints
+  each take's length, the time of its loudest sample and where its energy sits (round 11's cuts:
+  `round-11-shape.json`, from `temp/sound-round-11/raw/` into `temp/sound-round-11/cut/`).
+- `node scripts/audio/picker/round-<n>-synth.mjs` — a round's synth options, rendered from the
+  building blocks of `scripts/audio/cues.mjs` (`BLOCKS`) into the round's `cut/` folder as
+  `synth-<cue>-<n>.src.wav` (round 11: one synth option per throw cue).
 - `python scripts/audio/prep-takes.py <manifest>` — writes each take as a trimmed, peak-normalised
   mono WAV and a 96 kbps MP3 into the manifest's `takes` folder (`temp/` while a round is open).
   One-shots keep only their loudest event. An option with `"even": true` has its takes levelled to
@@ -633,7 +647,13 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   option into `godot/asset/audio/sfx/library/` and writes the players. Files are named
   `<cue>-<n>.wav`, or `<cue>.wav` for a single take, as the bake names them. It writes
   `game/scenes/audio/footsteps.tscn` whole when the round has steps, and adds or updates the
-  players under `Effects` in `global.tscn`. Volumes come from measured loudness (`TARGET_DB`).
+  players under `Effects` in `global.tscn`. Volumes come from measured loudness (`TARGET_DB`); a
+  cue whose pitch spread differs from its kind's gets it from `CUE_PITCH` (the throw's kill: none,
+  the game pitches it; the cues that ship one take and play often, the toss and round 12's soft,
+  crystal and bone: 0.08). A volume the loudness rule would put over full scale is held lower: takes
+  the tool ships peak at `PEAK_CEILING_DB` (-0.3 dBFS) after the player's volume at most, and takes
+  kept as they are (`shipped`) get `KEPT_MAX_DB` (+4.1 dB) at most; the tool prints what the rule
+  asked (the buses have no limiter, so a peak over full scale clips at the output).
   - Without `--picks`, it also copies every option's MP3s and `audition.json` to
     `godot/asset/audio/sfx/audition/` for the in-game audition (`?audition`, F7/F8;
     [audio spec §10](godot/specs/audio.md#10-steps-water-and-the-round-3-cues)). The release
@@ -653,7 +673,24 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   started outside the editor cannot load `global.tscn` and every global cue is silent. While a
   round that replaces cues already in `cues.mjs` is open (as round 7 did the Gulp's suck, catch and
   throw), the staged files do not match their entries, so leave `pnpm audio:bake` until the picks
-  are applied and registered.
+  are applied and registered. A round of new cues is not in `cues.mjs` until then either:
+  `pnpm audio:bake -- --library` removes library files that `cues.mjs` does not list, so it would
+  delete the staged takes (a plain `pnpm audio:bake` only rewrites and prunes `sfx/synth/`).
+
+  **Round 11 is applied** (2026-11-16, `scripts/audio/picker/round-11.json`,
+  `round-11-picks.json`): the toss and the kill of a throw ship (`ThrowToss`, `ThrowKill`,
+  `library/player/throw-toss.wav` and `throw-kill.wav`, registered in `cues.mjs` and `picks.json`);
+  the owner dropped the round's two body-blow cues, which are gone
+  ([audio spec §13](godot/specs/audio.md#13-round-11-the-throws-toss-and-kill)).
+
+  **Round 12 is applied** (2026-11-17, `scripts/audio/picker/round-12.json`,
+  `round-12-picks.json`): snow, crystal and bone have their own break sounds, stone a new one, and
+  ice, wood and soft play only the takes the owner kept
+  ([audio spec §14](godot/specs/audio.md#14-round-12-each-material-its-own-sound)). No round is open.
+  Enemy and projectile scenes play some break files by path (`library/world/break-soft-<n>.wav`,
+  `break-stone-<n>.wav`, `break-ice-<n>.wav`, `break-wood-2.wav`, `break-glass-<n>.wav` as hurt and
+  death sounds), so a round that replaces or drops a break take must leave those files alone or
+  repoint the scenes: that is why stone's new takes are `break-stone-crack-<n>.wav`.
   The owner's own sounds join a round as options of their own
   ([audio spec §12.2](godot/specs/audio.md#122-bringing-your-own-sounds)).
 

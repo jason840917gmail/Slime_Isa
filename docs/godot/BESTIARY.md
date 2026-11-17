@@ -198,6 +198,12 @@ energy shard stay the base enemy's.
 
 ## The enemies
 
+Three flags in a type's `reactions` (enemy-types.json) say how the ground treats it when a blow
+moves it (2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)):
+`flies` (the Rook Thief, the Glint Bat, the Ledge Raven: holes and water do nothing to it),
+`aquatic` (deep water does not drown it; none yet) and `hazardProof` (a list of "fall", "void",
+"water", "spikes", "lava"; none yet). A new water or lava creature needs its flag.
+
 | # | Enemy | Scene (`character.<id>`), script | Weight, material |
 |---|---|---|---|
 | 4 | Prologue worm | `prologue-worm.tscn`, the base `enemy.gd` | light, worm |
