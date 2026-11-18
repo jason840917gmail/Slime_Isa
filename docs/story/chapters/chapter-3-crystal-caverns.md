@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| **Region** | Crystal Caverns (`crystal-caverns` exists as a placeholder world; its exit from Gloop Forest is open without a key for now). Planned: a maze of web walls that only the Silk skin passes leads in, so the Silk skin opens the chapter (owner, 2026-10-16, question 81) |
+| **Region** | Crystal Caverns (`crystal-caverns` exists as a placeholder world; its exit from Gloop Forest is open without a key for now). Planned: a maze of web walls that only the Silk skin passes leads in, so the Silk skin opens the chapter (owner, 2026-10-16, question 81). *As built (2026-11-14): the caverns are four chunk worlds (G4, H4, G5, H5), and the Crystal Mine is built (2026-10-17)* |
 | **Goal** | Light the dark, find the smith at his mine camp, and break the Colossus (Planned in part, owner, 2026-10-16). Rebuilding the Workshop is Open (question 51) |
 | **Boss** | Crystal Colossus (Planned, owner, 2026-10-16: the four braziers of his arena, lit by the Lantern, bare a weak spot at a random place, for the Spear or the Axe; question 59. *Changed 2026-10-16: for the Spear alone, as the War Axe waits for the next release, question 94*) |
-| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). A boss heart (Planned, owner, 2026-10-16, question 17: each boss also gives a full heart). The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* |
-| **Status** | Sketch, part of Release 1 since 2026-10-15 (Release 1 is Chapters 1 to 3), and Release 1's content ends here, when the Colossus falls (question 58). The beats marked Planned are the owner's of 2026-10-16; the rest is an Idea or a Proposal. |
+| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). A boss heart (Planned, owner, 2026-10-16, question 17: each boss also gives a full heart). The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* *Changed 2026-11-17 (owner, question 146): shapes are dropped as a concept, and the Spear is an ability.* *As built (2026-11-14): the smith gives the Lantern at his mine camp in G4; Pearl 3 and the Feral skin are built in the Mine (M13); the Bow is not built, so the Chasm and Pearl 3 cannot be reached in play.* |
+| **Status** | Sketch, part of Release 1 since 2026-10-15 (Release 1 is Chapters 1 to 3), and Release 1's content ends here, when the Colossus falls (question 58). The beats marked Planned are the owner's of 2026-10-16; the rest is an Idea or a Proposal. *As built (2026-11-14): the Mine, the smith's camp and the Lookout are built ([DUNGEONS.md](../../godot/DUNGEONS.md)); this chapter's text is still the sketch.* |
 
 This sketch ties together pieces that already waited in the roadmap's parking
 lot: the Crystal Colossus, light in the dark, and the smith. Since 2026-10-15
@@ -71,6 +71,9 @@ exam. The built mine keeps the old order until its rework
    locks are far targets in a straight line across gaps and water, far
    enemies that cannot be reached otherwise, and enemies that open doors when
    they die (question 76).
+   - *Changed 2026-11-17 (owner, question 150): Burr's house is in
+     Slimeshire's C4, so he gives the Bow there, and its first targets stand in
+     that yard. As built (2026-11-14): the Bow is not built.*
    - *Until 2026-10-16 (fifth round): Burr gave it right after Fatty's Lair,
      in Chapter 1 (question 80).*
    - *Changed 2026-10-16 (sixth round, questions 102 and 106):* visited
@@ -120,6 +123,9 @@ exam. The built mine keeps the old order until its rework
    - **The smith sends the slime to Burr** (Planned, owner, 2026-10-16,
      question 134), who builds the Bow (beat 1); nothing before the chasm
      needs it.
+   - *As built (2026-10-17): the smith stands at his mine camp in G4, gives
+     the Lantern on the first talk and sends the slime to Burr; the Chasm's
+     lens is built and waits for the Bow.*
    - Of the dry growth only the grey-black, scorched hay and banners burn,
      and the dry roots are grey-black and thorny (question 129).
    - Rotten mine timbers in the way are the Heavy Roll's, not the Lantern's
@@ -156,6 +162,10 @@ exam. The built mine keeps the old order until its rework
      skin, and his fight is the skin's exam. What becomes of "a golem grown
      around Pearl 3" and of the Pearl's power showing in his climb is not
      decided ([the rework plan](../../design/2026-10-17-pearl-mid-dungeon.md)).*
+   - *As built (2026-10-17): he fights in M15, his arena in the Crystal Mine.
+     Changed 2026-11-17 (owner, question 146): bosses are hurt by throws, or by
+     something the slime throws into a mechanism; his fight is redone when the
+     bosses are revisited (question 166).*
    - *Until 2026-10-16 (Idea): spears glanced off his armour, the hammer
      cracked it, and the fight taught switching shapes.*
 7. **Pearl 3** (Planned, owner, 2026-10-16, question 56). It grants the
@@ -173,10 +183,20 @@ exam. The built mine keeps the old order until its rework
      are leafy curtains hanging in front of an opening. A climbable wall never
      stands beside a heavy block; held W next to both does whichever the
      slime faces.*
+     *Changed 2026-11-12 and 2026-11-17 (owner, question 146): the slime
+     climbs walls painted with vines, as in the playground: a held interact
+     clings, and the movement keys move it over them in every direction.
+     Balconies step out of tall walls to land on, and cliffs rise to level 16
+     ([SKINS.md](../../godot/SKINS.md#feral)). Tall cliffs, balconies and cliff
+     caves are in Release 1 (question 155). How Feral's vines stay apart from
+     the War Axe's leafy vines is question 158.*
    - From the Wilds, a hill that only the Feral skin climbs leads into the
      caverns, so that way opens once Feral is won (owner, 2026-10-16,
-     question 87).
-   - Change to a move: the Spear's attacks hit twice as fast.
+     question 87). *The Wilds' ways in are question 164.*
+   - Change to a move: the Spear's attacks hit twice as fast. *Changed
+     2026-11-17: the Spear is one ability now, with no chain, so the change is
+     question 157 (Proposal: the Gulp sucks and throws while the slime
+     clings).*
    - **Its first lock** (Planned, owner, 2026-10-16, question 132): the climb
      out of the Colossus's arena, up the walls he climbed, then on into the
      Wilds, where the skin's arc goes on: a climb, a climb with a drop and a
@@ -190,7 +210,10 @@ exam. The built mine keeps the old order until its rework
      grows louder.
    - *Since 2026-10-16 (seventh round, question 110):* like every Pearl, it
      goes home to the Wellspring, which brightens, and its power flows into
-     the town. Which building it restores is not decided.
+     the town. Which building it restores is not decided. *Changed 2026-11-17
+     (owner, question 149): its power fills Glimmerhill's next fountain and
+     wakes the next part of town; which part is question 159 (Proposal: the
+     south gate's quarter, B5).*
 8. **Home, and the open world** (Planned, owner, 2026-10-16, question 58).
    Once the Colossus falls, the smith goes home to Slimeshire. Release 1's
    content ends here, but the game goes on: the player explores the first
@@ -203,6 +226,11 @@ exam. The built mine keeps the old order until its rework
    round, question 130): every border is a Thorn Guard post, a striped
    barrier with a guard who says what lies beyond is closed for now; no
    landslides or fallen bridges.*
+   *As built (2026-11-14): no Thorn Guard post is built, and the Wilds are
+   open. The desert's elevation maze (A7 to C8) is not in Release 1; it stays
+   as an idea of what comes next (owner, 2026-11-17, question 156), so a post
+   must close the way to it. Tall cliffs, balconies and cliff caves are in
+   Release 1 (owner, 2026-11-17, question 155).*
 
 ## Questions for later
 

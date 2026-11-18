@@ -9,8 +9,9 @@
 ## Index
 
 1. [Direction](01-direction.md): adventure first with a little crafting, the
-   slime's three kinds of power (skins, shapes, abilities), how a region
-   plays, and the decisions in effect.
+   slime's two kinds of power (skins and abilities; shapes were dropped on
+   2026-11-17), the throw as the fight, how a region plays, and the decisions
+   in effect.
 2. [Premise](02-premise.md): the story on one page, covering the
    Wellspring, the newborn slime, the goal and the ending.
 3. [World](03-world.md): the regions in order, the world size and screen
@@ -41,7 +42,7 @@ Every beat, item and idea carries one tag:
 | Tag | Meaning |
 |---|---|
 | **Built** | In the game today. Quest text in code is the source for its dialogue. |
-| **Rework** | Built in the rework mode: on in the playground, and in any world with `?shapes` ([BODY_SHAPES.md](../godot/BODY_SHAPES.md)). |
+| **Rework** | Built in the rework mode ([BODY_SHAPES.md](../godot/BODY_SHAPES.md)). It has been the only game since 2026-10-24, with throw combat on top since 2026-11-01 ([THROW_COMBAT.md](../godot/THROW_COMBAT.md)), so Rework now reads as Built. |
 | **Planned** | Decided by the owner, not built yet. |
 | **Proposal** | A suggestion in this draft. It needs the owner's yes. |
 | **Open** | Undecided. It is listed in [Open questions](06-open-questions.md). |
@@ -100,6 +101,13 @@ Every beat, item and idea carries one tag:
   skin, and the boss fight is its exam) is in the roadmap too
   ([the 2026-10-17 decisions](../GAME_ROADMAP.md#the-2026-10-17-decisions)),
   with the three built dungeons' rework (12.8).
+- The owner's answers of 2026-11-17, after the docs were checked against the
+  build of 2026-11-14 (throw combat for good, skins and abilities with no
+  shapes, abilities improved by upgrades found in secrets, the belt, Bob,
+  Glimmerhill and its fountains, Burr's house in C4, a fallen tree for the
+  Verdant Gate), are in the
+  [decisions archive](07-decisions-archive.md#decisions-by-date). They are not
+  in the roadmap yet.
 - Dialogue already in the game lives in
   `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
   `godot/game/data/npc-definitions.json`. When a chapter file and the game
