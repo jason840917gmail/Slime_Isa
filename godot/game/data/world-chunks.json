@@ -91,7 +91,8 @@
         "burrow-hole": "level-1-d4",
         "armoury-door": "level-1-d4",
         "watchkeeper-hideout-door": "level-1-c4",
-        "sally-port-hole": "level-1-c4"
+        "sally-port-hole": "level-1-c4",
+        "burr-house-door": "level-1-c4"
       },
       "spawn": "level-1-c4",
       "written": {

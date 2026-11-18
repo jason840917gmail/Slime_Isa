@@ -265,8 +265,9 @@ played with the slime yet):
   Gorge's general).
 - **At their posts:** Sprig the gardener, Dot and Dab the gossips, Bram the
   apprentice Thorn Guard at the south gate (the Guard lives on, question 152),
-  Zing at the throwing booth, Plum at her stall, Gramps Reel the fisher, and
-  young Burr by B4's gatehouse.
+  Zing at the throwing booth, Plum at her stall, and Gramps Reel the fisher.
+  Young Burr stood by B4's gatehouse until 2026-11-18; he now waits in his
+  father's house in Slimeshire's C4.
 - **On their rounds:** Penny with the mail, Old Sedge with the pup Biscuit, and
   Wick the lamplighter; Tansy and the kids Fizz and Tad wander.
 - **The owner's family of five:** Isa, the oldest of three sisters, always
@@ -343,8 +344,9 @@ West village.*
   Fatty One Eye. The slime promises to find his father. *Since 2026-10-16
   (eighth round, question 132): the Roll's first lock is a rickety plank over
   a dry ditch in their yard.*
-- As built (2026-11-14): he stands by Glimmerhill's B4 gatehouse with
-  placeholder lines, and the slime has the Roll from the end of the prologue.
+- As built (2026-11-18): he waits inside the house in C4 (moved from
+  Glimmerhill's B4 gatehouse) with placeholder lines, and the slime has the
+  Roll from the end of the prologue.
 
 ## Bosses
 

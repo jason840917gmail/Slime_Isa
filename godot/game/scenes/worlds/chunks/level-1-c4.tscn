@@ -411,7 +411,7 @@ position = Vector2(1849, 355)
 [node name="birdhouse2" parent="Scenery" unique_id=1621194320 instance=ExtResource("32_pmwiy")]
 position = Vector2(481, 1308)
 
-[node name="cottage-blue" parent="Scenery" unique_id=403594134 instance=ExtResource("34_1wx62")]
+[node name="burr-house" parent="Scenery" unique_id=403594134 instance=ExtResource("34_1wx62")]
 position = Vector2(328, 392)
 
 [node name="lantern-post6" parent="Scenery" unique_id=1620526334 instance=ExtResource("14_sr4yv")]
@@ -1044,6 +1044,19 @@ house_art = NodePath("../../Houses/mushroom-red/Visual")
 door_rect = Rect2(-14, -84, 37.5, 34)
 door_arch = 17.0
 leaf_art_path = "res://asset/MAPS/Houses/doors/mushroom-door-leaf.png"
+
+[node name="burr-house-door" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(298, 343)
+
+[node name="door-script" type="Node" parent="burr-house-door"]
+script = ExtResource("15_xkubv")
+map_id = "level-1-c4"
+door_id = "burr-house-door"
+target_area_id = "slimeshire-burr-house"
+target_door_id = "house-door"
+kind = "door"
+side = "north"
 
 [node name="SallyPort" type="Node2D" parent="." unique_id=494945858]
 y_sort_enabled = true

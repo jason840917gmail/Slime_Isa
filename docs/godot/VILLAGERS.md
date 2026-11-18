@@ -6,7 +6,8 @@ react to the slime. Who they are, their lines and the owner's picks:
 [design/2026-11-01-west-town-villagers.md](../design/2026-11-01-west-town-villagers.md).
 
 **Status (2026-11-02):** all 27 villagers and 20 animals are built (art, scenes, lines) and placed in
-the town's four chunks (below); a room stands behind every house door (27 doors; a building with
+the town's four chunks (below; since 2026-11-18 Young Burr waits in Burr's house in Slimeshire's
+C4 instead); a room stands behind every house door (27 doors; a building with
 no door in its art has no room, below). The wanderers walk in `npc-wander` areas drawn in the chunks (dragged and
 sized in the editor like the old NPCs'), and Gavy and Dan climb fences and walls (filmed in
 west-village-a4). No tests run, not played in the game with the slime.
@@ -15,7 +16,7 @@ west-village-a4). No tests run, not played in the game with the slime.
 
 | Chunk | Villagers | Animals | Room doors |
 |---|---|---|---|
-| `west-village-b4` (Market Hill) | Plum at her stall, Dot and Dab at the fountain benches, Fizz and Tad, Tansy on the upper market street, Wick (route along the main street's lamps), Young Burr by the gatehouse, Sprig at the vegetable garden | three doves on the plaza, three butterflies, robin, bluebird, squirrel | shop (general store), inn, town hall, bathhouse, bakery (pumpkin house), herbalist (jelly dome), townhouse, gatehouse |
+| `west-village-b4` (Market Hill) | Plum at her stall, Dot and Dab at the fountain benches, Fizz and Tad, Tansy on the upper market street, Wick (route along the main street's lamps), Sprig at the vegetable garden | three doves on the plaza, three butterflies, robin, bluebird, squirrel | shop (general store), inn, town hall, bathhouse, bakery (pumpkin house), herbalist (jelly dome), townhouse, gatehouse |
 | `west-village-a4` (West Hill) | Penny (route past the mailboxes), Old Sedge (route down the main road), Isa, Dany, Gavy, Dan | Biscuit after Old Sedge, the cat at the family's cottage, pig and two piglets in the pen, hen and two chicks, duck and two ducklings on the pond, hedgehog and snail at the allotments, robin, goldfinch, swallow, two butterflies, squirrel | tailor (two flats, the outside stair), family home (blue cottage), and the twelve homes of A4 |
 | `west-village-a5` | Gramps Reel on the lake's east bank | duck and two ducklings on the lake, two sheep, dove, bluebird, butterfly, squirrel, hedgehog | both farmhouses |
 | `west-village-b5` | Zing at the game booth, Bram at the south gate | duck and a duckling on the duck pond, robin, goldfinch, two butterflies, dove, snail, swallow | thatch cottage, snail house, townhouse |
@@ -31,7 +32,8 @@ leaf does not swing).
 | Who | Scene | How they live |
 |---|---|---|
 | Dollop, Burble, Crumb, Mayor Wobbleton, Bobbin, Auntie Suds, Dune, Granny Thistle, May | `characters/villagers/<id>.tscn` | stand in their room (below) |
-| Sprig, Dot, Dab, Bram, Zing, Plum, Gramps Reel, Young Burr | same | stand at their post outside |
+| Young Burr | same | stands in Burr's house in Slimeshire's C4 (`rooms/c4/slimeshire-burr-house.tscn`), moved there from B4's gatehouse on 2026-11-18 |
+| Sprig, Dot, Dab, Bram, Zing, Plum, Gramps Reel | same | stand at their post outside |
 | Penny, Old Sedge, Wick | same | walk a route (`Route`) |
 | Tansy, Fizz, Tad, Isa, Gavy | same | wander their `npc-wander` area (Isa's and Gavy's wide; Gavy fast, climbing fences and walls) |
 | Dany, Dan | same | follow: Dany after Isa, Dan after Gavy (set `follow` where they are placed); Dan climbs after her |
@@ -149,8 +151,9 @@ to the door `<room id>-door` in its chunk, and the house ambience and music.
 - Homes, empty for now and furnished by kind (cottage, flat, mushroom, farm, townhouse): A4's
   `a4-flat` (two-flats' ground floor), `a4-duplex-1`/`-2`, `a4-triplex-1`/`-2`/`-3`,
   `a4-twin-mushroom-1`/`-2`, `a4-thatch-cottage`, `a4-snail-house`, `a4-stump-house`, `a4-barn` (a
-  sheep and a hen inside); B4's `b4-townhouse` and `b4-gatehouse` (Burr's: armour, helmets, a bow
-  rack); A5's `a5-mushroom-farmhouse` and `a5-pumpkin-farmhouse`; B5's `b5-thatch-cottage`,
+  sheep and a hen inside); B4's `b4-townhouse` and `b4-gatehouse` (a bed, a table, lanterns; Burr's
+  armour, helmets, bow rack and hammer rack moved with his room to his house in Slimeshire's C4,
+  `rooms/c4/slimeshire-burr-house.tscn`, its door `burr-house-door`, 2026-11-18); A5's `a5-mushroom-farmhouse` and `a5-pumpkin-farmhouse`; B5's `b5-thatch-cottage`,
   `b5-snail-house` and `b5-townhouse` (room ids are `west-village-<name>`).
 
 The outside doors stand at the buildings' door feet, under each painted door: on the `door-N`

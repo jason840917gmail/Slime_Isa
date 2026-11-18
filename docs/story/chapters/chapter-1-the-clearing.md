@@ -242,9 +242,10 @@ Not built.
 (`burr-house`), and his son, inside, teaches the Roll there. The lesson no
 longer sends the slime west: the West village's town is Glimmerhill, which the
 slime reaches only with the Heavy Roll (question 149). The rickety plank over
-a dry ditch goes to the yard of the house in C4. As built (2026-11-14): young
-Burr stands by Glimmerhill's B4 gatehouse with placeholder lines, and the
-slime has the Roll from the end of the prologue.*
+a dry ditch goes to the yard of the house in C4. As built (2026-11-18): young
+Burr waits inside the house in C4 (moved from Glimmerhill's B4 gatehouse)
+with placeholder lines, and the slime has the Roll from the end of the
+prologue.*
 
 1. **Plop's tip.** After the Spear, Plop says the worms have shut their
    burrow with the old Thorn Guard gate, and only **Burr**, the gatekeeper in

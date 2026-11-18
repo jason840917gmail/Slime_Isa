@@ -1294,6 +1294,7 @@
   "world.fatty-lair-r8-guard-crypt": "res://game/scenes/worlds/rooms/fatty-lair/r8-guard-crypt.tscn",
   "world.fatty-lair-r9-watcher-hall": "res://game/scenes/worlds/rooms/fatty-lair/r9-watcher-hall.tscn",
   "world.slimeshire-sally-port": "res://game/scenes/worlds/rooms/c4/slimeshire-sally-port.tscn",
+  "world.slimeshire-burr-house": "res://game/scenes/worlds/rooms/c4/slimeshire-burr-house.tscn",
   "object.room-door": "res://game/scenes/objects/dungeon/room-door.tscn",
   "object.fatty-lair-dungeon": "res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn",
   "world.fence-park": "res://game/scenes/worlds/dev/fence-park.tscn",

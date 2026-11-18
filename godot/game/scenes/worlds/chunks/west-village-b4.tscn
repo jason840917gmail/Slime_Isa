@@ -107,7 +107,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/tad.tscn" id="life_5"]
 [ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/tansy.tscn" id="life_6"]
 [ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/wick.tscn" id="life_7"]
-[ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/young-burr.tscn" id="life_8"]
 [ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/sprig.tscn" id="life_9"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/animals/dove.tscn" id="life_10"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/animals/butterfly-orange.tscn" id="life_11"]
@@ -1148,11 +1147,6 @@ wander_speed = 30.0
 pause_min_ms = 2500.0
 pause_max_ms = 4000.0
 metadata/instance_id = "west-village-b4-wick"
-
-[node name="young-burr" parent="NPCs" unique_id=1301463612 instance=ExtResource("life_8")]
-position = Vector2(1700, 1010)
-name_tag_rise = 56.0
-metadata/instance_id = "west-village-b4-young-burr"
 
 [node name="sprig" parent="NPCs" unique_id=213184921 instance=ExtResource("life_9")]
 position = Vector2(1080, 660)
