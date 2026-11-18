@@ -224,7 +224,7 @@
         "intellect": 10
       },
       "movement": {
-        "baseSpeed": 200,
+        "baseSpeed": 180,
         "boostSpeed": 300,
         "rollSpinUpMs": 260,
         "rollLaunchSpeed": 460,

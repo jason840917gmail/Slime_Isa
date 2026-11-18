@@ -298,7 +298,9 @@ and in danger zones they should receive the damage as the player does until they
 moves is looked at: a knock's slide, a launch, a bowl, a sliding corpse (while it is faster than
 `minSpeed` 140), and a thrown enemy's landing. An enemy's own walking never takes it off a rim,
 into a hole or into water, and one that wanders into spikes by itself is not hurt. Bosses and
-rooted enemies are never moved, so never affected. Each fate reuses the slime's own test:
+rooted enemies are never moved, so never affected. The owner confirmed both rules on 2026-11-17:
+enemies never walk into harm by themselves, and the loot of a hole or water kill stays where the
+slime can pick it up. Each fate reuses the slime's own test:
 
 | Where | The test (the slime's) | What happens |
 |---|---|---|
