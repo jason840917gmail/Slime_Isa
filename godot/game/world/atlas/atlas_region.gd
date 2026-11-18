@@ -225,7 +225,8 @@ func open_world() -> void:
 		return
 	var editor := Engine.get_singleton(&"EditorInterface") if Engine.is_editor_hint() and Engine.has_singleton(&"EditorInterface") else null
 	if editor != null:
-		editor.call(&"open_scene_from_path", path)
+		# Deferred: opening a scene clears the Inspector, which frees this button mid-press.
+		Callable(editor, &"open_scene_from_path").call_deferred(path)
 
 
 func edit_area() -> void:

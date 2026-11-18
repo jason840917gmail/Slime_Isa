@@ -5,7 +5,8 @@
 
 [node name="WorldAtlas" type="Node2D" unique_id=931484850]
 script = ExtResource("1_7qk4t")
-edit_area = "b3:c4"
+show_signs = true
+edit_area = "b4:c4"
 
 [node name="volcano-ridge" type="Node2D" parent="." unique_id=1547797535]
 position = Vector2(10240, 0)

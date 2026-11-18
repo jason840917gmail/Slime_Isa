@@ -198,10 +198,12 @@ written back into the chunk scenes (`game/dev/area_edit/area_edit.gd`; the area'
   arrival); both files got their `[editable]` lines on 2026-11-01, so no chunk needs it now. Saving a chunk again (here or in its
   own tab) brings the overrides inside its instanced scenes up to date, so a written chunk can show
   such lines besides the edit (Gloop E5's cracked ground). A node a script wrote into a chunk without
-  its `unique_id` gets a new random one on every save, so that chunk never comes back exactly: save
-  the chunk once (in its tab, or headless as `AreaEdit.resaved` gives it) and open the area again.
-  West village A4, A5 and B4 (their villagers, animals, routes and doors, placed by a script on
-  2026-11-01) were saved so on 2026-11-11; all 64 chunks came back exactly after.
+  its `unique_id` gets a new random one on every save; until 2026-11-17 such a chunk never came back
+  exactly and had to be saved once first (West village A4, A5 and B4, their villagers, animals,
+  routes and doors placed by a script on 2026-11-01, were saved so on 2026-11-11). Now the check
+  and the write-back leave such a node without an id, as its file has it
+  (`SceneSave._keep_unique_ids`): level-1-c4's `home-door` and its `door-script`, written in when
+  the slime's home moved, were the case that stopped C4.
 - **Seen in the area as in the chunks:** a ForestLayer in an area seeds its trees by each cell's
   place in its chunk (`seed_period`), so trees grow as in each chunk's scene; cliffs, stairs,
   water, walls, fences and props look the same (checked on Gloop E4:F5 and Slimeshire C4:D5). Only

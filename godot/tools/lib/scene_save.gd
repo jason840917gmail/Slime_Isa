@@ -52,8 +52,8 @@ static func restore_uids(path: String, before: String) -> Error:
 ## `text` (a scene Godot just saved) written as the scene's file `before` was, so a scene saved again
 ## differs only where it changed: the external resources keep their ids (Godot makes new ones for a
 ## scene saved from another file) and their uids, sorted as Godot sorts them; the sub-resources keep
-## their ids (by the node property that uses them); every node keeps its unique_id (by its path); the
-## scene keeps its uid; the lines end as most of before's do (CRLF or LF; a stray CR is dropped).
+## their ids (by the node property that uses them); every node keeps its unique_id (by its path; none
+## when it had none); the scene keeps its uid; the lines end as most of before's do (CRLF or LF; a stray CR is dropped).
 static func match_saved(text: String, before: String) -> String:
 	text = text.replace("\r", "")
 	var old := before.replace("\r", "")
@@ -173,22 +173,31 @@ static func _sub_uses(text: String) -> Dictionary:
 	return uses
 
 
-## `text` with each node's unique_id as `old` had it for the node at the same path.
+## `text` with each node's unique_id as `old` had it for the node at the same path; a node `old`
+## added without one (written into the file by a script or by hand) stays without: Godot gives such
+## a node a new random id on every load, so the same scene saved twice would never read the same.
 static func _keep_unique_ids(text: String, old: String) -> String:
 	var ids := {}
+	var bare := {}
 	for line in old.split("\n"):
 		var path := node_path(line)
-		var id := line.get_slice(" unique_id=", 1).get_slice(" ", 0).get_slice("]", 0) if line.contains(" unique_id=") else ""
-		if path != "" and id != "":
-			ids[path] = id
+		if path == "":
+			continue
+		if line.contains(" unique_id="):
+			ids[path] = line.get_slice(" unique_id=", 1).get_slice(" ", 0).get_slice("]", 0)
+		elif line.contains(" type=\"") or line.contains(" instance="):
+			bare[path] = true
 	var lines := text.split("\n")
 	for i in lines.size():
 		var path := node_path(lines[i])
-		if path == "" or not ids.has(path) or not lines[i].contains(" unique_id="):
+		if path == "" or not lines[i].contains(" unique_id="):
 			continue
 		var id := lines[i].get_slice(" unique_id=", 1).get_slice(" ", 0).get_slice("]", 0)
-		if id != ids[path]:
-			lines[i] = lines[i].replace(" unique_id=%s" % id, " unique_id=%s" % ids[path])
+		if ids.has(path):
+			if id != ids[path]:
+				lines[i] = lines[i].replace(" unique_id=%s" % id, " unique_id=%s" % ids[path])
+		elif bare.has(path):
+			lines[i] = lines[i].replace(" unique_id=%s" % id, "")
 	return "\n".join(lines)
 
 

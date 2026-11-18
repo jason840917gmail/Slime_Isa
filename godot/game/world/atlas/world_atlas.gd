@@ -443,7 +443,9 @@ func open_area_rect(rect: Rect2i, discard_held: bool = false) -> void:
 		(editor.call(&"get_resource_filesystem") as Object).call(&"update_file", path)
 		_open_areas = tool.open_areas()
 	_area_notice("")
-	editor.call(&"open_scene_from_path", path)
+	# Deferred: opening a scene clears the Inspector, which frees the "Edit area" button while its
+	# press is still being emitted (Godot's "freed while a signal is being emitted" error).
+	Callable(editor, &"open_scene_from_path").call_deferred(path)
 
 
 ## Asks before discarding the areas `held` (scene paths, their tabs closed), which hold some of
