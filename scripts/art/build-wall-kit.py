@@ -17,10 +17,9 @@ Outputs:
   godot/asset/MAPS/walls/sets/walls.json     per style: the frame size, the foot (cell bottom
                                              middle) inside a frame, and the collision of each shape
   godot/asset/MAPS/walls/sets/palette.png    the WallLayer palette's 64 px tiles
-  godot/game/world/walls/wall_tileset.tres   the WallLayer palette: per style an auto tile (row 0),
-                                             then every shape, then every exact piece (custom data
-                                             `wall_style`, `wall_shape`, `wall_parity`); styles keep
-                                             their places, append new ones
+  godot/game/world/walls/wall_tileset.tres   the WallLayer palette: per style an auto tile (row 0)
+                                             and a row of the 16 shapes (custom data `wall_style`,
+                                             `wall_shape`); styles keep their places, append new ones
 
 Usage: python scripts/art/build-wall-kit.py [style ...]   (numpy, Pillow)
        python scripts/art/build-wall-kit.py --palette     (only the palette, from the built sheets)
@@ -66,11 +65,46 @@ COLLISION = {
     "N": (18, PLAN_JUNCTION_Y - 32, 28, 32), "S": (18, PLAN_JUNCTION_Y, 28, 32),
     "pillar": (8, 40, 48, 26),
 }
+## A style's kit files and, under "measures", what it changes of the measures above (world units):
+## wall_height, run_width, pillar_width, pillar_foot, junction_y (where the arms meet, cell local),
+## shadow and shadow_alpha (the cast shadow's width and darkest alpha) and its plan: plan_junction_y, plan_run_h (an east-west arm's top and depth), plan_run_v (a
+## north-south arm's width), plan_pillar (x, y, width, height).
 STYLES = {
     "stone": {"run_h": "run-h-b.png", "run_v": "run-v-a.png", "pillar": "pillar-c.png"},
     # the West village's clipped boxwood hedge (2026-11-01)
     "hedge": {"run_h": "run-h-a.png", "run_v": "run-v-a.png", "pillar": "pillar-a.png"},
+    # the garden's picket fence (the town set's `picket-fence` prop, 2026-11-17): thin, so its runs
+    # and its post are narrower than a wall's and it blocks only a band at its foot, as the prop does
+    "picket": {"run_h": "run-h-a.png", "run_v": "run-v-a.png", "pillar": "pillar-a.png", "measures": {
+        "wall_height": 58, "run_width": 24, "pillar_width": 22, "junction_y": 19,
+        "shadow": 9, "shadow_alpha": 0.38,
+        "plan_junction_y": 59, "plan_run_h": (54, 10), "plan_run_v": 16, "plan_pillar": (22, 52, 20, 12),
+    }},
 }
+
+
+def measures(kit: dict) -> dict:
+    """The measures of a style: the ones at the top of this file, changed by the kit's own."""
+    m = {
+        "wall_height": WALL_HEIGHT, "run_width": RUN_WIDTH, "pillar_width": PILLAR_WIDTH,
+        "pillar_foot": PILLAR_FOOT, "shadow": SHADOW, "shadow_alpha": SHADOW_ALPHA,
+        "plan_junction_y": PLAN_JUNCTION_Y,
+        "plan_run_h": COLLISION["E"][1::2], "plan_run_v": COLLISION["N"][2], "plan_pillar": COLLISION["pillar"],
+    }
+    m.update(kit.get("measures", {}))
+    m.setdefault("junction_y", 64 - m["wall_height"] + 9)   # the middle of the cap band
+    return m
+
+
+def plan(m: dict) -> dict:
+    """The collision rectangles (plan, cell local) per arm and for the pillar, from measures `m`."""
+    top, depth = m["plan_run_h"]
+    width, meet = m["plan_run_v"], m["plan_junction_y"]
+    return {
+        "E": (32, top, 32, depth), "W": (0, top, 32, depth),
+        "N": (32 - width / 2, meet - 32, width, 32), "S": (32 - width / 2, meet, width, 32),
+        "pillar": tuple(m["plan_pillar"]),
+    }
 
 
 def load(path: Path) -> np.ndarray:
@@ -161,12 +195,12 @@ def wrap_slice(tile: np.ndarray, axis: int, start_px: int, length_px: int) -> np
     return tile[:, idx] if axis == 1 else tile[idx]
 
 
-def shadow_band(shape: tuple[int, int], along_axis: int) -> np.ndarray:
+def shadow_band(shape: tuple[int, int], along_axis: int, alpha: float = SHADOW_ALPHA) -> np.ndarray:
     """A shadow band of `shape` (h, w) px, fading across `along_axis`'s perpendicular from the wall
-    side (dark) to nothing."""
+    side (dark, `alpha`) to nothing."""
     h, w = shape
     across = w if along_axis == 0 else h
-    fade = np.clip(1 - np.arange(across) / max(1, across - 1), 0, 1) ** 1.5 * SHADOW_ALPHA * 255
+    fade = np.clip(1 - np.arange(across) / max(1, across - 1), 0, 1) ** 1.5 * alpha * 255
     band = np.zeros((h, w, 4))
     band[..., :3] = SHADOW_RGB
     band[..., 3] = fade[None, :] if along_axis == 0 else fade[:, None]
@@ -179,27 +213,31 @@ def px(units: float) -> int:
 
 def build(style: str, kit: dict) -> dict:
     src = ROOT / "asset/Originals/walls" / style / "kit"
+    m = measures(kit)
+    wall_height, run_width = m["wall_height"], m["run_width"]
+    pillar_width, pillar_foot = m["pillar_width"], m["pillar_foot"]
+    shadow, shadow_alpha = m["shadow"], m["shadow_alpha"]
     period_px = px(PERIOD)
-    # East-west run: the whole wall height at WALL_HEIGHT; joints in its cap band (top third).
+    # East-west run: the whole wall height at `wall_height`; joints in its cap band (top third).
     run_h = crop_alpha(load(src / kit["run_h"]))
-    scale = px(WALL_HEIGHT) / run_h.shape[0]
-    run_h = resize(run_h, (int(round(run_h.shape[1] * scale)), px(WALL_HEIGHT)))
+    scale = px(wall_height) / run_h.shape[0]
+    run_h = resize(run_h, (int(round(run_h.shape[1] * scale)), px(wall_height)))
     strip_h = seamless(run_h, 1, period_px, slice(0, run_h.shape[0] // 3))
-    # North-south run: RUN_WIDTH across; joints across its middle.
+    # North-south run: `run_width` across; joints across its middle.
     run_v = crop_alpha(load(src / kit["run_v"]))
-    scale = px(RUN_WIDTH) / run_v.shape[1]
-    run_v = resize(run_v, (px(RUN_WIDTH), int(round(run_v.shape[0] * scale))))
+    scale = px(run_width) / run_v.shape[1]
+    run_v = resize(run_v, (px(run_width), int(round(run_v.shape[0] * scale))))
     strip_v = seamless(run_v, 0, period_px, slice(run_v.shape[1] // 4, 3 * run_v.shape[1] // 4))
     pillar = crop_alpha(load(src / kit["pillar"]))
-    scale = px(PILLAR_WIDTH) / pillar.shape[1]
-    pillar = resize(pillar, (px(PILLAR_WIDTH), int(round(pillar.shape[0] * scale))))
+    scale = px(pillar_width) / pillar.shape[1]
+    pillar = resize(pillar, (px(pillar_width), int(round(pillar.shape[0] * scale))))
 
     # The pillar's shadow: its footprint pushed to the lower right, blurred (it stands away from
     # the frame's edges, so the blur never cuts).
     pad = px(8)
-    shadow_w, shadow_h = px(PILLAR_WIDTH) + 2 * pad, px(PILLAR_WIDTH * 0.95) + 2 * pad
+    shadow_w, shadow_h = px(pillar_width) + 2 * pad, px(pillar_width * 0.95) + 2 * pad
     footprint = Image.new("L", (shadow_w, shadow_h), 0)
-    footprint.paste(int(SHADOW_ALPHA * 255), (pad, pad, shadow_w - pad, shadow_h - pad))
+    footprint.paste(int(shadow_alpha * 255), (pad, pad, shadow_w - pad, shadow_h - pad))
     footprint = footprint.filter(ImageFilter.GaussianBlur(px(4)))
     pillar_shadow = np.zeros((shadow_h, shadow_w, 4))
     pillar_shadow[..., :3] = SHADOW_RGB
@@ -208,45 +246,46 @@ def build(style: str, kit: dict) -> dict:
     fx, fy, fw, fh = FRAME
     frame_w, frame_h = px(fw), px(fh)
     atlas = np.zeros((frame_h * 4, frame_w * 16, 4))
-    jx, jy = JUNCTION
-    wall_top = 64 - WALL_HEIGHT
+    jx, jy = JUNCTION[0], m["junction_y"]
+    wall_top = 64 - wall_height
     for parity in range(4):
         par_x, par_y = parity % 2, parity // 2
         for mask in range(16):
             canvas = np.zeros((frame_h, frame_w, 4))
             ox, oy = -px(fx), -px(fy)            # the cell's origin inside the frame
             # Cast shadows first, under the stones.
-            right = jx + RUN_WIDTH / 2
+            right = jx + run_width / 2
             for bit, top in ((1, jy - CELL / 2), (4, jy)):
                 if mask & bit:
-                    paste(canvas, shadow_band((px(CELL / 2), px(SHADOW)), 0), ox + px(right) - 2, oy + px(top + 4))
+                    paste(canvas, shadow_band((px(CELL / 2), px(shadow)), 0, shadow_alpha), ox + px(right) - 2, oy + px(top + 4))
             for bit, x0 in ((8, 0), (2, CELL / 2)):
                 if mask & bit:
-                    paste(canvas, shadow_band((px(SHADOW * 0.6), px(CELL / 2)), 1), ox + px(x0), oy + px(64) - 2)
+                    paste(canvas, shadow_band((px(shadow * 0.6), px(CELL / 2)), 1, shadow_alpha), ox + px(x0), oy + px(64) - 2)
             if mask not in (5, 10):
-                paste(canvas, pillar_shadow, ox + px(jx - PILLAR_WIDTH / 2) + px(5), oy + px(PILLAR_FOOT - PILLAR_WIDTH * 0.95) + px(3))
+                paste(canvas, pillar_shadow, ox + px(jx - pillar_width / 2) + px(5), oy + px(pillar_foot - pillar_width * 0.95) + px(3))
             if mask & 1:   # north half-arm: from the junction up half a cell
                 top = jy - CELL / 2
                 piece = wrap_slice(strip_v, 0, px(par_y * CELL + top), px(CELL / 2))
-                paste(canvas, piece, ox + px(jx - RUN_WIDTH / 2), oy + px(top))
+                paste(canvas, piece, ox + px(jx - run_width / 2), oy + px(top))
             for bit, x0 in ((8, 0), (2, CELL / 2)):
                 if mask & bit:
                     piece = wrap_slice(strip_h, 1, px(par_x * CELL + x0), px(CELL / 2))
                     paste(canvas, piece, ox + px(x0), oy + px(wall_top))
             if mask & 4:   # south half-arm: from the junction down half a cell
                 piece = wrap_slice(strip_v, 0, px(par_y * CELL + jy), px(CELL / 2))
-                paste(canvas, piece, ox + px(jx - RUN_WIDTH / 2), oy + px(jy))
+                paste(canvas, piece, ox + px(jx - run_width / 2), oy + px(jy))
             if mask not in (5, 10):
-                paste(canvas, pillar, ox + px(jx) - pillar.shape[1] // 2, oy + px(PILLAR_FOOT) - pillar.shape[0])
+                paste(canvas, pillar, ox + px(jx) - pillar.shape[1] // 2, oy + px(pillar_foot) - pillar.shape[0])
             canvas[canvas[..., 3] < 1, :3] = 0
             atlas[parity * frame_h:(parity + 1) * frame_h, mask * frame_w:(mask + 1) * frame_w] = canvas
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     save_game_webp(Image.fromarray(np.clip(atlas, 0, 255).astype(np.uint8), "RGBA"), OUT_DIR / f"{style}.webp")
     collision = {}
+    rect_of = plan(m)
     for mask in range(16):
-        rects = [COLLISION[arm] for bit, arm in ((1, "N"), (2, "E"), (4, "S"), (8, "W")) if mask & bit]
+        rects = [rect_of[arm] for bit, arm in ((1, "N"), (2, "E"), (4, "S"), (8, "W")) if mask & bit]
         if mask not in (5, 10):
-            rects.append(COLLISION["pillar"])
+            rects.append(rect_of["pillar"])
         collision[str(mask)] = [list(r) for r in rects]
     print(f"{style}.webp: 16 shapes x 4 parities, frame {frame_w}x{frame_h} px")
     return {
@@ -264,13 +303,9 @@ TILE = 64
 ## The palette's columns: the shapes in a reading order (post; ends N, E, S, W; straights; corners;
 ## T junctions; cross). A tile's custom data holds the shape's mask, so the order is only looks.
 SHAPE_ORDER = [0, 1, 2, 4, 8, 10, 5, 6, 12, 3, 9, 14, 11, 7, 13, 15]
-## Rows per style under the auto row: the shapes (their pattern follows the cell), then each of the
-## four pattern stretches exactly.
-ROWS_PER_STYLE = 5
 TILE_BG = (52, 60, 44)
 AUTO_FRAME = (240, 230, 200)      # like the forest layer's mixes
-FOLLOW_FRAME = (150, 176, 120)
-EXACT_FRAME = (20, 20, 24)
+SHAPE_FRAME = (150, 176, 120)
 
 
 def palette_tile(atlas: Image.Image, frame: list[int], shape: int, parity: int, outline: tuple,
@@ -299,27 +334,24 @@ def palette_tile(atlas: Image.Image, frame: list[int], shape: int, parity: int, 
 
 def write_palette(table: dict) -> None:
     """The WallLayer's palette and tile set. Row 0 holds a tile per style whose shape follows the
-    painted neighbours (auto). Under it, five rows per style: the 16 shapes with the pattern
-    following the cell (runs stay seamless), then the 16 shapes at each pattern stretch exactly.
-    Custom data: `wall_style`, `wall_shape` (-1: from the neighbours), `wall_parity` (-1: from the
-    cell). Styles keep their places: append new ones."""
+    painted neighbours (auto). Under it, a row per style: the 16 shapes to pick by hand (the stone
+    pattern always follows the cell, so runs stay seamless). Custom data: `wall_style`,
+    `wall_shape` (-1: from the neighbours). Styles keep their places: append new ones. (Until
+    2026-11-17 each style also had four rows of exact pieces, a shape at one fixed stretch of the
+    pattern: they looked like copies and one cell in all the worlds used one.)"""
     styles = [s for s in STYLES if s in table]
-    rows = 1 + ROWS_PER_STYLE * len(styles)
+    rows = 1 + len(styles)
     sheet = Image.new("RGBA", (TILE * len(SHAPE_ORDER), TILE * rows), (0, 0, 0, 0))
-    tiles = []  # (column, row, style, shape, parity)
+    tiles = []  # (column, row, style, shape)
     for i, style in enumerate(styles):
         frame = table[style]["frame"]
         atlas = Image.open(OUT_DIR / f"{style}.webp").convert("RGBA")
         sheet.alpha_composite(palette_tile(atlas, frame, 15, 0, AUTO_FRAME, False), (i * TILE, 0))
-        tiles.append((i, 0, style, -1, -1))
-        base = 1 + ROWS_PER_STYLE * i
+        tiles.append((i, 0, style, -1))
+        row = 1 + i
         for column, shape in enumerate(SHAPE_ORDER):
-            sheet.alpha_composite(palette_tile(atlas, frame, shape, 0, FOLLOW_FRAME), (column * TILE, base * TILE))
-            tiles.append((column, base, style, shape, -1))
-            for parity in range(4):
-                row = base + 1 + parity
-                sheet.alpha_composite(palette_tile(atlas, frame, shape, parity, EXACT_FRAME), (column * TILE, row * TILE))
-                tiles.append((column, row, style, shape, parity))
+            sheet.alpha_composite(palette_tile(atlas, frame, shape, 0, SHAPE_FRAME), (column * TILE, row * TILE))
+            tiles.append((column, row, style, shape))
     sheet.save(PALETTE)
     uid = ""
     if TILESET.exists():
@@ -334,10 +366,9 @@ def write_palette(table: dict) -> None:
         'texture = ExtResource("1_palette")',
         f"texture_region_size = Vector2i({TILE}, {TILE})",
     ]
-    for column, row, style, shape, parity in tiles:
+    for column, row, style, shape in tiles:
         key = f"{column}:{row}/0"
-        lines += [f"{key} = 0", f'{key}/custom_data_0 = "{style}"', f"{key}/custom_data_1 = {shape}",
-                  f"{key}/custom_data_2 = {parity}"]
+        lines += [f"{key} = 0", f'{key}/custom_data_0 = "{style}"', f"{key}/custom_data_1 = {shape}"]
     lines += [
         "",
         "[resource]",
@@ -346,8 +377,6 @@ def write_palette(table: dict) -> None:
         "custom_data_layer_0/type = 4",
         'custom_data_layer_1/name = "wall_shape"',
         "custom_data_layer_1/type = 2",
-        'custom_data_layer_2/name = "wall_parity"',
-        "custom_data_layer_2/type = 2",
         'sources/0 = SubResource("TileSetAtlasSource_walls")',
         "",
     ]

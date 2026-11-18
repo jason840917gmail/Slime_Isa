@@ -5,10 +5,10 @@ extends TileMapLayer
 ## (beside the ground layer, same grid) and paint from its palette
 ## (game/world/walls/wall_tileset.tres). A cell painted with a style's auto tile (top row) takes its
 ## shape from its four neighbours (16 shapes: post, ends, straights, corners, T junctions, cross),
-## so a wall runs seamlessly in any direction you paint; erase a cell to open a gap. The rows below
-## pick a shape yourself: the first row keeps the stone pattern following the cell (seamless), the
-## four under it are every exact piece. A neighbour of fixed shape is joined only where its shape
-## has an arm. Nothing is random: the stone pattern repeats every two cells along a run.
+## so a wall runs seamlessly in any direction you paint; erase a cell to open a gap. The row below
+## (one per style) picks a shape yourself; the stone pattern still follows the cell, so runs stay
+## seamless. A neighbour of fixed shape is joined only where its shape has an arm. Nothing is
+## random: the stone pattern repeats every two cells along a run.
 ##
 ## The pieces come from each style's three-part kit (scripts/art/build-wall-kit.py): a cell draws
 ## the half-runs toward its neighbours and, unless it is a straight run, a pillar where they meet,
@@ -23,8 +23,6 @@ const TABLE := "res://asset/MAPS/walls/sets/walls.json"
 const STYLE_DATA := "wall_style"
 ## A palette tile's fixed shape (-1: from the neighbours).
 const SHAPE_DATA := "wall_shape"
-## A palette tile's fixed stretch of the stone pattern (-1: from the cell, so runs stay seamless).
-const PARITY_DATA := "wall_parity"
 ## The neighbours, by shape bit: north 1, east 2, south 4, west 8.
 const SIDES: Array[Vector2i] = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
 const HOLDER := "Walls"
@@ -97,7 +95,7 @@ func style_of(cell: Vector2i) -> String:
 ## The shape of a wall in `cell`: the one its tile fixes, else a bit per neighbour it joins
 ## (north 1, east 2, south 4, west 8).
 func shape_of(cell: Vector2i) -> int:
-	var fixed := _fixed(cell, SHAPE_DATA)
+	var fixed := _fixed_shape(cell)
 	if fixed >= 0:
 		return fixed
 	var mask := 0
@@ -112,22 +110,21 @@ func shape_of(cell: Vector2i) -> int:
 func _reaches(cell: Vector2i, side: int) -> bool:
 	if style_of(cell).is_empty():
 		return false
-	var fixed := _fixed(cell, SHAPE_DATA)
+	var fixed := _fixed_shape(cell)
 	return fixed < 0 or (fixed & (1 << side)) != 0
 
 
-## The palette tile's value `data_name` on `cell` (shape or parity), or -1 when it fixes none.
-func _fixed(cell: Vector2i, data_name: String) -> int:
+## The shape the palette tile on `cell` fixes, or -1 when it fixes none (an auto tile).
+func _fixed_shape(cell: Vector2i) -> int:
 	var data := get_cell_tile_data(cell)
-	if data == null or not tile_set.has_custom_data_layer_by_name(data_name):
+	if data == null or not tile_set.has_custom_data_layer_by_name(SHAPE_DATA):
 		return -1
-	return int(data.get_custom_data(data_name))
+	return int(data.get_custom_data(SHAPE_DATA))
 
 
-## A sprite showing `style`'s piece of `shape` for a cell at `cell` (its parity, or `parity` when
-## given, picks the stretch of the repeating pattern), standing on the cell's foot; null when the
-## style is unknown.
-static func piece(style: String, shape: int, cell: Vector2i, parity: int = -1) -> Sprite2D:
+## A sprite showing `style`'s piece of `shape` for a cell at `cell` (its parity picks the stretch
+## of the repeating pattern), standing on the cell's foot; null when the style is unknown.
+static func piece(style: String, shape: int, cell: Vector2i) -> Sprite2D:
 	var entry: Dictionary = table().get(style, {})
 	if entry.is_empty():
 		return null
@@ -138,7 +135,7 @@ static func piece(style: String, shape: int, cell: Vector2i, parity: int = -1) -
 	var sprite := Sprite2D.new()
 	sprite.texture = _textures[path]
 	sprite.region_enabled = true
-	sprite.region_rect = region(style, shape, cell, parity)
+	sprite.region_rect = region(style, shape, cell)
 	sprite.centered = false
 	sprite.offset = -Vector2(float(foot[0]), float(foot[1]))
 	sprite.scale = Vector2.ONE * float(entry.get("scale", 0.5))
@@ -147,14 +144,13 @@ static func piece(style: String, shape: int, cell: Vector2i, parity: int = -1) -
 
 
 ## Where `style`'s piece of `shape` for a cell at `cell` is in the style's sheet (a column per shape,
-## a row per pattern stretch: the cell's parity, or `parity` when given); empty when the style is
-## unknown.
-static func region(style: String, shape: int, cell: Vector2i, parity: int = -1) -> Rect2:
+## a row per pattern stretch: the cell's parity); empty when the style is unknown.
+static func region(style: String, shape: int, cell: Vector2i) -> Rect2:
 	var entry: Dictionary = table().get(style, {})
 	if entry.is_empty():
 		return Rect2()
 	var frame: Array = entry["frame"]
-	var row := parity if parity >= 0 else posmod(cell.x, 2) + 2 * posmod(cell.y, 2)
+	var row := posmod(cell.x, 2) + 2 * posmod(cell.y, 2)
 	return Rect2(shape * float(frame[0]), row * float(frame[1]), float(frame[0]), float(frame[1]))
 
 
@@ -177,7 +173,7 @@ func _rebuild() -> void:
 		if style.is_empty() or (shown_cells.has_area() and not shown_cells.has_point(cell)):
 			continue
 		var shape := shape_of(cell)
-		var sprite := piece(style, shape, cell, _fixed(cell, PARITY_DATA))
+		var sprite := piece(style, shape, cell)
 		if sprite == null:
 			continue
 		sprite.position = Vector2(cell) * size + FOOT

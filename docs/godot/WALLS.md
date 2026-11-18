@@ -1,8 +1,10 @@
 # Walls: built walls painted cell by cell
 
-> **Status:** first version, 2026-10-13. Two styles: `stone` (the fieldstone wall) and, since
+> **Status:** first version, 2026-10-13. Three styles: `stone` (the fieldstone wall); since
 > 2026-11-01, `hedge` (a clipped boxwood hedge for the West village's gardens, the second auto
-> tile in the palette's top row; it joins and blocks exactly as the stone wall does). The stone walls
+> tile in the palette's top row; it joins and blocks exactly as the stone wall does); and since
+> 2026-11-17, `picket` (the garden's picket fence, the third auto tile: thinner, it blocks only a
+> band at its foot; not yet seen in the editor or played). The stone walls
 > of level-1 and the chunk worlds (Gloop Forest E4, F4, F5, Northern Ruins D1, D2, E1, E2, Desert
 > A7, A8) are painted on `walls` WallLayers; the old 70 px wall art is gone. The dev worlds still
 > place the kept `wall-stone-solid` scenes, which now draw the new pieces.
@@ -23,13 +25,14 @@ pillar), so it joins seamlessly in every direction.
      four painted neighbours (north 1, east 2, south 4, west 8): a lone post, ends, straight runs,
      corners, T junctions and a cross. Straight runs are plain wall; every other shape stands a
      pillar where its arms meet.
-   - **row 1, shapes** (green frame): the 16 shapes to pick yourself, in the order post; ends
-     (north, east, south, west); straights (east-west, north-south); corners; T junctions; cross.
-     The little diagram in each tile's corner shows its arms (the pillar hides them on the piece).
-     The stones still follow the cell, so a run of picked pieces stays seamless.
-   - **rows 2-5, exact pieces** (dark frame): every piece of the sheet, the 16 shapes at each of
-     the four stretches of the stone pattern (they differ in the stones and the moss and flowers);
-     the cell shows exactly that piece. Two of the same stretch side by side show a seam.
+   - **a row per style under it, shapes** (green frame; stone, hedge, then picket): the 16 shapes to pick
+     yourself, in the order post; ends (north, east, south, west); straights (east-west,
+     north-south); corners; T junctions; cross. The little diagram in each tile's corner shows its
+     arms (the pillar hides them on the piece). The stones still follow the cell, so a run of
+     picked pieces stays seamless.
+   (Until 2026-11-17 each style also had four rows of exact pieces, each shape at one fixed stretch
+   of the stone pattern. They read as copies of the shapes row, 11 rows for two styles, and one
+   cell in all the worlds used one, in level-1-c5: removed, that cell now its shape tile.)
    An auto cell next to a picked one joins it only where the picked shape has an arm toward it,
    so an end piece really ends the wall. Nothing is random: the stone pattern repeats every two
    cells along a run.
@@ -69,6 +72,23 @@ picked) beside the interior mushroom furniture sheet, two takes each in
 | `run-v` | the same hedge running north-south seen from above: a long narrow even band of its flat leafy top | `run-v-a` |
 | `pillar` | a squat square clipped boxwood block about as tall as it is wide, a softly rounded top | `pillar-a` (`pillar-b` came with a white halo) |
 
+The **picket fence** (2026-11-17) is the town set's garden prop (`picket-fence`, Scenery dock,
+Garden) as a painted wall: its kit was generated with that fence cut from the garden sheet as
+reference, beside the interior mushroom furniture sheet, two takes each in
+`asset/Originals/walls/picket/kit/`:
+
+| Piece | Asked for | Used |
+|---|---|---|
+| `run-h` | one long straight run of the garden picket fence seen from the front: identical pale honey pickets with pointed tops on two rails, leaf tufts at their feet, no taller end posts | `run-h-a` |
+| `run-v` | the same fence running north-south seen from above: a narrow column of the pickets' pointed tops with the two rails beside them | `run-v-a` (pickets overlapping down the column; in `run-v-b` they lie apart like a ladder) |
+| `pillar` | one square corner post, a little taller than the pickets and about twice as thick, a pointed pyramid top | `pillar-a` |
+
+A fence is thinner than a wall, so the style carries its own measures (`"measures"` in `STYLES`:
+a 58-unit run, a north-south run 24 wide, a post 22 wide, a lighter and narrower cast shadow) and
+its own plan: a band 10 units deep at the foot of an east-west run (as the prop's), 16 wide along a
+north-south run, 20 x 12 under a post. A style without measures takes the wall's, at the top of the
+script.
+
 `scripts/art/build-wall-kit.py [style]` (**numpy**) cuts each run gap to gap and wraps it into a
 seamless strip two cells long, then composes the 16 shapes for each of the four cell parities (x and
 y even or odd) from half-arms of the strips and the pillar, with a soft cast shadow (light from the
@@ -79,17 +99,18 @@ upper left). It writes:
 - `godot/asset/MAPS/walls/sets/walls.json`: per style, the frame size, the foot inside a frame and
   each shape's collision rectangles;
 - `godot/asset/MAPS/walls/sets/palette.png` and `godot/game/world/walls/wall_tileset.tres`: the
-  palette (custom data `wall_style`, `wall_shape` -1 for auto, `wall_parity` -1 when the pattern
-  follows the cell). `--palette` rebuilds only these, from the built sheets.
+  palette (custom data `wall_style`, `wall_shape` -1 for auto). `--palette` rebuilds only these,
+  from the built sheets.
 
 ## Adding a style
 
 1. Generate a concept, then the three kit pieces with the concept as reference, into
    `asset/Originals/walls/<style>/kit/` (transparent background, the same camera as the stone kit).
 2. Add the style to `STYLES` in `scripts/art/build-wall-kit.py` (its three files) and run it; a new
-   style is appended to the palette (its auto tile in the next column of row 0, its rows below the
-   last style's), so painted styles keep their tiles. If a piece's proportions
-   differ, tune the measures at the top of the script (wall height, run width, pillar size).
+   style is appended to the palette (its auto tile in the next column of row 0, its shapes row below
+   the last style's), so painted styles keep their tiles. If a piece's proportions
+   differ, give the style its own `"measures"` (wall height, run width, pillar size, shadow, plan),
+   as `picket` has; the ones at the top of the script are the stone wall's.
 3. Set `mipmaps/generate=true` in the new sheet's `.import` and let the editor import it.
 
 ## Placed wall scenes and old worlds
