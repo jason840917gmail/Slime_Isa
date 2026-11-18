@@ -42,7 +42,10 @@ his aberrations.
   the war was lost, Slimeshire hid under its own floor; Yoi stayed out to keep
   watch. *Since 2026-10-16 (seventh round, question 108): pages of the Thorn
   Guard's war journal, found as Release 1's manuscripts, tell the war's story
-  bit by bit.*
+  bit by bit.* *Since 2026-11-17 (owner, question 152): the Guard lives on,
+  small: Yoi the veteran, Bram the apprentice at Glimmerhill's south gate, and
+  the guards at the border posts. Only the soldiers who fell in the old forts
+  were raised as skeletons.*
 - **Gorge's army** (owner, 2026-10-16). Worms of every kind make up most of
   Gorge's army: the swordsmen, archers and brawlers, the grunts, the burrowing
   Popworms and the Pipe Worms are his soldiers. They look the part: mean faces,
@@ -71,8 +74,9 @@ his aberrations.
   Yoi, the veteran it saves, who teaches it the Spear.*
 - **A silent hero**, as in Zelda. Others talk to it, and it answers with
   actions and squishy reactions.
-- **Name: Open.** The game is named after Isa, one of its creators. Whether the
-  hero is called Isa is the owner's call.
+- **Name: Bob** (owner, 2026-11-17, question 3). The game is named after Isa,
+  one of its creators, and keeps its title; Isa is a girl in Glimmerhill.
+  *Until then: Open, whether the hero is called Isa.*
 - **The Pearls give it its skins.** Each Pearl holds one skin. When the slime
   frees a Pearl from a boss, the skin passes permanently into the slime during
   the item ceremony, and it stays when the Pearl returns to the Wellspring.
@@ -90,7 +94,11 @@ his aberrations.
   abilities come from the townsfolk and from old manuscripts; in Release 1
   the townsfolk teach and chests hold the finds, and manuscript pieces come
   later (see
-  [Direction](01-direction.md#the-slimes-powers)). Release 1 gives eight
+  [Direction](01-direction.md#the-slimes-powers)). *Changed 2026-11-17 (owner,
+  question 146): there are no shapes. The slime has skins and abilities; the
+  Spear, the War Axe and the Hammer are abilities, learned from the townsfolk
+  or found in secrets, and abilities improve through upgrades found in
+  secrets.* Release 1 gives eight
   powers besides the Gulp, about three a chapter, and the War Axe and Stretch
   Lash wait for the next release (Planned, owner, 2026-10-16, question 94).
   *Changed 2026-10-16 (seventh round, question 108): Release 1's whole
@@ -98,7 +106,9 @@ his aberrations.
   teach powers start in the next release.*
 - **The Gulp is its gift**, the same power Gorge abused. The hero only grabs
   and throws with it, and it gives back what it wins: every Pearl goes home to
-  the Wellspring. Gorge gulped to *own*.
+  the Wellspring. Gorge gulped to *own*. *Since 2026-11-17 (owner, question
+  146) the Gulp's throw is the whole fight, with no basic attack, so the gift
+  is the slime's one weapon too.*
 
 ## Goal and shape of the story
 
@@ -128,7 +138,15 @@ his aberrations.
    town (question 105).* *Changed 2026-10-16 (seventh round, question 110):
    every Pearl goes home to the Wellspring, which brightens, and its power
    flows into the town: the well comes back with Pearl 1, the Forge lights
-   with Pearl 2. The slime does not take Pearl 1 to the well.*
+   with Pearl 2. The slime does not take Pearl 1 to the well.* *Changed
+   2026-11-17 (owner, questions 149 and 153): the Wellspring lies right under
+   **Glimmerhill**, the West village's town, which starts asleep: dark, its
+   fountains dry, its villagers in a trance, silent. Each Pearl that comes home
+   gives the Wellspring the strength to fill one more fountain, and that part
+   of town comes to life: Pearl 1 wakes Market Hill, and the next Pearls the
+   next parts (question 159); some parts stay shut or dead for Pearls 4 to 8.
+   A woken fountain refills energy, so Slimeshire's well goes; whether Pearl 2
+   still lights the Forge is part of question 159.*
 3. **Midpoint** (Open: which chapter): Gorge wakes. The rumbling becomes
    eruptions, Gorge steals the returned Pearls back and holds them all again,
    and the stakes rise. The slime keeps its skins.
@@ -157,7 +175,10 @@ his aberrations.
 
 ## What the premise asks of the game
 
-These are new pieces the story would need. None are built yet.
+These are new pieces the story would need. *As built (2026-11-14): the
+prologue and the Wellspring's screen (2026-10-16), the Pearls inside their
+dungeons (2026-10-17) and bosses that stay beaten; the homecoming scenes and
+Glimmerhill's waking are not built.*
 
 - **The Wellspring:** the prologue's lake, a pool of glowing goo ringed by
   forest in the south, between chunks B4 and C4, where the slime is born.
@@ -184,8 +205,11 @@ These are new pieces the story would need. None are built yet.
   grants the skin permanently before the Pearl returns to the Wellspring.
   *Since 2026-10-17 each lies in its boss's dungeon, before the boss
   (Planned, owner).*
-- **Beaten bosses** do not come back (today a boss respawns every five
-  minutes).
+- **Beaten bosses** do not come back (built 2026-10-17: each lives in his
+  dungeon, and Fatty's Lair caves in once he falls).
+- **Glimmerhill's fountains** (Planned, owner, 2026-11-17, question 149): one
+  per part of the town, dry until a Pearl comes home; the parts after Market
+  Hill are question 159.
 
 
 Me quede aqui. en la historia review

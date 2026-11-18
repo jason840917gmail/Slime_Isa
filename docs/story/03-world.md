@@ -2,7 +2,8 @@
 
 Release 1's three regions (Chapters 1 to 3, owner, 2026-10-15), with part of
 the West village and the Wilds that connect them (owner, 2026-10-16), are only
-the beginning. To feel like a Zelda world,
+the beginning. *Changed 2026-11-17 (owner, question 149): all of the West
+village's town, Glimmerhill, is Release 1.* To feel like a Zelda world,
 the game needs many more regions, and inside them dungeons, castles and mazes,
 each with its own boss. This page lists what exists, what is sketched, and the
 empty slots still to fill.
@@ -12,8 +13,9 @@ empty slots still to fill.
 | # | Region | Maps | Chapter | What has gone wrong (story) | Boss | Status |
 |---|---|---|---|---|---|---|
 | 1 | **Slimeshire Meadow** | `level-1`, `slime-home`, `mushroom-home` | 1 | Worms moved in, the smith fled, the Forge is cold and the Workshop is a ruin | Fatty One Eye | Built |
-| 2 | **Gloop Forest** | `gloop-forest`, `gloop-hut`; the Weaver Hollow, its dungeon (Planned); `gloop-cavern`, a small secret cave (owner, 2026-10-16, question 18) | 2 | The forest is choked with webs; the Matron's brood spreads | Orb-Weaver Matron | Built, in progress |
-| 3 | **Crystal Caverns** | `crystal-caverns` (exists; open without a key for now) | 3 | Crystal grows over everything in the caves; the Colossus has blocked the smith's crystal mine | Crystal Colossus; his Pearl grants the Feral skin (owner, 2026-10-16) | In Release 1 since 2026-10-15; the chapter is a [sketch](chapters/chapter-3-crystal-caverns.md) (Idea), with Planned beats of 2026-10-16 |
+| 2 | **Gloop Forest** | `gloop-forest`, `gloop-hut`; the Weaver Hollow, its dungeon (built 2026-10-17); `gloop-cavern`, a small secret cave (owner, 2026-10-16, question 18) | 2 | The forest is choked with webs; the Matron's brood spreads | Orb-Weaver Matron | Built, in progress |
+| 3 | **Crystal Caverns** | `crystal-caverns`; the Crystal Mine, its dungeon (built 2026-10-17) | 3 | Crystal grows over everything in the caves; the Colossus has blocked the smith's crystal mine | Crystal Colossus; his Pearl grants the Feral skin (owner, 2026-10-16) | In Release 1 since 2026-10-15; the chapter is a [sketch](chapters/chapter-3-crystal-caverns.md), with Planned beats of 2026-10-16. The mine camp and the Crystal Mine are built (2026-10-17), but the Bow is not, so Pearl 3 cannot be reached in play |
+| — | **Glimmerhill**, the West village's town (named by the owner, 2026-11-17, question 149) | `west-village` (chunks A4, B4, A5, B5) and its 27 rooms | 1 to 3 | Asleep: dark, its fountains dry, its villagers in a trance, until the Pearls come home (Planned, owner, 2026-11-17) | None | Built 2026-11-01 to 2026-11-12 as an awake town; its waking is Planned ([below](#the-west-village)). All of it is Release 1 |
 | 4 | **Sticky Swamp** | `sticky-swamp` (placeholder) | ? | Slow mud, poison, rain, spider-slimes | Old Gullet, the catfish, who swallows whatever falls in and hides in deep mud and water; his Pearl grants the Swim skin (owner, 2026-10-16, question 32) | Idea; its boss and skin Planned |
 | 5 | **Frostpeak** | `frostpeak` (placeholder); `icege` is a candidate | ? | Ice physics and snow | Old Rimepaw, the polar bear (a working name), who slides across the frozen lake on his belly and cracks the floes with a slam; his Pearl grants the Polar skin (question 32) | Idea; its boss and skin Planned |
 | 6 | **Volcano Ridge** | `volcano-ridge` (placeholder); `hot` and `emberleef` are candidates | Finale | Gorge's prison; the rumbling comes from here | On its slopes Cinder, the magma salamander, whose Pearl grants the Lava skin, the last, which opens the way into the crater; in the crater Gorge, the ninth and final boss, with no skin (question 32) | Idea / Proposal; the bosses and the skin Planned |
@@ -24,10 +26,13 @@ The first map of each row is the region's world scene in the layout,
 `godot/game/data/world-map.json`. A placeholder world is generated from the
 layout by `godot/tools/build_region_worlds.gd` and stands in until the region
 is built ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)). The layout's other
-regions are open slots with placeholder worlds too: West village
-(`west-village`), Northern ruins (`northern-ruins`), Desert (`desert`), and
-the North and South Wilds (`north-wilds`, `south-wilds`) between the regions.
-Part of the West village joins Release 1 ([below](#the-west-village)).
+regions are open slots with placeholder worlds too: Northern ruins
+(`northern-ruins`), Desert (`desert`), and the North and South Wilds
+(`north-wilds`, `south-wilds`) between the regions. *Changed 2026-11-17: the
+West village (`west-village`) was a placeholder until its town, Glimmerhill,
+was built over its four chunks (2026-11-01 to 2026-11-12), and all of it is
+Release 1 (owner, question 149; [below](#the-west-village)). The desert holds
+the elevation maze (2026-11-07), which is not Release 1 (owner, question 156).*
 *Since 2026-10-16 (ninth round, question 32) every vassal region has its boss
 and skin: one skin per vassal, each a new way through the world that opens
 come-back secrets in the places before it. The order of the later regions,
@@ -51,6 +56,15 @@ From the Wilds, the Crystal Caverns are reached up a hill that only the Feral
 skin climbs, so that way opens once Feral is won, and Gloop Forest through a
 second web maze that only the Silk skin passes (owner, 2026-10-16,
 question 87). So the Wilds never skip the Verdant Gate or the web-wall maze.
+*As built (2026-11-14): no Thorn Guard post is built, and the Wilds are open
+from Slimeshire's C5, Gloop Forest's E5, the Caverns' H4 and H5 and the West
+village's A4 and B5. Their ways into Gloop Forest and the Caverns are plain
+openings, not the web maze and the climb (question 164). The owner closed the
+North Wilds' links into Slimeshire (C3 to C4) and Gloop Forest (F3 to F4) on
+2026-10-31. The desert's elevation maze (A7 to C8, built 2026-11-07 in place of
+the Sunscar Mesas) holds three heart quarters, with the orphaned Sunscar caves;
+it is not Release 1 and stays as an idea of what comes next (owner,
+2026-11-17, question 156), so a post must close the way to it.*
 
 **The prologue (Planned, owner, 2026-10-16,
 [question 97](07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).**
@@ -73,7 +87,9 @@ glade's barred gate and a short forest path come out on Slimeshire's west
 edge (C4), and that same path leads back to the Wellspring afterwards. The
 world map's markers and the West village's opening onto Slimeshire are still
 to redraw: the old opening is now the prologue's path, so the town needs its
-own.*
+own.* *Since 2026-11-17 (owner): a fallen tree that only a Heavy Roll breaks
+blocks the way to Glimmerhill's Market Hill, so the slime reaches the town only
+with the Heavy skin.*
 
 **Proposal: "What has gone wrong" always traces back to a Pearl.** It swelled
 the boss, or it drove creatures out of their homes. This gives every region a
@@ -82,6 +98,19 @@ problem that the slime can actually fix.
 **Open:** the order of regions 4 and 5, how many more regions the world needs,
 and where castles and mazes fit. Zelda games have eight or more dungeons; at one
 region per chapter, the world needs eight or more chapters.
+
+**The great mountain (Planned, owner, 2026-11-17, question 154).** Part of the
+North Wilds, the Northern ruins and all of Volcano Ridge become big mountains.
+Selected entrances on the mountain floor lead up, and the mountain's high
+levels use the sky floor ([SKY_FLOOR.md](../godot/SKY_FLOOR.md)): framed by the
+camera, its sky is never seen from below, as Zelda paints its mountain. The
+sky floor is built only in the playground so far.
+
+**Tall cliffs, balconies and cliff caves (Planned, owner, 2026-11-17,
+question 155).** Cliffs up to level 16, balconies that step out of a tall wall
+and cave mouths on a cliff's face, reached up the Feral skin's vines, are in
+Release 1, since the Feral skin is. Where they go is not set; today they are
+only in the playground and the climb lab ([SKINS.md](../godot/SKINS.md#feral)).
 
 ## World size and screen
 
@@ -120,16 +149,33 @@ Rules for every map:
 5. **Interiors are not on the grid.** Houses, huts, caves and dungeons are their
    own maps. A room fits on one screen (16 × 14 tiles at most), as
    `slime-home` (14 × 11) and `mushroom-home` (16 × 12) already do; bigger
-   caves and dungeons are made of whole screens.
+   caves and dungeons are made of whole screens. *Changed 2026-10-17 (owner):
+   a room may be bigger than a screen; its doors are part of its wall art,
+   always on its edge.*
 6. **A map's edge is a wall** (forest, cliff or water, two or three tiles
    thick), broken only where an exit leads to the next map.
+7. **Chunk lines are closed by terrain** (owner, 2026-11-01,
+   [level design rule 11](../design/2026-10-16-level-design.md#the-rules-that-matter-most)):
+   cliffs, water and canals, forest bands or walls, each chunk closing its own
+   side. Two touching chunks meet at one to three crossings, each a road wide
+   at most, never at a corner, and marked as a way out (a bridge, a ford,
+   stairs, a gate, a trail gap between lantern posts). Owner: "the player can
+   walk in zigzag from one chunk to another, what makes the game experience
+   bad". Gloop Forest's lines are closed; the other regions' are not yet
+   (`tools/check_chunk_lines.gd`).
+8. **Physical barriers, not key gates** (owner, 2026-11-17): outside the
+   dungeons a way is shut by something a power removes, not by a key gate. A
+   fallen tree that a Heavy Roll breaks replaces the Verdant Gate
+   (question 163), and another blocks the way to Glimmerhill's Market Hill.
 
 | Map | Size (tiles) | Chunks | Status |
 |---|---|---|---|
 | `level-1` (Slimeshire Meadow) | 64 × 64 | 2 × 2 | Cut into four chunk scenes on 2026-10-14 (`level-1-c4` the village … `-d5`) |
 | `gloop-forest` | 64 × 64 | 2 × 2 | Grown from 54 × 54 on 2026-10-12: its east and south strips are a tree wall (a ForestLayer), the river and the east road run on to the new edge, its camp moved 4 tiles west into chunk E4 |
 | `crystal-caverns` | 64 × 64 | 2 × 2 | Grown from 54 × 54 on 2026-10-12: its east and south strips are cavern floor |
-| Placeholder regions: `west-village`, `northern-ruins`, `desert`, `sticky-swamp`, `frostpeak` | 64 × 64 | 2 × 2 | Built from the sketch by `godot/tools/build_region_worlds.gd` ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)) |
+| Placeholder regions: `northern-ruins`, `sticky-swamp`, `frostpeak` | 64 × 64 | 2 × 2 | Built from the sketch by `godot/tools/build_region_worlds.gd` ([WORLD_ATLAS.md](../godot/WORLD_ATLAS.md)) |
+| `west-village` (Glimmerhill) | 64 × 64 | 2 × 2 (A4, B4, A5, B5) | Built 2026-11-01 to 2026-11-12: a hill town over all four chunks, with 27 rooms; B4's south edge holds the prologue |
+| `desert` | 64 × 64 | 2 × 2 | The elevation maze over A7 to C8 (with the South Wilds' C7 and C8), built 2026-11-07 in place of the Sunscar Mesas, whose five cave rooms are orphaned; not Release 1 (question 156) |
 | Placeholder regions: `volcano-ridge` (L-shaped), `north-wilds`, `south-wilds` | 96 × 64, 256 × 96, 256 × 96 | their block | Only their own chunks are walkable |
 | `icege`, `hot`, `emberleef` and the other dev candidates | 54 × 54 | not whole | Not on the map |
 | `slime-home`, `mushroom-home`, `gloop-hut` | 14 × 11, 16 × 12, 14 × 11 | interior | Fit on one screen |
@@ -186,6 +232,10 @@ layout is a **Proposal**.
 *Since 2026-10-16 (seventh round, question 112): the prologue takes B4's
 south edge and the West village's town B4's north and A4; the sketch below
 shows them so.*
+
+*The block below predates world-map.json's changes of 2026-10-20 to 2026-11-12
+(the Lair's secrets outside, Glimmerhill's rooms, the closed and moved
+crossings); it needs a fresh save from `pnpm story:map`.*
 
 <!-- world-map:start -->
 <!-- Generated by the world map tool (pnpm story:map) from godot/game/data/world-map.json. Draw on the map instead of editing this block. -->
@@ -278,50 +328,81 @@ grows as Pearls return.
 | The clearing | The slime's first steps; the first quests (Planned: NPCs give tips, and the journal keeps one main quest, question 60). *Since 2026-10-16 the first steps are the prologue's, and the slime comes out of the forest at the town's edge, where Plop meets it (questions 97 and 100)* | Built |
 | **The Wellspring** | The prologue's lake, where the slime is born, between chunks B4 and C4 (owner, 2026-10-16, questions 97 and 98). After the prologue a short forest path from Slimeshire's south-west reaches it. Each Pearl's homecoming is a short scene here, and it brightens; each returned Pearl restores a building (question 60). A campfire stands by it (question 104). *Changed 2026-10-16 (seventh round): every Pearl goes home here, and its power flows into the town: the well comes back with Pearl 1, the Forge lights with Pearl 2 (question 110). It lies on B4's south edge, sealed off by forest, and its forest path leaves Slimeshire, not the West village's town (question 112)* | Built 2026-10-16 as the prologue's first screen (B4's south-west); the homecoming scenes and its campfire are Planned (until 2026-10-16: its own map east of level-1, the game's first map) |
 | **The glade**, C4's south-west edge (*built in B4's south-east, against C4*) | The prologue: Yoi falls to four worms, and the slime saves him by throwing things and learns the Spear. An old Thorn Guard gate, its lever behind bars, opens into Slimeshire with a Spear thrust ([prologue](../design/2026-10-16-prologue.md)) | Built 2026-10-16 (planned by the owner the same day, question 97) |
-| **Slimeshire's well** | Pearl 1 restores it when it comes home, and from then on it refills the slime's energy (owner, 2026-10-16, question 90). After Fatty, the freed Burr and the journal send the slime home, and the well comes back when the slime brings the Pearl to it (question 103); it gives a full refill, a drink in town (question 105). *Changed 2026-10-16 (seventh round): the slime takes Pearl 1 home to the Wellspring, and its power brings the well back (question 110); the well's refill grows back after a while, so it is not used up (question 113)* | Planned |
+| **Slimeshire's well** | Pearl 1 restores it when it comes home, and from then on it refills the slime's energy (owner, 2026-10-16, question 90). After Fatty, the freed Burr and the journal send the slime home, and the well comes back when the slime brings the Pearl to it (question 103); it gives a full refill, a drink in town (question 105). *Changed 2026-10-16 (seventh round): the slime takes Pearl 1 home to the Wellspring, and its power brings the well back (question 110); the well's refill grows back after a while, so it is not used up (question 113)* *Changed 2026-11-17 (owner, question 153): Glimmerhill's woken fountains refill energy, which takes over the well's job* | Planned; its refill moved to Glimmerhill's fountains (question 153) |
 | **The town's campfire** | It makes Chapter 1's one or two recipes; campfires also stand by the Wellspring and at each camp, so a fresh save can always heal (owner, 2026-10-16, question 104). Potions and food are both crafted at a campfire (question 66) | Planned |
 | Elder Plop's path | The main-line giver for Chapter 1. Planned: he hands over the 10-slot bag (question 74), and after the Spear he sends the slime to Burr in the West village (owner, 2026-10-16). *Changed 2026-10-16 (sixth round, question 100): he meets the slime at the town's edge as it comes out of the forest, gives it the bag and its first tips, with the exclamation mark, and later sends it to Burr* | Built |
-| **Your house** (the red forge house, its door leading to the Slime Home) | Bed: sleep to recover (it heals today), and wake here after a defeat. Planned: a bed gives a full refill and restores life (questions 62 and 105); there are no save points, and the slime saves anywhere outside dungeons (question 62) | Built house; how it is given Planned; the vault waits for a later release (owner, 2026-10-16, question 53) |
+| **Your house** (behind the round mushroom house in C4 since 2026-11-12; until then the red forge house, which has no door and so no room: owner, "since the forge does not have a door it should no have an interior") | Bed: sleep to recover (it heals today), and wake here after a defeat. Planned: a bed gives a full refill and restores life (questions 62 and 105); there are no save points, and the slime saves anywhere outside dungeons (question 62). A tub: a bath heals life but never sets where the slime wakes (built 2026-11-13; owner, 2026-11-17, question 153) | Built house; how it is given Planned; the vault waits for a later release (owner, 2026-10-16, question 53) |
+| **Burr's house**, C4 | Burr's son waits inside and teaches the Roll (owner, 2026-11-17, question 150); Burr, freed from Fatty's Lair, comes home here, and later teaches the Bow | Planned (the owner set the house in C4; not in the saved chunk scene yet) |
 | Mushroom house | A furnished room with a bed and a chest | Built (role Open) |
-| **Yoi's home**, under Lili's west yard | An optional secret: Lili's tip finds it, and the slime sucks away a heap of crates to open its hatch (a heap of bricks and crates until 2026-10-16, when the bricks became crates so it no longer looks like a rubble heap: question 128). Inside are a heart quarter, Yoi's tips, and later the Spear's upgrades (owner, 2026-10-16, question 99). *Changed 2026-10-16 (seventh round, question 111): who upgrades the Spear, Yoi's techniques or the Forge, is decided after Release 1* | Planned. *Until 2026-10-16 it was Yoi's Hideout, a war hideout whose water maze led to Yoi, who taught the Spear (owner, 2026-10-11; confirmed in question 50; [dungeons plan](../design/2026-10-11-release-1-dungeons-plan.md#4-yois-hideout))* |
-| Forge yard, beside your house | The Forge, relit in Chapter 2: Pip's story is relighting it (question 59). Planned: Pearl 2, the Matron's, relights it when it comes home, and Pip and the slime light it. From then on it brews the potions and knows their recipes (owner, 2026-10-16, questions 79 and 82), until evolutions arrive (question 51); its smelting timer leaves Release 1 with the materials. *Changed 2026-10-16 (seventh round, question 110): Pearl 2 goes home to the Wellspring, and its power lights the Forge* | Built (smelting; the quest Rekindle the Forge restores it for ore); Planned: Pearl 2 relights it (question 79) |
+| **Yoi's home**, under Lili's west yard | An optional secret: Lili's tip finds it, and the slime sucks away a heap of crates to open its hatch (a heap of bricks and crates until 2026-10-16, when the bricks became crates so it no longer looks like a rubble heap: question 128). Inside are a heart quarter, Yoi's tips, and later the Spear's upgrades (owner, 2026-10-16, question 99). *Changed 2026-10-16 (seventh round, question 111): who upgrades the Spear, Yoi's techniques or the Forge, is decided after Release 1* *Changed 2026-11-17 (owner, question 151): its heart quarter is Slimeshire's fifth* | Planned, not built. *Until 2026-10-16 it was Yoi's Hideout, a war hideout whose water maze led to Yoi, who taught the Spear (owner, 2026-10-11; confirmed in question 50; [dungeons plan](../design/2026-10-11-release-1-dungeons-plan.md#4-yois-hideout))* |
+| Forge yard (the forge was your house until 2026-11-12) | The Forge, relit in Chapter 2: Pip's story is relighting it (question 59). Planned: Pearl 2, the Matron's, relights it when it comes home, and Pip and the slime light it. From then on it brews the potions and knows their recipes (owner, 2026-10-16, questions 79 and 82), until evolutions arrive (question 51); its smelting timer leaves Release 1 with the materials. *Changed 2026-10-16 (seventh round, question 110): Pearl 2 goes home to the Wellspring, and its power lights the Forge* | Built (smelting; the quest Rekindle the Forge restores it for ore); Planned: Pearl 2 relights it (question 79) |
 | Workshop ruin, north of the plaza | Rebuilt after Chapter 2. The smith comes home once the Crystal Colossus falls (question 59), and teaches the Hammer shape there in Chapter 5 or 6, after Release 1 (question 51) | Built and parked; what it does in Release 1 is Open (question 51) |
 | The lake | Lily the Fishergirl | Built |
 | Worm camp, south-east | Worm Trouble. Today its worms spawn from an enemy-spawn area and come back on a timer; Planned: placed worms, each with its own wandering area ([Enemies in the world](#enemies-in-the-world-planned)) | Built |
 | Fatty One Eye's camp, east | The guarded chest with the green key. *Since 2026-10-17 his camp is in his Lair, and its old clearing in D4 keeps a torn banner and the road south to the Lair's hill* | Moved into the Lair (2026-10-17) |
-| **Fatty's Lair**, the worms' burrow | The old Thorn Guard gate, which a worm lever lifts and which drops shut too fast to walk through; falling slabs over holes; Burr in a cell, on the lair's main path (question 134); Fatty One Eye, Pearl 1 and his full heart (question 17); a way out that the new Heavy skin opens, its first lock (question 132); skeletons in its deep rooms (question 125) ([Chapter 1](chapters/chapter-1-the-clearing.md#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16)). *Changed 2026-10-17: Pearl 1 lies in the lair before Fatty; taking it seals the lair's exits until he falls, the lair's second half teaches the Heavy skin, and his fight is its exam* *Changed 2026-10-17 (owner): its gate is in the face of a red-rock hill in D5 (Fatty's Hollow), reached through the old fort's field maze and over a moat's falling slabs, where the slime tries the Roll before the dungeon; its way out stays by the Verdant Gate in D4 ([Slimeshire's places](chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17))* | Planned (owner, 2026-10-16): the slabs cross the void and spikes, and a slab falls a set time after it is touched (questions 70 and 71). Built 2026-10-17 ([DUNGEONS.md](../godot/DUNGEONS.md#fattys-lair-built)) |
-| The Verdant Gate, east | The way into Gloop Forest | Built |
+| **Fatty's Lair**, the worms' burrow | The old Thorn Guard gate, which a worm lever lifts and which drops shut too fast to walk through; falling slabs over holes; Burr in a cell, on the lair's main path (question 134); Fatty One Eye, Pearl 1 and his full heart (question 17); a way out that the new Heavy skin opens, its first lock (question 132); skeletons in its deep rooms (question 125) ([Chapter 1](chapters/chapter-1-the-clearing.md#fattys-lair-the-gate-the-slabs-and-burrs-cell-planned-owner-2026-10-16)). *Changed 2026-10-17: Pearl 1 lies in the lair before Fatty; taking it seals the lair's exits until he falls, the lair's second half teaches the Heavy skin, and his fight is its exam* *Changed 2026-10-17 (owner): its gate is in the face of a red-rock hill in D5 (Fatty's Hollow), reached through the old fort's field maze and over a moat's falling slabs, where the slime tries the Roll before the dungeon; its way out stays by the Verdant Gate in D4 ([Slimeshire's places](chapters/chapter-1-the-clearing.md#slimeshires-places-built-2026-10-17))* *Changed 2026-10-19 (owner): once Fatty falls the Lair caves in, as a Zelda dungeon is done for good; its mouth in D5 is buried, and its come-back secrets moved outside into Slimeshire ([the plan](../design/2026-10-19-lair-secrets-outside.md); the three rows below)* | Planned (owner, 2026-10-16): the slabs cross the void and spikes, and a slab falls a set time after it is touched (questions 70 and 71). Built 2026-10-17 ([DUNGEONS.md](../godot/DUNGEONS.md#fattys-lair-built)); one world per room since 2026-10-18; the cave-in built 2026-10-20 |
+| **The sally port**, C4 | One of the Lair's come-back secrets, moved outside: an open hole in a fenced pen, with a hatch out (owner, 2026-10-19). Its planned prize is a campfire recipe | Built 2026-10-20; the recipe Planned |
+| **The Glow-moss Burrow**, D4's dark-forest maze | The Lantern burns a dry trunk to open it; inside, a heart quarter, one of Slimeshire's (question 137) | Built 2026-10-20 |
+| **The Old Armoury**, D4 | A level-2 hill with a hidden crack for the Goo Bomb; the Lantern opens its chest, which holds coins until its war-journal page is built | Built 2026-10-20; the page Planned |
+| The Verdant Gate, east | The way into Gloop Forest. *Changed 2026-11-17 (owner): a fallen tree that a Heavy Roll breaks replaces the gate, and the green key goes; what the Postern chest holds instead, and whether the place keeps its name, are question 163* | Built as a gate opened by the green key; the fallen tree Planned |
 
-## The West village
+<a id="the-west-village"></a>
 
-Planned in part (owner, 2026-10-16): part of the West village joins Release 1,
-with more NPCs, houses and things to do, like Zelda's town. It lies west of
-Slimeshire Meadow (`west-village`, a placeholder world today). Its Release 1
-part is a small town, like Kakariko
-([question 73](07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
+## Glimmerhill (the West village)
+
+Glimmerhill is the West village's town, west of Slimeshire Meadow, named by the
+owner on 2026-11-17 (question 149). All four of its chunks are Release 1.
+*Until 2026-11-17: part of the West village joined Release 1 (owner,
+2026-10-16), a small town like Kakariko
+([question 73](07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)),
+in B4's north and A4 (question 112).*
+
+**Built (2026-11-01 to 2026-11-12, [VILLAGERS.md](../godot/VILLAGERS.md); not
+played with the slime yet).** A hill town over A4 (West Hill), B4 (Market
+Hill), A5 and B5, with 27 villagers, 47 animals and 27 rooms, one behind each
+door: Dollop's shop, Burble's inn (the Bubbling Mug), Crumb's bakery, Mayor
+Wobbleton's town hall, Bobbin's tailor, Auntie Suds's bathhouse, Granny
+Thistle's herbalist and the family's home ([Characters](04-characters.md#the-west-village)).
+Zing runs a throwing booth and Bram keeps the south gate. In the build the town
+is awake, its villagers have no story lines yet (they keep waiting for Burr
+after he is freed), and there is no shop system, no throwing game and nothing
+to spend coins on. B4's south edge holds the prologue.
+
+**Planned: the town wakes (owner, 2026-11-17, question 149).** Glimmerhill
+starts asleep: dark and dead, its fountains dry. While a part's fountain is
+dry, its villagers are in a trance, asleep on their feet, and say nothing.
+Each Pearl that comes home gives the Wellspring, on B4's south edge just below
+the town, the strength to fill one more fountain, and that part of town comes
+to life. Pearl 1 wakes Market Hill, and each next Pearl the next part; some
+parts stay shut or dead for Pearls 4 to 8: a secret underground, certain
+buildings or areas. A fallen tree that only a Heavy Roll breaks blocks the way
+to Market Hill, so the slime reaches the town only with the Heavy skin. A woken
+fountain refills energy (question 153). Which part each next Pearl wakes, the
+other ways into town and the art are question 159 (owner: "we may need to work
+this a little better").
 
 | Place | What happens there | Status |
 |---|---|---|
-| **Burr's house** | Empty when the slime first comes: Burr, the gatekeeper, went to fight Fatty One Eye. His son, young Burr, teaches the Roll here ([Chapter 1](chapters/chapter-1-the-clearing.md#the-west-village-young-burrs-roll-planned-owner-2026-10-16)). Once freed, Burr waits here to thank the slime: he gives the Bow (question 80) when the slime comes back after Chapter 2, in Chapter 3 (owner, 2026-10-16, questions 85 and 94). *Changed 2026-10-16 (sixth round, questions 102 and 106): a visit before Pearl 2 gets his thanks and a tip ("I am making you something, come back when the forest is free"); he builds the Bow from the Matron's thread, a spool from her nest, with the other things already in his workshop, and teaches it once the slime brings the thread and Pearl 2 is home* *Since 2026-10-16 (eighth round, question 132): his yard holds the Roll's first lock, a rickety plank over a dry ditch, and later the Bow's first targets* | Planned |
-| **The town** | Three or four more houses, a shop and a game to play (owner, 2026-10-16, question 73). The shop sells potions and food ingredients, so coins have a use (question 88). Which game it is, is not decided yet. *Since 2026-10-16 (seventh round, question 112): the town sits in B4's north and A4; B4's south edge is the prologue's, sealed off by forest* | Planned |
-| **A secret** | It teaches a simpler potion (owner, 2026-10-16, question 89). Where it is and which potion are not decided yet | Planned |
-| The rest of the village | It comes in later releases | Planned |
+| **Burr's house** | Empty when the slime first comes: Burr, the gatekeeper, went to fight Fatty One Eye. His son, young Burr, teaches the Roll here ([Chapter 1](chapters/chapter-1-the-clearing.md#the-west-village-young-burrs-roll-planned-owner-2026-10-16)). Once freed, Burr waits here to thank the slime: he gives the Bow (question 80) when the slime comes back after Chapter 2, in Chapter 3 (owner, 2026-10-16, questions 85 and 94). *Changed 2026-10-16 (sixth round, questions 102 and 106): a visit before Pearl 2 gets his thanks and a tip ("I am making you something, come back when the forest is free"); he builds the Bow from the Matron's thread, a spool from her nest, with the other things already in his workshop, and teaches it once the slime brings the thread and Pearl 2 is home* *Since 2026-10-16 (eighth round, question 132): his yard holds the Roll's first lock, a rickety plank over a dry ditch, and later the Bow's first targets* *Changed 2026-11-17 (owner, question 150): Burr's house is in Slimeshire's C4, his son inside ([Slimeshire](#slimeshire-the-hub)); Glimmerhill's B4 gatehouse, with a bow rack, is no longer his* | Moved to C4 (question 150) |
+| **The town** | Three or four more houses, a shop and a game to play (owner, 2026-10-16, question 73). The shop sells potions and food ingredients, so coins have a use (question 88). Which game it is, is not decided yet. *Since 2026-10-16 (seventh round, question 112): the town sits in B4's north and A4; B4's south edge is the prologue's, sealed off by forest* *Changed 2026-11-17 (owner, question 149): the town covers all four chunks. As built: Dollop runs the shop, and Zing's throwing booth is the game; neither works yet* | Built in art, rooms and villagers; the shop and the game Planned |
+| **A secret** | It teaches a simpler potion (owner, 2026-10-16, question 89). Where it is and which potion are not decided yet. *As built: Granny Thistle, the herbalist, hints at a secret potion; her red mushroom and mint are not items yet* | Planned |
+| The rest of the village | It comes in later releases. *Changed 2026-11-17 (owner, question 149): all of Glimmerhill is Release 1; the parts left for Pearls 4 to 8 (a secret underground, certain buildings or areas) stay shut or dead until then* | Planned |
 
 ## Gloop Forest
 
 | Place | What happens there | Status |
 |---|---|---|
 | Forest camp (the walled clearing at the forest's heart) | Mossy, Sunny, a workbench, and the hut with a bed | Built |
-| Weaver thickets | Orb-weavers and weaver fangs. Today the orb-weavers spawn from enemy-spawn areas; Planned: placed orb-weavers ([Enemies in the world](#enemies-in-the-world-planned)) | Built; the weaver fangs go (owner, 2026-10-16, question 63) |
-| **Tom's maze** | The way to Tom, who teaches the Goo Bomb: a maze with several secrets and tests, solved with the Spear, the Roll, the Heavy skin and the Gulp. Its webs slow the slime and cannot be cut before the Silk skin (owner, 2026-10-16, question 95). Tom hangs at its end and teaches the Goo Bomb right there, as soon as he is freed (owner, 2026-10-16, question 113); his cocoon hangs by a thread with his face showing, and a cracked wall by him is the Goo Bomb's first lock, the maze's way back (questions 129 and 132) | Planned; where in the forest it lies is not decided (today Tom's web hangs in the south-west spider thicket) |
+| Weaver thickets | Orb-weavers and weaver fangs. Placed orb-weavers since 2026-10-17, six in F4, E5 and F5 ([Enemies in the world](#enemies-in-the-world-planned)) | Built; the weaver fangs go (owner, 2026-10-16, question 63), though they still drop for the old quest |
+| **Tom's maze** | The way to Tom, who teaches the Goo Bomb: a maze with several secrets and tests, solved with the Spear, the Roll, the Heavy skin and the Gulp. Its webs slow the slime and cannot be cut before the Silk skin (owner, 2026-10-16, question 95). Tom hangs at its end and teaches the Goo Bomb right there, as soon as he is freed (owner, 2026-10-16, question 113); his cocoon hangs by a thread with his face showing, and a cracked wall by him is the Goo Bomb's first lock, the maze's way back (questions 129 and 132) | Planned; where in the forest it lies is not decided (question 117; today Tom's web hangs in the south-west chunk, E5). Nobody teaches the Goo Bomb yet: in the quest data Tom still teaches Swallow |
 | Iron hollow, south-east of the camp | Iron ore behind a gate opened by the Heavy skin standing on its plate (Planned; today a swallowed stone essence) | Built; its iron goes with harvesting (none in Release 1), and what the hollow holds instead is not decided yet. *Answered 2026-10-16 (owner, question 63): heart quarters, potions, coins or a piece of the story, such as a piece of Kiri's note (the 2026-10-11 plan's)* |
 | Silk nook, north-west | A walled nook behind a web wall; it opens once the Silk skin is earned | Built; web wall Planned |
-| Cracked clearing, south-west of the camp | Planned: the Goo Bomb breaks the ground (today a Squash Slam in the Stone form, and the Slam is removed; the Goo Bomb blows cracked walls, not ground yet). It drops into the Gloop Cavern, the Goo Bomb's come-back secret (owner, 2026-10-16, question 18) | Built |
-| **Gloop Cavern** | Today a chest, a Goo Heart and a ladder. The coffer with the 20-slot bag was Planned; Release 1 has one bag, Plop's 10-slot bag, and the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74), so what the coffer holds is question 63. *Answered 2026-10-16 (owner, question 63): heart quarters, potions, coins or a piece of the story.* *Changed 2026-10-16 (eighth round, question 18): there is no Gloop Cavern in the plan, so its coffer goes too.* *Changed again 2026-10-16 (tenth round, question 18): the cave stays as a small secret, the Goo Bomb's come-back secret, holding one of Gloop Forest's four heart quarters (today's Goo Heart), with no four of its own; the coffer stays gone* | Built; its heart quarter Planned |
+| Cracked clearing, south-west of the camp | Planned: the Goo Bomb breaks the ground (today a Squash Slam in the Stone form, and the Slam is removed; the Goo Bomb blows cracked walls, not ground yet). It drops into the Gloop Cavern, the Goo Bomb's come-back secret (owner, 2026-10-16, question 18). *As built (2026-11-14): the Goo Bomb breaks its cracked ground, but nobody teaches the Goo Bomb yet* | Built |
+| **Gloop Cavern** | Today a chest, a Goo Heart and a ladder. The coffer with the 20-slot bag was Planned; Release 1 has one bag, Plop's 10-slot bag, and the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74), so what the coffer holds is question 63. *Answered 2026-10-16 (owner, question 63): heart quarters, potions, coins or a piece of the story.* *Changed 2026-10-16 (eighth round, question 18): there is no Gloop Cavern in the plan, so its coffer goes too.* *Changed again 2026-10-16 (tenth round, question 18): the cave stays as a small secret, the Goo Bomb's come-back secret, holding one of Gloop Forest's four heart quarters (today's Goo Heart), with no four of its own; the coffer stays gone* | Built; its heart quarter built 2026-10-26 (`gloop-cavern`) |
 | North stream | Sunny's basket and the lash bell post | Built; Stretch Lash waits for the next release, so they become come-back secrets (owner, 2026-10-16, question 94) |
-| **The Matron's nest**, north-east | The boss arena; no web wall blocks the way in. Planned: after she falls, the slime takes the **Matron's thread**, a spool in her web, with the Silk skin; Burr builds the Bow from it (owner, 2026-10-16, question 106). *Changed 2026-10-16 (eighth round, question 133): the nest becomes the entrance to the **Weaver Hollow**, Chapter 2's dungeon, and the Matron lives at its top, where her thread hangs in her web* | Built (the arena); the Hollow and the thread Planned |
-| Crystal Caverns exit, east | Planned: a maze of web walls that only the Silk skin passes leads to the caverns, so the Silk skin opens Chapter 3 (owner, 2026-10-16, question 81). Today the exit is open without a key (the crystal-key gate was removed 2026-10-10) | Built; the web-wall maze Planned |
-| The way in from the Wilds | A second web maze that only the Silk skin passes, so the Wilds do not skip the Verdant Gate (owner, 2026-10-16, question 87) | Planned |
+| **The Matron's nest**, north-east | The boss arena; no web wall blocks the way in. Planned: after she falls, the slime takes the **Matron's thread**, a spool in her web, with the Silk skin; Burr builds the Bow from it (owner, 2026-10-16, question 106). *Changed 2026-10-16 (eighth round, question 133): the nest becomes the entrance to the **Weaver Hollow**, Chapter 2's dungeon, and the Matron lives at its top, where her thread hangs in her web* | The Weaver Hollow built 2026-10-17: a Goo Bomb blows its root gate in F4 (nobody teaches the Goo Bomb yet), and the Matron at its top drops her thread, which nothing uses yet (no Bow); the old nest arena is placed nowhere |
+| Crystal Caverns exit, east | Planned: a maze of web walls that only the Silk skin passes leads to the caverns, so the Silk skin opens Chapter 3 (owner, 2026-10-16, question 81). Today the exit is open without a key (the crystal-key gate was removed 2026-10-10); since Gloop Forest's chunk lines were closed (2026-11-01), the web lane to the caverns is entered by a ford | Built; the web-wall maze Planned |
+| The way in from the Wilds | A second web maze that only the Silk skin passes, so the Wilds do not skip the Verdant Gate (owner, 2026-10-16, question 87). *As built (2026-11-14): a plain opening from the South Wilds (E6 to E5); the owner closed the North Wilds' link (F3 to F4) on 2026-10-31: question 164* | Planned |
 
 ## Crystal Caverns
 
@@ -330,15 +411,15 @@ Planned in part (owner, 2026-10-16); the rest of the chapter is a
 
 | Place | What happens there | Status |
 |---|---|---|
-| The dark maze | Dark caves that the Lantern lights | Proposal |
-| **The smith's mine camp** | The smith runs the crystal mine, which the Crystal Colossus has blocked. The slime finds him safe here, and he gives it the Lantern, the Forge's ember. He also sends the slime to Burr: the caverns' first half never needs the Bow (owner, 2026-10-16, question 134) | Planned (questions 59 and 134) |
-| The mine's chasm | On the main path: a far eye switch across the chasm, which only the Bow's arrow reaches (owner, 2026-10-16, question 102). *Changed 2026-10-16 (eighth round, question 127): a crystal lens on a post, as an eye is always the Spear's* | Planned |
-| **The Colossus's arena** | Four braziers ring it. With all four lit, a weak spot is bared on his armour at a random place; his stomps blow them out one at a time. He climbs out of reach to throw some of his minions down, and killed, they can drop energy shards. His Pearl grants the Feral skin, and Release 1's content ends when he falls. He leaves a full heart, and the slime climbs out of his arena with the new skin, its first lock (owner, 2026-10-16, questions 17 and 132). *Changed 2026-10-17: his Pearl lies in the mine before him; taking it seals the mine's exits until he falls, the mine's second half teaches the Feral skin, and his fight is its exam* | Planned (questions 56, 58, 59 and 69) |
-| The hill from the Wilds | A way into the caverns up a hill that only the Feral skin climbs, so it opens once Feral is won (owner, 2026-10-16, question 87) | Planned |
+| The dark maze | Dark caves that the Lantern lights | Built 2026-10-17 as the Crystal Mine's dark rooms ([DUNGEONS.md](../godot/DUNGEONS.md)); Gloomlings flee the light and attack in full dark (2026-11-13) |
+| **The smith's mine camp** | The smith runs the crystal mine, which the Crystal Colossus has blocked. The slime finds him safe here, and he gives it the Lantern, the Forge's ember. He also sends the slime to Burr: the caverns' first half never needs the Bow (owner, 2026-10-16, question 134). *Since 2026-11-17 Burr lives in Slimeshire's C4 (question 150)* | Built 2026-10-17: the smith gives the Lantern at his first talk and sends the slime to Burr |
+| The mine's chasm | On the main path: a far eye switch across the chasm, which only the Bow's arrow reaches (owner, 2026-10-16, question 102). *Changed 2026-10-16 (eighth round, question 127): a crystal lens on a post, as an eye is always the Spear's* | Built 2026-10-17 (the lens); the Bow is not built, so it cannot be crossed in play |
+| **The Colossus's arena** | Four braziers ring it. With all four lit, a weak spot is bared on his armour at a random place; his stomps blow them out one at a time. He climbs out of reach to throw some of his minions down, and killed, they can drop energy shards. His Pearl grants the Feral skin, and Release 1's content ends when he falls. He leaves a full heart, and the slime climbs out of his arena with the new skin, its first lock (owner, 2026-10-16, questions 17 and 132). *Changed 2026-10-17: his Pearl lies in the mine before him; taking it seals the mine's exits until he falls, the mine's second half teaches the Feral skin, and his fight is its exam* | Built 2026-10-17 (M15); his fight changes with the boss pass (question 166) |
+| The hill from the Wilds | A way into the caverns up a hill that only the Feral skin climbs, so it opens once Feral is won (owner, 2026-10-16, question 87). *As built (2026-11-14): a plain opening from the North Wilds (H3 to H4): question 164* | Planned |
 
 ## Webs (Planned)
 
-The forest has two kinds of web (2026-10-15):
+Built 2026-10-17 ([WEBS.md](../godot/WEBS.md)). The forest has two kinds of web (2026-10-15):
 
 | | Webs | Web walls |
 |---|---|---|
@@ -350,7 +431,8 @@ The forest has two kinds of web (2026-10-15):
 - The shapes cut webs only with the Silk skin (owner, 2026-10-15). A cut opens
   a web wall for good and frees things wrapped in silk (owner, 2026-10-16,
   question 55). In Release 1 the Spear, the only shape, does the cutting
-  (question 94).
+  (question 94). *Changed 2026-11-17 (owner, question 146): shapes are gone;
+  the Spear, an ability, cuts them.*
 - No web wall blocks the way to the Matron. Her Pearl grants the Silk skin.
   *Changed 2026-10-17 (owner): her Pearl lies in the Weaver Hollow before
   her, so the slime meets her with the Silk skin; the Hollow's second half
@@ -368,7 +450,9 @@ The forest has two kinds of web (2026-10-15):
 
 ## Enemies in the world (Planned)
 
-Decided by the owner on 2026-10-16; not built.
+Decided by the owner on 2026-10-16; built 2026-10-17: placed enemies
+(`placed-enemy.tscn` under each chunk's `Enemies`), each with its wandering
+area, back each time a chunk is built again.
 
 - Each world chunk holds a fixed number of enemies, placed by hand in the
   map. Each enemy has its own wandering area, as some camps have now.
@@ -378,14 +462,19 @@ Decided by the owner on 2026-10-16; not built.
   testbed).
 - Beaten bosses still never come back.
 
-Today the camps of level-1 and Gloop Forest spawn from enemy-spawn areas,
-each with a stay and a pursue shape, and refill on the area's timer up to its
-population. A world with no spawn areas, such as the Crystal Caverns
-placeholder, spawns enemies around the player.
+*Until 2026-10-17:* the camps of level-1 and Gloop Forest spawned from
+enemy-spawn areas, each with a stay and a pursue shape, and refilled on the
+area's timer up to its population. A world with no spawn areas, such as the
+Crystal Caverns placeholder, spawned enemies around the player.
 
 ## Dungeons
 
-None are built yet. Chapter 1's is **Fatty's Lair**, the worms' burrow, with
+*As built (2026-11-14): the three Release 1 dungeons are built
+([DUNGEONS.md](../godot/DUNGEONS.md)). Fatty's Lair is one world per room since
+2026-10-18 and caves in once Fatty falls (owner, 2026-10-19). The Weaver
+Hollow's root gate needs the Goo Bomb, which nobody teaches yet. The Crystal
+Mine's Chasm needs the Bow, which is not built. How each boss is hurt by
+throws is question 166.* Until 2026-10-17 none were built. Chapter 1's is **Fatty's Lair**, the worms' burrow, with
 its fast gate, falling slabs and Burr's cell (Planned, owner, 2026-10-16).
 Chapter 2's is the **Weaver Hollow** of the
 [2026-10-11 dungeons plan](../design/2026-10-11-release-1-dungeons-plan.md),
@@ -432,7 +521,15 @@ ability, built in the rework mode) lights, given by the smith at his mine camp
   Release 1 heart quarter can be reached with Release 1's powers
   (question 135). *Until 2026-10-16 it was Open whether the Gloop Cavern
   counted as its own map. It does not: it is a small secret cave holding one
-  of Gloop Forest's four (owner, 2026-10-16, question 18).*
+  of Gloop Forest's four (owner, 2026-10-16, question 18).* *Built 2026-10-26:
+  every hidden heart is a quarter. Changed 2026-11-17 (owner, question 151):
+  Slimeshire holds five, D4's pen and cliff, the hill cave, the Glow-moss
+  Burrow and Yoi's home.*
+- **New kinds of find** (owner, 2026-11-17): besides heart quarters, Release 1
+  hides the belt's four slots (each gives quick access to one kind of potion)
+  and ability upgrades found whole in secret places (the Charged Roll first;
+  the others are question 160), next to the manuscripts and coins, so its finds
+  come in kinds that look apart, as in Metroid.
 - Some secrets should only open with powers from later chapters, such as the
   Silk skin, the Feral skin's climbing (walls with thick roots and rocky
   handholds, question 86), the Heavy skin's Roll (old dead or built things

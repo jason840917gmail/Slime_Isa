@@ -7,6 +7,49 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-11-17 (the docs review after throw combat):** the story docs were checked against the build
+  of 2026-11-14, and the owner answered the review (questions 3 and 146 to 156,
+  [below](#open-after-the-docs-review-2026-11-14)) and added ideas of his own.
+  - **Combat.** Throw combat is the game's combat for good: the Gulp's throw is the fight, and
+    there is no basic attack ("no free attacks"). Bosses are hurt by throws, or by something the
+    slime throws into a mechanism that hurts them; how, boss by boss, is decided when the bosses
+    are revisited, and Fatty's fight changes then.
+  - **Two kinds of power.** "Shape" is dropped as a concept: the slime has **skins**, from the
+    Pearls, and **abilities**. The Spear, the War Axe and the Hammer are abilities, learned from
+    NPCs or found in secrets like the others. The Spear stays Yoi's, taught in the prologue.
+  - **Upgrades.** An ability improves through an upgrade found whole in a secret place, as in
+    Zelda, each with its ceremony; an upgrade made of four fragments may come later, for a bigger
+    one, and there is no magic dust. Release 1's first upgrade is the Charged Roll. With the belt
+    slots, Release 1's finds come in kinds that look apart, as in Metroid: heart quarters, belt
+    slots, ability upgrades, manuscripts (war-journal pages and recipes) and coins.
+  - **The Gulp's levels.** Levels 2 and 3 (the medium and heavy lifts) come after Release 1, as
+    secrets or upgrades (not decided). A heavy lift lifts a heavy thing and throws it; the Heavy
+    skin pushes and pulls heavy things such as statues. This replaces question 28's "no lift
+    upgrades".
+  - **The Feral skin** climbs walls painted with vines, as in the playground: a held interact
+    clings, and the movement keys move the slime over them.
+  - **The hero is Bob** (question 3). Isa is a girl in Glimmerhill.
+  - **Glimmerhill.** The West village's town is named Glimmerhill, and all four of its chunks are
+    Release 1. It starts asleep: dark, its fountains dry, its villagers in a trance, silent. Each
+    Pearl that comes home gives the Wellspring the strength to fill one more fountain, and that
+    part of town comes to life: Pearl 1 wakes Market Hill (B4), and each next Pearl the next part.
+    Some parts stay shut or dead for Pearls 4 to 8: a secret underground, certain buildings or
+    areas. A fallen tree that only a Heavy Roll breaks blocks the way to Market Hill, so the slime
+    reaches the town only with the Heavy skin. A woken fountain refills energy, which takes over
+    Slimeshire's well (question 153).
+  - **Burr's house** is in Slimeshire's C4, his son inside; the son teaches the Roll
+    (question 150).
+  - **Physical barriers, not gates.** Outside the dungeons a way is shut by something a power
+    removes, not by a key gate: a fallen tree that a Heavy Roll breaks replaces the Verdant Gate,
+    so its green key goes.
+  - **The belt.** Four slots, each found as a secret. A slot gives quick access, on keys 1 to 4, to
+    one kind of potion in the bag and shows how many of that kind are left: with one slot and both
+    health and energy potions in the bag, only one kind is on the belt. Potions also get vessels
+    (the owner's "recipients") and a craft panel; how the vessels work is question 161.
+  - Also: Yoi's home holds a fifth Slimeshire heart quarter (question 151); the Thorn Guard lives
+    on (question 152); baths heal life (question 153); the great mountain's high levels are a sky
+    floor (question 154); tall cliffs, balconies and cliff caves are Release 1 (question 155); the
+    desert's elevation maze is not (question 156).
 - **2026-10-17 (hearts hide; Chapter 1's maps, second pass):** hearts are almost never in
   sight. In Zelda only a few heart pieces can be seen and most wait in chests, which makes finding
   one exciting; the player finds things by being curious, and some players will miss secrets.
@@ -266,6 +309,9 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 ## Story
 
 2. ~~**The premise.**~~
+3. ~~**The hero's name.**~~ "The slime", or Isa?
+   *2026-11-17 (owner, question 148): Bob. Isa is a girl in Glimmerhill, the oldest of three
+   sisters (the villagers of 2026-11-01); the game keeps its title, Slime Isa.*
 5. ~~**Where is the Wellspring?**~~
    *Owner: in its own new map east of level-1, the game's first map.*
 6. ~~**Bosses after their Pearl is gone.**~~
@@ -1130,3 +1176,64 @@ from question 50 on.
 136. ~~**What a rung bell opens.**~~
      *Proposal:* it stays open for good, so a bell is a lock solved once.
      *2026-10-16 (owner): the proposal.*
+
+## Open after the docs review (2026-11-14)
+
+The story docs were checked against the build of 2026-11-14. These came out of it, and the owner
+answered them on 2026-11-17.
+
+146. ~~**Throw combat for good?**~~ Throw combat has been on in every world since 2026-11-01: the
+     attack key does nothing, and the Spear, the Axe and the Hammer are Ability Box powers. If it
+     stays, what is a shape, is any attack free, what does the Feral skin change, and how does a
+     boss take throws?
+     *2026-11-17 (owner): it is the combat for good, with no free attacks. "Shape" goes as a
+     concept: the slime has skins (from the Pearls) and abilities, and the Spear, the War Axe and
+     the Hammer are abilities, learned from NPCs or found in secrets; the Spear stays Yoi's. Their
+     strikes may also come back as upgrades found in secrets. The Feral skin climbs walls with vines,
+     as in the playground. Bosses take damage from throws, or the slime throws something into a
+     mechanism that hurts them, decided when the bosses are revisited. What the Feral skin changes
+     in a move is question 157.*
+147. ~~**The Gulp's levels.**~~ Who grants the medium and heavy lifts, and how does a heavy lift
+     stay apart from the Heavy skin's push and pull?
+     *2026-11-17 (owner): levels 2 and 3 are secrets, or upgrades (not decided), and probably not
+     in Release 1. A heavy lift lifts a heavy thing and throws it; the Heavy skin moves heavy things
+     such as statues.*
+148. ~~**The hero's name, now that Isa is a villager.**~~
+     *2026-11-17 (owner): Bob (question 3).*
+149. ~~**The West village.**~~ Its name, how much of it is Release 1, and how its people react as
+     the Pearls come home (today they all wait for Burr, even after he is freed).
+     *Proposal:* three names, Glimmerhill, Puddlebury or Brightwell; the town starts asleep and
+     each Pearl wakes a part of it.
+     *2026-11-17 (owner): Glimmerhill, all of it in Release 1. It starts dark and dead, its
+     fountains dry; each Pearl gives the Wellspring the strength to fill one more fountain, and that
+     part of town comes to life. While its fountain is dry, a part's villagers are in a trance,
+     asleep on their feet, and say nothing. Pearl 1 wakes Market Hill, and so on; some parts stay
+     shut or dead for Pearls 4 to 8 (a secret underground, certain buildings or areas). A fallen tree
+     that only a Heavy Roll breaks blocks the way to Market Hill. "We may need to work this a little
+     better": question 159.*
+150. ~~**Burr's home.**~~ The B4 gatehouse, or a house in town? Where do the Roll's plank and the
+     Bow's targets go?
+     *2026-11-17 (owner): a house in Slimeshire's C4 (`burr-house`), his son inside, who teaches the
+     Roll.*
+151. ~~**Yoi's heart quarter.**~~ Slimeshire's four are placed (D4's pen and cliff, the hill cave,
+     the Glow-moss Burrow). A fifth, or move one?
+     *2026-11-17 (owner): yes, read as a fifth.*
+152. ~~**The Thorn Guard today.**~~ Alive (Bram the apprentice, the border guards) or fallen (the
+     skeletons, Yoi the last)?
+     *2026-11-17 (owner): "why should he be dead? what part of the story places him dead?" Nothing
+     does: only the soldiers who fell in the old forts were raised as skeletons. The Guard lives on,
+     small: Yoi the veteran, Bram the apprentice at Glimmerhill's south gate, the guards at the
+     border posts.*
+153. ~~**Baths.**~~ Where do they fit with beds, the well and the Wellspring?
+     *Proposal:* a bath heals life; a bed heals and sets where the slime wakes; a woken fountain
+     refills energy, taking over Slimeshire's well.
+     *2026-11-17 (owner): the proposal.*
+154. ~~**The sky floor's region.**~~
+     *2026-11-17 (owner): part of the North Wilds, the Northern ruins and all of Volcano Ridge become
+     big mountains. Selected entrances on the mountain floor lead up, and the sky floor is used on
+     the mountain's high levels, framed by the camera so its sky is never seen from below, as Zelda
+     paints its mountain.*
+155. ~~**Tall cliffs, balconies and cliff caves in Release 1.**~~
+     *2026-11-17 (owner): yes, since the Feral skin is in Release 1.*
+156. ~~**The desert's elevation maze and the Sunscar caves.**~~ In Release 1?
+     *2026-11-17 (owner): no; they stay as an idea of what comes next.*

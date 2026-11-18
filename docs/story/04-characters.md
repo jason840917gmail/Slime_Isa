@@ -9,7 +9,10 @@ quest files. Everything about where a character is going is a Proposal.
 silent hero. The townsfolk and old manuscripts teach it shapes and abilities,
 and each Pearl grants a skin. In Release 1 the townsfolk teach and chests hold
 the finds; manuscript pieces come later (owner, 2026-10-15). Its Gulp grabs
-and throws. Its name is Open. *Since 2026-10-16 (Planned, question 97): its
+and throws. Its name is Bob (owner, 2026-11-17, question 148). *Changed
+2026-11-17 (owner, question 146): the Gulp's throw is its fight, with no basic
+attack, and "shape" is dropped: the townsfolk and secrets teach it abilities,
+the Spear, the War Axe and the Hammer among them.* *Since 2026-10-16 (Planned, question 97): its
 birth is the [prologue](../design/2026-10-16-prologue.md)'s first scene, and
 Yoi, the veteran it saves there, is its first teacher.* *Changed 2026-10-16
 (seventh round, question 108): Release 1's whole manuscripts teach campfire
@@ -25,7 +28,8 @@ See [Premise](02-premise.md#the-slime).
   bright and your eyes open. The forest has grown restless lately."
 - **Role:** the mentor and Chapter 1's main quest giver. In Chapter 2 Plop asks
   to see real iron gear. In the game he greets the slime in the clearing at
-  the start (Built).
+  the start (Built). *Since 2026-10-16 (Built): he meets it at the town's edge
+  after the prologue and gives it his 10-slot satchel.*
 - **Quests** (as built). Quests no longer make sense (owner, 2026-10-15: NPCs
   give info and tips, perhaps with one main quest for the Pearls, question
   50). Planned in their place (owner, 2026-10-16, question 60): the journal
@@ -44,13 +48,18 @@ See [Premise](02-premise.md#the-slime).
   - The One-Eyed Guardian. Its Squash Slam reward goes: the Slam is removed
     (2026-10-15).
   - Iron Gear.
+  - *As built (2026-11-14): these quests are still the old crafting chain,
+    and none past A Place to Work can be finished, as no story chunk has wood;
+    the slime has the Roll from the end of the prologue.*
   - Proposal: A Home of Your Own, the house quest. The vault waits for a
     later release (owner, 2026-10-16, question 53). *Closed 2026-10-16
     (question 11): Release 1 has no quests, so there is no house quest; an
     NPC hands the home over.*
 - **Planned tip (owner, 2026-10-16, question 61):** after the Spear, Plop says
   the worms have shut their burrow with the old Thorn Guard gate, and only
-  **Burr**, the gatekeeper in the West village, knew its trick.
+  **Burr**, the gatekeeper in the West village, knew its trick. *Changed
+  2026-11-17 (owner, question 150): Burr's house is in Slimeshire's C4, so the
+  tip points there.*
 - **Planned first meeting (owner, 2026-10-16, question 100):** Plop meets the
   slime at the town's edge as it comes out of the forest after the prologue,
   amazed: "No slime has come out of the Wellspring in years... and here you
@@ -111,6 +120,9 @@ See [Premise](02-premise.md#the-slime).
   silk-wrapped prize or the Cocoon Mimic, and a cracked wall by him, his
   maze's way back, is the Goo Bomb's first lock.*
 - **Open:** his voice and the rest of his story; the owner may add more later.
+- *As built (2026-11-14): Tom still hangs in his web in Gloop Forest's E5 and
+  teaches Swallow in the quest data; his maze and the Goo Bomb lesson are not
+  built, so nobody teaches the Goo Bomb yet (question 117).*
 
 ### Pip (Built)
 
@@ -150,7 +162,9 @@ See [Premise](02-premise.md#the-slime).
 - **Role:** Snack for the Road (optional).
 - **Planned:** renamed **Dora** (owner, 2026-10-11; [question 7](07-decisions-archive.md#story)),
   because **Lili** and **Lily** are too close for players to tell apart. Her
-  NPC id `fisherman-slime` stays; the game still says Lily.
+  NPC id `fisherman-slime` stays; the game still says Lily. *Open again
+  (question 165): Glimmerhill's Gramps Reel, built 2026-11-01, names her Lily
+  too.*
 
 ### Sunny (Built)
 
@@ -188,11 +202,18 @@ See [Premise](02-premise.md#the-slime).
 - **The skeletons** (owner, 2026-10-16, question 125): the dungeons'
   skeletons are his fallen comrades of the Thorn Guard, whose bones Gorge's
   vassals raised to guard the old forts, and Yoi knows their old helmets.
+- **The Thorn Guard today** (owner, 2026-11-17, question 152): nothing in the
+  story places Yoi or any living soldier dead; only those who fell in the old
+  forts were raised. The Guard lives on, small: Yoi the veteran, Bram the
+  apprentice at Glimmerhill's south gate, and the guards at the border posts.
 - *Until 2026-10-16: he taught the Spear in his den at the end of Yoi's
   Hideout, a war hideout under Lili's west yard (owner, 2026-10-11,
   confirmed on 2026-10-15 in question 50; the
   [dungeons plan](../design/2026-10-11-release-1-dungeons-plan.md#4-yois-hideout)).*
-- Not built: no art, scene or dialogue yet.
+- Built 2026-10-16 in the prologue ([PROLOGUE.md](../godot/PROLOGUE.md)), with
+  his lines in `prologue/yoi_actor.gd`: he teaches the Spear, an ability since
+  2026-11-17 (question 146). His home is not built, and his `yoi` entry in
+  `npc-definitions.json` is placed nowhere.
 
 ### The smith, Pip's dad (Planned)
 
@@ -204,29 +225,68 @@ See [Premise](02-premise.md#the-slime).
   his mine camp. He gives it the **Lantern**, the Forge's ember, and goes home
   to Slimeshire once the Colossus falls.
 - **2026-10-15 (owner, question 51):** the smith teaches the Hammer shape at
-  the Workshop in Chapter 5 or 6, after Release 1.
+  the Workshop in Chapter 5 or 6, after Release 1. *Changed 2026-11-17 (owner,
+  question 146): the Hammer is an ability; who teaches it, and when, is
+  question 167.*
 - *Until 2026-10-16 (Proposal): he was trapped by crystal in the caverns,
   rescuing him led to rebuilding the Workshop, and the Colossus was weak to
   the hammer.*
-- Not built: no art, scene or dialogue yet.
+- Built 2026-10-17 at his mine camp (`crystal_mine/mine_camp.gd`): he gives
+  the Lantern at his first talk and sends the slime to Burr. He has no entry in
+  `npc-definitions.json` yet.
 
 ### The worm who surrenders (Idea)
 
 From the roadmap's parking lot: a named worm who gives up at low HP. If the
 slime spares him, he becomes Slimeshire's shopkeeper, which also gives coins a
 use. **Proposal:** he is the first sign that the worms were refugees, not
-villains.
+villains. *Dropped by the owner's decision of 2026-10-16: the worms are Gorge's
+army, mean, never cute or scared ([Premise](02-premise.md#backstory)).*
 
-## The West village
+<a id="the-west-village"></a>
 
-Part of the West village joins Release 1 (owner, 2026-10-16;
-[World](03-world.md#the-west-village)): a small town with Burr's house, three
-or four more houses, a shop and a game to play (question 73). The shop sells
-potions and food ingredients (question 88), and a secret there teaches a
-simpler potion (question 89). Who else lives there, and who runs the shop,
-is not decided yet. The gatekeeper's family lives there:
-Burr and young Burr, a family of its own, while the smith is Pip's father
-(the "two families" fix, chosen 2026-10-16).
+## Glimmerhill (the West village)
+
+Glimmerhill is the West village's town, named by the owner on 2026-11-17
+(question 149), and all of it is Release 1 ([World](03-world.md#the-west-village)).
+*Until 2026-11-17: part of the West village joined Release 1 (owner,
+2026-10-16), a small town with Burr's house, three or four more houses, a shop
+and a game to play (question 73).* The shop sells potions and food ingredients
+(question 88), and a secret there teaches a simpler potion (question 89).
+
+Its 27 villagers, built 2026-11-01 ([VILLAGERS.md](../godot/VILLAGERS.md); not
+played with the slime yet):
+
+- **In their rooms:** Dollop (the shop), Burble (the inn, the Bubbling Mug),
+  Crumb (the bakery), Mayor Wobbleton (the town hall), Bobbin (the tailor,
+  sewing banners for the Pearls' homecoming), Auntie Suds (the bathhouse),
+  Granny Thistle (the herbalist, who hints at a secret potion) and Dune (a
+  desert traveller stuck at the inn, who tells of a worm as long as a river,
+  Gorge's general).
+- **At their posts:** Sprig the gardener, Dot and Dab the gossips, Bram the
+  apprentice Thorn Guard at the south gate (the Guard lives on, question 152),
+  Zing at the throwing booth, Plum at her stall, Gramps Reel the fisher, and
+  young Burr by B4's gatehouse.
+- **On their rounds:** Penny with the mail, Old Sedge with the pup Biscuit, and
+  Wick the lamplighter; Tansy and the kids Fizz and Tad wander.
+- **The owner's family of five:** Isa, the oldest of three sisters, always
+  learning and exploring; Dany, the kindest, who follows her; Gavy, the
+  youngest, who climbs fences and walls; their father Dan, who chases Gavy;
+  and their mother May, who cooks at home.
+
+In the build they are all awake and have no story lines yet: young Burr, the
+Mayor and Penny keep waiting for Burr even after he is freed. *Planned (owner,
+2026-11-17, question 149): the town starts asleep; while a part's fountain is
+dry its villagers are in a trance and say nothing, and each Pearl that comes
+home wakes a part (question 159). What each says once awake, and as the Pearls
+come home, is still to write.*
+
+## Burr's family (Slimeshire)
+
+The gatekeeper's family: Burr and young Burr, a family of its own, while the
+smith is Pip's father (the "two families" fix, chosen 2026-10-16). *Changed
+2026-11-17 (owner, question 150): their house is in Slimeshire's C4, not the
+West village.*
 
 ### Burr, the gatekeeper (Planned)
 
@@ -266,11 +326,16 @@ Burr and young Burr, a family of its own, while the smith is Pip's father
   - **After Fatty** (Planned, owner, 2026-10-16, question 103): freed, he
     says the town must see the Pearl, and the journal's main quest points
     home.
-- Not built: no art, scene or dialogue yet.
+  - *Changed 2026-11-17 (owner, question 150): "home" is his house in
+    Slimeshire's C4, where he later teaches the Bow.*
+- Built in Fatty's Lair (2026-10-17 to 2026-10-19): his cell, his plate on the
+  hub's drawbridge, and his wait by the bolt-hole (`burr-outside` in D4). His
+  house and the Bow are not built.
 
 ### Young Burr (Planned)
 
-- **Who:** Burr's son, in the West village.
+- **Who:** Burr's son, in the West village. *Changed 2026-11-17 (owner,
+  question 150): in their house in Slimeshire's C4, where he teaches the Roll.*
 - **Role (owner, 2026-10-16, question 61):** when the slime comes to Burr's
   house, it is empty. Young Burr says his father went to fight Fatty and
   never came back, and shows the trick his father taught him: curl up and
@@ -278,15 +343,16 @@ Burr and young Burr, a family of its own, while the smith is Pip's father
   Fatty One Eye. The slime promises to find his father. *Since 2026-10-16
   (eighth round, question 132): the Roll's first lock is a rickety plank over
   a dry ditch in their yard.*
-- Not built: no art, scene or dialogue yet.
+- As built (2026-11-14): he stands by Glimmerhill's B4 gatehouse with
+  placeholder lines, and the slime has the Roll from the end of the prologue.
 
 ## Bosses
 
 | Boss | Region | Fight today | Story (Proposal) | Status |
 |---|---|---|---|---|
-| **Fatty One Eye** | Slimeshire Meadow | Leaps, and takes damage only in the eye; guards the green key | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants the Heavy skin. Planned (owner, 2026-10-16): he lives in Fatty's Lair, the worms' burrow behind the old Thorn Guard gate, where Burr sits in a cell; the Spear on his eye beats him. He also leaves a full heart (owner, 2026-10-16, question 17). *Changed 2026-10-17 (owner): he hides his Pearl in the lair and keeps it close; the slime takes it before facing him, and he notices, enraged (his strength stays the same), and seals the lair's exits until he is beaten. His fight is the Heavy skin's exam.* | Built; the Heavy skin and the lair are Planned (the rework's Stone form already works the heavy plates and blocks) |
-| **Orb-Weaver Matron** | Gloop Forest | Web spit, web volley, web patches | One of Gorge's eight vassals. Planned: new art; her three-way Stretch Lash damages, pulls and traps the slime, which has no Silk skin yet; her webs slow it by 50%, and its shapes cannot cut them before the Silk skin; her Pearl grants the Silk skin. After she falls, the slime takes the Matron's thread from her web, and Burr builds the Bow from it (owner, 2026-10-16, question 106). *Since 2026-10-16 (eighth round, question 133): she lives at the top of the Weaver Hollow, Chapter 2's dungeon, whose entrance is her old nest, and her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear. She leaves a full heart (question 17).* *Changed 2026-10-17 (owner): she hides her Pearl in the Weaver Hollow, and the slime takes it before facing her, so it meets her with the Silk skin; taking it enrages her (her strength stays the same) and seals the Hollow's exits until she is beaten. Her fight is the skin's exam; what that changes in her lash and webs is not decided ([rework plan](../design/2026-10-17-pearl-mid-dungeon.md)).* | Built; changes Planned |
-| **Crystal Colossus** | Crystal Caverns | — | A golem of crystal grown around a Pearl, Pearl 3, which grants the Feral skin (owner, 2026-10-16, question 56). The Pearl shows in his fight: he climbs out of reach to throw some of his minions down, and killed, they can drop energy shards (owner, 2026-10-16, question 69). He has blocked the smith's crystal mine. Planned (owner, 2026-10-16, question 59): four braziers ring his arena, and only when all four burn, lit by the Lantern, is a weak spot on his armour bared, at a random place, for the Spear (the Spear alone since the War Axe waits for the next release: owner, 2026-10-16, question 94); his stomps blow the braziers out one at a time. Release 1's content ends when he falls (question 58). He does not need the Bow (owner, 2026-10-16, question 102). *Until 2026-10-16 (Idea): armored, weak to the hammer, and he taught switching shapes.* *Since 2026-10-16 (eighth round): he leaves a full heart (question 17), and the slime climbs out of his arena with the Feral skin (question 132).* *Changed 2026-10-17 (owner): he hides his Pearl in the mine, and the slime takes it before facing him; taking it enrages him (his strength stays the same) and seals the mine's exits until he is beaten. His fight is the Feral skin's exam. A golem grown around his Pearl, and a fight that shows it, no longer fit as written: open ([rework plan](../design/2026-10-17-pearl-mid-dungeon.md)).* | Idea; Pearl 3, the Feral skin and the fight Planned |
+| **Fatty One Eye** | Slimeshire Meadow | In Fatty's Lair (R13, built 2026-10-17): leaps, and takes damage only in the eye; in his second phase (since 2026-10-24) a thrown mud ball throws him off balance, a Heavy Roll knocks him down, and the Spear hits his eye; the green key lies in the Postern chest, and the Lair caves in once he falls | One of Gorge's eight vassals. Beaten, he releases the Pearl that grants the Heavy skin. Planned (owner, 2026-10-16): he lives in Fatty's Lair, the worms' burrow behind the old Thorn Guard gate, where Burr sits in a cell; the Spear on his eye beats him. He also leaves a full heart (owner, 2026-10-16, question 17). *Changed 2026-10-17 (owner): he hides his Pearl in the lair and keeps it close; the slime takes it before facing him, and he notices, enraged (his strength stays the same), and seals the lair's exits until he is beaten. His fight is the Heavy skin's exam.* *Changed 2026-11-17 (owner): bosses are hurt by throws, or by something the slime throws into a mechanism; his fight changes when the bosses are revisited (question 166).* | Built 2026-10-17: the Lair, Pearl 1 and the Heavy skin; his fight changes with the boss pass (question 166) |
+| **Orb-Weaver Matron** | Gloop Forest | At the top of the Weaver Hollow (built 2026-10-17): she shields herself in a cocoon a blast opens, then the Spear; round 2 a cage of web walls, round 3 a webbed floor | One of Gorge's eight vassals. Planned: new art; her three-way Stretch Lash damages, pulls and traps the slime, which has no Silk skin yet; her webs slow it by 50%, and its shapes cannot cut them before the Silk skin; her Pearl grants the Silk skin. After she falls, the slime takes the Matron's thread from her web, and Burr builds the Bow from it (owner, 2026-10-16, question 106). *Since 2026-10-16 (eighth round, question 133): she lives at the top of the Weaver Hollow, Chapter 2's dungeon, whose entrance is her old nest, and her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear. She leaves a full heart (question 17).* *Changed 2026-10-17 (owner): she hides her Pearl in the Weaver Hollow, and the slime takes it before facing her, so it meets her with the Silk skin; taking it enrages her (her strength stays the same) and seals the Hollow's exits until she is beaten. Her fight is the skin's exam; what that changes in her lash and webs is not decided ([rework plan](../design/2026-10-17-pearl-mid-dungeon.md)).* | Built 2026-10-17; the Hollow's root gate needs the Goo Bomb, which nobody teaches yet; her fight changes with the boss pass (question 166) |
+| **Crystal Colossus** | Crystal Caverns | In the Crystal Mine (built 2026-10-17): with all four braziers lit his weak spot opens for the Spear; after three stomps he climbs his north wall, and three Spear hits on his claws stun him | A golem of crystal grown around a Pearl, Pearl 3, which grants the Feral skin (owner, 2026-10-16, question 56). The Pearl shows in his fight: he climbs out of reach to throw some of his minions down, and killed, they can drop energy shards (owner, 2026-10-16, question 69). He has blocked the smith's crystal mine. Planned (owner, 2026-10-16, question 59): four braziers ring his arena, and only when all four burn, lit by the Lantern, is a weak spot on his armour bared, at a random place, for the Spear (the Spear alone since the War Axe waits for the next release: owner, 2026-10-16, question 94); his stomps blow the braziers out one at a time. Release 1's content ends when he falls (question 58). He does not need the Bow (owner, 2026-10-16, question 102). *Until 2026-10-16 (Idea): armored, weak to the hammer, and he taught switching shapes.* *Since 2026-10-16 (eighth round): he leaves a full heart (question 17), and the slime climbs out of his arena with the Feral skin (question 132).* *Changed 2026-10-17 (owner): he hides his Pearl in the mine, and the slime takes it before facing him; taking it enrages him (his strength stays the same) and seals the mine's exits until he is beaten. His fight is the Feral skin's exam. A golem grown around his Pearl, and a fight that shows it, no longer fit as written: open ([rework plan](../design/2026-10-17-pearl-mid-dungeon.md)).* | Built 2026-10-17; out of reach in play while the Bow is not built (question 144); his fight changes with the boss pass (question 166) |
 | **Old Gullet**, the catfish | Sticky Swamp | — | One of Gorge's eight vassals: he swallows whatever falls in and hides in deep mud and water. His Pearl grants the Swim skin (owner, 2026-10-16, question 32) | Planned for a later release |
 | **Old Rimepaw**, the polar bear (a working name) | Frostpeak | — | One of the vassals: he slides across the frozen lake on his belly and cracks the floes with a slam, and his arena's ice makes the slime slip until it learns to read his slides. His Pearl grants the Polar skin (question 32) | Planned for a later release |
 | **Sandmaw**, the great sand worm | The Desert | — | One of the vassals and Gorge's worm general (his army is worms): he burrows under the dunes and bursts out. His Pearl grants the Sand skin (question 32) | Planned for a later release |
@@ -299,7 +365,9 @@ hides it in his dungeon and keeps it close to draw on its power. The slime
 finds it there before the boss; taking it enrages him (his strength stays the
 same) and seals the dungeon's exits, so the only way out is to beat him. The
 dungeon's second half teaches the Pearl's skin, and the boss fight is its
-exam.*
+exam.* *Since 2026-11-17 (owner): bosses are hurt by throws, or by something
+the slime throws into a mechanism that hurts them; how, boss by boss, is
+decided when the bosses are revisited (question 166).*
 
 ## Ordinary enemies
 
@@ -313,9 +381,9 @@ ones built or placed so far.
 
 | Enemy | Where | Story (Proposal) | Status |
 |---|---|---|---|
-| Worm swordsmen | Slimeshire Meadow | Driven out of their burrows by the shift; desperate, not evil | Built |
-| Prologue worms | The prologue's glade | Fatty One Eye's worms, grown bold. A weak variant of the worm swordsman with one hit point, so one throw kills each (owner, 2026-10-16, question 97) | Planned |
+| Worm swordsmen | Slimeshire Meadow | Driven out of their burrows by the shift; desperate, not evil. *Dropped by the owner's decision of 2026-10-16: the worms are Gorge's army, mean, never cute or scared ([Premise](02-premise.md#backstory))* | Built; placed since 2026-10-17 |
+| Prologue worms | The prologue's glade | Fatty One Eye's worms, grown bold. A weak variant of the worm swordsman with one hit point, so one throw kills each (owner, 2026-10-16, question 97) | Built 2026-10-16 (the prologue) |
 | Meadow spider (yellow) | Slimeshire Meadow | Ordinary wildlife (the bestiary's Slime Spider, `slime-spider`) | Built |
 | Orb-weavers | Gloop Forest | The Matron's brood, spreading webs everywhere. They drop silk essences about a third of the time (built 2026-10-09; marked for deletion 2026-10-15). Their weaver fangs go (owner, 2026-10-16, question 63) | Built |
 | **Clod Stomper** | Gloop Forest, by the iron hollow and the cracked clearing | A squat golem of mud and pebbles, a small Fatty One Eye: it jumps in place and slams the ground behind a ring telegraph, and its slam breaks cracked ground near it. Its stone essence drop is marked for deletion (2026-10-15). It stays as it is, slam included: an enemy, not a power (owner, 2026-10-16, question 64) | Built (2026-10-09) |
-| Skeletons (the Bone Leaper, the Bone Thrower and the Bone Marcher) | Every dungeon's deep rooms, from Fatty's Lair on | The fallen Thorn Guard soldiers of the great war, whose bones Gorge's vassals raised (with a Pearl's power used without wisdom: his aberrations) to guard the dungeons, which were the old forts. Yoi knows their old helmets (owner, 2026-10-16, question 125) | Built in the playground's Bestiary corner (2026-10-16) |
+| Skeletons (the Bone Leaper, the Bone Thrower and the Bone Marcher) | Every dungeon's deep rooms, from Fatty's Lair on | The fallen Thorn Guard soldiers of the great war, whose bones Gorge's vassals raised (with a Pearl's power used without wisdom: his aberrations) to guard the dungeons, which were the old forts. Yoi knows their old helmets (owner, 2026-10-16, question 125) | Built in the playground's Bestiary corner (2026-10-16) and placed in the dungeons (2026-10-17) |
