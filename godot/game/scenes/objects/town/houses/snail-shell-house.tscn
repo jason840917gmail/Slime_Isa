@@ -1,27 +1,29 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://drasbn1vh6n21"]
 
-[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
-[ext_resource type="Script" path="res://game/world/door_frame.gd" id="door_frame"]
+[ext_resource type="Texture2D" uid="uid://cx26w81xnqom6" path="res://asset/MAPS/town/houses/snail-shell-house.webp" id="1_frc8i"]
+[ext_resource type="Script" uid="uid://c6c3rcdchp6fd" path="res://game/world/door_frame.gd" id="door_frame"]
+[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 
 [sub_resource type="RectangleShape2D" id="foot"]
-size = Vector2(206, 105)
+size = Vector2(171, 99)
 
-[node name="snail-shell-house" type="StaticBody2D"]
+[node name="snail-shell-house" type="StaticBody2D" unique_id=261942573]
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
-position = Vector2(0, -52.5)
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=1648343603]
+position = Vector2(8.5, -57.5)
 shape = SubResource("foot")
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1920899566]
 scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_frc8i")
 centered = false
 offset = Vector2(-240, -524)
 script = ExtResource("sheet")
 sheet_path = "res://asset/MAPS/town/houses/snail-shell-house.webp"
 
-[node name="DoorFrame" type="Node2D" parent="."]
+[node name="DoorFrame" type="Node2D" parent="." unique_id=856182588]
 position = Vector2(5.5, -32.5)
 script = ExtResource("door_frame")
 size = Vector2(54, 61.5)
