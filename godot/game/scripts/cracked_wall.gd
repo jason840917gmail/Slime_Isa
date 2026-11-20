@@ -54,6 +54,7 @@ const ROCK_SAMPLES := 48
 ## The room's InteriorWallLayer draws the crack and the hole (docs/godot/INTERIOR_WALLS.md): a
 ## "cracked" opening painted on it where this stands. The decals stay hidden, the blast turns the
 ## wall's opening into "blown" (the layer opens its gap: no `blocker` or elevation passage needed).
+## A round room's walls (RoundInteriorWalls) do the same with their cracked opening near it.
 @export var frame_drawn_by_wall: bool = false:
 	set(value):
 		frame_drawn_by_wall = value
@@ -273,6 +274,8 @@ func _blow_wall_opening() -> void:
 	var layer := InteriorWalls.find(get_tree())
 	if layer != null:
 		layer.change_opening_at(global_position + passage.get_center(), "blown")
+	# a round room's walls (round_interior_walls.gd) open their cracked stretch near it the same way
+	get_tree().call_group(&"round_interior_walls", &"change_opening_at", global_position + passage.get_center(), "blown")
 
 
 ## Scales `sprite` (centred) to `size` world units, its middle at `offset`.

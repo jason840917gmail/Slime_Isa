@@ -571,7 +571,9 @@
       "crystal-mine": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
       "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
       "box-room-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
-      "climb-lab": ["shape-spear", "dodge", "skin.feral"]
+      "climb-lab": ["shape-spear", "dodge", "skin.feral"],
+      "west-village-b5": ["shape-spear", "dodge", "goo-bombs"],
+      "west-village-b5-snail-house": ["shape-spear", "dodge", "goo-bombs"]
     },
     "door": { "keyholeMs": 380, "openMs": 650, "lineEveryMs": 1500, "lineMs": 2000 },
     "boltHole": { "clearPx": 72, "minOpenMs": 350, "closeAfterMs": 2500, "shakeMs": 160, "shakeIntensity": 0.004 },

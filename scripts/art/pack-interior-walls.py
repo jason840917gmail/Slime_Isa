@@ -28,7 +28,9 @@ Pieces (sheet px):
             north piece turned for each side (south 180, west 90 CCW, east 90 CW) and shaded to its
             side's light, the ends feathered over the run drawn under them
   leaves    <side>_<kind> rects inside their side's doorway piece: key1 key2 boss bolt shutter seal
-            barricade
+            barricade (the dungeon styles); a style may have fewer openings and other leaves (the
+            cottage: no stairs, one `door` leaf, the house door a door node draws), and the palette
+            then has no tile for what it lacks
 
 Outputs:
   godot/asset/MAPS/walls/interior/<style>.webp, <style>-floor.webp
@@ -120,6 +122,44 @@ STYLES = {
 			"w": [(232, 392), (624, 790)], "e": [(232, 392), (624, 790)]},
 		"boxes": {"n": (402, 608), "s": (402, 608), "w": (402, 608), "e": (402, 608)},
 		"passages": {"n": (452, 79, 558, 180)},
+	},
+	"cottage": {
+		# the village houses' rooms (2026-11-19): timber-framed plaster, the back wall of the old house
+		# rooms (cottage-bevel-*, made from cottage-bevel-square-b); no stairs, and no dungeon doors:
+		# its one leaf is the house door, which a door node draws (docs/godot/INTERIOR_WALLS.md)
+		"column": 3,
+		"frame": "cottage-bevel-doorways-a.png",
+		"openings": {"cracked": "cottage-bevel-cracked-a.png", "blown": "cottage-bevel-blown-a.png"},
+		"leaves": {"door": "cottage-bevel-leaf-door-a.png"},
+		# the faces' posts lean with the render's perspective, so every face is the north face turned
+		# (`_turn_runs`), its posts square to the face on every side, each side in its own light
+		"turn_runs": True,
+		"bands": {"n": (26, 218), "s": (777, 965), "w": (30, 198), "e": (825, 994)},
+		# the north loop is one stretch taken as it is (`exact_loop`): the post right of the doorway and
+		# the panel after it up to the next post's edge, so the loop's end meets its own post as the
+		# panel met the next one; the other sides' stretches only give their light
+		"exact_loop": True,
+		"plain": {"n": [(607, 763)], "s": [(607, 763)], "w": [(600, 750)], "e": [(600, 750)]},
+		"boxes": {"n": (414, 606), "s": (414, 606), "w": (414, 606), "e": (414, 606)},
+		"passages": {"n": (448, 86, 574, 200)},
+	},
+	"mushroom": {
+		# the mushroom houses' rooms (2026-11-19, for the round rooms: round_interior_walls.gd): the
+		# cottage frame in mushroom stuff, a red spotted cap rim, pale ribs, cream stem flesh, a mossy
+		# stone footing (mushroom-bevel-*, made from cottage-bevel-doorways-a and the twin mushroom
+		# house); its layout is the cottage's, measured again. `mushroom-bevel-blown-a` came back
+		# opaque (a painted checkerboard round the frame), made fully opaque: only its north face is cut.
+		"column": 4,
+		"frame": "mushroom-bevel-doorways-a.png",
+		"openings": {"cracked": "mushroom-bevel-cracked-a.png", "blown": "mushroom-bevel-blown-a.png"},
+		"leaves": {"door": "mushroom-bevel-leaf-door-a.png"},
+		"turn_runs": True,
+		"exact_loop": True,
+		"bands": {"n": (24, 207), "s": (780, 968), "w": (30, 197), "e": (829, 995)},
+		# the rib right of the doorway and the panel after it, up to the next rib's foot
+		"plain": {"n": [(598, 755)], "s": [(598, 755)], "w": [(600, 750)], "e": [(600, 750)]},
+		"boxes": {"n": (421, 604), "s": (421, 604), "w": (421, 604), "e": (421, 604)},
+		"passages": {"n": (457, 80, 570, 195)},
 	},
 }
 
@@ -342,6 +382,58 @@ def _shade(im: Image.Image, gain: np.ndarray) -> Image.Image:
 	return Image.fromarray(a.round().astype(np.uint8))
 
 
+def _run_square(pieces: dict[str, Image.Image], side: str) -> Image.Image:
+	"""The first two cells of `side`'s run as one face square (two cells along, two deep)."""
+	out = Image.new("RGBA", (DEPTH, DEPTH))
+	out.alpha_composite(pieces[f"{side}0"], (0, 0))
+	out.alpha_composite(pieces[f"{side}1"], (CELL, 0) if side in "ns" else (0, CELL))
+	return out
+
+
+## The corner beam laid along a turned style's mitre: its half width and its fade (sheet px).
+MITRE_HALF = 15
+MITRE_FADE = 6
+
+
+def _turn_runs(pieces: dict[str, Image.Image], periods: dict[str, int]) -> None:
+	"""A style whose faces are the north face turned (as every opening is): the south, west and east
+	runs become the north loop turned 180 / 90 CCW / 90 CW, each shaded to its own face's light in
+	the render (its run's mean colour over the north run's), and the outer corners become the two
+	turned faces split on the mitre, with the render's own corner beam laid along it."""
+	gains = {side: _gain(pieces, "n", side) for side in SIDES}
+	count = periods["n"]
+	loop = Image.new("RGBA", (count * CELL, DEPTH))
+	for i in range(count):
+		loop.alpha_composite(pieces[f"n{i}"], (i * CELL, 0))
+	for side in "swe":
+		for i in range(periods[side]):
+			del pieces[f"{side}{i}"]
+		turned = _shade(_turn(loop, side), gains[side])
+		for i in range(count):
+			pieces[f"{side}{i}"] = turned.crop((i * CELL, 0, (i + 1) * CELL, DEPTH)) if side == "s" \
+				else turned.crop((0, i * CELL, DEPTH, (i + 1) * CELL))
+		periods[side] = count
+	square = {side: _run_square(pieces, side) for side in SIDES}
+	size = DEPTH
+	upper_right = [(0, 0), (size, 0), (size, size)]
+	upper_left = [(0, 0), (size, 0), (0, size)]
+	# corner: (the face in the polygon, the other face, the polygon, the mitre runs along x == y)
+	corners = {"nw": ("n", "w", upper_right, True), "ne": ("n", "e", upper_left, False),
+		"sw": ("w", "s", upper_left, False), "se": ("e", "s", upper_right, True)}
+	ys, xs = np.mgrid[0:size, 0:size]
+	for name, (first, other, polygon, falling) in corners.items():
+		mask = Image.new("L", (size, size), 0)
+		ImageDraw.Draw(mask).polygon(polygon, fill=255)
+		out = square[other].copy()
+		out.paste(square[first], (0, 0), mask)
+		distance = np.abs(xs - ys) if falling else np.abs(xs + ys - (size - 1))
+		band = np.clip((MITRE_HALF - distance) / MITRE_FADE + 1.0, 0.0, 1.0)
+		beam = np.asarray(pieces[name], dtype=np.float64).copy()
+		beam[..., 3] *= band
+		out.alpha_composite(Image.fromarray(beam.round().clip(0, 255).astype(np.uint8)))
+		pieces[name] = out
+
+
 def build(style: str) -> dict:
 	spec = STYLES[style]
 	frame = load(spec["frame"])
@@ -354,7 +446,7 @@ def build(style: str) -> dict:
 		parts = [np.asarray(band_crop(frame, spec, side, a0, a1), dtype=np.float64) for a0, a1 in spec["plain"][side]]
 		if not horizontal:
 			parts = [p.transpose(1, 0, 2) for p in parts]
-		loop = quilt_loop(parts, QUILT_OVERLAP)
+		loop = np.concatenate(parts, axis=1) if spec.get("exact_loop") else quilt_loop(parts, QUILT_OVERLAP)
 		depth_scale = DEPTH / loop.shape[0]
 		cells = max(2, round(loop.shape[1] * depth_scale / CELL))
 		periods[side] = cells
@@ -376,10 +468,14 @@ def build(style: str) -> dict:
 	# inner corners: the wall block diagonal from a floor corner. Floor south and east of it
 	# (in_se): its top-left... the faces that meet there are a south face (floor north of it? no:
 	# the floor is south and east) -> the north face (floor south) and the west face (floor east).
+	if spec.get("turn_runs"):
+		_turn_runs(pieces, periods)
 	def two(side: str, i: int) -> Image.Image:
 		a0, a1 = spec["plain"][side][i]
 		return to_piece(band_crop(frame, spec, side, a0, a1), side, 2)
 	def square(side: str) -> Image.Image:
+		if spec.get("turn_runs"):
+			return _run_square(pieces, side)
 		p = two(side, 0)
 		return fit(p, DEPTH, DEPTH)
 	pieces["in_se"] = inner_corner(square("n"), square("w"), "se")
@@ -500,6 +596,15 @@ def tileset_uids() -> tuple[str, str]:
 	return (own.group(1) if own else ""), (texture.group(1) if texture else "")
 
 
+def _has_kind(table: dict, kind: str) -> bool:
+	"""True when the packed style has a palette tile of `kind` (the wall, an opening, a door's leaf)."""
+	if kind == "wall":
+		return True
+	if kind in OPENINGS:
+		return "n_" + kind in table["pieces"]
+	return "n_" + kind in table["leaves"]
+
+
 def palette(tables: dict[str, dict]) -> None:
 	"""The paint palette: per style a column of 64 px tiles (the style's fixed `column`), each a small
 	picture of its piece cut from the packed sheet (so it always matches the art): the wall (a north
@@ -511,6 +616,8 @@ def palette(tables: dict[str, dict]) -> None:
 		sheet = Image.open(OUT / f"{style}.webp").convert("RGBA")
 		pieces = table["pieces"]
 		for row, kind in enumerate(KINDS):
+			if not _has_kind(table, kind):
+				continue
 			if kind == "wall":
 				# a corner and a run side by side: reads as "wall"
 				a = pieces["nw"]
@@ -542,9 +649,13 @@ def palette(tables: dict[str, dict]) -> None:
 		'texture = ExtResource("1_palette")', "texture_region_size = Vector2i(64, 64)"]
 	for style, col in sorted(columns.items(), key=lambda item: item[1]):
 		for row, kind in enumerate(KINDS):
+			if not _has_kind(tables[style], kind):
+				continue
 			lines.append(f"{col}:{row}/0 = 0")
 			lines.append(f'{col}:{row}/0/custom_data_0 = "{style}"')
-			lines.append(f'{col}:{row}/0/custom_data_1 = "{"" if kind == "wall" else kind}"')
+			if kind != "wall":
+				# (the wall's empty opening is the default, which Godot leaves out)
+				lines.append(f'{col}:{row}/0/custom_data_1 = "{kind}"')
 	lines += ["", "[resource]", "tile_size = Vector2i(64, 64)",
 		'custom_data_layer_0/name = "interior_style"', "custom_data_layer_0/type = 4",
 		'custom_data_layer_1/name = "interior_opening"', "custom_data_layer_1/type = 4",

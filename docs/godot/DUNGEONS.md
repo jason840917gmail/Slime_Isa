@@ -86,7 +86,8 @@ of a Node2D in the entrance world: its position is the slime's centre on a resum
   `dungeon.devPowers.<world>` in game-constants.json (Fatty's Lair and its hill outside,
   `level-1-d5`: the Spear and the Roll; the
   Weaver Hollow's floors: also the Heavy skin and the Goo Bomb; the Crystal Mine and the lab: also
-  the Silk skin and the Lantern), lent for the session in the body-shapes mode, with the autosave
+  the Silk skin and the Lantern; West village B5 and its snail house: the Spear, the Roll and the
+  Goo Bomb, for the house's weak wall), lent for the session in the body-shapes mode, with the autosave
   off ([CONVENTIONS.md](CONVENTIONS.md#running-a-world)). A new dungeon world gets a line there; a
   room world of a dungeon of one world per room takes its dungeon's line (`fatty-lair`).
 
@@ -171,7 +172,8 @@ chest's record: it holds something until the flag is set, and is open (empty) af
 With only the heart inside no chest window opens; with other things too (or a dungeon chest's loot
 beside its dungeon items), the window shows them after the heart has risen and its ceremony has
 played, as Zelda does (the window pauses the world, which would freeze the rise). The chest sends
-one `open_requested` as it opens.
+one `open_requested` as it opens. The chests and the loose quarter are in the Scenery dock's
+**Hearts & chests** category since 2026-11-18 ([PROPS.md](PROPS.md)).
 
 ## Locked doors
 
@@ -399,6 +401,29 @@ category (placed under `Objects`; set the DoorScript's target in the Inspector):
   its bolt-hole's mouth), and the ways up (hatch exit, ladder hatch, cave ladder, stair door).
 - A cracked wall's `crack_tint` (2026-10-19) tones its crack to its rock: a lower alpha hides a
   secret crack in the stone.
+
+### A weak wall in a house
+
+A house room's wall can hide a way out (owner, 2026-11-19: "not so evident that the wall is
+different", worn and weak; a Goo Bomb opens it). The first is in `west-village-b5-snail-house`, on
+its west wall, not yet played.
+
+- The room's walls are the `cottage` interior walls ([INTERIOR_WALLS.md](INTERIOR_WALLS.md#the-cottage)):
+  the weak stretch is the cottage's **cracked** block painted in the west rim (cells (0, 5) to
+  (1, 6)), the same plaster panel with a few hairline cracks, a damp stain and a chip; a
+  `cracked-wall` (`side-wall-crack`) stands on the floor line in its middle with
+  `frame_drawn_by_wall` on, as in the box-room lab. The bomb turns the block into the **blown** hole
+  (laths, daylight and leaves behind) and opens it; the flag
+  `west-village.b5-snail-house-side-wall` keeps it open.
+- With its door group set (`door_side` west, `arrival_offset` (48, 0)) the hole is a door to the
+  chunk: pushing west into it travels to `west-village-b5-snail-house-side`, a door node on the
+  shell's west side (`side` east, no picture), where the slime walks out into the lawn between the
+  two houses. Nothing leads there before the wall is blown: the lawn is fenced in.
+- F6 on `west-village-b5` or on the room lends the Goo Bomb (`dungeon.devPowers`), to try it.
+- The outside shows no mark of the hole on the shell yet.
+- Until 2026-11-19 (the same day) the weak wall was a picture laid over the old painted back wall,
+  coming out behind the shell where the house's picture hid the slime; the owner moved it to a side
+  wall, which needed the four-wall interior.
 
 ## Refills that grow back
 

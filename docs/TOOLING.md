@@ -154,7 +154,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   and inner corners, every opening per side, the door leaves, a seamless floor) from its Magnific frame
   renders (`asset/Originals/dungeon-kit/interior-walls/`) into `godot/asset/MAPS/walls/interior/<style>.webp`,
   `<style>-floor.webp` and `interior-walls.json`, and the InteriorWallLayer palette (`palette.png`, a
-  fixed column per style, and `godot/game/world/interior/interior_wall_tileset.tres`, its uid kept).
+  fixed column per style, and `godot/game/world/interior/interior_wall_tileset.tres`, its uid kept;
+  styles `lair-stone`, `cave-rock`, `root-rock`, `cottage`, `mushroom`).
   Then `"<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd` saves
   `palette.png` as `palette.res`, the texture the tileset uses (no editor import needed).
 - `python scripts/art/pack-floor-trims.py [--preview=<png>]` (**numpy**) — the interior rooms' floor
@@ -166,11 +167,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `godot/game/world/interior/interior_trim_tileset.tres`, its uid kept). Then run
   `tools/pack_interior_palette.gd` (above), which saves `trim-palette.res` too.
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
-  ([godot/WALLS.md](godot/WALLS.md); styles `stone` and `hedge`): composes each style's 16 shapes in 4 pattern parities from its three
+  ([godot/WALLS.md](godot/WALLS.md); styles `stone`, `hedge` and `picket`, each with its own measures when it needs them): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into
   `godot/asset/MAPS/walls/sets/<style>.webp` with `walls.json` (frames, foot, collision per shape), and the
   WallLayer palette (`palette.png`, `godot/game/world/walls/wall_tileset.tres`: an auto tile per style, then
-  every shape and every exact piece; `--palette` rebuilds only the palette); keep mipmaps on in a new
+  a row of its 16 shapes; `--palette` rebuilds only the palette); keep mipmaps on in a new
   sheet's import. `res://tools/convert_stone_walls.gd` (headless, `-- --scene=<world> [--scene=...] [--dry]`)
   turns a world's old stone walls into WallLayer cells.
 - `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per

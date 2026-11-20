@@ -24,6 +24,9 @@ extends VBoxContainer
 ## and lantern moth the same way (under `Animals` too).
 ## The **Heavy skin**, **Silk skin** and **Feral skin** categories (owner, 2026-11-12) list what each
 ## skin works on (SKIN_CATEGORIES; docs/godot/SKINS.md), placed under `Objects` as the dungeon pieces.
+## The **Hearts & chests** category (owner, 2026-11-18) lists the heart quarter, the full heart and
+## the chests that hide a quarter (HEARTS), placed under `Objects` with Editable Children on, so the
+## script node that holds the heart's id shows at once (docs/godot/DUNGEONS.md "A heart quarter inside").
 
 const List := preload("res://addons/scenery_dock/scenery_list.gd")
 const ScenePictures := preload("res://addons/scenery_dock/scene_pictures.gd")
@@ -76,6 +79,16 @@ const HOLES: PackedStringArray = [
 	# ways up and stairs
 	"hatch-exit", "ladder-hatch", "cave-ladder", "stair-door",
 ]
+## The hearts and the chests that hide one, for any world: name -> [scene id under OBJECTS_DIR, hover
+## text]. A heart's id is unique across maps (the save's flag `goo-heart.<id>`).
+const HEARTS_CATEGORY := "Hearts & chests"
+const HEARTS := {
+	"heart quarter": ["goo-heart", "A loose heart quarter (four make a heart, +20 max HP).\nOn its GooHeartScript: heart_id, a name no other heart uses (it comes as \"unassigned\"); quarters, how many it gives."],
+	"full heart": ["full-heart", "A whole heart, a beaten boss's prize.\nOn its FullHeartScript: heart_id, a name no other heart uses; boss_id, the boss it waits for."],
+	"wooden chest": ["chest-wooden", "A chest for any world.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
+	"dungeon chest": ["dungeon/dungeon-chest", "A dungeon room's chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
+	"dungeon big chest": ["dungeon/dungeon-big-chest", "A dungeon's big chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
+}
 ## The towns' villagers and animals (docs/godot/VILLAGERS.md): every scene of the folder by its
 ## picture, placed at its own size under the world's `NPCs` or `Animals` node.
 const LIFE_CATEGORIES := {
@@ -98,8 +111,9 @@ const ICON := Vector2i(80, 80)
 const SIZES := [["Small", 0.7], ["Normal", 1.0], ["Big", 1.3]]
 
 ## Called before a drag starts with (scene, size, settings: the properties the placed node gets, as
-## {"enemy_type": ...} or {"kind": ...}, {} for a prop) and container (the node a dungeon piece goes
-## under, "" otherwise): readies the drop (the plugin's).
+## {"enemy_type": ...} or {"kind": ...}, {} for a prop), container (the node a dungeon piece goes
+## under, "" otherwise) and editable (the placed node gets Editable Children): readies the drop (the
+## plugin's).
 var prepare_drop := Callable()
 
 var _categories: OptionButton
@@ -211,6 +225,15 @@ func _load() -> void:
 	if not holes.is_empty():
 		_props[HOLES_CATEGORY] = holes
 		_categories.add_item(HOLES_CATEGORY)
+	# [name, scene, picture, {}, container, hover text, editable children]
+	var hearts: Array = []
+	for title: String in HEARTS:
+		var path := OBJECTS_DIR + str(HEARTS[title][0]) + ".tscn"
+		if ResourceLoader.exists(path):
+			hearts.append([title, path, _scene_picture(path), {}, DUNGEON_CONTAINER, str(HEARTS[title][1]), true])
+	if not hearts.is_empty():
+		_props[HEARTS_CATEGORY] = hearts
+		_categories.add_item(HEARTS_CATEGORY)
 	for category: String in LIFE_CATEGORIES:
 		var life := _folder_scenes(LIFE_CATEGORIES[category][0], LIFE_CATEGORIES[category][1])
 		if not life.is_empty():
@@ -387,8 +410,12 @@ func _show() -> void:
 	for prop: Array in shown:
 		var index := _list.add_item(prop[0], prop[2])
 		if prop.size() > 4:
-			_list.set_item_metadata(index, {"scene": prop[1], "settings": {}, "container": prop[4]})
-			_list.set_item_tooltip(index, "%s (goes under %s; set its ids in the Inspector)" % [str(prop[1]).get_file(), prop[4]])
+			_list.set_item_metadata(index, {"scene": prop[1], "settings": {}, "container": prop[4],
+					"editable": prop.size() > 6 and bool(prop[6])})
+			if prop.size() > 5:
+				_list.set_item_tooltip(index, "%s\n(%s; goes under %s)" % [prop[5], str(prop[1]).get_file(), prop[4]])
+			else:
+				_list.set_item_tooltip(index, "%s (goes under %s; set its ids in the Inspector)" % [str(prop[1]).get_file(), prop[4]])
 		elif prop.size() > 3:
 			var settings: Dictionary = prop[3]
 			_list.set_item_metadata(index, {"scene": prop[1], "settings": settings})

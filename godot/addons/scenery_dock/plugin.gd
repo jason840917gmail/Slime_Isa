@@ -64,12 +64,14 @@ func _notification(what: int) -> void:
 		_dropped.clear()
 
 
-## Readies a drag of `scene` at `size` with `settings` (the properties the placed node gets). False
-## when no 2D scene is being edited.
-func _prepare_drop(scene: String, size: float, settings: Dictionary = {}, container: String = "") -> bool:
+## Readies a drag of `scene` at `size` with `settings` (the properties the placed node gets), to go
+## under `container` ("": Scenery, or Enemies), with Editable Children on when `editable`. False when
+## no 2D scene is being edited.
+func _prepare_drop(scene: String, size: float, settings: Dictionary = {}, container: String = "",
+		editable: bool = false) -> bool:
 	if not EditorInterface.get_edited_scene_root() is Node2D:
 		return false
-	_pending = {"scene": scene, "size": size, "settings": settings, "container": container}
+	_pending = {"scene": scene, "size": size, "settings": settings, "container": container, "editable": editable}
 	_dropped.clear()
 	return true
 
@@ -88,6 +90,29 @@ func _on_node_added(node: Node) -> void:
 		_dropped.append(node)
 	elif settings.is_empty() and str(_pending.get("container", "")).is_empty():
 		(node as Node2D).scale *= float(_pending["size"])
+
+
+## Placeholder heart ids: a heart quarter's scene comes as "unassigned", a full heart's empty; a heart
+## with either is never picked up (goo_heart.gd).
+const HEART_PLACEHOLDERS: PackedStringArray = ["", "unassigned"]
+
+
+## A heart dropped in (a heart quarter, a full heart: a script node with `heart_id`) gets an id of its
+## own in the same step, `<scene root>-heart-<n>` (the scene root is the world, so it is unique across
+## maps), the first number no heart of the scene has; rename it in the Inspector if you like.
+func _name_heart(undo: EditorUndoRedoManager, root: Node, node: Node) -> void:
+	for child: Node in node.get_children():
+		if not &"heart_id" in child or not HEART_PLACEHOLDERS.has(str(child.get(&"heart_id"))):
+			continue
+		var taken := {}
+		for other: Node in root.find_children("*", "", true, false):
+			if &"heart_id" in other:
+				taken[str(other.get(&"heart_id"))] = true
+		var number := 1
+		while taken.has("%s-heart-%d" % [root.name, number]):
+			number += 1
+		undo.add_do_property(child, &"heart_id", "%s-heart-%d" % [root.name, number])
+		undo.add_undo_property(child, &"heart_id", child.get(&"heart_id"))
 
 
 ## Moves the dropped props under the world's Scenery node, where they stood, at the dock's size
@@ -127,4 +152,15 @@ func _finish_drop(pending: Dictionary, dropped: Array[Node]) -> void:
 		if not is_equal_approx(size, 1.0):
 			undo.add_do_property(node, &"scale", node.scale * size)
 			undo.add_undo_property(node, &"scale", node.scale)
+		if bool(pending.get("editable", false)):
+			# After the move (the scene keeps its editable instances by path), and first on the way
+			# back: its script node, which holds its ids, shows in the Scene dock at once.
+			undo.add_do_method(root, &"set_editable_instance", node, true)
+			undo.add_undo_method(root, &"set_editable_instance", node, false)
+		_name_heart(undo, root, node)
 	undo.commit_action()
+	if bool(pending.get("editable", false)):
+		# The Scene dock draws an instance's children only when it builds the tree again.
+		EditorInterface.get_selection().clear()
+		for node: Node2D in nodes:
+			EditorInterface.get_selection().add_node(node)

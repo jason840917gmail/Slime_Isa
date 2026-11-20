@@ -3,7 +3,11 @@
 > **Status:** 2026-10-18. The owner rejected the first look (walls with a top course, the south wall
 > seen from behind) and approved Zelda's "cliff view of the 4 walls": the bevel, two cells deep. Three
 > styles, each with its own plain floor: `lair-stone` (the fort's cream masonry), `cave-rock` (dark
-> slate), `root-rock` (umber stone and roots). The box-room lab and all of Fatty's Lair use them; the
+> slate), `root-rock` (umber stone and roots); since 2026-11-19 a fourth, `cottage` (timber-framed
+plaster, for the village houses' rooms: [The cottage](#the-cottage)), and a fifth, `mushroom` (a red
+spotted cap rim, pale ribs, cream stem flesh), with **round and oval rooms** ([Round rooms](#round-rooms)).
+Since 2026-11-20 every West village house room (27) has them instead of its painted back wall
+([The village's house rooms](#the-villages-house-rooms)). The box-room lab and all of Fatty's Lair use them; the
 > Hollow and the Mine still have elevation-cliff walls with `doorway_art.gd`'s frames. A painted
 > [floor trim](#floor-trim) along the walls' foot since 2026-10-31 (painted in the lab; every room of
 > Fatty's Lair has its empty `floor-trim` layer, for the owner to paint).
@@ -30,10 +34,10 @@ the overworld's elevation cliffs and the fieldstone [WallLayer](WALLS.md).
 
 ## Painting a room
 
-![The palette: a column per style (fort stone, cave rock, root rock), a row per tile](images/interior-walls-palette.png)
+![The palette: a column per style (fort stone, cave rock, root rock; the cottage is the fourth), a row per tile](images/interior-walls-palette.png)
 
 The palette (TileMap panel at the bottom, with the `interior-walls` layer selected) is a column per
-style: **fort stone**, **cave rock**, **root rock**, and a row per tile, each a small picture of its
+style: **fort stone**, **cave rock**, **root rock**, **cottage**, **mushroom**, and a row per tile, each a small picture of its
 piece cut from the packed sheet: the **wall**; the openings: **doorway**, **cracked** wall, **blown
 hole**, **stairs**; the closed doors: **key door with one lock**, **with two locks**, **boss door**,
 **bolted door**, **shutter**, **the seal**, **plank barricade**.
@@ -330,7 +334,7 @@ the pieces, and `game/world/interior/interior_wall_tileset.tres`); then
 `tools/pack_interior_palette.gd` saves the palette as `palette.res`, which the tileset uses (it needs
 no editor import, so a repacked palette shows at once). 128 px per 64-unit cell, drawn at half size.
 Each style has a fixed palette column (`column` in its `STYLES` entry: lair-stone 0, cave-rock 1,
-root-rock 2), so a repack of one style never moves another's column (painted cells name their tile by
+root-rock 2, cottage 3, mushroom 4), so a repack of one style never moves another's column (painted cells name their tile by
 column), and the packer keeps the tileset's `uid`, so the room scenes that use it do not change.
 
 The walls, the floor and every door's leaf share one read of each sheet (`InteriorWallLayer.picture`):
@@ -368,12 +372,113 @@ frame also took the owner's Zelda frame as structure reference), sources in
 The earlier box-room renders (`lair-box-room-*`, `lair-l-room-*`, `lair-plus-room-*`) are the
 rejected first look.
 
+### The cottage
+
+The village houses' rooms (owner, 2026-11-19: the side walls had to show, for a weak wall the Goo
+Bomb opens on the snail house's west side). The material is the old house rooms' painted back wall:
+cream plaster panels between dark posts, a beam along the top, a grey stone footing. Renders in
+`asset/Originals/dungeon-kit/interior-walls/` (GPT 2.5, transparent; references: the plain frame,
+the Lair's doorway frame for the layout, the interior mushroom furniture sheet for the style):
+
+| File | What | Used for |
+|---|---|---|
+| `cottage-bevel-square-a`, `-b` | the Lair's plain frame in timber and plaster | `-b`: the reference for the rest |
+| `cottage-bevel-door-south`, `-blown-west` | the mockup's takes (a door drawn upright in the south face, a hole in the west face) | unused: see below |
+| `cottage-bevel-doorways-a` (`-b` had an opaque grey ground) | the frame with a doorway in each face, turned as the Lair's | runs, corners, the doorway |
+| `cottage-bevel-cracked-a` (`-b`) | each doorway walled up again, the patch old and weak: hairline cracks, a stain, a chip | cracked |
+| `cottage-bevel-blown-a` (`-b`) | each doorway blown open: broken laths, daylight and leaves | blown |
+| `cottage-bevel-leaf-door-a` (`-b`) | each doorway shut by a plank door with strap hinges and a ring | the `door` leaf |
+
+The `a` takes line up best with the doorway frame. How it differs from the stone styles:
+
+- **Every face is the north face turned** (`turn_runs`), as the openings are: the render's posts lean
+  with its perspective, so faces cut from it would tile with posts at every angle. The south, west
+  and east runs are the north loop turned 180, 90 and 270 degrees, each shaded to its own face's
+  light in the render; the outer corners are the two turned faces split on the mitre with the
+  render's corner beam laid along it. The north loop is one stretch as it is (`exact_loop`: the post
+  right of the doorway and the panel after it), two cells long: a post and a panel every two cells.
+- **A south door is the north one turned 180 degrees**, threshold at the floor edge and its leaf
+  upside down, as every opening in these rooms (owner, 2026-11-19: the mockup's upright south door
+  "goes the other way").
+- **No stairs and no dungeon doors**: its one leaf, `door`, is the house door, which no palette tile
+  makes. A house's front door is a **doorway** block with a door node in it (`door.gd`, kind `door`,
+  `side` the wall it is in, on the rim's outer row as the playground hut's) and a `Sprite2D` showing
+  the leaf (`texture` the cottage sheet, `region_rect` the leaf's `region` from
+  `interior-walls.json`, at the block's top-left plus `in_opening` / 2, scale 0.5) as its
+  `house_art`, its `door_rect` that sprite's rect: the leaf swings open from it as in the old rooms.
+- **No floor of its own**: the room's `ground` layer shows (the old rooms' plank tiles).
+
+### The mushroom
+
+For the mushroom houses' round rooms (2026-11-19): the cottage's doorway frame in mushroom stuff (GPT
+2.5, references: `cottage-bevel-doorways-a`, the twin mushroom house's picture, the interior
+mushroom furniture sheet), so its layout is the cottage's, measured again in its own render:
+`mushroom-bevel-doorways-a` (`-b` drifted from the layout), `-cracked-a`, `-blown-a`, `-leaf-door-a`.
+`-blown-a` came back opaque (a painted checkerboard round the frame, alpha about 245): it was made
+fully opaque, as only its north face is cut. It packs as the cottage does (`turn_runs`,
+`exact_loop`: a rib and a panel every two cells), and draws on square rims too.
+
 **Adding a style** (the Hollow's roots and oak, the Mine's rock and timber): generate its plain
 bevel frame, then from it the frame with a doorway in each face, then from that one render per leaf
 and per opening kind (the prompts say "exactly the first reference image ... the only change"), and a
 floor texture; add the style to `STYLES` in the packer (its band edges, plain stretches, doorway boxes
 and passages: measure them in the doorways render, and its `column`: the next free palette column)
 and run it.
+
+## Round rooms
+
+A round or oval room (owner, 2026-11-19: "some houses have circular or oval walls, like the
+mushrooms") is a **RoundInteriorWalls** node (`game/world/interior/round_interior_walls.gd`), not a
+painted rim: the same bevelled frame bent round an ellipse.
+
+1. In the room scene, add a Node2D with the script at the room's middle, named `round-walls`, and
+   set `style` (any style of the table: `mushroom`, `cottage` ...), `radii` (the outer edge's half
+   width and height, world units: a 16 x 12 room fits (500, 376)) and `depth` (128: two cells, as the
+   square rooms'). The ring draws in the editor at once: the faces round it, the dark beyond it
+   (`void_extent` out); the floor inside is the room's `ground` layer.
+2. For each opening add a Node2D child with `round_wall_opening.gd` (a yellow handle in the editor)
+   and drag it onto the ring: `kind` doorway, cracked, blown or door (a closed house door). It is
+   cut where the wall is nearest the handle, two cells along; a door goes to the nearest of the
+   ring's top, bottom, left and right, where its leaf stands square. With `target_area_id` (and
+   `door_id`, `target_door_id`) a doorway, a door or a blown hole is a door to that world: the ring
+   makes its door node in the game (a door leaf that swings for a door, an opening for the others),
+   `side` the way it faces; the crossings checker reads the opening's ids.
+3. A weak wall: a **cracked** opening, and a `cracked-wall` on the floor in front of it with
+   `frame_drawn_by_wall` on and its door settings, as on a square rim; the blast turns the opening
+   into a blown hole (`change_opening_at`, from the cracked wall's `_blow_wall_opening`).
+
+How it draws: the style's north run is wrapped round the ring a whole number of times, its top (the
+wall's top) outward, so every part of the wall is the north face turned, as every face and opening
+of the square rooms is (a door at the bottom is upside down, its threshold at the floor). The posts
+or ribs come out radial. Each vertex takes the light of the face it looks like (the style's four
+runs' mean colour over the north run's, mixed by the normal). The openings are their north pieces
+bent onto the ring, their fronts (`n_<kind>_front`) drawn over the bodies in the passage from a
+node at the opening's lowest point. In the game the ring is solid from the floor edge to the outer
+edge, and a band past the outer edge, but for each opening's passage (the style's door leaf's span
+in its piece); nothing it draws or builds is saved.
+
+The round rooms are the village's round houses ([The village's house rooms](#the-villages-house-rooms));
+not yet played.
+
+### The village's house rooms
+
+Owner, 2026-11-19/20: every house room gets the new walls, one room at a time, each checked by its
+render. They were all 14 x 11 with their walls painted on an `old-props` layer and a timber double
+door; each is now 16 x 12 cells (1024 x 768), the plank floor on its `ground` layer, its furniture,
+villagers and animals moved with the floor, its spawn and south entry at the door:
+
+- **Square, cottage** (a two-cell rim, the door in the south rim's middle block, cells 7-8, its
+  closed leaf a `house-door-art` sprite as on the B5 snail house): the A4 barn, duplexes 1 and 2,
+  flat, thatch cottage, triplexes 1 to 3; the B4 gatehouse and townhouse; the B5 thatch cottage,
+  townhouse and snail house; the bakery, bathhouse, herbalist, inn, shop, tailor and town hall.
+- **Round, mushroom** (`round-walls` at (512, 384), `radii` (500, 376), the door at the bottom):
+  A4's twin mushroom rooms 1 and 2, the family home (in the twin mushroom house), the A5 mushroom
+  farmhouse.
+- **Round, cottage**: the A4 snail house, the A4 stump house, the A5 pumpkin farmhouse (a stump, a
+  pumpkin or a shell style of their own would suit them better: none exists yet).
+
+The lanterns of the round rooms stand by the side walls; the herbalist's and the shop's tall shelves
+moved 50 units down to stay inside the room.
 
 ## The box-room lab
 
@@ -432,11 +537,12 @@ its strip; before 2026-10-18 the spikes covered the pit's walls and the pit read
 | Path | What |
 |---|---|
 | `godot/game/world/interior/interior_wall_layer.gd` | The layer: faces, corners, openings, floor, collision, leaves |
+| `godot/game/world/interior/round_interior_walls.gd`, `round_wall_opening.gd` | A round or oval room's walls and their openings ("Round rooms") |
 | `godot/game/world/interior/interior_wall_tileset.tres` | The palette (packer output) |
 | `godot/asset/MAPS/walls/interior/` | The sheet, the floor, `interior-walls.json`, `palette.png` (packer output), `palette.res` (`pack_interior_palette.gd`); the floor trims' `floor-trims.webp`, `floor-trims.json`, `trim-palette.png`, `trim-palette.res` |
 | `scripts/art/pack-interior-walls.py` | Builds them from the renders |
 | `godot/tools/pack_interior_palette.gd` | Saves the packed `palette.png` and `trim-palette.png` as `palette.res` and `trim-palette.res`, the textures the tilesets use (no editor import) |
-| `asset/Originals/dungeon-kit/interior-walls/` | The renders |
+| `asset/Originals/dungeon-kit/interior-walls/` | The renders (the cottage's: `cottage-bevel-*`; the mushroom's: `mushroom-bevel-*`) |
 | `godot/tools/build_box_room_lab.gd`, `render_box_room_lab.gd` | The lab and its pictures |
 | `godot/tools/render_interior_palette_room.gd` | A room painted with every closed-door tile, its doors made by the layer |
 | `godot/tools/render_room_scene.gd` | One room scene alone, as the editor shows it |

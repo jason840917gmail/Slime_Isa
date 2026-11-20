@@ -130,7 +130,8 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   tree walls on a `ForestLayer` ([docs/godot/FORESTS.md](docs/godot/FORESTS.md)); interior (dungeon
   room) walls as Zelda's bevelled frame, two cells deep, with their doors cut into the faces, on an
   `interior-walls` InteriorWallLayer ([docs/godot/INTERIOR_WALLS.md](docs/godot/INTERIOR_WALLS.md); the box-room lab
-  only so far), the floor's edging along them painted per cell on a `floor-trim` InteriorTrimLayer
+  only so far), a round or oval room's as a `RoundInteriorWalls` node with its openings as children
+  ([Round rooms](docs/godot/INTERIOR_WALLS.md#round-rooms)), the floor's edging along them painted per cell on a `floor-trim` InteriorTrimLayer
   ([Floor trim](docs/godot/INTERIOR_WALLS.md#floor-trim)).
 - Chunk lines are closed by terrain (cliffs, water and canals, forest bands, walls), each chunk
   closing its own side; two touching chunks meet at one to three crossings, each inside those two
