@@ -153,7 +153,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="151_csd5d"]
 [ext_resource type="Script" uid="uid://bpe1mn6lsdpc1" path="res://game/enemy/placed_enemy.gd" id="152_m3mop"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="music_player_script"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="music_track"]
 [ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="door_end_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8fiiq"]
@@ -1270,6 +1270,7 @@ sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M4-S1-chest"
 initial_contents = {
+"belt-slot": 1,
 "coins": 50
 }
 
@@ -2033,7 +2034,7 @@ sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
 script = ExtResource("29_ylnhj")
 instance_id = "crystal-mine-M10-journal-chest"
 initial_contents = {
-"coins": 30
+"war-journal-page-3": 1
 }
 
 [node name="OpenSfx" parent="Objects/M10-journal-chest" index="3"]
@@ -3976,11 +3977,6 @@ metadata/contents = "a page of the Thorn Guard's war journal (the fort under the
 position = Vector2(2604.8, 2169.6)
 metadata/kit = "lore"
 metadata/contents = "a heart quarter for the S1 chest once heart quarters exist (coins until then)"
-
-[node name="M10-war-journal" type="Node2D" parent="KitMarkers" unique_id=1978548200]
-position = Vector2(3417.6, 249.6)
-metadata/kit = "lore"
-metadata/contents = "a page of the Thorn Guard's war journal (it lay on M12's stand before 2026-10-17), for the M10 chest once pages exist"
 
 [connection signal="cleared" from="Objects/M13-den-fight" to="Objects/M13-den-ledge" method="trigger"]
 [connection signal="cleared" from="Objects/M13-den-fight" to="Objects/M13-den-ledge-east" method="trigger"]

@@ -3,7 +3,8 @@
 
 The trees are the big trees of every region set, godot/asset/MAPS/trees/sets/trees.json (built by
 scripts/art/build-tree-sets.py), named <kind>-<variant>-<size>. The palette has one row of mixes (a
-painted cell takes a tree of its mix at random, seeded by the cell), then one tile per tree (rows
+painted cell takes a tree of its mix at random, seeded by the cell; its last tiles, gold-framed, paint
+canopy walls instead: "canopy:<set>"), then one tile per tree (rows
 1 on, 16 a row, set by set: a painted cell takes exactly that tree). Each tile stores its trees in
 the custom data `forest_trees` (comma separated) and a name in `forest_mix`. The mixes keep their
 columns: worlds are painted with them, and the region world builder paints them by column
@@ -24,6 +25,8 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 TABLE = ROOT / "godot/asset/MAPS/trees/sets/trees.json"
+CANOPY_TABLE = ROOT / "godot/asset/MAPS/trees/canopy/canopy.json"
+CANOPY_PREFIX = "canopy:"
 GODOT = ROOT / "godot"
 PNG = ROOT / "godot/asset/MAPS/forest/forest_paint_tiles.png"
 TRES = ROOT / "godot/game/world/forest/forest_tileset.tres"
@@ -32,7 +35,7 @@ TILE = 64
 ## Single trees per row.
 COLUMNS = 16
 ## The palette's width in tiles (the mixes' row may run past COLUMNS).
-WIDTH = 20
+WIDTH = 21
 SINGLE_ROW = 1
 
 
@@ -60,6 +63,11 @@ MIXES = [
     ("village", (110, 120, 60), big("apple", "cherry")),
     ("ruins", (80, 84, 66), big("gnarled", "ivy")),
     ("forest medium", (52, 86, 60), big("oak", "beech", "birch", "pine", sizes=("medium",))),
+    # Canopy walls (owner, 2026-11-20): one solid mass of overlapping crowns, roots only along its
+    # foot; "canopy:<set>" names a set of scripts/art/build-canopy-walls.py (canopy.json).
+    ("canopy forest", (30, 58, 36), ["canopy:forest"]),
+    ("canopy village", (90, 104, 50), ["canopy:village"]),
+    ("canopy crystal", (54, 42, 80), ["canopy:crystal"]),
 ]
 SINGLE_BG = (44, 62, 48)
 
@@ -84,7 +92,28 @@ def fit(image: Image.Image, box: tuple[int, int]) -> Image.Image:
     return image.resize((max(1, round(image.width * scale)), max(1, round(image.height * scale))), Image.LANCZOS)
 
 
+def canopy_thumb(set_name: str, bg: tuple[int, int, int]) -> Image.Image:
+    """A canopy wall's tile: three overlapping crowns over a row of roots, in a gold frame."""
+    table = json.loads(CANOPY_TABLE.read_text(encoding="utf-8"))
+    entry = table["sets"][set_name]
+    atlas = Image.open(GODOT / entry["texture"].removeprefix("res://")).convert("RGBA")
+    def piece(kind: str, i: int, width: int) -> Image.Image:
+        x, y, w, h = entry[kind][i % len(entry[kind])]
+        return fit(atlas.crop((x, y, x + w, y + h)), (width, 64))
+    tile = Image.new("RGBA", (TILE, TILE), bg + (255,))
+    for i, cx in enumerate((14, 50)):
+        r = piece("roots", i, 26)
+        tile.alpha_composite(r, (cx - r.width // 2, TILE - r.height - 3))
+    for i, (cx, bottom) in enumerate(((20, 30), (44, 30), (32, 50), (8, 50), (56, 50))):
+        c = piece("crowns", i, 30)
+        tile.alpha_composite(c, (cx - c.width // 2, bottom - c.height))
+    ImageDraw.Draw(tile).rectangle((0, 0, TILE - 1, TILE - 1), outline=(236, 196, 90, 255), width=2)
+    return tile
+
+
 def thumb(trees: Trees, picks: list[str], bg: tuple[int, int, int], mixed: bool) -> Image.Image:
+    if picks and picks[0].startswith(CANOPY_PREFIX):
+        return canopy_thumb(picks[0].removeprefix(CANOPY_PREFIX), bg)
     tile = Image.new("RGBA", (TILE, TILE), bg + (255,))
     draw = ImageDraw.Draw(tile)
     draw.rectangle((0, 0, TILE - 1, TILE - 1), outline=(240, 230, 200, 255) if mixed else (20, 20, 24, 255), width=2)

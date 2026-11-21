@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="player"]
+[ext_resource type="Script" path="res://game/glimmerhill/goo_fountain.gd" id="fountain"]
 
 [sub_resource type="Animation" id="idle"]
 resource_name = "object.ambient.idle"
@@ -29,9 +30,12 @@ _data = {
 [sub_resource type="RectangleShape2D" id="foot"]
 size = Vector2(130, 56)
 
-[node name="goo-fountain" type="StaticBody2D"]
+[node name="goo-fountain" type="StaticBody2D" node_paths=PackedStringArray("visual", "animation")]
 y_sort_enabled = true
 collision_mask = 0
+script = ExtResource("fountain")
+visual = NodePath("Visual")
+animation = NodePath("AmbientAnimation")
 
 [node name="BodyShape" type="CollisionShape2D" parent="."]
 position = Vector2(0, -28)

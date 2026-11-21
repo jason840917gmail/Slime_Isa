@@ -75,6 +75,12 @@ func is_lowered() -> bool:
 	return _down
 
 
+## True when it is down, or its record says so before its deferred `_restore` has run (a room
+## just built: the Lair director asks in its own `_ready`, before this bridge restores).
+func is_down_for_good() -> bool:
+	return _down or (is_inside_tree() and DungeonState.is_done(get_tree(), _record_key()))
+
+
 func opens_passage_at_build() -> bool:
 	return starts_lowered
 

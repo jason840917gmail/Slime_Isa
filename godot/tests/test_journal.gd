@@ -1,26 +1,27 @@
 extends RefCounted
-## The quest journal (docs/godot/specs/journal-and-chest.md 1, 3.3, 3.7): the fresh-run book, the
-## layout at 1280 × 720, row order and dimming, multi-step pages, the turn-in line, abandon and
-## retry (with the test hook and with the in-window confirm), the retry quirk after A Place to Work
-## (J3), abandoned NPC quests, the empty book, and the ways in and out (pause menu, tab strip, menu
-## key, Escape, row keys). Glyphs are the J2 look-alikes (quest_journal_model.gd MARK_*).
+## The quest journal (docs/godot/specs/journal-and-chest.md 1, 3.3, 3.7; quests spec 14.7): the
+## fresh-run book (the main quest "Win back the Pearls" first, then Slime Basics), the layout at
+## 1280 x 720, row order and dimming, the main quest's steps and Pearl slots, abandon and retry of
+## Slime Basics (with the test hook and with the in-window confirm), the Tips and War journal rows,
+## the empty book, and the ways in and out (pause menu, tab strip, menu key, Escape, row keys).
+## Glyphs are the J2 look-alikes (quest_journal_model.gd MARK_*).
+## Rewritten 2026-11-20: the chapter quests are retired, and with them the tests of a turn-in line,
+## the retry quirk after A Place to Work (J3) and an abandoned NPC quest.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const QuestService := preload("res://game/quests/quest_service.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
 const QuestJournalWindow := preload("res://game/ui/screens/quest_journal_window.gd")
+const QuestJournalModel := preload("res://game/ui/screens/quest_journal_model.gd")
 const ItemCell := preload("res://game/ui/screens/item_cell.gd")
 const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 
-const PLACE := "a-place-to-work"
-const ELDER_ID := "village-elder-plop"
-const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
+const MAIN := "win-back-the-pearls"
+const BASICS := "slime-basics"
+const MAIN_ROW := "★ Win back the Pearls\nMain · In progress · Step 1/3"
 const SLIME_BASICS_ROW := "◆ Slime Basics\nSide · In progress"
-const SLIME_BASICS_DETAILS := "A first look at everything a slime can use: the bag and its tabs, the map and the pause menu.\n\n   • Open your bag (B)\n   • Look at the Crafting tab (B, then its tab)\n   ✓ Read your Journal (J)\n   • Open the map (M)\n   • Pause to save or change settings (Esc)\n\nReward: 10 coins"
-const STONE_TOOLS_DETAILS := "Craft a stone axe and pickaxe at your workbench, then put them to work on trees and rocks.\n\n✓ Step 1: Make your tools\n   ✓ Craft a Stone Axe\n   ✓ Craft a Stone Pickaxe\n\n▶ Step 2: Put them to work\n   • Switch tools on your belt (Mouse wheel)\n   • Chop wood from trees  7/20\n   • Mine stone from rocks  0/20\n\nReward: 20 coins · 10× Wood · New recipe: Wooden Spear · New ability: Roll"
-const PLACE_READY_DETAILS := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n✓ Step 1: Build a workbench\n   ✓ Craft a Workbench (40 wood)\n\n▶ Step 2: Set it up\n   ✓ Place the Workbench\n\n? Return to Village Elder Plop for your reward.\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
-const TONIC_ABANDONED_DETAILS := "Lili wants to learn how berries become a healing tonic. Brew one to show her.\n\n   • Brew a Slime Tonic (3 purple berries)\n\nReward: 2× Purple Berry\n\nReturn to the quest giver to continue."
+const BASICS_CONTROLS := ["menu:inventory", "menu:crafting", "menu:journal", "menu:map", "pause"]
 
 
 func test_open_fresh_run(t: TestContext) -> void:
@@ -32,19 +33,25 @@ func test_open_fresh_run(t: TestContext) -> void:
 	t.check(bool(windows.call(&"is_open", &"quest-journal")), "GameWindows does not list the journal")
 	t.check(t.world().has_pause_reason(&"modal"), "the world is not paused")
 	t.equal(journal.title_label.text, "Quest Book", "title")
-	t.equal(_row_labels(journal), [SLIME_BASICS_ROW], "rows")
+	t.equal(_row_labels(journal), [MAIN_ROW, SLIME_BASICS_ROW], "rows")
 	var row := _row(journal, 0)
 	t.check(row != null and row.is_selected() and row.has_focus(), "row 0 is not selected and focused")
-	t.equal(journal.details_name_label.text, "Slime Basics", "details name")
-	t.equal(journal.details_status_label.text, "Side · In progress", "details status")
-	t.equal(journal.details_label.text, SLIME_BASICS_DETAILS, "details")
-	t.equal(journal.action_button.text, "Abandon", "action label")
-	t.check(not journal.action_button.disabled, "Abandon is disabled")
+	t.equal(journal.details_name_label.text, "Win back the Pearls", "details name")
+	t.equal(journal.details_status_label.text, "Main · In progress · Step 1/3", "details status")
+	t.check(journal.details_label.text.contains(QuestJournalModel.PEARLS_HEADING % [0, 8]),
+		"the main quest's page lacks its Pearl slots:\n%s" % journal.details_label.text)
+	t.equal(journal.action_button.text, "No action", "action of the main quest")
+	t.check(journal.action_button.disabled, "the main quest's action is enabled")
 	t.equal(journal.status_label.text, "", "status")
 	t.equal(journal.close_button.text, "Close (Esc)", "close label")
 	t.check(journal_cue != null and TestContext.played(journal_cue), "JournalOpen is not playing")
 	t.check(menu_cue == null or not TestContext.played(menu_cue), "MenuOpen played")
-	t.equal(_progress(t, "slime-basics").get("read-journal"), 1, "read-journal progress")
+	t.equal(_progress(t, BASICS).get("read-journal"), 1, "read-journal progress")
+	journal.select_quest(1)
+	t.equal(journal.details_name_label.text, "Slime Basics", "details name of row 1")
+	t.equal(journal.details_status_label.text, "Side · In progress", "details status of row 1")
+	t.equal(journal.action_button.text, "Abandon", "action of Slime Basics")
+	t.check(not journal.action_button.disabled, "Abandon is disabled")
 	journal.close()
 	t.check(not t.tree.paused, "the world stayed paused")
 
@@ -79,47 +86,37 @@ func test_layout_1280(t: TestContext) -> void:
 
 func test_row_order(t: TestContext) -> void:
 	var quests := _quests(t)
-	quests.debug_mark_completed(PLACE)
-	quests.debug_activate("stone-tools")
-	quests.debug_activate("a-tonic-for-lili")
-	_record(t, "slime-basics")["accepted_at"] = 1000
-	_record(t, "stone-tools")["accepted_at"] = 2000
-	_record(t, "a-tonic-for-lili")["accepted_at"] = 3000
+	for control_id: String in BASICS_CONTROLS:
+		quests.handle_event(QuestEvents.CONTROL_USED, {"controlId": control_id})
 	var journal := _journal(t)
 	journal.open()
-	t.equal(_row_labels(journal), ["★ Stone Tools\nMain · In progress · Step 1/2", "◆ A Tonic for Lili\nSide · In progress",
-		SLIME_BASICS_ROW, "✓ A Place to Work\nMain · Done"], "rows")
+	t.equal(_row_labels(journal), [MAIN_ROW, "✓ Slime Basics\nSide · Done"], "rows")
 	var alphas: Array = []
 	for index in journal.quest_list.get_child_count():
 		alphas.append(_row(journal, index).modulate.a)
-	t.equal(alphas, [1.0, 1.0, 1.0, 0.5], "row alphas")
-	t.equal(journal.action_button.text, "No action", "action of a main quest")
-	t.check(journal.action_button.disabled, "the action of a main quest is enabled")
+	t.equal(alphas, [1.0, 0.5], "row alphas")
 	journal.close()
 
 
+## The main quest's page at its second step: the first done, the second's objectives, the slots.
 func test_multi_stage_details(t: TestContext) -> void:
 	var quests := _quests(t)
-	quests.debug_activate("stone-tools", "use-tools")
-	(_record(t, "stone-tools")["progress"] as Dictionary)["chop-wood"] = 7
+	var run := Services.run()
+	run.set_flag("pearl.fatty-one-eye")
+	quests.handle_event(QuestEvents.BOSS_DEFEATED, {"bossId": "fatty-one-eye"})
+	run.set_flag("pearl.fatty-one-eye.home")
+	run.set_flag("pearl.orb-weaver-matron")
 	var journal := _journal(t)
 	journal.open()
-	t.equal(_row_labels(journal)[0], "★ Stone Tools\nMain · In progress · Step 2/2", "row 0")
-	t.equal(journal.details_status_label.text, "Main · In progress · Step 2/2", "details status")
-	t.equal(journal.details_label.text, STONE_TOOLS_DETAILS, "details")
+	t.equal(_row_labels(journal)[0], "★ Win back the Pearls\nMain · In progress · Step 2/3", "row 0")
+	t.equal(journal.details_status_label.text, "Main · In progress · Step 2/3", "details status")
+	var page := journal.details_label.text
+	t.check(page.contains("✓ Step 1: Fatty's Pearl"), "step 1 is not done on the page:\n%s" % page)
+	t.check(page.contains("▶ Step 2: The Matron's Pearl"), "step 2 is not the current one on the page:\n%s" % page)
+	t.check(page.contains("✓ Find the Pearl in the Weaver Hollow"), "the Matron's Pearl taken is not ticked:\n%s" % page)
+	t.check(page.contains("• Beat the Orb-Weaver Matron"), "the Matron's fight is not open:\n%s" % page)
+	t.check(page.contains(QuestJournalModel.PEARLS_HEADING % [1, 8]), "one Pearl home is not counted:\n%s" % page)
 	t.equal(journal.action_button.text, "No action", "action label")
-	t.check(journal.action_button.disabled, "No action is enabled")
-	journal.close()
-
-
-func test_ready_to_turn_in(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate(PLACE, "place-workbench")
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	var journal := _journal(t)
-	journal.open()
-	t.equal(_row_labels(journal)[0], "★ A Place to Work\nMain · Ready to turn in", "row 0")
-	t.equal(journal.details_label.text, PLACE_READY_DETAILS, "details")
 	journal.close()
 
 
@@ -135,15 +132,16 @@ func test_abandon_and_retry(t: TestContext) -> void:
 	quests.quest_abandoned.connect(func(payload: Dictionary) -> void: abandoned.append(payload))
 	quests.quest_accepted.connect(func(payload: Dictionary) -> void: accepted.append(payload))
 	journal.open()
+	journal.select_quest(1)
 	journal.quest_action()
 	t.equal(titles, ["Slime Basics"], "confirm titles")
 	t.equal(journal.status_label.text, "Quest abandoned.", "status after Abandon")
 	var record := _record(t, "slime-basics")
 	t.equal(record["status"], "abandoned", "status")
 	t.equal(record.get("resume_stage_id"), "learn-the-basics", "resume stage")
-	t.equal(_row_labels(journal), ["◆ Slime Basics\nSide · Abandoned"], "rows after Abandon")
-	t.check(_row(journal, 0).is_selected(), "the abandoned row is not selected")
-	t.equal(_row(journal, 0).modulate.a, 0.5, "abandoned row alpha")
+	t.equal(_row_labels(journal), [MAIN_ROW, "◆ Slime Basics\nSide · Abandoned"], "rows after Abandon")
+	t.check(_row(journal, 1).is_selected(), "the abandoned row is not selected")
+	t.equal(_row(journal, 1).modulate.a, 0.5, "abandoned row alpha")
 	t.equal(journal.action_button.text, "Retry", "action after Abandon")
 	t.equal(abandoned, [{"questId": "slime-basics"}], "quest_abandoned")
 	journal.quest_action()
@@ -152,7 +150,7 @@ func test_abandon_and_retry(t: TestContext) -> void:
 	t.equal(record["status"], "active", "status after Retry")
 	t.check((record["progress"] as Dictionary).values().all(func(value: Variant) -> bool: return int(value) == 0),
 		"progress after Retry %s" % [record["progress"]])
-	t.equal(_row_labels(journal), [SLIME_BASICS_ROW], "rows after Retry")
+	t.equal(_row_labels(journal), [MAIN_ROW, SLIME_BASICS_ROW], "rows after Retry")
 	t.equal(accepted, [{"questId": "slime-basics", "source": "automatic"}], "quest_accepted")
 	journal.close()
 
@@ -164,6 +162,7 @@ func test_abandon_cancelled(t: TestContext) -> void:
 	var abandoned: Array = []
 	quests.quest_abandoned.connect(func(payload: Dictionary) -> void: abandoned.append(payload))
 	journal.open()
+	journal.select_quest(1)
 	journal.quest_action()
 	t.equal(quests.status("slime-basics"), "active", "status")
 	t.equal(journal.status_label.text, "", "status line")
@@ -176,6 +175,7 @@ func test_confirm_overlay(t: TestContext) -> void:
 	var quests := _quests(t)
 	var journal := _journal(t)
 	journal.open()
+	journal.select_quest(1)
 	journal.quest_action()
 	if not t.check(journal.is_confirming(), "no confirm"):
 		return
@@ -196,42 +196,29 @@ func test_confirm_overlay(t: TestContext) -> void:
 	journal.close()
 
 
-## Owner decision J3 (kept): Retry after A Place to Work was accepted says "Quest restarted." but
-## Slime Basics stays locked and leaves the book.
-func test_retry_quirk_after_accept(t: TestContext) -> void:
-	var quests := _quests(t)
+## The Tips row (once a tip is heard) and the War journal row (once a page is found) follow the
+## active quests; each opens its own page.
+func test_tips_and_war_journal_rows(t: TestContext) -> void:
+	var run := Services.run()
+	run.hear_tip("lili.yoi-hideout")
+	run.quiet_items = true
+	run.add_item("war-journal-page-1", 1)
+	run.quiet_items = false
 	var journal := _journal(t)
-	journal.confirm_abandon = func(_title: String) -> bool: return true
 	journal.open()
-	journal.quest_action()
-	t.equal(quests.status("slime-basics"), "abandoned", "abandoned")
-	t.check(bool(quests.accept(PLACE, ELDER_ID).get("ok")), "accept refused")
-	t.equal(journal.action_button.text, "Retry", "the abandoned quest is no longer selected")
-	journal.quest_action()
-	t.equal(journal.status_label.text, "Quest restarted.", "status")
-	t.equal(quests.status("slime-basics"), "locked", "slime-basics")
-	t.equal(_row_labels(journal), ["★ A Place to Work\nMain · In progress · Step 1/2"], "rows")
-	t.equal(int(journal.model()["selected_index"]), 0, "selected index")
-	journal.close()
-
-
-func test_abandoned_npc_quest(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate("a-tonic-for-lili")
-	var journal := _journal(t)
-	journal.confirm_abandon = func(_title: String) -> bool: return true
-	journal.open()
-	var index := _row_labels(journal).find("◆ A Tonic for Lili\nSide · In progress")
-	if not t.check(index >= 0, "no Tonic row in %s" % [_row_labels(journal)]):
-		return
-	journal.select_quest(index)
-	journal.quest_action()
-	t.equal(quests.status("a-tonic-for-lili"), "abandoned", "status")
-	t.equal(journal.details_name_label.text, "A Tonic for Lili", "the selection left the quest")
-	t.equal(journal.details_label.text, TONIC_ABANDONED_DETAILS, "details")
-	t.check(journal.details_label.text.ends_with("Reward: 2× Purple Berry\n\nReturn to the quest giver to continue."), "details ending")
-	t.equal(journal.action_button.text, "No action", "action")
-	t.check(journal.action_button.disabled, "No action is enabled")
+	var rows := _row_labels(journal)
+	t.equal(rows.size(), 4, "rows with a tip and a page: %s" % [rows])
+	if rows.size() == 4:
+		t.check(str(rows[2]).contains(QuestJournalModel.TIPS_TITLE) and str(rows[2]).contains(QuestJournalModel.TIPS_COUNT % 1),
+			"the Tips row: %s" % rows[2])
+		t.check(str(rows[3]).contains(QuestJournalModel.WAR_TITLE), "the War journal row: %s" % rows[3])
+	journal.select_quest(2)
+	t.equal(journal.details_name_label.text, QuestJournalModel.TIPS_TITLE, "the Tips page's name")
+	t.check(journal.details_label.text.contains("Lili"), "the Tips page does not name Lili")
+	t.check(journal.action_button.disabled, "the Tips row has an action")
+	journal.select_quest(3)
+	t.equal(journal.details_name_label.text, QuestJournalModel.WAR_TITLE, "the War journal page's name")
+	t.check(journal.details_label.text.contains("Page 1:"), "the War journal lacks page 1:\n%s" % journal.details_label.text)
 	journal.close()
 
 
@@ -240,15 +227,15 @@ func test_empty_journal(t: TestContext) -> void:
 	for record: Dictionary in run.quests:
 		record["status"] = "locked"
 		record["active_stage_id"] = ""
-	# Opening reports `control.used`, which re-evaluates the prerequisites: without level-1 known,
-	# A Place to Work and Slime Basics stay locked.
-	run.world["discovered_areas"] = []
+	# Opening reports `control.used`, which re-evaluates the prerequisites: with the prologue running
+	# (started, not done), the main quest and Slime Basics stay locked.
+	run.set_flag("prologue.started")
 	var journal := _journal(t)
 	journal.open()
 	t.equal(_row_labels(journal), [], "rows")
-	t.equal(journal.details_name_label.text, "No quests yet", "details name")
+	t.equal(journal.details_name_label.text, QuestJournalModel.EMPTY_NAME, "details name")
 	t.equal(journal.details_status_label.text, "", "details status")
-	t.equal(journal.details_label.text, "Talk to the slimes marked with ! to take on a quest.", "details")
+	t.equal(journal.details_label.text, QuestJournalModel.EMPTY_DETAILS, "details")
 	t.check(journal.action_button.disabled, "the action is enabled")
 	t.check(journal.close_button.has_focus(), "Close does not have the focus")
 	journal.close()
@@ -275,7 +262,6 @@ func test_open_paths_and_close(t: TestContext) -> void:
 	t.check(not journal.is_open(), "the menu key did not close the journal")
 	t.check(close_cue != null and TestContext.played(close_cue), "MenuClose is not playing")
 	t.check(not t.tree.paused, "the world stayed paused")
-	t.check(bool(_quests(t).accept(PLACE, ELDER_ID).get("ok")), "accept refused")
 	journal.open()
 	var select_cue := journal.select_sfx
 	TestContext.silence(select_cue)
@@ -335,9 +321,8 @@ func test_journal_key(t: TestContext) -> void:
 
 ## Up / down on a focused row select the neighbour and move the focus there; End / Home the ends.
 func test_row_keys(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate("stone-tools")
-	quests.debug_activate("a-tonic-for-lili")
+	# A tip heard makes a third row (Tips).
+	Services.run().hear_tip("lili.yoi-hideout")
 	var journal := _journal(t)
 	journal.open()
 	if not t.check(journal.quest_list.get_child_count() == 3, "rows %s" % [_row_labels(journal)]):

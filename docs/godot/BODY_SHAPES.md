@@ -50,10 +50,12 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
   never reads it.
 - **The story:** a run that plays the prologue, or has learned a shape for good (the prologue's
   Spear from Yoi), keeps the rework mode in every world, as every run does now. Such a run is lent
-  nothing (`_rework_lending` is only the playground's and `?shapes`'): it has only the shapes it
-  learned, no box abilities, and it keeps the recovery autosave ([PROLOGUE.md](PROLOGUE.md)).
+  nothing (`_rework_lending` is only the playground's and `?shapes`'): it has only the shapes and
+  abilities it learned (the Roll from young Burr, the Goo Bomb from Tom), and it keeps the recovery
+  autosave ([PROLOGUE.md](PROLOGUE.md)).
 - In the playground and with `?shapes` the slime learns, quietly, the three shapes (`shape-spear`, `shape-axe`,
-  `shape-hammer`) and the Ability Box abilities the game has (`squash-slam`, `stretch-lash`,
+  `shape-hammer`), the Roll (`dodge`: since 2026-11-19 a story run learns it only from young Burr
+  in Slimeshire) and the Ability Box abilities the game has (`squash-slam`, `stretch-lash`,
   `teleport`, `lantern`, `goo-bombs`). In the playground the **shapes testbed** (`game/shapes/shapes_testbed.gd`, exports
   for every position below) uses the open grass south-west of the player spawn (1280, 1536), clear
   of the feel yard's three dummies (y 1400), the test chest, the gulp yard, the web nook and the
@@ -81,7 +83,12 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
     energy refills only 1 a second by itself in the rework mode.
   - **The Roll's upgrade:** the testbed lends `roll-charge` for the session
     (`RunState.learn_session_ability`, never saved), so a tap of the Roll key rolls the quick roll
-    and a hold the charged one (checklist 10).
+    and a hold the charged one (checklist 10). In the story it is the **Charged Roll**, which four
+    **Roll Fragments** make (owner, 2026-11-20): the fourth found teaches it, with its card. Burr
+    gives the first in Fatty's Lair as he is freed; Yoi's chest (behind a Heavy statue maze), the A4
+    barn in Glimmerhill and the Gloop Cavern's hidden chest hold the others. It was found whole in
+    Yoi's chest earlier that day (the `charged-roll` find, now only for tools and tests;
+    [quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)).
 - The shapes strike with their own chains and charges, drawn with the prototype's first painted art
   (2026-10-12, [Art](#art-2026-10-12) below: the slime's attack poses, the Spear's strike frames
   with its rigid spear, the War Axe's and the Hammer's strike frames with their rigid weapons and
@@ -186,7 +193,8 @@ strikes as it is let go; holding never strikes first.
 9. **Slam combo:** F next to the dummies: the inner half (40) launches, the outer ring (24) bounces
    in place for 600 ms, so a Spear chain can follow. The slime cannot be hit from 140 to 440 ms and
    ignores knockback for the whole slam.
-10. **Roll:** Space [D] (moved from 2; the number keys are free in the rework mode). It fires on the
+10. **Roll:** Space [D] (moved from 2; since 2026-11-20 keys 1-4 drink from the potion belt,
+    [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)). It fires on the
     **release**: a tap (let go within 200 ms) rolls the quick roll: no spin-up, about 165 px in
     330 ms (about 667 easing to 333 px/s), safe for 250 ms, the same bonk and bounce; tap rolls can
     follow each other every 1330 ms (the next one waits 1 s after a roll ends, 2026-10-31). With the `roll-charge` upgrade (the testbed lends it), a hold
@@ -693,6 +701,7 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
 | Roll (on the release; a hold charges with `roll-charge`) | Space | D | `dodge` |
 | Interact; held by a heavy block: grab it (walk to push or pull, Stone only) | Right click | W | `interact` |
 | Bag (the Ability Box is its top band) | B | B | `menu` |
+| Drink from a potion belt slot (2026-11-20, [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)) | 1-4 | 1-4 | `potion_1` .. `potion_4` |
 | Juice panel (dev); while it shows: play a layer / switch it | F9; 1-0 / Shift + 1-0 | F9; 1-0 / Shift + 1-0 | none (keys read by the panel) |
 | Respawn the testbed's enemy pen (dev, playground) | F4 | F4 | none (a key read by `shapes_testbed.gd`) |
 | Fill the energy (dev, playground) | F5 | F5 | none (a key read by `shapes_testbed.gd`) |
@@ -703,6 +712,9 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
   `static func is_applied() -> bool`: on, `swallow`, `stretch_lash`, `squash_slam` and `teleport`
   lose their number keys and `dodge` moves from 2 to Space (Space is free: only the dialogue box and
   the quest offer window read it, while they are open); off, every one gets back exactly its events.
+  Since 2026-11-20 `project.godot` itself has them so (no number keys, `dodge` on Space), and 1-4
+  are the potion belt's `potion_1` .. `potion_4`
+  ([crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)).
   The slime keeps capturing input while a window holds the clock still, so when the `modal` pause
   ends player.gd drops a pending Roll press (`_update_modal_pause`, also checked at the top of its
   physics step; `PlayerInputBuffer.drop_press`): a Space press a window did not take never rolls the
@@ -744,6 +756,7 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
 | Slam | `game/player/abilities/slam_sequence.gd` (improved), `classic_slam_sequence.gd` (the old one), `ability_world.gd`, `ability_definitions.gd`, `player_abilities.gd`, `ability_fx.gd` | The improved Slam; `strike_area` carries a hit and reports outcomes |
 | Lantern | `game/player/abilities/lantern_sequence.gd`, `lantern_flame.gd`, `lantern_glow.gd`; the fire and darkness parts in `game/world/fire/` (`fire_targets.gd`, `fire_fx.gd`, `candle.gd`, `burnable.gd`) and `game/world/darkness/` (`dark_room.gd`, `dark_room.gdshader`); `game/scenes/objects/deadthorn-hedge.tscn`; the playground's corner `game/dev/corners/lantern_corner.tscn` | The flame, the ember, dark rooms, candles, burnables ([The Lantern](#the-lantern-2026-10-14), [DARKNESS.md](DARKNESS.md)) |
 | Goo Bomb | `game/player/abilities/goo_bomb_sequence.gd`, `goo_blast.gd`; `game/scripts/goo_bomb.gd` (`object.goo-bomb`), `cracked_wall.gd` (`object.cracked-wall`), `rubble_heap.gd` (`object.rubble-heap`), `blast_barrier.gd`, `cracked_ground.gd` and `cracked_floor.gd` (`object.cracked-floor`), `winch_post.gd` (`object.winch-post-cracked`), `blast_keg.gd` (`object.blast-keg`); hooks in `player_abilities.gd` (`on_hurt`, the spend at the spit), `player.gd`, `mouth.gd`, `held_look.gd`, `thrown_object.gd`, `game/world/elevation/elevation.gd` and `elevation_grid.gd` (`open_passage`); the playground's corner `game/dev/corners/bomb_corner.tscn` (`bomb_corner.gd`) and its cave `game/scenes/worlds/rooms/playground/playground-bomb-cave.tscn` | The cast, the bomb, the blast, cracked walls and rubble ([Goo Bomb](#the-goo-bomb-2026-10-14)) |
+| Bow | `game/player/abilities/bow_sequence.gd`, `bow_arrow.gd`; hooks in `ability_definitions.gd`, `player_abilities.gd` (the spend at the shot), `player.gd` (the aim), `game/world/elevation/elevation.gd` (`top_level_at`), `game/scripts/barred_gate.gd` (no line for an arrow); the targets' `on_arrow_hit` (`game/crystal_mine/crystal_lens.gd`, `lash_bell.gd`, the bestiary's); `game/crystal_mine/lens_lock.gd`; `scripts/characters/pack-slime-bow.py` (the poses); `tools/render_bow_shot.gd` | The body-bow clips, the arrow, the lens lock by the lake camp's river in C5 ([The Bow](#the-bow-2026-11-20)) |
 | Heavy plates and blocks | `game/scripts/heavy_plate.gd` (`object.heavy-plate`), `heavy_block.gd` (`object.heavy-block`, `object.heavy-statue`), `game/player/heavy_grab.gd`; hooks in `game/scripts/player.gd` (the grab) and `game/scripts/gate.gd` (`close`); the art `asset/MAPS/props/heavy-plate/` (`scripts/art/pack-heavy-plate-art.py`); the playground's corner `game/dev/corners/heavy_corner.tscn` (`heavy_corner.gd`) | Plates that only a heavy weight sinks, slowly, and blocks only the Stone form moves ([Heavy plates and heavy blocks](#heavy-plates-and-heavy-blocks-2026-10-14)) |
 | Ability Box and HUD | `game/player/abilities/ability_box.gd`, `game/ui/body_cards.gd`, `game/ui/screens/inventory_screen.gd`, `game/ui/ability_bar.gd`, `game/ui/weapon_hotbar.gd`, `game/ui/console/hud_console.gd`, `game/ui/hud.gd` (`layout_changed`), `game/hints/control_hints.gd`, `game/shell/control_labels.gd`; key names in `game/ui/ceremony/ability_ceremony.gd`, `game/quests/quest_notifications.gd`, `game/scripts/cracked_ground.gd` | The bag-window band, the HUD shape and ability slots, the Controls list and hints |
 
@@ -759,7 +772,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 |---|---|
 | `shapes.spear` / `.axe` / `.hammer` | `id`, `title`, `tags`, `baseDamage` (12 / 15 / 30), `aim` (`snap4` for all three since 2026-10-12, round 2: the nearest of right, down, left, up, an exact diagonal to the side; `exact` and `snap8` are still read), `lineCheck`, `targetModifiers`, `harvest` (Axe `{"wood": 1}`, Hammer `{"stone": 1}`), the Hammer's `harvestStoneForm` (`{"iron": 2}`), `chain[]` steps (`id`, `class`, `windupMs`, `activeMs`, `recoveryMs`, `cancelAtMs` (the last step: its whole length; the rest follows), `damageScale`, `launchSpeed`, `hopPx`, `stepPx` (over `stepFromMs`..`stepToMs`, default the wind-up and the active window), the area (a line's `minReach`/`width` with its `sidePx` (the second jab, 12 px beside the aim; on the Spear's strike frames the line runs from the full lean's socket to the reach and ignores `minReach` and `sidePx`), or an arc's `arcDeg`/`sweep` with `chop` (the Axe's last step: its whole sector at once), or a circle's `radius`; since round 5 (2026-10-14) a chain step's reach, the line's `reach`, the arc's `radius` and the circle's `offset`, is not here but its strike file's `hit_reach` in the strike's direction, measured from that direction's `hit_center`, [Editing the strike animations](#editing-the-strike-animations-2026-10-12)), `knockMode` (`aim` / `sweep` / `radial`), `walkCancel`, `hitStopMs`, `trauma`, `kickPx`, `pitch`, `sparks`, extras such as `impactRing`, `thump`, `debris`, `ringHit`, `flattenX`; the last step's `anticipation` {`pullMs`, `pullPx`, `pushPx`, `squashAlong`, `squashAcross`, `jumpPx`}), and `charge` (`ringMs`, `energy`, `class`, `windupMs`/`activeMs`/`recoveryMs` (grey-box guesses), its hit numbers with their own reach (the Lunge `reach` 170, the Spin `radius` 72, the Quake `radius` 56 and `offset` 68); the Spin hits once (`damageScale` 2.2, no `ticks[]` or `holdMs` since 2026-10-12; the tick code path stays for data that has ticks), the Quake `cracks`) |
 | `combat.chain` | `linkMs` 150, `holdMarginMs` 140 (it also covers the tap's own press, since a tap fires on its release), `holdCapMs` 900, `chargeStartMs` 250, `chargeWalkScale` 0.5 (the walk while a charge ring fills or waits full), `restMs` {spear 210, axe 195, hammer 200}, `finisherRecoilPx`, `strikeSquash`, `clink` {recoilPx 24, recoilMs, hitStopMs}, `hitStop` {extraTargetMs, extraTargetCapMs, killMs, capMs}. No energy back from hits. (No switch buffer: a switch waits for the strike's cancel point or the charge's end) |
-| `combat.hits` | the impact classes: `tier`, `poise`, `countsAsHold` |
+| `combat.hits` | the impact classes: `tier`, `poise`, `countsAsHold` (`arrow`, the Bow's, since 2026-11-20, with a row in every weight's `classes`) |
 | `combat.verbs`, `combat.weights`, `combat.rules`, `combat.trauma`, `combat.roomClear` | as the combat-feel plan, section 8, with the stuns of 2026-10-12: knockback 500, launch 600, stagger 1050, daze 1550 (knockdown 1200); `combat.rules` `poiseBreakMs` 1150, `wallSplat.dazeMs` 1050, `holdResetFreeMs` 300 (replaces `holdResetMs` 700); `combat.weights` light thrown daze 1550, heavy thrown and ring stagger 650, heavy `breakVerb` stagger 1150. A weight's `classes` entry is a verb or {"verb", "stunMs"?, "damageTaken"?}; `combat.rules.bowling` {speedShare 0.6, damage 4, `minSpeed` 140: a body bowls only a standing enemy it moves into at this speed or more, and one in flight is never bowled again} |
 | `character.player.rework` | the rework mode's player numbers (2026-10-12): `energyRegenPerSecond` 0 (the classic `stats.energyRegenPerSecond` 8 stays), `rollTapMs` 200 (a Roll key let go within it is a tap), the quick roll `quickRollDistancePx` 165, `quickRollMs` 330, `quickRollEndSpeedShare` 0.5, `quickRollInvulnerabilityMs` 250, `quickRollEnergy` 0 |
 | `combat.energyShard` | `dropChance` 0.2, `amount` 15, `pickupRadiusPx` 28, `fadeMs` 12000 |
@@ -770,10 +783,11 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
 | `abilities.lantern` | the Lantern (2026-10-14): `energy` 10, `cooldownMs` 300, `clipMs` 200 (the spit clip sped up to this), `releaseMs` 70 (the flame leaves the mouth), `flame` {`class` tap, `damage` 5, `holdMs` 250, `rangePx` 72, `speed` 900, `lingerMs` 150, `radiusPx` 10, `lightRadiusPx` 90, `feel`}, `glow` {`radiusPx` 160, `flareMs` 260}, `candle` {`lightRadiusPx` 110, `gutterMs` 5000}, `burnable` {`burnMs` 600, `spreadPx` 24}, `darkness` {`alpha` 1.0, `softPx` 40, `maxLights` 16, `litFadeMs` 1500} |
 | `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 600, the cast `castMs` 2000 in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
+| `abilities.bow` | the Bow (2026-11-20, [The Bow](#the-bow-2026-11-20)): `energy` 6 (spent at the shot), `cooldownMs` 300, `drawMs` 140 (the least draw), `recoverMs` 140, `arrow` {`class` arrow, `damage` 10, `holdMs` 220, `speed` 760, `rangePx` 512, `radiusPx` 7, `feel`} |
 | `puzzles.heavyPlate` | the heavy plate (2026-10-14, [Heavy plates](#heavy-plates-and-heavy-blocks-2026-10-14)): `sinkMs` 3000 (up to fully down), `riseMs` 5000 (back up), `sinkPx` 6 (the cap's travel), `playerRadiusPx` 30 (the Stone slime's feet from its middle), `blockRadiusPx` 24 (a block's middle), `ringRadiusPx` 46, `grindIntervalMs` 420 |
 | `puzzles.heavyBlock` | the heavy blocks: `cellPx` 64 (one move), `moveMs` 640 (a cell, 100 px/s), `startDelayMs` 180 (a walk key held this long before a block moves), `grabReachPx` 14, `strainLineMs` 2400, `strainWobble` 0.06, `strainHz` 7 |
 | `puzzles.blastKeg` | the blast kegs (2026-10-17, [Goo Bomb](#the-goo-bomb-2026-10-14)): `delayMs` 150 (lit by a blast, a keg blows this long after; about the bomb's own `chainDelayMs`) |
-| `abilityBox` | `socketCount` 8, `sockets` (squash-slam, stretch-lash, teleport, lantern, goo-bombs, then the later ids) |
+| `abilityBox` | `socketCount` 8, `sockets` (squash-slam, stretch-lash, teleport, lantern, goo-bombs, bow, then the later ids) |
 
 The strike frames read `game/data/shape-strikes.json` (written by
 `scripts/characters/pack-slime-strikes.py` (the Spear's) and `scripts/characters/pack-slime-weapon-strikes.py`
@@ -1678,7 +1692,15 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   trigger the `passage` rect): walking into the hole and pushing on toward `door_side` for
   `worldNavigation.doorPushMs` travels (no interact key since 2026-10-14; CONVENTIONS.md "Doors"). Every decal size and offset, the
   passage and the door are Inspector fields; the editor draws the passage and `preview_blown` shows
-  the hole.
+  the hole. Without a door a passage may run right through a thin hill: **Tom's crack**
+  (2026-11-19, the Goo Bomb's first lock; `gloop-forest-e5` `tom-crack`, flag
+  `gloop-forest.tom-crack`) sits in the face of a one-row root-rock ledge (level 1, cells x 10-17,
+  row 19) on the north side of Tom's clearing in E5's south-west woods; its passage
+  (`Rect2(-32, -128, 64, 128)`, level 0) covers the face and the ledge's top, so the blown hole is a
+  short tunnel back north to the open strip by the trail (the slime walks through it as the ghost
+  behind the rock). The clearing (x 10-17, rows 21-27) and its path from the trail (x 18-23, rows
+  24-28) are cut out of the painted forest band; Tom's web hangs at (736, 1440) and he teaches the
+  Goo Bomb there as it tears (game/scripts/tom_lesson.gd; quests spec §14.3).
 - **Rubble heaps** (`object.rubble-heap`, `rubble_heap.gd`): since roadmap 7.8 the Heavy Roll's
   lock, no longer the bomb's (owner, 2026-10-16; [SKINS.md](SKINS.md#heavy)). Only the islet's heap
   below keeps `breaks_by_blast`: a heap that clinks off everything but a blast ("Too many rocks to
@@ -1733,6 +1755,79 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
     second wall style.
   - Two light training dummies on the shore at (120, 6930) and (250, 7000), and a title over the
     cliff's foot.
+
+## The Bow (2026-11-20)
+
+The owner's words (decisions archive, 2026-11-20): the Bow is shaped from the slime's own body, as
+the Spear, the Hammer and the War Axe are, and its arrows are goo the slime pinches off: each costs
+a little energy, with no arrows to find or buy and no arrow counter. "On press the slime aims in the
+direction of the movement keys and shows the bow; on release it shoots that way; the arrow flies
+straight and never changes direction." A box ability (socket `bow`, after `goo-bombs`), lent in the
+playground and with `?shapes` with the other box abilities, in the F6 powers of `level-1-c4`, the
+Crystal Mine and the dungeon lab; in the story Pip, the smith's son, carves its bow rune at his
+dad's Workshop in Slimeshire's C4 from 5 wood, the Matron's thread and the smith's crystal (owner,
+2026-11-20; Burr taught it at home until then:
+[quests spec 14.3](specs/quests.md#143-talks-talks-in-npc-definitionsjson)). Numbers:
+`abilities.bow` ([Data](#data)). The body is the bow (owner, 2026-11-20, from a mockup: "B, the
+body bends", turned so the belly and the face bulge toward the aim, the horns sweep back and the goo
+string sits behind the body; the first look, a separate goo bow held beside the slime, was
+rejected): the slime's own poses on page 7, rows 3-4 (`asset/Originals/characters/slime-v2/body-bow/`,
+its README; packed by `scripts/characters/pack-slime-bow.py`, built into the clips
+`bow-draw-<down|up|side|left>` and `bow-shot-<down|up|side>` by `tools/build_player_clips.gd --
+--only=bow-`). Art besides: `asset/abilities/bow/arrow.webp` (pointing right) and the HUD icon
+`asset/UI/hud-console/ability-bow.webp`.
+
+- **The press** (`PlayerScript.use_ability(&"bow")` -> `PlayerAbilities.try_begin`): the aim is the
+  movement keys (`_movement_input`), else the facing, never the pointer; the usual refusals, "Low
+  energy" below 6, but no energy is taken yet; the cooldown (300 ms) starts.
+- **The draw** (`bow_sequence.gd`): the slime turns to the aim and stands still (actions locked);
+  `bow-draw` plays in the aim's direction (the player's three-way facing rule; a left aim plays
+  `bow-draw-left`, the side mirrored): over `drawMs` (140) the body stretches into two horns
+  (gather, 70 ms), then bends into the bow (drawn: belly and face toward the aim, the goo string
+  pulled back behind, the goo arrow's tip out of the front), which holds while the use key is held
+  (at least `drawMs`; the aim does not change while it is held). A hit with damage ends it
+  (`interrupted_by_hit`): nothing is spent and the cooldown is cleared.
+- **The shot** (the release, or `drawMs` after a tap): the 6 energy is spent now (too little by now:
+  "Low energy", nothing flies); the arrow leaves 26 px ahead of the slime's centre and `bow-shot`
+  plays: the string snaps straight (release) and the body springs back toward its blob (recoil) over
+  `recoverMs` (140), then idle. Cues `BowDraw` and `BowShoot` have no takes yet (`Lash` and
+  `ThrowToss` play).
+- **The arrow** (`bow_arrow.gd`): 64 px of goo arrow, drawn 2.6 times its picture's thickness (owner, 2026-11-20: wider), at the slime's centre height over its ground
+  point, with a small shadow; it flies straight at `arrow.speed` (760 px/s) for `arrow.rangePx` (512)
+  on the level the slime shot from, in sub-steps no longer than `arrow.radiusPx` (7), and acts on
+  the first of:
+  1. a **Bow target** (group `bow_targets`, tested before the walls, so a lens's post never stops it
+     short): its body or post and its `damage_area`, at the ground or at the arrow's height, within
+     the radius of the arrow's line, on the arrow's level or lower. `on_arrow_hit(hit)` (`hit`: a
+     rework hit plus `direction`, `position`, `arrow`) answering true spends the arrow there: a
+     crystal lens struck for good, a bell rung, an eye shattered from in front, a crawler hit from
+     the side, a flyer knocked down from any height, a mole that is up. Answering false the target
+     is passed over; a solid one (its own body on the `world` layer) still stops the arrow;
+  2. an **enemy hurtbox** on its level: one rework hit of its own class `arrow` (`combat.hits.arrow`:
+     tier 1, poise 1; tiny launch, light and medium hold, heavy and boss armor; not `last`, so it never
+     moves a body), 10 damage, a 220 ms hold, tags `arrow` and `bow` (never `thrown`: a bell rings
+     only through its hook, and the throw combat's materials never apply), weapon id `bow`, through
+     `AbilityWorld.strike_targets`, with its number and `arrow.feel`; a refused hit clinks
+     (`HitBlocked` and a spark): the bars of a barred gate stop it so, without the Spear's line;
+  3. a **wall** (`AbilityWorld.line_reach`: static world bodies; tiles, the world bounds and bodies
+     under 20 px never block, and fences, on their level layers, never do: an arrow flies over a
+     fence) or **higher ground** (`Elevation.top_level_at`: a top above its level or a cliff's wall
+     going up; the far wall of a ditch or a hole below it does not stop it): it splats there;
+  4. nothing within its range: it drops and splats.
+- **The lake camp's river** (level-1-c5, `CampRiverLenses`; moved out of Burr's yard in C4 on
+  2026-11-20, owner: C4 was overcrowded): the Bow's first lock. Two crystal lenses on the river's
+  north bank, by the road from C4 to the bridge, `camp-river-lens-west` (lens id `camp-river-west`,
+  at (1150, 430)) and `camp-river-lens-east` (`camp-river-east`, at (1250, 362)), each shot straight
+  north across the water from the lake camp's bank below it ((1150, 610) and (1250, 610)), or from
+  the road beside it. When both are struck the `camp-river-lens-lock` (a
+  `game/crystal_mine/lens_lock.gd`, lock id `camp-river-lenses`) raises the hidden dungeon chest
+  `camp-river-lens-chest` (20 coins) by the camp, west of the tent at (1190, 700), and sets the
+  story flag `camp-river.lenses-struck`. Pip's bow rune points there (tip `pip.camp-lenses`); Burr's
+  yard keeps only the Roll's ditch-and-planks lock and its chest. F6 on `level-1-c5` lends the Bow
+  too (`dungeon.devPowers`), to try the lock.
+- **Filming it:** `tools/render_bow_shot.gd` (windowed) starts a world, lends the Bow, draws and
+  shoots it from given feet along an aim and saves the frames (`--then` shoots again, `--grid` and
+  `--probe` help place targets).
 
 ## Heavy plates and heavy blocks (2026-10-14)
 

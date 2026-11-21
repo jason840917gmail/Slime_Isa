@@ -130,8 +130,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   in a new atlas's import). Run
   `build-forest-paint-tiles.py` after it ([godot/FORESTS.md](godot/FORESTS.md)). Godot tools:
   `res://tools/render_forest.gd` (windowed: `--path godot -s res://tools/render_forest.gd --
-  --scene=<world scene> --out=<dir> [--solid]`) renders a world's forest with the game's own drawing
-  (`--solid` tints the walls' solid cells);
+  --scene=<world scene> --out=<dir> [--solid] [--canopy=18]`) renders a world's forest with the game's
+  own drawing (`--solid` tints the walls' solid cells; `--canopy=<column>` repaints every painted cell
+  with that palette tile first, to compare trees with a canopy wall);
   `res://tools/retree_scenes.gd` (headless) gives the placed tree scenes their trees from the table;
   `res://tools/absorb_wall_trees.gd` (headless, `-- --scene=<world> "--groups=<node>:<mix>,..."`) turns
   placed wall trees into forest paint.
@@ -155,7 +156,7 @@ See [assets/README.md](assets/README.md) for the art workflow.
   renders (`asset/Originals/dungeon-kit/interior-walls/`) into `godot/asset/MAPS/walls/interior/<style>.webp`,
   `<style>-floor.webp` and `interior-walls.json`, and the InteriorWallLayer palette (`palette.png`, a
   fixed column per style, and `godot/game/world/interior/interior_wall_tileset.tres`, its uid kept;
-  styles `lair-stone`, `cave-rock`, `root-rock`, `cottage`, `mushroom`).
+  styles `lair-stone`, `cave-rock`, `root-rock`, `cottage`, `mushroom`, `crystal-cave`).
   Then `"<Godot console exe>" --headless --path godot -s res://tools/pack_interior_palette.gd` saves
   `palette.png` as `palette.res`, the texture the tileset uses (no editor import needed).
 - `python scripts/art/pack-floor-trims.py [--preview=<png>]` (**numpy**) — the interior rooms' floor
@@ -174,8 +175,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   a row of its 16 shapes; `--palette` rebuilds only the palette); keep mipmaps on in a new
   sheet's import. `res://tools/convert_stone_walls.gd` (headless, `-- --scene=<world> [--scene=...] [--dry]`)
   turns a world's old stone walls into WallLayer cells.
-- `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix and per
-  tree, into
+- `python scripts/art/build-canopy-walls.py` (**numpy**) — the canopy walls' crowns and roots (the
+  forest layer's second kind of wood, 2026-11-20): cuts the Magnific sheets in
+  `asset/Originals/trees/canopy-wall/`, grades the crowns, sizes them and packs
+  `godot/asset/MAPS/trees/canopy/<set>.webp` with `canopy.json` (a new atlas gets an `.import` with
+  mipmaps on). Run `build-forest-paint-tiles.py` after it
+  ([godot/FORESTS.md](godot/FORESTS.md#canopy-walls-2026-11-20)).
+- `python scripts/art/build-forest-paint-tiles.py` — the forest layer's palette: a tile per mix (the
+  canopy walls' tiles among them) and per tree, into
   `godot/asset/MAPS/forest/forest_paint_tiles.png` and `godot/game/world/forest/forest_tileset.tres`
   ([godot/FORESTS.md](godot/FORESTS.md)).
 - `python scripts/art/build-cliff-kit.py [--preview DIR]` (**numpy**) — the cliff kits the elevation's
@@ -797,7 +804,10 @@ removes the bar and padlock, and swings the real house door open. It stays open 
 
 `res://tools/build_watchkeeper_hideout.gd` rebuilds only that interior from the shared timber
 room shell (it keeps the shell's `MusicPlayer`, set to `interior-b.wav`). It overwrites interior
-edits; reload the scene before saving in an open editor.
+edits; reload the scene before saving in an open editor. Since 2026-11-20 the room is edited by
+hand: it has the cottage interior walls at 16 x 12 cells (docs/godot/INTERIOR_WALLS.md "The
+village's house rooms"), which the builder does not know, so running it brings back the old
+14 x 11 room with its painted walls.
 `build_slimeshire_chunks.gd` placed the exterior and cleared the former enclosure when it
 built C4; it no longer writes C4 (the owner edits it by hand), so the exterior is edited in the
 C4 scene. Hand edits outside the old enclosure were preserved in the initial replacement. The return door is registered

@@ -1,56 +1,42 @@
 extends RefCounted
-## Quests, NPC quest talk, the dialogue box, the offer / turn-in window, the tracker, the NPC
-## markers, the toasts and the waypoint (docs/godot/specs/quests.md 10.10). level-1: the Elder
-## (`level-1-npc-village-elder-plop`, A Place to Work), Pip (`level-1-npc-red-slime-boy`, plain
-## talk), the forge ruin (`level-1-forge`), Fatty's camp in his Lair, the loose wood piles 03 (411, 1150) and 04
-## (455.25, 1187.9). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
+## Quests, NPC talk, the dialogue box, the tracker, the NPC markers and the toasts
+## (docs/godot/specs/quests.md 10.10 and 14). level-1: the Elder (`level-1-npc-village-elder-plop`),
+## Pip (`level-1-npc-red-slime-boy`, his `mission` talk in a new run: no tip; owner, 2026-11-20), Lili
+## (`level-1-npc-lili`, her tip talk). NPCs are placed next to the player at (900, 1200), where nothing else is in reach,
 ## and stop wandering (no lock, so the conversation's lock is the only one).
-## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in the
-## village's chunk C4 (`level-1-c4`, level-1's own coordinates); the Lair's gate is on D5's hill
-## (`level-1-d5`, its origin at level-1's (2048, 2048); in D4 until 2026-10-17), the Verdant Gate exit
-## in D4 (`level-1-d4`, its origin at level-1's (2048, 0)), Fatty's camp in his Lair's arena
-## (`fatty-lair-r13-fattys-arena` since 2026-10-18), which the tests needing them travel to.
+## Rewritten 2026-11-20: the content is the main quest "Win back the Pearls" and Slime Basics; the
+## Phaser-era chapter quests are retired, and with them the tests that needed an NPC quest to offer,
+## accept, decline, turn in, abandon and reoffer, the waypoints to their givers and places, their kill,
+## collect, place and restore objectives and their rewards (the machinery stays; no content uses it).
+## The main quest's own tests are test_main_quest.gd's.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const QuestService := preload("res://game/quests/quest_service.gd")
 const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
+const QuestNpcTalk := preload("res://game/quests/quest_npc_talk.gd")
 const DialogueBox := preload("res://game/ui/screens/dialogue_box.gd")
-const QuestOfferWindow := preload("res://game/ui/screens/quest_offer_window.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const QuestTracker := preload("res://game/ui/quest_tracker.gd")
 const NpcQuestMarkers := preload("res://game/ui/npc_quest_markers.gd")
-const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
-const RestorationSiteScript := preload("res://game/scripts/restoration_site.gd")
-const BossCampScript := preload("res://game/scripts/boss_camp.gd")
-const CollectibleScript := preload("res://game/scripts/collectible.gd")
-const QuestWaypoint := preload("res://game/quests/quest_waypoint.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const CENTRE := Vector2(900.0, 1200.0)
 const NPC_OFFSET := Vector2(40.0, 0.0)
 const ELDER := "level-1-npc-village-elder-plop"
 const ELDER_ID := "village-elder-plop"
 const PIP := "level-1-npc-red-slime-boy"
-const PLACE := "a-place-to-work"
-const CATALOG_ORDER: Array[String] = ["a-place-to-work", "slime-basics", "stone-tools", "worm-trouble",
-	"the-one-eyed-guardian", "the-old-workshop", "a-tonic-for-lili", "snack-for-the-road",
-	"beyond-the-verdant-gate", "tom-in-the-web", "a-harder-pick", "rekindle-the-forge", "iron-gear", "sunnys-basket",
-	"the-matrons-nest"]
-const OFFER_DESCRIPTION := "Every good slime needs a workbench. Build one and set it up in the clearing.\n\n• Craft a Workbench (40 wood) (0/1)\n\nReward: 20× Wood · New recipe: Stone Axe · New recipe: Stone Pickaxe"
-const PLACE_PROGRESS_PAGES: Array[String] = ["A workbench is the heart of every camp. Wood is scattered all over the clearing.",
-	"Still to do for \"A Place to Work\":\n• Craft a Workbench (40 wood) (0/1)"]
-const SLIME_BASICS_LINES := "• Open your bag (B)\n• Look at the Crafting tab (B, then its tab)\n• Read your Journal (J)\n• Open the map (M)\n• Pause to save or change settings (Esc)"
-const WORKBENCH_CRAFT := {"recipeId": "craft-workbench", "itemId": "workbench", "quantity": 1}
-const WORKBENCH_PLACED := {"placementId": "p1", "itemId": "workbench", "mapId": "level-1-c4", "sceneId": "", "x": 0, "y": 0}
-## level-1's chunk worlds: the village (where the tests start), D5 with the Lair's gate, D4 with the
-## Verdant Gate exit; Fatty's Lair with his camp.
-const VILLAGE_MAP := "level-1-c4"
-const GATE_MAP := "level-1-d5"
-const VERDANT_MAP := "level-1-d4"
-## Fatty's camp stands in his arena, its own world since the Lair is one world per room (2026-10-18).
-const LAIR_MAP := "fatty-lair-r13-fattys-arena"
-const LAIR_CAMP := "fatty-lair-boss"
+const PIP_ID := "red-slime-boy"
+const LILI := "level-1-npc-lili"
+const LILI_ID := "lili"
+const MAIN := "win-back-the-pearls"
+const PIPS_WORKSHOP := "pips-workshop"
+const BASICS := "slime-basics"
+## Pip's Workshop waits locked until Pip's mission (test_main_quest.gd).
+const CATALOG_ORDER: Array[String] = [MAIN, PIPS_WORKSHOP, BASICS]
+const BASICS_CONTROLS := ["menu:inventory", "menu:crafting", "menu:journal", "menu:map", "pause"]
 
 
 func test_new_run_states(t: TestContext) -> void:
@@ -62,132 +48,65 @@ func test_new_run_states(t: TestContext) -> void:
 		ids.append(str(record["quest_id"]))
 	t.equal(ids, CATALOG_ORDER, "record order")
 	var quests := _quests(t)
-	t.equal(quests.status(PLACE), "available", "a-place-to-work")
-	var basics := quests.state("slime-basics")
+	var basics := quests.state(BASICS)
 	t.equal(basics.get("status"), "active", "slime-basics status")
 	t.equal(basics.get("active_stage_id"), "learn-the-basics", "slime-basics stage")
 	t.equal(basics.get("progress"), {"open-bag": 0, "see-crafting": 0, "read-journal": 0, "open-map": 0, "pause": 0},
 		"slime-basics progress")
-	var locked := 0
-	for record: Dictionary in run.quests:
-		if record["status"] == "locked":
-			locked += 1
-	t.equal(locked, CATALOG_ORDER.size() - 2, "locked quests")
-	t.check(run.is_quest_active("slime-basics"), "RunState does not see slime-basics active")
-	t.check(not run.is_quest_active(PLACE), "an available quest counts as active")
+	t.equal(quests.status(MAIN), "active", "the main quest")
+	t.check(run.is_quest_active(BASICS), "RunState does not see slime-basics active")
+	t.check(run.is_quest_active(MAIN), "RunState does not see the main quest active")
+	t.equal(quests.status(PIPS_WORKSHOP), "locked", "Pip's Workshop before Pip's mission")
 
 
-func test_elder_offer_candidate_and_marker(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
+## An NPC with no quest to give is a plain talk (priority 50, "Talk to <name>"), Pip's mission too; the
+## markers show the gold "!" only over an NPC with a tip not heard yet.
+func test_plain_talk_candidate_and_markers(t: TestContext) -> void:
+	var pip := await _meet(t, PIP)
+	if pip == null:
 		return
 	var interaction := _interaction(t)
-	t.equal(interaction.current().get("id"), "quest-npcs:%s:offer" % ELDER, "candidate id")
-	t.equal(interaction.current().get("priority"), 90, "offer priority")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Village Elder Plop", "offer prompt")
+	t.equal(interaction.current().get("id"), "quest-npcs:%s:talk" % PIP, "candidate id")
+	t.equal(interaction.current().get("priority"), 50, "talk priority")
+	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Pip", "talk prompt")
 	var quests := _quests(t)
-	t.equal(quests.marker_for(ELDER_ID), "main-offer", "Elder marker")
-	t.equal(quests.marker_for("lili"), "", "Lili marker")
+	t.equal(quests.marker_for(PIP_ID), "", "Pip's marker")
+	t.equal(quests.marker_for(ELDER_ID), "", "the Elder's marker before the prologue is over")
+	t.equal(quests.marker_for(LILI_ID), "tip", "Lili's marker")
 	await t.tree.process_frame
 	await t.tree.process_frame
-	t.equal(_markers(t).kind_for(ELDER), "main-offer", "Elder marker label")
-	t.equal(_markers(t).kind_for("level-1-npc-lili"), "", "Lili marker label")
+	t.equal(_markers(t).kind_for(PIP), "", "Pip's marker label")
+	t.equal(_markers(t).kind_for(LILI), "tip", "Lili's marker label")
 
 
-func test_offer_conversation_accept(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
-		return
-	var quests := _quests(t)
-	var dialogue := quests.dialogue
-	var offer := quests.offer_window
-	_fake_clock(dialogue)
-	var events := {"accepted": [], "talked": []}
-	quests.quest_accepted.connect(func(payload: Dictionary) -> void: (events["accepted"] as Array).append(payload))
-	quests.npc_talked.connect(func(payload: Dictionary) -> void: (events["talked"] as Array).append(payload))
-	t.check(_interaction(t).handle_interact(), "the Elder did not talk")
-	if not t.check(dialogue.is_open(), "no dialogue"):
-		return
-	t.equal(dialogue.speaker(), "Village Elder Plop", "speaker")
-	t.equal(dialogue.page_label(), "1 / 3", "page label")
-	t.equal(dialogue.next_label(), "Skip  ▸▸", "next label while typing")
-	t.check(t.tree.paused, "the world runs during the dialogue")
-	t.check(t.world().has_pause_reason(&"modal"), "no modal pause reason")
-	t.check(elder.is_interaction_locked(), "the Elder is not locked")
-	dialogue.advance()
-	t.equal(dialogue.visible_text(), dialogue.pages()[0], "a skip shows the whole page")
-	t.equal(dialogue.next_label(), "Next  ▸", "next label after the skip")
-	dialogue.advance()
-	t.equal(dialogue.page_index(), 1, "page after Next")
-	dialogue.advance()
-	dialogue.advance()
-	dialogue.advance()
-	t.equal(dialogue.page_index(), 2, "last page")
-	t.equal(dialogue.next_label(), "Continue  ▸", "finish label")
-	dialogue.advance()
-	t.check(not dialogue.is_open(), "the dialogue stayed open")
-	if not t.check(offer.is_open(), "the offer window did not open"):
-		return
-	t.equal(offer.title_text(), "A Place to Work", "offer title")
-	t.equal(offer.accept_label(), "Accept quest", "accept label")
-	t.equal(offer.decline_label(), "Decline / close", "decline label")
-	t.equal(offer.description_text(), OFFER_DESCRIPTION, "offer description")
-	t.check(t.tree.paused, "the world ran between the dialogue and the offer")
-	t.check((events["talked"] as Array).is_empty(), "the offer recorded a talk before the decision")
-	offer.invoke("accept")
-	var state := quests.state(PLACE)
-	t.equal(state.get("status"), "active", "status after accepting")
-	t.equal(state.get("active_stage_id"), "build-workbench", "stage after accepting")
-	t.equal(events["accepted"], [{"questId": PLACE, "source": "npc"}], "quest_accepted")
-	t.equal(events["talked"], [{"npcId": ELDER_ID}], "npc_talked")
-	t.check(ELDER_ID in (Services.run().story["talked_npc_ids"] as Array), "the talk was not recorded")
-	t.check(not offer.is_open(), "the offer window stayed open")
-	t.check(not t.tree.paused, "the world stayed paused")
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
-	t.equal(quests.marker_for(ELDER_ID), "in-progress", "Elder marker after accepting")
-
-
-func test_escape_during_lines_changes_nothing(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
+## Escape during a talk's lines closes the box and frees the NPC without opening the pause menu; a
+## talk's gifts are given when its pages end, read or closed (quests spec 14.3).
+func test_escape_during_lines(t: TestContext) -> void:
+	var lili := await _meet(t, LILI)
+	if lili == null:
 		return
 	var quests := _quests(t)
 	_fake_clock(quests.dialogue)
 	_interaction(t).handle_interact()
 	if not t.check(quests.dialogue.is_open(), "no dialogue"):
 		return
+	t.check(not Services.run().has_heard_tip("lili.yoi-hideout"), "the tip came before the lines ended")
 	t.tap(&"pause")
 	await t.steps(1)
 	t.check(not quests.dialogue.is_open(), "Escape left the dialogue open")
-	t.check(not quests.offer_window.is_open(), "Escape opened the offer window")
-	t.equal(quests.status(PLACE), "available", "status after Escape")
-	t.equal(Services.run().story["talked_npc_ids"], [], "talked ids after Escape")
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
+	t.check(Services.run().has_heard_tip("lili.yoi-hideout"), "closing the lines did not give the tip")
+	t.check(Services.run().knows_recipe("brew-tonic"), "closing the lines did not teach the tonic")
+	await t.steps(2)
+	t.check(not lili.is_interaction_locked(), "Lili stayed locked")
 	t.check(not t.tree.paused, "the world stayed paused")
 	var shell := Services.shell()
 	if shell != null:
 		t.check(not shell.is_any_open(), "Escape opened %s" % [shell.open_menus()])
 
 
-func test_decline_records_talk(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
-		return
-	var quests := _quests(t)
-	_fake_clock(quests.dialogue)
-	_interaction(t).handle_interact()
-	_read_through(quests.dialogue)
-	if not t.check(quests.offer_window.is_open(), "no offer window"):
-		return
-	quests.offer_window.invoke("decline")
-	t.equal(quests.status(PLACE), "available", "status after declining")
-	t.check(Services.run().has_talked_to(ELDER_ID), "declining did not record the talk")
-	t.check(not quests.offer_window.is_open(), "the offer window stayed open")
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
-	_interaction(t).refresh(null)
-	t.equal(_interaction(t).current().get("id"), "quest-npcs:%s:offer" % ELDER, "candidate after declining")
-
-
+## Pip's mission (pages of 92, 133 and 173 characters since 2026-11-20) reveals at 45 characters a
+## second; Space skips the typing, then turns the page; a held Space does nothing; Enter and keypad
+## Enter advance too; Escape closes.
 func test_reveal_speed(t: TestContext) -> void:
 	var pip := await _meet(t, PIP)
 	if pip == null:
@@ -202,26 +121,31 @@ func test_reveal_speed(t: TestContext) -> void:
 	interaction.handle_interact()
 	if not t.check(dialogue.is_open(), "no dialogue"):
 		return
-	var pages := QuestCatalog.npc_default_pages("red-slime-boy")
-	t.equal([(pages[0] as String).length(), (pages[1] as String).length(), (pages[2] as String).length()], [72, 61, 51], "page lengths")
-	t.equal(talked, [{"npcId": "red-slime-boy"}], "npc_talked at open")
+	var pages := dialogue.pages()
+	t.equal(str(QuestNpcTalk.matching_talk(PIP_ID).get("id", "")), "mission", "Pip's talk")
+	if not t.equal(pages.size(), 3, "Pip's pages"):
+		return
+	t.equal([pages[0].length(), pages[1].length(), pages[2].length()], [92, 133, 173], "page lengths")
+	t.equal(talked, [{"npcId": PIP_ID}], "npc_talked at open")
 	t.equal(dialogue.page_label(), "1 / 3", "page label")
 	t.equal(dialogue.next_label(), "Skip  ▸▸", "typing label")
-	dialogue.advance_reveal(1000.0)
-	t.equal(dialogue.visible_text().length(), 45, "characters after 1 s")
 	_key(t, KEY_SPACE)
-	t.equal(dialogue.visible_text().length(), 72, "Space shows the page")
+	t.equal(dialogue.visible_text().length(), 92, "Space shows the page")
 	t.equal(dialogue.next_label(), "Next  ▸", "label after the skip")
 	_key(t, KEY_SPACE)
 	t.equal(dialogue.page_index(), 1, "Space turns the page")
 	t.equal(dialogue.visible_text().length(), 0, "page 2 starts empty")
+	dialogue.advance_reveal(1000.0)
+	t.equal(dialogue.visible_text().length(), 45, "characters after 1 s")
 	_key(t, KEY_SPACE, true)
 	t.equal(dialogue.page_index(), 1, "a held Space turned the page")
-	t.equal(dialogue.visible_text().length(), 0, "a held Space skipped")
+	t.equal(dialogue.visible_text().length(), 45, "a held Space skipped")
 	_key(t, KEY_ENTER)
+	t.equal(dialogue.visible_text().length(), 133, "Enter shows the page")
 	_key(t, KEY_KP_ENTER)
-	t.equal(dialogue.page_index(), 2, "Enter / keypad Enter")
-	clock["ms"] = float(clock["ms"]) + 2000.0
+	t.equal(dialogue.page_index(), 2, "keypad Enter turns the page")
+	# 173 characters at 45 a second: shown within 4 s.
+	clock["ms"] = float(clock["ms"]) + 4000.0
 	dialogue.advance_reveal(0.0)
 	t.equal(dialogue.next_label(), "Done  ✓", "last page label")
 	_key(t, KEY_ESCAPE)
@@ -239,251 +163,31 @@ func test_interact_advances_dialogue(t: TestContext) -> void:
 	_fake_clock(dialogue)
 	_interaction(t).handle_interact()
 	t.tap(&"interact")
-	t.equal(dialogue.visible_text().length(), 72, "interact skips the typing")
+	t.equal(dialogue.visible_text().length(), 92, "interact skips the typing")
 	t.tap(&"interact")
 	t.equal(dialogue.page_index(), 1, "interact turns the page")
 	await t.steps(2)
 	t.check(dialogue.is_open(), "an interact press reached the world and closed the dialogue")
 
 
-func test_talk_progress_pages(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate(PLACE)
-	var elder := await _meet(t, ELDER)
-	if elder == null:
-		return
-	var interaction := _interaction(t)
-	t.equal(interaction.current().get("id"), "quest-npcs:%s:talk" % ELDER, "candidate while the quest runs")
-	t.equal(interaction.current().get("priority"), 50, "talk priority")
-	var talked: Array = []
-	quests.npc_talked.connect(func(payload: Dictionary) -> void: talked.append(payload))
-	interaction.handle_interact()
-	t.equal(quests.dialogue.pages(), PLACE_PROGRESS_PAGES, "progress pages")
-	t.equal(talked, [{"npcId": ELDER_ID}], "npc_talked at open")
-	quests.dialogue.close()
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
-
-
-func test_stage_advance_and_turn_in(t: TestContext) -> void:
+## Slime Basics completes by itself once each control was used, and pays its reward.
+func test_slime_basics_completes_and_pays(t: TestContext) -> void:
 	var quests := _quests(t)
 	var run := Services.run()
-	quests.debug_activate(PLACE)
-	var events := {"progressed": [], "stages": [], "available": [], "completed": []}
-	quests.quest_progressed.connect(func(payload: Dictionary) -> void: (events["progressed"] as Array).append(payload))
-	quests.quest_stage_completed.connect(func(payload: Dictionary) -> void: (events["stages"] as Array).append(payload))
-	quests.quest_available.connect(func(payload: Dictionary) -> void: (events["available"] as Array).append(payload))
-	quests.quest_completed.connect(func(payload: Dictionary) -> void: (events["completed"] as Array).append(payload))
-	quests.handle_event(QuestEvents.CRAFT_COMPLETED, WORKBENCH_CRAFT)
-	t.equal(events["progressed"], [{"questId": PLACE, "stageId": "build-workbench", "objectiveId": "craft-workbench", "before": 0, "after": 1}],
-		"quest_progressed")
-	t.equal(events["stages"], [{"questId": PLACE, "stageId": "build-workbench"}], "quest_stage_completed")
-	var state := quests.state(PLACE)
-	t.equal(state.get("active_stage_id"), "place-workbench", "second stage")
-	t.equal((state["progress"] as Dictionary).get("place-workbench"), 0, "second stage progress")
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	t.check(bool(quests.view(PLACE).get("ready_to_turn_in")), "not ready to turn in")
-	var elder := await _meet(t, ELDER)
-	if elder == null:
-		return
-	var interaction := _interaction(t)
-	t.equal(interaction.current().get("id"), "quest-npcs:%s:turn-in" % ELDER, "turn-in candidate")
-	t.equal(interaction.current().get("priority"), 100, "turn-in priority")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Return to Village Elder Plop", "turn-in prompt")
-	t.equal(quests.marker_for(ELDER_ID), "turn-in", "turn-in marker")
-	_fake_clock(quests.dialogue)
-	interaction.handle_interact()
-	t.equal(quests.dialogue.page_count(), 2, "complete pages")
-	_read_through(quests.dialogue)
-	var offer := quests.offer_window
-	if not t.check(offer.is_open(), "no turn-in window"):
-		return
-	t.equal(offer.title_text(), "Complete: A Place to Work", "turn-in title")
-	t.equal(offer.accept_label(), "Turn in and claim reward", "turn-in accept label")
-	t.equal(offer.decline_label(), "Close", "turn-in close label")
-	offer.invoke("accept")
-	state = quests.state(PLACE)
-	t.equal(state.get("status"), "completed", "status after turning in")
-	t.check(bool(state.get("rewards_granted")), "rewards not granted")
-	t.equal(run.item_count("wood"), 20, "reward wood")
-	t.equal(run.story["learned_recipe_ids"], ["craft-stone-axe", "craft-stone-pickaxe"], "learned recipes")
-	t.equal(run.coins(), 50, "coins")
-	t.equal(quests.status("stone-tools"), "available", "stone-tools")
-	t.equal(quests.status("a-tonic-for-lili"), "available", "a-tonic-for-lili")
-	t.equal(events["available"], [{"questId": "stone-tools", "source": "condition"}, {"questId": "a-tonic-for-lili", "source": "condition"}],
-		"quest_available")
-	if t.equal((events["completed"] as Array).size(), 1, "quest_completed"):
-		t.equal(events["completed"][0]["rewards"], QuestCatalog.definition(PLACE)["rewards"], "completed rewards")
-	t.check(not offer.is_open() and not t.tree.paused, "the window or the pause stayed")
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
-	t.check(run.has_talked_to(ELDER_ID), "the turn-in did not record the talk")
-	t.equal(quests.marker_for(ELDER_ID), "main-offer", "Elder marker after the turn-in (stone-tools)")
-	t.equal(quests.marker_for("lili"), "side-offer", "Lili marker after the turn-in")
-
-
-func test_place_fact_counts_once(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate(PLACE, "place-workbench")
-	var progressed: Array = []
-	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	t.equal(progressed.size(), 1, "progress events")
-	t.equal(quests.state(PLACE).get("consumed_fact_ids"), {"place-workbench": ["p1"]}, "consumed facts")
-
-
-func test_reward_items_must_fit(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	quests.debug_activate(PLACE, "place-workbench")
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	run.add_item("stone", run.item_capacity("stone"))
-	t.equal(run.item_capacity("wood"), 0, "room for wood in a full bag")
-	var reason := "Could not grant all reward items for quest 'a-place-to-work'."
-	t.equal(quests.turn_in(PLACE, ELDER_ID), {"ok": false, "code": "reward-items", "reason": reason}, "turn_in result")
-	var offer := quests.offer_window
-	offer.open_turn_in(PLACE, ELDER_ID, func() -> void: pass, func() -> void: pass)
-	offer.invoke("accept")
-	t.check(offer.is_open(), "the window closed on a refusal")
-	t.equal(offer.error_text(), reason, "window error")
-	offer.close()
-	t.equal(quests.status(PLACE), "active", "status after the refusal")
-	t.check(bool(quests.view(PLACE).get("ready_to_turn_in")), "no longer ready")
-	t.equal(run.story["learned_recipe_ids"], [], "recipes learned on a refusal")
-	t.equal(run.item_count("wood"), 0, "wood given on a refusal")
-
-
-func test_collect_only_in_current_stage(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate("stone-tools")
-	var progressed: Array = []
-	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	if not await _pick_up(t, "level-1-loose-wood-04", Vector2(455.25, 1187.9)):
-		return
-	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 0, "chop-wood during craft-tools")
-	t.equal(progressed, [], "progress during craft-tools")
-	quests.debug_activate("stone-tools", "use-tools")
-	if not await _pick_up(t, "level-1-loose-wood-03", Vector2(411.0, 1150.0)):
-		return
-	t.equal(int((quests.state("stone-tools")["progress"] as Dictionary).get("chop-wood", 0)), 10, "chop-wood during use-tools")
-	t.equal(progressed, [{"questId": "stone-tools", "stageId": "use-tools", "objectiveId": "chop-wood", "before": 0, "after": 10}],
-		"the pile's 10 wood")
-
-
-func test_kill_counts_kind_only(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate("worm-trouble", "clear-camp")
-	var progressed: Array = []
-	quests.quest_progressed.connect(func(payload: Dictionary) -> void: progressed.append(payload))
-	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 1, "areaId": VILLAGE_MAP, "kind": "worm-archer"})
-	t.equal(int((quests.state("worm-trouble")["progress"] as Dictionary).get("defeat-worms", 0)), 0, "an archer counted")
-	for enemy_id in 3:
-		quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 10 + enemy_id, "areaId": VILLAGE_MAP, "kind": "worm-swordsman"})
-	t.equal(int((quests.state("worm-trouble")["progress"] as Dictionary).get("defeat-worms", 0)), 3, "three swordsmen")
-	t.check(bool(quests.view("worm-trouble").get("ready_to_turn_in")), "worm-trouble not ready")
-	var before := progressed.size()
-	quests.handle_event(QuestEvents.ENEMY_DIED, {"enemyId": 20, "areaId": VILLAGE_MAP, "kind": "worm-swordsman"})
-	t.equal(progressed.size(), before, "a fourth worm progressed")
-
-
-## A real worm death reaches the quests through EnemyLoot (ordinary enemies only).
-func test_enemy_death_reaches_quests(t: TestContext) -> void:
-	var quests := _quests(t)
-	quests.debug_activate("worm-trouble", "clear-camp")
-	var worm := t.spawn_worm(Vector2(200.0, 0.0), true)
-	if worm == null:
-		return
-	worm.reward_requested.emit({"receiverNodeId": "", "rewards": {"coins": 0, "items": []}})
-	t.equal(int((quests.state("worm-trouble")["progress"] as Dictionary).get("defeat-worms", 0)), 1, "worm death")
-
-
-func test_known_boss_fact_on_accept(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	run.world["defeated_boss_ids"] = ["orb-weaver-matron"]
-	quests.debug_mark_completed("iron-gear")
-	t.equal(quests.status("the-matrons-nest"), "available", "the Matron's nest")
 	var coins := run.coins()
-	var result := quests.accept("the-matrons-nest", "level-1-spider-giver")
-	t.check(bool(result.get("ok")), "accept refused: %s" % [result])
-	t.equal(quests.status("the-matrons-nest"), "completed", "completed on accept")
-	t.check(not run.has_learned_ability("squash-slam"), "the Matron's Nest taught Squash Slam (The One-Eyed Guardian does)")
-	t.check(run.has_flag("chapter-2-complete"), "chapter-2-complete not set")
-	t.equal(run.coins(), coins + 100, "coins")
-	t.equal(quests.status("the-old-workshop"), "available", "the old workshop")
-	_close_end_card()
-
-
-## A run saved before Squash Slam moved to The One-Eyed Guardian (2026-10-08) learns it on load:
-## rebinding the records learns every completed quest's ability rewards, quietly.
-func test_load_learns_completed_quest_abilities(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	quests.debug_mark_completed("the-one-eyed-guardian")
-	t.check(not run.has_learned_ability("squash-slam"), "marking the quest completed granted its rewards")
-	run.quests = run.quests.duplicate(true)
-	t.equal(quests.status("the-one-eyed-guardian"), "completed", "the guardian after the rebind")
-	t.check(run.has_learned_ability("squash-slam"), "the loaded run did not learn Squash Slam")
-
-
-func test_known_facts_skip_later_stages(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	run.world["defeated_boss_ids"] = ["fatty-one-eye"]
-	quests.debug_activate("the-one-eyed-guardian")
-	quests.handle_event(QuestEvents.CRAFT_COMPLETED, {"recipeId": "craft-stone-spear", "itemId": "stone-spear", "quantity": 1})
-	var state := quests.state("the-one-eyed-guardian")
-	t.equal(state.get("active_stage_id"), "defeat-fatty", "stage after the spear")
-	t.equal((state["progress"] as Dictionary).get("defeat-fatty"), 0, "an earlier defeat counted")
-	if not await _travel(t, LAIR_MAP):
-		return
-	var camp := _camp(t, LAIR_CAMP)
-	if not t.check(camp != null, "no Fatty camp"):
-		return
-	camp.boss_defeated.emit({"campId": LAIR_CAMP, "bossId": "fatty-one-eye"})
-	t.equal(quests.state("the-one-eyed-guardian").get("active_stage_id"), "verdant-gate", "stage after the camp's defeat")
-
-
-func test_guardian_completes_on_gloop_forest_arrival(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	quests.debug_activate("the-one-eyed-guardian", "verdant-gate")
-	var coins := run.coins()
-	if not t.check(t.main.travel_to("gloop-forest", "west"), "the travel was refused"):
-		return
-	var arrived := await t.until(func() -> bool:
-		return not t.main.is_transitioning() and t.in_world("gloop-forest") and t.player() != null, 3000.0, 6000.0)
-	if not t.check(arrived, "no arrival in gloop-forest"):
-		return
-	t.equal(quests.status("the-one-eyed-guardian"), "completed", "the guardian")
-	t.equal(run.coins(), coins + 100, "coins")
-	t.check(run.has_flag("chapter-1-complete"), "chapter-1-complete not set")
-	t.equal(quests.status("beyond-the-verdant-gate"), "available", "beyond the verdant gate")
-	t.check("gloop-forest" in (run.world["discovered_areas"] as Array), "gloop-forest not discovered")
-	await t.tree.process_frame
-	await t.tree.process_frame
-	t.equal(_markers(t).kind_for("gloop-ch2-npc-mossy"), "main-offer", "Mossy's marker")
-
-
-func test_restoration_progresses_forge_quest(t: TestContext) -> void:
-	var quests := _quests(t)
-	var run := Services.run()
-	t.check(run.debug_active_quests.is_empty(), "the debug quest list is not empty")
-	quests.debug_activate("rekindle-the-forge")
-	run.add_item("stone", 40)
-	run.add_item("wood", 20)
-	run.add_item("iron-ore", 6)
-	var site: Node = null
-	for node: Node in t.tree.get_nodes_in_group(RestorationSiteScript.GROUP):
-		if str(node.get(&"quest_id")) == "rekindle-the-forge":
-			site = node
-	if not t.check(site != null, "no forge site"):
-		return
-	t.check(site.call(&"restore"), "restore did nothing")
-	t.check(run.has_flag("forge.restored"), "forge.restored not set")
-	var state := quests.state("rekindle-the-forge")
-	t.equal(state.get("active_stage_id"), "smelt", "stage after the restore")
-	t.equal(state.get("progress"), {"restore-forge": 1, "smelt-charcoal": 0, "smelt-iron-bars": 0}, "progress")
-	t.equal((state["consumed_fact_ids"] as Dictionary).get("restore-forge"), ["level-1.level-1-forge"], "consumed facts")
+	var toasts: Array = []
+	quests.notifications.toast_shown.connect(func(payload: Dictionary) -> void: toasts.append(payload))
+	for control_id: String in BASICS_CONTROLS:
+		quests.handle_event(QuestEvents.CONTROL_USED, {"controlId": control_id})
+	t.equal(quests.status(BASICS), "completed", "Slime Basics after every control")
+	t.equal(run.coins(), coins + 10, "Slime Basics' reward")
+	var shown: Array = []
+	for toast: Dictionary in toasts:
+		shown.append(str(toast["text"]))
+	var expected: Array = ["Stage complete: Slime Basics", "QUEST COMPLETE: Slime Basics"]
+	for line: String in QuestCatalog.reward_lines({"coins": 10}):
+		expected.append("+ " + line)
+	t.equal(shown, expected, "completion toasts")
 
 
 func test_tracker_fresh_run(t: TestContext) -> void:
@@ -494,13 +198,12 @@ func test_tracker_fresh_run(t: TestContext) -> void:
 	var model := tracker.model()
 	t.check(tracker.visible, "the tracker is hidden")
 	# One goal line (roadmap 4.12): the first tracked quest and its next step; the rest in the Journal.
-	t.equal(model.get("title"), "A Place to Work", "the line's quest")
+	t.equal(model.get("title"), "Win back the Pearls", "the line's quest")
 	t.equal((model.get("color") as Color).to_html(false), "ffd277", "main story colour")
-	t.equal(model.get("step"), "Talk to Village Elder Plop", "the next step")
+	t.equal(model.get("step"), "Find the Pearl in Fatty's Lair", "the next step")
 	t.equal([model.get("count"), model.get("more")], [2, 1], "tracked quests")
-	t.equal(tracker.title_label.text, "A PLACE TO WORK", "the title in small capitals")
+	t.equal(tracker.title_label.text, "WIN BACK THE PEARLS", "the title in small capitals")
 	t.check(tracker.more_button.visible and tracker.more_button.text == "+1", "no +1 for the other quest")
-	t.equal(model.get("hint"), "Click to show the way", "hint")
 	t.equal(model.get("bookHint"), "J · Journal", "book hint")
 	var rect: Rect2 = model.get("rect")
 	t.equal([tracker.position, tracker.size], [rect.position, rect.size], "the line's rect")
@@ -509,35 +212,31 @@ func test_tracker_fresh_run(t: TestContext) -> void:
 	# The "+1" shows the next quest: Slime Basics, its first step.
 	tracker.show_next()
 	t.equal(tracker.model().get("title"), "Slime Basics", "the next quest")
-	t.equal(tracker.model().get("step"), SLIME_BASICS_LINES.get_slice("\n", 0).substr(2), "Slime Basics' first step")
+	t.equal(tracker.model().get("step"), "Open your bag (%s)" % ControlLabels.control_label(&"menu"), "Slime Basics' first step")
 	tracker.show_next()
-	t.equal(tracker.model().get("title"), "A Place to Work", "back to the first quest")
-
-
-func test_tracker_order_after_accept(t: TestContext) -> void:
-	var quests := _quests(t)
-	t.check(bool(quests.accept(PLACE, ELDER_ID).get("ok")), "accept refused")
+	t.equal(tracker.model().get("title"), "Win back the Pearls", "back to the first quest")
+	# A Pearl taken: the line moves to the next open objective.
+	Services.run().set_flag("pearl.fatty-one-eye")
 	await t.steps(1)
-	var model := _tracker(t).model()
-	t.equal(model.get("title"), "A Place to Work", "the line's quest")
-	t.equal(model.get("step"), "Craft a Workbench (40 wood)", "the next step")
-	t.equal(model.get("more"), 1, "Slime Basics behind the +1")
+	t.equal(_tracker(t).model().get("step"), "Beat Fatty One Eye", "the next step once the Pearl is taken")
 
 
 ## Slime Basics has no sprint step since 2026-10-08 (no sprint from the start); pausing counts.
 func test_pause_control(t: TestContext) -> void:
 	var quests := _quests(t)
-	t.check(not (quests.state("slime-basics")["progress"] as Dictionary).has("sprint"), "Slime Basics still has a sprint step")
+	t.check(not (quests.state(BASICS)["progress"] as Dictionary).has("sprint"), "Slime Basics still has a sprint step")
 	var shell := Services.shell()
 	if shell == null:
 		t.note("no Shell autoload: the pause objective was not driven")
 		return
 	if not t.check(shell.open_pause(), "the pause menu did not open"):
 		return
-	t.equal((quests.state("slime-basics")["progress"] as Dictionary).get("pause"), 1, "pause")
+	t.equal((quests.state(BASICS)["progress"] as Dictionary).get("pause"), 1, "pause")
 	shell.pause_menu.close()
 
 
+## The windows count for the tutorial; the crafting window is a station's since 2026-11-20 (a
+## campfire's), still the `menu:crafting` control.
 func test_menu_windows_count_for_the_tutorial(t: TestContext) -> void:
 	var quests := _quests(t)
 	var windows := t.tree.get_first_node_in_group(&"game_windows")
@@ -545,198 +244,82 @@ func test_menu_windows_count_for_the_tutorial(t: TestContext) -> void:
 		return
 	for surface_id: StringName in [&"inventory", &"crafting", &"quest-journal", &"world-map"]:
 		windows.window_opened.emit(surface_id)
-	t.equal(quests.state("slime-basics")["progress"], {"open-bag": 1, "see-crafting": 1, "read-journal": 1, "open-map": 1,
+	t.equal(quests.state(BASICS)["progress"], {"open-bag": 1, "see-crafting": 1, "read-journal": 1, "open-map": 1,
 		"pause": 0}, "tutorial progress")
 
 
 func test_save_round_trip(t: TestContext) -> void:
 	var quests := _quests(t)
 	var run := Services.run()
-	t.check(bool(quests.accept(PLACE, ELDER_ID).get("ok")), "accept refused")
+	run.set_flag("pearl.fatty-one-eye")
+	quests.handle_event(QuestEvents.CONTROL_USED, {"controlId": "menu:map"})
 	var before := run.quests.duplicate(true)
 	var data := run.serialize()
 	var parsed: Variant = JSON.parse_string(JSON.stringify(data))
 	if not t.check(parsed is Dictionary, "the save did not parse"):
 		return
 	t.check(run.install(run._integers(parsed)), "install refused the save")
-	t.equal(quests.status(PLACE), "active", "status after the load")
+	t.equal(quests.status(MAIN), "active", "the main quest after the load")
 	t.equal(run.quests, before, "records after the round trip")
-	t.equal(typeof(quests.state(PLACE).get("accepted_at")), TYPE_INT, "accepted_at type")
-	t.equal(typeof(quests.state(PLACE).get("active_stage_id")), TYPE_STRING, "active_stage_id type")
-	t.check(run.is_quest_active(PLACE), "RunState lost the active quest")
+	t.equal(typeof(quests.state(MAIN).get("accepted_at")), TYPE_INT, "accepted_at type")
+	t.equal(typeof(quests.state(MAIN).get("active_stage_id")), TYPE_STRING, "active_stage_id type")
+	t.equal(int((quests.state(MAIN).get("progress") as Dictionary).get("take-pearl-1", 0)), 1, "the Pearl taken after the load")
+	t.check(run.is_quest_active(MAIN), "RunState lost the active quest")
 
 
-## Owner decision Q7: a broken record is reset to locked with a warning; the rest survives.
+## Owner decision Q7: a broken record is reset to locked with a warning; the rest survives (and a
+## retired id is dropped without one).
 func test_broken_record_resets(t: TestContext) -> void:
 	var quests := _quests(t)
 	var run := Services.run()
 	var data := run.serialize()
 	var records: Array = data["quests"]
 	for record: Dictionary in records:
-		if record["quest_id"] == "slime-basics":
+		if record["quest_id"] == BASICS:
 			record["progress"] = {"open-bag": 7}
 	records.append({"quest_id": "gather-building-materials", "status": "completed"})
 	run.install(data)
-	t.equal(quests.status("slime-basics"), "locked", "the broken record")
-	t.equal(quests.status(PLACE), "available", "a sound record")
+	t.equal(quests.status(BASICS), "locked", "the broken record")
+	t.equal(quests.status(MAIN), "active", "a sound record")
 	t.equal(run.quests.size(), CATALOG_ORDER.size(), "records after the load")
 
 
 func test_teardown_releases_npc(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
+	var pip := await _meet(t, PIP)
+	if pip == null:
 		return
 	var quests := _quests(t)
 	_interaction(t).handle_interact()
-	if not t.check(quests.dialogue.is_open() and elder.is_interaction_locked(), "no conversation"):
+	if not t.check(quests.dialogue.is_open() and pip.is_interaction_locked(), "no conversation"):
 		return
 	quests.close_conversations()
-	t.check(not elder.is_interaction_locked(), "the Elder stayed locked")
+	t.check(not pip.is_interaction_locked(), "Pip stayed locked")
 	t.check(not quests.dialogue.is_open() and not quests.offer_window.is_open(), "a window stayed open")
 	t.check(not t.world().has_pause_reason(&"modal"), "the modal pause stayed")
 	t.check(not t.tree.paused, "the world stayed paused")
 
 
-func test_toasts_banner_and_stacking(t: TestContext) -> void:
+## An ability learned shows its banner (the ceremony is off in the tests) with its key.
+func test_ability_banner(t: TestContext) -> void:
 	var quests := _quests(t)
-	var toasts: Array = []
 	var banners: Array = []
-	quests.notifications.toast_shown.connect(func(payload: Dictionary) -> void: toasts.append(payload))
 	quests.notifications.banner_shown.connect(func(payload: Dictionary) -> void: banners.append(payload))
-	quests.accept(PLACE, ELDER_ID)
-	if t.equal(banners.size(), 1, "banners on accept"):
-		t.equal(banners[0]["text"], "Chapter 1 — The Clearing", "chapter banner")
-		t.equal((banners[0]["color"] as Color).to_html(false), "ffd277", "chapter colour")
-	if t.equal(toasts.size(), 1, "toasts on accept"):
-		t.equal([toasts[0]["text"], toasts[0]["color"], toasts[0]["big"], toasts[0]["lift"]],
-			["Quest accepted: A Place to Work", "green", true, 70.0], "accept toast")
-	await t.steps(1)
-	quests.handle_event(QuestEvents.CRAFT_COMPLETED, WORKBENCH_CRAFT)
-	await t.steps(1)
-	quests.handle_event(QuestEvents.FURNITURE_PLACED, WORKBENCH_PLACED)
-	await t.steps(1)
-	toasts.clear()
-	quests.turn_in(PLACE, ELDER_ID)
-	var shown: Array = []
-	for toast: Dictionary in toasts:
-		shown.append([toast["text"], toast["lift"]])
-	t.equal(shown, [["QUEST COMPLETE: A Place to Work", 70.0], ["+ 20× Wood", 46.0], ["+ New recipe: Stone Axe", 26.0],
-		["+ New recipe: Stone Pickaxe", 6.0], ["New quest available: Stone Tools", 112.0],
-		["New quest available: A Tonic for Lili", 134.0]], "completion toasts (Q5: stacked 22 px)")
-	banners.clear()
 	Services.run().learn_ability("dodge")
 	if t.equal(banners.size(), 1, "ability banners"):
-		t.equal(banners[0]["text"], "Roll learned: press 2", "ability banner")
+		t.equal(banners[0]["text"], "Roll learned: press %s" % ControlLabels.control_label(AbilityBox.key_action(&"dodge")),
+			"ability banner")
 		t.equal((banners[0]["color"] as Color).to_html(false), "9ff0c8", "ability colour")
 
 
-func test_waypoint_points_at_the_giver(t: TestContext) -> void:
-	var elder := await _meet(t, ELDER)
-	if elder == null:
-		return
-	var tracker := _tracker(t)
-	var waypoint := t.tree.get_first_node_in_group(QuestWaypointView.GROUP) as QuestWaypointView
-	if not t.check(tracker != null and waypoint != null, "no tracker or waypoint"):
-		return
-	tracker.invoke_track()
-	t.check(tracker.showing_way(), "the waypoint is off after a click")
-	t.equal(tracker.model().get("title"), "➜ A Place to Work", "pointing title")
-	await t.steps(3)
-	var target := waypoint.target()
-	if t.check(not target.is_empty(), "no waypoint target"):
-		t.near_vec(target["position"], elder.get_phaser_position(), 0.01, "waypoint position")
-		t.equal(target["label"], "Talk to Village Elder Plop", "waypoint label")
-	t.equal(tracker.model().get("hint"), "➜ Follow the gold arrow · click again to hide", "hint while pointing")
-	t.check(waypoint.is_showing_marker(), "no waypoint pin")
-	var map_ui := t.tree.get_first_node_in_group(&"map_ui")
-	var markers: Variant = map_ui.get(&"markers") if map_ui != null else null
-	if markers is Object and (markers as Object).has_method(&"marker"):
-		var pin: Dictionary = (markers as Object).call(&"marker", &"quest-waypoint")
-		t.check(not pin.is_empty() and (pin["point"] as Vector2).is_equal_approx(elder.get_phaser_position()), "map marker %s" % [pin])
-	tracker.invoke_track()
-	t.check(not tracker.showing_way(), "a second click kept the waypoint")
-	t.equal(tracker.model().get("hint"), "Click to show the way", "hint after hiding")
-	# `process_frame` fires before the nodes' `_process`: wait for two.
-	await t.tree.process_frame
-	await t.tree.process_frame
-	if markers is Object and (markers as Object).has_method(&"has_marker"):
-		t.check(not bool((markers as Object).call(&"has_marker", &"quest-waypoint")), "the map marker stayed")
-
-
-## Abandon (journal command), the reoffer by the giver straight into the offer window, the
-## forbidden abandon of a main quest, and slime-basics' retry that never restarts (spec 2.8 quirk).
-func test_abandon_and_reoffer(t: TestContext) -> void:
+## The main quest cannot be abandoned; Slime Basics can, and its automatic retry leaves it locked
+## (its prerequisite no longer holds: spec 2.8 quirk).
+func test_abandon(t: TestContext) -> void:
 	var quests := _quests(t)
-	quests.debug_mark_completed(PLACE)
-	t.check(bool(quests.accept("a-tonic-for-lili", "lili").get("ok")), "accept refused")
-	t.equal(quests.abandon(PLACE).get("code"), "invalid-status", "abandoning a completed quest")
-	t.equal(quests.abandon("stone-tools").get("code"), "invalid-status", "abandoning an available quest")
-	var result := quests.abandon("a-tonic-for-lili")
-	t.check(bool(result.get("ok")), "abandon refused: %s" % [result])
-	var state := quests.state("a-tonic-for-lili")
-	t.equal([state.get("status"), state.get("active_stage_id"), state.get("resume_stage_id")], ["abandoned", "", "brew-tonic"], "abandoned record")
-	t.equal(quests.npc_candidate("lili").get("kind"), "reoffer", "Lili's candidate")
-	t.equal(quests.marker_for("lili"), "side-offer", "Lili's marker")
-	var lili := await _meet(t, "level-1-npc-lili")
-	if lili == null:
-		return
-	var interaction := _interaction(t)
-	t.equal(interaction.current().get("priority"), 85, "reoffer priority")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Resume quest with Lili", "reoffer prompt")
-	interaction.handle_interact()
-	t.check(not quests.dialogue.is_open(), "a reoffer opened the dialogue")
-	t.check(quests.offer_window.is_open(), "no offer window for the reoffer")
-	t.equal(quests.status("a-tonic-for-lili"), "available", "status after the reoffer")
-	quests.offer_window.invoke("accept")
-	t.equal(quests.status("a-tonic-for-lili"), "active", "status after accepting again")
-	t.check(not lili.is_interaction_locked(), "Lili stayed locked")
-	quests.debug_activate("stone-tools")
-	t.equal(quests.abandon("stone-tools").get("code"), "mandatory-quest", "abandoning a main quest")
-	t.check(bool(quests.abandon("slime-basics").get("ok")), "slime-basics could not be abandoned")
-	t.check(bool(quests.retry_abandoned_automatic("slime-basics").get("ok")), "retry refused")
-	t.equal(quests.status("slime-basics"), "locked", "slime-basics after the retry (its prerequisite no longer holds)")
-
-
-## Quests spec 4.6 level-1 targets: the worm camp, the forge ruin and the workshop ruin in C4, then
-## the way into Fatty's Lair in D5 and the exit to gloop-forest in D4 (the waypoint resolves on the
-## current world).
-func test_waypoint_targets_on_level_1(t: TestContext) -> void:
-	var quests := _quests(t)
-	var from := Vector2(640.0, 704.0)
-	var cases := [
-		["worm-trouble", "clear-camp", Vector2(1130.0, 1514.0)],
-		["rekindle-the-forge", "", Vector2(1190.0, 1068.0)],
-		["the-old-workshop", "", Vector2(640.0, 392.0)],
-	]
-	_check_waypoints(t, quests, cases, from)
-	quests.debug_mark_completed(PLACE)
-	t.check(QuestWaypoint.resolve(quests.view("a-tonic-for-lili"), from).get("label") == "Talk to Lili", "the giver of an offer")
-	if not await _travel(t, GATE_MAP):
-		return
-	# D5's place: the Lair's gate in the hill's notch (Fatty's way in, quest_waypoint.gd
-	# BOSS_WAY_IN_GROUP) at (1408, 768).
-	_check_waypoints(t, quests, [
-		["the-one-eyed-guardian", "defeat-fatty", Vector2(1408.0, 768.0)],
-	], t.player().get_centre())
-	if not await _travel(t, VERDANT_MAP):
-		return
-	# D4's place: the exit at level-1's (4064, 576) less the chunk origin (2048, 0).
-	_check_waypoints(t, quests, [
-		["the-one-eyed-guardian", "verdant-gate", Vector2(2016.0, 576.0)],
-	], t.player().get_centre())
-
-
-## Activates each [quest, stage, expected target] and checks the waypoint from `from`.
-func _check_waypoints(t: TestContext, quests: QuestService, cases: Array, from: Vector2) -> void:
-	for entry: Array in cases:
-		quests.debug_activate(entry[0], entry[1])
-		var view := quests.view(entry[0])
-		var target := QuestWaypoint.resolve(view, from)
-		var stage_definition := QuestCatalog.stage(view["definition"], str(view["active_stage_id"]))
-		var label := str((QuestCatalog.objectives(stage_definition)[0] as Dictionary)["label"])
-		if t.check(not target.is_empty(), "no target for %s" % [entry]):
-			t.near_vec(target["position"], entry[2], 0.5, "%s target" % entry[0])
-			t.equal(target["label"], label, "%s label" % entry[0])
+	t.equal(quests.abandon(MAIN).get("code"), "mandatory-quest", "abandoning the main quest")
+	t.check(bool(quests.abandon(BASICS).get("ok")), "slime-basics could not be abandoned")
+	t.equal(quests.status(BASICS), "abandoned", "slime-basics after abandoning")
+	t.check(bool(quests.retry_abandoned_automatic(BASICS).get("ok")), "retry refused")
+	t.equal(quests.status(BASICS), "active", "slime-basics after the retry")
 
 
 # --- helpers ----------------------------------------------------------------------------------
@@ -764,15 +347,6 @@ func _npc(t: TestContext, instance_id: String) -> Node:
 	return null
 
 
-func _camp(t: TestContext, camp_id: String) -> BossCampScript:
-	for node: Node in t.tree.get_nodes_in_group(BossCampScript.GROUP):
-		if node is BossCampScript and (node as BossCampScript).camp_id == camp_id:
-			return node
-	return null
-
-
-## The player at CENTRE, the NPC 40 px to its right (standing still, not locked), the interaction
-## refreshed. Null when the NPC is missing.
 func _meet(t: TestContext, instance_id: String) -> Node:
 	var npc := _npc(t, instance_id)
 	if not t.check(npc != null, "no NPC %s" % instance_id):
@@ -796,14 +370,6 @@ static func _fake_clock(dialogue: DialogueBox) -> Dictionary:
 	return clock
 
 
-## Advances the dialogue until it ends (finished).
-static func _read_through(dialogue: DialogueBox) -> void:
-	var guard := 40
-	while dialogue.is_open() and guard > 0:
-		dialogue.advance()
-		guard -= 1
-
-
 ## A physical key press (and its release, or an echo press when `echo`).
 static func _key(t: TestContext, code: Key, echo: bool = false) -> void:
 	var press := InputEventKey.new()
@@ -817,30 +383,3 @@ static func _key(t: TestContext, code: Key, echo: bool = false) -> void:
 	release.physical_keycode = code
 	release.pressed = false
 	t.tree.root.push_input(release)
-
-
-## Walks the player onto a pile (old position `at`) and waits until it is taken.
-func _pick_up(t: TestContext, instance_id: String, at: Vector2) -> bool:
-	t.teleport_player(at - Vector2(0.0, 14.56))
-	var taken := await t.until(func() -> bool:
-		return int(Services.run().collectible_record(VILLAGE_MAP, instance_id).get("remaining", 1)) == 0, 500.0)
-	return t.check(taken, "%s was not picked up" % instance_id)
-
-
-## Travels to chunk world `map` (west entry) unless the test already runs there. False on failure.
-static func _travel(t: TestContext, map: String) -> bool:
-	if t.world().map_id() != map:
-		if not t.check(t.main.travel_to(map, "west"), "travel to %s was refused" % map):
-			return false
-		var arrived := await t.until(func() -> bool:
-			return not t.main.is_transitioning() and t.world().map_id() == map and t.player() != null, 3000.0, 6000.0)
-		if not t.check(arrived, "the player did not reach %s" % map):
-			return false
-		await t.steps(2)
-	return true
-
-
-static func _close_end_card() -> void:
-	var shell := Services.shell()
-	if shell != null and shell.end_card.is_open():
-		shell.end_card.close()

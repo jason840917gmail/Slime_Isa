@@ -1,0 +1,43 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://asset/MAPS/items/64x64-roll-fragment.webp" id="1"]
+[ext_resource type="Script" path="res://game/scripts/collectible.gd" id="2"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/key.ogg" id="4"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 28.0
+
+[node name="Roll fragment" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+offset = Vector2(-32, -58)
+
+[node name="PickupArea" type="Area2D" parent="."]
+y_sort_enabled = true
+collision_layer = 64
+collision_mask = 32
+monitoring = false
+
+[node name="PickupShape" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("CircleShape2D_1")
+
+[node name="CollectibleScript" type="Node" parent="." node_paths=PackedStringArray("pickup_area")]
+script = ExtResource("2")
+map_id = "map-template"
+instance_id = "collectible-template"
+object_id = "collectible.roll-fragment"
+item_id = "roll-fragment"
+quantity = 1
+pickup_area = NodePath("../PickupArea")
+
+[node name="PickupSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("3")
+process_mode = 3
+stream = ExtResource("4")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0

@@ -66,6 +66,9 @@ const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ThrowFeel := preload("res://game/throw/throw_feel.gd")
 ## The rebound prototype: the things in the air the mouth can catch.
 const ThrowRebound := preload("res://game/throw/throw_rebound.gd")
+## The weight cue (question 162): the highlight and weight pips over the thing in reach, and the
+## strain when the Gulp is too weak for it (game/throw/weight_cue.gd).
+const WeightCue := preload("res://game/throw/weight_cue.gd")
 ## Throw combat: what the mouth says when only a thing too heavy for its level was in reach.
 const TEXT_TOO_HEAVY := "Too heavy! (Gulp %d needed)"
 const TOO_HEAVY_COLOR := &"orange"
@@ -196,6 +199,9 @@ func press() -> void:
 func step(now_ms: float, held: bool) -> void:
 	if not _can_act():
 		return
+	# The weight cue follows the slime on its own once made (one per world).
+	if ThrowMode.is_on():
+		WeightCue.ensure()
 	_mouth.update(now_ms, held, _aim())
 	if _burst_on:
 		_end_empty_burst(now_ms)
@@ -461,7 +467,7 @@ func _puff() -> void:
 
 
 ## Throw combat: an empty burst with a liftable in reach that the Gulp's level cannot lift says so
-## (and the refusal cue plays).
+## (and the refusal cue plays), and the thing strains (the weight cue's `strain`).
 func _say_too_heavy() -> void:
 	if not ThrowMode.is_on():
 		return
@@ -470,6 +476,7 @@ func _say_too_heavy() -> void:
 		return
 	var weight := str(heavy.call(&"weight")) if heavy.has_method(&"weight") else ThrowMode.HEAVY
 	_say(TEXT_TOO_HEAVY % ThrowMode.level_for(weight), TOO_HEAVY_COLOR)
+	WeightCue.strain(heavy, _player)
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE_TOO_HEAVY)

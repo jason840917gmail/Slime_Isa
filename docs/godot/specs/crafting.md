@@ -79,6 +79,11 @@ Every recipe has `tier: 1`. `U` = `uniqueOutput: true`, `Q` = `learnedByQuest: t
 | 13 | `brew-fizzy` | Brew Fizzy Brew | kitchen | — | purple-berry-mat 2, shard 1 | energy-potion 1 | Charge berry juice with crystal shards for energy recovery. |
 | 14 | `weave-tonics` | Sticky Field Kit | kitchen | — | purple-berry-mat 2, silk-clump 2 | hp-potion **2** | Use spider-silk binding to pack two tonics. |
 
+**[DIFF] Release 1 (2026-11-20, §12):** `brew-tonic` and `cook-berry-basket` moved to the
+`campfire` station and `brew-fizzy` to the `forge` (the relit Forge), all three Q (taught by talks:
+Lili, Dora, Pip); `smelt-charcoal` and `smelt-iron-bar` are Q too, and nobody teaches them, so the
+Forge does not list them (the old crafted-gear chain is unhooked, deleted in a later clean-out).
+
 Notes: the recipe `name` is used in the list, in "Crafted 1 × <name>" and "Crafted: <name>"; the
 details heading uses the **output item's** name instead (`Brew Slime Tonic` lists as "Brew Slime
 Tonic" but the heading reads "Slime Tonic"). No station of kind `kitchen` exists in any world, so
@@ -93,9 +98,10 @@ A **site** is `{station, tier}`. `PORTABLE_SITE = {station: "portable", tier: 1}
 |---|---|---|---|
 | `portable` | Crafting | — | the Crafting tab of the menu (§5); there is **no C key** although comments at `:4, 89` and `types.ts` say "with C" [QUIRK] |
 | `workbench` | Workbench | — | `object.interior-workshop-workbench(-vise)` scenes ("Use workbench", r 90, rise 76-76.85); in worlds only gloop-forest `gloop-ch2-workbench` at (1880, 1712); a placed workbench item [OUT] |
-| `workshop` | Workshop | `workbench` | level-1 `level-1-workshop/station-script` at (640, 392), only in the `workshop.restored` story variant ("Use the Workshop", r 150, rise 150) |
+| `workshop` | Workshop | `workbench` | level-1 `level-1-workshop/station-script` at (640, 392), only in the `workshop.restored` story variant ("Use the Workshop", r 150, rise 150). [DIFF, 2026-11-20] nowhere: the raised Workshop has no station (§12.1) |
 | `forge` | Forge | — | level-1 `level-1-forge/station-script` at (1190, 1068), only in the `forge.restored` variant ("Use the Forge", r 130, rise 130) |
 | `kitchen` | Kitchen | — | nowhere |
+| `campfire` [DIFF, 2026-11-20] | Campfire | — | every campfire (`decoration-world-solid--campfire.tscn`'s `CookStation`, "Cook", r 96, rise 104): §12.1 |
 
 - `siteTitle(site)` (`:118-120`): `tier > 1 ? "<name> · Tier <tier>" : "<name>"` (U+00B7 with one
   space each side). Every authored site has tier 1, so titles are "Crafting", "Workbench",
@@ -130,7 +136,10 @@ Resulting lists (verified by importing the module in Node):
 | kitchen | brew-fizzy, weave-tonics |
 
 A station never lists the portable recipes (a workbench cannot brew a tonic; the player switches
-to the Crafting tab, §5).
+to the Crafting tab, §5). **[DIFF] since 2026-11-20** the lists above are Phaser's: today the
+portable site lists only `craft-workbench` and is no longer offered (the Crafting tab is gone),
+`campfire` lists `brew-tonic`, `cook-berry-basket` and `forge` `brew-fizzy`, each only once known
+(§12.1), and `kitchen` keeps `weave-tonics`.
 
 ### 1.3 Learned recipes
 
@@ -421,7 +430,7 @@ quantity is not in the text).
 | Path | Site | Refused when | Source |
 |---|---|---|---|
 | Interact with a station (`game.workbench`) | the station's `{recipeContext, tier}` | the world is paused, or crafting or the bag is open | `WorldScene.ts:1279-1285`; also emits `workbench.opened {mapId, context}` [OUT: quests] |
-| The Crafting tab of the menu strip (§5) | **portable** (`open()` default) | another tab window is not open (tabs only show while one is) | `MenuTabsSurfacePort.ts:74-83` |
+| The Crafting tab of the menu strip (§5) | **portable** (`open()` default) | another tab window is not open (tabs only show while one is) | `MenuTabsSurfacePort.ts:74-83`; **[DIFF] gone since 2026-11-20** (§12.1) |
 | `toggle(site)` | — | unused | `:44` |
 
 `open(site)` (`:47-58`): no-op when already open (or destroyed). Sets the site; keeps the
@@ -589,6 +598,9 @@ sources); during a hit-stop (not a pause source) it opens the bag. The `map` key
 
 ### 5.2 The tab strip (`ui.menu-tabs`, `MenuTabsSurfacePort.ts`)
 
+- **[DIFF] 2026-11-20:** three tabs, Bag / Journal / Map, on a 300 × 36 strip `(−150, 4)–(150,
+  40)`; the Crafting tab is gone (§12.1), the coach reads "These tabs switch between your Bag,
+  Journal and Map. Click one!" and the menu key also closes a station's window. Phaser's strip:
 - Visible only while one of the four tab windows is open (`current()` = first open of inventory,
   crafting, journal, map). Container 360 × 36 at the top centre: `(−180, 4)–(180, 40)` from
   `(0.5, 0)`; zIndex 95 (over the windows, 90); radius 10, shadow `0 10px 28px #080e1abf`.
@@ -903,7 +915,8 @@ accumulated = 0; quiet_until = t + 150; return true                           # 
   150 ms [QUIRK: a scroll during a swing is usually lost].
 - During furniture placement the wheel cycles the placement variant instead [OUT].
 - **No number keys switch weapons**: 1-4 are the abilities (dodge, stretch lash, squash slam,
-  teleport). The belt's "1"-"4" labels in the bag are positions only.
+  teleport). The belt's "1"-"4" labels in the bag are positions only. *Since 2026-11-20 keys 1-4
+  drink from the potion belt (§12.4); the old abilities have no number keys.*
 
 ### 8.6 The HUD hotbar (`WeaponHotbarSurfacePort.ts` + `ui.weapon-hotbar`)
 
@@ -1368,7 +1381,7 @@ slot" list covers assignment); saves (`RunState` already holds every value).
 | C3 | The trial sword (O5) vs Phaser's empty hand | Grant `basic-sword` into the bag and slot 1 at a new run while the trial lasts, so the belt, bag and hotbar show it; parity (no weapon) once quests and placement land |
 | C4 | Fix K10 (potions at full HP) and K11 (first stack)? | Fix K10 in the port (refuse with "Already at full health"? needs a text decision); keep K11 |
 | C5 | Keep K13 (slam hammer reconcile) and K4 (tabs lose the station)? | Drop K13 (arsenal logic is dead-code residue); keep K4 for parity |
-| C6 | Add number keys for the belt? | No for parity (1-4 are abilities) |
+| C6 | Add number keys for the belt? | No for parity (1-4 are abilities); since 2026-11-20 1-4 are the potion belt's (§12.4), never the weapon belt's |
 
 Owner decisions (2026-10-05), as ported: **C1** superseded the same day by the furniture port
 ([furniture.md](furniture.md)): crafting a Workbench closes the window and starts placement, and
@@ -1397,3 +1410,160 @@ Godot's default focus navigation (no Home / End).
 - interaction.md §3.6 / §8.6: the workbench opens the crafting window.
 - world-objects.md §0 OUT list: bag drops, the inventory UI and the belt advice are done.
 - GODOT_MIGRATION.md "Not yet": crafting, the bag and the belt move to done.
+
+---
+
+## 12. Release 1: the campfire panel, the relit Forge and Dollop's shop (2026-11-20)
+
+Steps B1 and B2 of the plan to make Release 1 playable (docs/story/07-decisions-archive.md,
+2026-11-19: "No flasks": a potion is an ordinary bag stack, the shop sells potions, ingredients and
+one belt slot, the craft panel opens at a campfire; question 161). The belt itself is step B3
+(§12.4).
+
+### 12.1 The campfire and the Forge
+
+- **Every campfire is a station.** `game/scenes/objects/decoration-world-solid--campfire.tscn` has a
+  `CookStation` child (`workbench.gd`, `recipe_context` "campfire", prompt "Cook", radius 96, badge
+  rise 104), so every placed or painted campfire (the Wellspring's, C4's and C5's in Slimeshire, the
+  mine camp's, the old worlds') opens the crafting window titled "Campfire". `RecipeCatalog`:
+  `campfire` in `STATION_INCLUDES` / `STATION_NAMES`; `WorkbenchScript.STATIONS` accepts it.
+- **The relit Forge** (`objects/forge.tscn`, its `Restored` variant once `forge.restored`, set by
+  Pearl 3's homecoming since the owner's change of 2026-11-20, Pearl 2's before) keeps its `forge`
+  station ("Use the Forge"), which now brews the Fizzy Brew.
+- **The raised Workshop has no station** (2026-11-20, owner): `objects/workshop.tscn`'s `Restored`
+  variant (once `workshop.restored`, set by Pearl 2's homecoming) is only the building; its old
+  "Use the Workshop" workbench (`recipe_context` "workshop", the Slam Hammer and the crafted gear,
+  unhooked from Release 1) is gone. It is Pip's place, where he carves the Bow's rune
+  (quests spec 14.3). Its ruin's site reads "Look at the old Workshop" ("The old Workshop has caved
+  in. Nobody has worked here in years.").
+- **Known recipes only.** `RecipeCatalog.KNOWN_ONLY_STATIONS` (`campfire`, `forge`): a recipe that
+  must be learned (`learnedByQuest`) is listed only once the slime knows it (`is_listed`), so a
+  campfire starts empty ("No recipes known yet" / "The slimes you meet teach recipes. Come back once
+  someone has shown you one.") and the Forge never shows the unhooked smelting. The teachers are
+  talks (quests spec 14.3): Lili's first talk `brew-tonic`, Dora's `cook-berry-basket`, Pip's once
+  the Forge is lit `brew-fizzy` (after Pearl 3 is home, so after the Colossus); and recipe pages (step B6, 2026-11-20): the sally port's chest holds one that teaches `cook-berry-basket` ([quests spec 14.8](quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)). `?recipes` still knows everything.
+- **No Crafting tab.** Crafting happens at a station only; the menu strip has Bag, Journal and Map
+  (§5.2 [DIFF]), the menu key also closes a station's window, and the portable recipe
+  (`craft-workbench`) is no longer offered. The control hint `crafting` reads "Campfires cook and
+  brew: walk up to one and use it" while a campfire recipe is known; Slime Basics' objective
+  `see-crafting` is "Use a campfire" (the same `menu:crafting` control, now met by a station's
+  window). A refused "not-learned" craft says "Not learned yet: someone has to teach it first."
+
+| Recipe | Station | Ingredients | Output | Taught by |
+|---|---|---|---|---|
+| `brew-tonic` Brew Slime Tonic | campfire | purple-berry-mat 3 | hp-potion 1 (+40 HP) | Lili |
+| `cook-berry-basket` Berry Basket | campfire | purple-berry-mat 2, wood 5 | berry-basket 1 (+20 HP, +30 energy) | Dora |
+| `brew-fizzy` Brew Fizzy Brew | forge | purple-berry-mat 2, shard 1 | energy-potion 1 (+50 energy) | Pip, once the Forge is lit (Pearl 3 home) |
+
+### 12.2 Potions
+
+A potion is an ordinary bag stack: `inventory.maxStackByItem` caps `hp-potion`, `energy-potion` and
+`berry-basket` at **5** a stack (9 before), so the bag's slots and the cap are the only limits.
+They are drunk from the bag's Use (§7) and from a belt slot (§12.4).
+
+### 12.3 The shop
+
+- **Data** (`shop.<shop id>` in `game-constants.json`, read by `game/shop/shop_catalog.gd`): `name`,
+  `keeper`, `openFlag`, `greeting` and `stock` [{`itemId`, `price` in coins, `count` per purchase
+  (1), `once` (sold one time), `soldFlag` (default `shop.<shop>.<item>.sold`)}]. Dollop's
+  (`shop.dollop`, "Dollop's General Store"), open once `glimmerhill.market-hill.awake` is set:
+
+| Item | Price (coins) | Per purchase |
+|---|---|---|
+| hp-potion (Slime Tonic) | 30 | 1 |
+| energy-potion (Fizzy Brew) | 40 | 1 |
+| purple-berry-mat (Purple Berry) | 6 | 1 |
+| shard (Crystal Shard) | 15 | 1 |
+| belt-slot (Belt Slot) | 120 | 1, **once** (`shop.dollop.belt-slot.sold`) |
+
+  A new run has 50 coins; worms drop 8 to 10, pots 5, chests 25 to 30. Dollop sells no wood (owner,
+  2026-11-20): the Berry Basket's wood lies loose in the world (small wood piles of 3) and falls from
+  trees a Roll bonks (`object.loose-wood`, [SKINS.md](../SKINS.md)).
+- **The counter** (`game/shop/shop_counter.gd`, node `shop-counter` in
+  `rooms/west-village/west-village-shop.tscn` at (468, 300), radius 64, badge rise 96): a `usable`
+  (priority 70) with the prompt "Shop", offered only while the shop is open (so not while Dollop
+  sleeps); it opens the shop window. Dollop's own talk ("Talk to Dollop", her shop lines and the tip
+  `dollop.shop`) is offered from her right side, out of the counter's reach.
+- **A purchase** (`ShopCatalog.buy`), all or nothing, the first failing check wins: closed, unknown,
+  `sold-out`, `no-coins` (`RunState.coins() < price`), `bag-full` (`transact_items` with `preview`);
+  then `spend_coins(price)`, `transact_items` adds the count, a `once` entry sets its sold flag, and
+  the Coin cue plays (CraftFail on a refusal).
+- **The window** (`game/ui/screens/shop_window.gd`, surface `shop`, group `shop_window`, added to
+  GameWindows by main; 920 × 600 at most): the shop's name and the slime's coins (the coins' picture)
+  at the top, the keeper's greeting under them; the stock two to a row on the left (icon, name,
+  "<price> coins"; a sold-out row dimmed and reading "Sold out", a row the coins do not reach with the
+  red edge); the selected entry's description, price and "In your bag: N" on the right; the status
+  line, Buy and Close at the bottom. A click selects, a right click (or Space / Enter on a focused
+  cell) buys, Buy buys the selected entry, the arrows or WASD move the selection, Escape closes. The
+  status says "Bought <item> for N coins." (green), "Not enough coins: it costs N and you have M." or
+  "Your bag is full: make room first." or "Sold out." (red), else the selected entry's live state; it
+  follows `coins_changed` and `inventory_changed` while open.
+- **The belt slot** is item `belt-slot` ("Belt Slot", category `belt`, icon
+  `asset/MAPS/items/64x64-belt-slot.webp` as `items-belt-slot`, max stack 4). Bought, it opens a belt
+  slot at once and never sits in the bag (§12.4); the window's details read "Belt slots found: N of
+  4" in place of "In your bag", and a purchase is refused as `bag-full` only when all four are open.
+
+### 12.4 The potion belt (step B3, 2026-11-20)
+
+The owner (2026-11-19, question 161): "with the slots we can have many potion types but assign only
+one type to the fast-use slot; a stack of 5 health potions assigned to slot 1 is used until it is
+gone".
+
+- **State** (`RunState`, saved with the run): `player.belt` = `{"open": 0..4, "kinds": [4 × potion
+  item id or ""]}`; `potion_belt_open()`, `potion_belt_kinds()`, `potion_belt_kind(i)`,
+  `open_potion_belt_slot()`, `set_potion_belt_kind(i, kind)` (a kind already on another slot moves:
+  one kind per slot; "" empties it); signal `potion_belt_changed {open, kinds, opened, quiet}`. A
+  slot keeps its kind when the stack runs out. A save from before 2026-11-20 has no belt and loads
+  with none open; a `belt-slot` it bought from Dollop, sitting in its bag, leaves the bag and opens
+  its slot on load (quietly).
+- **Slots are permanent finds.** An item of category `belt` never goes into the bag: every way in
+  (`add_item`, a pickup, a chest's take: `transfer_chest_stack`, `transact_items`: the shop) opens
+  one more slot instead, up to 4 (`item_capacity` is the slots still closed, whatever the bag
+  holds). A slot opened not quietly plays the ceremony (InventoryActions,
+  `AbilityCeremony.request_entry`, the belt slot's icon): "Belt slot" / "Slot N of 4" / the item's
+  line / "Set a potion to it in your bag; its number key (N) drinks one". A chest's slot waits for
+  the chest window to close (the ceremony waits for windows). With ceremonies off (tests): "Belt
+  slot N!" (yellow, big) over the slime.
+- **The four finds**: Slimeshire's lookout-bell chest (`level-1-c5-lookout-chest` in
+  `chunks/level-1-c5.tscn`, raised by the bell on the lookout rock: belt-slot, 25 coins, a Fizzy
+  Brew), Gloop Forest's iron hollow behind its plate gate (`gloop-forest-f5-hollow-chest`, a wooden
+  chest added in the yard's north-east corner of `chunks/gloop-forest-f5.tscn`: belt-slot, a Slime
+  Tonic), the Crystal Mine's S1 (`crystal-mine-M4-S1-chest` in `crystal-mine.tscn`: belt-slot, 50
+  coins), and Dollop's shop (120 coins, once). A save whose chest record was made before (the chest
+  seen or opened) keeps its old contents: those slots are found again only on a new run.
+- **Which items** (`game/inventory/potion_belt.gd` `is_potion`): a `consumable` whose `use` is not
+  an essence's gulp: the Slime Tonic, the Fizzy Brew, the Berry Basket.
+- **Keys**: input actions `potion_1` .. `potion_4` on 1-4 (`project.godot`; the old Swallow, Roll,
+  Stretch Lash, Squash Slam and Teleport lost their digits, and the Roll is on Space there too, as
+  the rework layer had it). The keys-only layouts bind no digit, so 1-4 work in every scheme. The
+  player captures them (`PlayerInputBuffer.ACTIONS`) and reads them in every physics step it is
+  under control (walking, rolling, climbing, swinging: `player.gd _use_belt_presses`), not while
+  dead, asleep, in a bath, walking out of a door, or while a travel, a scene's hold or a knockback
+  suppresses it (the press ages out in the 150 ms buffer); a window or the ceremony pauses the step
+  and clears the presses. The Controls list has a row "1–4: Drink one potion from that belt slot"
+  (and leaves out a control with no key).
+- **Drinking** (`InventoryActions.drink_belt_slot(i)`; keys and the HUD's click): nothing for a slot
+  not found yet, a dead slime or the prologue; refused with a white line (42 px above the slime, no
+  cue) when the open slot has no kind ("Belt slot 2 is empty: set a potion to it in your bag"), the
+  bag holds none of it ("No Slime Tonic left") or it would do nothing (`PotionBelt.useless_reason`:
+  "Your health is full", "Your energy is full", "Your health and energy are full"; the bag's Use
+  still drinks anyway, K10); else `use_item(kind)` (its cue, "+N" and Heal, EnergyRestore; one from
+  the first stack).
+- **The HUD** (`game/ui/potion_belt_bar.gd`, placed by `hud.gd` on HudConsole's `potions` rect): a
+  potions group on the console bar after the abilities, GROUP_GAP (18) apart, one 46-unit slot per
+  open slot (none drawn until the first is found). A set slot: the kind's bag icon, the bag's count
+  in a chip at the top left (red at 0, the icon dimmed) and the key badge (1-4); an open slot with
+  no kind: just its number in the middle. A click drinks (an empty slot opens the bag).
+  `HudConsole.layout(viewport, abilities, weapon_shown, potion_count)`; Shape + Ability + Roll + four
+  potions is 950 units, so it fits the 1024-unit minimum width on the one bar.
+- **The bag** (`inventory_screen.gd`, `inventory_model.gd`): with a potion kind selected and a slot
+  found, a Belt row under Use: "Belt" and one cell per open slot ("Belt 1" .. "Belt 4"; the one
+  holding this kind pressed; the tooltip names what each holds). A click, Space / Enter on a cell, or
+  the slot's own key (1-4) while the bag is open sets the kind there (off any other slot); on the
+  slot that already holds it, it empties the slot (`InventoryActions.assign_belt_slot`). The amount,
+  Drop and Destroy rows move 46 units down while the row shows. The status adds " · on belt N"
+  (accent colour) and the bag cell names its slot ("Belt 1") at its top left. Model keys:
+  `potion_belt_visible`, `potion_belt` [{id, label, kind, tooltip}], `potion_belt_selected_index`, and
+  `belt` on each item entry.
+- **Pictures**: `godot/tools/render_belt.gd` renders the HUD, the bag with a potion selected and the
+  ceremony card.

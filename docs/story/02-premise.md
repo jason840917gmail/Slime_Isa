@@ -35,7 +35,9 @@ his aberrations.
   terrorized its inhabitants ever since. Their rule displaced creatures, drove
   the smith away, left the Forge cold and reduced the Workshop to ruins. The
   smith now works his crystal mine in the caverns, which the Crystal Colossus
-  has blocked (Planned, owner, 2026-10-16).
+  has blocked (Planned, owner, 2026-10-16). *Since 2026-11-20 (owner): he
+  stays at his mine once the Colossus falls, and his son Pip keeps the
+  Workshop.*
 - **The war** (Planned, owner, 2026-10-16,
   [prologue](../design/2026-10-16-prologue.md)). Old Veteran Yoi of the
   Thorn Guard held the gate against Gorge's monsters in the great war. When
@@ -45,7 +47,10 @@ his aberrations.
   bit by bit.* *Since 2026-11-17 (owner, question 152): the Guard lives on,
   small: Yoi the veteran, Bram the apprentice at Glimmerhill's south gate, and
   the guards at the border posts. Only the soldiers who fell in the old forts
-  were raised as skeletons.*
+  were raised as skeletons.* *Built 2026-11-20: the war journal's three pages
+  (the old gates and Gorge's worms; the forts falling and the fallen raised;
+  the Wellspring dimming, Slimeshire under its floor and Yoi keeping watch),
+  read again in the journal's War journal, and Yoi in his home with his tips.*
 - **Gorge's army** (owner, 2026-10-16). Worms of every kind make up most of
   Gorge's army: the swordsmen, archers and brawlers, the grunts, the burrowing
   Popworms and the Pipe Worms are his soldiers. They look the part: mean faces,
@@ -73,7 +78,8 @@ his aberrations.
   The slime learns to move and to gulp on its own, and its first teacher is
   Yoi, the veteran it saves, who teaches it the Spear.*
 - **A silent hero**, as in Zelda. Others talk to it, and it answers with
-  actions and squishy reactions.
+  actions and squishy reactions. *Settled 2026-11-21 (owner, question 4):
+  "hero is silent".*
 - **Name: Bob** (owner, 2026-11-17, question 3). The game is named after Isa,
   one of its creators, and keeps its title; Isa is a girl in Glimmerhill.
   *Until then: Open, whether the hero is called Isa.*
@@ -146,10 +152,17 @@ his aberrations.
    of town comes to life: Pearl 1 wakes Market Hill, and the next Pearls the
    next parts (question 159); some parts stay shut or dead for Pearls 4 to 8.
    A woken fountain refills energy, so Slimeshire's well goes; whether Pearl 2
-   still lights the Forge is part of question 159.*
+   still lights the Forge is part of question 159.* *Settled 2026-11-19
+   (question 159): it does. Built 2026-11-20: the homecomings and the town's
+   parts waking; the fountains' energy refill is not built.* *Changed
+   2026-11-20 (owner): Pearl 2 raises Slimeshire's old Workshop instead, where
+   Pip, the smith's son, carves the Bow's rune, and Pearl 3 lights the Forge
+   (built the same day).*
 3. **Midpoint** (Open: which chapter): Gorge wakes. The rumbling becomes
    eruptions, Gorge steals the returned Pearls back and holds them all again,
-   and the stakes rise. The slime keeps its skins.
+   and the stakes rise. The slime keeps its skins. *Changed 2026-11-21 (owner,
+   question 9): there is no midpoint waking: Gorge wakes only after all the
+   other bosses are beaten; what he does then is the finale's to design.*
 4. **Finale: Volcano Ridge.** Gorge has become a giant molten slime who has
    gulped everything around him. He fights with every Pearl, one at a time,
    and the slime answers with every skin it has earned.
@@ -167,7 +180,8 @@ his aberrations.
   Bosses are beaten, not killed: when the Pearl leaves them, they shrink back
   and calm down. *Open since 2026-10-17: the slime takes the Pearl before the
   fight and the boss keeps his strength, so what makes him shrink back is
-  not decided.*
+  not decided.* *Answered 2026-11-21 (owner, question 168): "bosses stay
+  defeated"; a beaten boss stays beaten, with no shrinking scene.*
 - **Themes:**
   - growing up (a newborn learns everything);
   - community (rebuilding Slimeshire together);
@@ -178,7 +192,9 @@ his aberrations.
 These are new pieces the story would need. *As built (2026-11-14): the
 prologue and the Wellspring's screen (2026-10-16), the Pearls inside their
 dungeons (2026-10-17) and bosses that stay beaten; the homecoming scenes and
-Glimmerhill's waking are not built.*
+Glimmerhill's waking are not built.* *Built 2026-11-20: the homecoming scenes
+([PROLOGUE.md](../godot/PROLOGUE.md#the-homecoming-2026-11-20)) and Glimmerhill
+asleep and waking ([VILLAGERS.md](../godot/VILLAGERS.md#asleep-until-its-pearl-comes-home-2026-11-20)).*
 
 - **The Wellspring:** the prologue's lake, a pool of glowing goo ringed by
   forest in the south, between chunks B4 and C4, where the slime is born.
@@ -191,6 +207,9 @@ Glimmerhill's waking are not built.*
   map.* *Changed 2026-10-16 (seventh round, question 112): it lies on B4's
   south edge, sealed off by forest, and the West village's town sits in B4's
   north and A4; the forest path to it leaves Slimeshire, not the town.*
+  *Built 2026-11-20: the homecoming plays when the slime comes to the pool
+  with a Pearl not yet home, the pool's glow brightens a step for each Pearl
+  home, and a campfire stands by it; the energy refill is not built.*
 - **The prologue** (Planned, owner, 2026-10-16, question 97;
   [prologue design](../design/2026-10-16-prologue.md)): the slime is born at
   the Wellspring, learns to move and to gulp, sees Yoi fall to four worms,
@@ -209,7 +228,9 @@ Glimmerhill's waking are not built.*
   dungeon, and Fatty's Lair caves in once he falls).
 - **Glimmerhill's fountains** (Planned, owner, 2026-11-17, question 149): one
   per part of the town, dry until a Pearl comes home; the parts after Market
-  Hill are question 159.
+  Hill are question 159. *Built 2026-11-20: Market Hill's (B4), West Hill's
+  (A4), the south gate's (B5) and the farms' (A5, dry all of Release 1), each
+  bursting into flow when its part wakes (question 159's parts).*
 
 
 Me quede aqui. en la historia review

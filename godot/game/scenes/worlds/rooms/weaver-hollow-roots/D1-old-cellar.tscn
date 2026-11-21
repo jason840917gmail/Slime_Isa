@@ -77,7 +77,7 @@ texture = ExtResource("10_d8gy8")
 map_id = "weaver-hollow-roots"
 instance_id = "weaver-hollow-roots-old-cellar-chest"
 initial_contents = {
-"coins": 40
+"war-journal-page-2": 1
 }
 
 [node name="old-cellar-glint" parent="Objects" unique_id=592377347 instance=ExtResource("11_2l8bs")]

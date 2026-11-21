@@ -10,9 +10,9 @@ extends CanvasLayer
 ## | move | "Move with WASD" | always |
 ## | interact | "Right-click to talk, open or use" | the interact button has a target |
 ## | attack | "Left-click to attack" | a weapon is in hand |
-## | dodge | "Press 1 to roll out of danger" | the dodge is learned and an enemy is within 360 px |
+## | dodge | "Press Space to roll out of danger" (the key from the bindings) | the dodge is learned and an enemy is within 360 px |
 ## | inventory | "Press B to open your bag" | the bag holds something |
-## | crafting | "Press B, then Crafting, to craft" | the bag holds 40 wood |
+## | crafting | "Campfires cook and brew: walk up to one and use it" | a campfire recipe is known (since 2026-11-20: crafting is at the stations, crafting spec 12) |
 ## | journal | "Press J to read your Journal" | `inventory` was learned (2026-10-08: the quest list lives there since the one-line tracker) |
 ## | weapon-switch | "Use the mouse wheel or E to switch weapons: tools only work in hand" | two owned weapons on the belt |
 ## | map | "Press M for the map" | `inventory` was learned |
@@ -77,12 +77,14 @@ const BodyCards := preload("res://game/ui/body_cards.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const HeavyGrab := preload("res://game/player/heavy_grab.gd")
+const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
 
 const LAYER := 10
 const FLAG_PREFIX := "hint."
 ## WorldScene.ts:133-135.
 const DODGE_ENEMY_RANGE_PX := 360.0
-const CRAFTING_WOOD := 40
+## The station the crafting hint points at.
+const CRAFTING_STATION := "campfire"
 const FADE_MS := 320.0
 const OFFSET_MIN := Vector2(-230.0, -262.0)
 const OFFSET_MAX := Vector2(230.0, -224.0)
@@ -230,7 +232,7 @@ static func hint_text(id: StringName) -> String:
 		&"inventory":
 			return "Press %s to open your bag" % ControlLabels.control_label(&"menu")
 		&"crafting":
-			return "Press %s, then Crafting, to craft" % ControlLabels.control_label(&"menu")
+			return "Campfires cook and brew: walk up to one and use it"
 		&"journal":
 			return "Press %s to read your Journal" % ControlLabels.control_label(&"journal")
 		&"weapon-switch":
@@ -322,7 +324,7 @@ func is_relevant(id: StringName, player: Node) -> bool:
 		&"inventory":
 			return run != null and not run.slots().is_empty()
 		&"crafting":
-			return run != null and run.item_count("wood") >= CRAFTING_WOOD
+			return run != null and _knows_station_recipe(run, CRAFTING_STATION)
 		&"weapon-switch":
 			return _owned_belt_weapons() >= 2
 		&"journal", &"map", &"pause":
@@ -472,6 +474,15 @@ func _menu_paused() -> bool:
 	var world := Services.world()
 	return world == null or world.has_pause_reason(Services.WorldServiceType.PAUSE_MODAL) \
 		or not world.has_pause_reason(Services.WorldServiceType.PAUSE_HIT_STOP)
+
+
+## True when the slime knows a recipe of `station` (the crafting hint: a campfire recipe taught).
+static func _knows_station_recipe(run: Node, station: String) -> bool:
+	for recipe: Variant in RecipeCatalog.all():
+		if recipe is Dictionary and str((recipe as Dictionary).get("station", "")) == station \
+				and bool(run.call(&"knows_recipe", str((recipe as Dictionary).get("id", "")))):
+			return true
+	return false
 
 
 func _nearest_enemy_distance(player: Node) -> float:

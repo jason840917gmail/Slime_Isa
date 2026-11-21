@@ -3,7 +3,10 @@ extends RefCounted
 ## plan section 6 "Input changes"). On: `swallow`, `stretch_lash`, `squash_slam` and `teleport` lose
 ## their number keys (Swallow is a Q hold; the others are Ability Box abilities used with
 ## `ability_use`, F), and `dodge` (the Roll) moves from 2 to Space. Off: each of them gets back
-## exactly the events it had. main.gd applies it whenever it decides the mode (`apply`).
+## exactly the events it had. main.gd applies it whenever it decides the mode (`apply`). Since
+## 2026-11-20 project.godot itself has them that way (no number keys; the Roll on Space; 1 to 4 are
+## the potion belt's `potion_1` .. `potion_4`), so the layer changes nothing in practice; it stays
+## until the old abilities are cleaned out.
 ##
 ## The keys-only control scheme (game/player/mouse/key_bindings.gd) is a layer on top of this one:
 ## before this layer changes, the keys-only layer is taken off, and it is put back after, so each

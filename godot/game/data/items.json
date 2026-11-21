@@ -170,6 +170,112 @@
     "category": "story",
     "icon": "items-matron-thread",
     "iconFrame": 0,
-    "description": "A spool of the Orb-Weaver Matron's own silk, strong as wire. Burr could build something with it."
+    "description": "A spool of the Orb-Weaver Matron's own silk, strong as wire: a bowstring fit for the Thorn Guard. Pip, the smith's son, could string a bow rune with it."
+  },
+  "mine-crystal": {
+    "id": "mine-crystal",
+    "name": "Smith's Crystal",
+    "category": "story",
+    "icon": "items-gems-5x2",
+    "iconFrame": 9,
+    "description": "The clearest crystal the smith's mine ever gave him, saved for something special. Pip can carve it into the heart of a bow rune."
+  },
+  "belt-slot": {
+    "id": "belt-slot",
+    "name": "Belt Slot",
+    "category": "belt",
+    "icon": "items-belt-slot",
+    "iconFrame": 0,
+    "description": "A sturdy loop for the slime's belt. It holds one kind of potion, ready on a number key."
+  },
+  "charged-roll": {
+    "id": "charged-roll",
+    "name": "Charged Roll",
+    "category": "upgrade",
+    "icon": "items-charged-roll",
+    "iconFrame": 0,
+    "description": "An old Thorn Guard trick for the Roll: curl up tight and spin before you go, and shoot off fast and far.",
+    "teachesAbility": "roll-charge"
+  },
+  "roll-fragment": {
+    "id": "roll-fragment",
+    "name": "Roll Fragment",
+    "category": "fragment",
+    "icon": "items-roll-fragment",
+    "iconFrame": 0,
+    "description": "A quarter of Burr's old Thorn Guard training disc, carved with the Charged Roll's spin. Four of them teach the whole trick.",
+    "fragmentsNeeded": 4,
+    "teachesAbility": "roll-charge"
+  },
+  "war-journal-page-1": {
+    "id": "war-journal-page-1",
+    "name": "War Journal, Page 1",
+    "category": "page",
+    "icon": "items-war-journal-page",
+    "iconFrame": 0,
+    "description": "A page of the Thorn Guard's war journal: the old gates.",
+    "page": {
+      "number": 1,
+      "title": "The Old Gates",
+      "lines": [
+        "Third night at the old gates. The worms came up out of the ground at dusk, more than we could count.",
+        "Gorge has made an army of them: swordsmen, archers, brawlers, every one in his red scarf.",
+        "We held. The moss on the gateposts is trampled flat, but not one of them got past.",
+        "Yoi says a gate is only as strong as the slimes behind it. Tonight, that was strong enough."
+      ]
+    }
+  },
+  "war-journal-page-2": {
+    "id": "war-journal-page-2",
+    "name": "War Journal, Page 2",
+    "category": "page",
+    "icon": "items-war-journal-page",
+    "iconFrame": 0,
+    "description": "A page of the Thorn Guard's war journal: the forts.",
+    "page": {
+      "number": 2,
+      "title": "The Forts",
+      "lines": [
+        "The forts are lost. One by one, the watch-fires went out on the hills.",
+        "Gorge's vassals each carry a Pearl now, a piece of the Wellspring's own heart.",
+        "A Pearl's power used without wisdom does dark things. They woke our fallen and set them to guard the very forts where they fell.",
+        "If you meet them, little one, remember they were brave once. Their helmets still say so."
+      ]
+    }
+  },
+  "war-journal-page-3": {
+    "id": "war-journal-page-3",
+    "name": "War Journal, Page 3",
+    "category": "page",
+    "icon": "items-war-journal-page",
+    "iconFrame": 0,
+    "description": "A page of the Thorn Guard's war journal: the last watch.",
+    "page": {
+      "number": 3,
+      "title": "The Last Watch",
+      "lines": [
+        "The Wellspring grows dimmer every night. No new slime has bubbled up since spring.",
+        "The elders have taken everyone below. Slimeshire hides under its own floor now, in the hideouts we dug.",
+        "Someone has to stay up top and keep watch. Yoi says it will be him, and nobody could talk him out of it.",
+        "Whoever finds this: the Pearls can come home. Bring them back to the Wellspring, and it will shine again."
+      ]
+    }
+  },
+  "recipe-page-berry-basket": {
+    "id": "recipe-page-berry-basket",
+    "name": "Recipe Page: Berry Basket",
+    "category": "recipe-page",
+    "icon": "items-war-journal-page",
+    "iconFrame": 0,
+    "description": "A Thorn Guard field recipe, for the long watches.",
+    "teachesRecipes": ["cook-berry-basket"],
+    "page": {
+      "title": "Berry Basket",
+      "lines": [
+        "A Thorn Guard field recipe, for the long watches.",
+        "Two handfuls of purple berries in a little basket woven from five sticks, warmed by a campfire.",
+        "One on watch keeps a slime bright-eyed till dawn."
+      ]
+    }
   }
 }

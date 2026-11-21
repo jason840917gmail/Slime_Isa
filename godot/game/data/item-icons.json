@@ -155,11 +155,47 @@
     "columns": 3,
     "rows": 1
   },
+  "items-roll-fragment": {
+    "path": "res://asset/MAPS/items/64x64-roll-fragment.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 1,
+    "rows": 1
+  },
   "items-matron-thread": {
     "path": "res://asset/MAPS/items/64x64-matron-thread.webp",
     "frame": [
       64,
       64
+    ],
+    "columns": 1,
+    "rows": 1
+  },
+  "items-belt-slot": {
+    "path": "res://asset/MAPS/items/64x64-belt-slot.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 1,
+    "rows": 1
+  },
+  "items-war-journal-page": {
+    "path": "res://asset/MAPS/items/64x64-war-journal-page.webp",
+    "frame": [
+      64,
+      64
+    ],
+    "columns": 1,
+    "rows": 1
+  },
+  "items-charged-roll": {
+    "path": "res://asset/UI/hud-console/ability-roll-charge.webp",
+    "frame": [
+      96,
+      96
     ],
     "columns": 1,
     "rows": 1

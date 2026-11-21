@@ -1,0 +1,225 @@
+[
+  {
+    "id": "win-back-the-pearls",
+    "definitionVersion": 1,
+    "title": "Win back the Pearls",
+    "description": "Gorge's vassals carried off the Pearls of the Wellspring and hid them in their lairs. Win each one back and bring it home: every Pearl that sinks into the Wellspring wakes a little more of the world.",
+    "category": "mandatory",
+    "prerequisites": [
+      {
+        "kind": "prologue-over"
+      }
+    ],
+    "acquisition": {
+      "kind": "automatic"
+    },
+    "stages": [
+      {
+        "id": "pearl-1",
+        "title": "Fatty's Pearl",
+        "description": "Fatty One Eye keeps the first Pearl close, deep in his lair behind the old Thorn Guard gate.",
+        "objectives": [
+          {
+            "id": "take-pearl-1",
+            "kind": "story-flag",
+            "label": "Find the Pearl in Fatty's Lair",
+            "target": 1,
+            "flagIds": [
+              "pearl.fatty-one-eye"
+            ]
+          },
+          {
+            "id": "beat-fatty",
+            "kind": "defeat-boss",
+            "label": "Beat Fatty One Eye",
+            "target": 1,
+            "bossIds": [
+              "fatty-one-eye"
+            ]
+          },
+          {
+            "id": "bring-pearl-1-home",
+            "kind": "story-flag",
+            "label": "Bring it home to the Wellspring",
+            "target": 1,
+            "flagIds": [
+              "pearl.fatty-one-eye.home"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pearl-2",
+        "title": "The Matron's Pearl",
+        "description": "The Orb-Weaver Matron hides the second Pearl in the Weaver Hollow, high in the old Watch Oak.",
+        "objectives": [
+          {
+            "id": "take-pearl-2",
+            "kind": "story-flag",
+            "label": "Find the Pearl in the Weaver Hollow",
+            "target": 1,
+            "flagIds": [
+              "pearl.orb-weaver-matron"
+            ]
+          },
+          {
+            "id": "beat-matron",
+            "kind": "defeat-boss",
+            "label": "Beat the Orb-Weaver Matron",
+            "target": 1,
+            "bossIds": [
+              "orb-weaver-matron"
+            ]
+          },
+          {
+            "id": "bring-pearl-2-home",
+            "kind": "story-flag",
+            "label": "Bring it home to the Wellspring",
+            "target": 1,
+            "flagIds": [
+              "pearl.orb-weaver-matron.home"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pearl-3",
+        "title": "The Colossus's Pearl",
+        "description": "Crystal has grown around the third Pearl, deep in the Crystal Mine, and something big guards it.",
+        "objectives": [
+          {
+            "id": "take-pearl-3",
+            "kind": "story-flag",
+            "label": "Find the Pearl in the Crystal Mine",
+            "target": 1,
+            "flagIds": [
+              "pearl.crystal-colossus"
+            ]
+          },
+          {
+            "id": "beat-colossus",
+            "kind": "defeat-boss",
+            "label": "Beat the Crystal Colossus",
+            "target": 1,
+            "bossIds": [
+              "crystal-colossus"
+            ]
+          },
+          {
+            "id": "bring-pearl-3-home",
+            "kind": "story-flag",
+            "label": "Bring it home to the Wellspring",
+            "target": 1,
+            "flagIds": [
+              "pearl.crystal-colossus.home"
+            ]
+          }
+        ]
+      }
+    ],
+    "completion": {
+      "kind": "automatic"
+    },
+    "failurePolicy": {
+      "kind": "permanent"
+    },
+    "abandonmentPolicy": {
+      "kind": "forbidden"
+    },
+    "rewards": {},
+    "pearlSlots": 8,
+    "pearls": [
+      {
+        "pearlId": "fatty-one-eye",
+        "name": "Fatty's Pearl",
+        "gift": "The Heavy skin. Home, it wakes Market Hill."
+      },
+      {
+        "pearlId": "orb-weaver-matron",
+        "name": "The Matron's Pearl",
+        "gift": "The Silk skin. Home, it wakes West Hill and raises Slimeshire's Workshop."
+      },
+      {
+        "pearlId": "crystal-colossus",
+        "name": "The Colossus's Pearl",
+        "gift": "The Feral skin. Home, it wakes the south gate's quarter and lights Slimeshire's Forge."
+      }
+    ]
+  },
+  {
+    "id": "pips-workshop",
+    "definitionVersion": 1,
+    "title": "Pip's Workshop",
+    "description": "Pip, the smith's son, keeps his dad's Workshop while his dad works the crystal mine: a heap of boards and a cold Forge. Every Pearl that goes home to the Wellspring wakes a little more of the world.",
+    "category": "mandatory",
+    "prerequisites": [
+      {
+        "kind": "world-flag",
+        "flagId": "pip.mission-given"
+      }
+    ],
+    "acquisition": {
+      "kind": "automatic"
+    },
+    "completion": {
+      "kind": "automatic"
+    },
+    "failurePolicy": {
+      "kind": "permanent"
+    },
+    "abandonmentPolicy": {
+      "kind": "forbidden"
+    },
+    "rewards": {},
+    "stages": [
+      {
+        "id": "the-workshop",
+        "title": "The Workshop",
+        "description": "The Workshop has caved in. Maybe the next Pearl to go home will raise it again.",
+        "objectives": [
+          {
+            "id": "raise-workshop",
+            "kind": "story-flag",
+            "label": "Bring the Matron's Pearl home to raise the Workshop",
+            "target": 1,
+            "flagIds": [
+              "workshop.restored"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-bow-rune",
+        "title": "A bow rune",
+        "description": "With the Workshop standing, Pip can carve a bow rune: wood for its frame, a string strong as wire for its string, and a clear crystal for its heart.",
+        "objectives": [
+          {
+            "id": "bring-rune-makings",
+            "kind": "story-flag",
+            "label": "Bring Pip 5 wood, the Matron's thread and a crystal from his dad's mine",
+            "target": 1,
+            "flagIds": [
+              "pip.bow-rune-made"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-forge",
+        "title": "The Forge",
+        "description": "The Forge is still cold. Pip's dad says it only wakes for something really strong.",
+        "objectives": [
+          {
+            "id": "light-forge",
+            "kind": "story-flag",
+            "label": "Bring the Colossus's Pearl home to light the Forge",
+            "target": 1,
+            "flagIds": [
+              "forge.restored"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

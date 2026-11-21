@@ -1,6 +1,6 @@
 extends RefCounted
 ## Player movement and the Roll (docs/godot/specs/player.md section 2 values, 4.3 move, 5 the
-## Roll; roadmap 7.7). Walk 200 px/s, sprint 300 px/s, diagonals normalised. The Roll (the `dodge`
+## Roll; roadmap 7.7; the Roll lent for the session in its tests: young Burr teaches it). Walk 200 px/s, sprint 300 px/s, diagonals normalised. The Roll (the `dodge`
 ## ability on key 2) spins up in place, launches and eases to its cruising speed over its shortest
 ## roll, is safe from hits just after the launch, keeps rolling while held (steered, draining
 ## energy) and ends when let go; its values are read from `character.player.movement.roll*`. It
@@ -116,6 +116,7 @@ func test_releasing_keys_stops_the_player(t: TestContext) -> void:
 ## of i-frames, and without the key held it stops `rollMinMs` after the launch. A press right after
 ## is refused (the cooldown runs from the press), one after the cooldown rolls.
 func test_a_tapped_roll_spins_up_launches_and_stops(t: TestContext) -> void:
+	_learn_the_roll()
 	var player := t.player()
 	var body := t.player_body()
 	var spin_up := _movement("rollSpinUpMs")
@@ -171,6 +172,7 @@ func test_a_tapped_roll_spins_up_launches_and_stops(t: TestContext) -> void:
 ## do not turn it or slide it sideways (owner, 2026-10-09: like Zelda's Pegasus dash). Energy drains
 ## and does not refill, and letting go stops it.
 func test_a_held_roll_goes_straight_and_drains_energy(t: TestContext) -> void:
+	_learn_the_roll()
 	var player := t.player()
 	var body := t.player_body()
 	player.face(Vector2.RIGHT)
@@ -203,6 +205,7 @@ func test_a_held_roll_goes_straight_and_drains_energy(t: TestContext) -> void:
 ## Rolling into a wall is a bonk: the ball stops, the slime bounces back off the wall at least a
 ## tile, for `rollBounceMs`, and only then is free; the roll is over after the bounce.
 func test_rolling_into_a_wall_bonks_and_bounces_back(t: TestContext) -> void:
+	_learn_the_roll()
 	var player := t.player()
 	var body := t.player_body()
 	var wall := StaticBody2D.new()
@@ -242,6 +245,7 @@ func test_rolling_into_a_wall_bonks_and_bounces_back(t: TestContext) -> void:
 ## (SkinState, `crosses_webs`; roadmap 7.8) the web no longer sticks: the roll tears through it and
 ## goes on past it. The painted floor webs: tests/test_weaver_webs.gd.
 func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
+	_learn_the_roll()
 	var player := t.player()
 	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)
@@ -289,6 +293,11 @@ func test_a_roll_sticks_in_a_floor_web(t: TestContext) -> void:
 	t.check(player.get_centre().x > at.x, "the Silk roll did not go past the web (%s, the web at %s)" % [player.get_centre(), at])
 
 
+## The Roll is young Burr's lesson since 2026-11-19 (no longer known from birth): lent here.
+static func _learn_the_roll() -> void:
+	Services.run().learn_session_ability("dodge")
+
+
 func _movement(name: String) -> float:
 	return Services.constants().number("character.player.movement." + name)
 
@@ -302,6 +311,7 @@ func _cooldown_from_press() -> float:
 ## `-left` clip because its lunge has a direction), the swing lunges toward its direction, and the
 ## art is back at rest after it.
 func test_roll_and_swing_pick_the_facing_row(t: TestContext) -> void:
+	_learn_the_roll()
 	var player := t.player()
 	var combat = player.get_combat()
 	var rest_offset: Vector2 = player.visual.offset

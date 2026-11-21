@@ -77,11 +77,14 @@ const imageArguments = {
   prompt: `${STYLE_BLOCK} A ruined Workshop: collapsed roof, missing planks, overgrown with moss and weeds. Isolated on a transparent background, no ground shadow plate, no scenery.`,
   aspectRatio: "1:1",
   resolution: "1k",
-  transparentBackground: true,
+  extraSettings: { transparentBackground: true },
 };
 
 await tools.mcp__magnific__images_generate(imageArguments);
 ```
+
+`transparentBackground` goes inside `extraSettings`: passed as a top-level argument it is refused
+("Received a string") (found 2026-11-19).
 
 ### Always ask for a transparent background
 

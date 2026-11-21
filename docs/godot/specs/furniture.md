@@ -63,7 +63,9 @@ in this order). Max stack **1** (`game-constants.json` `inventory.maxStackByItem
 bench needs its own bag slot (20 slots, `inventory.initialMaxSlots`). It is the only placeable item.
 
 Recipe `craft-workbench` "Workbench": station `portable` (craftable from the bag's Crafting tab
-anywhere), tier 1, 40 wood → 1 workbench (`RecipeCatalog.ts:4-9`).
+anywhere), tier 1, 40 wood → 1 workbench (`RecipeCatalog.ts:4-9`). Since 2026-11-20 the Crafting
+tab is gone, so the recipe is no longer offered (the old system is unhooked; [crafting.md](crafting.md)
+§12.1); placement itself still works for a workbench already in the bag.
 
 ### 1.2 The two object scenes
 

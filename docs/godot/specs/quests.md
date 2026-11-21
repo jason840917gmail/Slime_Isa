@@ -1,5 +1,11 @@
 # Spec: Quests, NPC quest talk, the dialogue box and the quest HUD
 
+> **Since 2026-11-19 the quest content is the main quest and the NPCs' talks** (§14): one main
+> quest, "Win back the Pearls", Slime Basics, and NPCs that give tips and teach through
+> conditional `talks`. The Phaser-era chapter quests of §7 (the crafting chain) are retired. The
+> machinery below (§1–§6, §10) is what the new content runs on; §7 and §9 are the history it
+> replaced.
+
 Area owner: quests (the quest service, objectives and rewards, NPC offer / turn-in / talk, the
 dialogue box, the offer window, the quest tracker, NPC quest markers, the waypoint, quest
 notifications). Binding inputs: [GODOT_MIGRATION.md](../../GODOT_MIGRATION.md),
@@ -500,14 +506,15 @@ Fresh run (keys E/M/Shift/Esc): entries `a-place-to-work` (rank 1) then `slime-b
 | Slot | Title (colour) | Lines (rows) | Rect |
 |---|---|---|---|
 | 1 | A Place to Work (#ffd277) | `! Talk to Village Elder Plop` (1) | [10, 26] .. [-10, 64] |
-| 2 | Slime Basics (#d9ecff) | `• Open your bag (B)` (1), `• Look at the Crafting tab (B, then its tab)` (44 chars, 2), `• Read your Journal (J)` (1), `• Open the map (M)` (1), `• Pause to save or change settings (Esc)` (40 chars, 1) | [10, 72] .. [-10, 218] |
+| 2 | Slime Basics (#d9ecff) | `• Open your bag (B)` (1), `• Look at the Crafting tab (B, then its tab)` (44 chars, 2; since 2026-11-20 `• Use a campfire`, met by a station's crafting window: [crafting.md](crafting.md) §12.1), `• Read your Journal (J)` (1), `• Open the map (M)` (1), `• Pause to save or change settings (Esc)` (40 chars, 1) | [10, 72] .. [-10, 218] |
 
 Card [16, 96] .. [300, 336], heading `QUESTS · 2`.
 
 ### 4.5 NPC quest markers (`QuestNpcController.ts:259-283`, `NpcNameTags.ts`)
 
 `markerFor(npcId)`: `turn-in` if any turn-in; `main-offer` if any mandatory offer; `side-offer` if
-any optional offer or any reoffer; `talk` if an active quest's current stage has an unfinished
+any optional offer or any reoffer; (Godot, §14.5) `tip` (a gold `!` like `main-offer`) if the talk
+the NPC would give now has a tip not heard yet; `talk` if an active quest's current stage has an unfinished
 `talk-to-npc` objective for this NPC (unreachable in content); `in-progress` if an active quest has
 `npc-turn-in` completion listing this NPC; else none.
 
@@ -751,6 +758,12 @@ Pickaxe`.
 
 ## 7. Content: every quest
 
+> **Retired 2026-11-19** (§14.1): every quest in §7.1–§7.2 but Slime Basics is in
+> `QuestCatalog.RETIRED_IDS` and dropped from saves quietly; `quests-chapter-1.json` keeps only
+> Slime Basics (its prerequisites are now `prologue-over` and level-1 entered) and
+> `quests-chapter-2.json` is empty. The tables stay as the record of the Phaser content. The chapter
+> flags of §7.4 are set by the bosses' falls now (§14.6), and Lily the Fishergirl is Dora.
+
 Givers and where they stand (old Phaser NPC positions = sprite bottom; they wander in their
 `npc-wander` area, world spec §5):
 
@@ -762,7 +775,7 @@ Givers and where they stand (old Phaser NPC positions = sprite bottom; they wand
 | `fisherman-slime` | Lily the Fishergirl | level-1 `level-1-npc-fisherman-slime` | (1350.4, 742.4) |
 | `level-1-spider-giver` | Mossy | level-1 `level-1-npc-mossy-scout` (in `chapter-1-villagers`, parked once `chapter-1-complete` is set); gloop-forest `gloop-ch2-npc-mossy` (camp) | (857.6, 697.6); (1816, 1768) |
 | `yellow-blond-slime-girl` | Sunny | level-1 `level-1-npc-yellow-blond-slime-girl` (same variant); gloop-forest `gloop-ch2-npc-sunny` | (857.6, 947.2); (1952, 1904) |
-| `tom` (Godot, 2026-10-09) | Tom | gloop-forest: wrapped in `object.tom-web` in the south-west spider thicket until freed, then the camp's story variant `camp/tom-at-camp` (`character.tom`, idles in place) | web (860, 2470); camp (1764, 1858) |
+| `tom` (Godot, 2026-10-09) | Tom | gloop-forest: wrapped in `object.tom-web` in the south-west spider thicket until freed, then the camp's story variant `camp/tom-at-camp` (`character.tom`, idles in place) | web (860, 2470); camp (1764, 1858). *Since 2026-11-19 the web hangs in Tom's clearing in `gloop-forest-e5` at (736, 1440) (§14.3)* |
 
 ### 7.1 Chapter 1 (`chapterOne.ts`), catalog order
 
@@ -1295,6 +1308,15 @@ One-Eyed Guardian that day, and a run saved past Chapter 1 would otherwise never
 
 ### 10.10 Tests (`godot/tests/test_quests.gd`, level-1 unless stated)
 
+> **Since 2026-11-20** (§14) `test_quests.gd` holds what the new content still exercises: the new
+> run's two records, plain talk and its candidate, the markers (the gold "!" of a tip), Escape during
+> a talk's lines, the reveal and keys on Pip's own lines (38, 93 and 51 characters), Slime Basics
+> and its toasts, the tracker on the main quest, the pause and window controls, the save round trip,
+> a broken record, the teardown, the ability banner and the abandon rules. The tests of the
+> table below that needed an NPC quest (offers, turn-ins, rewards, waypoints, kill, collect, place and
+> restore objectives) went with the retired chapter quests. The main quest, the talks and tips, the
+> Roll lesson and the tool runs' saves are `test_main_quest.gd`'s.
+
 Helpers: `_quests(t)` = `t.tree.get_first_node_in_group(&"quests")`; `_dialogue(t)`,
 `_offer(t)` by group; `_npc(t, instance_id)` and `_place_npc(npc, point)` as in
 `test_interaction.gd` (place, lock); place the player with `t.teleport_player(centre)` and an NPC at
@@ -1373,6 +1395,9 @@ enemy loot and `enemy.died`, the Matron's camp in gloop-forest.
 
 ## 13. Open questions for the owner
 
+Q2 (known facts on every stage advance) changed with the main quest on 2026-11-19: they count as each
+stage starts and on every world build (§14.2).
+
 | # | Question | Recommendation |
 |---|---|---|
 | Q1 | Sunny's basket soft-lock: keep, or make the pile appear only while `sunnys-basket` is active (a story variant on a flag the quest sets), or count a carried basket on accept? | Fix in content (variant): the port then needs nothing special |
@@ -1382,3 +1407,332 @@ enemy loot and `enemy.died`, the Matron's camp in gloop-forest.
 | Q5 | Stack simultaneous quest toasts (offset each by 22 px)? | Yes, small polish; Phaser parity is overlapping text |
 | Q6 | Markers above everything (`z_index 1`) or y-sorted with the NPC (hidden behind trees in front)? | `z_index 1`, like the key badge |
 | Q7 | Godot load of a broken quest record: reset that quest (proposed) or reject the save like Phaser? | Reset with a warning |
+
+## 14. The main quest, talks and tips (2026-11-19)
+
+The owner's direction (Direction "Quests", questions 50, 60, 82): quests no longer make sense; NPCs
+give info and tips, with one main quest like Zelda's, winning back the eight Pearls. Built in step A1
+of the plan to make Release 1's story playable (docs/story/07-decisions-archive.md, 2026-11-19).
+
+### 14.1 The catalogue
+
+`QuestCatalog.QUEST_FILES`: `quests-main.json` (the main quest, and Pip's Workshop since 2026-11-20:
+§14.2), `quests-chapter-1.json` (Slime
+Basics only), `quests-chapter-2.json` (empty), in that order. Every other Phaser-era id is in
+`RETIRED_IDS` (dropped from a save without a warning, its rewards never learned on load):
+`a-place-to-work`, `stone-tools`, `worm-trouble`, `the-one-eyed-guardian`, `the-old-workshop`,
+`a-tonic-for-lili`, `snack-for-the-road`, `beyond-the-verdant-gate`, `tom-in-the-web`,
+`a-harder-pick`, `rekindle-the-forge`, `iron-gear`, `sunnys-basket`, `the-matrons-nest` (and
+Phaser's `gather-building-materials`).
+
+A new prerequisite kind, `{"kind": "prologue-over"}`: true unless the prologue runs
+(`PrologueState.is_running`: started and not done), so a run that never played it (an old save, a
+launch option, the test runner) counts as past it. Slime Basics waits for it and for level-1.
+
+### 14.2 The main quest "Win back the Pearls" (`win-back-the-pearls`)
+
+Mandatory, automatic acquisition once `prologue-over` holds (Plop's meeting at the town's edge sets
+`prologue.done`), automatic completion, abandonment forbidden, no rewards. One stage per Release 1
+Pearl, each with three objectives (all tracked at once, in any order):
+
+| Stage | Objectives (target 1 each) |
+|---|---|
+| `pearl-1` "Fatty's Pearl" | `take-pearl-1` story-flag `pearl.fatty-one-eye` "Find the Pearl in Fatty's Lair"; `beat-fatty` defeat-boss `fatty-one-eye`; `bring-pearl-1-home` story-flag `pearl.fatty-one-eye.home` "Bring it home to the Wellspring" |
+| `pearl-2` "The Matron's Pearl" | `pearl.orb-weaver-matron` "Find the Pearl in the Weaver Hollow"; defeat-boss `orb-weaver-matron`; `pearl.orb-weaver-matron.home` |
+| `pearl-3` "The Colossus's Pearl" | `pearl.crystal-colossus` "Find the Pearl in the Crystal Mine"; defeat-boss `crystal-colossus`; `pearl.crystal-colossus.home` |
+
+`pearl.<id>` is set by the Pearl's take (`game/scripts/pearl.gd`); `pearl.<id>.home` by its
+homecoming at the Wellspring (`game/glimmerhill/wellspring_homecoming.gd`, 2026-11-20:
+[PROLOGUE.md](../PROLOGUE.md#the-homecoming-2026-11-20)), which also wakes the Pearl's part of
+Glimmerhill (its wake flag `glimmerhill.<part>.awake`; since 2026-11-20 Pearl 2 also sets
+`workshop.restored` and Pearl 3 `forge.restored`, the owner's change of that day: Pearl 2 had set
+`forge.restored`). The quest completes when the third Pearl is home. The definition also carries `pearlSlots`
+(8) and `pearls` ([{pearlId, name, gift}] for the three Release 1 Pearls), read by the journal
+(§14.7). The gifts: "The Heavy skin. Home, it wakes Market Hill.", "The Silk skin. Home, it wakes
+West Hill and raises Slimeshire's Workshop." and "The Feral skin. Home, it wakes the south gate's
+quarter and lights Slimeshire's Forge."
+
+**Pip's Workshop** (`pips-workshop`, in `quests-main.json` after the main quest; owner, 2026-11-20):
+mandatory, automatic acquisition once the world flag `pip.mission-given` is set (Pip's first talk,
+§14.3), automatic completion, abandonment forbidden, no rewards. Its three stages, one story-flag
+objective each (target 1):
+
+| Stage | Objective |
+|---|---|
+| `the-workshop` "The Workshop" | `raise-workshop` `workshop.restored` "Bring the Matron's Pearl home to raise the Workshop" |
+| `the-bow-rune` "A bow rune" | `bring-rune-makings` `pip.bow-rune-made` "Bring Pip 5 wood, the Matron's thread and a crystal from his dad's mine" |
+| `the-forge` "The Forge" | `light-forge` `forge.restored` "Bring the Colossus's Pearl home to light the Forge" |
+
+Known facts count here too (below), so a flag set before the quest starts (Pearl 2 home before the
+slime meets Pip) still counts for its stage.
+
+**The `story-flag` objective kind** (`flagIds`): each listed flag counts once when it is set. The
+quest service forwards `RunState.story_flag_changed` (a flag set) as the input event
+`story.flag-set` {flagId} (`QuestEvents.STORY_FLAG_SET`). **Known facts** count story flags already
+set too, and since 2026-11-19 they are counted for the *current* stage whenever a stage starts
+(activation or the next stage) and again on every world build (`_recount_known_facts`), so a Pearl
+taken or a boss beaten before its stage came up still counts (Phaser counted the first stage only, at
+activation).
+
+### 14.3 Talks (`talks` in npc-definitions.json)
+
+An NPC definition may list `talks`; plain talk (no active quest of this NPC waiting) says the first
+one whose conditions all hold, else the NPC's `dialogue` as before (`QuestNpcTalk.matching_talk`).
+
+| Key | Kind | Meaning |
+|---|---|---|
+| `id` | string | a name for the entry (documentation; unused by the code) |
+| `ifFlags` / `unlessFlags` | [flag] | every flag set / none set; `boss:<id>` reads a beaten boss |
+| `ifItems` | {item id: count} | all in the bag |
+| `ifAbilities` / `unlessAbilities` | [ability id] | learned / not learned (`RunState.has_learned_ability`) |
+| `ifRecipes` / `unlessRecipes` | [recipe id] | known / not known (`RunState.knows_recipe`; 2026-11-20: Dora's basket lesson when the sally port's recipe page taught it already) |
+| `pages` | [string] | said first, one to three short lines a page |
+| `takeItems` / `giveItems` | {item id: count} | one all-or-nothing `RunState.transact_items`; when it fails nothing below happens and `refusedPages` (else "Oh, your bag is too full for this...") are said |
+| `setFlags` | [flag] | set for good |
+| `learnRecipes` | [recipe id] | learned; a toast "New recipe: <name>" per new one |
+| `tip` | {"id", "text"} | heard for good (`RunState.hear_tip`), listed in the journal; a toast the first time |
+| `learnAbility` | ability id | `RunState.learn_ability`: QuestNotifications plays its ceremony (its banner while ceremonies are off) |
+| `pagesAfter` | [string] | said once that ceremony is over, when `pages` were read to the end |
+
+The effects run when the pages end (read to the end, or closed with Escape), in the order of the
+table, and each time the entry is chosen: a one-time lesson or gift names its own flag in
+`unlessFlags` and sets it in `setFlags` (a known recipe or ability is not learned again). The NPC
+stays locked until the last page (or the ceremony) is over. Example (Lili):
+
+```json
+{
+  "id": "yoi-hideout",
+  "unlessFlags": ["lili.tonic-taught"],
+  "pages": ["Hi, I'm Lili! ...", "... Old Yoi's is right under my west yard, beneath a heap of crates.", "..."],
+  "learnRecipes": ["brew-tonic"],
+  "setFlags": ["lili.tonic-taught"],
+  "tip": {"id": "lili.yoi-hideout", "text": "Old Yoi's war hideout is under Lili's west yard, beneath a heap of crates."}
+}
+```
+
+**Young Burr's Roll** (step A2, built 2026-11-19; `young-burr`, in `slimeshire-burr-house`): his
+first talk while the Roll is not learned is the lesson, `unlessAbilities: ["dodge"]`, `pages` (his
+dad's trick: curl up tight and roll), the tip `young-burr.planks`, `learnAbility: "dodge"` (the
+Roll's ceremony card) and `pagesAfter` (the old planks over the dry ditch beside the cottage, and
+"find my dad"); a second lesson entry says the same after `fatty-lair.burr-freed`. Then `dad-free`
+(happy lines once `fatty-lair.burr-freed` is set) and `waiting`. The Roll is no longer free from
+birth: player.gd's `dodge_learned` is off, and `RunState.install` teaches it quietly to a save that
+holds `fatty-lair.burr-freed` or any `pearl.*` flag. The playground and `?shapes` lend it for the
+session (main.gd `start_rework`); a dungeon's F6 powers list it.
+
+**Tom's Goo Bomb** (step A3, built 2026-11-19): taught where he hangs, as the web tears
+(game/scripts/tom_lesson.gd, the `TomLesson` node of `object.tom-web`; not a talk: the slime is held
+with the PrologueScene helpers, his lines, `RunState.learn_ability("goo-bombs")` with its ceremony,
+the flag `tom.goo-bomb-taught`, a line about the cracked wall by his clearing). A run that tore the
+web without it (an old save) gets it from Tom at the camp: his `goo-bomb-lesson` talk
+(`ifFlags: ["tom-freed"]`, `unlessFlags: ["tom.goo-bomb-taught"]`, the same flag and
+`learnAbility`). His old Swallow lines are gone.
+
+**Burr at home** (step A4, built 2026-11-20; `burr`, the villager scene
+`game/scenes/characters/villagers/burr.tscn` in `slimeshire-burr-house`, shown by its `BurrHome`
+story variant once `fatty-lair.burr-outside` is set: he walks home from the bolt-hole in D4). Since
+the owner's change of 2026-11-20 he no longer teaches the Bow or takes the Matron's thread: Pip
+carves it (below), and Burr's `bow-lesson`, `thread-where` and `forest-first` talks and the tips
+`burr.goo-bow`, `burr.matron-thread` and `burr.camp-lenses` are gone. His talks, first match wins:
+- `thanks` (once, `burr.thanked`): home and his boy safe; in his Thorn Guard days they shot bows
+  shaped from their own goo, each carrying a carved rune that taught the goo the shape; Pip, the
+  smith's boy, has his dad's hands and could carve one once their old Workshop stands (tip
+  `burr.bow-rune`);
+- with the Bow: `arrow-bells` (tip `burr.arrow-bells`, flag `burr.bells-told`), `mine-lenses` (tip
+  `burr.mine-lenses`, flag `burr.mine-told`), then `proud`;
+- otherwise his own lines (`dialogue`).
+
+**Pip's bow rune** (owner, 2026-11-20; `red-slime-boy`, level-1 `level-1-npc-red-slime-boy`, in
+front of the Workshop in `level-1-c4`'s north-east corner, beside the Forge). His talks, first match
+wins:
+- `rune-carve` (`ifFlags` `workshop.restored`, `ifItems` {`matron-thread`: 1, `wood`: 5,
+  `mine-crystal`: 1}, `unlessAbilities` `bow`): his dad's crystal, the Matron's thread and good dry
+  wood; wood for the frame, the crystal for its heart, the thread wound through it for the string;
+  `takeItems` the three, `setFlags` `pip.mission-given` and `pip.bow-rune-made`, the tip
+  `pip.camp-lenses`, `learnAbility: "bow"` (the Bow's ceremony card) and `pagesAfter` (every arrow
+  is a pinch of goo; the two old crystal lenses by the lake camp's river, C5, the Bow's first lock:
+  [BODY_SHAPES.md "The Bow"](../BODY_SHAPES.md#the-bow-2026-11-20));
+- `rune-ask` (`workshop.restored`, the Bow not learned): the Workshop stands again; he could carve a
+  bow rune from five pieces of wood for its frame, a string strong as wire (the Matron's own
+  thread) and a really clear crystal from his dad's mine for its heart; `setFlags`
+  `pip.mission-given`, the tip `pip.bow-rune`;
+- `forge-lit` (`forge.restored`): the Forge glows and brews; `learnRecipes` `brew-fizzy`, the tip
+  `pip.fizzy-brew`;
+- `forge-cold` (the Workshop raised and the Bow learned, the Forge cold; it needs `workshop.restored` too, so a
+  Bow only lent by F6 never has him praise a Workshop still in ruins): the Workshop is humming, but the Forge only wakes
+  for something really strong: maybe the next Pearl;
+- `mission` (`unlessFlags` `pip.mission-given`): his dad went off to his crystal mine, so Pip keeps
+  the Workshop, a heap of boards, and the Forge has been cold since the worms came; every Pearl that
+  goes home wakes a bit more of the world, so will the slime bring them home? `setFlags`
+  `pip.mission-given`, which starts Pip's Workshop (§14.2).
+Between his mission and the raised Workshop he says his own lines (`dialogue`: the Workshop is still
+a heap of boards). The makings: the **Smith's Crystal** (`mine-crystal`, category `story`), which
+the smith gives in his cave on the Caverns' maze with the Lantern, at the first talk (since
+2026-11-21; `mine_camp.gd`, flag `mine-camp.crystal-given`:
+[DUNGEONS.md](../DUNGEONS.md#outside-the-spiral));
+the Matron's thread from her web (matron spec 8.7); wood, loose in the world.
+`workshop.restored` is set by the Matron's Pearl's homecoming and `forge.restored` by the
+Colossus's (§14.2).
+
+**Old Veteran Yoi** (step B4, built 2026-11-20; `yoi`, the villager scene
+`game/scenes/characters/villagers/yoi.tscn` (his prologue sheet's standing pose; his talk clip nods
+on it) in his den `slimeshire-yoi-home`, under the heap hatch in Lili's west yard). His talks, one a
+visit, in order, each a tip of the war:
+- `welcome` (once, `yoi.welcomed`): the kid from the glade got past Lili's crates; his den, dug in
+  the war; the Thorn Guard held the old gates night after night (tip `yoi.old-gates`); and the chest
+  by his cot holds an old Guard trick for the Roll (since 2026-11-20 a Roll Fragment, behind his
+  Heavy statue maze, §14.8);
+- `fallen-helmets` (after `yoi.welcomed`, once, `yoi.helmets-told`): the forts' skeletons wear his
+  fallen comrades' helmets (tip `yoi.fallen-helmets`);
+- `gorge-vassals` (after it, once, `yoi.vassals-told`): Gorge's eight vassals and their Pearls (tip
+  `yoi.gorge-vassals`);
+- `bram` (after it, once, `yoi.bram-told`): the Guard lives on, Bram his apprentice keeps the town
+  gate in Glimmerhill (tip `yoi.bram`);
+- then his own lines (`dialogue`: the Spear's tips and "I'll keep watch").
+
+### 14.4 Tips
+
+`RunState.story.tips`: the heard tip ids in the order heard, saved and loaded with the story (a save
+from before 2026-11-19 has none); `hear_tip(id)` (signal `tip_heard`), `has_heard_tip`,
+`heard_tip_ids`. The texts stay in the talks: `QuestCatalog.tip(id)` -> {id, text, npc_id}; the
+service's `heard_tips()` gives them newest first with the speaker's name.
+
+| Tip id | NPC | When |
+|---|---|---|
+| `plop.burr` | Elder Plop | `prologue.done`, the Roll not learned: Burr knew the trick of the gate on Fatty's burrow (Fatty's Hollow, south-east); his boy is home in the blue cottage north-west of the plaza |
+| `plop.verdant-gate-webs` | Elder Plop | `pearl.fatty-one-eye.home`: the Wellspring shines brighter; the forest beyond the Verdant Gate is choked with webs, and an old dead tree lies across its road that takes real weight to move |
+| `plop.crystal-caverns` | Elder Plop | `pearl.orb-weaver-matron.home`: the Crystal Caverns past the forest's east end |
+| `lili.yoi-hideout` | Lili | always (her first talk also teaches `brew-tonic` and sets `lili.tonic-taught`) |
+| `pip.bow-rune` | Pip | `workshop.restored`, the Bow not learned: he can carve a bow rune at the Workshop from 5 wood, the Matron's thread and a clear crystal from his dad's mine |
+| `pip.camp-lenses` | Pip | with his bow rune (the Bow learned): two old crystal lenses on the river's north bank by the lake camp, south of the village: strike both with arrows, from the camp across the water |
+| `pip.fizzy-brew` | Pip | `forge.restored` (Pearl 3 home since 2026-11-20): the Forge glows and brews the Fizzy Brew (teaches `brew-fizzy`) |
+| `mossy.tom` | Mossy | at the camp (`chapter-1-complete`), before `tom-freed`: Tom went into the south-west woods; the Weaver Hollow's root gate needs something that blows up |
+| `tom.watch-oak` | Tom | `tom-freed` (after his Goo Bomb lesson): the Watch Oak's root gate, north-east, cracks to a bomb |
+| `young-burr.planks` | Young Burr | with his Roll lesson: the old planks over the dry ditch beside Burr's cottage drop under a walking slime |
+| `burr.bow-rune` | Burr | his first talk at home (his thanks): Pip, the smith's son, could carve a bow rune once Slimeshire's old Workshop stands again (since 2026-11-20; `burr.goo-bow`, `burr.matron-thread` and `burr.camp-lenses` went with his Bow lesson the same day) |
+| `burr.arrow-bells` | Burr | the Bow learned: an arrow rings a bell from far off and cuts a spider's thread however high it hangs |
+| `burr.mine-lenses` | Burr | the Bow learned: crystal lenses on posts are old Thorn Guard locks, in the Crystal Mine too |
+| `yoi.old-gates` | Yoi | his first talk in his den: the Thorn Guard held Slimeshire's old gates against Gorge's worms |
+| `yoi.fallen-helmets` | Yoi | his second: the forts' skeletons wear Thorn Guard helmets, his fallen comrades raised by Gorge's vassals |
+| `yoi.gorge-vassals` | Yoi | his third: Gorge's eight vassals each hold a region and hide their Pearl in an old fort |
+| `yoi.bram` | Yoi | his fourth: Bram, his apprentice, keeps the town gate in Glimmerhill |
+
+Talks without a tip: Mossy at the camp after `tom-freed`; Sunny at the camp (her basket across the
+north stream, a come-back for a later release); Dora the Fishergirl (`fisherman-slime`, renamed
+from Lily, question 165) teaches `cook-berry-basket` once (`dora.basket-taught`); since 2026-11-20,
+when the recipe is known already (the sally port's recipe page), her first talk is
+`berry-basket-known` instead (`ifRecipes`: she knows the old Thorn Guard recipe too; same flag, no
+lesson).
+
+### 14.5 The "tip" marker
+
+`marker_for(npc_id)` returns `tip` after the offer kinds when the talk the NPC would give now has a
+tip not heard yet (`QuestNpcTalk.has_unheard_tip`); the markers draw it as the gold `!` (#ffd277, 30).
+The service emits `talks_changed` whenever a story flag changes, the bag changes, an ability is
+learned, a tip is heard, a recipe is learned or a page is found (2026-11-20), and the markers and the
+journal refresh on it (as on `quest_changed`).
+
+### 14.6 The chapter flags and the boss's fall
+
+`RunState.record_boss_defeated(boss_id)` is the one place a boss's fall is recorded (the boss camps,
+the Colossus's arena, the dungeons' room fights through `DungeonState.mark_boss_beaten`, and the
+quest service's `boss.defeated` all call it): his id joins `world.defeated_boss_ids`, and the flag
+`story.bossFlags` in game-constants.json names for him is set: `fatty-one-eye` ->
+`chapter-1-complete` (Mossy and Sunny leave Slimeshire for the forest camp: level-1-c4's story
+variant), `orb-weaver-matron` -> `chapter-2-complete` (the Matron's heart variant),
+`crystal-colossus` -> `chapter-3-complete` (Release 1's end card, "The first three Pearls";
+the Chapter 2 card is gone). A save loaded with a boss already beaten gets his flag quietly
+(`install`), so no end card opens for it.
+
+The restoration sites lost their quests: the Forge (`object.forge`) and the Workshop
+(`object.workshop`) are `story_only` (never restored by paying; their locked message shows). Since
+the owner's change of 2026-11-20 `workshop.restored` comes with the Matron's Pearl's homecoming and
+`forge.restored` with the Colossus's (the Matron's had lit the Forge until then); the raised
+Workshop has no station, it is Pip's place (§14.3). Once the Colossus falls the smith stays at his
+mine camp (`mine_camp.gd`); the story variant that brought him home to the Forge
+(`smith_at_home.gd`, built and removed the same day) is gone. Tom's web (`tom_web.gd`) tears
+under three Spear hits with no quest, sets `tom-freed` and emits `torn`, on which his Goo Bomb lesson
+plays (`tom_lesson.gd`, §14.3).
+
+### 14.7 The journal: Tips and the Pearl slots
+
+`quest_journal_model.gd` `snapshot(views, selected_id, status, extras)`, `extras` = {"tips": the
+service's `heard_tips()`, "has_flag": RunState's `has_flag`}:
+- once a tip is heard, a **Tips** row ("• Tips / <n> heard") follows the active quests; its page
+  lists every heard tip, newest first, each "• <text>" with the NPC's name under it;
+- the main quest's page shows, in place of the reward line, "Pearls of the Wellspring: <n> of 8
+  home" and one line per slot: "✓ <name>: home. <gift>" (`pearl.<id>.home` set), "▶ <name>: won,
+  on its way home. <gift>" (`pearl.<id>` set), "○ <name>" (not found yet), and "○ A Pearl still
+  lost" for the five slots past Release 1;
+- nothing to show: "Nothing written yet" / "Talk to the slimes marked with ! to hear what they
+  know."
+- since 2026-11-20 (§14.8), `extras` also carries "war_pages" (the pages found,
+  game/quests/war_journal.gd `found_pages`) and "war_page_count": once a page is found a **War
+  journal** row ("• War journal / <n> of 3 pages") follows the Tips row (or the active quests); its
+  page shows every page found in order, "Page N: <title>" and its lines, then "One page is still
+  lost." / "<n> pages are still lost." (state line "Pages of the Thorn Guard's war journal").
+
+### 14.8 Finds: the war journal, the recipe page and the Charged Roll (2026-11-20)
+
+Steps B4 and B6 of the plan to make Release 1's story playable, and the Roll Fragments (owner,
+2026-11-20). Some items are **finds**, used up as
+they come in like the belt slot (RunState "finds"; world-objects spec 8.2): every way in (a chest
+stack, a pickup, `add_item`, `transact_items`) and never a bag slot.
+
+- **War-journal pages** (category `page`; items `war-journal-page-1`, `-2`, `-3`, each with a `page`
+  block {number, title, lines} in items.json, icon `items-war-journal-page`): kept in
+  `RunState.story.war_pages` (item ids in the order found; `has_war_page`, `war_page_ids`; a save
+  from before has none and loads with none) and announced with `page_found` {item_id, quiet}. Not
+  quiet, the **reading panel** opens at once (game/ui/screens/page_window.gd, surface `page`, over
+  the chest window when the page came out of a chest, which gets the focus back after): the page's
+  icon, "Thorn Guard war journal · Page N of 3", its title, its lines and "Kept in your journal,
+  under War journal."; pages found together open one after another. The journal lists them (§14.7).
+  Written in the Thorn Guard's voice (drafts for the owner to edit):
+
+  | Page | Title | Where | About |
+  |---|---|---|---|
+  | 1 | The Old Gates | the Old Armoury's chest (D4, `slimeshire-old-armoury`, the Lantern's room; it held 40 coins) | the Guard holds the old gates against Gorge's army of worms |
+  | 2 | The Forts | the Old Cellar's chest in the Weaver Hollow (D1, dark, the Lantern; it held 40 coins) | the forts fall; a Pearl's power used without wisdom raises the fallen to guard them |
+  | 3 | The Last Watch | M10 the Prism Gallery's chest in the Crystal Mine (the Lantern wing; it held 30 coins) | the Wellspring dims, Slimeshire hides under its own floor, Yoi stays up top to keep watch |
+
+- **The recipe page** (category `recipe-page`; `recipe-page-berry-basket`, `teachesRecipes`
+  [`cook-berry-basket`], a `page` block): in the sally port's chest (`slimeshire-sally-port`, its
+  planned campfire recipe; it held two Slime Tonics). It learns the Berry Basket (cooked at a
+  campfire) and opens the same panel ("Recipe page", "New recipe: Berry Basket. Cook it at a
+  campfire."). It is no war-journal page. Dora's lesson then gives way (§14.4).
+- **The Charged Roll** (category `upgrade`; `charged-roll`, `teachesAbility` `roll-charge`, icon the
+  HUD console's `ability-roll-charge`): found whole in Yoi's chest (`slimeshire-yoi-home`,
+  `yoi-home-chest`) until the owner's change of 2026-11-20; since then four Roll Fragments make it
+  (below), and nothing in the world gives the whole `charged-roll` (tools and a test still use it).
+  It learns `roll-charge` (PlayerRoll.CHARGE_UPGRADE_ID), which was silent before:
+  QuestNotifications now plays an upgrade's card (AbilityDefinitions.UPGRADES,
+  AbilityCeremony.request_upgrade: "Upgrade", "Charged Roll", "An old Thorn Guard trick: curl up
+  tight and spin before you go, then shoot off fast and far.", "Hold <Roll key> to spin up, let go to
+  shoot off, and keep holding to roll on while your energy lasts. A tap still rolls a short way"),
+  after the chest window closes. As built: with it, a Roll key held past `rework.rollTapMs` spins
+  the ball up in place, launches it at the release (or the spin-up's end) and rolls on while held,
+  spending energy; without it every Roll is the quick roll. C5's falling-plank bridge needs it.
+- **Roll Fragments** (owner, 2026-11-20: "for now you get the ability with the last fragment";
+  category `fragment`; `roll-fragment`, "Roll Fragment", `fragmentsNeeded` 4, `teachesAbility`
+  `roll-charge`, icon `items-roll-fragment`, `godot/asset/MAPS/items/64x64-roll-fragment.webp` from
+  `asset/Originals/items/roll-fragment.png`, Magnific GPT 2.5: a broken quarter of a stone training
+  disc carved with a green swirl). A find, never in the bag: RunState counts them in
+  `story.fragments` ({item id: found}; `fragment_count`, `fragments_needed`) and emits
+  `fragment_found` {item_id, count, total, quiet}; QuestNotifications toasts "Roll Fragment 2 of 4"
+  over the slime (cue `SecretFound`), and **the fourth teaches the Charged Roll by itself**, with
+  its upgrade card, wherever it is found. The four:
+
+  | # | Where | How |
+  |---|---|---|
+  | 1 | Fatty's Lair, Burr's cell | Burr gives it as he is freed: after "My boy taught you the trick...", he tells of the better trick he perfected, the Charged Roll, carved into a training disc that Gorge's lot broke in four and hid; he kept this piece in his boot; find the other three. Then the Inner Stair and the drawbridge (`lair_director.gd` `FRAGMENT_LINES`, `_give_fragment`, flag `fatty-lair.burr-fragment`). A save that freed him before this gets it counted quietly on load (`RunState.install`, `BURR_FRAGMENT_FLAG`), unless it knows the Charged Roll |
+  | 2 | Yoi's chest (`slimeshire-yoi-home`, `yoi-home-chest`, contents {`roll-fragment`: 1}) | behind a small **Heavy statue maze** (owner: reaching it needs pulling statues with the Heavy skin, so it always comes after Burr's): stone dividers on the room's `fences` layer and two heavy statues, `maze-statue-door` plugging a one-cell gap in the divider line and `maze-statue-inner` right behind it, so the first cannot be pushed in; pushing jams, pulling both out opens the way. The chest sits in the maze's corner, out of a chest's reach (112 units) from outside |
+  | 3 | Glimmerhill, the A4 barn (`west-village-a4-barn`, node `roll-fragment`, instance `west-village-a4-barn-roll-fragment`) | a pickup in the top-right corner behind the crates (a first placement the owner may move) |
+  | 4 | Gloop Forest, the Gloop Cavern (`gloop-cavern`, the Goo Bomb's come-back secret cave) | in its hidden chest (`gloop-cavern-hidden-chest`) |
+
+  More are placed as `object.collectible-roll-fragment`
+  (`game/scenes/objects/collectible-roll-fragment.tscn`, a CollectibleScript pickup: set its
+  `map_id` and an `instance_id` no other pickup in that world uses; the Scenery dock's "Hearts &
+  chests" category lists it as "roll fragment"), or as `"roll-fragment": 1` in a chest's contents.
+- Yoi's den also holds Slimeshire's fifth heart quarter, a Goo Heart (`slimeshire-yoi-quarter`).
+
+Pictures: `godot/tools/render_yoi_home.gd` (`--shot=yard|hatch-open|home|card|weights|page|recipe|journal`).

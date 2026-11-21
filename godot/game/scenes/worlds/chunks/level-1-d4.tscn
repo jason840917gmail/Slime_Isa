@@ -29,7 +29,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-ground-01.tscn" id="21_4puat"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/tree-world-solid--pine-05.tscn" id="21_u37im"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-egg-sacs-02.tscn" id="22_2p4bc"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/gate-verdant.tscn" id="23_ni7ca"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-cocoon-ground-01.tscn" id="23_u37im"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-fern-frond.tscn" id="24_5t5v2"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-cocoon-hanging-01.tscn" id="25_36y64"]
@@ -47,9 +46,12 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/plank-barricade.tscn" id="47_2p4bc"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="49_u37im"]
 [ext_resource type="Texture2D" path="res://asset/abilities/lantern/dry-trunk-2x1.webp" id="50_80099"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/fallen-tree.tscn" id="51_4c122"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="armoury_crack"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dry-trunk-hole.tscn" id="burrow_trunk"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/loose-wood.tscn" id="loose_wood"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-small-wood-pile.tscn" id="loose_wood_pile"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i75oi"]
 size = Vector2(64, 128)
@@ -325,14 +327,6 @@ metadata/persistence_key = "level-1.level-1-tree-036"
 y_sort_enabled = true
 position = Vector2(-2048, 0)
 
-[node name="level-1-verdant-gate" parent="Landmarks" unique_id=939553924 instance=ExtResource("23_ni7ca")]
-position = Vector2(3776, 768)
-metadata/instance_id = "level-1-verdant-gate"
-metadata/persistence_key = "level-1.level-1-verdant-gate"
-
-[node name="GateScript" parent="Landmarks/level-1-verdant-gate" index="4"]
-map_id = "level-1-d4"
-
 [node name="Ground Decals" type="Node2D" parent="." unique_id=1818738895]
 y_sort_enabled = true
 position = Vector2(-2048, 0)
@@ -557,6 +551,24 @@ map_id = "level-1-d4"
 instance_id = "heart-chest-meadow-cliff-secret"
 goo_heart_id = "meadow-cliff-secret"
 
+[node name="verdant-tree" parent="Chapter1" unique_id=1355079039 instance=ExtResource("51_4c122")]
+position = Vector2(1728, 752)
+flag_id = "level-1.verdant-tree-smashed"
+
+[node name="Wood" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="level-1-d4-loose-wood-1" parent="Wood" instance=ExtResource("loose_wood")]
+position = Vector2(2475, 315)
+
+[node name="level-1-d4-wood-pile-1" parent="Wood" instance=ExtResource("loose_wood_pile")]
+position = Vector2(2330, 336)
+
+[node name="CollectibleScript" parent="Wood/level-1-d4-wood-pile-1" index="2"]
+map_id = "level-1-d4"
+instance_id = "level-1-d4-wood-pile-1"
+quantity = 3
+
 [connection signal="body_entered" from="exit-1" to="exit-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-west" to="edge-west/world-exit-script" method="on_body_entered"]
@@ -566,7 +578,6 @@ goo_heart_id = "meadow-cliff-secret"
 [editable path="Nature/level-1-tree-032"]
 [editable path="Nature/level-1-tree-033"]
 [editable path="Nature/level-1-tree-034"]
-[editable path="Landmarks/level-1-verdant-gate"]
 [editable path="Ground Decals/l1-decal-174"]
 [editable path="Webs/web-tree-011"]
 [editable path="Chapter1/burrow-trunk"]

@@ -1,15 +1,17 @@
 extends RefCounted
 ## The quest catalogue (Phaser `content/quests/QuestCatalog.ts` with the chapter files
 ## `quests/chapterOne.ts` and `chapterTwo.ts`), plus the recipe and NPC lookups the quest UI needs
-## (`content/recipes/RecipeCatalog.ts`, `content/npcs/NpcDefinitions.ts`) and the player-facing
-## reward and objective texts (`features/quests/QuestRewardText.ts`,
-## `QuestTrackerSurfacePort.objectiveLabel`). Quests spec 1, 4.2, 4.4 and 8.
+## (`content/recipes/RecipeCatalog.ts`, `content/npcs/NpcDefinitions.ts`: names, default pages,
+## the NPCs' conditional `talks` and the tips they give) and the player-facing reward and objective
+## texts (`features/quests/QuestRewardText.ts`, `QuestTrackerSurfacePort.objectiveLabel`). Quests
+## spec 1, 4.2, 4.4, 8 and 14.
 ##
-## Data: `game/data/quests-chapter-1.json` then `quests-chapter-2.json` (the catalogue order),
-## `recipes.json` and `npc-definitions.json`, read once through `GameConstants.data_file`. The
-## definitions keep Phaser's camelCase keys; JSON numbers are turned back into ints on a private
-## copy (the parsed files are shared and never mutated). Validation stays on the TS side
-## (`pnpm quests:check`); this file only checks the shape and push_errors.
+## Data: `game/data/quests-main.json` (the main quest, "Win back the Pearls"), then
+## `quests-chapter-1.json` (only Slime Basics since 2026-11-19) and `quests-chapter-2.json` (empty):
+## the catalogue order. The old chapter quests are retired (`RETIRED_IDS`). `recipes.json` and
+## `npc-definitions.json` are read once through `GameConstants.data_file`. The definitions keep
+## Phaser's camelCase keys; JSON numbers are turned back into ints on a private copy (the parsed
+## files are shared and never mutated). This file only checks the shape and push_errors.
 ##
 ## Owner: quests.
 
@@ -18,20 +20,29 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 
-## QUEST_DEFINITIONS order (QuestCatalog.ts:5-8): chapter 1, then chapter 2.
-const CHAPTER_FILES: Array[String] = ["quests-chapter-1.json", "quests-chapter-2.json"]
+## The catalogue order: the main quest, then chapter 1 (Slime Basics), then chapter 2 (empty).
+const QUEST_FILES: Array[String] = ["quests-main.json", "quests-chapter-1.json", "quests-chapter-2.json"]
 const RECIPES_FILE := "recipes.json"
 const NPC_FILE := "npc-definitions.json"
-## RETIRED_QUEST_IDS (QuestCatalog.ts:17-20): dropped from saves without a complaint.
-const RETIRED_IDS: Array[String] = ["gather-building-materials"]
+## RETIRED_QUEST_IDS (QuestCatalog.ts:17-20): dropped from saves without a complaint. Since
+## 2026-11-19 the Phaser-era chapter quests (the crafting chain) are retired too: NPCs give tips and
+## teach through their `talks`, and the main quest follows the Pearls (quests spec 14).
+const RETIRED_IDS: Array[String] = [
+	"gather-building-materials",
+	"a-place-to-work", "stone-tools", "worm-trouble", "the-one-eyed-guardian", "the-old-workshop",
+	"a-tonic-for-lili", "snack-for-the-road",
+	"beyond-the-verdant-gate", "tom-in-the-web", "a-harder-pick", "rekindle-the-forge", "iron-gear",
+	"sunnys-basket", "the-matrons-nest",
+]
 ## The six quest statuses (types.ts).
 const STATUSES: Array[String] = ["locked", "available", "active", "completed", "failed", "abandoned"]
 ## `Reward: the elder's gratitude` when a quest gives nothing (QuestRewardText.ts).
 const NO_REWARD_SUMMARY := "Reward: the elder's gratitude"
 ## A tutorial objective's key (QuestTrackerSurfacePort.controlKey): control id -> [action, format].
+## `menu:crafting` has none since the Crafting tab went (2026-11-20): Slime Basics' "Use a campfire"
+## is met by a station's crafting window, opened with the interact key at a campfire.
 const CONTROL_KEYS := {
 	"menu:inventory": [&"menu", "%s"],
-	"menu:crafting": [&"menu", "%s, then its tab"],
 	"menu:journal": [&"journal", "%s"],
 	"menu:map": [&"map", "%s"],
 	"sprint": [&"sprint", "hold %s"],
@@ -43,6 +54,8 @@ static var _definitions: Array = []
 static var _index: Dictionary = {}
 static var _recipes: Array = []
 static var _npcs: Dictionary = {}
+## tip id -> {"id", "text", "npc_id"}: every tip a `talks` entry gives.
+static var _tips: Dictionary = {}
 static var _loaded: bool = false
 
 
@@ -172,6 +185,20 @@ static func npc_default_pages(npc_id: String) -> Array:
 	return ["Hello!"]
 
 
+## The NPC's conditional talks (`talks` in npc-definitions.json, quests spec 14.3), in authored order
+## (the first that matches is the one said), ints normalised. [] when none. Do not mutate.
+static func npc_talks(npc_id: String) -> Array:
+	_ensure_loaded()
+	var entry: Dictionary = _npcs.get(npc_id, {})
+	return entry["talks"] if entry.get("talks") is Array else []
+
+
+## The tip `tip_id` some talk gives: {"id", "text", "npc_id"}; {} when no talk gives it.
+static func tip(tip_id: String) -> Dictionary:
+	_ensure_loaded()
+	return _tips.get(tip_id, {})
+
+
 # --- texts --------------------------------------------------------------------------------------
 
 ## `questRewardLines`: coins, items ("<n>× " when more than one), recipes, abilities; flags are
@@ -223,7 +250,7 @@ static func _ensure_loaded() -> void:
 	_loaded = true
 	_definitions = []
 	_index = {}
-	for file_name: String in CHAPTER_FILES:
+	for file_name: String in QUEST_FILES:
 		var parsed: Variant = constants.data_file(file_name)
 		if not parsed is Array:
 			push_error("QuestCatalog: %s is not a list of quests" % file_name)
@@ -242,11 +269,39 @@ static func _ensure_loaded() -> void:
 	var recipe_data: Variant = constants.data_file(RECIPES_FILE)
 	_recipes = _integers(recipe_data) if recipe_data is Array else []
 	_npcs = {}
+	_tips = {}
 	var npc_data: Variant = constants.data_file(NPC_FILE)
 	if npc_data is Array:
 		for entry: Variant in npc_data:
 			if entry is Dictionary and (entry as Dictionary).get("id") is String:
-				_npcs[str(entry["id"])] = (entry as Dictionary).duplicate(true)
+				var npc: Dictionary = _integers(entry)
+				_npcs[str(npc["id"])] = npc
+				_index_tips(npc)
+
+
+## Checks an NPC's `talks` (a list of dictionaries) and indexes the tips they give.
+static func _index_tips(npc: Dictionary) -> void:
+	var npc_id := str(npc["id"])
+	var talks: Variant = npc.get("talks")
+	if talks == null:
+		return
+	if not talks is Array:
+		push_error("QuestCatalog: the talks of NPC '%s' are not a list" % npc_id)
+		npc.erase("talks")
+		return
+	for talk: Variant in talks:
+		if not talk is Dictionary:
+			push_error("QuestCatalog: NPC '%s' has a talk that is not a dictionary" % npc_id)
+			continue
+		var given: Variant = (talk as Dictionary).get("tip")
+		if given == null:
+			continue
+		if not given is Dictionary or str((given as Dictionary).get("id", "")).is_empty() 				or str((given as Dictionary).get("text", "")).is_empty():
+			push_error("QuestCatalog: NPC '%s' has a tip without an id and a text" % npc_id)
+			continue
+		var tip_id := str(given["id"])
+		if not _tips.has(tip_id):
+			_tips[tip_id] = {"id": tip_id, "text": str(given["text"]), "npc_id": npc_id}
 
 
 ## id, title, category, acquisition, completion and at least one stage, each with at least one

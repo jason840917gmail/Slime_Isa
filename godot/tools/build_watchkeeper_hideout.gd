@@ -1,6 +1,8 @@
 extends SceneTree
 ## Builds only the furnished storehouse interior. The exterior is an authored prefab in C4.
 ## Rebuilding replaces the interior; reload it in an open editor before saving.
+## Since 2026-11-20 the room is edited by hand with the cottage interior walls at 16 x 12 cells
+## (docs/godot/INTERIOR_WALLS.md "The village's house rooms"): this builds the old 14 x 11 room.
 const SceneSave := preload("res://tools/lib/scene_save.gd")
 const OBJ := "res://game/scenes/objects/%s.tscn"
 const INTERIOR := "res://game/scenes/worlds/rooms/c4/watchkeeper-hideout.tscn"

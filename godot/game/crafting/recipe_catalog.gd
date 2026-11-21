@@ -2,8 +2,14 @@ extends RefCounted
 ## The recipe table and the crafting stations (Phaser `content/recipes/RecipeCatalog.ts`):
 ## `game/data/recipes.json` (15 recipes, catalogue order, camelCase keys: id, name, station,
 ## tier, description, ingredients [{itemId, count}], output {itemId, count}, uniqueOutput?,
-## learnedByQuest?). A crafting site is {"station", "tier"}; the portable site is the Crafting tab
-## of the menu (there is no C key, crafting spec K1). Crafting spec 1.1-1.2.
+## learnedByQuest?). A crafting site is {"station", "tier"}. Crafting spec 1.1-1.2.
+##
+## Release 1 (crafting spec 12, 2026-11-20): every campfire is a `campfire` station (the Slime Tonic
+## and the Berry Basket) and the relit Forge brews the Fizzy Brew. These stations
+## (KNOWN_ONLY_STATIONS) list only the recipes the slime knows: a recipe that must be learned
+## (`learnedByQuest`: taught by a talk, later a recipe page) is left out until it is, so the Forge's
+## old smelting, which nobody teaches any more, stays out of sight. The portable site (the old
+## Crafting tab of the menu) is no longer offered: its tab is hidden (menu_windows.gd).
 ##
 ## Owner: crafting.
 
@@ -15,6 +21,7 @@ const PORTABLE_SITE := {"station": "portable", "tier": 1}
 ## `STATION_INCLUDES` (RecipeCatalog.ts:93-99): a station also crafts these stations' recipes.
 const STATION_INCLUDES := {
 	"portable": [],
+	"campfire": [],
 	"workbench": [],
 	"workshop": ["workbench"],
 	"forge": [],
@@ -23,11 +30,15 @@ const STATION_INCLUDES := {
 ## `STATION_NAMES` (RecipeCatalog.ts:101-107).
 const STATION_NAMES := {
 	"portable": "Crafting",
+	"campfire": "Campfire",
 	"workbench": "Workbench",
 	"workshop": "Workshop",
 	"forge": "Forge",
 	"kitchen": "Kitchen",
 }
+
+## The stations that list only the recipes the slime knows (the Release 1 craft panel).
+const KNOWN_ONLY_STATIONS: PackedStringArray = ["campfire", "forge"]
 
 
 ## Every recipe, catalogue order ([] when the file is missing).
@@ -81,9 +92,19 @@ static func upgrades_of(station: String) -> Array[String]:
 	return out
 
 
+## True when the station lists `recipe`: always, except at a KNOWN_ONLY_STATIONS station, which
+## leaves out a recipe that must be learned until the slime knows it.
+static func is_listed(station: String, recipe: Dictionary) -> bool:
+	if not station in KNOWN_ONLY_STATIONS or not bool(recipe.get("learnedByQuest", false)):
+		return true
+	var run := Services.run()
+	return run != null and run.knows_recipe(str(recipe.get("id", "")))
+
+
 ## `recipesAt` (RecipeCatalog.ts:144-154): the station's own recipes (lowest tier first, its own
 ## station before the ones it shares, then catalogue order), then the tier-1 recipes of the
-## stations that build on it (shown locked, "At the Workshop").
+## stations that build on it (shown locked, "At the Workshop"); at a KNOWN_ONLY_STATIONS station
+## only the known ones (`is_listed`).
 static func recipes_at(site: Dictionary) -> Array:
 	var station := str(site.get("station", ""))
 	var upgrades := upgrades_of(station)
@@ -94,6 +115,8 @@ static func recipes_at(site: Dictionary) -> Array:
 		var recipe: Dictionary = recipes[index]
 		var entry := {"recipe": recipe, "index": index, "tier": int(recipe.get("tier", 1)),
 			"shared": 0 if str(recipe.get("station", "")) == station else 1}
+		if not is_listed(station, recipe):
+			continue
 		if station_crafts(station, recipe):
 			own.append(entry)
 		elif str(recipe.get("station", "")) in upgrades and int(recipe.get("tier", 1)) == 1:

@@ -14,12 +14,18 @@ class_name FallingPlank
 ## stays open after a plank falls. `east_west` turns the
 ## boards for a bridge that runs east-west.
 ##
+## `dry` (2026-11-19, Burr's yard in level-1-c4): the plank lies over a dry ditch instead, a hole
+## painted on the `elevation` layer with a void hazard under it (hazard.gd, `draw_look` off so the
+## ditch's own floor shows): it falls as a slab does, with a clatter (`BreakWood`) and dust, and
+## keeps its colour. Like a slab, it opens a passage at its `level` over the hole (hazard_deck.gd).
+##
 ## Owner: dungeon kit.
 
 const PlankLook := preload("res://game/dungeon/plank_look.gd")
 const WaterSplash := preload("res://game/dungeon/water_splash.gd")
 
 const CUE_SPLASH := &"WaterSplash"
+const CUE_DRY_FALL := &"BreakWood"
 const SINK_SCALE := 0.9
 
 ## The bridge runs east-west (the boards are turned a quarter).
@@ -27,6 +33,8 @@ const SINK_SCALE := 0.9
 	set(value):
 		east_west = value
 		queue_redraw()
+## Over a dry ditch (see the class notes): dust and a clatter instead of the splash.
+@export var dry: bool = false
 
 
 func _ready() -> void:
@@ -40,29 +48,32 @@ func _art_path() -> String:
 
 
 func _fall_cue() -> StringName:
-	return CUE_SPLASH
+	return CUE_DRY_FALL if dry else CUE_SPLASH
 
 
 func _drop_ms() -> float:
-	return DungeonState.number("plank.sinkMs", 600.0)
+	return super() if dry else DungeonState.number("plank.sinkMs", 600.0)
 
 
 func _on_fall() -> void:
+	if dry:
+		super()
+		return
 	WaterSplash.spawn(global_position + size * 0.5, DungeonState.number("plank.ringRadiusPx", 46.0),
 		DungeonState.number("plank.ringMs", 1200.0), int(DungeonState.number("plank.rings", 3.0)))
 
 
 func _fall_scale() -> float:
-	return SINK_SCALE
+	return super() if dry else SINK_SCALE
 
 
 func _fall_sink_px() -> float:
-	return DungeonState.number("plank.sinkPx", 10.0)
+	return super() if dry else DungeonState.number("plank.sinkPx", 10.0)
 
 
 func _draw_piece(box: Rect2, frame: int, tint: Color, _alpha: float) -> void:
-	# Sinking, it takes the water's colour as it fades.
+	# Sinking, it takes the water's colour as it fades (over a dry ditch it keeps its own).
 	var wet := tint
-	if state == State.FALLING:
+	if state == State.FALLING and not dry:
 		wet = Color(tint.r * 0.75, tint.g * 0.85, tint.b, tint.a)
 	PlankLook.draw(self, _picture, box, size, PlankLook.LOOSE if frame == 1 else PlankLook.WHOLE, wet, east_west)

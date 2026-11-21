@@ -239,9 +239,9 @@ func test_bench_comes_back_on_load(t: TestContext) -> void:
 	t.check(t.player().get_centre().y > 630.0, "the slime walked through the bench (centre y %.1f)" % t.player().get_centre().y)
 
 
-func test_crafting_a_bench_places_it_for_the_quest(t: TestContext) -> void:
-	var quests = t.main.quests
-	quests.debug_activate("a-place-to-work")
+## Crafting a bench (at the portable site, which the game no longer offers: crafting spec 12.1)
+## starts its placement. Since 2026-11-20 no quest waits for it (A Place to Work is retired).
+func test_crafting_a_bench_starts_its_placement(t: TestContext) -> void:
 	var run := Services.run()
 	run.add_item("wood", 40)
 	t.teleport_player(SPAWN)
@@ -255,7 +255,7 @@ func test_crafting_a_bench_places_it_for_the_quest(t: TestContext) -> void:
 	t.check(not crafting.is_open(), "the crafting window stayed open after crafting a bench")
 	t.check(placement.is_active(), "crafting a bench did not start placement")
 	await _place_at(t, placement, Vector2(700.0, 650.0))
-	t.check(bool(quests.view("a-place-to-work").get("ready_to_turn_in", false)), "placing the bench did not finish the quest's stages")
+	t.check(not placement.is_active(), "the bench was not placed")
 
 
 func test_death_ends_placement(t: TestContext) -> void:

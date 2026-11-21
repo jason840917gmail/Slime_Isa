@@ -9,6 +9,13 @@ extends Node
 ##   42 px above it ("Slot 2 is empty", "Weapon not in inventory", "Finish the attack first",
 ##   "Weapon is unavailable"). The hand changing plays EquipBlade (sword, spear) or EquipTool.
 ## - `use_item` (the bag's Use): heal, energy, then one taken from the item's first stack.
+## - The potion belt (crafting spec 12.4; game/inventory/potion_belt.gd): `drink_belt_slot` (keys 1
+##   to 4 through player.gd, a click on the HUD's slot) drinks one of the slot's kind through
+##   `use_item`, refusing in white, small ("Belt slot 2 is empty: set a potion to it in your bag",
+##   "No Slime Tonic left", "Your health is full"); `assign_belt_slot` (the bag's Belt row) sets a
+##   potion kind to a slot. A belt slot found or bought (RunState `potion_belt_changed` with an
+##   `opened` index, not quiet) plays its ceremony card ("Belt slot", "Slot N of 4"), or "Belt slot
+##   N!" over the slime while ceremonies are off.
 ## - `on_crafted` (the crafting window): a crafted weapon goes onto the belt and into an empty hand,
 ##   then "Crafted: <recipe name>" (green, big, 44 px up). A crafted Workbench closes the crafting
 ##   window and starts furniture placement (game/building/furniture_placement.gd).
@@ -27,6 +34,11 @@ const ControlLabels := preload("res://game/shell/control_labels.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
 const PlayerScript := preload("res://game/scripts/player.gd")
 const PlayerCombat := preload("res://game/combat/player_combat.gd")
+const PotionBelt := preload("res://game/inventory/potion_belt.gd")
+const ItemIcons := preload("res://game/inventory/item_icons.gd")
+const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
+## Nothing is drunk from the belt in the prologue.
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 
 const GROUP := &"inventory_actions"
 ## WorldScene.ts floating-text heights above the old centre.
@@ -54,6 +66,15 @@ const FAIL_TEXTS := {
 	"unknown": "Weapon is unavailable",
 }
 const NOT_OWNED_TEXT := "Weapon not in inventory"
+## The potion belt's refusals (white, small, FAIL_TEXT_RISE up).
+const BELT_EMPTY_TEXT := "Belt slot %d is empty: set a potion to it in your bag"
+const BELT_NONE_LEFT_TEXT := "No %s left"
+## A belt slot found or bought: its ceremony card, else (ceremonies off) a text over the slime.
+const BELT_ITEM_ID := "belt-slot"
+const BELT_CARD_KICKER := "Belt slot"
+const BELT_CARD_NAME := "Slot %d of %d"
+const BELT_CARD_HOW := "Set a potion to it in your bag; its number key (%s) drinks one"
+const BELT_FOUND_TEXT := "Belt slot %d!"
 const WEAPON_SWITCH_CONTROL := "weapon-switch"
 
 ## A text was shown. Payload: {"text", "color" (GameFeel colour name), "big", "x", "y"}.
@@ -73,12 +94,16 @@ func _ready() -> void:
 	var run := Services.run()
 	if run != null and not run.weapon_equipped.is_connected(_on_weapon_equipped):
 		run.weapon_equipped.connect(_on_weapon_equipped)
+	if run != null and not run.potion_belt_changed.is_connected(_on_potion_belt_changed):
+		run.potion_belt_changed.connect(_on_potion_belt_changed)
 
 
 func _exit_tree() -> void:
 	var run := Services.run()
 	if run != null and run.weapon_equipped.is_connected(_on_weapon_equipped):
 		run.weapon_equipped.disconnect(_on_weapon_equipped)
+	if run != null and run.potion_belt_changed.is_connected(_on_potion_belt_changed):
+		run.potion_belt_changed.disconnect(_on_potion_belt_changed)
 
 
 # --- the belt ------------------------------------------------------------------------------------
@@ -171,6 +196,69 @@ func use_item(item_id: String) -> void:
 		for kind: Variant in cures:
 			player.get_status().remove(StringName(str(kind)))
 	run.remove_item(item_id, 1)
+
+
+# --- the potion belt ------------------------------------------------------------------------------
+
+## Drinks one potion of belt slot `index`'s kind (`use_item`: its heal or energy and its cue). Refused
+## (a white line, nothing used) when the slot is open but set to nothing, when the bag has none of
+## its kind left, or when the potion would do nothing now (PotionBelt.useless_reason: full health
+## for a tonic). A slot not found yet, no live player, or the prologue: nothing at all. True when one
+## was drunk.
+func drink_belt_slot(index: int) -> bool:
+	var run := Services.run()
+	var player := _player()
+	if run == null or player == null or player.is_dead() or PrologueState.is_running(run):
+		return false
+	if index < 0 or index >= run.potion_belt_open():
+		return false
+	var kind := run.potion_belt_kind(index)
+	if kind.is_empty():
+		_text(FAIL_TEXT_RISE, BELT_EMPTY_TEXT % (index + 1), &"white", false)
+		return false
+	if run.item_count(kind) <= 0:
+		_text(FAIL_TEXT_RISE, BELT_NONE_LEFT_TEXT % ItemCatalog.item_name(kind), &"white", false)
+		return false
+	var reason := PotionBelt.useless_reason(kind, player)
+	if not reason.is_empty():
+		_text(FAIL_TEXT_RISE, reason, &"white", false)
+		return false
+	use_item(kind)
+	return true
+
+
+## The bag's Belt row: sets the potion kind `item_id` to the open slot `index` (off any other slot);
+## on the slot that already holds it, empties that slot. False for anything but a potion kind or a
+## closed slot.
+func assign_belt_slot(index: int, item_id: String) -> bool:
+	var run := Services.run()
+	if run == null or not PotionBelt.is_potion(item_id) or index < 0 or index >= run.potion_belt_open():
+		return false
+	if run.potion_belt_kind(index) == item_id:
+		return run.set_potion_belt_kind(index, "")
+	return run.set_potion_belt_kind(index, item_id)
+
+
+## A belt slot opened (found or bought; not quietly): its ceremony while main's ceremonies are on
+## (it waits for an open window, the chest's or the shop's, to close), else its text over the slime.
+func _on_potion_belt_changed(payload: Dictionary) -> void:
+	var index := int(payload.get("opened", -1))
+	if index < 0 or bool(payload.get("quiet", false)) or not is_inside_tree():
+		return
+	var tree := get_tree()
+	if AbilityCeremony.enabled(tree):
+		AbilityCeremony.request_entry(tree, belt_slot_entry(index))
+	else:
+		_text(EQUIP_TEXT_RISE, BELT_FOUND_TEXT % (index + 1), &"yellow", true)
+
+
+## The ceremony card of belt slot `index` just opened: "Belt slot", "Slot N of 4", the item's line,
+## how it is used (with its key) and the belt slot's bag icon.
+static func belt_slot_entry(index: int) -> Dictionary:
+	var key := PotionBelt.key_label(index)
+	return {"kicker": BELT_CARD_KICKER, "name": BELT_CARD_NAME % [index + 1, PotionBelt.ACTIONS.size()],
+		"line": str(ItemCatalog.definition(BELT_ITEM_ID).get("description", "")),
+		"how": BELT_CARD_HOW % (key if not key.is_empty() else str(index + 1)), "icon": ItemIcons.icon(BELT_ITEM_ID)}
 
 
 ## `onCrafted` (WorldScene.ts:2295-2311) after a successful craft (`result` from

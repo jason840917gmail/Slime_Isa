@@ -60,8 +60,8 @@ that never started it (an old save, a launch option, the tests) sees both places
 path open, the gate open, no Yoi, no worms.
 
 **New Game** (`game/shell/title.gd`) starts a new run and `PrologueState.begin`: the flag, no bag
-(`inventory.max_slots` 0, roadmap 5.7), nothing discovered yet (so Slimeshire's quests, which wait
-for level-1, begin when the slime comes out there), the old autosave removed (the player agreed to
+(`inventory.max_slots` 0, roadmap 5.7), nothing discovered yet (the main quest and Slime Basics
+wait for the prologue's end, `prologue-over`: [quests spec §14](specs/quests.md#14-the-main-quest-talks-and-tips-2026-11-19)), the old autosave removed (the player agreed to
 replace it), and the first world build goes to `west-village-b4` at the marker `prologue-birth`.
 `?prologue` (`-- --prologue`) does the same and skips the title.
 
@@ -95,9 +95,10 @@ walking, no input) and shows letterbox bars (`cinema_bars.gd`, layer 20, over th
    into the trees.
 7. **Out of the forest** (5.24): the path behind the gate leads to B4's east edge and into
    `level-1-c4`. There `game/prologue/town_edge_meeting.gd` (the `PrologueMeeting` node) moves Elder
-   Plop to his spot, holds the slime, and Plop meets it (the "!" over him: his first quest's marker,
-   else its own); he gives **his satchel**, the 10-slot bag (`max_slots` 10, the item ceremony "New
-   bag"), and his first tips; then `PrologueState.finish`: saving works again, Slimeshire's banner
+   Plop to his spot, holds the slime, and Plop meets it (the "!" over him: the meeting's own, as his
+   tips wait for `prologue.done`); he gives **his satchel**, the 10-slot bag (`max_slots` 10, the item
+   ceremony "New bag"), and his first tips; then `PrologueState.finish` (`prologue.done`: the main
+   quest "Win back the Pearls" starts, and Plop's tip of Burr's boy shows its "!"): saving works again, Slimeshire's banner
    shows, and Plop fades out, returns to his saved village position, then fades in; NPCs cannot use the plateau stairs. His elevation is refreshed at both positions, and completion/saving waits until control is released.
 
 **The Spear in the story:** the Spear is a body shape, which only the body-shapes mode plays. Every
@@ -108,7 +109,9 @@ lend them), and a run that plays the prologue or has learned a shape keeps its a
 **First-time hints** (5.23, `game/hints/control_hints.gd` `PROLOGUE_HINT_IDS`): none during the
 birth, then move, the mouth (suck and throw), `throw-move` (keep moving while you aim, worms near),
 attack (once a shape is current) and `thrust-bars` (near a shut barred gate). The bag, the Roll
-(`player.gd` `dodge_learned` is off in the prologue), the menus and the charge wait for Slimeshire.
+(young Burr teaches it in Slimeshire after the prologue, quests spec §14.3; until 2026-11-19 the
+director turned `player.gd`'s `dodge_learned` off for the prologue), the menus and the charge wait
+for Slimeshire.
 
 ## No saving (a no-save state)
 
@@ -145,6 +148,42 @@ Roll lock) must not look like it: no bars to see through, no lever behind them.
   (2976, 4596), a chest inside to see through the bars, pots and a rock outside). Play it in the
   body-shapes mode (the playground's default).
 
+## The homecoming (2026-11-20)
+
+Each Pearl goes home to the Wellspring (questions 98, 110 and 159; plan step A7): the node
+`WellspringHomecoming` under B4's `Wellspring` (`game/glimmerhill/wellspring_homecoming.gd`, its
+`pool` and `glow` the `Pool` and `PoolGlow` beside it). It does nothing while the prologue runs.
+When the slime's middle comes within `trigger_radius` (300) of the pool with a Pearl taken
+(`pearl.<id>`) and not yet home (`pearl.<id>.home`), it plays, built on the prologue's scene helpers
+(`prologue_scene.gd`: `hold`, `wait`, `ceremony_done`; the `CinemaBars`); several Pearls play one
+after another, in the wake table's order (Fatty's, the Matron's, the Colossus's):
+
+1. the bars come in, the slime holds still facing the pool; Bob says nothing and no NPC is there;
+2. the Pearl (the picture and glow of `object.pearl`, its script left off) rises out of the slime,
+   floats over the pool, hovers and sinks in with a splash; `PoolGlow` flares and settles one step
+   brighter (`glow_step_alpha`, `glow_step_scale` for each Pearl home: the glow is set from the
+   Pearls home whenever B4 is built, so it stays brighter on later visits);
+3. `pearl.<id>.home` is set (the main quest, [quests spec 14.2](specs/quests.md)) and a card
+   (`AbilityCeremony.request_entry`, its bubble over the slime) names the part of Glimmerhill that
+   wakes: "Pearl of the Wellspring home (n of 8)", "Market Hill wakes" and so on (the texts are in
+   game-constants.json `story.glimmerhill.pearls`);
+4. the part wakes ([VILLAGERS.md](VILLAGERS.md#asleep-until-its-pearl-comes-home-2026-11-20)): its
+   wake flag and the Pearl's `alsoFlags` (owner, 2026-11-20: Pearl 2 `workshop.restored`, which
+   raises Slimeshire's Workshop, its card adding "Far off in Slimeshire, the old Workshop rises from
+   its boards."; Pearl 3 `forge.restored`, which lights Slimeshire's Forge, "In Slimeshire, the old
+   Forge glows again."). When the part's goo fountain stands in this world (Market Hill's, Pearl 1), the camera
+   lets go of the room and pans to it (`pan_ms`) before the flag is set, so the fountain bursts into
+   flow, the grey lifts and the villagers stretch awake on screen (`watch_ms`), then pans back to
+   the slime and follows it again.
+
+The run saves itself after the scene. Every timing is a property of the node. A **campfire**
+(`decoration-world-solid--campfire.tscn`, `wellspring-campfire`) stands on the pool's west shore,
+out of the scene's way. Filmed with `godot/tools/render_glimmerhill.gd -- --map=west-village-b4
+--feet=520,1770 --then-flags=pearl.fatty-one-eye --film-ms=24000` (it closes the card with a key
+press after `--close-cards-ms`).
+
+Not built: the well's restoring and the Wellspring's or the fountains' energy refill.
+
 ## Art
 
 Magnific GPT 2.5 (`gpt-2-mini`, transparent background), the Lili sheet as style reference,
@@ -164,9 +203,15 @@ mist, dawn light and fireflies are drawn in code (`soft_glow.gd`, `fireflies.gd`
 
 ## Not built yet
 
-- Yoi's home under Lili's yard (5.12) and his tips there (they are in `npc-definitions.json`).
-- The Wellspring's campfire and the Pearls' homecoming scenes (5.17); a come-back secret in sight
-  of the birth (the level-design guide's proposal: a heart quarter on a rooted ledge, after Feral).
+- ~~Yoi's home under Lili's yard (5.12) and his tips there~~: built 2026-11-20 (step B4): the heap
+  hatch in Lili's west yard leads down to his den `slimeshire-yoi-home`, where he stands as a talkable
+  NPC (`game/scenes/characters/villagers/yoi.tscn`, his sheet's standing pose) with four war tips
+  ([quests spec 14.3](specs/quests.md#143-talks-talks-in-npc-definitionsjson)), the fifth heart
+  quarter and the Charged Roll in his chest (since the owner's change the same day a Roll Fragment,
+  behind a Heavy statue maze: [quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)).
+- ~~The Wellspring's campfire and the Pearls' homecoming scenes (5.17)~~: built 2026-11-20
+  ([The homecoming](#the-homecoming-2026-11-20)). A come-back secret in sight of the birth (the
+  level-design guide's proposal: a heart quarter on a rooted ledge, after Feral).
 - ~~The first bell, near the town's edge~~: built 2026-10-17 in `level-1-c4` (an islet in a little
   pond south of the road from the forest path, pots on its shore; it unlocks the keeper's
   storehouse, whose coffer is in a separate furnished interior:

@@ -54,8 +54,11 @@ func _process(_delta: float) -> void:
 	var held: Dictionary = player.call(&"held")
 	if not held.is_empty():
 		var text := "[%s] Throw" % ControlLabels.control_label(&"eat")
-		if str(held.get("kind", "")) == "essence" and bool(player.call(&"is_learned", AbilityDefinitions.SWALLOW)):
-			text += "  [%s] Swallow" % ControlLabels.control_label(&"swallow")
+		# Swallow has no key of its own since 2026-11-20 (1 is the potion belt's): no prompt without one.
+		var swallow_key := ControlLabels.control_label(&"swallow")
+		if str(held.get("kind", "")) == "essence" and bool(player.call(&"is_learned", AbilityDefinitions.SWALLOW)) \
+				and not swallow_key.is_empty():
+			text += "  [%s] Swallow" % swallow_key
 		_show(text, (player.call(&"get_centre") as Vector2) - Vector2(0.0, HELD_RISE))
 		return
 	var target: Node = player.call(&"nearest_suckable")

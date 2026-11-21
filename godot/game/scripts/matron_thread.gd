@@ -3,7 +3,7 @@ extends Node2D
 class_name MatronThreadScript
 ## Scene script of `object.matron-thread` (game/scenes/objects/matron-thread.tscn; roadmap 8.7,
 ## question 106; built 2026-10-17): the Orb-Weaver Matron's thread, a spool caught in a strand of
-## her web at the top of the Weaver Hollow, the silk Burr needs for the Bow. The Silk skin's first
+## her web at the top of the Weaver Hollow, the string of the bow rune Pip carves (the Bow). The Silk skin's first
 ## lock (the Weaver Hollow design, "Her thread").
 ##
 ## - **Caught:** the spool hangs `hang_px` over the floor point (the root) on a strand that rises

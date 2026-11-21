@@ -124,6 +124,12 @@ Body-shapes rework (branch `exp/body-shapes`): the classic game keeps this row a
 (`slam_sequence.gd`; cost 35 and cooldown 2500 from `abilities.squashSlam`; no radius 90 or damage
 30); see [BODY_SHAPES.md](../BODY_SHAPES.md) "Slam".
 
+The Ability Box's abilities (rework mode, `abilityBox.sockets`, the `ability_use` key) are in
+`ability_definitions.gd` beside these rows, with their numbers in `game-constants.json`: `lantern`
+(10 energy, 300 ms), `goo-bombs` (20, 600; spent at the spit) and, since 2026-11-20, `bow` "Bow" (6
+energy an arrow, spent at the shot, 300 ms; aimed along the movement keys, else the facing; no ammo):
+[BODY_SHAPES.md](../BODY_SHAPES.md) "The Lantern", "The Goo Bomb" and "The Bow".
+
 Passive (`PlayerAbilityDefinitions.ts:58-60`): `goo-trail` "Goo Trail", learned text
 "Goo Trail learned: enemies on your goo slow down". No key, no bar slot.
 
@@ -153,12 +159,21 @@ as physical keycodes 32, 49, 50, 51, 52, 81).
   passive → its `learnedText`; colour `#9ff0c8` (`ABILITY_LEARNED_COLOR`, `WorldScene.ts:153`).
   Banner UI **[OUT]** (world spec §6.4); the cue is **[IN]**.
 - Godot: read and write through `RunState` (`has_learned_ability`, `learn_ability`, signal
-  `ability_learned {"ability_id"}`; `run_state.gd`). Keep `player.gd`'s `dodge_learned` export as
-  the trial override (`is_learned(&"dodge")` = RunState or `dodge_learned`).
+  `ability_learned {"ability_id"}`; `run_state.gd`). `player.gd`'s `dodge_learned` export stays as a
+  dev override, off since 2026-11-19 (`is_learned(&"dodge")` = RunState or `dodge_learned`): young
+  Burr's first talk teaches the Roll (quests spec §14.3), the playground and `?shapes` lend it, and
+  a save already past Burr's cell or a Pearl learns it quietly on load (`RunState.install`).
 - Godot since 2026-10-09: a learned active ability plays the ability ceremony
   (`game/ui/ceremony/ability_ceremony.gd`, roadmap 4.13) instead of the banner while main's
   `ability_ceremonies` is on; its card takes its line and how-to from `AbilityDefinitions.CEREMONY`
   and its icon from the HUD console's `ability-<id>.webp` ([quests spec §4.3](quests.md#43-ability-banner-and-audio)).
+- Godot since 2026-11-20: an **upgrade** (`AbilityDefinitions.UPGRADES`: only the Charged Roll,
+  `roll-charge`, in Release 1) learned not quietly plays its own card (`AbilityCeremony.request_upgrade`:
+  "Upgrade", its title, line and how-to with the upgraded ability's key, the HUD console's
+  `ability-roll-charge.webp`); it was found whole in Yoi's chest at first, and since the owner's
+  change of 2026-11-20 the fourth of four Roll Fragments teaches it (Burr's in Fatty's Lair, Yoi's
+  chest, the A4 barn in Glimmerhill, the Gloop Cavern's hidden chest:
+  [quests spec 14.8](quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)).
 
 ---
 
@@ -1095,8 +1110,9 @@ breaks; ringing again restarts the swing and re-opens (no-op) the gates.
 
 **Godot since 2026-10-16 (owner, questions 115 and 127): a bell is a ranged lock.** A thrown thing
 rings it (any hit whose `weapon_tags` hold `thrown`: a pot, a rock, a skull,
-`game/player/gulp/thrown_object.gd`), and so will the Bow's arrow (`on_arrow_hit(hit) -> bool`,
-group `&"bow_targets"`, as the bestiary's targets; the Bow is not built). The Spear, the Stretch
+`game/player/gulp/thrown_object.gd`), and so does the Bow's arrow (`on_arrow_hit(hit) -> bool`,
+group `&"bow_targets"`, as the bestiary's targets; built 2026-11-20, BODY_SHAPES.md "The Bow": the
+arrow's own hit class never carries `thrown`, so it rings the bell only through the hook). The Spear, the Stretch
 Lash and every other hit never ring it. `lash_only` is gone: the bell always registers its
 `damage_area` (no tags, so a thrown thing's strike finds it) and refuses every other hit as
 `immune` (the clink); `mitigate_damage` returns 0, so a ring shows no damage number (the hit's
@@ -1225,18 +1241,20 @@ interaction candidate (`UniversalSceneWorldController.ts:1038-1071`).
 
 | Property | Default | Script fallback | Forge (`object.forge`) | Workshop (`object.workshop`) |
 |---|---|---|---|---|
-| `prompt` | required | `"Restore"` if empty | "Restore the Forge (40 stone, 20 wood, 6 iron ore)" | "Restore the Workshop (60 wood, 40 stone)" |
+| `prompt` | required | `"Restore"` if empty | "Look at the cold Forge" (was "Restore the Forge (40 stone, 20 wood, 6 iron ore)") | "Look at the old Workshop" (was "Restore the Workshop (60 wood, 40 stone)") |
 | `flagId` (`flag_id`) | required | `''` | `forge.restored` | `workshop.restored` |
 | `objectId` (`object_id`) | required | `''` | `forge` | `workshop` |
-| `questId` (`quest_id`) | `''` | `''` | `rekindle-the-forge` | `the-old-workshop` |
-| `cost` (`Dictionary`) | `{}` | positive safe integers, authored order | `{"stone":40,"wood":20,"iron-ore":6}` | `{"wood":60,"stone":40}` |
-| `lockedMessage` | required | "It is in ruins." | "The Forge has gone cold. Pip, the smith's son, wants it lit again." | "The old Workshop has caved in. Rebuilding it will take iron from a working Forge." |
+| `questId` (`quest_id`) | `''` | `''` | `''` (was `rekindle-the-forge`, retired 2026-11-19) | `''` (was `the-old-workshop`, retired) |
+| `story_only` (Godot, 2026-11-19) | `false` | — | `true`: never restored by paying; the Colossus's Pearl coming home sets `forge.restored` (the Matron's until 2026-11-20) | `true`: the Matron's Pearl coming home sets `workshop.restored` (since 2026-11-20; parked before) |
+| `cost` (`Dictionary`) | `{}` | positive safe integers, authored order | `{}` (was `{"stone":40,"wood":20,"iron-ore":6}`) | `{"wood":60,"stone":40}` (unused while story-only) |
+| `lockedMessage` | required | "It is in ruins." | "The Forge has gone cold. Pip, the smith's son, dreams of seeing it glow again." | "The old Workshop has caved in. Nobody has worked here in years." |
 | `restoredMessage` | required | "Restored!" | "The Forge burns again!" | "The Workshop is restored!" |
 | `interactRadius` | 150 | 150 unless > 0 | 130 | 150 |
 | `badgeRise` | 200 | 200 unless > 0 | 130 | 150 |
 
 Both buildings: root StaticBody2D; `game.story-variant` on the flag swaps `ruined` ↔ `restored`
-(the restored one holds the `game.workbench` station); the site script sits under
+(the restored one holds the `game.workbench` station; since 2026-11-20 the Workshop's has none:
+crafting spec 12.1); the site script sits under
 `ruined/site` (position (0,0)), so it leaves the tree once restored.
 
 Candidate (`:1038-1071`): nearest in-tree site with `|player centre − site root| <=
@@ -1337,11 +1355,11 @@ bell, dummies and buildings override `body.position`, the others `root.position`
 | gloop-forest | `gloop-ch2-cracked-ground` | (1344, 2368) | flag `cracked.gloop-sinkhole`; door → `gloop-cavern` / `gloop-cavern-ladder` |
 | gloop-forest | `gloop-ch2-nook-goo-heart` | (800, 1176) | heartId `gloop-silk-nook` |
 | gloop-forest | `gloop-ch2-matron-goo-heart` | (3120, 800) | heartId `gloop-matron-nest` (inside the `matron-heart` subtree shown by the story variant on `chapter-2-complete`) |
-| gloop-cavern | `gloop-cavern-goo-heart` | (1216, 420) | heartId `gloop-cavern` |
+| gloop-cavern | `gloop-cavern-goo-heart` | (1165, 393) (until 2026-11-20 (1216, 420): the cavern's interior walls) | heartId `gloop-cavern` |
 | level-1 | `heart-chest-meadow-lakeside` | (1184, 314) chunk-local, in D4 (`level-1-d4`), hidden in the old pen chest behind grey planks | heartId `meadow-lakeside` |
 | hollow-hill-cave | `heart-chest-meadow-autumn-thicket` | (512, 333), hidden in the cave chest behind D5's cracked hill face | heartId `meadow-autumn-thicket` |
 | level-1-d4 | `heart-chest-meadow-cliff-secret` | (1869, 1446), chunk-local, hidden in the plateau chest | heartId `meadow-cliff-secret` |
-| level-1 | `level-1-workshop` / `level-1-forge` | (640, 392) / (1190, 1068) | — |
+| level-1 | `level-1-workshop` / `level-1-forge` | (640, 392) / (1190, 1068); in `level-1-c4` (chunk-local) the Forge stands at (1778, 182), and since 2026-11-20 the Workshop beside it at (1530, 279), in the chunk's north-east corner (the owner moved it from (640, 392), north of the plaza) | — |
 
 ### 14.2 The playground testbed (`worlds/playground.scene.json`)
 
@@ -1546,7 +1564,7 @@ if not _abilities.owns_body(): ArcadeMover.move(body, delta)     # the lash flig
 |---|---|---|
 | `get_centre() -> Vector2` | exists | everything |
 | `is_dead() -> bool` | exists | lesson, heart, webs |
-| `is_learned(id: StringName) -> bool` | RunState (+ `dodge_learned`) | rules, UI |
+| `is_learned(id: StringName) -> bool` | RunState (+ `dodge_learned`, a dev override, off) | rules, UI |
 | `ability_status(id) -> Dictionary` / `activate_ability_from_ui(id)` | §2.5 / §2.6 | ability bar [OUT] |
 | `is_ability_busy() -> bool` | §2.1 | squash, trail |
 | `get_energy() -> float`, `get_max_energy() -> float`, `spend_energy(a) -> bool`; signal `energy_changed {"energy","maxEnergy","delta"}` | §4 | rules, HUD |

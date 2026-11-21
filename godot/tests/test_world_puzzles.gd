@@ -226,6 +226,20 @@ func test_restoration_needs_materials(t: TestContext) -> void:
 			site = node
 	if not t.check(site != null, "no workshop site"):
 		return
+	# Since 2026-11-19 the Workshop is story-only (the Matron's Pearl raises it since 2026-11-20:
+	# test_glimmerhill.gd): paying never restores it. Its ruin's site is all this test needs (the
+	# restored Workshop has no station since 2026-11-20).
+	t.check(bool(site.get(&"story_only")), "the workshop can be restored by paying")
+	run.add_item("wood", 60)
+	run.add_item("stone", 40)
+	run.debug_active_quests.append(str(site.get(&"quest_id")))
+	t.check(site.call(&"restore"), "a story-only site did nothing")
+	t.check(not run.has_flag("workshop.restored"), "a story-only site was restored by paying")
+	t.equal([run.item_count("wood"), run.item_count("stone")], [60, 40], "a story-only site took its cost")
+	run.debug_active_quests.clear()
+	run.inventory["slots"] = []
+	# The paid restore itself (a site that is not story-only): its quest, then its materials.
+	site.set(&"story_only", false)
 	t.check(site.call(&"restore"), "a quest-locked site did nothing")
 	t.check(not run.has_flag("workshop.restored"), "restored while its quest is not active")
 	run.debug_active_quests.append(str(site.get(&"quest_id")))

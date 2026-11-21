@@ -10,6 +10,9 @@ extends RefCounted
 ## selected recipe or {}), details_name, details, materials [{id, label, item_id, short}],
 ## quantity, status, status_color, craft_disabled, quantity_disabled.
 ##
+## A campfire or the relit Forge lists only the recipes the slime knows (RecipeCatalog
+## KNOWN_ONLY_STATIONS); with none known yet it says so (EMPTY_KNOWN_NAME, EMPTY_KNOWN_DETAILS).
+##
 ## Owner: crafting (UI).
 
 const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
@@ -24,6 +27,11 @@ const REFUSED_COLOR := UiTokens.DANGER
 const SUCCESS_COLOR := UiTokens.ACCENT
 const LOCKED_STATUSES: PackedStringArray = ["not-learned", "station-tier", "wrong-station"]
 const CRAFTABLE_STATUSES: PackedStringArray = ["ready", "missing-materials", "inventory-full"]
+## A station with no recipe to list, and a campfire or the Forge with none known yet.
+const EMPTY_NAME := "Nothing to craft here"
+const EMPTY_DETAILS := "No recipes available"
+const EMPTY_KNOWN_NAME := "No recipes known yet"
+const EMPTY_KNOWN_DETAILS := "The slimes you meet teach recipes. Come back once someone has shown you one."
 
 
 ## A new window state at the portable site.
@@ -80,8 +88,8 @@ static func snapshot(state: Dictionary) -> Dictionary:
 		"recipes": rows,
 		"selected_index": selected_index if not recipe.is_empty() else -1,
 		"recipe": recipe,
-		"details_name": "Nothing to craft here",
-		"details": "No recipes available",
+		"details_name": EMPTY_KNOWN_NAME if str(site.get("station", "")) in RecipeCatalog.KNOWN_ONLY_STATIONS else EMPTY_NAME,
+		"details": EMPTY_KNOWN_DETAILS if str(site.get("station", "")) in RecipeCatalog.KNOWN_ONLY_STATIONS else EMPTY_DETAILS,
 		"materials": [],
 		"quantity": "Amount: 0",
 		"status": "",
@@ -180,7 +188,7 @@ static func reason_text(reason: String, recipe: Dictionary, site: Dictionary, qu
 		"station-tier":
 			return "Needs a tier %d %s." % [int(recipe.get("tier", 1)), RecipeCatalog.station_name(str(site.get("station", "")))]
 		"not-learned":
-			return "Not learned yet — a quest will teach it."
+			return "Not learned yet: someone has to teach it first."
 		"unique-owned":
 			return "You already have this item."
 		"missing-materials":

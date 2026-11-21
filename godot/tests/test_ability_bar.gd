@@ -13,6 +13,11 @@ func _bar(t: TestContext) -> Node:
 
 
 func test_labels_follow_the_abilities(t: TestContext) -> void:
+	# The Roll is young Burr's lesson since 2026-11-19 (on the bar once learned): lent here.
+	Services.run().learn_session_ability("dodge")
+	# The bar follows the learned abilities in its own `_process` (`process_frame` fires before it).
+	await t.tree.process_frame
+	await t.tree.process_frame
 	var bar := _bar(t)
 	if not t.check(bar != null, "the HUD has no ability bar"):
 		return
@@ -37,6 +42,11 @@ func test_labels_follow_the_abilities(t: TestContext) -> void:
 
 
 func test_window_pause_disables_the_bar(t: TestContext) -> void:
+	# The Roll is young Burr's lesson since 2026-11-19 (on the bar once learned): lent here.
+	Services.run().learn_session_ability("dodge")
+	# The bar follows the learned abilities in its own `_process` (`process_frame` fires before it).
+	await t.tree.process_frame
+	await t.tree.process_frame
 	var bar := _bar(t)
 	var world := Services.world()
 	world.set_pause_reason(Services.WorldServiceType.PAUSE_MODAL, true)

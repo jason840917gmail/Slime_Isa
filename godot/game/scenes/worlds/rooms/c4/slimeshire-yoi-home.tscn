@@ -1,0 +1,184 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="terrain"]
+[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="definition"]
+[ext_resource type="Script" path="res://game/world/props/prop_layer.gd" id="prop_layer"]
+[ext_resource type="TileSet" path="res://game/world/props/props_cell_tileset.tres" id="cell_props"]
+[ext_resource type="TileSet" path="res://game/world/props/props_detail_tileset.tres" id="detail_props"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="sfx"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/world/interior-ambience.wav" id="ambience"]
+[ext_resource type="Script" path="res://game/world/world_ground.gd" id="world_ground"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/interior-b.wav" id="music_track"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-ladder.tscn" id="ladder"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-lantern-lit.tscn" id="lantern"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-banner-red-narrow.tscn" id="banner"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-spear-rack.tscn" id="spear_rack"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-shield-display.tscn" id="shield"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-helmet-stand.tscn" id="helmet"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/beds/interior-beds-straw-nest-s.tscn" id="cot"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-runner-red.tscn" id="runner"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-crate.tscn" id="crate"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-barrel.tscn" id="barrel"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="chest"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/goo-heart.tscn" id="goo_heart"]
+[ext_resource type="PackedScene" path="res://game/scenes/characters/villagers/yoi.tscn" id="yoi"]
+[ext_resource type="TileSet" path="res://game/world/fences/fence_tileset.tres" id="fence_tiles"]
+[ext_resource type="Script" path="res://game/world/fences/fence_layer.gd" id="fence_layer"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="heavy_statue"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="interior_tiles"]
+[ext_resource type="Script" path="res://game/world/interior/interior_wall_layer.gd" id="interior_walls"]
+
+[node name="slimeshire-yoi-home" type="Node2D"]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="."]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAADAAAAAAAAAABAAAADQAAAAAAAAACAAAADAAAAAAAAAADAAAADQAAAAAAAAAEAAAADAAAAAAAAAAFAAAADQAAAAAAAAAGAAAADAAAAAAAAAAHAAAADQAAAAAAAAAIAAAADAAAAAAAAAAJAAAADQAAAAAAAAAKAAAADAAAAAAAAAALAAAADQAAAAAAAAAMAAAADAAAAAAAAAANAAAADQAAAAAAAAAOAAAADAAAAAAAAAAPAAAADQAAAAAAAAAAAAEADQAAAAAAAAABAAEADAAAAAAAAAACAAEADQAAAAAAAAADAAEADAAAAAAAAAAEAAEADQAAAAAAAAAFAAEADAAAAAAAAAAGAAEADQAAAAAAAAAHAAEADAAAAAAAAAAIAAEADQAAAAAAAAAJAAEADAAAAAAAAAAKAAEADQAAAAAAAAALAAEADAAAAAAAAAAMAAEADQAAAAAAAAANAAEADAAAAAAAAAAOAAEADQAAAAAAAAAPAAEADAAAAAAAAAAAAAIADAAAAAAAAAABAAIADQAAAAAAAAACAAIADAAAAAAAAAADAAIADQAAAAAAAAAEAAIADAAAAAAAAAAFAAIADQAAAAAAAAAGAAIADAAAAAAAAAAHAAIADQAAAAAAAAAIAAIADAAAAAAAAAAJAAIADQAAAAAAAAAKAAIADAAAAAAAAAALAAIADQAAAAAAAAAMAAIADAAAAAAAAAANAAIADQAAAAAAAAAOAAIADAAAAAAAAAAPAAIADQAAAAAAAAAAAAMADQAAAAAAAAABAAMADAAAAAAAAAACAAMADQAAAAAAAAADAAMADAAAAAAAAAAEAAMADQAAAAAAAAAFAAMADAAAAAAAAAAGAAMADQAAAAAAAAAHAAMADAAAAAAAAAAIAAMADQAAAAAAAAAJAAMADAAAAAAAAAAKAAMADQAAAAAAAAALAAMADAAAAAAAAAAMAAMADQAAAAAAAAANAAMADAAAAAAAAAAOAAMADQAAAAAAAAAPAAMADAAAAAAAAAAAAAQADAAAAAAAAAABAAQADQAAAAAAAAACAAQADAAAAAAAAAADAAQADQAAAAAAAAAEAAQADAAAAAAAAAAFAAQADQAAAAAAAAAGAAQADAAAAAAAAAAHAAQADQAAAAAAAAAIAAQADAAAAAAAAAAJAAQADQAAAAAAAAAKAAQADAAAAAAAAAALAAQADQAAAAAAAAAMAAQADAAAAAAAAAANAAQADQAAAAAAAAAOAAQADAAAAAAAAAAPAAQADQAAAAAAAAAAAAUADQAAAAAAAAABAAUADAAAAAAAAAACAAUADQAAAAAAAAADAAUADAAAAAAAAAAEAAUADQAAAAAAAAAFAAUADAAAAAAAAAAGAAUADQAAAAAAAAAHAAUADAAAAAAAAAAIAAUADQAAAAAAAAAJAAUADAAAAAAAAAAKAAUADQAAAAAAAAALAAUADAAAAAAAAAAMAAUADQAAAAAAAAANAAUADAAAAAAAAAAOAAUADQAAAAAAAAAPAAUADAAAAAAAAAAAAAYADAAAAAAAAAABAAYADQAAAAAAAAACAAYADAAAAAAAAAADAAYADQAAAAAAAAAEAAYADAAAAAAAAAAFAAYADQAAAAAAAAAGAAYADAAAAAAAAAAHAAYADQAAAAAAAAAIAAYADAAAAAAAAAAJAAYADQAAAAAAAAAKAAYADAAAAAAAAAALAAYADQAAAAAAAAAMAAYADAAAAAAAAAANAAYADQAAAAAAAAAOAAYADAAAAAAAAAAPAAYADQAAAAAAAAAAAAcADQAAAAAAAAABAAcADAAAAAAAAAACAAcADQAAAAAAAAADAAcADAAAAAAAAAAEAAcADQAAAAAAAAAFAAcADAAAAAAAAAAGAAcADQAAAAAAAAAHAAcADAAAAAAAAAAIAAcADQAAAAAAAAAJAAcADAAAAAAAAAAKAAcADQAAAAAAAAALAAcADAAAAAAAAAAMAAcADQAAAAAAAAANAAcADAAAAAAAAAAOAAcADQAAAAAAAAAPAAcADAAAAAAAAAAAAAgADAAAAAAAAAABAAgADQAAAAAAAAACAAgADAAAAAAAAAADAAgADQAAAAAAAAAEAAgADAAAAAAAAAAFAAgADQAAAAAAAAAGAAgADAAAAAAAAAAHAAgADQAAAAAAAAAIAAgADAAAAAAAAAAJAAgADQAAAAAAAAAKAAgADAAAAAAAAAALAAgADQAAAAAAAAAMAAgADAAAAAAAAAANAAgADQAAAAAAAAAOAAgADAAAAAAAAAAPAAgADQAAAAAAAAAAAAkADQAAAAAAAAABAAkADAAAAAAAAAACAAkADQAAAAAAAAADAAkADAAAAAAAAAAEAAkADQAAAAAAAAAFAAkADAAAAAAAAAAGAAkADQAAAAAAAAAHAAkADAAAAAAAAAAIAAkADQAAAAAAAAAJAAkADAAAAAAAAAAKAAkADQAAAAAAAAALAAkADAAAAAAAAAAMAAkADQAAAAAAAAANAAkADAAAAAAAAAAOAAkADQAAAAAAAAAPAAkADAAAAAAAAAAAAAoADAAAAAAAAAABAAoADQAAAAAAAAACAAoADAAAAAAAAAADAAoADQAAAAAAAAAEAAoADAAAAAAAAAAFAAoADQAAAAAAAAAGAAoADAAAAAAAAAAHAAoADQAAAAAAAAAIAAoADAAAAAAAAAAJAAoADQAAAAAAAAAKAAoADAAAAAAAAAALAAoADQAAAAAAAAAMAAoADAAAAAAAAAANAAoADQAAAAAAAAAOAAoADAAAAAAAAAAPAAoADQAAAAAAAAAAAAsADQAAAAAAAAABAAsADAAAAAAAAAACAAsADQAAAAAAAAADAAsADAAAAAAAAAAEAAsADQAAAAAAAAAFAAsADAAAAAAAAAAGAAsADQAAAAAAAAAHAAsADAAAAAAAAAAIAAsADQAAAAAAAAAJAAsADAAAAAAAAAAKAAsADQAAAAAAAAALAAsADAAAAAAAAAAMAAsADQAAAAAAAAANAAsADAAAAAAAAAAOAAsADQAAAAAAAAAPAAsADAAAAAAAAAA=")
+tile_set = ExtResource("terrain")
+script = ExtResource("world_ground")
+metadata/columns = 16
+metadata/rows = 12
+
+[node name="TileCollision" type="Node2D" parent="ground"]
+
+[node name="interior-walls" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAAAAAAAAAADAAAAAAABAAAAAAADAAAAAAACAAAAAAADAAAAAAADAAAAAAADAAAAAAAEAAAAAAADAAAAAAAFAAAAAAADAAAAAAAGAAAAAAADAAAAAAAHAAAAAAADAAAAAAAIAAAAAAADAAAAAAAJAAAAAAADAAAAAAAKAAAAAAADAAAAAAALAAAAAAADAAAAAAAMAAAAAAADAAAAAAANAAAAAAADAAAAAAAOAAAAAAADAAAAAAAPAAAAAAADAAAAAAAAAAEAAAADAAAAAAABAAEAAAADAAAAAAACAAEAAAADAAAAAAADAAEAAAADAAAAAAAEAAEAAAADAAAAAAAFAAEAAAADAAAAAAAGAAEAAAADAAAAAAAHAAEAAAADAAAAAAAIAAEAAAADAAAAAAAJAAEAAAADAAAAAAAKAAEAAAADAAAAAAALAAEAAAADAAAAAAAMAAEAAAADAAAAAAANAAEAAAADAAAAAAAOAAEAAAADAAAAAAAPAAEAAAADAAAAAAAAAAIAAAADAAAAAAABAAIAAAADAAAAAAAOAAIAAAADAAAAAAAPAAIAAAADAAAAAAAAAAMAAAADAAAAAAABAAMAAAADAAAAAAAOAAMAAAADAAAAAAAPAAMAAAADAAAAAAAAAAQAAAADAAAAAAABAAQAAAADAAAAAAAOAAQAAAADAAAAAAAPAAQAAAADAAAAAAAAAAUAAAADAAAAAAABAAUAAAADAAAAAAAOAAUAAAADAAAAAAAPAAUAAAADAAAAAAAAAAYAAAADAAAAAAABAAYAAAADAAAAAAAOAAYAAAADAAAAAAAPAAYAAAADAAAAAAAAAAcAAAADAAAAAAABAAcAAAADAAAAAAAOAAcAAAADAAAAAAAPAAcAAAADAAAAAAAAAAgAAAADAAAAAAABAAgAAAADAAAAAAAOAAgAAAADAAAAAAAPAAgAAAADAAAAAAAAAAkAAAADAAAAAAABAAkAAAADAAAAAAAOAAkAAAADAAAAAAAPAAkAAAADAAAAAAAAAAoAAAADAAAAAAABAAoAAAADAAAAAAACAAoAAAADAAAAAAADAAoAAAADAAAAAAAEAAoAAAADAAAAAAAFAAoAAAADAAAAAAAGAAoAAAADAAAAAAAHAAoAAAADAAAAAAAIAAoAAAADAAAAAAAJAAoAAAADAAAAAAAKAAoAAAADAAAAAAALAAoAAAADAAAAAAAMAAoAAAADAAAAAAANAAoAAAADAAAAAAAOAAoAAAADAAAAAAAPAAoAAAADAAAAAAAAAAsAAAADAAAAAAABAAsAAAADAAAAAAACAAsAAAADAAAAAAADAAsAAAADAAAAAAAEAAsAAAADAAAAAAAFAAsAAAADAAAAAAAGAAsAAAADAAAAAAAHAAsAAAADAAAAAAAIAAsAAAADAAAAAAAJAAsAAAADAAAAAAAKAAsAAAADAAAAAAALAAsAAAADAAAAAAAMAAsAAAADAAAAAAANAAsAAAADAAAAAAAOAAsAAAADAAAAAAAPAAsAAAADAAAAAAA=")
+tile_set = ExtResource("interior_tiles")
+script = ExtResource("interior_walls")
+
+[node name="cell-props" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("cell_props")
+script = ExtResource("prop_layer")
+
+[node name="details" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("detail_props")
+script = ExtResource("prop_layer")
+
+[node name="fences" type="TileMapLayer" parent="."]
+z_index = -1
+tile_map_data = PackedByteArray("AAAJAAUAAAAHAAAAAAAKAAUAAAAHAAAAAAALAAUAAAAHAAAAAAAMAAUAAAAHAAAAAAAJAAYAAAAHAAAAAAAJAAcAAAAHAAAAAAAJAAgAAAAHAAAAAAAJAAkAAAAHAAAAAAAMAAYAAAAHAAEAAAALAAcAAAAHAAAAAAAMAAcAAAAHAAAAAAANAAcAAAAHAAAAAAA=")
+tile_set = ExtResource("fence_tiles")
+script = ExtResource("fence_layer")
+
+[node name="world-definition" type="Node" parent="."]
+script = ExtResource("definition")
+map_id = "slimeshire-yoi-home"
+tile_size = 64
+columns = 16
+rows = 12
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 284,
+"y": 264
+}
+}
+}
+camera_mode = "fixed"
+
+[node name="player-spawn" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(284, 264)
+
+[node name="Furniture" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="ladder" parent="Furniture" instance=ExtResource("ladder")]
+position = Vector2(284, 195)
+
+[node name="DoorScript" parent="Furniture/ladder" index="2"]
+map_id = "slimeshire-yoi-home"
+door_id = "yoi-home-ladder"
+target_area_id = "level-1-c4"
+target_door_id = "yoi-home-hatch"
+
+[node name="decor-lantern-lit" parent="Furniture" instance=ExtResource("lantern")]
+position = Vector2(154, 155)
+
+[node name="decor-lantern-lit2" parent="Furniture" instance=ExtResource("lantern")]
+position = Vector2(870, 155)
+
+[node name="thorn-guard-banner" parent="Furniture" instance=ExtResource("banner")]
+position = Vector2(512, 159)
+scale = Vector2(1.4, 1.4)
+
+[node name="old-spear-rack" parent="Furniture" instance=ExtResource("spear_rack")]
+position = Vector2(642, 203)
+scale = Vector2(1.3, 1.3)
+
+[node name="old-shield" parent="Furniture" instance=ExtResource("shield")]
+position = Vector2(768, 203)
+scale = Vector2(1.3, 1.3)
+
+[node name="old-helmets" parent="Furniture" instance=ExtResource("helmet")]
+position = Vector2(406, 212)
+scale = Vector2(1.3, 1.3)
+
+[node name="cot" parent="Furniture" instance=ExtResource("cot")]
+position = Vector2(362, 421)
+scale = Vector2(1.3, 1.3)
+
+[node name="runner" parent="Furniture" instance=ExtResource("runner")]
+position = Vector2(512, 494)
+scale = Vector2(1.4, 1.4)
+
+[node name="stores-crate" parent="Furniture" instance=ExtResource("crate")]
+position = Vector2(171, 598)
+scale = Vector2(1.2, 1.2)
+
+[node name="water-barrel" parent="Furniture" instance=ExtResource("barrel")]
+position = Vector2(236, 615)
+scale = Vector2(1.2, 1.2)
+
+[node name="yoi-chest" parent="." instance=ExtResource("chest")]
+position = Vector2(840, 606)
+
+[node name="ChestScript" parent="yoi-chest" index="2"]
+map_id = "slimeshire-yoi-home"
+instance_id = "yoi-home-chest"
+initial_contents = {
+"roll-fragment": 1
+}
+
+[node name="yoi-quarter" parent="." instance=ExtResource("goo_heart")]
+position = Vector2(171, 462)
+
+[node name="GooHeartScript" parent="yoi-quarter" index="1"]
+heart_id = "slimeshire-yoi-quarter"
+
+[node name="maze-statue-door" parent="." instance=ExtResource("heavy_statue")]
+position = Vector2(864, 352)
+
+[node name="maze-statue-inner" parent="." instance=ExtResource("heavy_statue")]
+position = Vector2(864, 416)
+
+[node name="NPCs" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="yoi" parent="NPCs" instance=ExtResource("yoi")]
+position = Vector2(484, 368)
+metadata/instance_id = "slimeshire-yoi-home-yoi"
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("ambience")
+volume_db = -9.1186
+bus = &"Ambience"
+script = ExtResource("sfx")
+loop = true
+autoplay_cue = true
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("music_track")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("sfx")
+loop = true
+autoplay_cue = true
+
+[editable path="yoi-chest"]

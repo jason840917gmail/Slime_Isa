@@ -1,16 +1,17 @@
 extends Node
 class_name TomWebScript
 ## Scene script `game.tom-web` (owner, 2026-10-08; roadmap 8.13): the spider web Tom is caught in,
-## in a Gloop Forest thicket (`object.tom-web`). Tom went there to swallow silk and got stuck; the
-## slime cannot swallow yet, so it frees him with its weapon.
+## in his clearing in Gloop Forest's south-west woods (`object.tom-web`, gloop-forest-e5; question
+## 117). Tom went there to study the webs and the Matron's brood wrapped him up; the slime frees him
+## with its weapon.
 ##
-## - Weapon hits (tags "weapon" or "spear") tear at it; after `hits_to_tear` it gives way. Thrown
-##   things and abilities only shake it, without a damage number.
-## - It tears only while Mossy's quest `quest_id` is active; before that Tom just mumbles.
+## - Weapon hits (tags "weapon" or "spear": the Spear) tear at it; after `hits_to_tear` it gives way.
+##   Thrown things and abilities only shake it, without a damage number. No quest gates it since
+##   2026-11-19 (Mossy's old quest "Tom in the Web" is retired): it tears whenever it is hit so.
 ## - Torn: the story flag `freed_flag` is set for good (the scene's story variant swaps the cocoon
-##   for torn strands, and the forest camp's variant shows Tom there), the quest's activate-object
-##   objective counts (`object.activated` {objectId `object_id`}), and Tom calls out on his way
-##   back to the camp.
+##   for torn strands, and the forest camp's variant shows Tom there), `object.activated` {objectId
+##   `object_id`} still goes to the quests, Tom calls out, and `torn` is emitted: his Goo Bomb lesson
+##   plays right there (the scene's `TomLesson`, game/scripts/tom_lesson.gd).
 ##
 ## Owner: quests.
 
@@ -22,9 +23,8 @@ const WEAPON_TAGS: Array[String] = ["weapon", "spear"]
 const CUE_HIT := &"WebStruggle"
 const CUE_TEAR := &"WebTear"
 const TEXT_RISE := 70.0
-const MUMBLE := "Mmmph! Mmph mmph! (Tom is stuck fast.)"
 const SHAKE_TEXT := "It only shakes. Cut it with a weapon!"
-const FREED_TEXT := "I'm free! Thank you! Meet me at Mossy's camp!"
+const FREED_TEXT := "I'm free!"
 ## Hint texts at most this often (real time).
 const HINT_EVERY_MS := 2500.0
 const TEXT_MS := 2600.0
@@ -41,11 +41,11 @@ const QUEST_OBJECT_GROUP := &"quest_object"
 ## The cocoon Sprite2D (it wobbles when hit).
 @export var visual: Node2D
 @export var hits_to_tear: int = 3
-@export var quest_id: String = "tom-in-the-web"
 @export var freed_flag: String = "tom-freed"
 @export var object_id: String = "tom-web"
 
-## The web gave way. Payload: {"flagId": String}.
+## The web gave way (the flag is already set). Payload: {"flagId": String}. Tom's Goo Bomb lesson
+## (tom_lesson.gd) hangs on it.
 signal torn(payload: Dictionary)
 
 var hits: int = 0
@@ -92,9 +92,6 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 		if str(tag) in WEAPON_TAGS:
 			by_weapon = true
 	_start_wobble(request)
-	if not _quest_active():
-		_hint(MUMBLE)
-		return {"accepted": false, "reason": "immune"}
 	if not by_weapon:
 		_hint(SHAKE_TEXT)
 		return {"accepted": false, "reason": "immune"}
@@ -133,11 +130,6 @@ func _tear() -> void:
 			feel.particles(&"dust-puff", root.global_position)
 			feel.floating_text(root.global_position - Vector2(0.0, TEXT_RISE), FREED_TEXT, &"green", true, TEXT_MS)
 	torn.emit({"flagId": freed_flag})
-
-
-func _quest_active() -> bool:
-	var quests := get_tree().get_first_node_in_group(QuestEvents.SERVICE_GROUP)
-	return quests != null and str(quests.call(&"status", quest_id)) == "active"
 
 
 func _hint(text: String) -> void:

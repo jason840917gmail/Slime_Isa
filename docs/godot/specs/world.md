@@ -305,7 +305,7 @@ extends Node
 | red-slime-boy | red-slime-boy | 38 | 800 | 1800 | Pip |
 | yellow-blond-slime-girl | yellow-blond-slime-girl | 24 | 1600 | 2800 | Sunny |
 | mossy-scout | level-1-spider-giver | 42 | 2000 | 3000 | Mossy |
-| fisherman-slime | fisherman-slime | 30 | 1400 | 3200 | Lily the Fishergirl |
+| fisherman-slime | fisherman-slime | 30 | 1400 | 3200 | Lily the Fishergirl (Dora since 2026-11-19) |
 
 (Values from each `characters/<id>.scene.json` script node; they equal `content/characters/<id>/character.json` `npc` block.)
 
@@ -418,7 +418,10 @@ The HUD reads player state (Phaser `core/GameState.ts:177-258`; owned by the pla
 Replaced on 2026-10-08 by the HUD console (roadmap 4.12, `game/ui/console/`,
 [the mockup](../../design/2026-10-07-hud-console-mockup.md)): the HP and energy bars became the
 console's goo orbs (the number shows only when the value changes), and the coins a small chip at
-the top left (`Coins`, the count alone). The Phaser layout below is history.
+the top left (`Coins`, the count alone). Since 2026-11-20 the console's bar also holds the potion
+belt's slots after the abilities, one per belt slot found, with their counts and keys 1-4
+([crafting spec 12.4](crafting.md#124-the-potion-belt-step-b3-2026-11-20)). The Phaser layout below
+is history.
 
 Phaser mechanism: `UiSurfaceScript` (`game.ui-surface`) pulls `snapshot('hud')` on enter and on every `hp/energy/coins` change, and applies `bindings` (`[{nodePath, property, model}]`, node paths relative to the script node) — `../Coins.text ← coinsLabel`, `../Health.value ← hp`, `../Health.max ← maxHp`, `../Energy.value ← energy`, `../Energy.max ← maxEnergy`. A port of `ui_surface.gd` belongs to Phase 3; for the trial either (a) instance the converted `res://game/scenes/ui/hud.tscn` on a CanvasLayer (layer 10) and drive the three nodes from `hud.gd`, or (b) build the same three controls by hand. Target look (CSS px):
 

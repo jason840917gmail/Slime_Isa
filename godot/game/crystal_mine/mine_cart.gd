@@ -5,7 +5,7 @@ class_name MineCartStation
 ## `line_id`; the cart stands at one of them. At the station that has it, the interact key (W) rides
 ## it: the slime climbs in, the screen fades (MineTravel), and it gets out at the other station,
 ## where the cart now stands. Found first at the Chasm (`starts_with_cart`), the ride is the first
-## half's shortcut back to the entrance, and a Bow-less slime's quick way out to Burr and back in.
+## half's shortcut back to the entrance, and a Bow-less slime's quick way out to Pip and back in.
 ## At the empty station a line says where the cart is (the tell: rails that end at a buffer stop).
 ##
 ## Which station holds the cart is the world's object state `mine-cart:<line_id>` (RunState map
@@ -43,6 +43,11 @@ const EMPTY_TELL_EVERY_MS := 4000.0
 @export var empty_text: String = "The cart is at the far end of the line."
 ## The cart's picture (shown while it stands here).
 @export var cart_visual: Node2D
+## A station at the end of a line that comes from another world (the smith's cart, ridden down from
+## his cave to the gate's yard: game/crystal_mine/smith_cart.gd): the cart stands here while this
+## story flag is set, and the line has no partner here, so it never rides back. Empty: the line's
+## two stations in one world share the cart as above.
+@export var cart_flag: String = ""
 
 var _next_tell_ms: float = 0.0
 
@@ -62,6 +67,9 @@ func origin() -> Vector2:
 
 ## True while the cart stands at this station.
 func has_cart() -> bool:
+	if not cart_flag.is_empty():
+		var run := Services.run()
+		return run != null and run.has_flag(cart_flag)
 	return holder() == station_id
 
 

@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://game/runtime/animation_player.gd" id="2"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="3"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/world/campfire-loop.wav" id="4"]
+[ext_resource type="Script" path="res://game/scripts/workbench.gd" id="5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(97, 54)
@@ -64,3 +65,10 @@ max_distance = 420.0
 loop = true
 autoplay_cue = true
 pan_distance = 400.0
+
+[node name="CookStation" type="Node" parent="."]
+script = ExtResource("5")
+prompt = "Cook"
+recipe_context = "campfire"
+interact_radius = 96.0
+badge_rise = 104.0

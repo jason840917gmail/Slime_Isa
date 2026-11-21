@@ -4,6 +4,10 @@ extends RefCounted
 ## hand, and the crafting window (portable and at a station: rows, details, amount, refusals,
 ## Escape and the menu key). The trial sword (owner decision C3) is set aside where a test needs an
 ## empty bag or an empty hand.
+## Since 2026-11-20 (crafting spec 12) crafting happens at a station only: the Crafting tab is gone
+## (the portable site is opened by the tests alone), the tonic and the basket are cooked at a
+## campfire, the Fizzy Brew is brewed at the Forge, and a campfire or the Forge lists only the recipes
+## the slime knows.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -17,6 +21,7 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const PORTABLE := {"station": "portable", "tier": 1}
 const WORKBENCH := {"station": "workbench", "tier": 1}
 const FORGE := {"station": "forge", "tier": 1}
+const CAMPFIRE := {"station": "campfire", "tier": 1}
 const WORKBENCH_IDS := ["craft-wooden-spear", "craft-stone-axe", "craft-stone-pickaxe", "craft-stone-spear",
 	"craft-reinforced-pickaxe", "craft-iron-spear", "craft-iron-axe", "craft-slam-hammer"]
 
@@ -25,13 +30,19 @@ const WORKBENCH_IDS := ["craft-wooden-spear", "craft-stone-axe", "craft-stone-pi
 
 func test_recipe_data(t: TestContext) -> void:
 	t.equal(RecipeCatalog.all().size(), 15, "recipes")
-	t.equal(_ids(RecipeCatalog.recipes_at(PORTABLE)), ["craft-workbench", "brew-tonic", "cook-berry-basket"], "portable list")
+	t.equal(_ids(RecipeCatalog.recipes_at(PORTABLE)), ["craft-workbench"], "portable list")
 	t.equal(_ids(RecipeCatalog.recipes_at(WORKBENCH)), WORKBENCH_IDS, "workbench list")
 	var workshop := _ids(RecipeCatalog.recipes_at({"station": "workshop", "tier": 1}))
 	t.equal(workshop.size(), 8, "workshop list size")
 	t.equal(workshop[0] if not workshop.is_empty() else "", "craft-slam-hammer", "workshop list starts with its own recipe")
-	t.equal(_ids(RecipeCatalog.recipes_at(FORGE)), ["smelt-charcoal", "smelt-iron-bar"], "forge list")
-	t.equal(_ids(RecipeCatalog.recipes_at({"station": "kitchen", "tier": 1})), ["brew-fizzy", "weave-tonics"], "kitchen list")
+	# A campfire and the Forge list only the recipes the slime knows.
+	t.equal(_ids(RecipeCatalog.recipes_at(FORGE)), [], "forge list before any lesson")
+	t.equal(_ids(RecipeCatalog.recipes_at(CAMPFIRE)), [], "campfire list before any lesson")
+	Services.run().learn_recipes(["smelt-charcoal", "smelt-iron-bar", "brew-fizzy", "brew-tonic", "cook-berry-basket"])
+	t.equal(_ids(RecipeCatalog.recipes_at(FORGE)), ["smelt-charcoal", "smelt-iron-bar", "brew-fizzy"], "forge list")
+	t.equal(_ids(RecipeCatalog.recipes_at(CAMPFIRE)), ["brew-tonic", "cook-berry-basket"], "campfire list")
+	t.equal(_ids(RecipeCatalog.recipes_at({"station": "kitchen", "tier": 1})), ["weave-tonics"], "kitchen list")
+	t.equal(RecipeCatalog.site_title(CAMPFIRE), "Campfire", "campfire title")
 	t.equal(RecipeCatalog.site_title({"station": "workshop", "tier": 2}), "Workshop · Tier 2", "tier-2 title")
 	t.equal(RecipeCatalog.site_title(PORTABLE), "Crafting", "portable title")
 
@@ -84,15 +95,16 @@ func test_status_order(t: TestContext) -> void:
 	var short := CraftingService.quote(axe, 1, WORKBENCH)
 	t.equal(short["status"], "missing-materials", "missing materials")
 	t.equal((short["requirements"] as Array).map(func(r: Dictionary) -> int: return r["missing"]), [5, 10], "missing wood and stone")
+	run.learn_recipes(["brew-tonic"])
 	_set_bag(_stone_slots(19, {"item_id": "purple-berry-mat", "count": 6}, true))
-	var full := CraftingService.quote(tonic, 1, PORTABLE)
+	var full := CraftingService.quote(tonic, 1, CAMPFIRE)
 	t.equal(full["status"], "inventory-full", "a full bag")
 	t.equal(full["maxCraftable"], 0, "inventory-full max")
 	_set_bag(_stone_slots(19, {"item_id": "purple-berry-mat", "count": 3}, true))
-	var ready := CraftingService.quote(tonic, 1, PORTABLE)
+	var ready := CraftingService.quote(tonic, 1, CAMPFIRE)
 	t.equal(ready["status"], "ready", "the berry slot frees")
 	t.equal(ready["maxCraftable"], 1, "ready max")
-	t.check(bool(CraftingService.craft(tonic, 1, PORTABLE)["ok"]), "the tonic craft failed")
+	t.check(bool(CraftingService.craft(tonic, 1, CAMPFIRE)["ok"]), "the tonic craft failed")
 	var slots := run.slots()
 	t.equal(slots.size(), 20, "slots after the tonic")
 	t.equal(slots.back() if not slots.is_empty() else {}, {"item_id": "hp-potion", "count": 1}, "the tonic in the last slot")
@@ -101,10 +113,11 @@ func test_status_order(t: TestContext) -> void:
 func test_quantity_and_max(t: TestContext) -> void:
 	var run := Services.run()
 	var tonic := RecipeCatalog.find("brew-tonic")
+	run.learn_recipes(["brew-tonic", "smelt-charcoal"])
 	_set_bag([{"item_id": "purple-berry-mat", "count": 7}])
-	var quote := CraftingService.quote(tonic, 5)
+	var quote := CraftingService.quote(tonic, 5, CAMPFIRE)
 	t.equal([quote["requestedQuantity"], quote["maxCraftable"], quote["outputQuantity"]], [2, 2, 2], "berry 7: amount, max, output")
-	CraftingService.craft(tonic, 5)
+	CraftingService.craft(tonic, 5, CAMPFIRE)
 	t.equal(run.slots(), [{"item_id": "purple-berry-mat", "count": 1}, {"item_id": "hp-potion", "count": 2}], "bag after two tonics")
 	var charcoal := RecipeCatalog.find("smelt-charcoal")
 	_set_bag([{"item_id": "wood", "count": 25}])
@@ -177,9 +190,8 @@ func test_portable_window_new_run(t: TestContext) -> void:
 	t.check(_menu(t).open_crafting(PORTABLE), "the crafting window did not open")
 	var model := crafting.model()
 	t.equal(model["title"], "Crafting", "title")
-	t.equal(_labels(model["recipes"]), ["Workbench\nMissing 40 Wood", "Brew Slime Tonic\nMissing 3 Purple Berry",
-		"Berry Basket\nMissing 2 Purple Berry, 5 Wood"], "rows")
-	t.equal((model["recipes"] as Array).map(func(r: Dictionary) -> bool: return r["short"]), [true, true, true], "short rows")
+	t.equal(_labels(model["recipes"]), ["Workbench\nMissing 40 Wood"], "rows")
+	t.equal((model["recipes"] as Array).map(func(r: Dictionary) -> bool: return r["short"]), [true], "short rows")
 	t.equal(model["details_name"], "Workbench", "details name")
 	t.equal(_labels(model["materials"]), ["Wood\n0 / 40  (need 40 more)"], "materials")
 	t.equal(model["status"], "Missing: 40 Wood.", "status")
@@ -243,25 +255,33 @@ func test_station_window_rows(t: TestContext) -> void:
 		t.equal([rows[7]["label"], rows[7]["locked"]], ["Slam Hammer\nAt the Workshop", true], "row 7")
 	t.equal(model["details"], "A light starter weapon with a visible golden thrust.\n\nDamage: 5  ·  Cooldown: 0.8s", "details")
 	t.equal(_labels(model["materials"]), ["Wood\n0 / 20  (need 20 more)"], "materials")
-	t.equal(model["status"], "Not learned yet — a quest will teach it.", "status")
+	t.equal(model["status"], "Not learned yet: someone has to teach it first.", "status")
 	t.check(crafting.craft_button.disabled, "Craft is enabled")
 	crafting.close()
 
 
+## The interact key at a station opens its window: the lit Forge's (`forge.restored`), 40 south of
+## it; the Workshop has no station since 2026-11-20.
 func test_workbench_interaction_opens_station(t: TestContext) -> void:
-	Services.run().set_flag("workshop.restored")
+	Services.run().set_flag("forge.restored")
 	await t.steps(3)
-	t.teleport_player(Vector2(640.0, 470.0))
+	var station: Node = null
+	for node: Node in t.tree.get_nodes_in_group(&"crafting_station"):
+		if str(node.get(&"recipe_context")) == "forge" and node.is_inside_tree():
+			station = node
+	if not t.check(station != null, "the lit Forge has no station"):
+		return
+	t.teleport_player((station.call(&"origin") as Vector2) + Vector2(0.0, 40.0))
 	await t.steps(2)
 	var interaction = t.main.interaction
 	var opened: Array = []
 	interaction.workbench_opened.connect(func(payload: Dictionary) -> void: opened.append(payload))
 	t.tap(&"interact")
 	await t.until(func() -> bool: return _menu(t).crafting.is_open(), 200.0)
-	t.check(_menu(t).crafting.is_open(), "the Workshop did not open the crafting window")
-	t.equal(_menu(t).crafting.model().get("title"), "Workshop", "title")
-	# The Workshop stands in level-1-c4 (level-1 is cut into chunk worlds, docs/godot/WORLD_ATLAS.md).
-	t.equal(opened, [{"mapId": "level-1-c4", "context": "workshop"}], "workbench_opened payloads")
+	t.check(_menu(t).crafting.is_open(), "the Forge did not open the crafting window")
+	t.equal(_menu(t).crafting.model().get("title"), "Forge", "title")
+	# The Forge stands in level-1-c4 (level-1 is cut into chunk worlds, docs/godot/WORLD_ATLAS.md).
+	t.equal(opened, [{"mapId": "level-1-c4", "context": "forge"}], "workbench_opened payloads")
 	_menu(t).crafting.close()
 
 
@@ -275,9 +295,10 @@ func test_station_refused_when_open(t: TestContext) -> void:
 
 func test_quantity_buttons(t: TestContext) -> void:
 	_set_bag([{"item_id": "purple-berry-mat", "count": 30}])
+	Services.run().learn_recipes(["brew-tonic"])
 	var crafting := _menu(t).crafting
-	_menu(t).open_crafting(PORTABLE)
-	crafting.select_recipe(1)
+	_menu(t).open_station(CAMPFIRE)
+	crafting.select_recipe(0)
 	var amounts: Array = []
 	for key: String in ["Plus10", "Plus1", "Minus10", "Minus1"]:
 		(crafting.quantity_buttons[key] as Button).pressed.emit()
@@ -287,27 +308,31 @@ func test_quantity_buttons(t: TestContext) -> void:
 	t.equal(amounts, ["Amount: 10  ·  MAX 10", "Amount: 10  ·  MAX 10", "Amount: 1  ·  MAX 10", "Amount: 1  ·  MAX 10",
 		"Amount: 10  ·  MAX 10"], "amounts after +10, +1, -10, -1, MAX")
 	crafting.close()
-	_menu(t).open_crafting(PORTABLE)
+	_menu(t).open_station(CAMPFIRE)
 	t.equal(crafting.model()["quantity"], "Amount: 10  ·  MAX 10", "amount after reopening")
 	t.equal(crafting.model()["details_name"], "Slime Tonic", "selection after reopening")
 	crafting.close()
 
 
+## A campfire's window: Escape closes it (and opens nothing else); the menu key closes it without
+## opening the bag. Before any lesson it says that no recipe is known yet.
 func test_escape_and_menu_key(t: TestContext) -> void:
 	var menu := _menu(t)
-	menu.open_bag()
-	menu.tabs.buttons[&"crafting"].pressed.emit()
-	t.check(menu.crafting.is_open() and not menu.bag.is_open(), "the Crafting tab did not switch windows")
-	t.equal(menu.crafting.site(), PORTABLE, "the tab opens the portable site")
+	t.check(not menu.tabs.buttons.has(&"crafting"), "the menu strip still has a Crafting tab")
+	t.check(menu.open_station(CAMPFIRE), "the campfire's window did not open")
+	var model := menu.crafting.model()
+	t.equal(model["title"], "Campfire", "title")
+	t.equal(model["recipes"], [], "a campfire's recipes before any lesson")
+	t.equal([model["details_name"], model["details"]], [CraftingModel.EMPTY_KNOWN_NAME, CraftingModel.EMPTY_KNOWN_DETAILS],
+		"a campfire with no recipe known")
 	t.tap(&"ui_cancel")
 	t.check(not menu.crafting.is_open(), "Escape did not close crafting")
 	t.check(not t.tree.paused, "the world stayed paused")
 	t.check(not Services.shell().pause_menu.is_open(), "Escape also opened the pause menu")
-	menu.open_bag()
-	menu.switch_tab(&"crafting")
+	menu.open_station(CAMPFIRE)
 	t.tap(&"menu")
 	t.check(not menu.crafting.is_open(), "the menu key did not close crafting")
-	t.check(not menu.bag.is_open(), "the menu key opened the bag again")
+	t.check(not menu.bag.is_open(), "the menu key opened the bag")
 
 
 # --- helpers -------------------------------------------------------------------------------------

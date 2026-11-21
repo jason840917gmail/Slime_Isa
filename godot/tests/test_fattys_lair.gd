@@ -213,6 +213,7 @@ func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> 
 	t.check(lowered, "the two plates did not lower the drawbridge")
 	# Burr says goodbye, the slime held still while he speaks (his lines closed here), and walks out.
 	await _close_dialogues(t, func() -> bool: return t.world().world_root.get_node_or_null("Lair/burr") == null, 8000.0)
+	t.check(Services.run().has_flag(LairDirector.FLAG_LEFT), "Burr's goodbye is not kept")
 	_stand(t, _at("hub", Vector2(22.0, 11.5)))
 	await t.sim_wait(5600.0)
 	t.check(bool(bridge.call(&"is_lowered")), "the bridge rose again with the plates")
@@ -222,6 +223,14 @@ func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> 
 	var across := await t.until(func() -> bool: return t.player_body().global_position.y > _at("hub", Vector2(0.0, 10.2)).y, 3000.0)
 	t.release(&"move_down")
 	t.check(across, "the slime did not walk across the drawbridge (feet at %s)" % str(t.player_body().global_position / CELL))
+	# Built again with the bridge down: Burr is gone for good, no second goodbye (owner, 2026-11-20:
+	# he came back to his plate and said goodbye on every visit).
+	if not await _enter(t, "r4"):
+		return
+	if not await _enter(t, "hub"):
+		return
+	await t.steps(3)
+	t.check(t.world().world_root.get_node_or_null("Lair/burr") == null, "Burr stood on his plate again after his goodbye")
 
 
 ## R5's north maze (the owner, 2026-10-19): three eye latches, struck in their order I, II, III with
@@ -398,6 +407,9 @@ func test_burrs_cell_takes_two_keys_and_opens_the_inner_stair(t: TestContext) ->
 	t.equal(DungeonState.small_keys(run, MAP_ID), 0, "keys left")
 	await _close_dialogues(t, func() -> bool: return run.has_flag(LairDirector.FLAG_FREED), 8000.0)
 	t.check(run.has_flag(LairDirector.FLAG_FREED), "Burr was not freed")
+	# Freed, he gives the first Roll fragment (owner, 2026-11-20), once.
+	t.check(run.has_flag(LairDirector.FLAG_FRAGMENT), "Burr gave no Roll fragment")
+	t.equal(run.fragment_count(LairDirector.FRAGMENT_ITEM), 1, "Roll fragments after Burr's freeing")
 	t.check(bool(hatch.call(&"is_open")), "Burr did not open the Inner Stair")
 	t.check(run.has_flag("fatty-lair.inner-stair-open"), "the open stair is not kept")
 	await t.steps(10)

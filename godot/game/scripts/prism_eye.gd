@@ -301,7 +301,7 @@ func _pupil_shown() -> bool:
 	return _phase == PHASE_WATCH or _phase == PHASE_CHARGE
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow into its eye (from in front of it) breaks
+## The Bow's hook (bow_arrow.gd): an arrow into its eye (from in front of it) breaks
 ## it. `hit` may carry the arrow's `direction` (or `knock`); without one, an arrow while it charges
 ## does. True when it broke.
 func on_arrow_hit(hit: Dictionary) -> bool:

@@ -42,7 +42,8 @@ releases (owner, 2026-10-16,
   since the seventh round every Pearl goes home to the Wellspring, and its
   power flows into the town (question 110); since the eighth round the relit
   Forge brews the strong potions only it knows, and campfires make the
-  simple ones (question 120, 8.5);
+  simple ones (question 120, 8.5); *since 2026-11-20 (owner) Pearl 2 raises
+  the Workshop, Pip's place, and Pearl 3 lights the Forge (6, 8.5)*;
 - grow stronger through skins, shapes, heart quarters and story-unlocked
   abilities (no XP or levels; shapes replace crafted gear since 2026-10-15);
   since the eighth round each boss also gives a full heart, and potions, the
@@ -75,7 +76,8 @@ releases (owner, 2026-10-16,
     *answered in the sixth round: Tom, at the end of his maze, 8.13*),
     and the Silk skin (Pearl 2);
   - Chapter 3: the Lantern (the smith, 12.3), the Feral skin (Pearl 3) and
-    the Bow (Burr, from the Matron's thread, 12.6).
+    the Bow (Burr, from the Matron's thread, 12.6; *since 2026-11-20 Pip's
+    bow rune, from 5 wood, the thread and the smith's crystal*).
 
   Release 1 has one bag, Plop's 10-slot bag, and the vault and the 20-slot
   bag wait
@@ -269,7 +271,7 @@ open. *They were answered later the same day, with 97 to 106
 | A bomb caught in another bomb's blast still goes off (question 57) | Built in the rework mode; nothing changes |
 | Release 1's content ends when the Crystal Colossus falls, but the game goes on: the player explores the first three chapters' regions, the West village and the Wilds that connect them, and the game says that from here on it is exploration and more areas come in later releases (question 58) | Release 1 target (above), 12.5 (new), 8.11 and 12.2 (changed). Open: what closes the ways to the other regions (question 73) |
 | The Colossus's fight: only when all four braziers burn (lit by the Lantern) is a weak spot on his armour bared, at a random place, for the Spear or the Axe; his stomps blow the braziers out one at a time (question 59) | 12.4 (new), 12.1 (changed). *Changed in the fifth round: for the Spear alone (question 94)* |
-| The smith runs the crystal mine, which the Colossus has blocked. He is not trapped and there is no rescue: the slime finds him safe at his mine camp, he gives it the Lantern (the Forge's ember), and he goes home once the Colossus falls. Pip's story stays relighting the Forge; the smith teaches the Hammer later (question 59) | 12.3 (new), 8.5 and 12.1 (changed) |
+| The smith runs the crystal mine, which the Colossus has blocked. He is not trapped and there is no rescue: the slime finds him safe at his mine camp, he gives it the Lantern (the Forge's ember), and he goes home once the Colossus falls. Pip's story stays relighting the Forge; the smith teaches the Hammer later (question 59). *Changed 2026-11-20 (owner): he stays at his mine after the Colossus, and gives his crystal for Pip's bow rune (12.6)* | 12.3 (new), 8.5 and 12.1 (changed) |
 | The Roll is taught in Chapter 1, before Fatty One Eye, by **young Burr** in the West village; Plop sends the slime to Burr after the Spear. Release 1's Roll is the quick roll, and the charged roll is a later upgrade. The gatekeeper's family is Burr and young Burr (the "two families" fix) (question 61) | 5.13 (new), 5.12 and 7.7 (changed), the parking lot |
 | The burrow's lock: a gate that a worm lever lifts and that drops shut too fast to walk through, and **falling slabs** that fall too fast to walk across but slowly enough to roll across, back after 10 s, over lava (damage over time until a stair out), spikes (damage each time the invulnerability ends) or the void (damage, then back to the bridge's start). Burr, the gatekeeper, sits in a cell in Fatty's Lair; a small key frees him, and he thanks the slime later at home (question 61) | 5.14 and 5.15 (new). Open: the hazards and the slab timing (questions 70, 71) |
 | Part of the West village joins Release 1, with more NPCs, houses and things to do, like Zelda's town (question 61) | 5.16 (new). Open: which part, and what there is to do (question 73) |
@@ -301,7 +303,7 @@ day ([the fourth and fifth rounds](#the-fourth-and-fifth-rounds-questions-84-to-
 | The Bow is an Ability Box power, and each arrow costs energy. Its locks are far targets in a straight line across gaps and water; it also hits far enemies that cannot be reached otherwise, and some enemies open doors when they die, as in Zelda (question 76). Burr's thanks is the Bow (question 80). The Bouncy Bow goes: the Bow is the one bow (question 83) | 5.15 (changed), the parking lot. Open: when the Bow comes (question 85). *Answered in the fifth round: in Chapter 3 (question 94, 12.6)* |
 | A Heavy Roll breaks small loose things lying in the way: a loose rock, a rubble heap, a rotten trunk across a path. The Hammer keeps big single boulders, and the Axe standing trees, dead ones included. "Each thing must be told apart; different things never look alike; sacrifice options for clarity" (question 77) | 7.8 (changed); [Direction](story/01-direction.md#each-thing-is-told-apart). *Changed in the fifth round: the Axe owns only living, green things, and grey leaning old trees are the Heavy Roll's (question 93)* |
 | The quick roll is the Roll, and the charged roll is a later upgrade, like the Roll's enemy push. This replaces the 2026-10-09 rule that the Roll comes whole (question 78) | 7.7 (changed), the parking lot |
-| Pearl 2, the Matron's, relights the Forge when it comes home (Pip and the slime light it), and the Forge brews the potions from then on. This replaces the quest Rekindle the Forge and its ore cost (question 79). *Changed in the seventh round: Pearl 2 goes home to the Wellspring, and its power lights the Forge (question 110)* | 8.5 (changed), 8.10, 5.17, Milestone 6 |
+| Pearl 2, the Matron's, relights the Forge when it comes home (Pip and the slime light it), and the Forge brews the potions from then on. This replaces the quest Rekindle the Forge and its ore cost (question 79). *Changed in the seventh round: Pearl 2 goes home to the Wellspring, and its power lights the Forge (question 110)* *Changed 2026-11-20 (owner): Pearl 2 raises the Workshop (6), and Pearl 3 lights the Forge* | 8.5 (changed), 8.10, 5.17, Milestone 6 |
 | The way to the Crystal Caverns is a maze of web walls that only the Silk skin passes, so the Silk skin opens Chapter 3, as a skin opens the next region. The crystal seal and the end-of-Chapter-2 card go (question 81) | 8.11 (changed), 7.9, 12.1 |
 | The relit Forge knows the potion recipes, and an NPC tip or a chest teaches each of the few others. With no quests, an NPC that has a tip that matters to the story shows the exclamation mark (question 82) | 5.17 and 8.5 (changed) |
 
@@ -357,7 +359,7 @@ follow from these answers and are open; a task that depends on one says
 | **Tom** teaches the Goo Bomb. Reaching him is hard: a maze with several secrets and tests, solved with the Spear, the Roll, the Heavy skin and the Gulp; its webs slow the slime and cannot be cut before the Silk skin. The Weaver Hollow's big chest holds a heart or the dungeon's big key instead of the War Axe (question 95). *Changed in the seventh round: Tom teaches it at the end of his maze, once freed, and the chest holds a heart quarter (question 113)* | 8.13 and 7.10 (changed), 7.9 |
 | **One shape:** the Spear is Release 1's only shape. E stays hidden until a second shape is learned, and the Axe opens the next release with its come-back secrets (question 96) | 7.11, 4.10, 12.1 and 12.4 (changed), the parking lot |
 | **The river bridge:** a Heavy Roll knocks the grey, leaning old tree over the river as a bridge. The Axe's living-tree bridge may come back with the Axe (question 101) | 7.8 (changed), the parking lot |
-| **Burr's Bow:** visited before Pearl 2, Burr thanks the slime ("I am making you something, come back when the forest is free"). He needs silk and other things to build the Bow; the silk is the **Matron's thread**, a spool found in her nest after she falls and taken from her web with the Silk skin, and the other things are already in his workshop. With the thread and Pearl 2 home he teaches the Bow: one find, one trip back, no crafting. Chapter 3 uses the Bow on its main path at least once (a far eye switch across the mine's chasm), but the Colossus does not need it (questions 102 and 106). *Changed in the eighth round: the lock is a crystal lens on a post (question 127), and the Matron's thread hangs in her web at the top of the Weaver Hollow (question 133)* | 5.15 and 12.6 (changed), 8.7, 12.1, 12.3 and 12.4 |
+| **Burr's Bow:** visited before Pearl 2, Burr thanks the slime ("I am making you something, come back when the forest is free"). He needs silk and other things to build the Bow; the silk is the **Matron's thread**, a spool found in her nest after she falls and taken from her web with the Silk skin, and the other things are already in his workshop. With the thread and Pearl 2 home he teaches the Bow: one find, one trip back, no crafting. Chapter 3 uses the Bow on its main path at least once (a far eye switch across the mine's chasm), but the Colossus does not need it (questions 102 and 106). *Changed in the eighth round: the lock is a crystal lens on a post (question 127), and the Matron's thread hangs in her web at the top of the Weaver Hollow (question 133)* *Changed 2026-11-20 (owner): Pip carves a bow rune from 5 wood, the thread and the smith's crystal once Pearl 2 has raised the Workshop; Burr only sends the slime to him (12.6)* | 5.15 and 12.6 (changed), 8.7, 12.1, 12.3 and 12.4 |
 | **Pearl 1's homecoming:** after Fatty, the freed Burr says the town must see the Pearl, the journal's main quest points home, and the well comes back when the slime brings the Pearl to it (question 103). *Changed in the seventh round: the slime takes the Pearl home to the Wellspring, and its power brings the well back (question 110)* | 5.17 and 5.15 (changed) |
 | **Campfires:** the one or two Chapter 1 recipes are made at any campfire. Campfires stand by the Wellspring, in the town and at each camp, so a fresh save can always heal (question 104) | 5.17 (changed), 5.18, 8.5 |
 | **The well** gives a full refill (a drink in town), and beds also restore life (question 105). *Since the seventh round its refill grows back (question 113)* | 5.10 and 5.17 (changed) |
@@ -387,7 +389,7 @@ yet.
 |---|---|
 | Release 1's **whole manuscripts** teach campfire recipes (potions and food) and lore: pages of the Thorn Guard's war journal, which tell the war's story bit by bit. Manuscripts that teach powers start in the next release (question 108) | 5.17 (changed), the parking lot |
 | **Dungeons:** quitting or fainting inside a dungeon resumes at its entrance, and the dungeon keeps what the slime did there: small keys, opened doors, the map, the big key. The autosave waits until the slime is out (question 109) | 4.3, 4.4 and 5.15 (changed) |
-| **The Pearls belong to the Wellspring:** every Pearl goes home to it, it brightens, and its power flows into the town: the well comes back with Pearl 1, the Forge lights with Pearl 2. The slime no longer takes Pearl 1 to the well (question 110) | 5.9, 5.10, 5.17 and 8.5 (changed) |
+| **The Pearls belong to the Wellspring:** every Pearl goes home to it, it brightens, and its power flows into the town: the well comes back with Pearl 1, the Forge lights with Pearl 2. The slime no longer takes Pearl 1 to the well (question 110). *Changed 2026-11-20 (owner): the Workshop rises with Pearl 2, the Forge lights with Pearl 3* | 5.9, 5.10, 5.17 and 8.5 (changed) |
 | **The Spear's upgrades:** who gives them, Yoi's techniques or the Forge, is decided after Release 1 (question 111) | 5.12 (changed), the parking lot |
 | **Chunk B4:** the prologue takes B4's south edge, sealed off by forest, and the West village's town sits in B4's north and A4. The forest path to the Wellspring leaves Slimeshire, not the town (question 112) | 5.18 and 5.16 (changed). The world map (`world-map.json`) still puts the Wellspring and the town both in B4 |
 | **The prologue** cannot be saved, and the HUD appears right after the birth scene. **Tom** hangs at the end of his maze and teaches the Goo Bomb right there, as soon as he is freed. The **Weaver Hollow's big chest** holds a heart quarter. **The well's refill grows back** after a while, so it is not used up (question 113) | 5.18, 8.13, 5.3 and 5.10 (changed), 4.3 |
@@ -425,7 +427,7 @@ what a bell opens stays open for good.*
 | **Bars and webs** ([question 131](story/07-decisions-archive.md#open-from-the-level-design-guide-2026-10-16)): bars stop arrows, so only a Spear thrust reaches a lever behind bars. A Roll sticks in a floor web; walking through one slows the slime until the Silk skin, and web walls block until the Silk skin. The Slime Spider's right tool is the Silk skin, with which its webs no longer stick | 7.9 (changed), 5.22, 12.6, 12.7 |
 | **First locks** (question 132): the Roll's is a rickety plank over a dry ditch in Burr's yard; the Heavy skin's, Fatty's Lair's way out; the Goo Bomb's, a cracked wall by Tom, his maze's way back; the Bow's, targets in Burr's yard; the first bell, rung by a thrown pot, stands near the town's edge soon after the prologue; the Feral skin's is the climb out of the Colossus's arena, then the Wilds. *Changed 2026-10-17: the Pearl comes before the boss and the dungeon's second half teaches its skin, so the Heavy and Feral skins' first locks move into their dungeons' second halves ([the 2026-10-17 decisions](#the-2026-10-17-decisions))* | 5.13, 5.15, 5.22, 8.13, 12.4 and 12.6 (changed) |
 | **The Matron** (question 133): she lives at the top of the Weaver Hollow, and her open-world nest becomes the Hollow's entrance. Her fight needs the Goo Bomb: she shields herself in a web cocoon that only a blast tears open, then the Spear hurts her | 8.7 (changed), 8.14 (new) |
-| **Order** (question 134): the Crystal Caverns' first half never needs the Bow, and the smith's mine camp sends the slime to Burr. Burr's cell lies on Fatty's Lair's main path, so freeing him cannot be skipped | 5.15, 12.3 and 12.6 (changed) |
+| **Order** (question 134): the Crystal Caverns' first half never needs the Bow, and the smith's mine camp sends the slime to Burr. Burr's cell lies on Fatty's Lair's main path, so freeing him cannot be skipped. *Changed 2026-11-20 (owner): the mine camp gives the smith's crystal for Pip's bow rune (12.6)* | 5.15, 12.3 and 12.6 (changed) |
 | **Locks for later releases** (question 135): only a few War Axe, Stretch Lash, Hammer and Swim locks show in Release 1, each with a line that says it needs something not found yet, and every Release 1 heart quarter can be reached with Release 1's powers. The War Axe cuts webs without the Silk skin (the Silk rule is the Spear's) | 5.3, 7.9 and 8.9 (changed), the parking lot |
 | **The skeletons** ([questions 124 and 125](story/07-decisions-archive.md#open-after-the-dungeon-enemies-2026-10-16)): they are the fallen Thorn Guard of the great war, whose bones Gorge's vassals raised to guard the dungeons, the old forts. A bone the Gulp steals leaves the Bone Thrower unarmed for 10 s, then it has a bone again | 12.7 (changed), 5.15 |
 | **Lore and potions** ([questions 119 and 120](story/07-decisions-archive.md#open-after-the-seventh-round-2026-10-16)): lore pages are read again on a "War journal" page in the journal, next to the Pearls' picture. The campfire makes the simple potions and food anywhere, and the relit Forge brews the strong potions only it knows | 5.17 and 8.5 (changed) |
@@ -487,6 +489,18 @@ Pearl; their rework is 12.8, with its
 
 The rework (12.8) follows its plan; the order of the other tasks is not set.
 
+### The 2026-11-20 Decisions
+
+On 2026-11-20 the owner put two ideas straight into Release 1
+([decisions archive](story/07-decisions-archive.md#decisions-by-date)). Like
+the rounds before, they came in by the owner's choice, not through the
+parking-lot rule.
+
+| Decision | Roadmap tasks |
+|---|---|
+| **A falling-slab maze in Chapter 3:** the Crystal Caverns' outside becomes a maze over several levels of mountains and cliffs, with islands and crystal caves that lead to other parts of it, monsters and secrets, and the smith found in a mine cave on its main road; the mine's gate early on that road, so the trip to Pip for the Bow stays short; a maze of long falling slabs, crossed with the Roll; under it the void or ground that hurts ("the cliff could be void or damaged areas", owner). Its long runs are the kit we have, crossed only by the Charged Roll, as the plank bridge to C5's lake island is, and they stand on the main way too, so Chapter 3 needs the four Roll Fragments | 12.9 (new) |
+| **Compact tree walls:** a tree wall shows whole trees only along its front, and behind them only treetops, a closed canopy, as many games do, so a forest band reads as a wall that cannot be passed. The owner's reference: one solid mass of big, round, overlapping canopies with no ground between them, and roots and trunk bases only along its foot. Today's one-tree-per-cell painting leaves gaps that look open where the collision still stops the slime; single trees keep today's art | 12.10 (new) |
+
 ## Progress Board
 
 | # | Milestone | Player-visible result | Status |
@@ -501,10 +515,10 @@ The rework (12.8) follows its plan; the order of the other tasks is not set.
 | 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
 | 4 | Game shell | Title, continue, pause, game over, settings, credits, simple controls | `[~]` |
 | 5 | Gear-based progression | XP and levels are gone; gear, heart quarters, and story unlocks make you stronger (since 2026-10-15: skins, shapes and abilities instead of crafted gear; since 2026-10-16 also Chapter 1's planned content and the prologue, 5.18–5.24, and enemies placed in the world, 5.25) | `[~]` |
-| 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2 and brews the potions; the Workshop's part in Release 1 is Open, question 51) | `[~]` |
+| 6 | Rebuild Slimeshire: restoration | Ruined buildings can be restored and become stations (the Forge uses it in Chapter 2 and brews the potions; the Workshop's part in Release 1 is Open, question 51). *Since 2026-11-20 (owner): Pearl 2 raises the Workshop, Pip's place with no station, and Pearl 3 lights the Forge* | `[~]` |
 | 7 | Gulp | Suck, throw and swallow essences; their forms solve puzzles and pass webs. Since 2026-10-15: suck and throw, and the three skins from the Pearls take the forms' place (7.8–7.11) | `[~]` |
 | 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss (iron and metal gear dropped 2026-10-15; the Silk skin added; since 2026-10-16 the Weaver Hollow, the chapter's dungeon, with the Matron at its top, 8.14) | `[~]` |
-| 12 | Chapter 3 — Crystal Caverns (added 2026-10-15) | Burr's Bow, the dark caverns, the smith's mine camp and the Lantern, the Colossus's brazier fight, Pearl 3's Feral skin, Release 1's 29 enemies (12.7), and Release 1's end with the world left to explore; since 2026-10-17 the three dungeons reworked with the Pearl before the boss (12.8) | `[ ]` |
+| 12 | Chapter 3 — Crystal Caverns (added 2026-10-15) | Burr's Bow (Pip's bow rune since 2026-11-20), the dark caverns, the smith's mine camp and the Lantern, the Colossus's brazier fight, Pearl 3's Feral skin, Release 1's 29 enemies (12.7), and Release 1's end with the world left to explore; since 2026-10-17 the three dungeons reworked with the Pearl before the boss (12.8); since 2026-11-20 a falling-slab maze (12.9) and compact tree walls (12.10) | `[ ]` |
 | 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[~]` |
 | 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[~]` |
 | 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
@@ -1909,7 +1923,7 @@ two dungeons in 12.8.
 - Done when: on a fresh save nothing teaches or shows the Slam; the cracked
   clearing opens with the Goo Bomb; a save that learned the Slam still loads.
 
-### [ ] 5.12 — Old Veteran Yoi teaches the Spear
+### [~] 5.12 — Old Veteran Yoi teaches the Spear
 
 - Decided by the owner on 2026-10-11 and confirmed on 2026-10-15
   ([question 50](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):
@@ -1969,17 +1983,41 @@ two dungeons in 12.8.
   hatch becomes **crates**, so it no longer looks like the Heavy Roll's
   rubble heap.
   - Build (changed): the heap over the hatch is crates.
+- Built 2026-11-20, not playtested (plan step B4; quests spec §14.3 and
+  §14.8): seven light crates on a heap hatch (`object.heap-hatch`) in Lili's
+  west yard (C4) open it for good once gulped away, with the secret jingle; a
+  stair leads down to Yoi's den (`slimeshire-yoi-home`), where Yoi stands as an
+  NPC with four war tips, Slimeshire's fifth heart quarter, and the Charged
+  Roll in his chest (its card plays). The Spear's prologue lesson was built on
+  2026-10-16 (5.20).
+- Changed 2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)), built
+  the same day, not playtested: **four Roll Fragments make the Charged Roll**,
+  and the fourth teaches it, wherever it is found ("for now you get the ability
+  with the last fragment"). Burr gives the first in Fatty's Lair as he is freed
+  (5.15); Yoi's chest holds the second, behind a small Heavy statue maze (stone
+  dividers and two heavy statues that only pulling moves); the A4 barn in
+  Glimmerhill and the Gloop Cavern's hidden chest hold the others (quests spec
+  §14.8). The heap hatch moved to (169, 1313) in C4 the same day, and its seven
+  crates, lost once in an editor save, were put back.
 - Player proof: the slime's first weapon is a secret it finds and a lesson it
   is given. *Since the sixth round: a lesson it earns by saving a veteran.*
 - Done when: on a fresh save the slime finds the hatch, crosses the maze and
   learns the Spear from Yoi with the ceremony, once; the Spear survives save
   and load; the shortcut bell answers only to the Spear.
 
-### [ ] 5.13 — Young Burr teaches the Roll
+### [~] 5.13 — Young Burr teaches the Roll
 
+- Built 2026-11-19, not playtested (plan step A2; quests spec §14.3): young Burr, in Burr's house
+  in Slimeshire's C4, teaches the quick Roll at his first talk with the ceremony and a tip about the
+  planks; `player.gd`'s `dodge_learned` is off, so nothing else teaches it (the playground and
+  `?shapes` lend it; a save past Burr's cell or a Pearl learns it quietly on load). The first lock:
+  two dry falling planks over a ditch beside the cottage, a chest (15 coins) beyond; a walking slime
+  drops into the ditch and is put back in the yard (there is no climb out), a rolling one crosses
+  (docs/godot/DUNGEONS.md "Falling planks over water").
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
   [question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
-  [Chapter 1](story/chapters/chapter-1-the-clearing.md#the-west-village-young-burrs-roll-planned-owner-2026-10-16)):
+  [Chapter 1](story/chapters/chapter-1-the-clearing.md#the-west-village-young-burrs-roll-built-2026-11-19-owner-2026-10-16)):
   the Roll is taught in Chapter 1, before Fatty One Eye, so the Heavy skin's
   Roll works as soon as the skin is won.
   - After the Spear (5.12), Plop says the worms have shut their burrow with
@@ -2002,7 +2040,8 @@ two dungeons in 12.8.
   ditch in Burr's yard, right where young Burr teaches it: a safe first use,
   with no enemy and nothing to fall into but the dry ditch (the level design
   guide's teach step). The yard also holds the Bow's first targets for later
-  (12.6).
+  (12.6). *Moved 2026-11-20 to the lake camp's river in C5 (owner: C4 was
+  overcrowded).*
   - Build (added): the rickety plank over the dry ditch, a falling slab
     (5.14) that a quick roll crosses and walking does not, and a way back up
     out of the ditch.
@@ -2124,6 +2163,18 @@ two dungeons in 12.8.
   - Done when (added): after Fatty, Burr's line plays once and the journal
     points home; at home before Pearl 2, Burr thanks the slime, gives his tip
     and no Bow.
+  - *Changed 2026-11-20 (owner;
+    [decisions archive](story/07-decisions-archive.md#decisions-by-date)):*
+    Burr no longer teaches the Bow or asks for the thread. His thanks tells
+    how the Thorn Guard's bows were shaped from goo by carved runes, and that
+    Pip could carve one once Slimeshire's Workshop stands (Pip's bow rune,
+    12.6); with the Bow he gives archery tips. Built the same day (quests spec
+    14.3).
+  - *Changed 2026-11-20 (owner):* in his cell, as he is freed and before he
+    helps lower the drawbridge, Burr gives the first of the four **Roll
+    Fragments** that make the Charged Roll (5.12; owner: Burr's must be the
+    first). Built the same day (`lair_director.gd`; a save that freed him
+    before gets it quietly on load).
   - *Since the sixth round ([question 62](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)
     and [107](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)):*
     the lair is the first dungeon, and like Zelda the slime cannot save
@@ -2390,6 +2441,14 @@ two dungeons in 12.8.
   - Done when (added): a found lore page can be read again on the War
     journal page, after save and load; a campfire never offers a Forge-only
     potion.
+- Changed 2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)):
+  **Pearl 2's homecoming raises Slimeshire's Workshop and Pearl 3's lights the
+  Forge**, so the Forge's potions come after the Colossus. Pip's first talk
+  starts a second quest, **Pip's Workshop** (the Workshop, a bow rune, the
+  Forge), beside the main quest. Built the same day
+  ([quests spec 14.2](godot/specs/quests.md#142-the-main-quest-win-back-the-pearls-win-back-the-pearls));
+  not playtested.
 - Depends on: 5.9.
 - Player proof: the journal shows how far the slime has come at a glance.
 - Done when: on a fresh save the journal shows the main quest and an empty
@@ -2872,6 +2931,17 @@ recipes stay portable so a fresh save cannot softlock.
   (12.3). In the [third round](#the-third-round-questions-68-to-83) the same
   day: Pearl 2 relights the Forge when it comes home, in place of Rekindle
   the Forge and its ore cost (question 79, 8.5).
+- **2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)):**
+  in Release 1 the Workshop is Pip's. He keeps his dad's Workshop while the
+  smith stays at his mine; the owner moved it beside the Forge in C4's
+  north-east corner (the red mushroom house took its old place north of the
+  plaza). Pearl 2's homecoming raises it (`workshop.restored`), with no
+  crafting station (its workbench, the Slam Hammer and the crafted gear are
+  unhooked), and Pip carves the Bow's rune there (12.6); Pearl 3's homecoming
+  lights the Forge (8.5). His quest, Pip's Workshop, follows the two. Built
+  the same day ([quests spec 14.2 and 14.3](godot/specs/quests.md)); not
+  playtested.
 
 ### [x] 6.1 — Story-flag scene variants, verified 2026-09-30
 
@@ -2933,6 +3003,10 @@ recipes stay portable so a fresh save cannot softlock.
   into the Slime Home and back and after save and load.
   `pnpm test:scene-integration` (the scene before and after its flag),
   `test:quests` (the arrow) and `test:ui` cover it.
+- *Changed 2026-11-19 and 2026-11-20: the quest is retired and the site is
+  story-only; the owner moved the Workshop beside the Forge in C4's north-east
+  corner, Pearl 2's homecoming raises it, and the raised Workshop has no
+  station any more (6, above).*
 
 - Build: a ruined Workshop in Slimeshire and a restoration quest paid in
   materials (wood and stone; coins are saved for the later shop and repairs).
@@ -4239,6 +4313,18 @@ materials), 8 (Forge), and 13 (progression pass).
   - Not decided yet: which potions are the strong ones.
   - Done when (added): the lit Forge brews a strong potion that no campfire
     offers.
+- Changed 2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)):
+  **Pearl 3**, the Colossus's, lights the Forge when it comes home; Pearl 2's
+  homecoming raises the Workshop instead (6). The Forge brews the Fizzy Brew,
+  which Pip teaches once it burns, so it comes after the Colossus. Pip keeps
+  the Forge and the Workshop; the smith stays at his mine (12.3).
+  - Built 2026-11-20: the restoration site is story-only ("Look at the cold
+    Forge"); the homecomings set `workshop.restored` (Pearl 2) and
+    `forge.restored` (Pearl 3) ([PROLOGUE.md](godot/PROLOGUE.md#the-homecoming-2026-11-20));
+    the lit Forge's station brews the Fizzy Brew
+    ([crafting spec 12.1](godot/specs/crafting.md#121-the-campfire-and-the-forge)).
+    Not playtested.
 - Build: a second restoration using 6.1: a ruined Forge in Slimeshire and a
   Chapter 2 quest to rebuild it. The player uses the restored Forge directly to
   smelt iron ore and charcoal into iron bars; it never outputs weapons.
@@ -4727,6 +4813,12 @@ materials), 8 (Forge), and 13 (progression pass).
 
 ### [~] 8.13 — Tom in the web: learning Swallow
 
+- Changed 2026-11-19 (plan step A3, not playtested): the quest is retired and Tom no longer teaches
+  Swallow. His web hangs in a clearing in E5's south-west woods at the end of a short path off the
+  trail; three Spear hits tear it and he teaches the **Goo Bomb** right there with the ceremony
+  (`game/scripts/tom_lesson.gd`), then waits at Mossy's camp with his tip. A cracked rock in the
+  ledge by his clearing is the Goo Bomb's first lock, a short tunnel back to the trail. The text
+  below is the beat as built on 2026-10-09.
 - Built 2026-10-09, waiting for the owner: the quest **Tom in the Web**
   (`tom-in-the-web`, in `quests-chapter-2.json`). Mossy gives it after Beyond
   the Verdant Gate; its one stage asks to "Cut Tom out of the web"; Tom takes
@@ -4930,7 +5022,9 @@ thread waits in her nest for Burr's Bow (8.7, 12.6). Since the eighth round
 Chapter 2 ends in the Weaver Hollow, its dungeon, with the Matron at its top
 and a fight that needs the Goo Bomb (8.7, 8.14). Since 2026-10-17 her Pearl
 lies in the Hollow before her, its second half teaches the Silk skin, and her
-fight is the skin's exam (8.7, 8.14, 12.8).
+fight is the skin's exam (8.7, 8.14, 12.8). Since 2026-11-20 (owner) Pearl 2
+raises Slimeshire's Workshop instead of lighting the Forge (6, 8.5), and the
+Matron's thread is the string of Pip's bow rune (12.6).
 
 **Assets**
 
@@ -5085,6 +5179,13 @@ rework.
 
 ### [ ] 12.3 — The smith's mine camp and the Lantern
 
+- *Changed 2026-11-20 (owner; 12.9): the slime finds the smith in a mine cave
+  on the main road of the Caverns' falling-slab maze, no longer at an open
+  camp by the road from Gloop Forest. The mine's gate stands early on that
+  road, so the trip to Pip for the Bow is short (owner, the same day); his
+  camp moves into his cave, he gives the Smith's Crystal with the Lantern,
+  and his mine cart's way is a one-way shortcut back to the gate (owner's
+  yes to 12.9's order). The camp built in G4 stands until then.*
 - Decided 2026-10-16 ([the 2026-10-16 decisions](#the-2026-10-16-decisions);
   [question 59](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15);
   [Chapter 3](story/chapters/chapter-3-crystal-caverns.md), beat 4): the smith,
@@ -5096,7 +5197,7 @@ rework.
   Chapter 5 or 6 (question 51).
 - Today: the Lantern is built in the rework mode, which lends it; nothing
   teaches it. The smith is not built.
-  *Built 2026-10-17 ([DUNGEONS.md "Outside"](godot/DUNGEONS.md#outside-the-camp-the-lookout-the-cave-road)):
+  *Built 2026-10-17 ([DUNGEONS.md "Outside"](godot/DUNGEONS.md#outside-the-spiral)):
   the mine camp in G4 (`tools/build_mine_outside.gd`), the smith (four poses,
   Magnific; `game/crystal_mine/smith_actor.gd`) and his talks
   (`mine_camp.gd`): the Lantern once with its ceremony, the gate's brazier as
@@ -5105,6 +5206,24 @@ rework.
   Not built: the smith in Slimeshire, the burnables beyond the deadthorn
   hedge, the cave road's dark side cave. Tests (not run yet):
   `godot/tests/test_mine_camp.gd`.*
+- Changed 2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)): the
+  smith stays at his mine. Once the gate is open he gives the slime the
+  **Smith's Crystal** (`mine-crystal`, flag `mine-camp.crystal-given`) for his
+  boy Pip in Slimeshire, who carves the Bow's rune with it (12.6); until the
+  Bow he reminds, then gives tips. After the Colossus he stays at the camp
+  ("the mine is mine"), proud of Pip. This replaces "goes home to Slimeshire
+  once the Colossus falls" above and the line that sends the slime to Burr.
+  Built the same day (`mine_camp.gd`); his home in Slimeshire, placed twice
+  that day, is gone. Not playtested.
+  *Built 2026-11-21 (12.9; [the Spiral](design/2026-11-20-caverns-spiral.md)):
+  the camp in G4 is gone (`tools/build_mine_outside.gd` deleted). The smith
+  and his camp stand in his cave in the peak's face
+  (`crystal-caverns-smith-cave`); his first talk gives the Lantern and the
+  Smith's Crystal together, then his lamp's lesson; his lamp frees his ore
+  cart (`smith_cart.gd`), a one-way ride down to the mine's gate in G4's
+  first yard, where one flame on the brazier opens it. Not playtested;
+  `test_mine_camp.gd` rewritten, not run.*
 - Build: the mine camp in the Crystal Caverns, the smith (NPC art, dialogue),
   his Lantern gift, and the smith in Slimeshire once the Colossus is beaten.
 - Changed 2026-10-16, fourth and fifth rounds
@@ -5331,7 +5450,34 @@ rework.
     cannot be reached otherwise, and enemies that open doors when they die,
     as in Zelda.
   - It is the one bow: the Bouncy Bow is dropped (question 83).
-- Today: the Bow is not built.
+- Today: the Bow is not built. *Built 2026-11-20 (owner, 2026-11-20: the Bow is shaped from the
+  slime's own body, its arrows are goo the slime pinches off, 6 energy each, with no ammo; Burr
+  teaches the shape and the Matron's thread is its string): the Bow (`bow_sequence.gd`,
+  `bow_arrow.gd`; [BODY_SHAPES.md](godot/BODY_SHAPES.md#the-bow-2026-11-20)), lent in the playground;
+  Burr at home in C4 with his talks and the lesson ([quests spec 14.3](godot/specs/quests.md));
+  two crystal lenses by the lake camp's river in C5 (in his yard at first, moved the same day: C4
+  was overcrowded), which raise a chest. Not done: tests, the owner's playtest, a
+  playground corner of its own; Pearl 2's homecoming (not built) is what lets a story run reach the
+  lesson.*
+- Changed later on 2026-11-20 (owner;
+  [decisions archive](story/07-decisions-archive.md#decisions-by-date)):
+  **Pip carves the Bow's rune**, and Burr no longer teaches it or takes the
+  thread. Pearl 2's homecoming raises Slimeshire's Workshop (6), Pip's place;
+  the smith gives his crystal at the mine camp once the mine's gate is open
+  (12.3; *since 2026-11-21 in his cave on the maze's main road, with the
+  Lantern, 12.9*); with 5 wood (the frame), the Matron's thread (the string) and the
+  smith's crystal (the heart) in the bag, Pip carves the bow rune and the
+  slime learns the Bow with its ceremony. Burr's thanks tells of the Thorn
+  Guard's carved runes and sends the slime to Pip; with the Bow he gives his
+  archery tips. The order: Pearl 2 home, the mine's gate, the crystal, back to
+  Pip, the Bow, the Chasm, Pearl 3, the Colossus, Pearl 3 home, the Forge lit.
+  - Built the same day: Pip's talks and his quest Pip's Workshop
+    ([quests spec 14.2 and 14.3](godot/specs/quests.md)), the smith's crystal,
+    Burr's new thanks; the mine cart is the Bow-less slime's quick way out to
+    Pip. Not done: the owner's playtest of the whole road.
+  - Done when (replaces the sixth round's): on a fresh save nothing teaches
+    the Bow before Pearl 2 is home and Pip has the wood, the thread and the
+    smith's crystal; Pip then teaches it once, with the ceremony.
 - Build: the Bow as an Ability Box power (its aim, its arrow, its cost in
   `game-constants.json`, its icon and the slime's draw), Burr's gift with the
   ceremony (4.13) on the first visit after Chapter 2, and a few of its locks
@@ -5371,7 +5517,8 @@ rework.
     of a throw's reach are the Bow's.
   - **Bars stop arrows**, so the Bow never pulls a lever behind bars (5.22).
   - **Its first lock:** targets in Burr's yard, right where he teaches it
-    (5.13).
+    (5.13). *Built 2026-11-20 by the lake camp's river in C5 instead, south of
+    his house (owner: C4 was overcrowded).*
   - **Order:** the caverns' first half never needs the Bow, and the smith's
     mine camp sends the slime to Burr (12.3).
   - Build (added; replaces "the eye switch across the mine's chasm" above):
@@ -5649,6 +5796,164 @@ rework.
   passing. Dev: F6 gives the Spear and the Roll; `?map=fatty-lair&shapes&skins=heavy&room=c2-weigh-house`
   plays the second half, `?sealed` takes Pearl 1 quietly.
 
+### [ ] 12.9 — A falling-slab maze in the Crystal Caverns
+
+- Decided 2026-11-20 ([the 2026-11-20 decisions](#the-2026-11-20-decisions)):
+  a maze built of long falling slabs in Chapter 3, crossed with the Roll.
+  Under it is the void or ground that hurts ("the cliff could be void or
+  damaged areas", owner).
+- Nothing new to build in the kit (owner, the same day: "nothing new, is the
+  same we already have for upgrade roll"). A long slab is a run of today's
+  one-cell pieces with no landing, as the falling-plank bridge to C5's lake
+  island already is: each piece falls 300 ms after a touch and is back after
+  10 s, so the run crumbles behind the slime. Only the **Charged Roll** held
+  all the way crosses a long run; the quick Roll, quick Rolls in a row and a
+  walk fall in. A run meant for the quick Roll has a landing every two pieces
+  ([DUNGEONS.md](godot/DUNGEONS.md#falling-planks-over-water)).
+- Today: the falling slab (5.14; `object.falling-slab`), the plank and the
+  landing (`object.falling-plank`, `object.plank-landing`) and the void and
+  spike hazards ([DUNGEONS.md](godot/DUNGEONS.md#the-void-slabs-and-spikes)).
+  Fatty's Lair lays slab bridges (R2, R7, R11) and C5 a long plank bridge;
+  none is a maze.
+- Build: the maze, laid from those pieces over the void or a floor that
+  hurts, with branches, dead ends and landings between runs; a fall goes back
+  to the last safe ground, as today. Maybe a crystal-rock look for the
+  caverns' slabs.
+- Decided 2026-11-20 (owner): **the maze is the Crystal Caverns' outside**,
+  not a room. It spreads over **several levels of mountains and cliffs**
+  (the elevation's levels, stairs and drops), with **islands** the slab runs
+  reach and **crystal caves** (rooms with the `crystal-cave` walls) that lead
+  on to other parts of the maze, with **monsters and secrets** along the way.
+  **The smith is found in one of those mine caves, on the main road.**
+- Decided 2026-11-20 (owner): **the mine's gate stands early**, on the main
+  road near the way in from Gloop Forest, never at the maze's end. The mine
+  needs the Bow (its Chasm), and the Bow means a trip to Pip in Slimeshire
+  and back: with the gate early, that trip does not cross the maze again.
+  - **The order** (proposed, and taken by the owner the same day: "Yes, that
+    order"; the smith across the maze): the slime passes the
+    shut gate early and sees where it will go; it crosses the maze to the
+    smith's cave on the main road (his camp moves in there: tents, cot,
+    campfire, anvil); he gives the Lantern and, in the same visit, the
+    Smith's Crystal (it no longer waits on the gate, which is far from him);
+    the Lantern's first lock is a lamp in his cave that opens his mine
+    cart's way, a one-way shortcut back to the gate; one flame opens the
+    gate ("The lamp by the gate" changes to say where); the slime goes to
+    Pip for the Bow and comes back to the gate, a short walk from Gloop
+    Forest; then the mine, its Chasm and Pearl 3.
+  - Also proposed: the caves on the way to the smith are lit (no Lantern
+    yet); the maze's dark caves are side ways the Lantern opens on the way
+    back or later, with secrets in them; the Feral skin's vines on the
+    maze's cliffs hold come-back secrets after Pearl 3. Today's outside (G5
+    the cave road, G4 the camp and the mine's gate, H4 the Lookout; H5 still
+    the placeholder) is laid again around the maze.
+- Decided 2026-11-20 (owner): **long runs stand on the main way too**, so
+  Chapter 3's main path needs the Charged Roll, and with it all four Roll
+  Fragments. All four can be found before Chapter 3: Burr's in Fatty's Lair,
+  Yoi's behind his statue maze (the Heavy skin, Pearl 1), the A4 barn's in
+  Glimmerhill, and the Gloop Cavern's under the cracked ground (the Goo Bomb).
+  - Because they are now a must, each fragment needs a pointer, and the maze a
+    sign that it wants the Charged Roll. Proposal: Burr's fragment lines
+    already send the slime after the other three; the journal's main quest
+    counts them ("Roll Fragments: 2 of 4"); a tip names each place (Yoi's,
+    Plop's or Lili's for the barn, Tom's for the cavern); the barn's fragment,
+    a first placement, is placed where a curious slime finds it. And the slime
+    who reaches the maze without the Charged Roll is told what it lacks, near
+    the maze's first long run.
+  - The Charged Roll drains energy while held (12 a second), so a long run on
+    the main way must fit in what Release 1's energy allows.
+- Depends on: 5.14 (the slabs and their hazards), 7.7 (the Roll), and the
+  Charged Roll (the four Roll Fragments) for its long runs.
+- Player proof: the slime rolls its way across the maze; a walk or a wrong
+  turn drops it, and it goes back to the last safe ground.
+- Done when: the maze stands in Chapter 3 and a fresh save crosses it; the
+  owner accepts it.
+- *Decided 2026-11-20 (owner), from three sketches on the 4-chunk grid:*
+  **the Spiral**, rings round a central peak with the smith's cave in it
+  ("i like the idea of circular maze for this chapter"). The other two are
+  kept: the islands for the sky chapter, where the Cloud skin floats across
+  gaps ("i like the island approach for our sky charter"). Then: the void is
+  most of the damage area, spikes rarer ("make void holes the greatest part of
+  the damage area"); the Corner Cave stays; the slabs keep today's
+  flagstones. The design: [the Spiral](design/2026-11-20-caverns-spiral.md).
+- *Built 2026-11-21, not playtested:* the four chunks laid by
+  `tools/build_caverns_spiral.gd` (one chunk a run) and five cave rooms by
+  `tools/build_caverns_rooms.gd`: the main ring climbing 0 to 3 round the
+  peak, four LONG runs (6, 8, a diagonal, 6 over the void) and three short
+  ones, the void under every run, a spike canyon on the south side, five
+  chunk-line crossings, the Corner Cave, the Bay Cave, two dark caves for
+  the Lantern, the heart quarter on a Feral pinnacle, the smith's cave and his
+  one-way cart, the sign before the first long run
+  (`charged_roll_hint.gd`). Elevation baked; the crossings checker finds
+  every Caverns door linked.
+
+### [ ] 12.10 — Compact tree walls
+
+- Decided 2026-11-20 ([the 2026-11-20 decisions](#the-2026-11-20-decisions)):
+  tree walls are rebuilt to look as solid as they are. Painting one whole
+  tree per cell suits single trees but not walls: between the trunks some
+  places look open, and the collision stops the slime there anyway. As many
+  games do, a wall shows whole trees only along its front row, and behind
+  them only treetops, a closed canopy that hides the ground, so a forest band
+  reads as a wall that cannot be passed.
+- The look (owner, 2026-11-20, from a screenshot of a classic top-down
+  game's woods: "the player clearly knows there is no path through those
+  trees"): the wall is **one solid mass of big, round, overlapping canopies**,
+  each two to three cells across, packed so tight that their edges overlap
+  and no ground shows anywhere between them; a dark outline and the
+  canopies' shading tell one tree from the next. No trunks stand apart: only
+  along the wall's foot, where it meets the open ground facing the camera, a
+  band of **roots and trunk bases** shows on one straight ground line. The
+  wall's other edges are the canopies' rounded outlines. Our own art, in our
+  style; the screenshot is the idea, not the art.
+- Today: the `ForestLayer` paints a whole tree on each painted cell (at most
+  one per 64-unit cell, thinned), with its shade, sway and collision
+  ([FORESTS.md](godot/FORESTS.md)); every wood and border in Release 1 is
+  painted that way. Its collision is already the painted area, solid with no
+  gaps; only the look leaves gaps.
+- Build: on the same forest layer, the painted area draws the canopy mass:
+  big canopy pieces laid in a staggered pattern over every painted cell,
+  overlapping each other and past the area's edge just enough to close it;
+  along the area's south edge the roots-and-bases band. Art per region set
+  (Magnific, transparent background): a few canopy pieces, the root band's
+  pieces and its corners. Single trees and trees placed as scenes keep
+  today's art. Collision does not change: the canopy covers exactly what
+  already blocks, so where the wall looks closed it is closed, and where it
+  looks open it is open. The painted forests in every chapter are checked
+  and touched up where the new look shows a gap or a wall where there was
+  none.
+- Open: canopy art for the nine sets, or the Release 1 sets first (forest,
+  village, crystal); whether the canopy hides the slime when it stands just
+  below the wall's foot (the canopies overhang it); whether the canopies
+  sway.
+- *Sample 2026-11-20, waiting on the owner's verdict:* eight Magnific renders
+  (GPT 2.5, our oak and the mushroom sheet as references) in
+  `asset/Originals/trees/canopy-wall/`: strips (`canopy-band-*`, 2:1) and
+  blocks (`canopy-block-*`). The first round came out yellow; the second asked
+  for the oak's deep greens, and `canopy-band-c` (three staggered rows, cut at
+  the sides to repeat) and `canopy-block-c` (four rows) were graded with the
+  oak's leaf grade from `scripts/art/build-tree-sets.py` and laid over today's
+  forest cells beside the slime (a mockup, not the game; strips joined by
+  mirroring). Not in the game; the real wall needs single crown pieces and the
+  root band's pieces.
+- *Built 2026-11-20 (owner: "make it but keep both options when painting
+  forest"), not playtested:* the forest layer's **canopy walls**, a second kind
+  of wood on the same palette (column 18, "canopy forest"; the trees' mixes and
+  single trees stay): crowns on a staggered lattice and along the sides, roots
+  and shade along the south edge, the same collision; art for the forest set
+  (12 crowns, 6 roots, `scripts/art/build-canopy-walls.py`)
+  ([FORESTS.md](godot/FORESTS.md#canopy-walls-2026-11-20)). Rendered over Gloop
+  Forest E5's cells (`render_forest.gd --canopy=18`). The same day (owner: "Yes,
+  both sets"): the village set (column 19: apple crowns, a third cherry
+  blossom) and the crystal set (column 20), rendered over Glimmerhill A5 and
+  Crystal Caverns G5; then, owner: "use the blue mush trees even more than the
+  crystal ones", so the crystal wall is mostly glowing mushroom caps (two to
+  every amethyst crown) with mushroom stems along its foot. Left: the owner's
+  verdict and repainting the walls the owner wants.
+- Player proof: a forest band looks closed all along, and every place that
+  looks open can be walked through.
+- Done when: the forest bands of Slimeshire, Gloop Forest and the Crystal
+  Caverns use the compact walls and the owner accepts the look.
+
 **Milestone 12 complete when:** Chapter 3 plays from Gloop Forest's east exit
 (the web-wall maze since 2026-10-16, 8.11) to Pearl 3, the Feral skin and
 Release 1's exploration message (12.5). Its other tasks come with its outline
@@ -5659,7 +5964,9 @@ round that lock is a crystal lens on a post, the slime climbs out of the
 Colossus's arena with the Feral skin (12.4), and every border is a Thorn
 Guard post with a guard (12.5). Since 2026-10-17 Pearl 3 lies in the Crystal
 Mine before the Colossus, and the three dungeons are reworked to the new
-order (12.8).
+order (12.8). Since 2026-11-20 it also holds a falling-slab maze on its main
+path, crossed with the Charged Roll from the four Roll Fragments (12.9), and
+the tree walls of all three chapters are compact (12.10).
 
 **Assets** (since 2026-10-16; the rest come with the outline, 12.1)
 
@@ -5974,7 +6281,8 @@ numbered milestone and task tiles.
 - **The charged roll** (2026-10-16, questions 61 and 78): the held, charged
   Roll (the rework's `roll-charge` upgrade) comes later, with the other
   upgrades. The quick roll is the Roll; this replaces the 2026-10-09 rule
-  that the Roll comes whole.
+  that the Roll comes whole. *Moved into Release 1 on 2026-11-17 (question
+  160); since 2026-11-20 four Roll Fragments make it (5.12).*
 - **The Roll's enemy push** (2026-10-16): a Roll that pushes enemies away
   instead of stopping on them, an upgrade from a later skin. It is not the
   Heavy skin's.

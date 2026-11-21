@@ -7,6 +7,11 @@
 > ([WORLD_ATLAS.md](WORLD_ATLAS.md)). Single trees placed as scenes (resource trees, a few wall
 > trees, the Matron's arena) keep their nodes and show the new art. Crystal Caverns' four chunks
 > have crystal groves (crystal trees and cave mushrooms) painted on their open cavern floor.
+>
+> **Canopy walls (owner, 2026-11-20; roadmap 12.10):** the layer paints a second kind of wood, one
+> solid mass of big round overlapping crowns with roots only along its foot, so a forest band reads
+> as a wall nobody can pass; both kinds stay on the palette ([Canopy walls](#canopy-walls-2026-11-20)).
+> Built for the forest, village and crystal sets; no world is repainted with it yet; not playtested.
 
 A tree wall placed tree by tree is hard to keep in order: hundreds of nodes, and with Editable
 Children on, a click in the 2D view picks a tree's picture (`Visual`), so a drag moves the picture
@@ -54,7 +59,9 @@ made the leaf outlines shimmer while the view moved and the canopy swayed.
      2 green (oak, beech), 3 light green (birch, oak), 4 autumn, 5 dead (gnarled), 6 snow (fir,
      frost), 7 oak, 8 beech, 9 birch, 10 dark (beech, pine), 11 desert, 12 volcano, 13 swamp,
      14 crystal, 15 village, 16 ruins (gnarled, ivy), 17 forest medium (the forest kinds, medium
-     only: for mazes and tight spots). Each tree picks a tree of its cell's mix.
+     only: for mazes and tight spots). Each tree picks a tree of its cell's mix. **18 canopy
+     forest, 19 canopy village, 20 canopy crystal** (gold frames) paint a
+     [canopy wall](#canopy-walls-2026-11-20) instead of trees.
    - **rows below, single trees:** the cell takes exactly that tree, and always grows it.
    - Erase cells to cut a gap or a path; paint over a cell to change its trees.
    Trees are painted only here: the prop palettes have none. The 103 wall-tree props that had been
@@ -148,6 +155,66 @@ in a wall): the view at 1x, its middle at 2x and four moments of the sway.
    `scripts/art/build-forest-paint-tiles.py` (append new mixes: columns are fixed) and run it.
 3. A new region theme: map it to its mix in `region_canvas.gd` `_mix_at`.
 
+## Canopy walls (2026-11-20)
+
+The owner's direction (roadmap 12.10), from a screenshot of a classic top-down game's woods: "the
+player clearly knows there is no path through those trees". Painting one whole tree per cell suits
+single trees, not walls: between the trunks some places look open while the collision stops the
+slime there. A canopy wall is one solid mass of big, round, overlapping crowns with no ground
+between them, and a band of roots and trunk bases only along its foot. Our own art; the screenshot
+was the idea. Both kinds stay: paint trees with the mixes and single trees, a canopy wall with a
+gold-framed tile, on the same layer, even side by side:
+
+| Column | Tile | Crowns | Roots |
+|---|---|---|---|
+| 18 | canopy forest | 12 oak crowns (graded with the oak's leaf grade) | 6 oak trunk bases |
+| 19 | canopy village | 12 apple crowns and 6 cherry blossom crowns (about a third in blossom, as the village mix's apples and cherries) | 6 fruit tree trunk bases, a fallen apple by some |
+| 20 | canopy crystal | 6 glowing mushroom caps and 3 amethyst crystal crowns (the mushrooms first, owner) | 6 mushroom stems with tiny glowing mushrooms and 3 twisted grey trunks with violet shards |
+
+The wall picks every piece of its set alike, so a set's mix follows how many pieces of each kind it
+has; the packer can take only a sheet's first pieces for that (`(name, n)` in `SETS`).
+
+- **What grows:** a crown on every other painted cell, the rows alternating (a staggered lattice:
+  crowns 150 units wide every 128 units across and every 64 down overlap like scales and hide all
+  the ground), on every cell at the wall's left and right sides, stood 12 units inward, and on
+  every cell along its south edge (the cell below not a canopy cell), where roots and their soft
+  shade stand under the crowns. A crown stands on its bottom edge, 40 units down its cell (its sort
+  line, so the slime south of the wall draws in front of it and one north of it behind), 30 along
+  the south edge so more trunk shows; a root's feet reach 62 units down its cell, its sort line at
+  15, always behind its own cell's crown and in front of the crowns above.
+- **A root never shows above its crown** (owner, 2026-11-20, a screenshot of mushroom stems drawn
+  over the cap behind them): every south-edge cell has its own crown over its root (before, only
+  every other one did, and a tall stem on a cell without one stood in front of the row above), and
+  the root's sort line lies below its crown's lowest. `build-canopy-walls.py` warns about any root
+  too tall to hide under the lower three quarters of its set's smallest crown (it shrank the crystal
+  set's trunks from 104 to 100 units wide).
+- **Variety:** each piece seeded by its cell and `variation`: which of the set's crowns or roots,
+  a shift (crowns 12 across, 7 down; roots 6), a size (0.92 to 1.1) and a shade (0.84 to
+  1); never mirrored (the light comes from the upper left); rigid (a sway would open gaps).
+- **Collision:** the same as trees (every painted cell solid, as below), so where the wall looks
+  closed it is closed, and where it looks open it is open.
+- **Art:** in `asset/Originals/trees/canopy-wall/`: the forest set's `canopy-crowns-<a|b>.png` and
+  `canopy-roots-b.png`, the village set's `village-crowns-apple-<a|b>.png`,
+  `village-crowns-cherry-a.png` and `village-roots-a.png`, the crystal set's
+  `crystal-caps-mushroom-b.png`, `crystal-stems-mushroom-b.png` and the first three of
+  `crystal-crowns-a.png` and `crystal-roots-a.png` (the `-a` mushroom sheets came out with a white
+  haze round each piece; `crystal-crowns-b`, `crystal-roots-b` were the first, all-crystal take)
+  (Magnific GPT 2.5, six crowns or trunk
+  bases a sheet, the set's own tree render and the mushroom furniture sheet as references);
+  `scripts/art/build-canopy-walls.py` cuts them, grades the forest crowns with the oak's leaf grade
+  (those renders came out yellow-olive), sizes them (crowns 150 units wide, roots 100) and
+  packs `godot/asset/MAPS/trees/canopy/<set>.webp` (mipmaps on) with `canopy.json`;
+  `game/world/forest/canopy_walls.gd` reads it. A tile paints a canopy wall when its `forest_trees`
+  data is `canopy:<set>`. The other renders in that folder (`canopy-band-*`, `canopy-block-*`,
+  `canopy-roots-a`) were the first samples and roots with a cut stump top.
+- **Another set:** generate its crowns and roots the same way, add it to `SETS` in
+  `build-canopy-walls.py`, add a `canopy <set>` mix at the end of `MIXES` in
+  `build-forest-paint-tiles.py` (widen `WIDTH` when the mixes' row outgrows it), and run both.
+- `res://tools/render_forest.gd -- --scene=<world> --canopy=<column>` renders a world's forest with
+  every painted cell repainted with that canopy tile, to compare the two on the same cells. Until
+  the editor imports a new canopy atlas or the rebuilt palette picture, the tool reads them from
+  their files.
+
 ## Limits
 
 - At most one tree per cell on the 64-unit grid, thinned from there.
@@ -162,6 +229,9 @@ in a wall): the view at 1x, its middle at 2x and four moments of the sway.
 |---|---|
 | `godot/game/world/forest/forest_layer.gd` | The layer: trees, spacing, shade, collision, Absorb trees |
 | `godot/game/world/forest/big_trees.gd` | The trees' table: sets a sprite up as a tree, makes its shade |
+| `godot/game/world/forest/canopy_walls.gd` | The canopy walls' table: sets a sprite up as a crown or roots |
+| `godot/asset/MAPS/trees/canopy/<set>.webp`, `canopy.json` | The canopy walls' atlases and table (tool output) |
+| `scripts/art/build-canopy-walls.py` | Builds them from `asset/Originals/trees/canopy-wall/` |
 | `godot/game/world/forest/forest_tileset.tres` | The palette tile set (tool output) |
 | `godot/game/world/forest/tree_sway.gdshader`, `tree_sway_material.tres` | The canopy sway |
 | `godot/game/world/forest/tree_shadow.tres` | The shade's soft ellipse |

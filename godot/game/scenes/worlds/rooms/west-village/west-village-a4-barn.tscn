@@ -24,6 +24,7 @@
 [ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="interior_tiles"]
 [ext_resource type="Script" path="res://game/world/interior/interior_wall_layer.gd" id="interior_walls"]
 [ext_resource type="Texture2D" path="res://asset/MAPS/walls/interior/cottage.webp" id="wall_sheet"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-roll-fragment.tscn" id="roll_fragment"]
 
 [node name="west-village-a4-barn" type="Node2D"]
 y_sort_enabled = true
@@ -103,6 +104,13 @@ texture = ExtResource("wall_sheet")
 centered = false
 region_enabled = true
 region_rect = Rect2(1704, 1024, 168, 152)
+
+[node name="roll-fragment" parent="." instance=ExtResource("roll_fragment")]
+position = Vector2(868, 214)
+
+[node name="CollectibleScript" parent="roll-fragment" index="2"]
+map_id = "west-village-a4-barn"
+instance_id = "west-village-a4-barn-roll-fragment"
 
 [node name="Furniture" type="Node2D" parent="."]
 y_sort_enabled = true

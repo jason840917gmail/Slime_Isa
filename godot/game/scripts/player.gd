@@ -67,6 +67,8 @@ const GooTrail := preload("res://game/player/goo_trail.gd")
 const FootstepsScene := preload("res://game/scenes/audio/footsteps.tscn")
 const WheelStepper := preload("res://game/player/wheel_stepper.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
+## The potion belt's keys (1 to 4; docs/godot/specs/crafting.md 12.4).
+const PotionBelt := preload("res://game/inventory/potion_belt.gd")
 ## The mouse control schemes (click to move, right-click to move): game/player/mouse/.
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
@@ -130,8 +132,10 @@ const RECEIVER_TAGS: Array[String] = ["player"]
 @export var damage_area: Area2D
 ## JSON `playerName` ("bob"; the name tag is OUT/optional).
 @export var player_name: String = ""
-## Trial setting (not in JSON): the dodge counts as learned (player spec 5.1 trial note).
-@export var dodge_learned: bool = true
+## Dev override (not in JSON): the dodge counts as learned without its lesson (player spec 5.1 trial
+## note). Off: the Roll is learned from young Burr in Slimeshire (RunState `dodge`; 2026-11-19); the
+## playground, `?shapes` and a dungeon's F6 powers lend it for the session (main.gd `start_rework`).
+@export var dodge_learned: bool = false
 ## Player spec 9.1 [QUIRK]: aim origin height above the OLD CENTRE. 28 = literal Phaser parity
 ## (feet - 55.56), kept by the owner (decision O2, 2026-10-05); 0.44 would give "feet - 28".
 @export var aim_rise_px: float = 28.0
@@ -565,6 +569,7 @@ func _physics_process(delta: float) -> void:
 		# Walking out of a door: no input is read or consumed (presses stay buffered).
 		_step_walk_out(delta)
 	else:
+		_use_belt_presses()
 		var scheme := ControlScheme.current()
 		if ControlScheme.faces_pointer(scheme):
 			_face_pointer()
@@ -1235,7 +1240,8 @@ func get_pickup_area() -> Area2D:
 
 ## `WorldScene.useAbility` (abilities spec 3.2): the jump goes where the movement keys point (in
 ## place without keys); the lash, slam and teleport toward the pointer aim or the facing; the
-## teleport as far as the pointer (from the aim origin), at most its range.
+## teleport as far as the pointer (from the aim origin), at most its range. The Bow aims where the
+## movement keys point, else the facing, never at the pointer (owner, 2026-11-20).
 func use_ability(id: StringName) -> bool:
 	if body == null:
 		return false
@@ -1264,6 +1270,10 @@ func use_ability(id: StringName) -> bool:
 		AbilityDefinitions.GOO_BOMBS:
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.LANTERN:
+			return _abilities.try_begin(id, request)
+		AbilityDefinitions.BOW:
+			var aim_keys := _movement_input(ControlScheme.current())
+			request["direction"] = aim_keys if aim_keys != Vector2.ZERO else _facing
 			return _abilities.try_begin(id, request)
 		AbilityDefinitions.SWALLOW:
 			return _swallow()
@@ -3052,6 +3062,25 @@ func _set_cursor(shape: Input.CursorShape) -> void:
 		return
 	_cursor_shape = shape
 	Input.set_default_cursor_shape(shape)
+
+
+## The potion belt's keys (`potion_1` .. `potion_4`, 1 to 4): each fresh press drinks one of that
+## slot's potion (InventoryActions `drink_belt_slot`, which refuses when it would do nothing, and
+## does nothing in the prologue). Read in every step the slime is under control (walking, rolling,
+## climbing, swinging), but not while a travel, a scene's hold or a knockback suppresses it: the
+## press then waits in the buffer and ages out. A window or the ceremony pauses the step, and a
+## closing window clears the presses.
+func _use_belt_presses() -> void:
+	var now := Services.now_ms()
+	if now < _movement_suppressed_until_ms:
+		return
+	for index in PotionBelt.ACTIONS.size():
+		if not _input.consume(PotionBelt.ACTIONS[index], now, _buffer_ms):
+			continue
+		if _inventory_actions == null or not is_instance_valid(_inventory_actions):
+			_inventory_actions = get_tree().get_first_node_in_group(INVENTORY_ACTIONS_GROUP)
+		if _inventory_actions != null:
+			_inventory_actions.call(&"drink_belt_slot", index)
 
 
 ## The belt's next (+1) or previous (-1) weapon into the hand (`WeaponLoadout.cycle_slot`, then

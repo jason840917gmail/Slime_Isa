@@ -18,10 +18,11 @@ const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
 const PointerTargets := preload("res://game/player/mouse/pointer_targets.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
 
-## A point on level-1's home door (origin (1081, 903) - 24), inside the house.
-const HOME_DOOR_PICK := Vector2(1081.0, 879.0)
+## A point on level-1's home door (origin (270, 856) - 24, in the round mushroom house's door frame
+## since 2026-11-13), inside the house.
+const HOME_DOOR_PICK := Vector2(270.0, 832.0)
 ## Where the slime stands below the home door (tests/test_interaction.gd).
-const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
+const HOME_DOOR_ARRIVAL := Vector2(270.0, 880.0)
 ## Where a ground click may land around the slime, tried in order: the first the pointer reads as
 ## plain ground (nothing usable, no enemy or resource under it; NPCs wander, the well is usable).
 const CLICK_GOAL_OFFSETS: Array[Vector2] = [Vector2(-160.0, -60.0), Vector2(0.0, -150.0), Vector2(-160.0, 80.0),
@@ -244,9 +245,10 @@ func test_pointer_scheme_faces_the_pointer_and_w_walks_there(t: TestContext) -> 
 
 
 ## The keys-only scheme rebinds the InputMap (arrows walk, A attacks, W interacts, E alone cycles
-## the weapons, no mouse; Swallow keeps 1) and another scheme puts every event back.
+## the weapons, no mouse; the potion belt keeps its 1, since 2026-11-20 the only digit keys: the old
+## Swallow lost its 1) and another scheme puts every event back.
 func test_keys_scheme_rebinds_the_keys_and_puts_them_back(t: TestContext) -> void:
-	var actions: Array[StringName] = [&"move_up", &"move_left", &"attack", &"interact", &"swallow", &"weapon_next", &"weapon_previous", &"menu"]
+	var actions: Array[StringName] = [&"move_up", &"move_left", &"attack", &"interact", &"potion_1", &"weapon_next", &"weapon_previous", &"menu"]
 	var before := {}
 	for action: StringName in actions:
 		before[action] = InputMap.action_get_events(action)
@@ -259,7 +261,7 @@ func test_keys_scheme_rebinds_the_keys_and_puts_them_back(t: TestContext) -> voi
 	t.equal(bound[&"move_left"], [KEY_LEFT], "move left")
 	t.equal(bound[&"attack"], [KEY_A], "attack")
 	t.equal(bound[&"interact"], [KEY_W], "interact")
-	t.equal(bound[&"swallow"], [KEY_1], "swallow keeps project.godot's 1")
+	t.equal(bound[&"potion_1"], [KEY_1], "the belt's first slot keeps project.godot's 1")
 	t.equal(bound[&"weapon_next"], [KEY_E], "next weapon: the weapon scroll")
 	t.equal(bound[&"weapon_previous"], [], "no key goes back")
 	t.equal(bound[&"menu"], [KEY_B], "the bag (project.godot's)")

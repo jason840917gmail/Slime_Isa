@@ -105,6 +105,21 @@ barriers (crossed); the climb; the Spear's fast steps.
   "Too heavy to move."), nor while the mouth holds something (the grab does not start then), nor in
   the moba scheme (its right button walks, so nothing holds the grab there; the click scheme's held
   right button does). Rework mode only, as the grab.
+- **Yoi's statue maze** (owner, 2026-11-20: reaching Yoi's chest needs pulling statues with the
+  Heavy skin, so his Roll Fragment always comes after Burr's): in Yoi's home
+  (`slimeshire-yoi-home`, 16 x 12 cells with cottage walls since 2026-11-20), stone dividers on
+  the room's `fences` layer close the south-east corner: a north line on row 5 (cells 9-12) and a
+  west line down column 9 to the south wall. The line's one-cell gap is its east end against the
+  east wall, cell (13, 5): `maze-statue-door` stands in it and `maze-statue-inner` right behind it
+  at (13, 6), between the wall and a spur (12, 6) hanging from the line (a north-arrow tile, so it
+  joins only the line). Pushing the door statue jams on the inner one; pushing the inner one jams
+  on the inner line (row 7, cells 11-13), so both must be pulled out north. Then the way runs down
+  the gap, west under the spur, round the inner line's west end and back east to the chest
+  (`yoi-home-chest`, a Roll Fragment: quests spec 14.8) in the corner, cell (13, 9), out of a
+  chest's reach (112 units) from anywhere the slime gets before both statues are out (255 units
+  with both in, 214 with only the door statue out). A statue plugs a gap only in an east-west line:
+  between two posts of a north-south line it leaves 41 units above it and 29 below, and the slime
+  is 26 tall (the first maze, a gap in a north-south line, could be walked round that way).
 - **The Heavy Roll:** every Roll with the skin on. Its bonk carries `heavy`, its screen shake is
   strong (`skins.heavy.rollBonkShakeMs` 420, `rollBonkShakeIntensity` 0.02, `rollBonkHitStopMs`
   90; a plain bonk keeps `character.player.movement.rollBonkShake*`), and its ground shake reaches
@@ -113,13 +128,33 @@ barriers (crossed); the climb; the Spear's fast steps.
 
 | Object | Script | Notes |
 |---|---|---|
-| `object.plank-barricade`, `object.rotten-timbers`, `object.old-trunk`, `object.old-fence` | `game/scripts/plank_barricade.gd` | Wood: blocks as a wall, a Heavy Roll smashes it (a heap that no longer collides, lying under the bodies; the plank barricade's smashed picture keeps its standing arch, so it stays sorted with the bodies from its heap's back edge, `heap_reach` 80 units north of the root: what stands behind the arch, a chest, is drawn behind it, owner 2026-11-01), `flag_id` keeps it smashed; anything else clinks with `refusal_text`. Exports `smash_text`, `smash_cue`, `splinter_rise`, `heap_reach` |
+| `object.plank-barricade`, `object.rotten-timbers`, `object.old-trunk`, `object.old-fence`, `object.fallen-tree`, `object.fallen-tree-ns` | `game/scripts/plank_barricade.gd` | Wood: blocks as a wall, a Heavy Roll smashes it (a heap that no longer collides, lying under the bodies; the plank barricade's smashed picture keeps its standing arch, so it stays sorted with the bodies from its heap's back edge, `heap_reach` 80 units north of the root: what stands behind the arch, a chest, is drawn behind it, owner 2026-11-01), `flag_id` keeps it smashed; anything else clinks with `refusal_text`. Exports `smash_text`, `smash_cue`, `splinter_rise`, `heap_reach` |
 | `object.rubble-heap`, `object.loose-rock` | `game/scripts/rubble_heap.gd` | Rocks: the same, with pebbles (`rock_tint`) and `break_text`. Rubble heaps break under a Heavy Roll, no longer a Goo Bomb (owner, 2026-10-16); `breaks_by_blast` keeps the old blast heap, used only on the playground Bomb corner's islet until its cracked rock face (question 72) |
-| `object.loose-prize` | `game/scripts/loose_prize.gd` | A prize caught up high (a coin pouch in a tree) `hang_height` over its root: a heavy shake within reach knocks it down, it pays `coins` and spills `contents`, `flag_id` keeps it taken; a plain bonk only makes it sway with `hint_text` |
+| `object.loose-prize` | `game/scripts/loose_prize.gd` | A prize caught up high (a coin pouch in a tree) `hang_height` over its root: a heavy shake within reach knocks it down, it pays `coins` and spills `contents`, `flag_id` keeps it taken; a plain bonk only makes it sway with `hint_text`, unless `any_bonk` is on |
+| `object.loose-wood` | `game/scripts/loose_prize.gd` (`any_bonk` on) | Dead sticks snagged in a tree, 110 over its root at the tree's foot: **any** Roll's bonk within reach knocks them down and they spill 3 wood; no flag, so they hang there again when the chunk is built again (owner, 2026-11-20: wood is found and shaken from trees, not sold). Placed in Slimeshire (C4, C5, D4, under `Wood`, with a small wood pile of 3 each); the Scenery dock lists it under **Any Roll** |
 
 Place a breakable across the way, its root on the ground line under it; a loose prize with its
 root at the foot of the tree or wall it hangs on, where it lands. The Popworm and the Thorn Guard
 listen to the same heavy shake (BESTIARY.md "Hooks").
+
+**The fallen trees** (2026-11-20; owner, 2026-11-19, question 163: physical barriers, not gates):
+a long grey dead tree across a road, smashed into a splintered heap by a Heavy Roll. Two scenes on
+`plank_barricade.gd`, both in the Scenery dock's Heavy skin category: `object.fallen-tree` lies east
+to west (about 260 units long; its root on the ground line under the trunk, the body 272 × 24 and
+the hurtbox 280 × 56 just above it), `object.fallen-tree-ns` north to south (about 180 units; its
+root at the south end, the body 26 × 188 and the hurtbox 44 × 196 running north from it). The
+bodies reach a little past the art so a lane closed by trees on both sides stays closed. A plain
+Roll, a throw or a bonk hears "An old dead tree. It would take real weight to break it." Placed:
+
+| Where | Node | Flag |
+|---|---|---|
+| The Verdant Gate, `level-1-d4` (1728, 752): across the lane between the gate's banners and the trees, where the gate stood (the place keeps its name) | `Chapter1/verdant-tree` | `level-1.verdant-tree-smashed` |
+| The Market Hill road, `level-1-c4` (112, 1132): north to south a little inside C4's west edge, so the slime crossing from Glimmerhill's Market Hill (64 units in) lands west of it; a forest cell at (1, 14) closes the gap north of it, the rim's fence the south | `Chapter1/market-hill-tree` | `level-1.market-hill-tree-smashed` |
+
+A save from before the trees that had the Verdant Gate open (its gate id
+`level-1-east-verdant-gate` unlocked in any map record) gets `level-1.verdant-tree-smashed` quietly
+when it loads (`RunState.install`). Plop's talk after Pearl 1 comes home says the tree lies across
+the Verdant Gate's road and that it takes real weight to move it.
 
 ## Silk
 
@@ -340,6 +375,10 @@ reference) on 2026-10-17; sources in `asset/Originals/skins/generated/`, packed 
 `python scripts/art/pack-skin-art.py` ([TOOLING.md](../TOOLING.md)): the loose rock, the old trunk
 and the old fence (each whole and broken, `asset/MAPS/props/heavy-skin/`), the coin pouch, the
 three Skins row icons (`asset/UI/skins/`) and the three looks' textures (`asset/player/skins/`).
+The fallen trees (2026-11-20, Magnific GPT 2.5; sources in `asset/Originals/props/heavy-skin/`,
+`fallen-tree-ew.png` and `fallen-tree-ns.png`) are two-cell sheets in `asset/MAPS/props/heavy-skin/`:
+`fallen-tree-ew-2x1.webp` (528 × 186 cells: whole, splintered heap) and `fallen-tree-ns-2x1.webp`
+(114 × 364 cells), drawn at 0.5.
 The claws are drawn by code. Pictures not imported yet load through `sheet_sprite.gd`
 (`SheetSprite.load_picture`).
 

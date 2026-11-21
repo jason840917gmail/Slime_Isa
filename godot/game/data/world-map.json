@@ -71,12 +71,13 @@
 				"slimeshire-glow-moss-burrow",
 				"slimeshire-old-armoury",
 				"watchkeeper-hideout",
-				"slimeshire-burr-house"
+				"slimeshire-burr-house",
+				"slimeshire-yoi-home"
 			],
 			"placeholder": false,
 			"theme": "meadow",
 			"boss": "Fatty One Eye",
-			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. Release 1. C4 has a fenced level-1 plateau with north and south stairs; the river crosses the C4/D4 border. C5 has an expanded lake, a falling-plank bridge requiring the charged Roll, an island bomb cave, a ford islet and a jetty. Hearts hide in chests."
+			"notes": "The hub, in the middle of the world (the castle's place in the reference): the plaza ringed by water. Worms moved in, the smith left for his crystal mine, the Forge is cold until Pearl 2 comes home. The prologue (the Wellspring and the glade) lies in the south-west, between B4 and C4, and teaches the Spear; Yoi's home lies under Lili's west yard; Fatty's Lair, the worms' burrow, opens in Fatty's Hollow, a red-rock hill in D5 behind the old fort's field maze and a bridge of falling slabs; the old Thorn Guard gate there only a Roll beats. A grey fallen tree a Heavy Roll breaks lies across the Verdant Gate's road (D4) and another across the Market Hill road into Glimmerhill (C4's west edge). Release 1. C4 has a fenced level-1 plateau with north and south stairs; the river crosses the C4/D4 border. C5 has an expanded lake, a falling-plank bridge requiring the charged Roll, an island bomb cave, a ford islet and a jetty. Hearts hide in chests."
 		},
 		{
 			"key": "b",
@@ -97,7 +98,7 @@
 			"placeholder": false,
 			"theme": "forest",
 			"boss": "Orb-Weaver Matron",
-			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze leads in, which only the Silk skin passes. The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; the Watch Oak's root gate in F4 is its way in (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18)."
+			"notes": "East of the hub, as in the game (moved 2026-10-10): the Verdant Gate on level-1's east edge leads in. Choked with webs; the Matron's brood spreads. A maze of web walls on its east side, which only the Silk skin (the Matron's Pearl) passes, leads to the Crystal Caverns. Release 1. From the Wilds a second web maze is to lead in, which only the Silk skin passes; it waits for the release that opens the Wilds (walled off in Release 1, owner 2026-11-19). The Matron lives at the top of the Weaver Hollow, Chapter 2's dungeon; the Watch Oak's root gate in F4 is its way in (owner, 2026-10-16, question 133). The small Gloop Cavern behind the cracked clearing's sinkhole is the Goo Bomb's come-back secret, with one of the forest's heart quarters (question 18)."
 		},
 		{
 			"key": "c",
@@ -108,12 +109,17 @@
 			"id": "crystal-caverns",
 			"world": "crystal-caverns",
 			"interiors": [
+				"crystal-caverns-smith-cave",
+				"crystal-caverns-corner-cave",
+				"crystal-caverns-bay-cave",
+				"crystal-caverns-dark-nook",
+				"crystal-caverns-under-line-tunnel",
 				"crystal-mine"
 			],
 			"placeholder": false,
 			"theme": "crystal",
 			"boss": "Crystal Colossus",
-			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10; open without a key in the game for now). The west half of the great mountain: caves through the rock. The smith runs the crystal mine, which the Crystal Colossus has blocked; at his mine camp he gives the Lantern. A dark maze the Lantern lights, and the Colossus's arena ringed by four braziers. Pearl 3 grants the Feral skin. Reached from Gloop Forest through the web-wall maze (the Silk skin). Release 1 ends when the Colossus falls. From the Wilds a hill leads in, which only the Feral skin climbs, so that way opens once Feral is won."
+			"notes": "East of Gloop Forest, as in the game (moved 2026-10-10). The west half of the great mountain: caves through the rock. The smith runs the crystal mine, which the Crystal Colossus has blocked; in his ore cave on the falling-slab maze (the Spiral: rings round a central peak, 2026-11-21) he gives the Lantern. A dark maze the Lantern lights, and the Colossus's arena ringed by four braziers. Pearl 3 grants the Feral skin. Reached from Gloop Forest through the web-wall maze (the Silk skin; web walls across Gloop's web lane, 2026-11-20). Release 1 ends when the Colossus falls. From the Wilds a hill is to lead in, which only the Feral skin climbs; it waits for the release that opens the Wilds (walled off in Release 1, owner 2026-11-19)."
 		},
 		{
 			"key": "d",
@@ -239,7 +245,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed by Thorn Guard posts: a striped barrier with a guard who says what lies beyond is closed for now (owner, 2026-10-16, question 130)."
+			"notes": "The connecting fields north of the middle row (the Wilds split in two 2026-10-10). The connecting zones: the fields, roads, rivers and ledges between the regions. Every region opens onto them, so the hub reaches all of them. Walled off for all of Release 1 by terrain, with no guard posts (owner, 2026-11-19; it was to open after the Crystal Colossus, with Thorn Guard posts closing the ways to the other regions, question 130): every way between it and Slimeshire, Gloop Forest, the Crystal Caverns and Glimmerhill is planted shut."
 		},
 		{
 			"key": "k",
@@ -253,7 +259,7 @@
 			"placeholder": true,
 			"theme": "wilds",
 			"boss": "",
-			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. Open to explore in Release 1 after the Crystal Colossus; the ways to the regions that are not in Release 1 are closed by Thorn Guard posts: a striped barrier with a guard who says what lies beyond is closed for now (owner, 2026-10-16, question 130)."
+			"notes": "The connecting fields south of the middle row: roads to the swamp, the desert and Frostpeak. Walled off for all of Release 1 by terrain, with no guard posts (owner, 2026-11-19; it was to open after the Crystal Colossus, with Thorn Guard posts closing the ways to the other regions, question 130): every way between it and Slimeshire, Gloop Forest, the Crystal Caverns and Glimmerhill is planted shut."
 		}
 	],
 	"markers": [
@@ -290,7 +296,7 @@
 			"x": 34,
 			"y": 66,
 			"label": "Dora the Fishergirl",
-			"notes": "At the water around the plaza (renamed from Lily on 2026-10-11; the game still says Lily)"
+			"notes": "At the water around the plaza (renamed from Lily on 2026-10-11; the game says Dora since 2026-11-19)"
 		},
 		{
 			"type": "dungeon",
@@ -298,14 +304,14 @@
 			"y": 70,
 			"label": "Fatty's Lair",
 			"map": "fatty-lair",
-			"notes": "The worms' burrow under the old Thorn Guard fort, in Fatty's Hollow, a red-rock hill in D5 behind the field maze and a bridge of falling slabs (built 2026-10-17, the mouth moved from D4 the same day): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell; Pearl 1 (the Heavy skin) in the Larder behind the Big Squint, and its take seals the Lair; the Heavy second half (the Weigh House, the big key), then Fatty One Eye, enraged, whose fall breaks the seals; the green key at the postern, out through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate"
+			"notes": "The worms' burrow under the old Thorn Guard fort, in Fatty's Hollow, a red-rock hill in D5 behind the field maze and a bridge of falling slabs (built 2026-10-17, the mouth moved from D4 the same day): the drop gate a Roll beats, falling slabs over the void and spikes, Burr freed from his two-keyhole cell; Pearl 1 (the Heavy skin) in the Larder behind the Big Squint, and its take seals the Lair; the Heavy second half (the Weigh House, the big key), then Fatty One Eye, enraged, whose fall breaks the seals; out by the Postern (its chest holds coins and a potion), through a barricade a Heavy Roll breaks, by the bolt-hole near the Verdant Gate"
 		},
 		{
 			"type": "gate",
 			"x": 47,
 			"y": 78,
 			"label": "Plaza bridge",
-			"notes": "The way out of Slimeshire into the Wilds"
+			"notes": "The old way out of Slimeshire into the Wilds, planted shut for Release 1 (the Wilds are walled off, owner 2026-11-19)"
 		},
 		{
 			"type": "gate",
@@ -313,8 +319,8 @@
 			"y": 52,
 			"label": "Verdant Gate",
 			"to": "b",
-			"needs": "Green key",
-			"notes": "level-1's east exit into Gloop Forest (the gate object stands at (3776, 768))"
+			"needs": "Heavy Roll",
+			"notes": "level-1's east exit into Gloop Forest: the gate is long gone and a grey fallen tree lies across its road (D4 (1728, 752), `verdant-tree`); only a Heavy Roll breaks it (owner, 2026-11-19, question 163)"
 		},
 		{
 			"type": "town",
@@ -347,7 +353,7 @@
 			"label": "Web-wall maze",
 			"to": "c",
 			"needs": "Silk skin",
-			"notes": "gloop-forest's east way into the Crystal Caverns: a maze of web walls only the Silk skin passes (owner, 2026-10-16); open without a key in the game for now"
+			"notes": "gloop-forest's east way into the Crystal Caverns: a maze of web walls only the Silk skin passes (owner, 2026-10-16); three web walls across the web lane in F4 for now (2026-11-20), the maze is designed with the owner later"
 		},
 		{
 			"type": "dungeon",
@@ -411,15 +417,15 @@
 			"x": 34,
 			"y": 56,
 			"label": "Yoi's home",
-			"needs": "Suck away the heap in Lili's west yard (optional)",
-			"notes": "Old Veteran Yoi's hideout, his home after the prologue: Lili's tip finds it; a heart quarter, his tips, later the Spear's upgrades"
+			"needs": "Gulp away the heap of crates over the hatch in Lili's west yard (optional)",
+			"notes": "Old Veteran Yoi's den (slimeshire-yoi-home, under C4's heap hatch), his home after the prologue: Lili's tip finds it; his war tips, Slimeshire's fifth heart quarter and the Charged Roll in his chest (built 2026-11-20); later the Spear's upgrades"
 		},
 		{
 			"type": "town",
-			"x": 104,
-			"y": 56,
-			"label": "Mine camp",
-			"notes": "The smith runs the crystal mine; he gives the Lantern"
+			"x": 113,
+			"y": 66,
+			"label": "The smith's cave",
+			"notes": "The smith's camp in his ore cave in the peak's face, on the falling-slab maze's main road (the Spiral, 2026-11-21): the Lantern and the Smith's Crystal; his lamp frees his one-way cart down to the mine's gate"
 		},
 		{
 			"type": "landmark",
@@ -557,16 +563,6 @@
 			"kind": "road"
 		},
 		{
-			"a": "a",
-			"b": "k",
-			"x": 44,
-			"y": 79,
-			"w": 2,
-			"h": 2,
-			"kind": "gate",
-			"label": "Plaza bridge"
-		},
-		{
 			"a": "b",
 			"b": "c",
 			"x": 95,
@@ -575,33 +571,6 @@
 			"h": 2,
 			"kind": "gate",
 			"label": "Web-wall maze"
-		},
-		{
-			"a": "b",
-			"b": "k",
-			"x": 76,
-			"y": 79,
-			"w": 2,
-			"h": 2,
-			"kind": "path"
-		},
-		{
-			"a": "j",
-			"b": "c",
-			"x": 114,
-			"y": 47,
-			"w": 2,
-			"h": 2,
-			"kind": "path"
-		},
-		{
-			"a": "c",
-			"b": "k",
-			"x": 115,
-			"y": 79,
-			"w": 2,
-			"h": 2,
-			"kind": "road"
 		},
 		{
 			"a": "h",
@@ -649,24 +618,6 @@
 			"h": 2,
 			"kind": "gate",
 			"label": "Swamp road"
-		},
-		{
-			"a": "j",
-			"b": "g",
-			"x": 10,
-			"y": 47,
-			"w": 2,
-			"h": 2,
-			"kind": "path"
-		},
-		{
-			"a": "g",
-			"b": "k",
-			"x": 27,
-			"y": 79,
-			"w": 2,
-			"h": 2,
-			"kind": "path"
 		},
 		{
 			"a": "j",

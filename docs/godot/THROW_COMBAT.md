@@ -362,6 +362,31 @@ Squint) take thrown hits in the eye while their visor is open. The Glint Bats ar
 their room is dark and sleep once every candle burns, so the two in lit rooms (c2, r7) were taken
 out with the two pots placed for c2's (2026-10-23; BESTIARY.md).
 
+## The weight cue (2026-11-20)
+
+Question 162 (proposal taken by the owner, 2026-11-19): the slime should know what it can lift
+before it tries. `game/throw/weight_cue.gd` (one node per world under the entities root, made by
+mouth_hold.gd's step; presentation on real time) follows the slime every frame while the mode is on:
+
+- **The thing in reach** is the mouth's own pick: `Mouth.find_target` on the Gulp's aim (the nearest
+  suckable the Gulp's level lifts, the one the "[Q] Suck" prompt names), else `find_too_heavy` (the
+  nearest one it is too weak for). Nothing while the mouth holds something, the slime is dead or the
+  world is paused (a window, a ceremony).
+- **The highlight**: a ring round its feet that breathes gently; solid and pale when it can be lifted,
+  dashed and orange (`heavyColor`) when it cannot.
+- **The pips**: one, two or three filled pips for light, medium and heavy (its `weight`, the level
+  `ThrowMode.level_for` gives), over it just above the "[Q] Suck" prompt (`promptClearPx` over its
+  feet, or over its picture when that is taller), or under its ring when it lies below the slime
+  (`belowPx`), which would hide them. When the Gulp's level is too low (Release 1 has level 1: only
+  light things), one more pip follows them: the **"too heavy" pip**, a ring with a slash through it.
+  Count and shape carry the meaning; the colour only repeats it (colour-blind safe).
+- **The strain**: an empty burst with a too-heavy thing in reach (mouth_hold.gd `_say_too_heavy`,
+  beside the "Too heavy! (Gulp N needed)" line and the refusal cue) makes the thing jitter and lift a
+  hair (`strainMs`, `strainPx`, `strainLiftPx`, `strainTurns`), the slash pip swell (`strainSwell`),
+  and the slime squash as if it pulled (`slimeStrainX`, `slimeStrainY`).
+
+Its numbers are `weightCue` below. Pictures: `godot/tools/render_yoi_home.gd --shot=weights`.
+
 ## Data (`gulp.throwCombat` in game-constants.json)
 
 `enabled`, `throwDamage`, `playgroundLevel`, `weights.<light|medium|heavy>`
@@ -371,7 +396,11 @@ weight's level is its place in that order), `kindWeights`, `materialEffects`, `k
 `slowScale`), `aimAssist`
 (`enabled`, `coneDeg`: the cone's whole width, `rangePx`), `ammo` (`rockOnAttack.<enemy type>`
 {`chance`, `kind`}, `rockSpacingPx`, `rockAheadPx`, `arrowStays`, `arrowLifeMs`,
-`spentShots.<projectile id>` {`material`, `picturePx`}). The hit classes `thrown-medium`, `thrown-heavy`, `thrown-freeze`,
+`spentShots.<projectile id>` {`material`, `picturePx`}), `weightCue` (`enabled`, `fadeInS`,
+`ringRadiusPx`, `ringSquash`, `ringWidthPx`, `ringAlpha`, `pulseHz`, `pulseShare`, `pipRadiusPx`,
+`pipGapPx`, `pipRisePx`, `promptClearPx`, `belowPx`, `artHeightPx`, `pipColor`, `pipEdgeColor`,
+`heavyColor`, `strainMs`, `strainPx`, `strainLiftPx`, `strainTurns`, `strainSwell`, `slimeStrainX`,
+`slimeStrainY`: [the weight cue](#the-weight-cue-2026-11-20)). The hit classes `thrown-medium`, `thrown-heavy`, `thrown-freeze`,
 `thrown-sleep` are in `combat.hits` and every `combat.weights.<weight>.classes` (`thrown-sleep`: the
 verb `sleep`, `combat.verbs.sleep.stunMs`); honey has no class of its own.
 The knockback distance of a throw that hurts is `gulp.throwHit.knockbackPx` and its pace
@@ -416,7 +445,8 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 | `game/throw/throw_testbed.gd` | the playground's throw yard and its keys |
 | `game/main.gd` | `decide_throw_mode` (with the rework mode), the yard, `throw_combat` (the test runner's switch) |
 | `game/scripts/liftable.gd`, `liftable_root.gd` | `can_take` by weight (`ThrowMode.can_lift`), `weight`, `is_too_heavy`; the root's `weight` in the Inspector |
-| `game/player/gulp/mouth.gd`, `mouth_hold.gd` | the "Too heavy" line, the aim help on the throw |
+| `game/player/gulp/mouth.gd`, `mouth_hold.gd` | the "Too heavy" line, the aim help on the throw; mouth_hold.gd makes the weight cue and asks for its strain |
+| `game/throw/weight_cue.gd` | the weight cue: the ring and pips over the thing in reach, the "too heavy" pip, the strain |
 | `game/player/gulp/thrown_object.gd` | weight and effect on the flight and the break, pierce, the looks, only what it reaches (`_targets`), the knockback distance on the hit (`knock_px`) |
 | `game/combat/reactions/enemy_reactions.gd` | the knockback slide of a throw that hurts (`_knock_slide`, `slide_decay_of`) |
 | `game/player/abilities/ability_world.gd` | `hurtboxes_in_reach` (its level, no wall between), `clear_line`, `body_level` |

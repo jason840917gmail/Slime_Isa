@@ -332,7 +332,8 @@ func _on_boss_defeated_signal(_payload: Dictionary, boss_ref: Variant) -> void:
 
 
 ## `progress.markBossDefeated` (UniversalSceneWorldController.ts:596-600): `defeatBoss` (the
-## boss id joins RunState `defeated_boss_ids` once), the 'boss.defeated' listeners that are ported
+## boss id joins RunState `defeated_boss_ids` once, and his story flag is set: RunState
+## `record_boss_defeated`), the 'boss.defeated' listeners that are ported
 ## (the Victory cue), the boss-defeated feel; in the body-shapes rework mode also the room-clear
 ## moment (GameFeel.room_clear: music dip, freeze, stutter; docs/godot/BODY_SHAPES.md "Juice").
 func _mark_boss_defeated() -> void:
@@ -340,9 +341,7 @@ func _mark_boss_defeated() -> void:
 	if run == null:
 		_local_defeated = true
 	else:
-		var defeated_ids: Array = run.world.get_or_add("defeated_boss_ids", [])
-		if not boss_id in defeated_ids:
-			defeated_ids.append(boss_id)
+		run.record_boss_defeated(boss_id)
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(VICTORY_CUE)

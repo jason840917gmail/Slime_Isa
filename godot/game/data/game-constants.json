@@ -12,8 +12,8 @@
       "stone": 25,
       "iron-ore": 99,
       "charcoal": 99,
-      "hp-potion": 9,
-      "energy-potion": 9,
+      "hp-potion": 5,
+      "energy-potion": 5,
       "purple-berry-mat": 99,
       "silk-clump": 99,
       "stone-essence": 9,
@@ -25,8 +25,15 @@
       "green-key": 1,
       "crystal-key": 1,
       "workbench": 1,
-      "berry-basket": 9,
-      "matron-thread": 1
+      "berry-basket": 5,
+      "matron-thread": 1,
+      "mine-crystal": 1,
+      "belt-slot": 4,
+      "charged-roll": 1,
+      "war-journal-page-1": 1,
+      "war-journal-page-2": 1,
+      "war-journal-page-3": 1,
+      "recipe-page-berry-basket": 1
     },
     "weaponMaxStack": 1
   },
@@ -193,6 +200,14 @@
         "pierce": { "pierceTargets": 3 }
       },
       "aimAssist": { "enabled": false, "coneDeg": 24, "rangePx": 320 },
+      "weightCue": {
+        "enabled": true, "fadeInS": 0.12,
+        "ringRadiusPx": 20, "ringSquash": 0.42, "ringWidthPx": 2, "ringAlpha": 0.85, "pulseHz": 1.5, "pulseShare": 0.08,
+        "pipRadiusPx": 4.5, "pipGapPx": 13, "pipRisePx": 8, "promptClearPx": 64, "belowPx": 12, "artHeightPx": 44,
+        "pipColor": "#fff6d8", "pipEdgeColor": "#2b1d10", "heavyColor": "#ff9a3c",
+        "strainMs": 420, "strainPx": 3, "strainLiftPx": 3, "strainTurns": 4, "strainSwell": 1.6,
+        "slimeStrainX": 1.1, "slimeStrainY": 0.9
+      },
       "ammo": { "rockOnAttack": { "worm-brawler": { "chance": 0.5, "kind": "rock" } }, "rockSpacingPx": 40, "rockAheadPx": 26, "arrowStays": true, "arrowLifeMs": 12000, "spentShots": { "worm-arrow": { "material": "wood", "picturePx": 64 } } }
     }
   },
@@ -305,7 +320,8 @@
       "thrown-sleep": { "tier": 2, "poise": 1, "countsAsHold": false },
       "landing": { "tier": 3, "poise": 4, "countsAsHold": false },
       "roll": { "tier": 2, "poise": 1, "countsAsHold": true },
-      "suck": { "tier": 1, "poise": 0, "countsAsHold": false }
+      "suck": { "tier": 1, "poise": 0, "countsAsHold": false },
+      "arrow": { "tier": 1, "poise": 1, "countsAsHold": false }
     },
     "verbs": {
       "hold": { "nudgePx": 4, "nudgeMs": 120 },
@@ -324,23 +340,23 @@
     },
     "weights": {
       "tiny": {
-        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "launch", "roll": "launch" },
+        "classes": { "tap": "launch", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": "launch", "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "launch", "roll": "launch", "arrow": "launch" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "light": {
-        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "launch" },
+        "classes": { "tap": "hold", "finisher": "launch", "charge": "launch", "smash": "launch", "thrown": { "verb": "daze", "stunMs": 1550 }, "thrown-medium": "launch", "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 3000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "launch", "arrow": "hold" },
         "roll": "bowl", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "medium": {
-        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "thrown-medium": { "verb": "knockdown", "stunMs": 1600 }, "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 2600 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "knockback" },
+        "classes": { "tap": "hold", "finisher": "knockback", "charge": "launch", "smash": "launch", "thrown": { "verb": "knockdown", "stunMs": 1200 }, "thrown-medium": { "verb": "knockdown", "stunMs": 1600 }, "thrown-heavy": "launch", "thrown-freeze": { "verb": "daze", "stunMs": 2600 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": "launch", "ring": "bounce", "roll": "knockback", "arrow": "hold" },
         "roll": "bonk", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       },
       "heavy": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "thrown-medium": { "verb": "stagger", "stunMs": 900 }, "thrown-heavy": { "verb": "knockdown", "stunMs": 1500 }, "thrown-freeze": { "verb": "stagger", "stunMs": 2000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "stagger", "smash": "stagger", "thrown": { "verb": "stagger", "stunMs": 650 }, "thrown-medium": { "verb": "stagger", "stunMs": 900 }, "thrown-heavy": { "verb": "knockdown", "stunMs": 1500 }, "thrown-freeze": { "verb": "stagger", "stunMs": 2000 }, "thrown-sleep": "sleep", "landing": { "verb": "knockdown", "stunMs": 1400 }, "slam": { "verb": "knockdown", "stunMs": 1500, "damageTaken": 2 }, "ring": { "verb": "stagger", "stunMs": 650 }, "roll": "armor", "arrow": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 1150 }
       },
       "boss": {
-        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "landing": "armor", "slam": "armor", "ring": "armor", "roll": "armor" },
+        "classes": { "tap": "armor", "finisher": "armor", "charge": "armor", "smash": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "landing": "armor", "slam": "armor", "ring": "armor", "roll": "armor", "arrow": "armor" },
         "roll": "break", "suck": "none", "holdCap": 2, "breakFree": "push", "poise": 0
       }
     },
@@ -521,6 +537,14 @@
       "candle": { "lightRadiusPx": 110, "gutterMs": 5000 },
       "burnable": { "burnMs": 600, "spreadPx": 24 },
       "darkness": { "alpha": 1.0, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShare": 0.25 }
+    },
+    "bow": {
+      "energy": 6,
+      "cooldownMs": 300,
+      "drawMs": 140,
+      "recoverMs": 140,
+      "arrow": { "class": "arrow", "damage": 10, "holdMs": 220, "speed": 760, "rangePx": 512, "radiusPx": 7,
+        "feel": { "hitStopMs": 40, "trauma": 0.12, "kickPx": 2, "sparks": 4 } }
     }
   },
   "puzzles": {
@@ -558,7 +582,7 @@
   "dungeon": {
     "devPowers": {
       "level-1-c4": ["shape-spear", "dodge", "goo-bombs"],
-      "level-1-c5": ["shape-spear", "dodge", "goo-bombs"],
+      "level-1-c5": ["shape-spear", "dodge", "goo-bombs", "bow"],
       "fatty-lair": ["shape-spear", "dodge", "skin.heavy"],
       "level-1-d5": ["shape-spear", "dodge"],
       "level-1-d4": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "lantern"],
@@ -568,8 +592,8 @@
       "weaver-hollow-roots": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "weaver-hollow-boughs": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "weaver-hollow-crown": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
-      "crystal-mine": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
-      "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern"],
+      "crystal-mine": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern", "bow"],
+      "dungeon-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs", "skin.silk", "lantern", "bow"],
       "box-room-lab": ["shape-spear", "dodge", "skin.heavy", "goo-bombs"],
       "climb-lab": ["shape-spear", "dodge", "skin.feral"],
       "west-village-b5": ["shape-spear", "dodge", "goo-bombs"],
@@ -606,6 +630,94 @@
   },
   "abilityBox": {
     "socketCount": 8,
-    "sockets": ["squash-slam", "stretch-lash", "teleport", "lantern", "goo-bombs", "goo-boomerang", "spore-powder"]
+    "sockets": ["squash-slam", "stretch-lash", "teleport", "lantern", "goo-bombs", "bow", "goo-boomerang", "spore-powder"]
+  },
+  "shop": {
+    "dollop": {
+      "name": "Dollop's General Store",
+      "keeper": "Dollop",
+      "openFlag": "glimmerhill.market-hill.awake",
+      "greeting": "Welcome to Dollop's! Potions on the left, berries on the right, and no sampling the goo jars.",
+      "stock": [
+        { "itemId": "hp-potion", "price": 30 },
+        { "itemId": "energy-potion", "price": 40 },
+        { "itemId": "purple-berry-mat", "price": 6 },
+        { "itemId": "shard", "price": 15 },
+        { "itemId": "belt-slot", "price": 120, "once": true, "soldFlag": "shop.dollop.belt-slot.sold" }
+      ]
+    }
+  },
+  "story": {
+    "bossFlags": {
+      "fatty-one-eye": "chapter-1-complete",
+      "orb-weaver-matron": "chapter-2-complete",
+      "crystal-colossus": "chapter-3-complete"
+    },
+    "glimmerhill": {
+      "parts": {
+        "market-hill": {
+          "name": "Market Hill",
+          "wakeFlag": "glimmerhill.market-hill.awake",
+          "chunks": { "west-village-b4": [0, 0, 2048, 1152] },
+          "rooms": ["west-village-shop", "west-village-inn", "west-village-town-hall", "west-village-bathhouse",
+            "west-village-bakery", "west-village-herbalist", "west-village-b4-townhouse", "west-village-b4-gatehouse"]
+        },
+        "west-hill": {
+          "name": "West Hill",
+          "wakeFlag": "glimmerhill.west-hill.awake",
+          "chunks": { "west-village-a4": [0, 0, 2048, 2048] },
+          "rooms": ["west-village-tailor", "west-village-family-home", "west-village-a4-flat", "west-village-a4-duplex-1",
+            "west-village-a4-duplex-2", "west-village-a4-triplex-1", "west-village-a4-triplex-2", "west-village-a4-triplex-3",
+            "west-village-a4-twin-mushroom-1", "west-village-a4-twin-mushroom-2", "west-village-a4-thatch-cottage",
+            "west-village-a4-snail-house", "west-village-a4-stump-house", "west-village-a4-barn"]
+        },
+        "south-gate": {
+          "name": "the south gate's quarter",
+          "wakeFlag": "glimmerhill.south-gate.awake",
+          "chunks": { "west-village-b5": [0, 0, 2048, 2048] },
+          "rooms": ["west-village-b5-thatch-cottage", "west-village-b5-snail-house", "west-village-b5-townhouse"]
+        },
+        "farms": {
+          "name": "the farms and the lake",
+          "wakeFlag": "glimmerhill.farms.awake",
+          "chunks": { "west-village-a5": [0, 0, 2048, 2048] },
+          "rooms": ["west-village-a5-mushroom-farmhouse", "west-village-a5-pumpkin-farmhouse"]
+        }
+      },
+      "pearls": [
+        { "pearlId": "fatty-one-eye", "number": 1, "part": "market-hill", "alsoFlags": [],
+          "cardName": "Market Hill wakes",
+          "cardLine": "The Wellspring has the strength to fill a fountain again: Market Hill's goo runs, and its slimes wake from their trance." },
+        { "pearlId": "orb-weaver-matron", "number": 2, "part": "west-hill", "alsoFlags": ["workshop.restored"],
+          "cardName": "West Hill wakes",
+          "cardLine": "A second fountain runs, and West Hill's slimes wake. Far off in Slimeshire, the old Workshop rises from its boards." },
+        { "pearlId": "crystal-colossus", "number": 3, "part": "south-gate", "alsoFlags": ["forge.restored"],
+          "cardName": "The south gate wakes",
+          "cardLine": "A third fountain runs: the south gate's quarter wakes, Zing's booth and Bram's post with it. In Slimeshire, the old Forge glows again." }
+      ],
+      "sleep": {
+        "overlayZ": 30,
+        "grey": 0.82,
+        "darken": 0.42,
+        "tint": [0.8, 0.86, 1.0],
+        "edgeSoftPx": 112,
+        "slimeClearPx": 42,
+        "slimeClearSoftPx": 20,
+        "fadeMs": 1800
+      },
+      "villagers": {
+        "zCount": 2,
+        "zCycleMs": 3400,
+        "zRisePx": 34,
+        "zDriftPx": 12,
+        "zFontSize": 16,
+        "zAlpha": 0.8,
+        "wakeDelayMaxMs": 900,
+        "stretchMs": 650,
+        "stretch": 0.14
+      },
+      "animals": { "wakeDelayMaxMs": 1400, "appearMs": 700 },
+      "fountain": { "burstMs": 700, "burstScale": 0.12, "burstSplashes": 5, "burstSpreadPx": 46, "drinkRestMs": 60000 }
+    }
   }
 }

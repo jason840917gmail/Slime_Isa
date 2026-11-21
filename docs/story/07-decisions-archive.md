@@ -7,6 +7,107 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-11-21 (the story's last open questions):** the hero is silent (question 4); Gorge wakes only after all the
+  other bosses are beaten, not at a midpoint (question 9); after Chapter 3 and Release 1 the map is open, and only
+  ability blockers stand in the slime's way, which it passes as its powers grow, so the later regions have no set
+  order (question 10); beaten bosses stay defeated (question 168). Details under
+  [Answered on 2026-11-21](#answered-on-2026-11-21).
+- **2026-11-20 (two Release 1 additions: a slab maze and compact tree walls):** the owner put two ideas straight
+  into Release 1, by the owner's choice, as the earlier rounds came in (not through the roadmap's parking lot).
+  - **A falling-slab maze in Chapter 3:** a maze of long falling slabs, crossed with the Roll, over the void or
+    ground that hurts ("the cliff could be void or damaged areas", owner). Roadmap 12.9; where it stands, its size
+    and what it guards are designed with the owner. A long slab gives way in pieces behind the slime, and that is
+    the kit already built for the Roll's upgrade (owner, the same day: "nothing new, is the same we already have for
+    upgrade roll"): a run of one-cell slabs or planks with no landing, as on the plank bridge to C5's lake island,
+    which only the Charged Roll held all the way crosses; a run with a landing every two pieces takes quick Rolls.
+    Long runs stand on the main way too (owner, the same day), so Chapter 3's main path needs the Charged Roll and
+    all four Roll Fragments, which all lie before it (Burr's in the Lair, Yoi's behind the Heavy statues, the A4
+    barn's, the Gloop Cavern's under the Goo Bomb's cracked ground). They stop being secrets: each needs a pointer,
+    and the maze says what it wants (roadmap 12.9's proposal). And it is the Crystal Caverns' outside (owner, the
+    same day): several levels of mountains and cliffs, islands, and crystal caves that lead to other parts of the
+    maze, with monsters and secrets; the smith is found in one of those mine caves, on the main road, so the Lantern
+    comes on the way through (no longer at an open camp by the road from Gloop Forest). The mine's gate stands early
+    on that road, never at the maze's end (owner, the same day: the mine needs the Bow, so the trip to Pip and back
+    must not cross the maze again). The order, roadmap 12.9's proposal taken by the owner ("Yes, that order"): past
+    the shut gate, across the maze to the smith's cave (his camp moves in there), the Lantern and the Smith's
+    Crystal in one visit, a lamp in his cave that opens his mine cart's one-way shortcut back to the gate, one flame
+    at the gate, the trip to Pip for the Bow, then the mine. Not built.
+  - **Compact tree walls:** painting one whole tree per cell suits single trees, not walls: some places look open
+    although the collision stops the slime there. As many games do, a tree wall shows whole trees only along its
+    front and only treetops behind them, a closed canopy, so it reads as a wall that cannot be passed; single trees
+    keep today's art. Roadmap 12.10, for the forests of all three chapters. The look, from the owner's screenshot of
+    a classic top-down game's woods ("the player clearly knows there is no path through those trees"): one solid
+    mass of big, round, overlapping canopies with no ground showing between them, and only along the wall's foot a
+    band of roots and trunk bases on one ground line. Our own art; the screenshot is the idea. Not built.
+- **2026-11-20 (the Roll fragments):** the Charged Roll is no longer found whole: four **Roll Fragments** make it,
+  and "for now you get the ability with the last fragment", wherever it is found. Burr gives the first in Fatty's
+  Lair after the slime frees him and before he helps lower the bridge: he has been perfecting a better trick, carved
+  into a training disc that Gorge's lot broke in four and hid, and he kept one piece in his boot (owner: Burr's must
+  be the first fragment). Yoi's lies in his chest behind a small Heavy statue maze, so pulling statues with the
+  Heavy skin comes first; one is hidden in the big town, Glimmerhill (the A4 barn, a first placement), and one in
+  Gloop Forest (the Gloop Cavern's hidden chest). This changes question 160's "found whole in a secret place" and
+  makes the Charged Roll the first upgrade of four fragments, which the 2026-11-17 answers left for later. Built the
+  same day, with a placeable Roll Fragment in the Scenery dock.
+- **2026-11-20 (Pip's bow rune; the smith stays at his mine):** the owner rewrote the road to the Bow and the
+  smith's ending, later the same day as the entries below.
+  - **The smith stays at his crystal mine.** He gives the Lantern at his camp in G4 as before, and after the
+    Colossus falls he stays there ("the mine is mine"), proud of Pip. The two homes placed for him earlier that day
+    (below) are gone, and so is the old plan that he goes home to Slimeshire once the Colossus falls (questions 8
+    and 59).
+  - **He no longer sends the slime to Burr.** Once the mine's gate is open (the Lantern's first lock), his next talk
+    gives the **Smith's Crystal**, the clearest his mine ever gave him, for his boy Pip in Slimeshire: with it, a
+    little wood and a string strong as wire, Pip can carve a bow rune. Until the Bow he reminds, then gives tips.
+    The mine cart is the Bow-less slime's quick way out to Pip and back (question 134 changed).
+  - **Pip keeps his dad's Workshop.** He stands in front of it in Slimeshire's C4, north-east corner, beside the
+    Forge (the owner moved the Workshop there that day, and the red mushroom house to its old place north of the
+    plaza). His first talk asks the slime to bring the Pearls home and starts his quest, Pip's Workshop.
+  - **Pearl 2's homecoming raises the Workshop, and Pearl 3's lights the Forge** (Pearl 2 lit the Forge until then,
+    questions 79, 110 and 159). Both still wake their part of Glimmerhill. The Fizzy Brew, which the Forge brews,
+    comes after Pearl 3 is home. The raised Workshop is Pip's place, with no crafting station; this answers what the
+    Workshop does in Release 1 (left open by question 51).
+  - **Pip carves the bow rune.** Once the Workshop stands he asks for 5 wood (the frame), the Matron's thread (the
+    string) and a clear crystal from his dad's mine (the heart); with the three in the bag he carves the rune and the
+    slime learns the Bow, with its ceremony. The Bow is still the slime's own body, and the lake camp's two lenses in
+    C5 are still its first lock.
+  - **Burr no longer teaches the Bow** or takes the thread (questions 80, 102 and 106 changed). His thanks tells how
+    the Thorn Guard's bows were shaped from goo by carved runes, and that Pip could carve one once the Workshop
+    stands; with the Bow he gives his archery tips as before.
+  - The road to Release 1's Bow: Pearl 2 home, the Workshop raised, into the Caverns and through the mine's gate,
+    the smith's crystal, back to Pip with the wood and the thread, the Bow, the Mine's Chasm, Pearl 3, the
+    Colossus, Pearl 3 home and the Forge lit.
+- **2026-11-20 (C4 thinned):** Slimeshire's C4 was getting overcrowded (owner's request), so two recent additions
+  left it. The Bow's first lock (two crystal lenses and a hidden chest, first put in Burr's yard) moved to the lake
+  camp's river in C5: the lenses on the river's north bank by the road, shot from the camp's bank across the water,
+  the chest rising by the camp; Burr's yard keeps the Roll's ditch and planks. The smith's home after the Colossus moved
+  twice that day: first to a cottage in Glimmerhill's south gate's quarter, then, on the owner's word ("he works
+  there", the Forge is his), back to Slimeshire's C4, at his own anvil in front of the relit Forge, where he talked of
+  rebuilding the Workshop one day. Both were placed and replaced the same day: the smith stays at his mine, and Pip
+  keeps the Workshop and the Forge (above).
+- **2026-11-20 (wood, the ditch, the arrow):** Dollop sells no wood: the recipes' wood lies loose in the
+  world (small piles) and falls from trees a Roll bonks (dead sticks snagged in a tree, `object.loose-wood`,
+  any Roll, back each time the chunk is built again). A drop nobody can cross closes a chunk line as a
+  wall does (Burr's yard ditch on C4's west edge stays). The goo arrow is drawn wider.
+- **2026-11-20 (the Bow is the slime's body):** the Bow is shaped from the slime's own body, as the Spear, the Hammer
+  and the War Axe are, and its arrows are goo the slime pinches off: each costs a little energy, with no arrows to find
+  or buy and no arrow counter on the HUD (the owner chose it over found or bought arrows, which would need a Zelda-like
+  counter). Burr does not build a wooden bow: he teaches the shape, and the Matron's thread becomes its string.
+  Later the same day Pip's bow rune took the lesson from Burr, the thread its string (above).
+- **2026-11-19 (the open questions settled; making Release 1 playable):** the owner took the proposals of the open
+  questions that had one, answered question 158 in his own words and 161 against its proposal
+  ([below](#answered-on-2026-11-19)), and asked for the story path to be made playable: Tom teaches the Goo Bomb, the Bow
+  is built, the old quest chain gives way to the new story, the Roll is learned only from Burr's son, and what is
+  missing is built; the bosses are revised after that.
+  - **No flasks:** either flasks or belt slots, not both. A potion is an ordinary bag stack, and a belt slot quick-uses
+    one potion kind until the stack is gone. Glimmerhill's shop sells potions, ingredients and one belt slot.
+  - **Tom first, his maze later:** Tom's cocoon, his Goo Bomb lesson and the cracked wall back are built now; the maze
+    is designed with the owner afterwards.
+  - **Glimmerhill asleep, shader first:** a sleeping part of town is darkened and greyed, its fountain dry, its
+    villagers frozen with their eyes shut; new art only where that falls short.
+  - **The Wilds are walled off for all of Release 1** by terrain, with no guard posts. The Silk web maze and the Feral
+    climb from the Wilds (question 164) wait for the release that opens them.
+  - **Release 1's only ability upgrade is the Charged Roll** (question 160).
+  - **The old system is unhooked from the story now** (Swallow, essences and forms, crafted tools and weapons,
+    harvesting, the Squash Slam and Stretch Lash rewards) and its code deleted in a later clean-out.
 - **2026-11-17 (the docs review after throw combat):** the story docs were checked against the build
   of 2026-11-14, and the owner answered the review (questions 3 and 146 to 156,
   [below](#open-after-the-docs-review-2026-11-14)) and added ideas of his own.
@@ -1237,3 +1338,67 @@ answered them on 2026-11-17.
      *2026-11-17 (owner): yes, since the Feral skin is in Release 1.*
 156. ~~**The desert's elevation maze and the Sunscar caves.**~~ In Release 1?
      *2026-11-17 (owner): no; they stay as an idea of what comes next.*
+
+## Answered on 2026-11-19
+
+The owner took the proposal of every open question that had one, except question 161, and answered question 158 in
+his own words (2026-11-19). The questions' full text was in [Open questions](06-open-questions.md) until then.
+
+116. ~~**The Weaver Hollow's big key.**~~ *2026-11-19 (owner): the proposal, as built: the big key lies in the Hoard
+     with Pearl 2, behind the Brood Warden; the Hollow's heart quarter is a goo heart in the Pillar room (B6).*
+117. ~~**Where Tom's maze lies.**~~ *2026-11-19 (owner): the proposal: the forest's south-west woods (Gloop E5), off the
+     main path near Mossy's camp. Tom and his lesson are built first; the maze is designed with the owner later.*
+137. ~~**Fatty's Lair, as built.**~~ *2026-11-19 (owner): the proposal, with its later changes (the cave-in, the
+     secrets outside, the fallen tree for the Verdant Gate; Fatty's fight waits for the boss pass).*
+138. ~~**The Weaver Hollow, as built.**~~ *2026-11-19 (owner): the proposal, with the rework of question 143.*
+139. ~~**The Crystal Mine, as built.**~~ *2026-11-19 (owner): the proposal, with the rework of question 144; the smith
+     sends the slime to Burr in Slimeshire's C4.*
+140. ~~**Behind a diamond hill.**~~ *2026-11-19 (owner): the proposal: keep it.*
+141. ~~**The seal and the take, as built.**~~ *2026-11-19 (owner): the proposal. Still open: the seal under the HUD bar
+     at a south doorway, and the roar's line over the skin's line (question 141 in Open questions).*
+142. ~~**Fatty's Lair, reworked.**~~ *2026-11-19 (owner): the proposal; his fight changes with the boss pass.*
+143. ~~**The Weaver Hollow, reworked.**~~ *2026-11-19 (owner): the proposal. Still open: the Slime Spiders' web shots
+     in C4.*
+144. ~~**The Crystal Mine, reworked.**~~ *2026-11-19 (owner): the proposal; the Bow is built for the Chasm.*
+145. ~~**The Feral skin's details.**~~ *2026-11-19 (owner): superseded by the vine climb (question 157 for its change to
+     a move).*
+157. ~~**The Feral skin's change to a move.**~~ *2026-11-19 (owner): the proposal: the Gulp works while the slime
+     clings; it sucks and throws from the wall.*
+158. ~~**Feral's vines and the War Axe's.**~~ *2026-11-19 (owner): Feral's vines grow flat over the rock of a cliff's
+     face. The War Axe's are different in art and colour; they can be on walls, and the player cannot see what is behind
+     them: a wall or an opening. Colour and art are what tell them apart.*
+159. ~~**Glimmerhill's parts.**~~ *2026-11-19 (owner): the proposal: Pearl 1 wakes Market Hill (B4), Pearl 2 West Hill
+     (A4), Pearl 3 the south gate's quarter (B5, with Zing's booth); the farms and the lake (A5), a secret underground
+     and certain buildings wait for Pearls 4 to 8. Pearl 2 also lights Slimeshire's Forge. Shader first (above). The
+     Wilds' openings into the town are walled off with the Wilds.*
+160. ~~**Release 1's ability upgrades.**~~ *2026-11-19 (owner): only the Charged Roll, found whole in a secret place.*
+161. ~~**Potion vessels.**~~ *Proposal: flasks.* *2026-11-19 (owner): no flasks: "either the flasks or the slots, not
+     both". With the slots the slime can have many potion kinds and give one kind to a quick-use slot; a stack of five
+     health potions on slot 1 is used until it is gone. The shop sells potions, ingredients and one slot. The craft
+     panel opens at a campfire.*
+162. ~~**The liftables' weight cue.**~~ *2026-11-19 (owner): the proposal: the weight shows in the thing itself, the
+     thing in the Gulp's reach is highlighted with one to three pips, and a "too heavy" pip and a strain wobble show
+     when the Gulp's level is too low.*
+163. ~~**The Verdant Gate's fallen tree.**~~ *2026-11-19 (owner): the proposal: the place keeps its name, its gate long
+     gone and a grey fallen tree across its road; the Postern chest holds coins and a potion.*
+164. ~~**The Wilds' ways into Gloop Forest and the Crystal Caverns.**~~ *2026-11-19 (owner): the Wilds are walled off
+     in Release 1; the Silk web maze and the Feral climb wait for the release that opens them.*
+165. ~~**Lily or Dora.**~~ *2026-11-19 (owner): the proposal: Dora.*
+
+## Answered on 2026-11-21
+
+The owner answered the story's last open questions in a few words on 2026-11-21. The questions' full text was in
+[Open questions](06-open-questions.md) until then.
+
+4. ~~**Does the hero talk?**~~ *2026-11-21 (owner): "hero is silent". As built: Bob has no line; others talk to him
+   and he answers with actions and squishy reactions.*
+9. ~~**The midpoint: in which chapter does Gorge wake, and what does he do first?**~~ *2026-11-21 (owner): "after all
+   bosses die he wake up, that does not matter": Gorge wakes only once all his vassals are beaten, so there is no
+   midpoint waking; what he does then belongs to the finale's design.*
+10. ~~**How many regions, in what order, and where do castles and mazes go?**~~ *2026-11-21 (owner): "after chapter 3
+    and release 1 the map will be open and only abilities blockers will block the way for the player as he build up
+    he will be able to pass these blockers". The later regions have no set order: the slime goes where its powers let
+    it, as in an open Zelda world. The regions stay as the world map has them (question 154's great mountain
+    included).*
+168. ~~**Do beaten bosses shrink back?**~~ *2026-11-21 (owner): "bosses stay defeated". A beaten boss stays beaten
+     and does not come back; no shrinking scene is planned.*

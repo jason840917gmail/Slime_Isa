@@ -5,9 +5,12 @@
 > styles, each with its own plain floor: `lair-stone` (the fort's cream masonry), `cave-rock` (dark
 > slate), `root-rock` (umber stone and roots); since 2026-11-19 a fourth, `cottage` (timber-framed
 plaster, for the village houses' rooms: [The cottage](#the-cottage)), and a fifth, `mushroom` (a red
-spotted cap rim, pale ribs, cream stem flesh), with **round and oval rooms** ([Round rooms](#round-rooms)).
-Since 2026-11-20 every West village house room (27) has them instead of its painted back wall
-([The village's house rooms](#the-villages-house-rooms)). The box-room lab and all of Fatty's Lair use them; the
+spotted cap rim, pale ribs, cream stem flesh), with **round and oval rooms** ([Round rooms](#round-rooms));
+since 2026-11-20 a sixth, `crystal-cave` (dark blue slate packed with glowing blue and violet crystals,
+for the Gloop Cavern: [Crystal cave](#crystal-cave)).
+Since 2026-11-20 every West village house room (27) and Slimeshire's five C4 rooms have them instead
+of their painted back wall ([The village's house rooms](#the-villages-house-rooms)), and the Gloop
+Cavern ([The Gloop Cavern](#the-gloop-cavern)). The box-room lab and all of Fatty's Lair use them; the
 > Hollow and the Mine still have elevation-cliff walls with `doorway_art.gd`'s frames. A painted
 > [floor trim](#floor-trim) along the walls' foot since 2026-10-31 (painted in the lab; every room of
 > Fatty's Lair has its empty `floor-trim` layer, for the owner to paint).
@@ -334,7 +337,7 @@ the pieces, and `game/world/interior/interior_wall_tileset.tres`); then
 `tools/pack_interior_palette.gd` saves the palette as `palette.res`, which the tileset uses (it needs
 no editor import, so a repacked palette shows at once). 128 px per 64-unit cell, drawn at half size.
 Each style has a fixed palette column (`column` in its `STYLES` entry: lair-stone 0, cave-rock 1,
-root-rock 2, cottage 3, mushroom 4), so a repack of one style never moves another's column (painted cells name their tile by
+root-rock 2, cottage 3, mushroom 4, crystal-cave 5), so a repack of one style never moves another's column (painted cells name their tile by
 column), and the packer keeps the tileset's `uid`, so the room scenes that use it do not change.
 
 The walls, the floor and every door's leaf share one read of each sheet (`InteriorWallLayer.picture`):
@@ -479,6 +482,46 @@ villagers and animals moved with the floor, its spawn and south entry at the doo
 
 The lanterns of the round rooms stand by the side walls; the herbalist's and the shop's tall shelves
 moved 50 units down to stay inside the room.
+
+Slimeshire's rooms in `game/scenes/worlds/rooms/c4/` followed the same day (the sally port already
+had cave-rock walls):
+
+- **Square, cottage**: Burr's house (`slimeshire-burr-house`), the watchkeeper's storehouse
+  (`watchkeeper-hideout`) and Yoi's home (`slimeshire-yoi-home`). Yoi's is a cellar under a hatch:
+  its rim has **no door**, its way out stays the `cave-ladder` against the north wall (spawn and the
+  ladder's arrival below it), and its Heavy statue maze was re-fitted to the new floor
+  (SKINS.md "Yoi's statue maze").
+- **Round, mushroom**: the slime's home (`slime-home`, behind the round red mushroom house) and the
+  mushroom home (`mushroom-home`, the red mushroom house). Their old door, its `arrival` child and
+  its picture are gone: the ring's `front-door` opening (`house-door`, to `level-1` `home-door` /
+  `mushroom-home-door`) makes the door. The mushroom home keeps its own mushroom floor (filled out to
+  16 x 12) and lost the old shell's two doorway-floor pieces; its cap bed and the slime home's beds
+  moved in from the wall.
+
+### The Gloop Cavern
+
+Gloop Forest's small secret cave (`world.gloop-cavern`,
+`game/scenes/worlds/rooms/gloop-forest-e5/gloop-cavern.tscn`, under the cracked ground's sinkhole),
+converted on 2026-11-20. It keeps its size, 22 x 14 cells, two screens wide with the camera following:
+a two-cell **crystal cave** rim round an 18 x 10 floor (cave rock at first, the same day; the owner
+asked for a crystal style), in place of the crystal-cluster wall props on its old `large-props` layer. The rim has no opening: the `cave/ladder` against the north wall is still
+its only way in and out (its arrival and the spawn at (704, 260)). The layer's `draw_floor` is off, so
+the cavern's own floor shows (dark cavern stone, the crystal floor round the chest in the south-east
+corner); on, it would draw the style's floor (the cave rock floor). The chest, the three crystal
+shards and the heart quarter moved with the floor.
+
+### Crystal cave
+
+`crystal-cave` (owner, 2026-11-20: the Gloop Cavern's look), palette column 5: dark blue slate packed
+with glowing icy-blue and violet crystals growing up and away from the floor. Made like the other
+styles, from one frame: `crystal-bevel-doorways-b` (GPT 2.5, `gpt-2-mini`, transparent; references:
+`cave-bevel-doorways-b` for the layout, word for word "exactly the first reference image ... the only
+change is the material", and a crop of the cavern's old crystal-cluster walls for the look; `-a` is
+the other take), in `asset/Originals/dungeon-kit/interior-walls/`. Its band edges measured again in
+its own render (`n` 15-224, `s` 800-1006, `w` 19-220, `e` 803-1005); the plain stretches, doorway
+boxes and passage are the cave rock's. It has only the plain doorway (no cracked, blown or stairs
+openings, no leaves yet: generate them from the frame as for the other styles when a crystal room
+needs one) and borrows the cave rock floor (`cave-floor.png`).
 
 ## The box-room lab
 

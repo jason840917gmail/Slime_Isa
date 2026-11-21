@@ -43,6 +43,9 @@ signal shaken_loose(payload: Dictionary)
 ## How high it hangs above its root (world units).
 @export var hang_height: float = 120.0
 @export var hint_text: String = "Something up there wobbles... a heavier bump would shake it loose."
+## Light enough for any Roll's bonk to knock down, not only a Heavy Roll's (the loose wood:
+## `object.loose-wood`, dead sticks snagged in a tree; owner, 2026-11-20).
+@export var any_bonk: bool = false
 
 var _fallen := false
 var _next_hint_ms := 0.0
@@ -68,12 +71,13 @@ func is_fallen() -> bool:
 	return _fallen
 
 
-## GroundShake: a heavy shake reaching it shakes it loose; a light one makes it sway.
+## GroundShake: a heavy shake reaching it shakes it loose (any shake, with `any_bonk`); a light one
+## makes it sway.
 func on_ground_shake(at: Vector2, radius: float, heavy: bool) -> void:
 	if _fallen or not is_visible_in_tree() or at.distance_to(global_position) > radius:
 		return
-	if heavy:
-		shake_loose()
+	if heavy or any_bonk:
+		shake_loose(heavy)
 		return
 	_sway()
 	var now := float(Time.get_ticks_msec())
@@ -84,8 +88,9 @@ func on_ground_shake(at: Vector2, radius: float, heavy: bool) -> void:
 			feel.floating_text(global_position - Vector2(0.0, hang_height + HINT_RISE), hint_text, &"white", false, 2400.0)
 
 
-## It falls, lands, pays out and is gone (a script may call it).
-func shake_loose() -> void:
+## It falls, lands, pays out and is gone (a script may call it). `heavy`: a Heavy Roll shook it, so
+## the slime shows the Heavy skin.
+func shake_loose(heavy: bool = true) -> void:
 	if _fallen:
 		return
 	_fallen = true
@@ -95,8 +100,9 @@ func shake_loose() -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.audio_cue(CUE_FALL)
-	var world := Services.world()
-	SkinState.show(world.player if world != null else null, SkinState.HEAVY)
+	if heavy:
+		var world := Services.world()
+		SkinState.show(world.player if world != null else null, SkinState.HEAVY)
 	if _visual == null:
 		_land()
 		return

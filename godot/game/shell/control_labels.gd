@@ -32,6 +32,9 @@ const MOUSE_NAMES := {
 	MOUSE_BUTTON_WHEEL_DOWN: "Mouse wheel",
 }
 const MOVEMENT_ACTIONS: Array[StringName] = [&"move_up", &"move_left", &"move_down", &"move_right"]
+## The potion belt's keys, slot order (project.godot: 1 to 4; game/inventory/potion_belt.gd).
+const POTION_ACTIONS: Array[StringName] = [&"potion_1", &"potion_2", &"potion_3", &"potion_4"]
+const POTION_KEYS_TEXT := "Drink one potion from that belt slot (belt slots are found; set a potion to one in your bag)"
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
@@ -72,6 +75,7 @@ static func control_rows() -> Array[PackedStringArray]:
 		PackedStringArray([control_label(&"teleport"), "Teleport %s" % ("as far as it goes the way the slime faces" if keys_only else "to the pointer")]),
 		PackedStringArray([control_label(&"eat"), "Hold to suck in an essence or a light thing (a pot, a rock, a pumpkin...); press again to throw it"]),
 		PackedStringArray([control_label(&"swallow"), "Swallow the essence you hold to take its form; with nothing held, spit the form out"]),
+		PackedStringArray([potion_keys_label(), POTION_KEYS_TEXT]),
 		PackedStringArray([control_labels(&"weapon_next"), "Switch between equipped weapons"]),
 		PackedStringArray([control_label(&"menu"), "Bag, crafting, journal and map"]),
 		PackedStringArray([control_label(&"journal"), "Journal"]),
@@ -80,7 +84,24 @@ static func control_rows() -> Array[PackedStringArray]:
 		PackedStringArray([control_label(&"pause"), "Pause menu, or close the open window"]),
 		PackedStringArray([control_label(&"control_scheme_next"), "Switch the control scheme (now: %s)" % ControlScheme.display_name(scheme)]),
 	])
-	return rows
+	# The old Swallow, Stretch Lash, Squash Slam and Teleport have no key since 2026-11-20 (1 to 4
+	# are the potion belt's): a control without a key is not listed.
+	var listed: Array[PackedStringArray] = []
+	for row: PackedStringArray in rows:
+		if not row[0].is_empty():
+			listed.append(row)
+	return listed
+
+
+## "1–4": the potion belt's keys (`potion_1` .. `potion_4`) as one label; each key's own label
+## joined with " / " when they are not the plain run 1 to 4 (another layout, a rebinding).
+static func potion_keys_label() -> String:
+	var labels := PackedStringArray()
+	for action: StringName in POTION_ACTIONS:
+		labels.append(control_label(action))
+	if labels == PackedStringArray(["1", "2", "3", "4"]):
+		return "1–4"
+	return " / ".join(labels)
 
 
 ## The body-shapes rework mode's rows (docs/godot/BODY_SHAPES.md "Controls in the rework mode";
@@ -115,6 +136,7 @@ static func rework_rows(scheme: String) -> Array[PackedStringArray]:
 		PackedStringArray([control_label(&"eat"), "Mouth: press to suck for a second; tap to throw what you hold or spit an essence out; hold until the ring fills to swallow an essence, or with an empty mouth to spit your form out"]),
 		PackedStringArray([control_label(&"ability_use"), "Use the ability chosen in the bag's Ability Box (%s)" % toward]),
 		PackedStringArray([control_label(&"dodge"), "Roll %s as you let go: a tap rolls a short way; with the charged-roll upgrade, hold to spin up, then dash straight on while held; bonk into walls (learned in the story)" % toward]),
+		PackedStringArray([potion_keys_label(), POTION_KEYS_TEXT]),
 		PackedStringArray([control_label(&"menu"), "Bag: your shapes and the Ability Box on top; crafting, journal and map"]),
 		PackedStringArray([control_label(&"journal"), "Journal"]),
 		PackedStringArray([control_label(&"map"), "World map"]),
@@ -125,7 +147,7 @@ static func rework_rows(scheme: String) -> Array[PackedStringArray]:
 	return rows
 
 
-## The label of an action's main (first) binding, e.g. "2" for `dodge` (the Roll); "" when unbound.
+## The label of an action's main (first) binding, e.g. "Space" for `dodge` (the Roll); "" when unbound.
 static func control_label(action: StringName) -> String:
 	if not InputMap.has_action(action):
 		return ""

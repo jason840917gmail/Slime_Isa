@@ -6,7 +6,9 @@ class_name RestorationSiteScript
 ## on it swaps in the restored building, whose station then works), with a shake, dust and the
 ## restored message. Missing materials are listed ("Missing: 12 Stone, 3 Wood"). A site with a
 ## `quest_id` needs that quest active (`RunState.is_quest_active`: the quest record, or the debug
-## override), else it shows its locked message. A restore tells the quests
+## override), else it shows its locked message. A `story_only` site is never restored here: it shows
+## its locked message, and only the story sets its flag (since 2026-11-20 the Workshop, raised when
+## the Matron's Pearl comes home, and the Forge, lit when the Colossus's Pearl does: quests spec 14.6). A restore tells the quests
 ## (`object.activated` {objectId, instanceId: the authored instance's persistence key, areaId}).
 ##
 ## Owner: abilities.
@@ -33,6 +35,8 @@ const CUE_REFUSED := &"CraftFail"
 @export var object_id: String = ""
 ## JSON `questId`: the quest that must be active ("" = none).
 @export var quest_id: String = ""
+## Never restored by paying here: only the story sets `flag_id`; the prompt shows the locked message.
+@export var story_only: bool = false
 ## JSON `cost`: {item_id: count}.
 @export var cost: Dictionary = {}
 ## JSON `lockedMessage`.
@@ -94,7 +98,7 @@ func restore() -> bool:
 	var at := origin()
 	var label_at := at - Vector2(0.0, LABEL_RISE)
 	var feel := Services.feel()
-	if not quest_id.is_empty() and not run.is_quest_active(quest_id):
+	if story_only or (not quest_id.is_empty() and not run.is_quest_active(quest_id)):
 		if feel != null:
 			feel.floating_text(label_at, locked_message, &"white", true, LOCKED_MS)
 		return true

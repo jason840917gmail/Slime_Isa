@@ -24,6 +24,8 @@ const EVENT_BY_KIND := {
 	"place-item": QuestEvents.FURNITURE_PLACED,
 	"discover-area": QuestEvents.AREA_ENTER,
 	"use-control": QuestEvents.CONTROL_USED,
+	## Godot (2026-11-19): `flagIds`, each counts once when set (the main quest's Pearls).
+	"story-flag": QuestEvents.STORY_FLAG_SET,
 }
 
 
@@ -83,6 +85,9 @@ static func _match(kind: String, objective: Dictionary, payload: Dictionary) -> 
 		"use-control":
 			if _has(objective, "controlIds", payload.get("controlId")):
 				return _yes(1, str(payload.get("controlId", "")))
+		"story-flag":
+			if _has(objective, "flagIds", payload.get("flagId")):
+				return _yes(1, str(payload.get("flagId", "")))
 	return _no()
 
 

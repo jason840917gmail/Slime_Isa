@@ -117,7 +117,7 @@ func _corner_point(index: int) -> Vector2:
 			return _loop_centre + Vector2(-half.x, half.y)
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow across its way, or in a turn, kills it. `hit`
+## The Bow's hook (bow_arrow.gd): an arrow across its way, or in a turn, kills it. `hit`
 ## may carry the arrow's `direction` (or `knock`). True when it died.
 func on_arrow_hit(hit: Dictionary) -> bool:
 	if is_defeated():

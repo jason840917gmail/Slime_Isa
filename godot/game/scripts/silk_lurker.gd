@@ -15,7 +15,7 @@ class_name SilkLurkerScript
 ## - **Hang** (`hangMs`): it dangles low, swinging toward the slime, open; touching it there hurts
 ##   (`swayDamage` within `swayReachPx`). A hit sets it **spinning** like a pinata (`spinMs`, each
 ##   hit starts it again): dizzy, harmless and open. Then it **climbs** back up (`climbMs`).
-## - **Cut down:** the Bow's arrow (`on_arrow_hit`, group `bow_targets`, the coming Bow: any
+## - **Cut down:** the Bow's arrow (`on_arrow_hit`, group `bow_targets`, bow_arrow.gd: any
 ##   height) or a thrown thing that hits it low (tag `thrown`) cuts it off its thread: it falls
 ##   (`fallMs`) and lies on its back for `downMs` (open, every old-style hit `downDamageTaken`
 ##   times; rework hits: the profile's `states.down`), then climbs a new thread.
@@ -35,7 +35,7 @@ const FRAME_HANG := 0
 const FRAME_DROP := 1
 const FRAME_SPIN := 2
 const FRAME_DOWN := 3
-## The Bow's future targets: `on_arrow_hit(hit: Dictionary) -> bool`.
+## What the Bow's arrow strikes (bow_arrow.gd): `on_arrow_hit(hit: Dictionary) -> bool`.
 const BOW_TARGETS := &"bow_targets"
 const CUE_TELL := &"GroundCreak"
 const CUE_DROP := &"Lash"
@@ -166,7 +166,7 @@ func knock_down() -> bool:
 	return true
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow cuts its thread from any height. `hit` is
+## The Bow's hook (bow_arrow.gd): an arrow cuts its thread from any height. `hit` is
 ## the arrow's hit (unused yet). True when it fell.
 func on_arrow_hit(_hit: Dictionary) -> bool:
 	return knock_down()

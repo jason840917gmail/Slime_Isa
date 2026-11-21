@@ -41,7 +41,7 @@ its code is in git history.
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md); the prologue:
   [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md); the skins: [docs/godot/SKINS.md](docs/godot/SKINS.md)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
-  (about ten minutes for the full suite).
+  (about an hour for the full suite: 53 minutes for 611 tests on 2026-11-20).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
   scene in `godot/game/scenes/scene_index.json` and plays level-1.
 - `"<Godot console exe>" --headless --path godot -s res://tools/bake_elevation.gd` — bakes every

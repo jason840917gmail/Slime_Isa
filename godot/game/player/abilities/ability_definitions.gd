@@ -42,6 +42,12 @@ const LANTERN := &"lantern"
 ## (goo_bomb_sequence.gd); the energy is checked at the press and spent at the spit. Its numbers are
 ## `abilities.gooBomb`.
 const GOO_BOMBS := &"goo-bombs"
+## The Bow (owner, 2026-11-20; BODY_SHAPES.md "The Bow"): a box ability shaped from the slime's own
+## body, like the Spear. A press aims along the movement keys (else the facing) and shows the goo bow
+## (bow_sequence.gd); the release shoots a goo arrow (bow_arrow.gd) that way. Each arrow is goo the
+## slime pinches off: its energy is checked at the press and spent at the shot; there is no ammo.
+## Its numbers are `abilities.bow`.
+const BOW := &"bow"
 
 ## Dispatch order inside one step (WorldScene.handleActionInput :1810).
 const DISPATCH_ORDER: Array[StringName] = [JUMP, DODGE, STRETCH_LASH, SQUASH_SLAM, TELEPORT]
@@ -52,6 +58,8 @@ const SLAM_CONSTANTS := "abilities.squashSlam"
 const LANTERN_CONSTANTS := "abilities.lantern"
 ## The Goo Bomb's block in game-constants.json (`energy`, `cooldownMs`, the cast, the fuse, the blast).
 const GOO_BOMB_CONSTANTS := "abilities.gooBomb"
+## The Bow's block in game-constants.json (`energy`, `cooldownMs`, the draw, the arrow).
+const BOW_CONSTANTS := "abilities.bow"
 ## The Ability Box's sockets in game-constants.json: their fixed order and count.
 const BOX_SOCKETS_PATH := "abilityBox.sockets"
 const BOX_SOCKET_COUNT_PATH := "abilityBox.socketCount"
@@ -77,6 +85,8 @@ const TABLE := {
 		"energy_cost": 10.0},
 	GOO_BOMBS: {"title": "Goo Bomb", "action": &"ability_use", "earned_by": "Quest", "cooldown_ms": 600.0,
 		"energy_cost": 20.0},
+	BOW: {"title": "Bow", "action": &"ability_use", "earned_by": "Quest", "cooldown_ms": 300.0,
+		"energy_cost": 6.0},
 	SWALLOW: {"title": "Swallow", "action": &"swallow", "earned_by": "Quest", "cooldown_ms": 0.0,
 		"energy_cost": 0.0},
 }
@@ -104,6 +114,8 @@ const CEREMONY := {
 		"Press %s to throw a flame"],
 	GOO_BOMBS: ["Brew a jelly bomb inside you and spit it out. It blows up cracked walls, rubble and foes, and you too!",
 		"Press %s and stand still while it grows; suck it in with the Gulp to throw it"],
+	BOW: ["Shape your goo into a bow. Every arrow is a pinch of goo.",
+		"Hold %s and aim with the movement keys; let go to shoot"],
 }
 ## The rework mode's how-to lines where they differ (body-shapes plan section 5: Swallow is a Q hold;
 ## "%s" is the key of `eat`, AbilityBox.key_action; owner, 2026-10-12: the Roll fires on the release,
@@ -115,6 +127,22 @@ const REWORK_CEREMONY_HOW := {
 ## The ability icons the ceremony shows (the HUD console's, by the HUD session).
 const ICON_PATH := "res://asset/UI/hud-console/ability-%s.webp"
 
+## The upgrades (owner, 2026-11-19, question 160: only the Charged Roll in Release 1): learned
+## abilities with no slot or key of their own that change one that has (`of`). Each is found whole
+## (the Charged Roll: the `charged-roll` item in Yoi's chest, an `upgrade` find, RunState "finds");
+## learning one (not quietly) plays its card (QuestNotifications, AbilityCeremony.upgrade_entry):
+## its title, `line`, `how` ("%s" = the key of the ability it upgrades) and its icon (ICON_PATH).
+## The Charged Roll is game/player/roll/player_roll.gd's CHARGE_UPGRADE_ID: with it, a Roll key held
+## past `character.player.rework.rollTapMs` spins the ball up in place (`rollSpinUpMs`), launches it
+## at the release (or at the spin-up's end) at `rollLaunchSpeed`, and rolls on at `rollSpeed` for as
+## long as the key is held, spending `rollEnergyPerSecond`; a tap is still the quick roll.
+const ROLL_CHARGE := &"roll-charge"
+const UPGRADES := {
+	ROLL_CHARGE: {"title": "Charged Roll", "of": DODGE,
+		"line": "An old Thorn Guard trick: curl up tight and spin before you go, then shoot off fast and far.",
+		"how": "Hold %s to spin up, let go to shoot off, and keep holding to roll on while your energy lasts. A tap still rolls a short way"},
+}
+
 ## Rejection feedback (LegacyPlayerAbilityPresentation.ts:119-129): reason -> [text, colour].
 const REJECTION_TEXT := {
 	"locked": ["Not learned yet", &"red"],
@@ -125,6 +153,16 @@ const REJECTION_TEXT := {
 
 static func has(id: StringName) -> bool:
 	return TABLE.has(id)
+
+
+## True for an upgrade (UPGRADES), not an ability of its own.
+static func is_upgrade(id: StringName) -> bool:
+	return UPGRADES.has(id)
+
+
+## The upgrade's entry ({} for anything else).
+static func upgrade(id: StringName) -> Dictionary:
+	return UPGRADES.get(id, {})
 
 
 static func entry(id: StringName) -> Dictionary:
@@ -166,6 +204,8 @@ static func energy_cost(id: StringName) -> float:
 		return _lantern_number("energy", float(entry(id).get("energy_cost", 0.0)))
 	if id == GOO_BOMBS:
 		return _block_number(GOO_BOMB_CONSTANTS, "energy", float(entry(id).get("energy_cost", 0.0)))
+	if id == BOW:
+		return _block_number(BOW_CONSTANTS, "energy", float(entry(id).get("energy_cost", 0.0)))
 	if id == SQUASH_SLAM and ReworkMode.is_on():
 		var constants := Services.constants()
 		return float(constants.call(&"number", SLAM_CONSTANTS + ".energy")) if constants != null else 0.0
@@ -192,6 +232,8 @@ static func cooldown_ms(id: StringName, constants: Node) -> float:
 		return _lantern_number("cooldownMs", float(entry(id).get("cooldown_ms", 0.0)))
 	if id == GOO_BOMBS:
 		return _block_number(GOO_BOMB_CONSTANTS, "cooldownMs", float(entry(id).get("cooldown_ms", 0.0)))
+	if id == BOW:
+		return _block_number(BOW_CONSTANTS, "cooldownMs", float(entry(id).get("cooldown_ms", 0.0)))
 	if id == SQUASH_SLAM and ReworkMode.is_on():
 		return float(constants.call(&"number", SLAM_CONSTANTS + ".cooldownMs")) if constants != null else 0.0
 	return float(entry(id).get("cooldown_ms", 0.0))

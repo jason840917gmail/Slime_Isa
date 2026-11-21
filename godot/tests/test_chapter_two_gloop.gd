@@ -1,135 +1,38 @@
 extends RefCounted
-## Chapter 2 in gloop-forest through play: A Harder Pick (the reinforced pickaxe crafted at the
-## workbench, put in hand, iron ore mined from gloop-forest's iron nodes and picked up) and Beyond
-## the Verdant Gate (orb weavers defeated, their weaver fangs picked up). gloop-forest is cut into
-## chunk worlds (docs/godot/WORLD_ATLAS.md): the tests start in E4 (the camp), the iron nodes are in
-## F5 (Iron Hollow).
+## Gloop Forest in Release 1 (docs/story/07-decisions-archive.md, 2026-11-19, plan step A8): the
+## Silk gate to the Crystal Caverns, three web walls (`object.web-wall`, "side") across the web lane
+## in chunk F4 (`web-lane/web-lane-1..3` at x 1536, 1680, 1824, y 1752): solid to a walk without the
+## Silk skin, passed with it.
+## Rewritten 2026-11-20: the quests A Harder Pick and Beyond the Verdant Gate are retired, with their
+## tests (the reinforced pickaxe on the iron nodes, the weavers and fangs counted).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
-const RecipeCatalog := preload("res://game/crafting/recipe_catalog.gd")
+const WebWallScript := preload("res://game/scripts/web_wall.gd")
 
-const MAP_ID := "gloop-forest-e4"
-const IRON_MAP := "gloop-forest-f5"
-const IRON_NODES: Array[String] = ["gloop-iron-1", "gloop-iron-2", "gloop-iron-3"]
+const MAP_ID := "gloop-forest-f4"
+const WALLS := ["web-lane/web-lane-1", "web-lane/web-lane-2", "web-lane/web-lane-3"]
 
 
-func test_a_harder_pick_mines_iron(t: TestContext) -> void:
-	var run := Services.run()
-	var quests: Node = t.main.quests
-	quests.call(&"debug_activate", "a-harder-pick")
-	run.learn_recipes(["craft-reinforced-pickaxe"])
-	run.add_item("wood", 10)
-	run.add_item("stone", 15)
-	run.add_item("weaver-fang", 3)
-	var menus: Node = t.main.menu_windows
-	t.check(bool(menus.call(&"open_station", {"station": "workbench", "tier": 1})), "the workbench window did not open")
-	var crafting: Node = menus.get(&"crafting")
-	var ids: Array[String] = []
-	for recipe: Dictionary in RecipeCatalog.recipes_at(crafting.call(&"site")):
-		ids.append(str(recipe["id"]))
-	crafting.call(&"select_recipe", ids.find("craft-reinforced-pickaxe"))
-	crafting.call(&"craft")
-	crafting.call(&"close")
-	t.equal(run.item_count("reinforced-pickaxe"), 1, "reinforced pickaxes")
-	t.equal(str(quests.call(&"state", "a-harder-pick").get("active_stage_id")), "mine-iron", "stage after crafting")
-	t.main.inventory_actions.equip_weapon_from_bag("reinforced-pickaxe")
-	await t.steps(2)
-	t.equal(run.equipped_weapon_id(), "reinforced-pickaxe", "hand")
-	# Iron Hollow is in chunk F5.
-	if not t.check(t.main.travel_to(IRON_MAP, "west"), "travel to %s was refused" % IRON_MAP):
+func test_web_walls_close_the_web_lane_to_the_caverns_without_the_silk_skin(t: TestContext) -> void:
+	var root := t.world().world_root
+	var walls: Array[WebWallScript] = []
+	for path: String in WALLS:
+		var wall := root.get_node_or_null(path) as WebWallScript
+		t.check(wall != null, "no web wall %s in F4" % path)
+		if wall != null:
+			walls.append(wall)
+			t.equal(wall.orientation, "side", "%s's orientation" % path)
+			t.check(not wall.is_cut(), "%s starts cut" % path)
+	if walls.size() != WALLS.size():
 		return
-	if not t.check(await t.until(func() -> bool: return t.world().map_id() == IRON_MAP and t.player() != null, 3000.0, 6000.0),
-			"the player did not reach %s" % IRON_MAP):
-		return
-	await t.steps(2)
-	var mined := 0
-	for instance_id in IRON_NODES:
-		var node := _resource(t, instance_id)
-		if node == null:
-			continue
-		var at: Vector2 = node.get_parent().global_position
-		t.teleport_player(at + Vector2(-60.0, -30.0))
-		t.player().face(Vector2.RIGHT)
-		for swing in 8:
-			t.tap(&"attack")
-			await t.sim_wait(950.0)
-			if str(run.resource_record(IRON_MAP, instance_id).get("stage", "node")) != "node":
-				break
-		if str(run.resource_record(IRON_MAP, instance_id).get("stage", "node")) == "node":
-			continue
-		await t.sim_wait(900.0)
-		for pile: Node in t.tree.get_nodes_in_group(&"collectible"):
-			if str(pile.get(&"source_resource_instance_id")) == instance_id:
-				t.teleport_player((pile.get_parent() as Node2D).global_position - Vector2(0.0, 14.56))
-				await t.steps(3)
-		mined += 1
-		if run.item_count("iron-ore") >= 6:
-			break
-	t.check(mined > 0, "no iron node broke under the reinforced pickaxe")
-	var ore := run.item_count("iron-ore")
-	t.equal(int((quests.call(&"state", "a-harder-pick").get("progress") as Dictionary).get("collect-iron-ore", 0)), mini(ore, 6), "iron ore counted (%d picked up)" % ore)
-
-
-func _resource(t: TestContext, instance_id: String) -> Node:
-	for node: Node in t.tree.get_nodes_in_group(&"resource_node"):
-		if str(node.get(&"instance_id")) == instance_id:
-			return node
-	t.check(false, "no resource node %s in gloop-forest" % instance_id)
-	return null
-
-
-## Beyond the Verdant Gate: orb weavers defeated in gloop-forest count, and the weaver fangs they
-## drop count once picked up (loot piles are pickups).
-func test_beyond_the_verdant_gate_weavers_and_fangs(t: TestContext) -> void:
-	var run := Services.run()
-	var quests: Node = t.main.quests
-	quests.call(&"debug_activate", "beyond-the-verdant-gate")
-	seed(20261005)
-	var centre := Vector2(1200.0, 1200.0)
-	t.teleport_player(centre)
-	await t.steps(2)
-	var kills := 0
-	while kills < 15:
-		var progress: Dictionary = quests.call(&"state", "beyond-the-verdant-gate").get("progress", {})
-		if int(progress.get("defeat-orb-weavers", 0)) >= 5 and int(progress.get("collect-fangs", 0)) >= 3:
-			break
-		var root := Services.world().spawn_at_phaser_position("character.orb-weaver", centre + Vector2(140.0, 0.0))
-		var weaver: Node = null
-		for child in root.get_children():
-			if child.has_signal(&"reward_requested"):
-				weaver = child
-		if not t.check(weaver != null, "no orb weaver spawned"):
-			return
-		weaver.set(&"targeting_radius", 0.0)
-		weaver.set(&"attack_range", 0.0)
-		await t.steps(1)
-		_kill(t, weaver.get(&"damage_area"))
-		kills += 1
-		await t.sim_wait(900.0)
-		for pile: Node in t.tree.get_nodes_in_group(&"collectible"):
-			if str(pile.get(&"item_id")) == "weaver-fang" and pile.is_inside_tree():
-				t.teleport_player((pile.get_parent() as Node2D).global_position - Vector2(0.0, 14.56))
-				await t.steps(3)
-		t.teleport_player(centre)
-		await t.steps(1)
-	var progress: Dictionary = quests.call(&"state", "beyond-the-verdant-gate").get("progress", {})
-	t.check(int(progress.get("defeat-orb-weavers", 0)) >= 5, "weavers counted: %s" % [progress])
-	t.check(int(progress.get("collect-fangs", 0)) >= 3, "fangs counted: %s (fangs in the bag %d)" % [progress, run.item_count("weaver-fang")])
-	t.check(bool(quests.call(&"view", "beyond-the-verdant-gate").get("ready_to_turn_in", false)), "not ready to turn in")
-
-
-## One big router hit (a stand-in activation), enough to defeat any ordinary enemy.
-func _kill(t: TestContext, target_area: Area2D) -> void:
-	var router := Services.router()
-	var source := Node2D.new()
-	var attack := Area2D.new()
-	t.main.add_child(source)
-	t.main.add_child(attack)
-	var activation := router.begin_activation(source, [attack])
-	router.route({"activation_id": activation, "source": source, "attack_area": attack, "target_area": target_area,
-		"weapon_id": "test-blade", "weapon_tags": ["weapon"], "damage_types": ["physical"], "base_damage": 999.0,
-		"effects": [], "impact": {"position": target_area.global_position, "knock": Vector2.RIGHT}})
-	router.end_activation(activation)
-	source.queue_free()
-	attack.queue_free()
+	# Walking east up the lane from west of the first wall stops at its face.
+	var first := walls[0]
+	var face := first.global_position.x - first.thickness / 2.0
+	t.teleport_player(Vector2(face - 90.0, first.global_position.y - 27.56))
+	await t.steps(3)
+	t.press(&"move_right")
+	await t.sim_wait(1200.0)
+	t.release_all()
+	t.check(t.player().get_centre().x < face, "the walk went through the lane's first web wall (%.1f, its face at %.1f)"
+		% [t.player().get_centre().x, face])

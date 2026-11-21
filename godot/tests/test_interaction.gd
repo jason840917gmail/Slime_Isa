@@ -1,12 +1,20 @@
 extends RefCounted
 ## The interact button, doors, gates, chests and beds (docs/godot/specs/interaction.md 8.8).
-## level-1: `home-door` (origin (1081, 903), a north door pushed into -> slime-home; never offered
-## to the interact key since 2026-10-14; an open archway since 2026-10-15), the Verdant
+## level-1: `home-door` (origin (270, 856), a north door pushed into -> slime-home; never offered
+## to the interact key since 2026-10-14; since 2026-11-13 a real door in the round mushroom house's
+## door frame, the house's front at y 889), the Verdant
 ## gate (origin (1728, 768) in chunk D4, green key, pushed open since 2026-10-15), the guarded chest
 ## in Fatty's old camp (`level-1-fatty-guarded-chest`, a green key, in D4: the camp moved into his
-## Lair on 2026-10-17 and tests/lib/fatty_camp_fixture.gd puts it back for these tests). slime-home: `house-door`
-## ((448, 694), south, a real door with the room's door picture `house-door-art`),
-## the west bed ((160, 340): sleep at (159.625, 275.95), wake at (159.625, 356)).
+## Lair on 2026-10-17 and tests/lib/fatty_camp_fixture.gd puts it back for these tests). slime-home
+## (a round mushroom room 16 x 12 since 2026-11-20: its `round-walls` at (512, 384), radii (500, 376),
+## depth 128, the floor's edge at y 632 below the middle): `house-door`, the ring's `front-door`
+## opening (south), the door the ring makes in the game at (512, ~735.7) with its leaf (the style's
+## south door leaf, its `DoorLeaf` swinging on it); the west bed ((270, 340): sleep at
+## (269.625, 275.95), wake at (269.625, 356)). The crafting station is the lit Forge's in C4
+## ((1778, 182)); the Workshop has none since 2026-11-20.
+## Since 2026-11-19 the Verdant Gate is a fallen tree (test_release_one_world.gd) and no world holds a
+## keyed gate: the tests of the gate locked without its key, unlocked with it and opened by a handler
+## are removed.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests start in
 ## the village chunk C4 (`level-1-c4`, origin (0, 0)); the gate and chest tests travel east into D4
 ## (`level-1-d4`, its origin at level-1's (2048, 0)), so their places are D4's.
@@ -14,19 +22,23 @@ extends RefCounted
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const ChestScript := preload("res://game/scripts/chest.gd")
-const GateScript := preload("res://game/scripts/gate.gd")
 const InteractionController := preload("res://game/interaction/interaction_controller.gd")
 const FattyCampFixture := preload("res://tests/lib/fatty_camp_fixture.gd")
 
-const HOME_DOOR_ARRIVAL := Vector2(1083.0, 954.0)
-const GATE_ID := "level-1-east-verdant-gate"
+## Just in front of the home door (centre; its trigger's bottom at y 876), below the house's front.
+const HOME_DOOR_ARRIVAL := Vector2(270.0, 880.0)
+## The home door's x (C4) and slime-home's door's x (the ring's middle).
+const HOME_DOOR_X := 270.0
+const ROOM_DOOR_X := 512.0
 ## The chunk of the Verdant gate and Fatty's camp.
 const EAST_MAP := "level-1-d4"
-const GATE_STAND := Vector2(1728.0, 840.0)
 const KEY := "green-key"
 const CHEST_ID := "level-1-fatty-guarded-chest"
-const BED_STAND := Vector2(160.0, 400.0)
-const BED_WAKE := Vector2(159.625, 356.0)
+const BED_STAND := Vector2(270.0, 400.0)
+const BED_WAKE := Vector2(269.625, 356.0)
+## In front of the Forge (`level-1-forge`, C4 (1778, 182), its station's reach 130): 40 south of its
+## station.
+const FORGE_STAND_OFFSET := Vector2(0.0, 40.0)
 
 
 func test_no_candidate_at_spawn(t: TestContext) -> void:
@@ -62,20 +74,26 @@ func test_door_travel_round_trip(t: TestContext) -> void:
 		return
 	# Sided doors (north outside, south inside): the slime walks out of the doorway into the room,
 	# facing in, and stops once clear of the doorway posts (game/player/door_walk_out.gd).
-	# The way out is a real door (the room's door picture): it stands open behind the slime while it
-	# walks in, then closes.
+	# The way out is a real door (the round walls' door, its leaf the style's south door leaf): it
+	# stands open behind the slime while it walks in, then closes.
 	var exit := _door(t, "house-door")
 	if t.check(exit != null and exit.has_leaf(), "the slime-home way out has no leaf"):
-		t.check(exit.get_node(^"../../house-door-art/DoorLeaf").progress > 0.5, "the way out is not open on arrival")
+		t.equal(exit.kind, "door", "the slime-home way out's kind")
+		t.equal(exit.side, "south", "the slime-home way out's side")
+		t.check(_leaf(exit) != null and _leaf(exit).progress > 0.5, "the way out is not open on arrival")
 	t.check(await _walked_out(t), "the slime did not stop walking out of the slime-home door")
 	var inside := t.player().get_centre()
-	t.near(inside.x, 448.0, 0.01, "walked straight out of the slime-home doorway")
-	t.between(inside.y, 600.0, 640.0, "stopped just inside slime-home (door at 694)")
+	t.near(inside.x, ROOM_DOOR_X, 0.01, "walked straight out of the slime-home doorway")
+	# Feet from the door (y ~735.7) up until clear of the ring's walls beside the passage (their floor
+	# edge ~623 at 100 either side of the middle) and 6 more; the centre is 27.56 above the feet.
+	t.between(inside.y, 555.0, 625.0, "stopped just inside slime-home (its floor's edge at 632, the door at ~736)")
 	t.near_vec(t.player().get_facing(), Vector2.UP, 0.01, "facing into slime-home")
 	t.equal(t.world().camera_mode(), "fixed", "slime-home camera")
 	await t.sim_wait(600.0)
-	if exit != null and exit.has_leaf():
-		t.near(exit.get_node(^"../../house-door-art/DoorLeaf").progress, 0.0, 0.001, "the way out closed behind the slime")
+	# Found again: the ring makes its doors anew whenever it is built again.
+	exit = _door(t, "house-door")
+	if exit != null and exit.has_leaf() and _leaf(exit) != null:
+		t.near(_leaf(exit).progress, 0.0, 0.001, "the way out closed behind the slime")
 	t.check(not str(_interaction(t).current().get("id", "")).begins_with("world-doors:"), "the way out is offered to the interact key")
 	# Walking down into the way out takes the slime back (into the chunk that holds the home door).
 	t.press(&"move_down")
@@ -85,15 +103,16 @@ func test_door_travel_round_trip(t: TestContext) -> void:
 		return
 	if not t.check(await _arrive(t, "level-1-c4"), "the slime-home door did not lead back"):
 		return
-	# The forge has no door (owner, 2026-10-15): an open archway, its painted fire showing.
+	# The home door is a real door in the round mushroom house's door frame (since 2026-11-13): the
+	# slime comes out in front of the house (its feet from the house's front, y 890) and walks out.
 	var door := _door(t, "home-door")
 	if t.check(door != null, "no home door"):
-		t.equal(door.kind, "opening", "the home door's kind")
-		t.check(not door.has_leaf(), "the forge archway has a leaf")
+		t.equal(door.kind, "door", "the home door's kind")
+		t.check(door.has_leaf(), "the home door has no leaf")
 	t.check(await _walked_out(t), "the slime did not stop walking out of the home door")
 	var outside := t.player().get_centre()
-	t.near(outside.x, 1081.0, 0.01, "walked straight out of the home door")
-	t.between(outside.y, 905.0, 960.0, "stopped just in front of the house (door at 903)")
+	t.near(outside.x, HOME_DOOR_X, 0.01, "walked straight out of the home door")
+	t.between(outside.y, 856.0, 930.0, "stopped just in front of the house (door at 856, its front at 889)")
 	t.near_vec(t.player().get_facing(), Vector2.DOWN, 0.01, "facing away from the house")
 
 
@@ -128,86 +147,6 @@ func test_locked_door_push(t: TestContext) -> void:
 
 ## Gates are pushed (owner, 2026-10-15): not offered to the interact key; pushing up into the gate
 ## without the key says the locked line once per push and the gate stays shut.
-func test_gate_locked_without_key(t: TestContext) -> void:
-	if not await _to_east(t):
-		return
-	var interaction := _interaction(t)
-	var gate := _gate(t)
-	if not t.check(gate != null, "no gate"):
-		return
-	var messages: Array = []
-	gate.message_shown.connect(func(payload: Dictionary) -> void: messages.append(payload))
-	t.teleport_player(GATE_STAND)
-	await t.steps(2)
-	t.check(not str(interaction.current().get("id", "")).begins_with("world-gates:"), "the gate is offered: %s" % [interaction.current().get("id")])
-	t.tap(&"interact")
-	await t.steps(3)
-	t.equal(messages.size(), 0, "messages after the interact key")
-	t.press(&"move_up")
-	await t.sim_wait(1500.0)
-	t.release(&"move_up")
-	if t.check(messages.size() == 1, "%d messages after one long push" % messages.size()):
-		t.equal(messages[0]["text"], "The Verdant Gate is locked. Fatty One Eye guards the Green Key.", "locked message")
-		t.equal(messages[0]["color"], "white", "locked message colour")
-		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), Vector2(1728.0, 648.0), 0.01, "locked message position")
-	await t.steps(3)
-	t.press(&"move_up")
-	await t.sim_wait(500.0)
-	t.release(&"move_up")
-	t.equal(messages.size(), 2, "messages after a second push")
-	t.check(not gate.is_open(), "the gate opened without the key")
-	t.check(not Services.run().is_gate_unlocked(EAST_MAP, GATE_ID), "the gate record unlocked")
-
-
-func test_gate_unlock_consumes_key_and_persists(t: TestContext) -> void:
-	if not await _to_east(t):
-		return
-	var run := Services.run()
-	run.quiet_items = true
-	run.add_item(KEY, 1)
-	var interaction := _interaction(t)
-	var gate := _gate(t)
-	if not t.check(gate != null, "no gate"):
-		return
-	var messages: Array = []
-	gate.message_shown.connect(func(payload: Dictionary) -> void: messages.append(payload))
-	t.teleport_player(GATE_STAND)
-	await t.steps(2)
-	t.press(&"move_up")
-	await t.until(func() -> bool: return gate.is_open(), 1500.0, 3000.0)
-	t.release(&"move_up")
-	await t.steps(3)
-	t.check(run.is_gate_unlocked(EAST_MAP, GATE_ID), "the gate record is not unlocked")
-	t.equal(run.item_count(KEY), 0, "green keys left")
-	t.check(gate.is_open(), "the gate is closed")
-	t.equal(gate.visual.frame, gate.open_frame, "gate frame")
-	for shape: Node in gate.doors.find_children("*", "CollisionShape2D", true, false):
-		t.check((shape as CollisionShape2D).disabled, "a gate door shape still collides")
-	t.check(messages.size() == 1 and messages[0]["text"] == "The Verdant Gate swings open!" and messages[0]["color"] == "green",
-		"unlock message %s" % [messages])
-	t.check(not str(interaction.current().get("id", "")).begins_with("world-gates:"), "the gate is offered to the interact key")
-	t.main.travel_to(EAST_MAP, "west")
-	if not t.check(await _arrive(t, EAST_MAP, true), "%s did not reload" % EAST_MAP):
-		return
-	gate = _gate(t)
-	t.check(gate != null and gate.is_open(), "the gate is closed after a reload")
-
-
-func test_gate_open_handler_not_persisted(t: TestContext) -> void:
-	if not await _to_east(t):
-		return
-	var gate := _gate(t)
-	if not t.check(gate != null, "no gate"):
-		return
-	var opened: Array = []
-	gate.opened.connect(func(payload: Dictionary) -> void: opened.append(payload))
-	gate.open({})
-	gate.open({})
-	t.equal(opened, [{"gateId": GATE_ID}], "opened signals")
-	t.equal(gate.visual.frame, gate.open_frame, "frame after open()")
-	t.check(not Services.run().is_gate_unlocked(EAST_MAP, GATE_ID), "open() saved the gate")
-
-
 func test_chest_domain(t: TestContext) -> void:
 	if not await _to_east(t):
 		return
@@ -275,7 +214,7 @@ func test_bed_sleep_and_wake(t: TestContext) -> void:
 	t.near_vec(player.get_centre(), BED_WAKE, 0.01, "body at the wake point")
 	t.check(player.is_action_locked(), "a sleeper is not action-locked")
 	t.check(not interaction.get_prompt().is_showing(), "the prompt shows while asleep")
-	t.equal(run.respawn_point(), {"area_id": "slime-home", "map_id": "slime-home", "x": 160.0, "y": 356.0,
+	t.equal(run.respawn_point(), {"area_id": "slime-home", "map_id": "slime-home", "x": 270.0, "y": 356.0,
 		"bed_id": "world.slime-home.west-bed"}, "respawn point")
 	t.press(&"move_right")
 	await t.steps(5)
@@ -305,15 +244,21 @@ func test_sleep_heals(t: TestContext) -> void:
 	t.between(float(player.get_hp()), 55.0, 57.0, "HP after 1 s doze + 3 s sleep (2 HP/s)")
 
 
-func test_workshop_station_appears(t: TestContext) -> void:
-	Services.run().set_flag("workshop.restored")
+## The lit Forge's station (`forge.restored`) is offered in front of it; the Workshop has no station
+## since 2026-11-20 (Pip carves there: test_main_quest.gd).
+func test_forge_station_appears(t: TestContext) -> void:
+	Services.run().set_flag("forge.restored")
 	await t.steps(3)
 	var interaction := _interaction(t)
-	t.teleport_player(Vector2(640.0, 470.0))
+	var station := _station(t, "forge")
+	if not t.check(station != null, "the lit Forge has no station"):
+		return
+	t.teleport_player((station.call(&"origin") as Vector2) + FORGE_STAND_OFFSET)
 	await t.steps(2)
 	t.check(str(interaction.current().get("id", "")).begins_with("world-workbenches:"), "workbench target %s" % [interaction.current().get("id")])
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Use the Workshop", "workshop prompt")
+	t.equal(interaction.get_prompt().get_text(), "Right-click: Use the Forge", "forge prompt")
 	t.equal(interaction.current().get("priority"), 88, "workbench priority")
+	t.check(_station(t, "workshop") == null, "the Workshop still has a station")
 
 
 ## Two NPCs in reach: the smaller id wins, not the nearer one (a Phaser quirk kept); the pointer
@@ -342,16 +287,17 @@ func _interaction(t: TestContext) -> InteractionController:
 	return t.tree.get_first_node_in_group(&"interaction") as InteractionController
 
 
-func _gate(t: TestContext) -> GateScript:
-	for node: Node in t.tree.get_nodes_in_group(&"gate"):
-		if node is GateScript and (node as GateScript).gate_id == GATE_ID and not node.get_parent().is_queued_for_deletion():
+func _chest(t: TestContext, instance_id: String) -> ChestScript:
+	for node: Node in t.tree.get_nodes_in_group(&"chest"):
+		if node is ChestScript and (node as ChestScript).instance_id == instance_id:
 			return node
 	return null
 
 
-func _chest(t: TestContext, instance_id: String) -> ChestScript:
-	for node: Node in t.tree.get_nodes_in_group(&"chest"):
-		if node is ChestScript and (node as ChestScript).instance_id == instance_id:
+## The crafting station of `context` ("forge") in the tree, or null.
+func _station(t: TestContext, context: String) -> Node:
+	for node: Node in t.tree.get_nodes_in_group(&"crafting_station"):
+		if str(node.get(&"recipe_context")) == context and node.is_inside_tree():
 			return node
 	return null
 
@@ -382,6 +328,12 @@ func _to_east(t: TestContext) -> bool:
 	if not t.check(t.main.travel_to(EAST_MAP, "west"), "travel to %s was refused" % EAST_MAP):
 		return false
 	return t.check(await _arrive(t, EAST_MAP), "no %s" % EAST_MAP)
+
+
+## The leaf a real door swings (door.gd builds its `DoorLeaf` on its `house_art`), or null.
+static func _leaf(door: Node) -> Node:
+	var art := door.get(&"house_art") as Node
+	return art.get_node_or_null(^"DoorLeaf") if art != null and is_instance_valid(art) else null
 
 
 ## The door `door_id` of the current world.

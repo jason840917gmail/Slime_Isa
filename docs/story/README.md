@@ -109,8 +109,9 @@ Every beat, item and idea carries one tag:
   [decisions archive](07-decisions-archive.md#decisions-by-date). They are not
   in the roadmap yet.
 - Dialogue already in the game lives in
-  `godot/game/data/quests-chapter-1.json`, `quests-chapter-2.json` and
-  `godot/game/data/npc-definitions.json`. When a chapter file and the game
+  `godot/game/data/quests-main.json` (the main quest and Pip's Workshop),
+  `quests-chapter-1.json`, `quests-chapter-2.json` and
+  `godot/game/data/npc-definitions.json` (the NPCs' talks and tips). When a chapter file and the game
   disagree about something tagged Built, the game is right; fix the chapter
   file, or plan the change.
 

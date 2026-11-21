@@ -66,6 +66,8 @@ func test_enemies_are_not_slowed_by_floor_webs(t: TestContext) -> void:
 ## where the web caught it (not set back). With the Silk skin the roll crosses the web and the walk
 ## keeps its speed.
 func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext) -> void:
+	# The Roll is young Burr's lesson since 2026-11-19: lent here.
+	Services.run().learn_session_ability("dodge")
 	var player := t.player()
 	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)
@@ -124,6 +126,8 @@ func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext
 ## A web wall in an east door (orientation "side") is solid without the Silk skin: a walk and a Roll
 ## stop against it.
 func test_a_web_wall_blocks_a_walk_and_a_roll(t: TestContext) -> void:
+	# The Roll is young Burr's lesson since 2026-11-19: lent here.
+	Services.run().learn_session_ability("dodge")
 	var player := t.player()
 	var wall := await _web_wall(t, OPEN + Vector2(110.0, CENTRE_RISE), "side")
 	if wall == null:

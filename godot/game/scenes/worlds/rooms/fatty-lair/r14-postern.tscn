@@ -54,14 +54,15 @@ position = Vector2(576, 768)
 [node name="Objects" type="Node2D" parent="." unique_id=840170252]
 y_sort_enabled = true
 
-[node name="r14-green-key-chest" parent="Objects" unique_id=1851380905 instance=ExtResource("7_vwvbw")]
+[node name="r14-postern-chest" parent="Objects" unique_id=1851380905 instance=ExtResource("7_vwvbw")]
 position = Vector2(806.3999, 576)
 
-[node name="ChestScript" parent="Objects/r14-green-key-chest" index="2"]
+[node name="ChestScript" parent="Objects/r14-postern-chest" index="2"]
 map_id = "fatty-lair"
-instance_id = "fatty-lair-green-key-chest"
+instance_id = "fatty-lair-postern-chest"
 initial_contents = {
-"green-key": 1
+"coins": 25,
+"hp-potion": 1
 }
 
 [node name="r14-barricade" parent="Objects" unique_id=803495593 instance=ExtResource("8_jiyfm")]
@@ -123,5 +124,5 @@ script = ExtResource("13_rw8692")
 loop = true
 autoplay_cue = true
 
-[editable path="Objects/r14-green-key-chest"]
+[editable path="Objects/r14-postern-chest"]
 [editable path="Objects/r14-barricade"]

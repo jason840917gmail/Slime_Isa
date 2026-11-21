@@ -102,6 +102,8 @@ Release 1, skins never (question 67).* *Changed 2026-10-16 (seventh round):
 Release 1's manuscripts teach campfire recipes and lore, the Thorn Guard's
 war journal, so every Release 1 power comes from an NPC or a Pearl;
 manuscripts that teach powers start in the next release (question 108).*
+*Changed 2026-11-20 (owner): Pip, the smith's son, carves the Bow's rune from
+wood, the Matron's thread and his dad's crystal, not Burr.*
 *Changed 2026-10-16 (eighth round): each boss also gives a full heart (+20)
 on top of its region's four quarters, and potions, the well and defeating a
 boss raise max energy
@@ -143,6 +145,10 @@ for about a second (question 20).*
 > roll is free. In Release 1 young Burr teaches the quick Roll in Chapter 1,
 > and the charged roll is a later upgrade
 > ([question 61](story/07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
+> *Built 2026-11-19: young Burr's first talk, in Burr's house in Slimeshire's
+> C4, teaches it; before that the slime cannot roll.* *Since 2026-11-20
+> (owner) the charged roll is Release 1's Charged Roll, taught by the fourth
+> of four Roll Fragments (Burr gives the first in Fatty's Lair).*
 > *Changed 2026-10-16: this replaces the 2026-10-09 rule that the Roll comes
 > whole, with no later upgrade (question 78).*
 > *Changed 2026-10-16: the prologue teaches the Gulp first: the slime clears
@@ -178,8 +184,9 @@ has a clear look and exactly one rule.
   2026-10-09): Q spits it out whole a step ahead, where it stays, as a form
   released with Swallow does.
 - **Swallow** (key 1). A learned ability:
-  Tom teaches it in Chapter 2, with the full ceremony, and it takes the jump's
-  old place on the HUD. Swallowing an essence gives its form. Only essences
+  Tom taught it in Chapter 2, with the full ceremony, until 2026-11-19 (now
+  nothing in the story teaches it), and it takes the jump's old place on the
+  HUD. Swallowing an essence gives its form. Only essences
   can be swallowed, not pots, rocks or other things.
 - **Forms.** One at a time, with no timer and no energy cost: the essence is
   the cost. A form lasts until:
@@ -249,10 +256,11 @@ owner's picks.
 
 Also built 2026-10-09, waiting for the owner:
 
-- **Tom** teaches Swallow in Chapter 2 (roadmap 8.13): Mossy's quest Tom in
-  the Web sends the slime to cut him out of a web in the forest's south-west
-  spider thicket, and he gives Swallow at the camp, with the ability
-  ceremony. Beyond the Verdant Gate no longer teaches Swallow.
+- **Tom** taught Swallow in Chapter 2 (roadmap 8.13) until 2026-11-19: Mossy's
+  quest Tom in the Web sent the slime to cut him out of a web, and he gave
+  Swallow at the camp. *Since 2026-11-19 the quest is retired: his web hangs
+  in a clearing in Gloop Forest's south-west woods (E5), and freed, he teaches
+  the Goo Bomb right there, with the ceremony.*
 - **The ceremony** (roadmap 4.13) plays for every active ability the slime
   learns, the first time each weapon, tool and key comes into the bag, and for
   every Goo Heart: the game pauses, the thing rises out of the slime in a goo
@@ -304,7 +312,8 @@ Pearl's homecoming is a short scene at the Wellspring, the prologue's lake
 Pearl goes home to the Wellspring, which brightens, and its power flows into
 the town: the well comes back with Pearl 1, the Forge lights with Pearl 2.
 The slime does not take Pearl 1 to the well. The well's refill grows back
-after a while (question 113).*
+after a while (question 113).* *Changed 2026-11-20 (owner): Pearl 2 raises
+Slimeshire's Workshop, Pip's place, and Pearl 3 lights the Forge.*
 
 ## Crafting And Buildings
 
@@ -351,8 +360,10 @@ portable Slime Tonic and Berry Basket above.* *Changed 2026-10-16 (seventh
 round): Release 1's whole manuscripts, found in chests, teach campfire
 recipes, potions and food (question 108).* *Changed 2026-10-16 (eighth
 round, question 120): the campfire makes the simple potions and food
-anywhere, and the relit Forge brews the strong potions only it knows.* The
-table above is the classic build.
+anywhere, and the relit Forge brews the strong potions only it knows.*
+*Changed 2026-11-20 (owner): in Release 1 the Workshop is Pip's place, raised
+by Pearl 2 with no crafting station, and the Forge is lit by Pearl 3, so its
+brew comes after the Colossus.* The table above is the classic build.
 
 ## Coins
 
@@ -432,7 +443,8 @@ and A4; the forest path leaves Slimeshire, not the town.* *Changed
 skin: Old Gullet and the Swim skin (Sticky Swamp), Old Rimepaw and the Polar
 skin (Frostpeak), Sandmaw and the Sand skin (the Desert), Gale and the Cloud
 skin (the Northern ruins), and Cinder and the Lava skin (Volcano Ridge's
-slopes); their order is still question 10.*
+slopes); they have no set order: after Release 1 the map is open and only ability blockers stand in the
+way, passed as the slime's powers grow (owner, 2026-11-21, question 10).*
 
 ## Enemies And Bosses
 

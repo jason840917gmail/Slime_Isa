@@ -87,6 +87,10 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-12.tscn" id="87_pptrb"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-decorative--field-05.tscn" id="88_32tld"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="placed_enemy_1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/loose-wood.tscn" id="loose_wood"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-small-wood-pile.tscn" id="loose_wood_pile"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-lens.tscn" id="camp_river_lens"]
+[ext_resource type="Script" path="res://game/crystal_mine/lens_lock.gd" id="camp_river_lens_lock"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_32"]
 size = Vector2(332, 217)
@@ -102,9 +106,6 @@ size = Vector2(486.4, 179.2)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0k4vx"]
 size = Vector2(172.8, 230.4)
-
-[sub_resource type="RectangleShape2D" id="shape_exit_to_south_wilds_1"]
-size = Vector2(256, 32)
 
 [node name="level-1-c5" type="Node2D" unique_id=1593901030]
 y_sort_enabled = true
@@ -127,7 +128,7 @@ metadata/rows = 32
 self_modulate = Color(1, 1, 1, 0.3)
 y_sort_enabled = true
 position = Vector2(0, -23)
-tile_map_data = PackedByteArray("AAAAACEAAAADAAAAAAABACEAAAADAAAAAAACACEAAAADAAAAAAADACEAAAADAAAAAAAEACEAAAADAAAAAAAFACEAAAADAAAAAAAGACEAAAADAAAAAAAHACEAAAADAAAAAAAIACEAAAADAAAAAAAJACEAAAADAAAAAAAKACEAAAADAAAAAAALACEAAAADAAAAAAAMACEAAAADAAAAAAANACEAAAADAAAAAAAOACEAAAADAAAAAAAPACEAAAADAAAAAAAQACEAAAADAAAAAAARACEAAAADAAAAAAASACEAAAADAAAAAAATACEAAAADAAAAAAAUACEAAAADAAAAAAAVACEAAAADAAAAAAAWACEAAAADAAAAAAAXACEAAAADAAAAAAAcACEAAAADAAAAAAAcACAAAAADAAAAAAAXACAAAAADAAAAAAAWACAAAAADAAAAAAAVACAAAAADAAAAAAAUACAAAAADAAAAAAATACAAAAADAAAAAAASACAAAAADAAAAAAARACAAAAADAAAAAAAQACAAAAADAAAAAAAPACAAAAADAAAAAAAOACAAAAADAAAAAAANACAAAAADAAAAAAAMACAAAAADAAAAAAALACAAAAADAAAAAAAKACAAAAADAAAAAAAJACAAAAADAAAAAAAIACAAAAADAAAAAAAHACAAAAADAAAAAAAGACAAAAADAAAAAAAFACAAAAADAAAAAAAEACAAAAADAAAAAAADACAAAAADAAAAAAACACAAAAADAAAAAAABACAAAAADAAAAAAAAACAAAAADAAAAAAD//yAAAAADAAAAAAD//x8AAAADAAAAAAD//x4AAAADAAAAAAAAAB8AAAADAAAAAAD//yEAAAADAAAAAAAdABMAAAAAAAEAAAAeABAAAAACAAAAAAAfABAAAAAEAAAAAAAgABAAAAAEAAAAAAAeABEAAAACAAAAAAAfABEAAAAEAAAAAAAgABEAAAAEAAAAAAAeABIAAAACAAAAAAAfABIAAAAEAAAAAAAgABIAAAAEAAAAAAAeABMAAAACAAAAAAAfABMAAAAEAAAAAAAgABMAAAAEAAAAAAAeABQAAAACAAAAAAAfABQAAAAEAAAAAAAgABQAAAAEAAAAAAAeABUAAAACAAAAAAAfABUAAAAEAAAAAAAgABUAAAAEAAAAAAAeABYAAAACAAAAAAAfABYAAAAEAAAAAAAgABYAAAAEAAAAAAAeABcAAAACAAAAAAAfABcAAAAEAAAAAAAgABcAAAAEAAAAAAAeABgAAAACAAAAAAAfABgAAAAEAAAAAAAgABgAAAAEAAAAAAAeABkAAAACAAAAAAAfABkAAAAEAAAAAAAgABkAAAAEAAAAAAAeABoAAAACAAAAAAAfABoAAAAEAAAAAAAgABoAAAAEAAAAAAAeABsAAAACAAAAAAAfABsAAAAEAAAAAAAgABsAAAAEAAAAAAAVABYAAAACAAAAAAAXABcAAAACAAAAAAAWABkAAAACAAAAAAAYABoAAAACAAAAAAAaABgAAAACAAAAAAAbABsAAAACAAAAAAAVABwAAAACAAAAAAAeABwAAAACAAAAAAAfABwAAAAEAAAAAAAgABwAAAAEAAAAAAAeAB0AAAACAAAAAAAfAB0AAAAEAAAAAAAgAB0AAAAEAAAAAAAeAB4AAAACAAAAAAAfAB4AAAAEAAAAAAAgAB4AAAAEAAAAAAAeAB8AAAACAAAAAAAfAB8AAAAEAAAAAAAgAB8AAAAEAAAAAAAdACAAAAADAAAAAAAeACAAAAACAAAAAAAfACAAAAAEAAAAAAAgACAAAAAEAAAAAAAdACEAAAADAAAAAAAeACEAAAACAAAAAAAfACEAAAAEAAAAAAAgACEAAAAEAAAAAAA=")
+tile_map_data = PackedByteArray("AAAAACEAAAADAAAAAAABACEAAAADAAAAAAACACEAAAADAAAAAAADACEAAAADAAAAAAAEACEAAAADAAAAAAAFACEAAAADAAAAAAAGACEAAAADAAAAAAAHACEAAAADAAAAAAAIACEAAAADAAAAAAAJACEAAAADAAAAAAAKACEAAAADAAAAAAALACEAAAADAAAAAAAMACEAAAADAAAAAAANACEAAAADAAAAAAAOACEAAAADAAAAAAAPACEAAAADAAAAAAAQACEAAAADAAAAAAARACEAAAADAAAAAAASACEAAAADAAAAAAATACEAAAADAAAAAAAUACEAAAADAAAAAAAVACEAAAADAAAAAAAWACEAAAADAAAAAAAXACEAAAADAAAAAAAcACEAAAADAAAAAAAcACAAAAADAAAAAAAXACAAAAADAAAAAAAWACAAAAADAAAAAAAVACAAAAADAAAAAAAUACAAAAADAAAAAAATACAAAAADAAAAAAASACAAAAADAAAAAAARACAAAAADAAAAAAAQACAAAAADAAAAAAAPACAAAAADAAAAAAAOACAAAAADAAAAAAANACAAAAADAAAAAAAMACAAAAADAAAAAAALACAAAAADAAAAAAAKACAAAAADAAAAAAAJACAAAAADAAAAAAAIACAAAAADAAAAAAAHACAAAAADAAAAAAAGACAAAAADAAAAAAAFACAAAAADAAAAAAAEACAAAAADAAAAAAADACAAAAADAAAAAAACACAAAAADAAAAAAABACAAAAADAAAAAAAAACAAAAADAAAAAAD//yAAAAADAAAAAAD//x8AAAADAAAAAAD//x4AAAADAAAAAAAAAB8AAAADAAAAAAD//yEAAAADAAAAAAAdABMAAAAAAAEAAAAeABAAAAACAAAAAAAfABAAAAAEAAAAAAAgABAAAAAEAAAAAAAeABEAAAACAAAAAAAfABEAAAAEAAAAAAAgABEAAAAEAAAAAAAeABIAAAACAAAAAAAfABIAAAAEAAAAAAAgABIAAAAEAAAAAAAeABMAAAACAAAAAAAfABMAAAAEAAAAAAAgABMAAAAEAAAAAAAeABQAAAACAAAAAAAfABQAAAAEAAAAAAAgABQAAAAEAAAAAAAeABUAAAACAAAAAAAfABUAAAAEAAAAAAAgABUAAAAEAAAAAAAeABYAAAACAAAAAAAfABYAAAAEAAAAAAAgABYAAAAEAAAAAAAeABcAAAACAAAAAAAfABcAAAAEAAAAAAAgABcAAAAEAAAAAAAeABgAAAACAAAAAAAfABgAAAAEAAAAAAAgABgAAAAEAAAAAAAeABkAAAACAAAAAAAfABkAAAAEAAAAAAAgABkAAAAEAAAAAAAeABoAAAACAAAAAAAfABoAAAAEAAAAAAAgABoAAAAEAAAAAAAeABsAAAACAAAAAAAfABsAAAAEAAAAAAAgABsAAAAEAAAAAAAVABYAAAACAAAAAAAXABcAAAACAAAAAAAWABkAAAACAAAAAAAYABoAAAACAAAAAAAaABgAAAACAAAAAAAbABsAAAACAAAAAAAVABwAAAACAAAAAAAeABwAAAACAAAAAAAfABwAAAAEAAAAAAAgABwAAAAEAAAAAAAeAB0AAAACAAAAAAAfAB0AAAAEAAAAAAAgAB0AAAAEAAAAAAAeAB4AAAACAAAAAAAfAB4AAAAEAAAAAAAgAB4AAAAEAAAAAAAeAB8AAAACAAAAAAAfAB8AAAAEAAAAAAAgAB8AAAAEAAAAAAAdACAAAAADAAAAAAAeACAAAAACAAAAAAAfACAAAAAEAAAAAAAgACAAAAAEAAAAAAAdACEAAAADAAAAAAAeACEAAAACAAAAAAAfACEAAAAEAAAAAAAgACEAAAAEAAAAAAAYACAAAAADAAAAAAAZACAAAAADAAAAAAAaACAAAAADAAAAAAAbACAAAAADAAAAAAAYACEAAAADAAAAAAAZACEAAAADAAAAAAAaACEAAAADAAAAAAAbACEAAAADAAAAAAA=")
 tile_set = ExtResource("3_bh75q")
 script = ExtResource("4_ro4on")
 metadata/_custom_type_script = "uid://conqjgmraiuoc"
@@ -643,6 +644,7 @@ hidden = true
 map_id = "level-1-c5"
 instance_id = "level-1-c5-lookout-chest"
 initial_contents = {
+"belt-slot": 1,
 "coins": 25,
 "energy-potion": 1
 }
@@ -996,27 +998,55 @@ position = Vector2(1265, 1852)
 [node name="lake-rock-5" parent="Chapter1" unique_id=12279147 instance=ExtResource("88_32tld")]
 position = Vector2(460.8, 1888)
 
-[node name="exit-to-south-wilds-1" type="Area2D" parent="." unique_id=607722384]
-position = Vector2(1664, 2032)
-collision_layer = 512
-collision_mask = 130
-monitorable = false
+[node name="CampRiverLenses" type="Node2D" parent="."]
+y_sort_enabled = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="exit-to-south-wilds-1" unique_id=1158400533]
-shape = SubResource("shape_exit_to_south_wilds_1")
+[node name="camp-river-lens-west" parent="CampRiverLenses" instance=ExtResource("camp_river_lens")]
+position = Vector2(1150, 430)
+lens_id = "camp-river-west"
 
-[node name="world-exit-script" type="Node" parent="exit-to-south-wilds-1" unique_id=1873231974 node_paths=PackedStringArray("area")]
-script = ExtResource("31_3ayx8")
+[node name="camp-river-lens-east" parent="CampRiverLenses" instance=ExtResource("camp_river_lens")]
+position = Vector2(1250, 362)
+lens_id = "camp-river-east"
+
+[node name="camp-river-lens-chest" parent="CampRiverLenses" instance=ExtResource("51_51pjo")]
+position = Vector2(1190, 700)
+
+[node name="ChestScript" parent="CampRiverLenses/camp-river-lens-chest" index="2"]
+hidden = true
 map_id = "level-1-c5"
-exit_id = "level-1-to-south-wilds-1"
-target_area_id = "south-wilds"
-entry = "north"
-area = NodePath("..")
+instance_id = "camp-river-lens-chest"
+initial_contents = {
+"coins": 20
+}
+
+[node name="camp-river-lens-lock" type="Node" parent="CampRiverLenses"]
+script = ExtResource("camp_river_lens_lock")
+lock_id = "camp-river-lenses"
+lenses = Array[NodePath]([NodePath("../camp-river-lens-west"), NodePath("../camp-river-lens-east")])
+targets = Array[NodePath]([NodePath("../camp-river-lens-chest")])
+flag_id = "camp-river.lenses-struck"
+
+[node name="Wood" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="level-1-c5-loose-wood-1" parent="Wood" instance=ExtResource("loose_wood")]
+position = Vector2(485, 2075)
+
+[node name="level-1-c5-loose-wood-2" parent="Wood" instance=ExtResource("loose_wood")]
+position = Vector2(1355, 2695)
+
+[node name="level-1-c5-wood-pile-1" parent="Wood" instance=ExtResource("loose_wood_pile")]
+position = Vector2(552, 2108)
+
+[node name="CollectibleScript" parent="Wood/level-1-c5-wood-pile-1" index="2"]
+map_id = "level-1-c5"
+instance_id = "level-1-c5-wood-pile-1"
+quantity = 3
 
 [connection signal="body_entered" from="edge-north" to="edge-north/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-east" to="edge-east/world-exit-script" method="on_body_entered"]
 [connection signal="rung" from="Chapter1/lookout-bell/LashBellScript" to="Chapter1/level-1-c5-lookout-chest/ChestScript" method="trigger"]
-[connection signal="body_entered" from="exit-to-south-wilds-1" to="exit-to-south-wilds-1/world-exit-script" method="on_body_entered"]
 
 [editable path="Nature/level-1-ancient-blossom"]
 [editable path="Nature/level-1-ancient-green"]

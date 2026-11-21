@@ -25,9 +25,30 @@ class_name VillagerScript
 ## `climb_rest_ms` after each landing and then picks a fresh spot, and a follower climbs only to
 ## catch up with its leader. It never climbs over houses, cliffs, water or anything else.
 ##
+## **Asleep** (Glimmerhill asleep, owner 2026-11-17/19; docs/godot/VILLAGERS.md "Asleep until its
+## Pearl comes home"): standing in a part of Glimmerhill that sleeps (the wake table,
+## game/glimmerhill/glimmerhill_wake.gd: its chunk inside the town's rectangle, or its room, and the
+## part's wake flag unset), it is in a trance: frozen on its idle's eyes-shut (blink) frame at its
+## idle's first scale, with no wander, route, follow or climb, out of the `npc` and `interactable`
+## groups (no talk prompt, no name tag, no quest or tip marker) and a soft "z" drifting over its head
+## (sleep_z.gd). It says nothing. When the flag is set it wakes where it stands, after a short random
+## delay: the "z" fades, it stretches tall and squashes back on its eyes-shut frame, then its idle
+## plays, it is an NPC again and it moves as it would have from the start. No scene holds any of it.
+##
 ## Owner: world (villagers).
 
 const Perimeter := preload("res://game/shared/perimeter.gd")
+const GlimmerhillWake := preload("res://game/glimmerhill/glimmerhill_wake.gd")
+const SleepZ := preload("res://game/glimmerhill/sleep_z.gd")
+const FRAME_TRACK := "Visual:frame"
+const SCALE_TRACK := "Visual:scale"
+const FLIP_TRACK := "Visual:flip_h"
+const POSITION_TRACK := "Visual:position"
+## The name tags' usual height over the feet (npc_name_tags.gd TAG_RISE) and how far under the tag
+## the "z" starts (about the top of the head), and how far aside.
+const DEFAULT_TAG_RISE := 75.28
+const Z_UNDER_TAG := 16.0
+const Z_ASIDE := 8.0
 const FencesScript := preload("res://game/world/fences/fences.gd")
 const WallLayerScript := preload("res://game/world/walls/wall_layer.gd")
 ## How far ahead (px) a climber probes for what stops its walk, and how many parents up a collider
@@ -76,9 +97,39 @@ var _climb_mask: int = 0
 var _visual_offset: Vector2 = Vector2.ZERO
 ## No climbing before this (Services.now_ms()): the rest after a landing.
 var _climb_rest_until_ms: float = 0.0
+## The Glimmerhill part it sleeps in ("" awake), whether it is waking (the stretch), and its "z".
+var _asleep_part: String = ""
+var _waking: bool = false
+var _sleep_z: Node2D
+
+
+func _ready() -> void:
+	super._ready()
+	if body == null:
+		return
+	_asleep_part = GlimmerhillWake.asleep_part_of(body)
+	if not _asleep_part.is_empty():
+		_fall_asleep()
+
+
+func _exit_tree() -> void:
+	super._exit_tree()
+	GlimmerhillWake.unlisten(_on_story_flag_changed)
+
+
+func _enter_tree() -> void:
+	if not _asleep_part.is_empty():
+		GlimmerhillWake.listen(_on_story_flag_changed)
+
+
+## True while it sleeps (or is still stretching awake).
+func is_asleep() -> bool:
+	return not _asleep_part.is_empty() or _waking
 
 
 func _physics_process(delta: float) -> void:
+	if is_asleep():
+		return
 	if _climb_until_ms > 0.0:
 		_climb(delta)
 		return
@@ -244,3 +295,116 @@ func _start_agent(domain: Dictionary) -> void:
 
 static func _circle(centre: Vector2, radius: float) -> Dictionary:
 	return {"shape": Perimeter.SHAPE_CIRCLE, "x": centre.x, "y": centre.y, "radius": maxf(0.0, radius)}
+
+
+# --- asleep (Glimmerhill) ----------------------------------------------------------------------
+
+## Into its trance: out of the NPC groups, frozen eyes shut, the "z" over its head, waiting for its
+## part's wake flag.
+func _fall_asleep() -> void:
+	remove_from_group(GROUP_NPC)
+	remove_from_group(GROUP_INTERACTABLE)
+	_has_agent = false
+	body.velocity = Vector2.ZERO
+	if animation != null:
+		animation.pause()
+	if visual != null:
+		visual.frame = _blink_frame()
+		var flip: Variant = _idle_key(FLIP_TRACK, 0)
+		if flip is bool:
+			visual.flip_h = flip
+		var scale_key: Variant = _idle_key(SCALE_TRACK, 0)
+		if scale_key is Vector2:
+			visual.scale = scale_key
+		var position_key: Variant = _idle_key(POSITION_TRACK, 0)
+		if position_key is Vector2:
+			visual.position = position_key
+	_sleep_z = SleepZ.new()
+	_sleep_z.name = "SleepZ"
+	_sleep_z.count = int(GlimmerhillWake.tunable_number("villagers", "zCount", 2.0))
+	_sleep_z.cycle_ms = GlimmerhillWake.tunable_number("villagers", "zCycleMs", 3400.0)
+	_sleep_z.rise_px = GlimmerhillWake.tunable_number("villagers", "zRisePx", 30.0)
+	_sleep_z.drift_px = GlimmerhillWake.tunable_number("villagers", "zDriftPx", 12.0)
+	_sleep_z.font_size = int(GlimmerhillWake.tunable_number("villagers", "zFontSize", 13.0))
+	_sleep_z.alpha = GlimmerhillWake.tunable_number("villagers", "zAlpha", 0.8)
+	var rise := name_tag_rise if name_tag_rise > 0.0 else DEFAULT_TAG_RISE
+	_sleep_z.position = Vector2(Z_ASIDE, -(rise - Z_UNDER_TAG))
+	# Over the town's sleep overlay (town_sleep.gd), so the "z" keeps its own colour.
+	_sleep_z.z_as_relative = false
+	_sleep_z.z_index = int(GlimmerhillWake.tunable_number("sleep", "overlayZ", 30.0)) + 1
+	body.add_child(_sleep_z)
+	GlimmerhillWake.listen(_on_story_flag_changed)
+
+
+func _on_story_flag_changed(payload: Dictionary) -> void:
+	if not _asleep_part.is_empty() and not _waking and GlimmerhillWake.wakes(payload, _asleep_part):
+		_wake()
+
+
+## Wakes where it stands: after a short random delay the "z" fades and it stretches tall and squashes
+## back (still eyes shut), then `_finish_waking`.
+func _wake() -> void:
+	_waking = true
+	_asleep_part = ""
+	GlimmerhillWake.unlisten(_on_story_flag_changed)
+	var delay_s := randf() * GlimmerhillWake.tunable_number("villagers", "wakeDelayMaxMs", 900.0) / 1000.0
+	var stretch_s := maxf(0.05, GlimmerhillWake.tunable_number("villagers", "stretchMs", 650.0) / 1000.0)
+	var stretch := GlimmerhillWake.tunable_number("villagers", "stretch", 0.14)
+	var tween := create_tween()
+	tween.tween_interval(delay_s)
+	tween.tween_callback(_stop_sleep_z)
+	if visual != null:
+		var base := visual.scale
+		tween.tween_property(visual, "scale", base * Vector2(1.0 - stretch * 0.6, 1.0 + stretch), stretch_s * 0.45) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(visual, "scale", base * Vector2(1.0 + stretch * 0.4, 1.0 - stretch * 0.35), stretch_s * 0.3) \
+				.set_trans(Tween.TRANS_SINE)
+		tween.tween_property(visual, "scale", base, stretch_s * 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(_finish_waking)
+
+
+func _stop_sleep_z() -> void:
+	if _sleep_z != null and is_instance_valid(_sleep_z):
+		_sleep_z.call(&"stop")
+	_sleep_z = null
+
+
+## Awake: its idle plays, it is an NPC again (talk, name tag, markers) and moves as placed.
+func _finish_waking() -> void:
+	_waking = false
+	add_to_group(GROUP_NPC)
+	add_to_group(GROUP_INTERACTABLE)
+	if animation != null:
+		animation.play(ANIM_IDLE)
+	var world := Services.world()
+	var record: Dictionary = world.npc_wander_area(get_instance_id_key()) if world != null else {}
+	configure_wander(record.get("perimeter", {}))
+
+
+## Its pose sheet's eyes-shut frame: the first frame of its idle's frame track that differs from the
+## idle's first (the blink), else the first.
+func _blink_frame() -> int:
+	var first: Variant = _idle_key(FRAME_TRACK, 0)
+	var track := _idle_track(FRAME_TRACK)
+	var clip := animation.get_animation(ANIM_IDLE) if animation != null and animation.has_animation(ANIM_IDLE) else null
+	if clip != null and track >= 0:
+		for key in clip.track_get_key_count(track):
+			var frame: Variant = clip.track_get_key_value(track, key)
+			if frame != first:
+				return int(frame)
+	return int(first) if first != null else 0
+
+
+## The value of key `key` of the idle clip's track on `path`, null without one.
+func _idle_key(path: String, key: int) -> Variant:
+	var track := _idle_track(path)
+	if track < 0:
+		return null
+	var clip := animation.get_animation(ANIM_IDLE)
+	return clip.track_get_key_value(track, key) if key < clip.track_get_key_count(track) else null
+
+
+func _idle_track(path: String) -> int:
+	if animation == null or not animation.has_animation(ANIM_IDLE):
+		return -1
+	return animation.get_animation(ANIM_IDLE).find_track(NodePath(path), Animation.TYPE_VALUE)

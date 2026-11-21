@@ -305,7 +305,8 @@ tiles), the opening and the exit the hand-made world needs (`target_area_id` = t
 2026-10-31 each has its other side, drawn by hand in the hand-made chunks at the same place along
 the border (pictures: [design/border-openings/](../design/border-openings/)), each with an exit
 back (`exit-to-<placeholder>-1`, `target_area_id` = the placeholder region, `entry` = the opposite
-edge), or is closed:
+edge), or is closed. *Since 2026-11-20 all four are closed again: the Wilds are walled off for
+Release 1 ([below](#the-wilds-walled-off-2026-11-20)).*
 
 | Opening | Hand-made side | Drawn as |
 |---|---|---|
@@ -343,7 +344,42 @@ The Web-wall maze's passage moved one cell up in the layout (y 61) to where its 
 the border (gloop-forest F4 rows 26-27). The Verdant Gate's way (level-1 D4 → gloop-forest E4)
 was walled on the gloop side: `gloop-forest-e4`'s border trees are open at rows 7-10, where D4's
 lane past the gate meets the border, and D4's `exit-1` has no gate of its own any more (the gate
-object before it takes the green key, so the border is never reached locked).
+object before it took the green key, so the border is never reached locked). *Since 2026-11-20
+(owner, question 163) a grey fallen tree a Heavy Roll breaks lies across that lane where the gate
+stood (`Chapter1/verdant-tree` at (1728, 752), [SKINS.md](SKINS.md#heavy)); the lane's trees close
+it on both sides, so the tree is the only way past.*
+
+### The Wilds walled off (2026-11-20)
+
+The owner walled the Wilds off for all of Release 1 (2026-11-19, question 164: terrain, no guard
+posts; the Silk web maze and the Feral climb from the Wilds wait for the release that opens them).
+Every crossing between a Release 1 region (level-1, gloop-forest, crystal-caverns, west-village)
+and the North or South Wilds is closed on both sides of the line, in the band the neighbouring
+cells already paint (`tools/check_crossings.gd` listed them):
+
+| Crossing | Release 1 side | Wilds side |
+|---|---|---|
+| level-1 C5 ↔ South Wilds C6 (x 1536-1792) | `level-1-c5`: ForestLayer cols 24-27 rows 32-33 (the band past its south edge) | `south-wilds-c6`: forest cols 24-27 rows 0-1 |
+| gloop-forest E5 ↔ South Wilds E6 (x 1536-1792) | `gloop-forest-e5`: forest cols 24-27 rows 29-31, the sand trail's last three rows turned back to forest floor (it now ends at Tom's clearing) | `south-wilds-e6`: forest cols 24-27 rows 0-1 |
+| crystal-caverns H5 ↔ South Wilds H6 (x 384-640) | `crystal-caverns-h5`: crystal mix cols 6-9 rows 30-31 | `south-wilds-h6`: forest cols 6-9 rows 0-1 |
+| North Wilds H3 ↔ crystal-caverns H4 (x 256-512) | `crystal-caverns-h4`: crystal mix cols 4-7 rows 0-1 (the lookout rock stays) | `north-wilds-h3`: forest cols 4-7 rows 30-31 |
+| North Wilds A3 ↔ west-village A4 (x 1280-1536) | `west-village-a4`: forest cols 20-23 rows 0-1, the gravel road's two top rows turned to grass (the road now ends at the trees) | `north-wilds-a3`: forest cols 20-23 rows 30-31 |
+| South Wilds B6 → west-village B5 (x 1408-1664, one-sided) | `west-village-b5`: already closed by the south gate's wall (Bram keeps the gate; nothing changed) | `south-wilds-b6`: forest cols 22-25 rows 0-1 |
+
+Both exits of each crossing are deleted (B6's only one), and the six passages are gone from
+`world-map.json` (its markers and the Wilds' notes say so), so the in-game map draws no link there.
+`gloop-forest-e5`, `south-wilds-e6`, `west-village-a4` and `north-wilds-a3` were baked again (a
+ground painted, or a neighbour's). **Running `build_region_worlds.gd` again would put all six
+openings back** (it plans one per stretch of border two regions share), as it would the two closed
+on 2026-10-31. Left as they were: stretches of the Caverns' edges open on their own side only (H4's
+north edge, H5's south edge west of col 1 and east of col 15; the Wilds side is closed there and no
+exit leads across, so nothing crosses; `check_chunk_lines.gd` still flags them), and C4's north
+edge against the North Wilds C3 (open on both sides but with no exit since 2026-10-31).
+Glimmerhill's way from Slimeshire, the Market Hill road at C4's west edge (`exit-to-west-village-2`
+↔ B4's `exit-to-level-1-2`), is a crossing between two Release 1 regions; a fallen tree a Heavy
+Roll breaks lies across it a little inside C4 (`Chapter1/market-hill-tree`,
+[SKINS.md](SKINS.md#heavy)). The forest path to the Wellspring (`exit-to-west-village-1`) stays
+open.
 
 **Roads off the chunk lines (owner, 2026-11-01; not enough on its own: the owner then asked for
 the lines to be closed, see [Chunk worlds](#chunk-worlds-2026-10-12)):** roads that ran along a chunk line inside a
@@ -394,7 +430,10 @@ a way out (a bridge, a ford, stairs, a gate, a trail gap between lantern posts, 
 `decoration-world-solid--lantern-post` scene). `tools/check_chunk_lines.gd` loads every chunk world
 alone, tries the slime's circle every 32 units just inside each edge and lists each line's
 crossings, flagging one wider than a road, near a corner, more than three (or none inside a
-region) and a stretch open on one side only:
+region) and a stretch open on one side only. A drop nobody can cross closes a line as a wall does
+(owner, 2026-11-20): the checker still flags `level-1-c4 | west-village-b4` 192-320 "open on C4's
+side only", which is Burr's yard ditch (a void that sets the slime back on the bank, B4's side shut),
+and that flag is accepted:
 
 ```bash
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/check_chunk_lines.gd [-- --world=<text>] [--all]
@@ -408,9 +447,17 @@ on E4/E5 (cols 15-16) and E5|F5 (rows 8-9); lantern posts at every gap; sand tra
 crossing; the silk nook and the weaver nest made rooms with one way in. Found on the way: the camp's
 east gate never reached the web lane (the blue cottage and the camp wall fill it), so the lane, the
 way to the Crystal Caverns, could not be reached from Gloop; it is entered by the ford now and its
-west end is walled. The Crystal Caverns' west edges (G4, G5) are closed by crystal trees except
+west end is walled. Since 2026-11-20 three web walls stand across the lane's east part
+(`web-lane/web-lane-1` to `-3` at x 1536, 1680 and 1824, y 1752, "side", span 176; flags
+`gloop-forest.web-lane-1` to `-3`), so only the Silk skin passes into the Caverns (question 81; the
+maze itself is designed with the owner later). F4's `player-spawn` (where a faint or a load with no
+place sets the slime down) moved with them to (1344, 1760), in the lane west of the first wall: at
+(1792, 1728) it stood between the second and the third, a pen no slime without the Silk skin leaves. The Crystal Caverns' west edges (G4, G5) are closed by crystal trees except
 the lane's end. The Wilds, the Ruins, the Volcano, the Swamp, the Desert, Frostpeak, the West
-village, Slimeshire and the Crystal Caverns' own lines are not yet closed: the checker lists them.
+village and Slimeshire's own lines are not yet closed: the checker lists them. The Crystal Caverns'
+own lines are closed since 2026-11-21 by the Spiral (five crossings between lantern posts, crystal
+trees or the void elsewhere; the checker flags G4|H4 and G5|H5 for their void stretches, accepted:
+[the Spiral](../design/2026-11-20-caverns-spiral.md#crossings-rule-11)).
 
 ```bash
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/split_region_chunks.gd -- --region=north-wilds,volcano-ridge,south-wilds

@@ -4,7 +4,8 @@ extends Node2D
 ## FLAG_FREED) and Fatty is beaten (`boss_id` in RunState `defeated_boss_ids`), he waits here in
 ## daylight. Talked to (the interact key: it joins the interaction's `usable` group) he says that the
 ## town must see the Pearl, then waves and walks off home; the story flag FLAG_TALKED keeps him gone.
-## Until then, and after, he is not here.
+## Until then, and after, he is not here. Home is his house in Slimeshire's C4: the flag puts him there
+## (`burr` in game/scenes/worlds/rooms/c4/slimeshire-burr-house.tscn, its BurrHome story variant).
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -19,7 +20,7 @@ const SPEAKER := "Burr"
 const LINES: Array[String] = [
 	"Daylight! And you came up through the old bolt-hole, as I hoped.",
 	"Is that... a Pearl of the Wellspring? Out of Fatty's own hoard!",
-	"The whole town must see this. Go home to Plop, lad. I'll be right behind you.",
+	"The whole town must see this. Go show Plop, lad. I'm off home to my boy; come and find me there.",
 ]
 
 ## Burr himself (a BurrActor).

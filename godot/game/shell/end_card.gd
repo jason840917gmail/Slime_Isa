@@ -9,13 +9,15 @@ extends "res://game/shell/shell_menu.gd"
 ## "return-to-title".
 signal action_requested(action_id: StringName)
 
-## END_CARDS (content/story/endCards.ts): {flag_id, title, subtitle, body}.
+## END_CARDS (content/story/endCards.ts): {flag_id, title, subtitle, body}. Since 2026-11-19 the
+## Chapter 2 card is gone and Release 1's card shows when the Crystal Colossus falls (his fall sets
+## `chapter-3-complete`: RunState `record_boss_defeated`, quests spec 14.6).
 const CARDS: Array[Dictionary] = [
 	{
-		"flag_id": "chapter-2-complete",
-		"title": "End of Chapter 2",
-		"subtitle": "Gloop Forest",
-		"body": "The Matron's web is broken, the Forge burns again, and Slimeshire has iron. The Crystal Caverns wait beyond the forest: Chapter 3 is still to come. Your run is saved when you return to the title.",
+		"flag_id": "chapter-3-complete",
+		"title": "The first three Pearls",
+		"subtitle": "The end of Release 1",
+		"body": "Three Pearls are won back, and the Wellspring remembers how to shine. From here the story goes on as you explore the lands you have found: bring every Pearl home and look for what is still hidden. More of the world opens in later releases. Your run is saved when you return to the title.",
 	},
 	{
 		"flag_id": "playground-end-card-test",

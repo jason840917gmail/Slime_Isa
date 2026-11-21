@@ -9,10 +9,11 @@ class_name PlayerInputBuffer
 ## Owner: player builder.
 
 ## Actions the player captures (snake_case of PlayerInputActions.ts): movement, sprint, the
-## actions and the abilities, and `interact` (right click, interaction spec 2.7).
+## actions and the abilities, and `interact` (right click, interaction spec 2.7); and (2026-11-20)
+## the potion belt's keys `potion_1` .. `potion_4` (1 to 4: game/inventory/potion_belt.gd).
 const ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right",
 	&"attack", &"sprint", &"dodge", &"interact", &"jump", &"stretch_lash", &"squash_slam",
-	&"teleport", &"eat", &"swallow"]
+	&"teleport", &"eat", &"swallow", &"potion_1", &"potion_2", &"potion_3", &"potion_4"]
 ## Actions captured only in the body-shapes rework mode (game/shapes/rework_mode.gd): the chosen
 ## Ability Box ability (F; S in keys-only, A in the throw mode's keys-only layout). With the mode off
 ## they pass through untouched.

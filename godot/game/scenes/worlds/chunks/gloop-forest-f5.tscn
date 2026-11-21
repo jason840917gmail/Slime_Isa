@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/pressure-plate.tscn" id="43_80gxo"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/gulp-spot-stone.tscn" id="44_jyi3x"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/collectible-iron-ore-pile.tscn" id="45_8ri3y"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="46_beltc"]
 [ext_resource type="AudioStream" uid="uid://0nd8vgjbkp6h" path="res://asset/audio/music/gloop-forest.mp3" id="58_a81wn"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="59_yx1wm"]
 [ext_resource type="AudioStream" uid="uid://bhi1qaw8t4ur6" path="res://asset/audio/music/gloop-forest-ambience.mp3" id="60_pp23x"]
@@ -230,6 +231,17 @@ metadata/persistence_key = "gloop-forest.gloop-ch2-hollow-ore-pile-2"
 map_id = "gloop-forest-f5"
 instance_id = "gloop-ch2-hollow-ore-pile-2"
 
+[node name="hollow-chest" parent="iron-hollow" unique_id=1907351126 instance=ExtResource("46_beltc")]
+position = Vector2(3040, 2464)
+
+[node name="ChestScript" parent="iron-hollow/hollow-chest" index="2"]
+map_id = "gloop-forest-f5"
+instance_id = "gloop-forest-f5-hollow-chest"
+initial_contents = {
+"belt-slot": 1,
+"hp-potion": 1
+}
+
 [node name="area-gloop-orb-weavers-south" type="Area2D" parent="." unique_id=717485603]
 y_sort_enabled = true
 position = Vector2(128, 480)
@@ -353,3 +365,4 @@ position = Vector2(112, 672)
 [editable path="iron-hollow/hollow-plate"]
 [editable path="iron-hollow/hollow-ore-pile-1"]
 [editable path="iron-hollow/hollow-ore-pile-2"]
+[editable path="iron-hollow/hollow-chest"]

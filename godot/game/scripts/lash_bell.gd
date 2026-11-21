@@ -3,7 +3,7 @@ class_name LashBellScript
 ## Scene script `game.lash-bell` (Phaser `features/scripts/LashBellScript.ts`; abilities spec
 ## 13.4): a bell on a post, a ranged lock (owner, 2026-10-16, questions 115 and 127). A thrown thing
 ## rings it (a pot, a rock, a skull: any hit tagged `thrown`, game/player/gulp/thrown_object.gd),
-## and so will the Bow's arrow (`on_arrow_hit`, group `bow_targets`; the Bow is not built yet). The
+## and so does the Bow's arrow (`on_arrow_hit`, group `bow_targets`; game/player/abilities/bow_arrow.gd). The
 ## Spear, the Stretch Lash and every other hit never ring it: they are refused as `immune` (the
 ## clink). Rung, it swings (frames 1, 2, 1, 2, 1, 0 every 90 ms), opens every gate with `gate_id`
 ## for good (a lock solved once, owner 2026-10-16, question 136: game/scripts/gate.gd
@@ -93,7 +93,7 @@ func publish_damage_feedback(_commit: Dictionary) -> void:
 	pass
 
 
-## The Bow's arrow (the hook for the coming Bow, as the bestiary's targets have it): it rings the
+## The Bow's arrow (bow_arrow.gd, as the bestiary's targets have it): it rings the
 ## bell. Always true.
 func on_arrow_hit(_hit: Dictionary) -> bool:
 	ring()

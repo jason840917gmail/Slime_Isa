@@ -146,7 +146,8 @@ func test_partial_take_then_no_room(t: TestContext) -> void:
 	var slots: Array = []
 	for _i in 19:
 		slots.append({"item_id": "stone", "count": 25})
-	slots.append({"item_id": "hp-potion", "count": 7})
+	# A potion stack holds 5 since 2026-11-20 (crafting spec 12.2): room for 2 more.
+	slots.append({"item_id": "hp-potion", "count": 3})
 	_set_bag(slots)
 	var moves: Array = []
 	chest.stack_transferred.connect(func(payload: Dictionary) -> void: moves.append(payload))

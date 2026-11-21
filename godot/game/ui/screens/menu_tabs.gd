@@ -1,8 +1,9 @@
 extends Control
 ## The menu tab strip (Phaser `MenuTabsSurfacePort.ts` + `ui/menu-tabs.scene.json`; crafting spec
-## 5.2): while the bag, crafting, journal or map window is open, a 360 × 36 strip at the top centre
-## switches between them. The open window's tab is the disabled one, drawn in warning; a tab whose
-## window does not exist yet (journal, map) is disabled and dimmed. The first time, a bubble under
+## 5.2): while the bag, journal or map window is open, a 300 × 36 strip at the top centre
+## switches between them (no Crafting tab since 2026-11-20: crafting is at the stations, spec 12).
+## The open window's tab is the disabled one, drawn in warning; a tab whose window does not exist
+## yet (journal, map) is disabled and dimmed. The first time, a bubble under
 ## the strip explains the tabs (until a tab is clicked, or the menu closes after it was read 3 s).
 ## MenuWindows (menu_windows.gd) owns the state and calls `refresh`; a click emits `tab_pressed`.
 ##
@@ -15,14 +16,14 @@ const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 ## A tab was clicked (its tab id).
 signal tab_pressed(tab: StringName)
 
-const TABS: Array[StringName] = [&"inventory", &"crafting", &"journal", &"map"]
-const LABELS := {&"inventory": "Bag", &"crafting": "Crafting", &"journal": "Journal", &"map": "Map"}
-const COACH_TEXT := "These tabs switch between your Bag, Crafting, Journal and Map. Click one!"
+const TABS: Array[StringName] = [&"inventory", &"journal", &"map"]
+const LABELS := {&"inventory": "Bag", &"journal": "Journal", &"map": "Map"}
+const COACH_TEXT := "These tabs switch between your Bag, Journal and Map. Click one!"
 ## The bubble in the keys-only control scheme (no mouse: owner, 2026-10-20).
-const KEYS_COACH_TEXT := "These tabs switch between your Bag, Crafting, Journal and Map. Move up to them and press Space."
-## menu-tabs.scene.json: the strip `(-180, 4)-(180, 40)` from `(0.5, 0)`; the bubble 12 px under it,
-## 20 px wider on each side, 62 tall.
-const STRIP_RECT := Rect2(-180.0, 4.0, 360.0, 36.0)
+const KEYS_COACH_TEXT := "These tabs switch between your Bag, Journal and Map. Move up to them and press Space."
+## menu-tabs.scene.json had the strip `(-180, 4)-(180, 40)` from `(0.5, 0)` for four tabs; three take
+## `(-150, 4)-(150, 40)`. The bubble 12 px under it, 400 wide, 62 tall.
+const STRIP_RECT := Rect2(-150.0, 4.0, 300.0, 36.0)
 const COACH_RECT := Rect2(-200.0, 52.0, 400.0, 62.0)
 const COACH_BACKGROUND := Color("#0b1528f2")
 const COACH_BOB_PX := 4.0

@@ -109,6 +109,23 @@ STYLES = {
 		"boxes": {"n": (403, 609), "s": (403, 609), "w": (403, 609), "e": (403, 609)},
 		"passages": {"n": (450, 77, 563, 186)},
 	},
+	"crystal-cave": {
+		# the Gloop Cavern (owner, 2026-11-20): dark blue slate packed with glowing blue and violet
+		# crystals, made from cave-bevel-doorways-b (its layout, measured again) with the cavern's old
+		# crystal-cluster walls as material reference: crystal-bevel-doorways-b (GPT 2.5, transparent;
+		# -a is the other take). No openings or leaves besides the plain doorway yet; the cave's floor.
+		"column": 5,
+		"frame": "crystal-bevel-doorways-b.png",
+		"openings": {},
+		"leaves": {},
+		"floor": "cave-floor.png",
+
+		"bands": {"n": (15, 224), "s": (800, 1006), "w": (19, 220), "e": (803, 1005)},
+		"plain": {"n": [(232, 392), (624, 790)], "s": [(232, 392), (624, 790)],
+			"w": [(232, 392), (624, 790)], "e": [(232, 392), (624, 790)]},
+		"boxes": {"n": (403, 609), "s": (403, 609), "w": (403, 609), "e": (403, 609)},
+		"passages": {"n": (450, 77, 563, 186)},
+	},
 	"root-rock": {
 		# Fatty's arena, the Glow-moss Burrow, the bolt-hole: umber root rock (root-bevel-*)
 		"column": 2,

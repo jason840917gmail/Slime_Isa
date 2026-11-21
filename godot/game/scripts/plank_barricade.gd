@@ -6,8 +6,10 @@ class_name PlankBarricadeScript
 ## scenes: `object.plank-barricade` (grey old planks nailed across a doorway: the Heavy skin's first
 ## lock, Fatty's Lair's way out, question 132; the Quartermaster's store in the Gatehouse shows the
 ## same lock before the Pearl), game/scenes/objects/rotten-timbers.tscn (rotten mine timbers),
-## `object.old-trunk` (a flat, mossy, hollow trunk across a path) and `object.old-fence` (a grey,
-## broken-backed old fence, never on a rim: question 128). The rocks are rubble_heap.gd's.
+## `object.old-trunk` (a flat, mossy, hollow trunk across a path), `object.old-fence` (a grey,
+## broken-backed old fence, never on a rim: question 128) and `object.fallen-tree` /
+## `object.fallen-tree-ns` (a long grey dead tree lying east-west or north-south across a road: the
+## Verdant Gate's and the Market Hill road's, question 163). The rocks are rubble_heap.gd's.
 ##
 ## - It blocks as a wall, so a Roll into it bonks. A Heavy Roll's bonk (the Heavy skin on:
 ##   game/fattys_lair/heavy_check.gd) smashes it: the splinters lie in a heap that no longer

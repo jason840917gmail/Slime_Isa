@@ -7,6 +7,7 @@ extends Node2D
 ## | kind        | text | colour  | size |
 ## | main-offer  | !    | #ffd277 | 30   |
 ## | side-offer  | !    | #72d8ff | 26   |
+## | tip         | !    | #ffd277 | 30   |
 ## | turn-in     | ?    | #ffd277 | 30   |
 ## | in-progress | ?    | #a7bbd6 | 24   |
 ## | talk        | …    | #f5f7ff | 24   |
@@ -15,7 +16,8 @@ extends Node2D
 ## name tag offset: display height 229 x 0.32 + 2, then 18 above the tag) plus a bob of 3 px every
 ## 900 ms; outline 6 px #081022; a new marker pops from 0.4 to full size in 220 ms (back-out).
 ## Kinds come from the quest service's `marker_for(npc_id)` and are recomputed after every
-## `quest_changed`; NPCs out of the tree (a story variant parked them) have none.
+## `quest_changed` and `talks_changed` ("tip": the NPC's talk has a tip not heard yet, quests spec
+## 14.5); NPCs out of the tree (a story variant parked them) have none.
 ##
 ## Owner: quests.
 
@@ -27,6 +29,7 @@ const QUESTS_GROUP := &"quests"
 const NPC_GROUP := &"npc"
 const MARKERS := {
 	"main-offer": ["!", Color("#ffd277"), 30],
+	"tip": ["!", Color("#ffd277"), 30],
 	"side-offer": ["!", Color("#72d8ff"), 26],
 	"turn-in": ["?", Color("#ffd277"), 30],
 	"in-progress": ["?", Color("#a7bbd6"), 24],
@@ -112,8 +115,11 @@ func clear() -> void:
 
 func _bind() -> void:
 	_service = get_tree().get_first_node_in_group(QUESTS_GROUP)
-	if _service != null and not _service.is_connected(&"quest_changed", _on_quest_changed):
-		_service.connect(&"quest_changed", _on_quest_changed)
+	if _service == null:
+		return
+	for changed: StringName in [&"quest_changed", &"talks_changed"]:
+		if _service.has_signal(changed) and not _service.is_connected(changed, _on_quest_changed):
+			_service.connect(changed, _on_quest_changed)
 
 
 func _on_quest_changed(_payload: Dictionary) -> void:

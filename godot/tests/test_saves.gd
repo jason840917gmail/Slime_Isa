@@ -11,6 +11,9 @@ const Services := preload("res://game/shared/services.gd")
 
 const SLOT := 3
 const SPOT := Vector2(768.0, 832.0)
+## slime-home's west bed's wake spot (the bed at (270, 340) since the room became a round mushroom
+## room, 2026-11-20; its respawn point rounds the wake point (269.625, 356)).
+const HOME_BED_WAKE := Vector2(270.0, 356.0)
 
 
 func test_round_trip_keeps_the_run(t: TestContext) -> void:
@@ -90,7 +93,8 @@ func test_unreadable_and_newer_saves_are_refused(t: TestContext) -> void:
 ## A defeated slime whose last bed is in slime-home wakes there, full HP.
 func test_respawn_at_bed_in_another_world(t: TestContext) -> void:
 	var run := Services.run()
-	run.set_respawn_point({"area_id": "slime-home", "map_id": "slime-home", "x": 160.0, "y": 356.0, "bed_id": "world.slime-home.west-bed"})
+	run.set_respawn_point({"area_id": "slime-home", "map_id": "slime-home", "x": HOME_BED_WAKE.x, "y": HOME_BED_WAKE.y,
+		"bed_id": "world.slime-home.west-bed"})
 	var player := t.player()
 	player.restore_run_state({"hp": 1})
 	player.call(&"_die")
@@ -100,7 +104,7 @@ func test_respawn_at_bed_in_another_world(t: TestContext) -> void:
 		return
 	await t.steps(2)
 	t.equal(t.player().get_hp(), t.player().get_max_hp(), "HP at the bed")
-	t.check(t.player().get_centre().distance_to(Vector2(160.0, 356.0)) < 40.0, "not at the bed: %s" % [t.player().get_centre()])
+	t.check(t.player().get_centre().distance_to(HOME_BED_WAKE) < 40.0, "not at the bed: %s" % [t.player().get_centre()])
 
 
 ## A load in a running game refreshes the views main keeps across worlds: the HUD weapon belt and
@@ -111,7 +115,8 @@ func test_load_in_game_refreshes_the_hud_views(t: TestContext) -> void:
 	t.check(run.save_slot(SLOT), "save_slot failed")
 	run.add_item("stone-axe", 1)
 	run.set_weapon_slots(["basic-sword", "stone-axe", null, null])
-	t.main.quests.debug_activate("a-place-to-work")
+	# The main quest's second stage (the tracker shows its step; the loaded run is at the first).
+	t.main.quests.debug_activate("win-back-the-pearls", "pearl-2")
 	await t.steps(2)
 	var hotbar: Node = null
 	var tracker: Node = null

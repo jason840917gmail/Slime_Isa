@@ -7,14 +7,18 @@ extends Node
 ##
 ## Sections (snake_case keys; Phaser's camelCase names in brackets):
 ## - `player` [GameStateData]: coins, boost_bonus, hp, energy, heart_quarters, full_hearts, attributes, equipment
-##   {weapon_id, weapon_slots}. The player script owns live HP; main.gd copies it in and out at
-##   world boundaries (`capture_player` / spawn).
+##   {weapon_id, weapon_slots}; and (Godot, 2026-11-20) belt {open, kinds}: the potion belt (the
+##   slots found and the potion kind each is set to; see "potion belt" below). The player script
+##   owns live HP; main.gd copies it in and out at world boundaries (`capture_player` / spawn).
 ## - `inventory` [InventorySaveData]: max_slots, slots [{item_id, count}].
 ## - `world` [WorldProgressData]: discovered_areas, defeated_boss_ids, completed_dungeon_ids,
 ##   maps {map_id: map record}, respawn_point.
 ## - `story` [StorySaveData]: world_flags, learned_recipe_ids, learned_ability_ids, talked_npc_ids;
 ##   and (Godot) celebrated_item_ids: the permanent items whose ceremony has played; skin_ids and
-##   skin_look: the skins won from the Pearls and the everyday look (docs/godot/SKINS.md).
+##   skin_look: the skins won from the Pearls and the everyday look (docs/godot/SKINS.md); tips: the
+##   ids of the tips NPCs gave, in the order heard (quests spec 14.4; a save from before 2026-11-19
+##   has none and loads with none heard); war_pages: the war-journal pages found (their item ids, in
+##   the order found; a save from before 2026-11-20 has none: see "finds" below).
 ## - `location` [GameLocationData], play time (`current_play_time_ms()`).
 ## - `quests` [QuestState[]]: one record per quest, written by the quest service.
 ##
@@ -48,6 +52,8 @@ const PLACED_FURNITURE_PREFIX := "placed-furniture-"
 signal story_flag_changed(payload: Dictionary)
 ## An ability was learned. Payload: {"ability_id": String}.
 signal ability_learned(payload: Dictionary)
+## An NPC's tip was heard for the first time (`hear_tip`). Payload: {"tip_id": String}.
+signal tip_heard(payload: Dictionary)
 ## A skin was won or lent, or the everyday look changed (docs/godot/SKINS.md). Payload:
 ## {"skin_id": String, "reason": "won" | "lent" | "look"}.
 signal skins_changed(payload: Dictionary)
@@ -63,6 +69,18 @@ signal world_progress_changed(payload: Dictionary)
 signal coins_changed(payload: Dictionary)
 ## The weapon belt changed (Phaser `weapon.loadout.changed`). Payload: {"slots": Array}.
 signal weapon_loadout_changed(payload: Dictionary)
+## The potion belt changed: a slot opened (a `belt-slot` found or bought) or a slot's potion kind was
+## set. Payload: {"open": int, "kinds": Array[String] (one per slot, "" for none), "opened": int (the
+## index of the slot that just opened, -1 for a kind change or a load), "quiet": bool (a quiet grant
+## or a load: no ceremony)}.
+signal potion_belt_changed(payload: Dictionary)
+## A page came in (a war-journal page or a recipe page: section "finds"); its reading panel opens
+## unless `quiet` (game/ui/screens/page_window.gd). Payload: {"item_id": String, "quiet": bool}.
+signal page_found(payload: Dictionary)
+## A fragment came in (section "finds": the Roll fragments, owner 2026-11-20). Payload: {"item_id": String,
+## "count": int (found so far, this one included), "total": int, "quiet": bool}; the last one teaches its
+## ability (`ability_learned` and its card).
+signal fragment_found(payload: Dictionary)
 ## The weapon in hand changed (Phaser `weapon.equipped`). Payload: {"weapon_id": String or null}.
 signal weapon_equipped(payload: Dictionary)
 ## Recipes were learned. Payload: {"recipe_ids": Array[String]} (the new ids only).
@@ -88,8 +106,14 @@ const SAVE_SCHEMA_VERSION := 1
 const AUTOSAVE_SLOT := 0
 const AUTOSAVE_DELAY_MS := 250.0
 const SLOT_PREFIX := "slot-"
+## Where the player's saves live.
+const PLAYER_SAVE_ROOT := "user://saves"
 ## Where saves live; the test runner points it at a scratch folder.
-var save_root: String = "user://saves"
+var save_root: String = PLAYER_SAVE_ROOT
+## Where a headless or windowed tool run from `res://tools/` (renders, bakes, labs) saves, so its
+## autosave never overwrites the player's real slots (2026-11-20: render runs had overwritten slot 0).
+const TOOL_SAVE_ROOT := "user://tool-saves"
+const TOOLS_DIR := "res://tools/"
 ## The recovery autosave runs only while a world is being played (main.gd turns it on).
 var autosave_enabled: bool = false
 ## main.gd: returns the live player's {"map_id", "hp", "energy", "x", "y", "facing"} for saves.
@@ -136,9 +160,30 @@ var dungeon_session: Dictionary = {}
 ## Item categories that are permanent things, celebrated once when first gained (roadmap 4.13).
 const PERMANENT_ITEM_CATEGORIES: Array[String] = ["weapon", "key"]
 const CELEBRATED_ITEMS := "celebrated_item_ids"
+## game-constants.json: boss id -> the story flag his fall sets (`record_boss_defeated`).
+const BOSS_FLAGS_PATH := "story.bossFlags"
 ## [map id, gate id] of the Lair's outer gate, which the removed gatehouse winch held up for good:
 ## a loaded save forgets it (`install`).
 const OBSOLETE_HELD_GATE: Array[String] = ["level-1-d5", "fatty-lair-gate"]
+## The Roll (ability `dodge`): young Burr teaches it since 2026-11-19 (until then it was free from
+## birth). A save already past Burr's cell in Fatty's Lair, or holding any Pearl flag (`pearl.<id>`,
+## `pearl.<id>.home`), learns it quietly on load (`install`).
+const ROLL_ID := "dodge"
+const ROLL_KNOWN_FLAG := "fatty-lair.burr-freed"
+## Burr's Roll fragment, given as he is freed in Fatty's Lair (game/fattys_lair/lair_director.gd
+## FLAG_FRAGMENT, owner 2026-11-20); a run freed him before that gets it quietly on load (`install`).
+const BURR_FRAGMENT_FLAG := "fatty-lair.burr-fragment"
+## Pearl 2 home raises Slimeshire's Workshop since 2026-11-20 (it lit the Forge before): `install`.
+const MATRON_PEARL_HOME_FLAG := "pearl.orb-weaver-matron.home"
+const WORKSHOP_FLAG := "workshop.restored"
+const ROLL_FRAGMENT_ID := "roll-fragment"
+const ROLL_CHARGE_ID := "roll-charge"
+const PEARL_FLAG_PREFIX := "pearl."
+## The Verdant Gate (its gate id, in any map's `unlocked_gate_ids`) gave way to a fallen tree that a
+## Heavy Roll smashes (2026-11-19, question 163): a save that had the gate open has the tree smashed
+## (`install`).
+const VERDANT_GATE_ID := "level-1-east-verdant-gate"
+const VERDANT_TREE_FLAG := "level-1.verdant-tree-smashed"
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "entry_marker"?, "respawn_home"?}. Empty when none. Never saved:
@@ -162,6 +207,7 @@ func new_run() -> void:
 		"heart_quarters": 0,
 		"attributes": attributes,
 		"equipment": {"weapon_id": null, "weapon_slots": weapon_slots},
+		BELT_KEY: _empty_belt(),
 	}
 	inventory = {"max_slots": _constant_int(constants, "inventory.initialMaxSlots"), "slots": []}
 	world = {
@@ -171,7 +217,7 @@ func new_run() -> void:
 		"maps": {},
 		"respawn_point": {},
 	}
-	story = {"world_flags": [], "learned_recipe_ids": [], "learned_ability_ids": [], "talked_npc_ids": []}
+	story = {"world_flags": [], "learned_recipe_ids": [], "learned_ability_ids": [], "talked_npc_ids": [], TIPS_KEY: [], WAR_PAGES_KEY: []}
 	location = {"area_id": INITIAL_MAP_ID, "map_id": INITIAL_MAP_ID, "x": 0.0, "y": 0.0, "facing": "down"}
 	quests = []
 	_play_time_base_ms = 0.0
@@ -303,8 +349,14 @@ func item_count(item_id: String) -> int:
 
 
 ## How many more of `item_id` fit (world-objects spec 8.3): room left in its stacks below the
-## max stack plus a full stack per free slot; 0 for unknown items.
+## max stack plus a full stack per free slot; 0 for unknown items. A `belt` item (the belt slot)
+## never takes a bag slot: as many fit as the potion belt has slots still closed. A find (a page or
+## an upgrade: `is_find_item`) never takes one either: it always fits.
 func item_capacity(item_id: String) -> int:
+	if is_belt_item(item_id):
+		return POTION_BELT_SLOTS - potion_belt_open()
+	if is_find_item(item_id):
+		return FIND_CAPACITY
 	var max_stack := ItemCatalog.max_stack(item_id)
 	if max_stack <= 0:
 		return 0
@@ -401,6 +453,15 @@ func collect_world_item(map_id: String, instance_id: String, item_id: String, re
 
 
 func _insert(item_id: String, count: int) -> void:
+	# A belt slot is used up as it comes: it opens one more slot of the potion belt.
+	if is_belt_item(item_id):
+		for _i in count:
+			open_potion_belt_slot()
+		return
+	# A find (a page, an upgrade) is used up as it comes too.
+	if is_find_item(item_id):
+		_use_find(item_id)
+		return
 	var max_stack := ItemCatalog.max_stack(item_id)
 	var slots: Array = inventory.get_or_add("slots", [])
 	var left := count
@@ -425,11 +486,24 @@ func _insert(item_id: String, count: int) -> void:
 ## are dropped; then additions (summed) fill that item's stacks below the max stack in slot order
 ## and append new stacks while slots are free. `removals` / `additions`: [{"item_id", "count"}]
 ## with counts > 0. False (nothing changed) when anything is missing, unknown or does not fit.
-## `preview` (Inventory.previewTransact) only answers.
+## `preview` (Inventory.previewTransact) only answers. A `belt` item added (Dollop's belt slot) takes
+## no bag slot: it fits while the potion belt has slots closed, and opens them when it is committed.
+## A find added (a page, an upgrade) always fits and is used when it is committed.
 func transact_items(removals: Array, additions: Array, preview: bool = false) -> bool:
 	var taken := _summed(removals)
 	var given := _summed(additions)
 	if taken.is_empty() and given.is_empty() and (not removals.is_empty() or not additions.is_empty()):
+		return false
+	var belt_slots := 0
+	var finds: Array[String] = []
+	for item_id: String in given.keys():
+		if is_belt_item(item_id):
+			belt_slots += int(given[item_id])
+			given.erase(item_id)
+		elif is_find_item(item_id):
+			finds.append(item_id)
+			given.erase(item_id)
+	if belt_slots > POTION_BELT_SLOTS - potion_belt_open():
 		return false
 	var draft: Array = (inventory.get("slots", []) as Array).duplicate(true)
 	for item_id: String in taken:
@@ -473,6 +547,10 @@ func transact_items(removals: Array, additions: Array, preview: bool = false) ->
 	inventory["slots"] = compact
 	for item_id: String in given:
 		_note_permanent(item_id)
+	for _i in belt_slots:
+		open_potion_belt_slot()
+	for item_id in finds:
+		_use_find(item_id)
 	inventory_changed.emit({})
 	return true
 
@@ -562,6 +640,179 @@ static func _normalised_slots(slots: Variant) -> Array:
 	return out
 
 
+# --- potion belt (crafting spec 12.4; owner, 2026-11-19, question 161) ---------------------------
+## `player.belt` = {"open": the slots found (0 .. POTION_BELT_SLOTS), "kinds": the potion kind each
+## slot is set to ("" for none), POTION_BELT_SLOTS entries}. A slot keeps its kind when the stack
+## runs out. Every way an item of category `belt` (the `belt-slot`) comes in (`add_item`, a pickup,
+## a chest, `transact_items`: Dollop's shop) opens one more slot instead of filling a bag slot.
+## The rules of what a slot takes and of drinking are game/inventory/potion_belt.gd's.
+
+## One slot per input action `potion_1` .. `potion_4` (keys 1 to 4 in project.godot).
+const POTION_BELT_SLOTS := 4
+const BELT_KEY := "belt"
+const BELT_ITEM_CATEGORY := "belt"
+
+
+## True for an item that opens a belt slot instead of going into the bag (category `belt`).
+static func is_belt_item(item_id: String) -> bool:
+	return str(ItemCatalog.definition(item_id).get("category", "")) == BELT_ITEM_CATEGORY
+
+
+## How many belt slots the slime has found (0 .. POTION_BELT_SLOTS).
+func potion_belt_open() -> int:
+	return clampi(int(_belt().get("open", 0)), 0, POTION_BELT_SLOTS)
+
+
+## Each slot's potion kind ("" for none), POTION_BELT_SLOTS entries (closed slots have none).
+func potion_belt_kinds() -> Array[String]:
+	var raw: Variant = _belt().get("kinds", [])
+	var out: Array[String] = []
+	for index in POTION_BELT_SLOTS:
+		var entry: Variant = (raw as Array)[index] if raw is Array and index < (raw as Array).size() else ""
+		out.append(str(entry) if entry is String and index < potion_belt_open() else "")
+	return out
+
+
+## The potion kind slot `index` is set to ("" for none, or a closed slot).
+func potion_belt_kind(index: int) -> String:
+	var kinds := potion_belt_kinds()
+	return kinds[index] if index >= 0 and index < kinds.size() else ""
+
+
+## Opens one more belt slot (emits `potion_belt_changed` with its index); false when all are open.
+func open_potion_belt_slot() -> bool:
+	var open := potion_belt_open()
+	if open >= POTION_BELT_SLOTS:
+		return false
+	_belt()["open"] = open + 1
+	_emit_potion_belt(open)
+	return true
+
+
+## Sets the open slot `index` to the potion kind `kind` ("" empties it); a kind already on another
+## slot moves from there (the owner: one kind per slot). False when nothing changed or the slot is
+## not open.
+func set_potion_belt_kind(index: int, kind: String) -> bool:
+	if index < 0 or index >= potion_belt_open():
+		return false
+	var kinds := potion_belt_kinds()
+	if kinds[index] == kind:
+		return false
+	if not kind.is_empty():
+		for other in kinds.size():
+			if kinds[other] == kind:
+				kinds[other] = ""
+	kinds[index] = kind
+	var plain: Array = []
+	plain.assign(kinds)
+	_belt()["kinds"] = plain
+	_emit_potion_belt(-1)
+	return true
+
+
+## `player.belt`, made empty when the run has none (a new run, a save from before 2026-11-20).
+func _belt() -> Dictionary:
+	var belt: Variant = player.get(BELT_KEY)
+	if not belt is Dictionary:
+		belt = _empty_belt()
+		player[BELT_KEY] = belt
+	return belt
+
+
+static func _empty_belt() -> Dictionary:
+	var kinds: Array = []
+	for _i in POTION_BELT_SLOTS:
+		kinds.append("")
+	return {"open": 0, "kinds": kinds}
+
+
+func _emit_potion_belt(opened: int, quiet: bool = false) -> void:
+	potion_belt_changed.emit({"open": potion_belt_open(), "kinds": potion_belt_kinds(), "opened": opened,
+		"quiet": quiet or quiet_items})
+
+
+# --- finds: pages and upgrades (B4, B6; 2026-11-20) -----------------------------------------------
+## Items used up as they come in, like the belt slot (every way in: `add_item`, a pickup, a chest,
+## `transact_items`), never a bag slot:
+## - a **war-journal page** (category `page`, items.json `page`: {number, title, lines}): kept in
+##   `story.war_pages` (item ids, in the order found; the journal's War journal section lists them),
+##   and `page_found` opens its reading panel (game/ui/screens/page_window.gd);
+## - a **recipe page** (category `recipe-page`: `teachesRecipes`, `page`): its recipes are learned
+##   (`learn_recipes`) and `page_found` opens its panel too;
+## - an **upgrade** (category `upgrade`: `teachesAbility`): learned (`learn_ability`, quiet under
+##   `quiet_items`), whose card QuestNotifications plays (AbilityDefinitions.UPGRADES: the Charged
+##   Roll, `roll-charge`; its whole `charged-roll` find is now only for tools and tests);
+## - a **fragment** (category `fragment`: `fragmentsNeeded`, `teachesAbility`): counted in
+##   `story.fragments` ({item id: found}); `fragment_found` says so (QuestNotifications' toast), and the
+##   last of them teaches the ability, with its card (owner, 2026-11-20: four `roll-fragment`s make the
+##   Charged Roll: Burr's in Fatty's Lair, Yoi's chest, one in Glimmerhill, one in Gloop Forest).
+## The war-journal pages and helpers to read them: game/quests/war_journal.gd.
+
+const PAGE_CATEGORY := "page"
+const RECIPE_PAGE_CATEGORY := "recipe-page"
+const UPGRADE_CATEGORY := "upgrade"
+const FRAGMENT_CATEGORY := "fragment"
+const FIND_CATEGORIES: Array[String] = [PAGE_CATEGORY, RECIPE_PAGE_CATEGORY, UPGRADE_CATEGORY, FRAGMENT_CATEGORY]
+const WAR_PAGES_KEY := "war_pages"
+const FRAGMENTS_KEY := "fragments"
+## How many of a find fit at once (any number: each is used as it comes).
+const FIND_CAPACITY := 99
+
+
+## True for an item used up as it comes in (a page, a recipe page, an upgrade).
+static func is_find_item(item_id: String) -> bool:
+	return str(ItemCatalog.definition(item_id).get("category", "")) in FIND_CATEGORIES
+
+
+## How many of the fragment `item_id` are found (`story.fragments`).
+func fragment_count(item_id: String) -> int:
+	var found: Variant = story.get(FRAGMENTS_KEY, {})
+	return int((found as Dictionary).get(item_id, 0)) if found is Dictionary else 0
+
+
+## How many of the fragment `item_id` make the whole (its `fragmentsNeeded`, at least 1).
+static func fragments_needed(item_id: String) -> int:
+	return maxi(1, int(ItemCatalog.definition(item_id).get("fragmentsNeeded", 1)))
+
+
+## True once the war-journal page `item_id` is found.
+func has_war_page(item_id: String) -> bool:
+	return item_id in _story_list(WAR_PAGES_KEY)
+
+
+## The war-journal pages found (item ids), in the order found.
+func war_page_ids() -> Array[String]:
+	var out: Array[String] = []
+	for page_id: Variant in _story_list(WAR_PAGES_KEY):
+		out.append(str(page_id))
+	return out
+
+
+## Uses the find `item_id` as it comes in (see above).
+func _use_find(item_id: String) -> void:
+	var definition := ItemCatalog.definition(item_id)
+	match str(definition.get("category", "")):
+		PAGE_CATEGORY:
+			if not has_war_page(item_id):
+				_story_list(WAR_PAGES_KEY).append(item_id)
+			page_found.emit({"item_id": item_id, "quiet": quiet_items})
+		RECIPE_PAGE_CATEGORY:
+			var recipes: Variant = definition.get("teachesRecipes", [])
+			if recipes is Array:
+				learn_recipes(recipes)
+			page_found.emit({"item_id": item_id, "quiet": quiet_items})
+		UPGRADE_CATEGORY:
+			learn_ability(str(definition.get("teachesAbility", "")), quiet_items)
+		FRAGMENT_CATEGORY:
+			var found: Dictionary = story.get_or_add(FRAGMENTS_KEY, {})
+			var count := int(found.get(item_id, 0)) + 1
+			found[item_id] = count
+			var total := fragments_needed(item_id)
+			fragment_found.emit({"item_id": item_id, "count": count, "total": total, "quiet": quiet_items})
+			if count >= total:
+				learn_ability(str(definition.get("teachesAbility", "")), quiet_items)
+
+
 ## `playerInventoryWorldTransaction.unlockGate`: true when the gate is (or already was) unlocked;
 ## the key is taken when `consume`. False without the key.
 func unlock_gate(map_id: String, gate_id: String, required_item_id: String, consume: bool) -> bool:
@@ -588,6 +839,32 @@ func set_flag(flag: String) -> bool:
 	_flags().append(flag)
 	story_flag_changed.emit({"flag": flag, "set": true})
 	return true
+
+
+## The tips heard from NPCs (`story.tips`: ids in the order heard; the texts live with the NPC's
+## talks in npc-definitions.json, quests spec 14.4).
+const TIPS_KEY := "tips"
+
+
+## Remembers the tip `tip_id` as heard (the journal lists it). False when it already was.
+func hear_tip(tip_id: String) -> bool:
+	if tip_id.is_empty() or has_heard_tip(tip_id):
+		return false
+	_story_list(TIPS_KEY).append(tip_id)
+	tip_heard.emit({"tip_id": tip_id})
+	return true
+
+
+func has_heard_tip(tip_id: String) -> bool:
+	return tip_id in _story_list(TIPS_KEY)
+
+
+## The heard tips' ids, oldest first.
+func heard_tip_ids() -> Array[String]:
+	var out: Array[String] = []
+	for tip_id: Variant in _story_list(TIPS_KEY):
+		out.append(str(tip_id))
+	return out
 
 
 ## `storyProgress.recordTalk`: remembers that the player talked to `npc_id`.
@@ -944,6 +1221,32 @@ func is_boss_defeated(boss_id: String) -> bool:
 	return boss_id in (world.get("defeated_boss_ids", []) as Array)
 
 
+## The one place a boss's fall is recorded (the boss camps, the Colossus's arena, the dungeons' room
+## fights and the quest service call it): his id joins `world.defeated_boss_ids` once, and the story
+## flag `story.bossFlags` in game-constants.json names for him is set (`chapter-1-complete` for
+## Fatty One Eye, `chapter-2-complete` for the Matron, `chapter-3-complete` for the Crystal
+## Colossus: quests spec 14.6). The flag is set even when the id was already there. False when he
+## was already beaten.
+func record_boss_defeated(boss_id: String) -> bool:
+	if boss_id.is_empty():
+		return false
+	var defeated: Array = world.get_or_add("defeated_boss_ids", [])
+	var first := not boss_id in defeated
+	if first:
+		defeated.append(boss_id)
+	var flag := boss_flag(boss_id)
+	if not flag.is_empty():
+		set_flag(flag)
+	return first
+
+
+## The story flag a boss's fall sets (`story.bossFlags`), "" when none.
+static func boss_flag(boss_id: String) -> String:
+	var constants := Services.constants()
+	var flags: Variant = constants.value(BOSS_FLAGS_PATH, {}) if constants != null else {}
+	return str((flags as Dictionary).get(boss_id, "")) if flags is Dictionary else ""
+
+
 ## The map's bag and loot drops still on the ground: copies of {"id", "item_id", "amount",
 ## "object_id", "visual_id", "x", "y", "origin"?} (WorldProgress.ts:444-479), sequence order.
 func inventory_drops(map_id: String) -> Array:
@@ -1164,6 +1467,45 @@ func install(data: Dictionary) -> bool:
 		var legacy := flag_name.trim_prefix(LEGACY_SKIN_FLAG_PREFIX)
 		if flag_name.begins_with(LEGACY_SKIN_FLAG_PREFIX) and not has_skin(legacy):
 			_story_list(SKIN_IDS_KEY).append(legacy)
+	# Saves from before 2026-11-19: the chapter flags came from the retired chapter quests; now a
+	# boss's fall sets his (`record_boss_defeated`). Set quietly here, so no end card opens.
+	for boss_id: Variant in world.get("defeated_boss_ids", []):
+		var boss_flag_id := boss_flag(str(boss_id))
+		if not boss_flag_id.is_empty() and not has_flag(boss_flag_id):
+			_flags().append(boss_flag_id)
+	# Saves from before 2026-11-19: the Roll was free from birth. A run past Burr's cell or a Pearl
+	# knows it already, so it is learned quietly (no ceremony); an earlier run learns it from his boy.
+	if not has_learned_ability(ROLL_ID) and _past_the_roll_lesson():
+		learn_ability(ROLL_ID, true)
+	# Saves from before 2026-11-20 (Pip's Workshop): the Matron's Pearl home lit the Forge then; now it
+	# raises the Workshop, which Pip's bow rune needs. Raised quietly (a Forge lit early stays lit).
+	if has_flag(MATRON_PEARL_HOME_FLAG) and not has_flag(WORKSHOP_FLAG):
+		_flags().append(WORKSHOP_FLAG)
+	# Saves from before 2026-11-20: Burr was freed before he gave a Roll fragment. It is counted now,
+	# quietly (no toast), unless the run already knows the Charged Roll.
+	if has_flag(ROLL_KNOWN_FLAG) and not has_flag(BURR_FRAGMENT_FLAG) and not has_learned_ability(ROLL_CHARGE_ID):
+		_flags().append(BURR_FRAGMENT_FLAG)
+		var fragments: Dictionary = story.get_or_add(FRAGMENTS_KEY, {})
+		fragments[ROLL_FRAGMENT_ID] = int(fragments.get(ROLL_FRAGMENT_ID, 0)) + 1
+	# Saves from before 2026-11-19: the Verdant Gate is a fallen tree now; a gate opened is a tree
+	# smashed (set quietly).
+	if not has_flag(VERDANT_TREE_FLAG) and _verdant_gate_was_open():
+		_flags().append(VERDANT_TREE_FLAG)
+	# Saves from before 2026-11-20 have no potion belt (none open). A belt slot bought from Dollop
+	# then sat in the bag: it leaves the bag and opens its slot now, quietly.
+	var bag_slots: Array = []
+	var found_belt_slots := 0
+	for slot: Variant in inventory.get("slots", []):
+		if slot is Dictionary and is_belt_item(str((slot as Dictionary).get("item_id", ""))):
+			found_belt_slots += int((slot as Dictionary).get("count", 0))
+		else:
+			bag_slots.append(slot)
+	if found_belt_slots > 0:
+		inventory["slots"] = bag_slots
+	var belt_kinds: Array = []
+	belt_kinds.assign(potion_belt_kinds())
+	_belt()["open"] = mini(POTION_BELT_SLOTS, potion_belt_open() + found_belt_slots)
+	_belt()["kinds"] = belt_kinds
 	start_kit_pending = false
 	started = true
 	# Saves from before the ceremony: what the bag already holds is no news.
@@ -1175,8 +1517,31 @@ func install(data: Dictionary) -> bool:
 	# rebinds on its next call and reports it with `quest_changed`.
 	inventory_changed.emit({})
 	weapon_loadout_changed.emit({"slots": weapon_slots()})
+	_emit_potion_belt(-1, true)
 	coins_changed.emit({"coins": coins(), "delta": 0})
 	return true
+
+
+## True when the run is past where the Roll is taught (`install`'s migration): Burr freed from his
+## cell, or any Pearl flag set.
+func _past_the_roll_lesson() -> bool:
+	for flag: Variant in _flags():
+		var flag_name := str(flag)
+		if flag_name == ROLL_KNOWN_FLAG or flag_name.begins_with(PEARL_FLAG_PREFIX):
+			return true
+	return false
+
+
+## True when a map record of the run has the old Verdant Gate unlocked (`install`'s migration).
+func _verdant_gate_was_open() -> bool:
+	var maps: Variant = world.get("maps")
+	if not maps is Dictionary:
+		return false
+	for record: Variant in (maps as Dictionary).values():
+		var unlocked: Variant = (record as Dictionary).get("unlocked_gate_ids") if record is Dictionary else null
+		if unlocked is Array and VERDANT_GATE_ID in (unlocked as Array):
+			return true
+	return false
 
 
 func has_save(slot: int = 0) -> bool:
@@ -1364,8 +1729,33 @@ static func _integers(value: Variant) -> Variant:
 	return value
 
 
+## True when the main loop is a script under `res://tools/` (a `-s` tool run, not the game).
+static func _running_a_tool() -> bool:
+	return is_tool_script(_main_loop_script_path())
+
+
+## The path of the main loop's script ("" for the game's own SceneTree).
+static func _main_loop_script_path() -> String:
+	var loop: MainLoop = Engine.get_main_loop()
+	var script: Script = loop.get_script() as Script if loop != null else null
+	return script.resource_path if script != null else ""
+
+
+## True for a script under `res://tools/` (a render, bake or lab run with `-s`).
+static func is_tool_script(path: String) -> bool:
+	return path.begins_with(TOOLS_DIR)
+
+
+## Where a run whose main loop script is `main_script_path` ("" for the game) saves: TOOL_SAVE_ROOT
+## for a tool run, else PLAYER_SAVE_ROOT.
+static func save_root_for(main_script_path: String) -> String:
+	return TOOL_SAVE_ROOT if is_tool_script(main_script_path) else PLAYER_SAVE_ROOT
+
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if _running_a_tool():
+		save_root = save_root_for(_main_loop_script_path())
 	_autosave_timer = Timer.new()
 	_autosave_timer.name = "AutosaveTimer"
 	_autosave_timer.one_shot = true
@@ -1373,7 +1763,7 @@ func _ready() -> void:
 	_autosave_timer.timeout.connect(write_recovery)
 	add_child(_autosave_timer)
 	for changed: Signal in [inventory_changed, world_progress_changed, coins_changed, story_flag_changed, ability_learned,
-			weapon_loadout_changed, weapon_equipped, recipes_learned, quests_changed]:
+			tip_heard, page_found, weapon_loadout_changed, weapon_equipped, recipes_learned, quests_changed]:
 		changed.connect(func(_payload: Dictionary) -> void: schedule_autosave())
 	# The Shell autoload comes after this one: the window joins it right after the Shell's _ready,
 	# before the main scene (the title shows Load only when the action exists when it is built).

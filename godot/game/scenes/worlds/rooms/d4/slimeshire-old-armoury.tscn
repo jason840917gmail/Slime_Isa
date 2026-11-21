@@ -102,7 +102,7 @@ texture = ExtResource("14_n1vvs")
 map_id = "slimeshire-old-armoury"
 instance_id = "armoury-chest"
 initial_contents = {
-"coins": 40
+"war-journal-page-1": 1
 }
 
 [node name="armoury-glint" parent="Objects" unique_id=783038343 instance=ExtResource("15_5ql4n")]

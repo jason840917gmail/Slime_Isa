@@ -57,7 +57,7 @@ texture = ExtResource("8_qhaow")
 map_id = "slimeshire-sally-port"
 instance_id = "sally-chest"
 initial_contents = {
-"hp-potion": 2
+"recipe-page-berry-basket": 1
 }
 
 [node name="world-definition" type="Node" parent="." unique_id=1578289427]

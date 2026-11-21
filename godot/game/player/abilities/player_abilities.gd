@@ -28,9 +28,13 @@ const TeleportSequence := preload("res://game/player/abilities/teleport_sequence
 const LashSequence := preload("res://game/player/abilities/lash_sequence.gd")
 const GooBombSequence := preload("res://game/player/abilities/goo_bomb_sequence.gd")
 const LanternSequence := preload("res://game/player/abilities/lantern_sequence.gd")
+const BowSequence := preload("res://game/player/abilities/bow_sequence.gd")
 const StairsSequence := preload("res://game/player/abilities/stairs_sequence.gd")
 
 const CUE_DENIED := &"AbilityDenied"
+## The abilities whose energy is checked at the press (`rejection`) and spent later by their own
+## sequence: the Goo Bomb at its spit (GooBombSequence), the Bow at its shot (BowSequence).
+const SPENT_BY_SEQUENCE: Array[StringName] = [Definitions.GOO_BOMBS, Definitions.BOW]
 const TEXT_RISE := 30.0
 
 var _player: Node
@@ -80,7 +84,8 @@ func is_on_stairs() -> bool:
 	return _sequence is StairsSequence and bool(_sequence.call(&"owns_body"))
 
 
-## `RunState` knows it; the dodge also when player.gd's `dodge_learned` (trial override) is on.
+## `RunState` knows it (the Roll from young Burr's lesson, or lent for the session); the dodge also
+## when player.gd's `dodge_learned` (a dev override, off) is on.
 func is_learned(id: StringName) -> bool:
 	var run := Services.run()
 	if run != null and run.has_learned_ability(String(id)):
@@ -148,8 +153,9 @@ func try_begin(id: StringName, request: Dictionary) -> bool:
 			notify_rejected(id, "blocked")
 			return false
 		target = landing
-	# The Goo Bomb checks its energy here (`rejection`) and spends it at the spit (GooBombSequence).
-	if id != Definitions.GOO_BOMBS and not _spend(id):
+	# The Goo Bomb and the Bow check their energy here (`rejection`) and spend it later
+	# (SPENT_BY_SEQUENCE).
+	if not id in SPENT_BY_SEQUENCE and not _spend(id):
 		notify_rejected(id, "energy")
 		return false
 	var seq := _next_seq
@@ -318,4 +324,6 @@ func _make_sequence(id: StringName) -> RefCounted:
 			return GooBombSequence.new()
 		Definitions.LANTERN:
 			return LanternSequence.new()
+		Definitions.BOW:
+			return BowSequence.new()
 	return null

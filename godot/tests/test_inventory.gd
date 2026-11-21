@@ -33,7 +33,7 @@ func test_menu_key_opens_bag(t: TestContext) -> void:
 	t.check(t.tree.paused and t.world().has_pause_reason(&"modal"), "the world is not paused by the bag")
 	t.check(menu.tabs.visible, "the tab strip is hidden")
 	t.check(menu.tabs.is_tab_disabled(&"inventory"), "the Bag tab is enabled while the bag is open")
-	t.check(not menu.tabs.is_tab_disabled(&"crafting"), "the Crafting tab is disabled")
+	t.check(not menu.tabs.buttons.has(&"crafting"), "the strip still has a Crafting tab (crafting is at the stations since 2026-11-20)")
 	t.equal(menu.current_tab(), &"inventory", "current tab")
 	t.tap(&"menu")
 	t.check(not menu.bag.is_open(), "the menu key did not close the bag")
@@ -62,11 +62,11 @@ func test_tab_coach(t: TestContext) -> void:
 	var run := Services.run()
 	menu.open_bag()
 	t.check(menu.tabs.coach.visible, "the coach is hidden the first time")
-	t.equal(menu.tabs.coach_label.text, "These tabs switch between your Bag, Crafting, Journal and Map. Click one!", "coach text")
-	menu.tabs.buttons[&"crafting"].pressed.emit()
+	t.equal(menu.tabs.coach_label.text, "These tabs switch between your Bag, Journal and Map. Click one!", "coach text")
+	menu.tabs.buttons[&"journal"].pressed.emit()
 	t.check(run.has_flag("hint.menu-tabs"), "a tab click did not learn the coach")
 	t.check(not menu.tabs.coach.visible, "the coach stayed after a tab click")
-	menu.crafting.close()
+	menu.toggle_menu()
 
 
 func test_map_and_registered_tabs(t: TestContext) -> void:

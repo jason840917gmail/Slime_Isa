@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Region** | Crystal Caverns (`crystal-caverns` exists as a placeholder world; its exit from Gloop Forest is open without a key for now). Planned: a maze of web walls that only the Silk skin passes leads in, so the Silk skin opens the chapter (owner, 2026-10-16, question 81). *As built (2026-11-14): the caverns are four chunk worlds (G4, H4, G5, H5), and the Crystal Mine is built (2026-10-17)* |
-| **Goal** | Light the dark, find the smith at his mine camp, and break the Colossus (Planned in part, owner, 2026-10-16). Rebuilding the Workshop is Open (question 51) |
+| **Goal** | Light the dark, find the smith at his mine camp, and break the Colossus (Planned in part, owner, 2026-10-16). Rebuilding the Workshop is Open (question 51). *Changed 2026-11-20 (owner): Pearl 2's homecoming raises the Workshop at the end of Chapter 2, and there Pip carves the Bow's rune from the smith's crystal; Pearl 3's homecoming lights the Forge* |
 | **Boss** | Crystal Colossus (Planned, owner, 2026-10-16: the four braziers of his arena, lit by the Lantern, bare a weak spot at a random place, for the Spear or the Axe; question 59. *Changed 2026-10-16: for the Spear alone, as the War Axe waits for the next release, question 94*) |
-| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). A boss heart (Planned, owner, 2026-10-16, question 17: each boss also gives a full heart). The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* *Changed 2026-11-17 (owner, question 146): shapes are dropped as a concept, and the Spear is an ability.* *As built (2026-11-14): the smith gives the Lantern at his mine camp in G4; Pearl 3 and the Feral skin are built in the Mine (M13); the Bow is not built, so the Chasm and Pearl 3 cannot be reached in play.* |
+| **Earned** | Planned: the **Bow** from Burr in the West village, the Lantern from the smith, and Pearl 3 with the **Feral** skin (owner, 2026-10-16, questions 56, 59 and 94). A boss heart (Planned, owner, 2026-10-16, question 17: each boss also gives a full heart). The Workshop's Hammer shape moved to Chapter 5 or 6 (question 51). *Changed 2026-10-16 (sixth round, questions 102 and 106): Burr builds the Bow from the Matron's thread, once Pearl 2 is home.* *Changed 2026-11-17 (owner, question 146): shapes are dropped as a concept, and the Spear is an ability.* *As built (2026-11-14): the smith gives the Lantern at his mine camp in G4; Pearl 3 and the Feral skin are built in the Mine (M13); the Bow is not built, so the Chasm and Pearl 3 cannot be reached in play.* *Built 2026-11-20: the Bow, from Burr at home in C4 (his talks and the lens lock in his yard); he teaches it once Pearl 2 is home, which waits for the homecoming.* *Changed later on 2026-11-20 (owner): the Bow comes from Pip's bow rune at the Workshop in C4 (5 wood, the Matron's thread and the smith's crystal), not from Burr; its lens lock stands by the lake camp's river in C5. Built the same day.* |
 | **Status** | Sketch, part of Release 1 since 2026-10-15 (Release 1 is Chapters 1 to 3), and Release 1's content ends here, when the Colossus falls (question 58). The beats marked Planned are the owner's of 2026-10-16; the rest is an Idea or a Proposal. *As built (2026-11-14): the Mine, the smith's camp and the Lookout are built ([DUNGEONS.md](../../godot/DUNGEONS.md)); this chapter's text is still the sketch.* |
 
 This sketch ties together pieces that already waited in the roadmap's parking
@@ -64,16 +64,54 @@ exam. The built mine keeps the old order until its rework
 
 ## Beats
 
-1. **Burr's Bow** (Planned, owner, 2026-10-16, questions 85 and 94). When the
+1. **The Bow: Pip's bow rune** (Built 2026-11-20; Burr's Bow until the owner's change
+   the same day; owner, 2026-10-16, questions 85 and 94). When the
    slime comes back to the West village after Chapter 2, Burr, freed from
    Fatty's Lair in Chapter 1, gives his thanks: the **Bow**, with the full
    ceremony. It is an Ability Box power, and each arrow costs energy. Its
    locks are far targets in a straight line across gaps and water, far
    enemies that cannot be reached otherwise, and enemies that open doors when
    they die (question 76).
+   - **Changed later on 2026-11-20 (owner): Pip carves it.** Burr no longer
+     teaches the Bow or takes the thread. Pearl 2's homecoming raises
+     Slimeshire's old Workshop, which Pip, the smith's son, keeps for his dad
+     (in C4's north-east corner, beside the Forge). Pip then asks for 5 wood
+     for the rune's frame, a string strong as wire (the Matron's thread) and
+     a clear crystal from his dad's mine for its heart; the smith gives that
+     crystal at his mine camp once the mine's gate is open (beat 4; *since
+     2026-11-21 in his cave, with the Lantern*). With the
+     three in the bag Pip carves the **bow rune**, and the slime learns the
+     Bow with its ceremony ("It knows the shape, so your body will too"); he
+     points at the lake camp's two lenses, its first lock. Burr's thanks tells
+     how the Thorn Guard's bows were shaped from goo by carved runes, and that
+     Pip could carve one once the Workshop stands; with the Bow, Burr gives
+     his archery tips. The mine cart is the Bow-less slime's quick way out of
+     the mine to Pip and back. *Built the same day: Pip's talks, his quest
+     Pip's Workshop (the Workshop, a bow rune, the Forge) and the smith's
+     crystal; not playtested.*
    - *Changed 2026-11-17 (owner, question 150): Burr's house is in
      Slimeshire's C4, so he gives the Bow there, and its first targets stand in
      that yard. As built (2026-11-14): the Bow is not built.*
+   - *Changed 2026-11-20 (owner): the Bow is shaped from the slime's own body,
+     as the Spear is, and its arrows are goo the slime pinches off, a little
+     energy each, with no ammo and no counter. Burr builds nothing: he teaches
+     the shape, and the Matron's thread becomes its string.*
+   - *Built 2026-11-20:* the Bow (6 energy an arrow; pressed, the slime draws
+     its goo bow along the movement keys, else its facing; released, the arrow
+     flies straight on its level: lenses, bells, the eyes and the flyers take
+     it, walls, bars and higher ground stop it). In the first build that day
+     (replaced by Pip's rune, above) Burr waits at home in C4 once
+     he has walked home from the bolt-hole: before Pearl 2 is home he thanks
+     the slime and gives the tip "come back when the forest is free"; with
+     Pearl 2 home he says where the thread hangs, and with the thread he
+     teaches the Bow, its ceremony, and points at its first lock; then two more
+     tips. The **first lock** stood in his yard at first (two crystal lenses by
+     the dry ditch). *Moved the same day (owner: C4 was overcrowded):* two
+     crystal lenses on the river's north bank by the lake camp in C5, each shot
+     from the camp's bank across the water; both struck, a chest of 20 coins
+     rises by the camp. Pearl 2's homecoming is built (2026-11-20), so a story
+     run gets the Bow once Pearl 2 is home and Pip has the wood, the thread
+     and the smith's crystal.
    - *Until 2026-10-16 (fifth round): Burr gave it right after Fatty's Lair,
      in Chapter 1 (question 80).*
    - *Changed 2026-10-16 (sixth round, questions 102 and 106):* visited
@@ -89,13 +127,19 @@ exam. The built mine keeps the old order until its rework
      (question 102). *Changed 2026-10-16 (eighth round, question 127): the
      chasm's lock is a crystal lens on a post, as an eye is always the
      Spear's.*
-   - **Its first lock** (Planned, owner, 2026-10-16, question 132): targets in
-     Burr's yard, right where he teaches it. An arrow also rings bells
+   - **Its first lock** (Built 2026-11-20; owner, 2026-10-16, question 132): targets in
+     Burr's yard, right where he teaches it. *Moved 2026-11-20 (owner: C4 was
+     overcrowded): by the lake camp's river in C5, south of his house.* An arrow also rings bells
      (question 115), and bars stop arrows (question 131).
    - **The order** (Planned, owner, 2026-10-16, question 134): the Silk skin
      opens the caverns before the Bow can be had, so the caverns' first half
      (the web-wall maze, the mine camp, the Lantern and the dark maze) never
      needs it, and the smith at the mine camp sends the slime to Burr.
+     *Changed 2026-11-20 (owner): he gives his crystal for Pip's rune instead.
+     The order: Pearl 2 home and the Workshop raised; into the caverns, the
+     mine's gate (the Lantern); the smith's crystal; back to Slimeshire with 5
+     wood and the thread; Pip carves the rune and the slime learns the Bow;
+     the Mine's Chasm, Pearl 3, the Colossus; Pearl 3 home and the Forge lit.*
 2. **The web-wall maze** (Planned, owner, 2026-10-16, question 81). A maze of
    web walls on Gloop Forest's east side, which only the Silk skin passes,
    leads into the caverns: the Silk skin opens Chapter 3, as a skin opens the
@@ -106,10 +150,36 @@ exam. The built mine keeps the old order until its rework
 3. **The first dark rooms** (Proposal). The caverns are a dark maze. The Glow
    form, gulped from a crystal shard, went with the gulped forms on
    2026-10-15.
+   - **A falling-slab maze** (Planned, owner, 2026-11-20; roadmap 12.9). A
+     maze of long falling slabs, crossed with the Roll, over the void or
+     ground that hurts ("the cliff could be void or damaged areas", owner).
+     A long slab gives way in pieces behind the slime: it is the kit we
+     have, a run of one-cell slabs with no landing, which only the Charged
+     Roll crosses, as on the plank bridge to C5's lake island (owner, the
+     same day). Long runs stand on the main way too (owner, the same day),
+     so the chapter's main path needs the Charged Roll and all four Roll
+     Fragments, found in Chapters 1 and 2. It is the Caverns' outside
+     (owner, the same day): several levels of mountains and cliffs, islands,
+     and crystal caves that lead to other parts of the maze, with monsters
+     and secrets. **The smith is found in one of those mine caves, on the
+     main road** (beat 4), and the mine's gate stands early on that road,
+     so the trip to Pip for the Bow and back stays short (owner, the same
+     day). Its size is designed with the owner. *Built 2026-11-21, not
+     playtested: the Spiral, the owner's pick of three sketches, rings round a
+     central peak with the smith's cave in it, the void under every run and
+     spikes rarer ([the Spiral](../../design/2026-11-20-caverns-spiral.md)).*
 4. **The smith's mine camp** (Planned, owner, 2026-10-16, question 59). The
    smith, Pip's dad, runs the crystal mine, which the Crystal Colossus has
    blocked. He is not trapped, and there is no rescue: the slime finds him
-   safe at his mine camp.
+   safe at his mine camp. *Changed 2026-11-20 (owner): the slime finds him
+   in a mine cave on the main road of the falling-slab maze (beat 3). The
+   mine's gate stands early on that road, near the way in from Gloop
+   Forest, so the Bow's trip to Pip and back is short. The order (owner,
+   the same day: "Yes, that order"; roadmap 12.9): past the shut gate,
+   across the maze to his cave (his camp moves in there), the Lantern and
+   the Smith's Crystal in one visit, a lamp in his cave that opens his mine
+   cart's one-way shortcut back to the gate, one flame at the gate, the trip
+   to Pip for the Bow, then the mine.*
    - He gives the slime the **Lantern** (an ability, built in the rework
      mode), the Forge's ember, with the full ceremony: an ember lights the
      slime in dark rooms, and a short flame lights candles and braziers and
@@ -122,23 +192,40 @@ exam. The built mine keeps the old order until its rework
      crystal lens on a post.*
    - **The smith sends the slime to Burr** (Planned, owner, 2026-10-16,
      question 134), who builds the Bow (beat 1); nothing before the chasm
-     needs it.
+     needs it. *Changed 2026-11-20 (owner): he sends it to Pip instead. Once
+     the mine's gate is open (the Lantern's first lock), his next talk gives
+     the **Smith's Crystal**: "Here: the clearest crystal this mine ever gave
+     me." His boy Pip, in Slimeshire, can carve a bow rune with it, a little
+     wood and a string strong as wire (beat 1).*
    - *As built (2026-10-17): the smith stands at his mine camp in G4, gives
      the Lantern on the first talk and sends the slime to Burr; the Chasm's
-     lens is built and waits for the Bow.*
+     lens is built and waits for the Bow.* *Since 2026-11-20 the Bow is built,
+     and once the gate is open the smith gives the Smith's Crystal
+     (`mine-crystal`, once); until the Bow he reminds the slime to take it to
+     Pip, then gives tips.* *Since 2026-11-21 (roadmap 12.9) he is in his ore
+     cave in the peak's face: the first talk gives the Lantern and the crystal
+     together, and his lamp frees his one-way cart down to the mine's gate in
+     the first yard, where one flame opens it.*
    - Of the dry growth only the grey-black, scorched hay and banners burn,
      and the dry roots are grey-black and thorny (question 129).
    - Rotten mine timbers in the way are the Heavy Roll's, not the Lantern's
      (owner, 2026-10-16, question 93).
    - Pip's story stays relighting the Forge (Chapter 2); it is no longer
-     about finding his dad.
+     about finding his dad. *Since 2026-11-20 (owner): Pip keeps his dad's
+     Workshop and Forge, and Pearl 3's homecoming lights the Forge.*
    - *Until 2026-10-16 (Proposal): the smith was trapped in crystal, deep in
      the maze, where he had come looking for metal to fight the worms, and
      the slime freed him.*
 5. **The Workshop** [`the-old-workshop`] (Built, parked). The smith teaches
    the **Hammer** shape there, in Chapter 5 or 6, after Release 1 (owner,
    2026-10-15, question 51), and Release 1 has no iron bars (no harvesting).
-   What the Workshop does in Release 1 is Open (question 51).
+   What the Workshop does in Release 1 is Open (question 51). *Changed
+   2026-11-20 (owner): in Release 1 it is Pip's place. The owner moved it
+   beside the Forge in C4's north-east corner (the red mushroom house took its
+   old place north of the plaza); Pearl 2's homecoming raises it, with no
+   crafting station, and Pip carves the bow rune there (beat 1). The quest
+   The Old Workshop is retired (2026-11-19); Pip's Workshop follows it now.
+   Who teaches the Hammer, and where, is question 167.*
 6. **The Crystal Colossus** (Planned, owner, 2026-10-16, question 59). A golem
    of crystal grown around Pearl 3.
    - Four braziers ring his arena. Only when all four burn, lit by the
@@ -213,7 +300,13 @@ exam. The built mine keeps the old order until its rework
      the town. Which building it restores is not decided. *Changed 2026-11-17
      (owner, question 149): its power fills Glimmerhill's next fountain and
      wakes the next part of town; which part is question 159 (Proposal: the
-     south gate's quarter, B5).*
+     south gate's quarter, B5).* *Settled 2026-11-19 (question 159): the
+     proposal. Built 2026-11-20: its homecoming wakes the south gate's quarter
+     ([PROLOGUE.md](../../godot/PROLOGUE.md#the-homecoming-2026-11-20)).*
+     *Changed 2026-11-20 (owner): it also lights Slimeshire's Forge
+     (`forge.restored`; the card: "In Slimeshire, the old Forge glows
+     again."), so the Fizzy Brew, which Pip teaches once it burns, comes
+     after the Colossus. Built the same day.*
 8. **Home, and the open world** (Planned, owner, 2026-10-16, question 58).
    Once the Colossus falls, the smith goes home to Slimeshire. Release 1's
    content ends here, but the game goes on: the player explores the first
@@ -231,6 +324,15 @@ exam. The built mine keeps the old order until its rework
    as an idea of what comes next (owner, 2026-11-17, question 156), so a post
    must close the way to it. Tall cliffs, balconies and cliff caves are in
    Release 1 (owner, 2026-11-17, question 155).*
+   *Built 2026-11-20: when the Colossus falls (`chapter-3-complete`) the
+   Release 1 end card shows ("The first three Pearls").
+   The Wilds are walled off by terrain (owner, 2026-11-19, question 164).*
+   *Changed 2026-11-20 (owner): the smith does not go home. He stays at his
+   mine camp: "Ha! Rubble, the lot of him. My lamps burn again, and the mine
+   is mine." He is proud of Pip for keeping the Workshop going. Built the
+   same day; his homes placed earlier that day (a cottage in Glimmerhill's
+   south gate's quarter, then his anvil in front of the relit Forge) are
+   gone.*
 
 ## Questions for later
 

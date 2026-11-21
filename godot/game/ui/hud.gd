@@ -6,10 +6,11 @@ class_name GameHud
 ##
 ## - The console along the bottom (game/ui/console/hud_console.gd): the minimap (MapUi's, docked),
 ##   the life and energy orbs (they replaced the HP and energy bars), the weapon in hand
-##   (WeaponHotbar, crafting spec 8.6), the AbilityBar (abilities spec 2.6) and the menu buttons.
-##   This node places the WeaponHotbar, the AbilityBar and the minimap on the console's rects on
-##   every resize and on the console's `layout_changed` (body-shapes rework mode: the Shape slot
-##   showing or hiding, the ability slots changing); main.gd gives the WorldCamera the console's
+##   (WeaponHotbar, crafting spec 8.6), the AbilityBar (abilities spec 2.6), the potions group
+##   (PotionBeltBar, crafting spec 12.4) and the menu buttons. This node places the WeaponHotbar,
+##   the AbilityBar, the potions group and the minimap on the console's rects on every resize and on
+##   the console's `layout_changed` (body-shapes rework mode: the Shape slot showing or hiding, the
+##   ability slots changing; a belt slot opening); main.gd gives the WorldCamera the console's
 ##   HEIGHT as its `bottom_inset`.
 ## - Top left: the coin chip (`Coins`, HudLabel), and the QuestTracker under it (quests spec 4.4).
 ## - The floating PlayerHealthBar (world spec 6.3) and the BossHealthBar (boss spec 5).
@@ -31,6 +32,7 @@ const PlayerScript := preload("res://game/scripts/player.gd")
 const PlayerHealthBar := preload("res://game/ui/player_health_bar.gd")
 const BossHealthBar := preload("res://game/ui/boss_health_bar.gd")
 const AbilityBar := preload("res://game/ui/ability_bar.gd")
+const PotionBeltBar := preload("res://game/ui/potion_belt_bar.gd")
 const HudConsole := preload("res://game/ui/console/hud_console.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 
@@ -51,6 +53,7 @@ var _map_ui: Node
 var _floating_bar: PlayerHealthBar
 var _boss_bar: BossHealthBar
 var _ability_bar: AbilityBar
+var _potion_bar: PotionBeltBar
 
 
 ## Builds the controls; layer 10; PROCESS_MODE_ALWAYS.
@@ -97,6 +100,11 @@ func get_console() -> HudConsole:
 	return _console
 
 
+## The potions group (res://game/ui/potion_belt_bar.gd).
+func get_potion_bar() -> PotionBeltBar:
+	return _potion_bar
+
+
 ## Subscribes to `player.health_changed` and `player.respawned`, reads the snapshot, binds the
 ## floating health bar.
 func bind_player(player: PlayerScript) -> void:
@@ -120,6 +128,8 @@ func bind_player(player: PlayerScript) -> void:
 		_floating_bar.bind_player(player)
 	if _ability_bar != null:
 		_ability_bar.player = player
+	if _potion_bar != null:
+		_potion_bar.player = player
 
 
 ## Applies a snapshot {"hp", "maxHp", "energy", "maxEnergy", "coins"} (Phaser keys) to the coin
@@ -189,7 +199,7 @@ func _heart_quarters() -> Array[int]:
 	return hearts
 
 
-## Places the weapon slot, the ability bar and the minimap on the console's rects.
+## Places the weapon slot, the ability bar, the potions group and the minimap on the console's rects.
 func _layout() -> void:
 	if _console == null or not _console.is_inside_tree():
 		return
@@ -197,6 +207,7 @@ func _layout() -> void:
 	var rects := _console.rects()
 	_hotbar.position = (rects["weapon"] as Rect2).position
 	_ability_bar.position = (rects["abilities"] as Rect2).position
+	_potion_bar.position = (rects["potions"] as Rect2).position
 	var minimap: Control = _map_ui.get(&"minimap") if _map_ui != null else null
 	if minimap != null:
 		minimap.set(&"dock", rects["minimap"])
@@ -262,6 +273,11 @@ func _build() -> void:
 	_ability_bar = AbilityBar.new()
 	_ability_bar.theme = _root.theme
 	add_child(_ability_bar)
+
+	# The potions group (the belt's open slots), on the console (crafting spec 12.4).
+	_potion_bar = PotionBeltBar.new()
+	_potion_bar.theme = _root.theme
+	add_child(_potion_bar)
 
 	# The weapon in hand and its carousel, on the console (res://game/ui/weapon_hotbar.gd).
 	_hotbar = preload("res://game/ui/weapon_hotbar.gd").new()

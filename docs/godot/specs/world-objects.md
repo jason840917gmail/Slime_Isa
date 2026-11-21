@@ -244,7 +244,7 @@ exist). There are no `game.destructible` instances anywhere.
 |---|---|---|---|
 | **level-1** | yes | **58**: 48 trees + 10 stone (6 `resource-stone-node`, 4 `big-stone-mine`) | **15**: 9 purple berry, 4 wood pile, 2 stone pile |
 | gloop-forest | yes (east of level-1, behind the Verdant Gate) | 3 iron nodes (`gloop-iron-1..3`) | 2 iron-ore piles, 1 berry basket (`gloop-ch2-sunny-basket` (1696, 168)) |
-| gloop-cavern | yes | 0 | 3 crystal shards ((420,520), (520,700), (900,420)) |
+| gloop-cavern | yes | 0 | 3 crystal shards ((420,520), (520,700), (900,420); [GODOT] (448,484), (538,648), (880,393) since the interior walls, 2026-11-20) |
 | crystal-caverns, gloop-hut, mushroom-home, slime-home | yes | 0 | 0 |
 | playground | dev | 9: trees (220,380), (520,420), (260,760), (600,820 autumn); stones (300,1080), (520,1140), big mine (400,1300); iron (200,1240), (640,980) | 8: wood pile (760,520), small wood (820,640), stone pile (760,1080), small stone (820,1200), silk ×2, lash-loot wood (2470,1296) and stone (2470,1600) |
 | test-rectangle | dev | 1 amber ore (`initialHealth` 30) | 0 |
@@ -742,8 +742,8 @@ category `weapon`, maxStack `weaponMaxStack` 1). An unknown id has no definition
 | stone | Stone | material | 25 | — |
 | iron-ore | Iron Ore | material | 99 | — |
 | charcoal | Charcoal | material | 99 | — |
-| hp-potion | Slime Tonic | consumable | 9 | heal 40 HP |
-| energy-potion | Fizzy Brew | consumable | 9 | +50 energy |
+| hp-potion | Slime Tonic | consumable | 5 (9 until 2026-11-20) | heal 40 HP |
+| energy-potion | Fizzy Brew | consumable | 5 (9 until 2026-11-20) | +50 energy |
 | purple-berry-mat | Purple Berry | material | 99 | — |
 | silk-clump | Sticky Silk | material | 99 | — |
 | weaver-fang | Weaver Fang | material | 99 | — |
@@ -752,7 +752,37 @@ category `weapon`, maxStack `weaponMaxStack` 1). An unknown id has no definition
 | green-key | Verdant Key | key | 1 | — |
 | crystal-key | Crystal Key | key | 1 | — |
 | workbench | Workbench | furniture | 1 | placeable |
-| berry-basket | Berry Basket | consumable | 9 | heal 20 HP, +30 energy |
+| berry-basket | Berry Basket | consumable | 5 (9 until 2026-11-20) | heal 20 HP, +30 energy |
+| belt-slot | Belt Slot | belt | 4 | — (Godot only, 2026-11-20: sold by Dollop, crafting spec 12.3) |
+| charged-roll | Charged Roll | upgrade | 1 | — (Godot only, 2026-11-20: a find, learns `roll-charge`; Yoi's chest at first, nowhere in the world since four Roll Fragments make it: tools and a test use it) |
+| roll-fragment | Roll Fragment | fragment | — (never in the bag) | — (Godot only, 2026-11-20: a find, `fragmentsNeeded` 4, `teachesAbility` `roll-charge`; quests spec 14.8) |
+| war-journal-page-1 … -3 | War Journal, Page 1 … 3 | page | 1 | — (Godot only, 2026-11-20: a find, quests spec 14.8) |
+| recipe-page-berry-basket | Recipe Page: Berry Basket | recipe-page | 1 | — (Godot only, 2026-11-20: a find, learns `cook-berry-basket`; the sally port's chest) |
+
+**Finds** (Godot, 2026-11-20): an item of category `belt`, `page`, `recipe-page`, `upgrade` or
+`fragment` never
+takes a bag slot; it is used up as it comes in, by any way in (`add_item`, a pickup, a chest stack,
+`transact_items`), and always fits (a belt slot while the belt has slots closed). A belt slot opens a
+slot (crafting spec 12.4); a war-journal page is kept in `story.war_pages` and opens its reading
+panel; a recipe page learns its `teachesRecipes` and opens its panel; an upgrade learns its
+`teachesAbility` and plays its card; a fragment is counted in `story.fragments` (`fragment_found`,
+its toast "Roll Fragment 2 of 4"), and the one that makes `fragmentsNeeded` learns its
+`teachesAbility` with its card (RunState "finds"; quests spec 14.8).
+
+### 8.2.1 The heap hatch (`object.heap-hatch`, Godot, 2026-11-20)
+
+A hatch in the ground under a heap of liftables (game/scripts/heap_hatch.gd,
+game/scenes/objects/heap-hatch.tscn): the lid (the Lair's stair-hatch sheet, shut and open frames),
+a door down (`DoorScript`, kind `ladder_down`, its trigger off while shut), an `arrival` in front of
+it and a `Heap` child to drop the liftables in. It stays shut while any liftable's root lies inside
+its `cover_rect`; the moment the last is gulped away (or thrown off) it opens with dust, the door
+sound and the secret jingle (only when something had lain on it since the world was built), and its
+`flag_id` keeps it open for good: built again, the heap's liftables are taken out and it lies open.
+Placed once: over Yoi's home in Lili's west yard (level-1-c4 `Chapter1/yoi-hatch`, at (169, 1313)
+since the owner moved it on 2026-11-20; seven light crates, `Chapter1/yoi-hatch/Heap/yoi-heap-crate-1`
+to `-7`; flag `level-1.yoi-hatch-open`, door `yoi-home-hatch` to `slimeshire-yoi-home`'s
+`yoi-home-ladder`). The crates were once lost in an editor save and put back the same day: check
+the heap after a "save all".
 
 ### 8.3 Adding (`createTransactionDraft`, `Inventory.ts:95-144`; `collectWorldItem`, `InventoryWorldTransaction.ts:51-81`)
 

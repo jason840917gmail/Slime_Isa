@@ -116,6 +116,10 @@ Godot:
   recovery autosave in place with `Main.load_run(0)` (group `world_main`). The save-slots window
   (`ui.save-slots`, built on `RunState.list_saves()`) belongs to the saves work and is out of the
   shell's scope; it takes over Save and Load by registering those actions.
+- **Tool runs never touch the player's saves** (2026-11-20): when the main loop is a script under
+  `res://tools/` (a render, bake or lab run with `-s`), `RunState._ready` points `save_root` at
+  `user://tool-saves` instead of `user://saves`, so a render's autosave cannot overwrite slot 0
+  (render runs had done so). The test runner sets its own scratch folder as before.
 - **[IN]** Quit to Title: closes the windows, holds the pause (`shell:quit`), calls
   `RunState.save_slot(0)` (the recovery autosave's place) unless `RunState.autosave_enabled` is
   off (the playground and the body-shapes rework mode keep no autosave: Continue never starts there), fades to `#0b1020` and the music out
@@ -225,7 +229,9 @@ Phaser:
   (disabled with nothing to load); Escape never skips it; Wake respawns at the bed or the start
   (`GameOverSurfacePort.ts:46-65`).
 - End cards (`EndCardSurfacePort.ts`, `content/story/endCards.ts`): when a story flag of a card
-  (`chapter-2-complete`, `playground-end-card-test`) is set during play, its card opens (title,
+  (`chapter-2-complete`, `playground-end-card-test`; in Godot since 2026-11-19 `chapter-3-complete`,
+  set when the Crystal Colossus falls, opens Release 1's card "The first three Pearls", and the
+  Chapter 2 card is gone: `game/shell/end_card.gd`) is set during play, its card opens (title,
   subtitle, body, "Return to title"); flags already set when the world loaded never show a card
   (`:22-25`). Escape never closes it; Return to title saves and goes to the title (`:40-44`).
 

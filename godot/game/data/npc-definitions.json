@@ -8,6 +8,56 @@
       "Ah, a young slime on the move. Welcome, welcome.",
       "I have watched over this village path for more seasons than I can count.",
       "Keep your goo bright and your eyes open. The forest has grown restless lately."
+    ],
+    "talks": [
+      {
+        "id": "crystal-caverns",
+        "ifFlags": [
+          "pearl.orb-weaver-matron.home"
+        ],
+        "pages": [
+          "Two Pearls home, and the old Workshop stands again. The whole valley breathes a little easier.",
+          "Past the far east end of Gloop Forest, the ground drops into the Crystal Caverns. Pip's father keeps his mine down there.",
+          "Something big has grown in those caverns, little one. Go carefully."
+        ],
+        "tip": {
+          "id": "plop.crystal-caverns",
+          "text": "Past the far east end of Gloop Forest lie the Crystal Caverns, where Pip's father keeps his mine."
+        }
+      },
+      {
+        "id": "verdant-gate-webs",
+        "ifFlags": [
+          "pearl.fatty-one-eye.home"
+        ],
+        "pages": [
+          "You brought the Pearl home! Look at the Wellspring, little one: it shines brighter already.",
+          "But the forest beyond the Verdant Gate, east of the village, is choked with webs. Something with far too many legs has made its nest there.",
+          "And mind the road there: an old dead tree has fallen right across the Verdant Gate's road. It will take real weight to move it."
+        ],
+        "tip": {
+          "id": "plop.verdant-gate-webs",
+          "text": "The forest beyond the Verdant Gate, east of Slimeshire, is choked with webs, and an old dead tree lies across its road: it will take real weight to move it."
+        }
+      },
+      {
+        "id": "burr",
+        "ifFlags": [
+          "prologue.done"
+        ],
+        "unlessAbilities": [
+          "dodge"
+        ],
+        "pages": [
+          "Fatty One Eye's worms have shut their burrow in Fatty's Hollow, south-east of the village. They did it with the old Thorn Guard gate.",
+          "Only Burr the gatekeeper knew that gate's trick. He went after Fatty... and he never came back.",
+          "His boy is home, in the blue cottage north-west of the plaza. Go and see him, little one. He could use a friend."
+        ],
+        "tip": {
+          "id": "plop.burr",
+          "text": "Only Burr the gatekeeper knew the trick of the old gate on Fatty's burrow, south-east of Slimeshire. His boy lives in the blue cottage north-west of the plaza."
+        }
+      }
     ]
   },
   {
@@ -19,6 +69,34 @@
       "Psst! Over here. Keep your voice down.",
       "I've been scouting Gloop Forest. Something with too many legs is spinning webs out there.",
       "If you're heading in, stay light on your feet."
+    ],
+    "talks": [
+      {
+        "id": "camp-after-tom",
+        "ifFlags": [
+          "chapter-1-complete",
+          "tom-freed"
+        ],
+        "pages": [
+          "You found Tom! He hasn't stopped talking about you since he got back.",
+          "Now, that Weaver Hollow up in the north-east... I hear its root gate doesn't like a good bang."
+        ]
+      },
+      {
+        "id": "camp",
+        "ifFlags": [
+          "chapter-1-complete"
+        ],
+        "pages": [
+          "Psst! Over here. Welcome to my camp, behind these old walls.",
+          "Tom, a friend of mine, went into the south-west woods to look at the webs. He never came back.",
+          "And the Weaver Hollow, up in the north-east? Its root gate is shut tight. Only something that blows up would open it."
+        ],
+        "tip": {
+          "id": "mossy.tom",
+          "text": "Tom went into Gloop Forest's south-west woods to look at the webs, and never came back."
+        }
+      }
     ]
   },
   {
@@ -30,17 +108,157 @@
       "Hi, I'm Lili!",
       "There is always room for one more friend in our clearing.",
       "Come back and visit anytime, okay?"
+    ],
+    "talks": [
+      {
+        "id": "yoi-hideout",
+        "unlessFlags": [
+          "lili.tonic-taught"
+        ],
+        "pages": [
+          "Hi, I'm Lili! There is always room for one more friend in our clearing.",
+          "Did you know? In Gorge's war, the slimes dug hideouts all under Slimeshire. Old Yoi's is right under my west yard, beneath a heap of crates.",
+          "Oh, you look a little squashed. Here, let me show you how to brew a Slime Tonic. Purple berries, a good stir, and you're bouncy again!"
+        ],
+        "learnRecipes": [
+          "brew-tonic"
+        ],
+        "setFlags": [
+          "lili.tonic-taught"
+        ],
+        "tip": {
+          "id": "lili.yoi-hideout",
+          "text": "Old Yoi's war hideout is under Lili's west yard, beneath a heap of crates."
+        }
+      },
+      {
+        "id": "yoi-hideout-again",
+        "ifFlags": [
+          "lili.tonic-taught"
+        ],
+        "pages": [
+          "Old Yoi's hideout is under my west yard, beneath that heap of crates. I bet he'd love a visitor!",
+          "And remember: purple berries make a Slime Tonic. Come back and visit anytime, okay?"
+        ],
+        "tip": {
+          "id": "lili.yoi-hideout",
+          "text": "Old Yoi's war hideout is under Lili's west yard, beneath a heap of crates."
+        }
+      }
     ]
   },
   {
     "id": "red-slime-boy",
     "characterId": "red-slime-boy",
     "displayName": "Pip",
-    "description": "The smith's son. He has wanted to light the Forge again since the worms came.",
+    "description": "The smith's son, keeping his dad's Workshop while his dad works the crystal mine.",
     "dialogue": [
-      "I'm Pip! My dad was Slimeshire's smith, before the worms chased him off.",
-      "The Forge in the yard by your house has been cold ever since.",
-      "One day I am going to light it again. You will see!"
+      "The Workshop's still a heap of boards, and the Forge is cold.",
+      "Elder Plop says every Pearl that goes home wakes a bit more of the world. Maybe the next one wakes Dad's Workshop!"
+    ],
+    "talks": [
+      {
+        "id": "rune-carve",
+        "ifFlags": [
+          "workshop.restored"
+        ],
+        "ifItems": {
+          "matron-thread": 1,
+          "wood": 5,
+          "mine-crystal": 1
+        },
+        "unlessAbilities": [
+          "bow"
+        ],
+        "pages": [
+          "Dad's crystal! And the Matron's own thread, and good dry wood. That's everything!",
+          "Wood for the frame, the crystal for its heart, and the thread wound through it for the string. Hold still...",
+          "There: a bow rune. Now put it to your goo. It knows the shape, so your body will too."
+        ],
+        "takeItems": {
+          "matron-thread": 1,
+          "wood": 5,
+          "mine-crystal": 1
+        },
+        "setFlags": [
+          "pip.mission-given",
+          "pip.bow-rune-made"
+        ],
+        "tip": {
+          "id": "pip.camp-lenses",
+          "text": "Two old crystal lenses stand on the river's north bank by the lake camp, south of the village. Strike both with arrows, from the camp across the water."
+        },
+        "learnAbility": "bow",
+        "pagesAfter": [
+          "It worked! Every arrow is a pinch of your goo, so mind your strength.",
+          "Burr says the Thorn Guard trained on two old crystal lenses down by the lake camp, across the river. Try them!"
+        ]
+      },
+      {
+        "id": "rune-ask",
+        "ifFlags": [
+          "workshop.restored"
+        ],
+        "unlessAbilities": [
+          "bow"
+        ],
+        "pages": [
+          "The Workshop stands again! The Pearl did it, just like Elder Plop said.",
+          "Now I can make things here, like Dad. I could carve you a bow rune, so your goo could shape a bow!",
+          "I need five pieces of wood for its frame, a string strong as wire, like the Matron's own thread, and a really clear crystal for its heart. Dad's mine has the best ones."
+        ],
+        "setFlags": [
+          "pip.mission-given"
+        ],
+        "tip": {
+          "id": "pip.bow-rune",
+          "text": "Pip can carve a bow rune at the Workshop: bring him 5 wood, the Matron's thread and a clear crystal from his dad's mine."
+        }
+      },
+      {
+        "id": "forge-lit",
+        "ifFlags": [
+          "forge.restored"
+        ],
+        "pages": [
+          "Look at it glow! The Forge is warm again, just like when Dad was here.",
+          "And it can brew, too. Bring it the right berries and a little crystal, and it makes a Fizzy Brew that puts the fizz back in your goo!"
+        ],
+        "learnRecipes": [
+          "brew-fizzy"
+        ],
+        "tip": {
+          "id": "pip.fizzy-brew",
+          "text": "The relit Forge brews the Fizzy Brew."
+        }
+      },
+      {
+        "id": "forge-cold",
+        "ifFlags": [
+          "workshop.restored"
+        ],
+        "ifAbilities": [
+          "bow"
+        ],
+        "pages": [
+          "The Workshop's humming, but the Forge is still cold. Dad says it only wakes for something really strong.",
+          "Maybe the next Pearl? Bring it home and let's see!"
+        ]
+      },
+      {
+        "id": "mission",
+        "unlessFlags": [
+          "pip.mission-given"
+        ],
+        "pages": [
+          "I'm Pip! My dad is Slimeshire's smith. He went off to his crystal mine, out past the forest.",
+          "So I'm keeping his Workshop now. Well... the heap of boards that's left of it. And the Forge has been cold ever since the worms came.",
+          "Elder Plop says every Pearl that goes home to the Wellspring wakes a bit more of the world. Bring them home, and maybe they'll wake the Workshop and the Forge too. Will you?"
+        ],
+        "setFlags": [
+          "pip.mission-given"
+        ]
+      }
     ]
   },
   {
@@ -51,38 +269,203 @@
     "dialogue": [
       "A little sunshine makes every adventure brighter!",
       "When I feel gloomy, I just bounce in the sun until it goes away."
+    ],
+    "talks": [
+      {
+        "id": "lost-basket",
+        "ifFlags": [
+          "chapter-1-complete"
+        ],
+        "pages": [
+          "Oh, hello again! I came to the forest with Mossy to pick berries.",
+          "But my berry basket fell across the north stream, and I can't reach it from here.",
+          "Maybe one day you'll find a way to fetch it back. No hurry! The sun will wait."
+        ]
+      }
     ]
   },
   {
     "id": "fisherman-slime",
     "characterId": "fisherman-slime",
-    "displayName": "Lily the Fishergirl",
+    "displayName": "Dora the Fishergirl",
     "description": "Patience, friend. The big one always bites right after you give up.",
     "dialogue": [
       "Shh... you'll scare the fish.",
       "Patience, friend. The big one always bites right after you give up."
+    ],
+    "talks": [
+      {
+        "id": "berry-basket-known",
+        "unlessFlags": [
+          "dora.basket-taught"
+        ],
+        "ifRecipes": [
+          "cook-berry-basket"
+        ],
+        "pages": [
+          "Shh... you'll scare the fish. Oh! You're new here. I'm Dora.",
+          "You know the Berry Basket already? An old Thorn Guard recipe, that. Fishing is hungry work, so I always pack one too."
+        ],
+        "setFlags": [
+          "dora.basket-taught"
+        ]
+      },
+      {
+        "id": "berry-basket",
+        "unlessFlags": [
+          "dora.basket-taught"
+        ],
+        "pages": [
+          "Shh... you'll scare the fish. Oh! You're new here. I'm Dora.",
+          "Fishing is hungry work, so I always pack a Berry Basket. Here, I'll show you how it's made."
+        ],
+        "learnRecipes": [
+          "cook-berry-basket"
+        ],
+        "setFlags": [
+          "dora.basket-taught"
+        ]
+      }
     ]
   },
   {
     "id": "tom",
     "characterId": "tom",
     "displayName": "Tom",
-    "description": "A round blue slime who can swallow just about anything, and learn from it.",
+    "description": "A round blue slime who studies everything up close. Webs included, a bit too close.",
     "dialogue": [
-      "Every essence tastes of what it was. Stone is gritty, silk is fluffy, swim is... wet.",
-      "Hold it in your mouth first. Swallow when you are sure: you cannot spit a form back up halfway.",
-      "Next time I go after silk, I'm bringing you."
+      "A Goo Bomb is only goo with a bad temper. Brew it slow, spit it quick.",
+      "Cracked rock, old bricks, a heap of rubble: if it looks tired, a bomb will finish the job.",
+      "Mind your own blast! Step back before it pops."
+    ],
+    "talks": [
+      {
+        "id": "goo-bomb-lesson",
+        "ifFlags": [
+          "tom-freed"
+        ],
+        "unlessFlags": [
+          "tom.goo-bomb-taught"
+        ],
+        "pages": [
+          "There you are! I never thanked you properly for cutting me out of that web.",
+          "So here's my best trick. Brew a little bomb of goo inside you, nice and slow... then spit it out!"
+        ],
+        "setFlags": [
+          "tom.goo-bomb-taught"
+        ],
+        "learnAbility": "goo-bombs",
+        "pagesAfter": [
+          "Back in my clearing, the ledge has a cracked rock in it. One bomb, and you have a quick way back to the trail."
+        ]
+      },
+      {
+        "id": "watch-oak",
+        "ifFlags": [
+          "tom-freed"
+        ],
+        "pages": [
+          "Phew! Thank you again. I thought I'd end up a weaver's snack.",
+          "That old Watch Oak in the north-east? Its root gate is all cracked. One good bomb and it would crumble."
+        ],
+        "tip": {
+          "id": "tom.watch-oak",
+          "text": "The Watch Oak's root gate, in Gloop Forest's north-east, is cracked: a bomb would bring it down."
+        }
+      }
     ]
   },
   {
     "id": "yoi",
     "characterId": "yoi",
     "displayName": "Yoi of the Thorn Guard",
-    "description": "An old soldier slime of the great war, with an eye patch and a red war sash. He keeps watch outside the town.",
+    "description": "An old soldier slime of the great war, with an eye patch and a red war sash. He keeps watch from his den under Lili's west yard.",
     "dialogue": [
       "A spear is only as good as the slime behind it. Plant yourself, then push.",
       "A worm's bite comes after its wind-up. Watch the shoulders, kid, then step back and thrust.",
-      "Bars, gaps, a lever out of reach: if a thrust fits, the Spear reaches."
+      "Bars, gaps, a lever out of reach: if a thrust fits, the Spear reaches.",
+      "Go on, kid. I'll keep watch. Always have."
+    ],
+    "talks": [
+      {
+        "id": "welcome",
+        "unlessFlags": [
+          "yoi.welcomed"
+        ],
+        "pages": [
+          "Well, I'll be. The kid from the glade! You got past Lili's crates, eh? Good. Means you think with your goo.",
+          "This is my den. We dug hideouts all under Slimeshire in the war. A cot, my old spears and the Thorn Guard's banner. Dry, and the worms don't know it's here.",
+          "We held the old gates, the Thorn Guard did. Night after night, against Gorge's worms. Sit a while, and I'll tell you what an old soldier knows.",
+          "Oh, and that chest in the corner, behind my statues: there's a piece of Burr's old Roll disc in it. He'll want you to have it. Mind, those statues only budge for a slime with real weight, and they come out, not in."
+        ],
+        "setFlags": [
+          "yoi.welcomed"
+        ],
+        "tip": {
+          "id": "yoi.old-gates",
+          "text": "The Thorn Guard held Slimeshire's old gates against Gorge's army of worms in the great war. Yoi was there."
+        }
+      },
+      {
+        "id": "fallen-helmets",
+        "ifFlags": [
+          "yoi.welcomed"
+        ],
+        "unlessFlags": [
+          "yoi.helmets-told"
+        ],
+        "pages": [
+          "The skeletons in the old forts? Look at their helmets, kid. Thorn Guard helmets. My comrades', every one.",
+          "They fell holding those forts, and Gorge's vassals woke their bones to guard them. Not their fault. Give them rest, and don't hate them for it."
+        ],
+        "setFlags": [
+          "yoi.helmets-told"
+        ],
+        "tip": {
+          "id": "yoi.fallen-helmets",
+          "text": "The skeletons in the old forts wear Thorn Guard helmets: they were Yoi's comrades, raised by Gorge's vassals to guard the forts where they fell."
+        }
+      },
+      {
+        "id": "gorge-vassals",
+        "ifFlags": [
+          "yoi.helmets-told"
+        ],
+        "unlessFlags": [
+          "yoi.vassals-told"
+        ],
+        "pages": [
+          "Gorge never fights his own battles. He gave a Pearl to each of his eight vassals, and each one squats on a region like a toad on a lily pad.",
+          "They keep their Pearls hidden deep in the old forts. Beat the vassal, take the Pearl, bring it home to the Wellspring. That's how we win this one."
+        ],
+        "setFlags": [
+          "yoi.vassals-told"
+        ],
+        "tip": {
+          "id": "yoi.gorge-vassals",
+          "text": "Gorge gave a Pearl to each of his eight vassals. Each holds a region and hides his Pearl deep in an old fort: beat him, take it, bring it home."
+        }
+      },
+      {
+        "id": "bram",
+        "ifFlags": [
+          "yoi.vassals-told"
+        ],
+        "unlessFlags": [
+          "yoi.bram-told"
+        ],
+        "pages": [
+          "The Guard's not finished, you know. I've got an apprentice: Bram, keeping the town gate over in Glimmerhill.",
+          "Drops his spear more than he holds it. But he never leaves his post, and that's the part that matters."
+        ],
+        "setFlags": [
+          "yoi.bram-told"
+        ],
+        "tip": {
+          "id": "yoi.bram",
+          "text": "The Thorn Guard lives on: Bram, Yoi's apprentice, keeps the town gate in Glimmerhill."
+        }
+      }
     ]
   },
   {
@@ -94,6 +477,28 @@
       "Welcome to Dollop's! Potions on the left, mushrooms on the right, and no sampling the goo jars.",
       "Coins? The worms drop them when you bonk them. Don't ask me where they get them.",
       "A red potion puts the bounce back in a slime. Take two if you're the brave sort."
+    ],
+    "talks": [
+      {
+        "id": "shop-after-belt",
+        "ifFlags": ["shop.dollop.belt-slot.sold"],
+        "pages": [
+          "Back again! Tonics, Fizzy Brew, berries and sticks for your fire, all at the counter.",
+          "That belt loop suits you, by the way. Only the one, I'm afraid: the worms took the rest."
+        ]
+      },
+      {
+        "id": "shop",
+        "pages": [
+          "Welcome to Dollop's! Step up to the counter for tonics, Fizzy Brew, berries and a bundle of sticks for your campfire.",
+          "And look here: one fine belt loop, the last I have. Hang a potion on it and it's always at hand.",
+          "Coins? The worms drop them when you bonk them. Don't ask me where they get them."
+        ],
+        "tip": {
+          "id": "dollop.shop",
+          "text": "Dollop's counter in Market Hill sells potions, campfire ingredients and one belt slot."
+        }
+      }
     ]
   },
   {
@@ -246,7 +651,7 @@
     "description": "An old fisher with tall tales.",
     "dialogue": [
       "Caught a fish once as big as the inn. Well. As big as the inn's door.",
-      "Lily over in Slimeshire? I taught her everything. Except patience. Nobody can teach that.",
+      "Dora over in Slimeshire? I taught her everything. Except patience. Nobody can teach that.",
       "Fish bite best when you're not looking. So I don't look. I nap."
     ]
   },
@@ -317,6 +722,86 @@
     ]
   },
   {
+    "id": "burr",
+    "characterId": "burr",
+    "displayName": "Burr",
+    "description": "The gatekeeper of the old Thorn Guard gate, home again with his boy.",
+    "dialogue": [
+      "Home, and my boy safe. I owe you that, little one.",
+      "If you need me, I'll be right here. Mending things."
+    ],
+    "talks": [
+      {
+        "id": "thanks",
+        "unlessFlags": [
+          "burr.thanked"
+        ],
+        "pages": [
+          "There you are! Home, and my boy safe, all thanks to you. I won't forget it.",
+          "In my Thorn Guard days we shot bows shaped from our own goo. Each of us carried a carved rune that taught the goo the shape.",
+          "The smith's boy, Pip, has his dad's hands. Once that old Workshop of theirs stands again, ask him to carve you one."
+        ],
+        "setFlags": [
+          "burr.thanked"
+        ],
+        "tip": {
+          "id": "burr.bow-rune",
+          "text": "Burr says Pip, the smith's son, could carve a bow rune once Slimeshire's old Workshop stands again."
+        }
+      },
+      {
+        "id": "arrow-bells",
+        "ifAbilities": [
+          "bow"
+        ],
+        "unlessFlags": [
+          "burr.bells-told"
+        ],
+        "pages": [
+          "An arrow rings a bell as well as any thrown pot, and from much farther off.",
+          "And it cuts a spider's thread, however high the brute hangs."
+        ],
+        "setFlags": [
+          "burr.bells-told"
+        ],
+        "tip": {
+          "id": "burr.arrow-bells",
+          "text": "An arrow rings a bell from far off, and cuts a spider's thread however high it hangs."
+        }
+      },
+      {
+        "id": "mine-lenses",
+        "ifAbilities": [
+          "bow"
+        ],
+        "unlessFlags": [
+          "burr.mine-told"
+        ],
+        "pages": [
+          "The Thorn Guard set lenses like mine wherever a gap or a gate needed watching. Down in the smith's mine, too.",
+          "Where you can see a lens but can't reach it, that's a job for an arrow."
+        ],
+        "setFlags": [
+          "burr.mine-told"
+        ],
+        "tip": {
+          "id": "burr.mine-lenses",
+          "text": "Crystal lenses on posts are old Thorn Guard locks, in the smith's Crystal Mine too: where you see one but cannot reach it, shoot it."
+        }
+      },
+      {
+        "id": "proud",
+        "ifAbilities": [
+          "bow"
+        ],
+        "pages": [
+          "Straight and true. The old Thorn Guard would have made you a captain.",
+          "My boy wants a bow too. I told him: first, the roll."
+        ]
+      }
+    ]
+  },
+  {
     "id": "young-burr",
     "characterId": "young-burr",
     "displayName": "Young Burr",
@@ -325,6 +810,70 @@
       "My dad went to fight Fatty One Eye. He said he'd be back by supper. That was ages ago.",
       "He taught me a trick before he left. Want to see? You curl up, and you ROLL!",
       "If you find him... tell him I've been practising."
+    ],
+    "talks": [
+      {
+        "id": "roll-lesson",
+        "unlessAbilities": [
+          "dodge"
+        ],
+        "unlessFlags": [
+          "fatty-lair.burr-freed"
+        ],
+        "pages": [
+          "Oh! Hi! Are you the new slime? Elder Plop said you might come by.",
+          "My dad is Burr, the gatekeeper. He went after Fatty One Eye... and he hasn't come home yet.",
+          "Before he left, he taught me his best trick. Want to learn it? You curl up tight, tight, tight... and you ROLL!"
+        ],
+        "tip": {
+          "id": "young-burr.planks",
+          "text": "Old planks cross a dry ditch beside Burr's blue cottage. They drop under a walking slime: roll across."
+        },
+        "learnAbility": "dodge",
+        "pagesAfter": [
+          "Whoosh! You've got it! Dad says a good roll is quicker than any worm.",
+          "See the old planks over the dry ditch, by the side of our house? They drop if you walk on them. But if you roll...",
+          "And if you find my dad, please help him home. Tell him I've been practising!"
+        ]
+      },
+      {
+        "id": "roll-lesson-dad-free",
+        "unlessAbilities": [
+          "dodge"
+        ],
+        "ifFlags": [
+          "fatty-lair.burr-freed"
+        ],
+        "pages": [
+          "You saved my dad! Thank you, thank you!",
+          "He says I should show you his trick. Ready? You curl up tight, tight, tight... and you ROLL!"
+        ],
+        "tip": {
+          "id": "young-burr.planks",
+          "text": "Old planks cross a dry ditch beside Burr's blue cottage. They drop under a walking slime: roll across."
+        },
+        "learnAbility": "dodge",
+        "pagesAfter": [
+          "Whoosh! See the old planks over the dry ditch, by the side of our house? Don't walk on them. Roll!"
+        ]
+      },
+      {
+        "id": "dad-free",
+        "ifFlags": [
+          "fatty-lair.burr-freed"
+        ],
+        "pages": [
+          "You saved my dad! He says you were braver than the whole Thorn Guard.",
+          "Next he's teaching me the gate trick. Then I'll be a gatekeeper too!"
+        ]
+      },
+      {
+        "id": "waiting",
+        "pages": [
+          "Dad went to Fatty's Hollow, south-east of the village. If you find him, tell him I've been practising.",
+          "Oh, and don't walk on the old planks by the ditch. Roll!"
+        ]
+      }
     ]
   },
   {

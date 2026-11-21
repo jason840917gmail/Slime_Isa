@@ -14,8 +14,9 @@ class_name BarredGateScript
 ##   a body that owns a hurtbox (game/shapes/shape_strike.gd `wall_reach`), so the thrust reaches
 ##   past the bars; and every other hit on the bars (a thrown pot breaking against them, a Roll's
 ##   bonk, another shape) is refused as `immune`, the clink, with the refusal line
-##   (`refusal_text`) over the gate, at most once every REFUSAL_EVERY_MS. The Spear's own hit on the
-##   bars is refused quietly (`pass`), so only the lever answers it.
+##   (`refusal_text`) over the gate, at most once every REFUSAL_EVERY_MS (the Bow's arrow clinks
+##   without the line). The Spear's own hit on the bars is refused quietly (`pass`), so only the lever
+##   answers it.
 ## - **The lever** (game/world_objects/barred_gate_lever.gd, the `Lever` child) takes only a hit tagged
 ##   `spear` (ShapeDefs: the Spear shape's `tags`); it is tagged `resource`, so a throw's blast never
 ##   reaches it and a hit on it plays no enemy feel. Pulled, it opens the gate.
@@ -35,6 +36,8 @@ const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const GROUP := &"barred_gate"
 ## The tag a hit must carry to pull the lever (the Spear shape's `tags` in game-constants.json).
 const SPEAR_TAG := "spear"
+## The Bow's arrow's tag (game/player/abilities/bow_arrow.gd): the bars stop it with a clink, no line.
+const ARROW_TAG := "arrow"
 const RULE := {"priority": 0, "damageMultiplier": 1}
 const REASON_IMMUNE := "immune"
 ## The Spear on the bars: refused without a clink (the lever behind takes the thrust).
@@ -205,13 +208,16 @@ func get_damage_state() -> Dictionary:
 	return {"hp": 1.0, "max_hp": 1.0, "dead": false}
 
 
-## The Spear passes the bars quietly (`pass`); everything else clinks (`immune`) with the line. Open,
-## the bars are gone: every hit passes.
+## The Spear passes the bars quietly (`pass`); everything else clinks (`immune`) with the line, but
+## the Bow's arrow (its tags carry ARROW_TAG) clinks without it: an arrow is long and thin too, and the
+## line would say it fits. Open, the bars are gone: every hit passes.
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	var request: Dictionary = input.get("request", {})
 	if _open or is_spear(request):
 		return {"accepted": false, "reason": REASON_PASS}
-	refuse(str(request.get("weapon_id", "")))
+	var tags: Variant = request.get("weapon_tags", [])
+	if not (tags is Array and (tags as Array).has(ARROW_TAG)):
+		refuse(str(request.get("weapon_id", "")))
 	return {"accepted": false, "reason": REASON_IMMUNE}
 
 

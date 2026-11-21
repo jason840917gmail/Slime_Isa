@@ -918,6 +918,25 @@ func level_at(world_point: Vector2, fallback: int = 0) -> int:
 	return grid.level_at(local / cell, fallback)
 
 
+## The highest level at `world_point`: on a cliff's wall the level of its top edge, else the level of
+## the ground there (on stairs, of the stretch there); `fallback` off the map. What a straight shot
+## flying at one level must not rise into (the Bow's arrow, game/player/abilities/bow_arrow.gd): a
+## wall going up from its level stops it, the far wall of a hole or a ditch below it does not.
+func top_level_at(world_point: Vector2, fallback: int = 0) -> int:
+	if grid == null:
+		return fallback
+	var local := world_point - global_position
+	var flight := stairs_at(local)
+	if flight != null:
+		return flight.level_at(local, fallback)
+	var tri := grid.tri_at(local / cell)
+	if tri < 0:
+		return fallback
+	if grid.tri_band[tri] >= 0:
+		return int(grid.bands[grid.tri_band[tri]]["top"])
+	return grid.tri_level[tri]
+
+
 ## True when bodies of `level` can stand at `world_point` (its tops, the steps of stairs it joins,
 ## the strip behind higher ground; never a wall or the rest of a flight of stairs). With painted
 ## collision (`_painted_on`): where nothing painted (or closed by a passage) holds that level and the

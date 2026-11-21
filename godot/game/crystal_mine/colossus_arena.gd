@@ -203,9 +203,7 @@ func _reset() -> void:
 func _on_defeated(_payload: Dictionary = {}) -> void:
 	var run := Services.run()
 	if run != null:
-		var ids: Array = run.world.get_or_add("defeated_boss_ids", [])
-		if not boss_id in ids:
-			ids.append(boss_id)
+		run.record_boss_defeated(boss_id)
 		var dungeon_id := DungeonState.current_id(get_tree())
 		if not dungeon_id.is_empty():
 			DungeonState.mark_boss_beaten(run, dungeon_id, boss_id)

@@ -14,7 +14,9 @@ extends RefCounted
 ## Banners use the Shell's area title card: chapters in #ffd277. An ability RunState learns plays
 ## the ceremony (game/ui/ceremony/ability_ceremony.gd, owner 2026-10-09) while main's
 ## `ability_ceremonies` is on (the test runner turns it off); otherwise, and for the passive Goo
-## Trail, its banner "<title> learned: press <key>" in #9ff0c8. A permanent item's first arrival
+## Trail, its banner "<title> learned: press <key>" in #9ff0c8. An upgrade (AbilityDefinitions
+## UPGRADES: the Charged Roll, found in Yoi's chest) plays its own card (`request_upgrade`), or the
+## banner "<title> learned". A permanent item's first arrival
 ## (RunState `permanent_item_gained`: a weapon, a tool, a key) plays its ceremony too (no banner
 ## when they are off: the bag's own pickup text says it).
 ##
@@ -28,6 +30,7 @@ const QuestCatalog := preload("res://game/quests/quest_catalog.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 ## The key an ability's toast names (in the body-shapes rework mode a box ability's is `ability_use`).
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
@@ -35,6 +38,7 @@ const WORLD_MAIN_GROUP := &"world_main"
 
 const AVAILABLE_LIFT := 112.0
 const CUE_AVAILABLE := &"Toast"
+const CUE_FRAGMENT := &"SecretFound"
 const TOAST_LIFT := 70.0
 const REWARD_TOP := 46.0
 const REWARD_STEP := 20.0
@@ -75,6 +79,8 @@ func _init(service: Node) -> void:
 		run.ability_learned.connect(_on_ability_learned)
 	if run != null and not run.permanent_item_gained.is_connected(_on_permanent_item_gained):
 		run.permanent_item_gained.connect(_on_permanent_item_gained)
+	if run != null and not run.fragment_found.is_connected(_on_fragment_found):
+		run.fragment_found.connect(_on_fragment_found)
 
 
 ## The service leaves: forget the autoload connection.
@@ -84,6 +90,8 @@ func disconnect_all() -> void:
 		run.ability_learned.disconnect(_on_ability_learned)
 	if run != null and run.permanent_item_gained.is_connected(_on_permanent_item_gained):
 		run.permanent_item_gained.disconnect(_on_permanent_item_gained)
+	if run != null and run.fragment_found.is_connected(_on_fragment_found):
+		run.fragment_found.disconnect(_on_fragment_found)
 
 
 func _on_available(payload: Dictionary) -> void:
@@ -136,6 +144,17 @@ func _on_npc_talked(_payload: Dictionary) -> void:
 	_cue(&"NpcBlip")
 
 
+## A fragment found (RunState `fragment_found`): "Roll Fragment 2 of 4" over the slime, unless quiet;
+## the last one's ability card follows on its own (`ability_learned`).
+func _on_fragment_found(payload: Dictionary) -> void:
+	if bool(payload.get("quiet", false)):
+		return
+	var item_id := str(payload.get("item_id", ""))
+	var title := ItemCatalog.item_name(item_id)
+	_toast("%s %d of %d" % [title, int(payload.get("count", 0)), int(payload.get("total", 0))], &"yellow", true, TOAST_LIFT)
+	_cue(CUE_FRAGMENT)
+
+
 ## WorldScene's `ability.learned` handler: the banner with the ability's key.
 func _on_ability_learned(payload: Dictionary) -> void:
 	var ability_id := str(payload.get("ability_id", ""))
@@ -152,6 +171,15 @@ func _on_ability_learned(payload: Dictionary) -> void:
 			return
 		_banner("%s learned: press %s" % [ShapeDefs.title(StringName(ability_id)), ControlLabels.control_label(&"attack")], ABILITY_COLOR)
 		return
+	# An upgrade found (the Charged Roll in Yoi's chest): its own card, or its banner.
+	if AbilityDefinitions.is_upgrade(StringName(ability_id)):
+		var upgrade_tree := _tree()
+		if AbilityCeremony.enabled(upgrade_tree):
+			AbilityCeremony.request_upgrade(upgrade_tree, StringName(ability_id))
+			ceremony_requested.emit({"ability_id": ability_id})
+			return
+		_banner("%s learned" % str(AbilityDefinitions.upgrade(StringName(ability_id)).get("title", ability_id)), ABILITY_COLOR)
+		return
 	if not AbilityDefinitions.has(StringName(ability_id)):
 		return
 	var tree := _tree()
@@ -161,6 +189,12 @@ func _on_ability_learned(payload: Dictionary) -> void:
 		return
 	var key := ControlLabels.control_label(AbilityBox.key_action(StringName(ability_id)))
 	_banner("%s learned: press %s" % [AbilityDefinitions.title(StringName(ability_id)), key], ABILITY_COLOR)
+
+
+## A toast over the slime for what an NPC's talk gave (a recipe, an item, a tip: quest_npc_talk.gd),
+## stacked with this frame's other toasts.
+func announce(text: String, color: StringName = &"green", big: bool = true) -> void:
+	_toast(text, color, big, TOAST_LIFT)
 
 
 ## A toast that stacks with this frame's other toasts (Q5).

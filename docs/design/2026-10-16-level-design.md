@@ -69,7 +69,8 @@ Read it with:
     joining those two chunks only (never at a chunk corner) and no wider than a road, marked so the
     slime sees it is leaving: a bridge, a ford, stairs, a gate, a trail gap between lantern posts.
     Walking about must never flip between chunks: no open ground along a line, no road along one
-    ([§9](#9-landmarks-and-guidance-per-chunk)).
+    ([§9](#9-landmarks-and-guidance-per-chunk)). A drop or a void nobody can cross closes a line as a
+    wall does (owner, 2026-11-20: Burr's yard ditch on C4's west edge).
 
 ## Principles
 
@@ -490,7 +491,7 @@ cells marked **gap**) are filled by the owner's answers of 2026-10-16 (question 
 | **Goo Bomb** | Chapter 2, Tom, at the end of his maze | Cracked walls (a blown wall can be a door); cracked ground; the Matron's web cocoon (question 133); ideas: mud dams, bomb over water, the Gobbler, powder kegs | A cracked wall by Tom, his maze's way back to its start (question 132) | The Weaver Hollow's cracked walls and floors | A bomb sucked and thrown over a channel onto an islet's cracked rock; egg sacs (Broodlings); chains; the Matron's cocoon, torn open by a blast for the Spear (question 133) | Gloop Forest: the cracked clearing, down into the small Gloop Cavern and its heart quarter (the tenth round, question 18); Slimeshire: a cracked cliff by the lake, a cracked floor near the plaza; Fatty's Lair side rooms |
 | **Silk skin** | Chapter 2, Pearl 2 (the Matron, at the top of the Weaver Hollow). *Since 2026-10-17: Pearl 2 lies in the Hollow, before her* | Web walls (they block until the skin; with it, pass at half speed, or cut for good with the Spear); floor webs, which slow a walk and stick a Roll until the skin (question 131); things wrapped in silk | The Matron's thread, taken from her web; proposal: her chamber's way out is a web wall. *Changed 2026-10-17: right where Pearl 2 is won, in the Hollow's second half, before the Matron; her fight is its exam* | The web-wall maze to the Crystal Caverns (main path) | Web walls with slime spiders shooting while the slime is slowed; a key wrapped in silk | The silk nook; the Webwood (D4) and Tom's maze; web walls in the Weaver Hollow; the Wilds' web maze into Gloop Forest |
 | **Lantern** | Chapter 3, the smith at his mine camp | Dark rooms; shadow paths; candles, sconces, braziers; dry plant growth, grey-black (question 129); the dry wood a Heavy Roll knocked down (optional combo) | The mine camp: a dark tunnel or a candle by the camp | The dark maze to the Colossus; Gloomlings on switches | Candles that go out after a minute; Glint Bats woken by the light; the Shardback; the Colossus's four braziers | Deadthorn on old roads and scorched hay over hatches in Slimeshire, Gloop Forest and the West village; dark cellars seen earlier |
-| **Bow** | Chapter 3, Burr in the West village (with the Matron's thread, Pearl 2 home) | Far targets in a straight line across gaps and water (crystal lenses on posts, question 127); bells out of a throw's reach (question 115); far enemies; enemies that open doors when they die. Bars stop its arrows (question 131) | Targets in Burr's yard (question 132) | The mine's chasm, a crystal lens on a post (main path, questions 102 and 127) | A target hit while it passes; a far Pick Mole or Glint Bat | Targets across the lake (C5) and Gloop Forest's river; bells out of a throw's reach; the Rook Thief |
+| **Bow** | Chapter 3, Burr in the West village (with the Matron's thread, Pearl 2 home). *Since 2026-11-20 (owner): Pip's bow rune at the Workshop in Slimeshire, from 5 wood, the thread and the smith's crystal* | Far targets in a straight line across gaps and water (crystal lenses on posts, question 127); bells out of a throw's reach (question 115); far enemies; enemies that open doors when they die. Bars stop its arrows (question 131) | Targets in Burr's yard (question 132) | The mine's chasm, a crystal lens on a post (main path, questions 102 and 127) | A target hit while it passes; a far Pick Mole or Glint Bat | Targets across the lake (C5) and Gloop Forest's river; bells out of a throw's reach; the Rook Thief |
 | **Feral skin** | Chapter 3, Pearl 3 (the Colossus); Release 1's content ends here. *Since 2026-10-17: Pearl 3 lies in the mine, before him* | Walls with thick roots and rocky handholds; the hill from the Wilds into the Caverns | The climb out of the Colossus's arena (question 132). *Changed 2026-10-17: right where Pearl 3 is won, in the mine's second half, before the Colossus; his fight is its exam* | The Wilds' hill into the Caverns | The Wilds: a climb, a climb with a drop and a loop back, a climb to a prize seen from far (question 132) | Climbable walls seen from the prologue on: the Wellspring, Slimeshire, Gloop Forest, the Caverns |
 
 **Keys** are the dungeon kit's (planned): small keys (a counter, never bag items), the big key for
@@ -770,7 +771,7 @@ Hollow), reached through a field maze and over falling slabs; the chunks' cards 
 - **The West village:** a small town (Burr's house, three or four houses, a shop, a game, a
   campfire). Young Burr teaches the Roll, and its safe first lock is a rickety plank over a dry
   ditch in Burr's yard (question 132, [open point 14](#open-points)); the same yard later holds
-  the Bow's first targets. The village's secret teaches a simpler potion (question 89).
+  the Bow's first targets (*since 2026-11-20 by C5's lake camp river: C4 was overcrowded*). The village's secret teaches a simpler potion (question 89).
 
 ### Fatty's Lair
 
@@ -863,7 +864,8 @@ Chapter 3: the web-wall maze, the mine camp, the dark maze, the chasm, the Colos
   the Caverns before the Bow can be had (Pearl 2 home, the thread to Burr), so a slime can reach
   the chasm without it: the first half (web maze, camp, Lantern, dark maze) never needs the Bow,
   and the smith at the mine camp sends the slime to Burr (question 134,
-  [open point 18](#open-points)).
+  [open point 18](#open-points)). *Since 2026-11-20 (owner) he gives his crystal for Pip's bow
+  rune instead, and the mine cart is the quick way out to Pip and back.*
 - **The Shardback** (mini-boss): the Lantern makes its shell brittle, then the Spear.
 - **The Colossus:** four braziers ring the arena, lit by the Lantern; his stomps blow them out; he
   climbs out of reach and throws Crystal Mites. The arena has walls he climbs and the slime cannot

@@ -7,12 +7,19 @@ extends Node
 ## bosses, story flags).
 ##
 ## Flow: main calls `on_world_built(map_id)` at the end of every world build (the first call
-## creates the 14 locked records and evaluates the prerequisites, later calls re-evaluate; then
+## creates the locked records, one per catalogued quest, and evaluates the prerequisites, later
+## calls re-evaluate and count the known facts of every active quest's current stage again; then
 ## `area.enter`). World scripts send input events with `QuestEvents.emit(event, payload)`, which
 ## lands in `handle_event` (the event bridge). The service itself forwards the boss camps'
-## `boss_defeated`, the game windows' `window_opened` and the Shell's `menu_opened` (as
+## `boss_defeated`, RunState's `story_flag_changed` (as `story.flag-set`, for the main quest's
+## `story-flag` objectives), the game windows' `window_opened` and the Shell's `menu_opened` (as
 ## `control.used`), and watches the slime for the sprint edge (`control.used sprint`). Every change
 ## emits `quest_changed` and `RunState.notify_quests_changed` (HUD, markers, autosave).
+##
+## Since 2026-11-19 (quests spec 14) the catalogue holds the main quest "Win back the Pearls" and
+## Slime Basics; NPCs give tips and teach through their conditional `talks` (QuestNpcTalk), and an
+## NPC whose talk has a tip not heard yet shows the gold "!" (`marker_for` kind "tip"). Whatever a
+## talk reads (story flags, the bag, abilities, heard tips) changing emits `talks_changed`.
 ##
 ## Commands return {"ok": true, "state"} or {"ok": false, "code", "reason"}; a reward that does not
 ## fit in the bag is such a failure ("reward-items"), never an exception, and changes nothing.
@@ -31,6 +38,8 @@ const QuestNpcTalk := preload("res://game/quests/quest_npc_talk.gd")
 const QuestNotifications := preload("res://game/quests/quest_notifications.gd")
 const DialogueBox := preload("res://game/ui/screens/dialogue_box.gd")
 const QuestOfferWindow := preload("res://game/ui/screens/quest_offer_window.gd")
+## The main quest waits for the prologue's end (condition kind `prologue-over`).
+const PrologueState := preload("res://game/prologue/prologue_state.gd")
 const DIALOGUE_SCENE := preload("res://game/ui/screens/dialogue_box.tscn")
 const OFFER_SCENE := preload("res://game/ui/screens/quest_offer_window.tscn")
 
@@ -73,6 +82,9 @@ signal quest_abandoned(payload: Dictionary)
 signal quest_changed(payload: Dictionary)
 ## {"npcId"}: a talk was recorded (NpcBlip).
 signal npc_talked(payload: Dictionary)
+## {}: something an NPC's talk reads changed (a story flag, the bag, an ability, a heard tip, a recipe
+## learned) or a page was found: the markers, the journal's tips and its War journal refresh.
+signal talks_changed(payload: Dictionary)
 
 var notifications: QuestNotifications
 var talk: QuestNpcTalk
@@ -100,9 +112,23 @@ func _ready() -> void:
 	if windows != null and windows.has_signal(&"window_opened") and not windows.is_connected(&"window_opened", _on_menu_opened):
 		windows.connect(&"window_opened", _on_menu_opened)
 	get_tree().node_added.connect(_on_node_added)
+	var run := Services.run()
+	if run != null:
+		if not run.story_flag_changed.is_connected(_on_story_flag_changed):
+			run.story_flag_changed.connect(_on_story_flag_changed)
+		for changed: Signal in [run.inventory_changed, run.ability_learned, run.tip_heard, run.recipes_learned, run.page_found]:
+			if not changed.is_connected(_on_talk_facts_changed):
+				changed.connect(_on_talk_facts_changed)
 
 
 func _exit_tree() -> void:
+	var run := Services.run()
+	if run != null:
+		if run.story_flag_changed.is_connected(_on_story_flag_changed):
+			run.story_flag_changed.disconnect(_on_story_flag_changed)
+		for changed: Signal in [run.inventory_changed, run.ability_learned, run.tip_heard, run.recipes_learned, run.page_found]:
+			if changed.is_connected(_on_talk_facts_changed):
+				changed.disconnect(_on_talk_facts_changed)
 	var shell := Services.shell()
 	if shell != null and shell.menu_opened.is_connected(_on_menu_opened):
 		shell.menu_opened.disconnect(_on_menu_opened)
@@ -156,6 +182,7 @@ func on_world_built(map_id: String) -> void:
 	_records()
 	_connect_camps()
 	evaluate_prerequisites()
+	_recount_known_facts()
 	if not _launch_option_applied:
 		_launch_option_applied = true
 		_apply_launch_option()
@@ -200,6 +227,20 @@ func _connect_camp(camp: Node) -> void:
 ## A camp's `boss_defeated({campId, bossId})` (the camp already recorded the defeat).
 func _on_boss_defeated(payload: Dictionary) -> void:
 	handle_event(QuestEvents.BOSS_DEFEATED, {"bossId": str(payload.get("bossId", ""))})
+
+
+## RunState's `story_flag_changed`: a flag set is the `story.flag-set` event (story-flag
+## objectives, prerequisites); any change can change what an NPC says.
+func _on_story_flag_changed(payload: Dictionary) -> void:
+	if bool(payload.get("set", true)):
+		handle_event(QuestEvents.STORY_FLAG_SET, {"flagId": str(payload.get("flag", ""))})
+	talks_changed.emit({})
+
+
+## The bag, an ability, a heard tip or a recipe changed (what an NPC's talk reads), or a page was
+## found (the journal's War journal).
+func _on_talk_facts_changed(_payload: Dictionary) -> void:
+	talks_changed.emit({})
 
 
 ## A game window or a Shell window opened: the tutorial's `control.used`.
@@ -257,10 +298,7 @@ func handle_event(event: StringName, payload: Dictionary) -> void:
 	elif event == QuestEvents.AREA_ENTER:
 		run.mark_area_discovered(str(payload.get("areaId", "")))
 	elif event == QuestEvents.BOSS_DEFEATED:
-		var boss_id := str(payload.get("bossId", ""))
-		var defeated: Array = run.world.get_or_add("defeated_boss_ids", [])
-		if not boss_id.is_empty() and not boss_id in defeated:
-			defeated.append(boss_id)
+		run.record_boss_defeated(str(payload.get("bossId", "")))
 	evaluate_prerequisites()
 	var active_ids: Array[String] = []
 	for record: Dictionary in _records():
@@ -317,6 +355,10 @@ func _condition_met(condition: Dictionary) -> bool:
 				if run.has_talked_to(npc_id):
 					return true
 			return false
+		"prologue-over":
+			# Godot (2026-11-19): the prologue is done, or this run never played it (a save from
+			# before it, a launch option, the test runner).
+			return not PrologueState.is_running(run)
 	return false
 
 
@@ -340,8 +382,11 @@ func _activate(record: Dictionary, quest: Dictionary, source: String) -> void:
 	_apply_known_facts(record, quest)
 
 
-## `applyKnownFacts` (spec 2.3): areas discovered, NPCs talked to, bosses defeated, for the
-## objectives of the current (first) stage.
+## `applyKnownFacts` (spec 2.3): areas discovered, NPCs talked to, bosses defeated and (Godot)
+## story flags set, for the objectives of the current stage. Phaser counted them for the first stage
+## only, at activation; since 2026-11-19 each next stage counts them too as it starts, and every world
+## build counts them again for the active quests (`_recount_known_facts`), so a Pearl taken or a boss
+## beaten before its stage came up still counts (spec 14.2).
 func _apply_known_facts(record: Dictionary, quest: Dictionary) -> void:
 	var run := Services.run()
 	var stage_definition := QuestCatalog.stage(quest, str(record.get("active_stage_id", "")))
@@ -363,6 +408,10 @@ func _apply_known_facts(record: Dictionary, quest: Dictionary) -> void:
 				for boss_id: String in QuestCatalog.ids(objective, "bossIds"):
 					if _world_flag("boss:" + boss_id):
 						facts.append(boss_id)
+			"story-flag":
+				for flag_id: String in QuestCatalog.ids(objective, "flagIds"):
+					if run.has_flag(flag_id):
+						facts.append(flag_id)
 		for fact_id in facts:
 			var consumed := _consumed(record, str(objective["id"]))
 			if fact_id in consumed:
@@ -416,6 +465,19 @@ func _try_complete_stage(record: Dictionary, quest: Dictionary, stage_id: String
 	record["active_stage_id"] = str(next["id"])
 	_init_progress(record, next)
 	_changed(record)
+	_apply_known_facts(record, quest)
+
+
+## Every active quest's current stage counts its known facts again (a world build).
+func _recount_known_facts() -> void:
+	var active_ids: Array[String] = []
+	for record: Dictionary in _records():
+		if str(record["status"]) == "active":
+			active_ids.append(str(record["quest_id"]))
+	for quest_id in active_ids:
+		var record := _record(quest_id)
+		if str(record.get("status", "")) == "active":
+			_apply_known_facts(record, QuestCatalog.definition(quest_id))
 
 
 ## `complete`: rewards (once), completed, `quest_completed`, then the follow-up quests. Returns ""
@@ -738,7 +800,8 @@ func npc_candidate(npc_id: String) -> Dictionary:
 	return {"kind": "talk", "priority": PRIORITY_TALK, "quest_id": ""}
 
 
-## `markerFor` (spec 4.5): "" | "turn-in" | "main-offer" | "side-offer" | "talk" | "in-progress".
+## `markerFor` (spec 4.5): "" | "turn-in" | "main-offer" | "side-offer" | "tip" | "talk" |
+## "in-progress". "tip" (Godot, spec 14.5): the talk this NPC would give now has a tip not heard yet.
 func marker_for(npc_id: String) -> String:
 	if not turn_ins_for_npc(npc_id).is_empty():
 		return "turn-in"
@@ -748,6 +811,8 @@ func marker_for(npc_id: String) -> String:
 			return "main-offer"
 	if not offers.is_empty() or not reoffers_for_npc(npc_id).is_empty():
 		return "side-offer"
+	if QuestNpcTalk.has_unheard_tip(npc_id):
+		return "tip"
 	var active := list("active")
 	for quest: Dictionary in active:
 		var stage_definition := QuestCatalog.stage(quest["definition"], str(quest.get("active_stage_id", "")))
@@ -792,6 +857,25 @@ static func _rank(quest: Dictionary) -> int:
 ## The interaction controller's execute for an NPC candidate (spec 5.2).
 func talk_to(npc: Node, kind: String) -> bool:
 	return talk.execute(kind, npc) if talk != null and npc != null else false
+
+
+## The tips heard, newest first (the journal's Tips): {"id", "text", "npc_id", "speaker"}; a heard
+## id no talk gives any more is left out.
+func heard_tips() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var run := Services.run()
+	if run == null:
+		return out
+	var heard := run.heard_tip_ids()
+	heard.reverse()
+	for tip_id in heard:
+		var found := QuestCatalog.tip(tip_id)
+		if found.is_empty():
+			continue
+		var entry := found.duplicate()
+		entry["speaker"] = QuestCatalog.npc_name(str(found.get("npc_id", "")))
+		out.append(entry)
+	return out
 
 
 # --- dev and tests (spec 10.9) --------------------------------------------------------------------

@@ -107,7 +107,8 @@ func _meet() -> void:
 			_track_plop(body as CharacterBody2D)
 		if _plop.has_method(&"acquire_interaction_lock"):
 			_release = _plop.call(&"acquire_interaction_lock")
-		# The "!" over him: the quest markers' own when they show one (his first quest), else this one.
+		# The "!" over him: the quest markers' own when they show one (a tip of his, quests spec 14.5;
+		# his tips wait for `prologue.done`, so during the meeting it is this one), else this one.
 		if _quest_mark_kind().is_empty():
 			_show_mark()
 	await PrologueScene.wait(get_tree(), arrival_ms)

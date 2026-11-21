@@ -5,7 +5,8 @@ Sources (asset/Originals/characters/slime-v2/heavy-grab/, GPT 2.5 with transpare
 sheet of four key poses of the slime pushing or pulling a heavy block that is not drawn. The owner
 approved push A and pull B for the side view; the front and back views were made to match.
 
-Outputs:
+Outputs (rows 0-2 of page 7; rows 3-4 and the manifest's `bow-*` entries are the Bow's, written by
+scripts/characters/pack-slime-bow.py, and are kept):
   godot/asset/characters/256x256-tile_8x8-slime-v2-page-7.webp  the poses, page 1's cells, scale
       and baseline (the slime's body centre at x 128, its feet on y 251)
   asset/Originals/characters/slime-v2/page-7.json               the clips: frames, fps, looping and
@@ -231,7 +232,12 @@ def place(page: Image.Image, pose: Image.Image, col: int, row: int, wanted: tupl
 
 def main() -> None:
 	refs = reference_areas()
+	# Rows 3 and up belong to other packers (pack-slime-bow.py): kept as they are.
 	page = Image.new("RGBA", (CELL * 8, CELL * 8), (0, 0, 0, 0))
+	if PAGE_OUT.exists():
+		old = Image.open(PAGE_OUT).convert("RGBA")
+		page.paste(old.crop((0, 3 * CELL, CELL * 8, CELL * 8)), (0, 3 * CELL))
+	kept = json.loads(MANIFEST_OUT.read_text(encoding="utf-8")) if MANIFEST_OUT.exists() else {}
 	sheets: dict[str, list[Image.Image]] = {}
 	scales: dict[str, float] = {}
 	placed: dict[tuple[str, str], dict[str, dict]] = {}
@@ -273,6 +279,11 @@ def main() -> None:
 		"poses": {f"{a}-{d}": e for (a, d), e in placed.items()},
 		"clips": clips,
 	}
+	# Another packer's entries (the Bow's `bow-*`) stay.
+	for key in ("poses", "scales", "clips"):
+		for name, value in kept.get(key, {}).items():
+			if name.startswith("bow-"):
+				manifest[key][name] = value
 	PAGE_OUT.parent.mkdir(parents=True, exist_ok=True)
 	page.save(PAGE_OUT, lossless=True, method=6)
 	MANIFEST_OUT.write_text(json.dumps(manifest, indent="\t") + "\n", encoding="utf-8")

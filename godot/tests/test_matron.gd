@@ -397,6 +397,8 @@ func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: T
 	# Open ground right of the spawn for the walk, the roll and the Silk slime (120 px straight
 	# below the spawn a fieldstone wall row stands since the chunk worlds).
 	var at := t.player().get_centre() + Vector2(120.0, 40.0)
+	# The Roll is young Burr's lesson since 2026-11-19: lent for the roll into the patch.
+	Services.run().learn_session_ability("dodge")
 	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
 	if not t.check(root != null, "effect.matron-web-patch did not spawn"):
 		return

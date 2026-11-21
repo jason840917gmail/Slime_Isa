@@ -58,15 +58,18 @@ const DUNGEON_EXTRAS: PackedStringArray = [
 	"barred-gate", "drop-gate", "eye-latch", "gate-winch", "winch-post-cracked", "latch-door",
 	"lantern-gate", "plank-barricade", "rotten-timbers", "web-wall", "blast-keg", "mine-cart",
 	"ore-lift", "crystal-lens", "crystal-veil", "gulp-spot-frog", "gulp-spot-silk", "gulp-spot-stone",
-	"loose-prize", "full-heart", "pearl", "pearl-two", "pearl-three",
+	"loose-prize", "loose-wood", "full-heart", "pearl", "pearl-two", "pearl-three",
 ]
 ## What each skin works on (docs/godot/SKINS.md), a category per skin: scene ids under OBJECTS_DIR.
 ## The Feral skin's vines are painted, not placed (a `vines` VineLayer); its placed climbable wall is
 ## for a climb that leads out of a world or ends on the face.
 const SKIN_CATEGORIES := {
 	"Heavy skin": ["heavy-plate", "heavy-block", "heavy-statue", "heavy-statue-flipped", "heavy-ore-crate",
-		"plank-barricade", "rotten-timbers", "old-trunk", "old-fence", "rubble-heap", "loose-rock", "loose-prize"],
+		"plank-barricade", "rotten-timbers", "old-trunk", "old-fence", "fallen-tree", "fallen-tree-ns", "rubble-heap",
+		"loose-rock", "loose-prize"],
 	"Silk skin": ["floor-web", "web-wall", "silk-parcel"],
+	# Light enough for any Roll (loose_prize.gd `any_bonk`): dead sticks snagged in a tree drop wood.
+	"Any Roll": ["loose-wood"],
 	"Feral skin": ["climb-wall"],
 }
 ## The ways down and up, for the overworld as for rooms: scene ids under OBJECTS_DIR.
@@ -85,6 +88,8 @@ const HEARTS_CATEGORY := "Hearts & chests"
 const HEARTS := {
 	"heart quarter": ["goo-heart", "A loose heart quarter (four make a heart, +20 max HP).\nOn its GooHeartScript: heart_id, a name no other heart uses (it comes as \"unassigned\"); quarters, how many it gives."],
 	"full heart": ["full-heart", "A whole heart, a beaten boss's prize.\nOn its FullHeartScript: heart_id, a name no other heart uses; boss_id, the boss it waits for."],
+	"roll fragment": ["collectible-roll-fragment", "A Roll fragment on the ground (four teach the Charged Roll; Burr gives the first in Fatty's Lair).
+On its CollectibleScript: map_id, the world's id; instance_id, a name no other pickup in that world uses. Or put \"roll-fragment\": 1 in a chest's contents."],
 	"wooden chest": ["chest-wooden", "A chest for any world.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
 	"dungeon chest": ["dungeon/dungeon-chest", "A dungeon room's chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
 	"dungeon big chest": ["dungeon/dungeon-big-chest", "A dungeon's big chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],

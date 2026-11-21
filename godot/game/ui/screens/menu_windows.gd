@@ -7,14 +7,17 @@ extends Node
 ##
 ## Menu key (`menu`, B; heard in `_input`, so it works while a window holds the focus): ignored
 ## with Ctrl / Alt / Meta, on echo and with no world; with a shell window open nothing happens; an
-## open tab window (bag, crafting, journal, map) closes; else the bag opens unless the slime is
+## open station window (a campfire's, the Forge's) or tab window (bag, journal, map) closes; else
+## the bag opens unless the slime is
 ## mid-swing, the game is paused by another window or menu, or a travel runs (it opens while dead,
 ## K15). The pause menu's Inventory button opens the bag (Shell action "inventory").
 ## Journal key (`journal`, J; owner, 2026-10-08): the same rules, for the Journal tab: an open
 ## Journal closes, another open tab window switches to it, else it opens where the bag could.
 ##
-## Tabs: Bag and Crafting (the Crafting tab opens the portable site: a station is not reached
-## back through the tabs, K4); Journal and Map stay disabled until their windows are registered
+## Tabs: Bag, Journal and Map. The Crafting tab is gone (2026-11-20, crafting spec 12): crafting
+## happens at a station only (every campfire, the relit Forge), whose window is not a tab, so the
+## strip does not show over it and the portable recipes are no longer offered. Journal and Map stay
+## disabled until their windows are registered
 ## with `register_tab` (a window with open / close / is_open, or three callables). Without a
 ## registration the Map tab falls back on the map UI (group `map_ui`: `open_world_map`,
 ## `close_world_map`, `is_world_map_open`). The first-time coach under the strip is learned
@@ -30,7 +33,7 @@ const MenuTabs := preload("res://game/ui/screens/menu_tabs.gd")
 
 const GROUP := &"menu_windows"
 const MAIN_GROUP := &"world_main"
-const TABS: Array[StringName] = [&"inventory", &"crafting", &"journal", &"map"]
+const TABS: Array[StringName] = [&"inventory", &"journal", &"map"]
 ## MenuTabsSurfacePort: the coach's story flag and how long it must be read (wall clock).
 const COACH_FLAG := "hint.menu-tabs"
 const COACH_READ_MS := 3000.0
@@ -63,7 +66,6 @@ func _ready() -> void:
 		windows.connect(&"window_opened", _on_windows_changed)
 		windows.connect(&"window_closed", _on_windows_changed)
 	register_tab(&"inventory", bag)
-	register_tab(&"crafting", func() -> void: open_crafting(RecipeCatalog.PORTABLE_SITE), crafting.close, crafting.is_open)
 	tabs.tab_pressed.connect(switch_tab)
 	var shell := Services.shell()
 	if shell != null:
@@ -93,11 +95,15 @@ func _input(event: InputEvent) -> void:
 
 # --- API -------------------------------------------------------------------------------------------
 
-## `toggleMenu`: closes the open tab window, else opens the bag when allowed. True when it acted.
+## `toggleMenu`: closes the open station or tab window, else opens the bag when allowed. True when
+## it acted.
 func toggle_menu() -> bool:
 	var shell := Services.shell()
 	if shell != null and shell.is_any_open():
 		return false
+	if crafting.is_open():
+		crafting.close()
+		return true
 	var open_tab := current_tab()
 	if open_tab != &"":
 		(_tab(open_tab)["close"] as Callable).call()
@@ -156,7 +162,8 @@ func open_bag() -> bool:
 	return bag.is_open()
 
 
-## Opens the crafting window at `site` (the Crafting tab: portable); false when already open.
+## Opens the crafting window at `site` (a station's; the portable site only in tests); false when
+## already open.
 func open_crafting(site: Dictionary = RecipeCatalog.PORTABLE_SITE) -> bool:
 	if crafting.is_open():
 		return false
@@ -172,7 +179,7 @@ func open_station(site: Dictionary) -> bool:
 	return open_crafting(site)
 
 
-## The open tab window's id (first of bag, crafting, journal, map), &"" when none.
+## The open tab window's id (first of bag, journal, map), &"" when none.
 func current_tab() -> StringName:
 	for tab: StringName in TABS:
 		var entry := _tab(tab)

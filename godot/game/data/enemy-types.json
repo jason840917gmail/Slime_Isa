@@ -213,7 +213,7 @@
       "pattern": { "throwRangePx": 220, "firstThrowMs": 700, "throwEveryMs": 1500, "windupMs": 550, "throwPoseMs": 220, "boneRangePx": 220, "boneSpeed": 230, "boneTurnShare": 0.3, "boneCatchPx": 16, "boneLifeMs": 6000, "catchPoseMs": 220, "regrowMs": 3500, "stolenRegrowMs": 10000, "rattleEveryMs": 520, "lineUpLeashPx": 72, "lineTolerancePx": 10, "backOffRangePx": 96, "backOffPx": 44, "stepSpeed": 60, "homeSlackPx": 4, "reassembleMs": 3000, "reassembleTellMs": 700, "headlessMs": 1200, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 6 },
       "projectile": { "projectileId": "bone", "assetId": "enemy.projectile.bone", "damage": 16 },
-      "reactions": { "weight": "light", "material": "stone", "knockbackScale": 0.5, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "thrown": { "verb": "knockdown", "stunMs": 800 } }, "byTag": {}, "immune": [], "states": { "armed": { "immune": ["tap", "finisher", "charge", "smash", "ring", "slam", "roll"] }, "windup": { "immune": ["tap", "finisher", "charge", "smash", "ring", "slam", "roll"] } } }
+      "reactions": { "weight": "light", "material": "stone", "knockbackScale": 0.5, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "thrown": { "verb": "knockdown", "stunMs": 800 } }, "byTag": {}, "immune": [], "states": { "armed": { "immune": ["tap", "finisher", "charge", "smash", "ring", "slam", "roll", "arrow"] }, "windup": { "immune": ["tap", "finisher", "charge", "smash", "ring", "slam", "roll", "arrow"] } } }
     },
     "bone-marcher": {
       "id": "bone-marcher", "visualSetId": "enemy.bone-marcher", "maxHp": 20,

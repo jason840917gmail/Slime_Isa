@@ -180,9 +180,9 @@ quests `slime-basics`, `the-old-workshop`, `a-tonic-for-lili`, `snack-for-the-ro
 | `open` | open flag |
 | `quests` | rows above |
 | `selectedIndex` | index of the selected row, −1 when none |
-| `detailsName` | selected title, else `No quests yet` |
+| `detailsName` | selected title, else `No quests yet` (Godot since 2026-11-19: `Nothing written yet`) |
 | `detailsStatus` | the selected quest's state line, else `""` |
-| `details` | `detailsFor(selected)` below, else `Talk to the slimes marked with ! to take on a quest.` |
+| `details` | `detailsFor(selected)` below, else `Talk to the slimes marked with ! to take on a quest.` (Godot since 2026-11-19: `Talk to the slimes marked with ! to hear what they know.`; the Tips row and the main quest's Pearl slots: [quests.md §14.7](quests.md#147-the-journal-tips-and-the-pearl-slots); since 2026-11-20 the War journal row: §14.8) |
 | `status` | the stored message (`""` after open, close and every selection) |
 | `actionLabel`, `actionDisabled` | table above |
 
@@ -261,10 +261,10 @@ rows:           ["◆ Slime Basics\nSide · In progress"]        selected 0
 detailsName:    Slime Basics
 detailsStatus:  Side · In progress
 details:
-A first look at everything a slime can use: the bag and its tabs, the map and the pause menu.
+A first look at everything a slime can use: the bag, a campfire, the journal, the map and the pause menu.
 
    • Open your bag (B)
-   • Look at the Crafting tab (B, then its tab)
+   • Use a campfire
    ✓ Read your Journal (J)
    • Open the map (M)
    • Pause to save or change settings (Esc)
@@ -560,8 +560,8 @@ were not kept when the scenes became Godot's. Neither file lives in `game/script
 # quest_journal_model.gd (static)
 const TITLE := "Quest Book"
 const CLOSE_TEXT := "Close (Esc)"
-const EMPTY_NAME := "No quests yet"
-const EMPTY_DETAILS := "Talk to the slimes marked with ! to take on a quest."
+const EMPTY_NAME := "Nothing written yet"  # "No quests yet" until 2026-11-19
+const EMPTY_DETAILS := "Talk to the slimes marked with ! to hear what they know."  # "... to take on a quest." until then
 const ACTION_LABELS := {"abandon": "Abandon", "retry": "Retry", "": "No action"}
 const ABANDONED_STATUS := "Quest abandoned."
 const RESTARTED_STATUS := "Quest restarted."
@@ -716,7 +716,13 @@ func model() -> Dictionary
 - **take(item_id)**: `moved = _chest.transfer_stack(item_id)` (`stack_transferred` → TakeSfx);
   `_status = ChestModel.moved_text(moved, item_id)`; if the item is gone the stack now in its
   place (else the one before it) is selected; refresh; when a cell had the focus, the selected
-  cell takes it, else (nothing left) the first focusable control (Close). `take_selected()` needs a selection; `take_at(i)` selects `i` first.
+  cell takes it, else (nothing left) the first focusable control (Close). `take_selected()` needs a selection; `take_at(i)` selects `i` first. Godot, 2026-11-20: a
+  find taken (a war-journal page, a recipe page: quests spec 14.8) opens its reading panel over the
+  window, a frame later (page_window.gd), which gives the focus back to the chest window when it
+  closes; an upgrade (the Charged Roll) and a belt slot play their card once the window closes. A
+  Roll Fragment taken (since 2026-11-20) is counted at once with its toast, "Roll Fragment n of 4",
+  and the fourth teaches the Charged Roll, with its upgrade card. *Since 2026-11-20 the Gloop Cavern's
+  hidden chest (above) holds a `roll-fragment` too.*
 - **chest.gd changes** (Phaser's `CHEST_VIEW_SERVICE`, `ChestScript.ts:53-96`): the view is the
   first node of group `chest_window`.
 

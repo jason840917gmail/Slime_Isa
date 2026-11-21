@@ -54,6 +54,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/animals/hedgehog.tscn" id="life_9"]
 [ext_resource type="Script" path="res://game/scripts/world_area.gd" id="life_area"]
 [ext_resource type="Script" path="res://game/scripts/door.gd" id="life_door"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/town/props/goo-fountain.tscn" id="goo_fountain"]
 
 [sub_resource type="RectangleShape2D" id="shape_edge_north"]
 size = Vector2(2048, 4)
@@ -218,6 +219,9 @@ y_sort_enabled = true
 
 [node name="Town" type="Node2D" parent="Scenery" unique_id=1484661193]
 y_sort_enabled = true
+
+[node name="goo-fountain" parent="Scenery/Town" unique_id=1765905356 instance=ExtResource("goo_fountain")]
+position = Vector2(1310, 1345)
 
 [node name="house-mushroom-round" parent="Scenery/Town" unique_id=1058886974 instance=ExtResource("15_h3ifx")]
 position = Vector2(430, 690)

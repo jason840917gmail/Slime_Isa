@@ -6,11 +6,16 @@ class_name HudConsole
 ##
 ## Left to right: the minimap (MapUi's, docked here by hud.gd), the life orb, the weapon in hand
 ## (WeaponHotbar, placed by hud.gd), the ability buttons (AbilityBar, placed by hud.gd; as many as
-## `ability_definitions.gd` BAR_SLOTS lists), the energy orb (with the Gulp form's badge while the
-## slime is in a form) and the menu buttons (bag, journal, map, pause menu). The weapon and the
-## abilities sit on one wooden bar whose ends tuck behind the orbs. Everything sits on a solid band
+## `ability_definitions.gd` BAR_SLOTS lists), the potions group (PotionBeltBar, placed by hud.gd: one
+## slot per belt slot found, none until the first; docs/godot/specs/crafting.md 12.4), the energy orb
+## (with the Gulp form's badge while the slime is in a form) and the menu buttons (bag, journal, map,
+## pause menu). The weapon, the abilities and the potions sit on one wooden bar whose ends tuck
+## behind the orbs, GROUP_GAP between the groups. Everything sits on a solid band
 ## across the whole width (the bar's own frame, darkened), so the map ends at the band's wooden rim
-## and nothing past a world's south edge ever shows under the console. `layout(viewport, ability_count)` gives every rect, in canvas units.
+## and nothing past a world's south edge ever shows under the console. `layout(viewport,
+## ability_count, weapon_shown, potion_count)` gives every rect, in canvas units. With the Shape
+## slot, two ability slots and all four potion slots the console is 950 units wide, so it fits the
+## 1024-unit minimum width (project.godot) on the one bar.
 ##
 ## Built by hud.gd as a full-screen child of the HUD layer (it lays itself out on every resize);
 ## only the menu buttons take the mouse.
@@ -21,7 +26,8 @@ class_name HudConsole
 ## slot and the Roll, `AbilityBar.slots`). The console follows both while the mode is on (and once
 ## more when it goes off): when either changes it lays itself out again and emits `layout_changed`,
 ## so the HUD places the slots and the minimap on the new rects (hud.gd `_layout`; until hud.gd
-## connects the signal, the console asks its parent HUD for that layout itself).
+## connects the signal, the console asks its parent HUD for that layout itself). It follows the
+## number of open belt slots the same way, in either mode.
 ##
 ## Owner: UI (HUD console); the rework's layout: Ability Box and HUD.
 
@@ -33,6 +39,7 @@ const GooOrb := preload("res://game/ui/console/goo_orb.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const AbilityBar := preload("res://game/ui/ability_bar.gd")
 const WeaponHotbar := preload("res://game/ui/weapon_hotbar.gd")
+const PotionBeltBar := preload("res://game/ui/potion_belt_bar.gd")
 
 ## Rework mode: the console laid itself out again for another set of slots (the Shape slot shown or
 ## not, the number of ability slots); the HUD should place its pieces on `rects()` again.
@@ -110,6 +117,8 @@ var _ability_count := 5
 ## rework's slots (true from the first step in the mode until it has laid out the classic set again).
 var _weapon_shown := true
 var _following_rework := false
+## The potions group's slots (the open belt slots).
+var _potion_count := 0
 
 
 func _init() -> void:
@@ -133,15 +142,20 @@ func set_ability_count(count: int) -> void:
 	relayout()
 
 
-## Every rect of the console for a `viewport` (canvas units) and `ability_count` buttons:
-## {"console", "band", "bar", "weapon", "abilities", "life_orb", "energy_orb", "minimap",
-## "buttons"}. The console is centred on the bottom edge. Without `weapon_shown` (the rework's
-## hidden Shape slot) the bar holds only the abilities, and "weapon" sits where they start.
-static func layout(viewport: Vector2, ability_count: int, weapon_shown: bool = true) -> Dictionary:
+## Every rect of the console for a `viewport` (canvas units), `ability_count` buttons and
+## `potion_count` potion slots: {"console", "band", "bar", "weapon", "abilities", "potions",
+## "life_orb", "energy_orb", "minimap", "buttons"}. The console is centred on the bottom edge.
+## Without `weapon_shown` (the rework's hidden Shape slot) the bar holds only the abilities, and
+## "weapon" sits where they start. The potions follow the abilities (GROUP_GAP after whatever is
+## before them); with none, "potions" is an empty rect where they would start.
+static func layout(viewport: Vector2, ability_count: int, weapon_shown: bool = true, potion_count: int = 0) -> Dictionary:
 	var abilities_w := ability_count * ABILITY_SLOT + maxf(0.0, ability_count - 1.0) * SLOT_GAP
+	var potions_w := potion_count * ABILITY_SLOT + maxf(0.0, potion_count - 1.0) * SLOT_GAP
 	var weapon_w := WEAPON_SLOT if weapon_shown else 0.0
 	var gap := GROUP_GAP if weapon_shown and ability_count > 0 else 0.0
-	var slots_w := weapon_w + gap + (abilities_w if ability_count > 0 else 0.0)
+	var front_w := weapon_w + gap + (abilities_w if ability_count > 0 else 0.0)
+	var potion_gap := GROUP_GAP if potion_count > 0 and front_w > 0.0 else 0.0
+	var slots_w := front_w + potion_gap + (potions_w if potion_count > 0 else 0.0)
 	var orb_dx := (slots_w + 2.0 * BAR_MARGIN + ORB_D) * 0.5
 	var cx := viewport.x * 0.5
 	var top := viewport.y - HEIGHT
@@ -159,6 +173,7 @@ static func layout(viewport: Vector2, ability_count: int, weapon_shown: bool = t
 		"bar": Rect2(cx - orb_dx - BAR_TUCK, bar_top, (orb_dx + BAR_TUCK) * 2.0, bar_h),
 		"weapon": Rect2(slots_left, bar_cy - WEAPON_SLOT * 0.5, WEAPON_SLOT, WEAPON_SLOT),
 		"abilities": Rect2(slots_left + (WEAPON_SLOT + GROUP_GAP if weapon_shown else 0.0), bar_cy - ABILITY_SLOT * 0.5, abilities_w, ABILITY_SLOT),
+		"potions": Rect2(slots_left + front_w + potion_gap, bar_cy - ABILITY_SLOT * 0.5, maxf(0.0, potions_w), ABILITY_SLOT),
 		"life_orb": Rect2(Vector2(cx - orb_dx, top + ORB_CY) - orb_size * 0.5, orb_size),
 		"energy_orb": Rect2(Vector2(cx + orb_dx, top + ORB_CY) - orb_size * 0.5, orb_size),
 		"minimap": Rect2(left, bar_cy - MINIMAP * 0.5, MINIMAP, MINIMAP),
@@ -168,7 +183,7 @@ static func layout(viewport: Vector2, ability_count: int, weapon_shown: bool = t
 
 ## This frame's rects (layout() for the current viewport).
 func rects() -> Dictionary:
-	return layout(get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1024.0, 1024.0), _ability_count, _weapon_shown)
+	return layout(get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1024.0, 1024.0), _ability_count, _weapon_shown, _potion_count)
 
 
 func relayout() -> void:
@@ -200,6 +215,18 @@ func _process(_delta: float) -> void:
 	_update_form_badge()
 	if ReworkMode.is_on() or _following_rework:
 		_follow_rework_slots()
+	_follow_potion_slots()
+
+
+## The belt's slots opening (or a load changing them): lays the console out again and asks the HUD
+## to place its pieces, as `_follow_rework_slots`.
+func _follow_potion_slots() -> void:
+	var count := PotionBeltBar.slot_count()
+	if count == _potion_count:
+		return
+	_potion_count = count
+	relayout()
+	_emit_layout_changed()
 
 
 ## Rework: lays the console out again when the Shape slot shows or hides or the number of ability
@@ -214,6 +241,11 @@ func _follow_rework_slots() -> void:
 	_ability_count = count
 	_weapon_shown = shown
 	relayout()
+	_emit_layout_changed()
+
+
+## `layout_changed`, or the parent HUD's layout while nothing listens.
+func _emit_layout_changed() -> void:
 	layout_changed.emit()
 	if layout_changed.get_connections().is_empty():
 		var hud := get_parent()

@@ -100,12 +100,17 @@ static func covers(tree: String, at: Vector2, size: float, flip: bool, point: Ve
 ## ground. The shades of a wood overlap into a dark floor, so the ground between trunks reads as
 ## the inside of the wood.
 static func shadow_for(tree: Sprite2D) -> Sprite2D:
-	var width := tree.region_rect.size.x * absf(tree.scale.x) * SHADOW_SIZE.x
+	return shade_at(tree.position, tree.region_rect.size.x * absf(tree.scale.x))
+
+
+## The soft shade of something `width` units wide standing at `foot` (the canopy walls' roots use it).
+static func shade_at(foot: Vector2, width: float) -> Sprite2D:
+	var shade_width := width * SHADOW_SIZE.x
 	var shade := Sprite2D.new()
 	shade.name = "Shadow"
 	shade.texture = load(SHADOW_TEXTURE)
 	shade.modulate = SHADOW_COLOR
 	shade.z_index = SHADOW_Z
-	shade.scale = Vector2(width, width * SHADOW_SIZE.y) / 64.0
-	shade.position = tree.position + SHADOW_OFFSET * width
+	shade.scale = Vector2(shade_width, shade_width * SHADOW_SIZE.y) / 64.0
+	shade.position = foot + SHADOW_OFFSET * shade_width
 	return shade

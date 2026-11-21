@@ -173,7 +173,9 @@ With only the heart inside no chest window opens; with other things too (or a du
 beside its dungeon items), the window shows them after the heart has risen and its ceremony has
 played, as Zelda does (the window pauses the world, which would freeze the rise). The chest sends
 one `open_requested` as it opens. The chests and the loose quarter are in the Scenery dock's
-**Hearts & chests** category since 2026-11-18 ([PROPS.md](PROPS.md)).
+**Hearts & chests** category since 2026-11-18 ([PROPS.md](PROPS.md)), with a loose Roll Fragment
+(`collectible-roll-fragment`) since 2026-11-20; a chest holds one as `"roll-fragment": 1` in its
+contents (quests spec 14.8).
 
 ## Locked doors
 
@@ -350,14 +352,26 @@ The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling
   collides with in a world with elevation (`plank_look.gd` `open_lane`, as the stairs).
 - **A long bridge with no landing** (the owner's come-back secret) is crossed only by a Roll that
   keeps rolling: in the body-shapes mode (the story's mode after the prologue) the **charged Roll,
-  the `roll-charge` upgrade** (planned, not yet given anywhere in the story:
-  [05-unlock-map.md](../story/05-unlock-map.md)), held all the way; in the classic game the Roll
+  the `roll-charge` upgrade** (since 2026-11-20 the fourth of four Roll Fragments teaches it:
+  [quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)), held all the way; in the classic game the Roll
   held. The quick Roll (one or two planks), quick Rolls in a row (the cooldown is longer than the
   fall delay) and walking fall in. A bridge meant for the quick Roll needs a landing every two planks.
 - Tried in the plank lab, `world.playground-planks` (`game/dev/planks/playground-planks.tscn`, built
   by `tools/build_plank_lab.gd`; `?map=playground-planks`): an eight-plank bridge with no landing,
   a stepped bridge (two planks, a landing, two, a landing, two), and the heart chests on the island.
   `tools/film_planks.gd` films it. Tests: `tests/test_falling_planks.gd`, `tests/test_heart_chest.gd`.
+- **Over a dry ditch** (2026-11-19, the Roll's first lock: young Burr's lesson, quests spec §14.3):
+  a falling plank with `dry` on falls as a slab does, with a wooden clatter (`BreakWood`) and dust
+  and no splash, over a hole painted on the `elevation` layer (level -1 in level-0 ground) with a
+  void hazard over it whose `draw_look` is off, so the ditch's own earth walls and floor show. Like
+  every deck it opens its passage over the hole at its `level`. Built in **Burr's yard**
+  (`level-1-c4`, node `BurrYard`): a ditch one level deep, two rows by three cells, across the side yard west
+  of the blue cottage (cells x 0-2, rows 3-4; its floor painted forest soil, its walls `mountain-dirt`
+  on a `cliffs` layer), two dry planks across it at x 2, the void `ditch-void` (damage 5) returning
+  every fall to `ditch-safe-spot` on the yard side, and beyond it, in the nook against the north
+  cliff, the chest `burr-yard-chest` (15 coins). A blocker (`burr-house-back`) closes the strip behind
+  the cottage, so the nook is reached only over the planks: one quick Roll from the rim crosses
+  both; walking drops into the ditch.
 
 ## Holes and hatches
 
@@ -700,8 +714,10 @@ minutes with the camp, 13 rooms on the main path.
   shutter), two drawbridges (the Chasm's, the spire plank), four void hazards (`draw_look` off,
   `Return...` points), the shadow path, six pots that grow back, an energy flower and five prize
   glints (Pearl 3's goes once it is taken: `crystal_mine.gd`). `KitMarkers` keeps a marker for what
-  nothing builds yet: the war journal's pages and S1's heart quarter (S1, S5 and M10's chest hold
-  coins until then).
+  nothing builds yet: S5's war journal page and S1's heart quarter (S1 and S5 hold coins until then;
+  S1's also holds one of the potion belt's slots since 2026-11-20, crafting spec 12.4). M10's chest
+  holds the war journal's third page since 2026-11-20 (its marker went;
+  [quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)).
 
 ### The rooms
 
@@ -720,7 +736,7 @@ Screens by column (0 to 4, west to east) and row (0 to 4, north to south); the m
 | M9 The Chasm | (2, 0), dim | the first half's last lock: the cart station (the cart starts here), the chasm (-3) with the raised drawbridge on the far rim and the lens beside it (an arrow lowers it, rows 8 and 9), the Bone Thrower on the far ledge, crystal vein glows; the far rim's way on is the stair down into the Den (x 44, 45); its old door east to M10 is bricked |
 | M13 Shardback's Den | (2, 1), dark 6, level -1 | **the Pearl room.** The Shardback (two braziers, 20 s, `stomp_puts_out`: fire light makes his shell brittle); the room fight (`once`, `boss_id` `crystal-mine-shardback`) shuts the north shutter at the stair's foot; won, it opens and the two shutters of the broken south rim sink for good. Pearl 3 (`pearl-three.tscn`, `boss_id` the Shardback's) on its crystal cradle among four crystal clusters, its glint seen from the stair through the fight: it rises when he falls. **Teach:** the ledge (level 0) in the north-east holds the east door; its root wall (one level) is the Feral skin's first lock, a climb back down beside it |
 | M11 Crystal Veil | (3, 1), dark 5 | **Test:** the rift (-2) between the west landing (the Den's door) and the east landing (M12's door): climb down the west landing's face, cross the rift's floor, climb up the east landing's (each face two levels, each with a climb down from its lip); a pot. The optional Lantern wing: the veil across the mouth of the doorway north to M10, its brazier on the east landing (20 s) and one on M10's side, two Glint Bats roosting over it |
-| M10 Prism Gallery | (3, 0), lit | optional (the Lantern wing): the Prism Eye, the iron-banded ore crate (a heavy block), the chest of the war journal page that lay on M12's stand (30 coins until pages exist), the veil's far brazier |
+| M10 Prism Gallery | (3, 0), lit | optional (the Lantern wing): the Prism Eye, the iron-banded ore crate (a heavy block), the chest of the war journal page that lay on M12's stand (its third page since 2026-11-20; 30 coins before), the veil's far brazier |
 | M12 The Fort Hall | (4, 1), lit | **Twist:** cobble and masonry; the balcony (level 2) along the north wall with the big chest (the big key), two root walls up its face (x 68 and 75); the Watcher Eye's beam finds a climber, the Bone Marcher's loop passes the walls' feet; five armour statues (heavy blocks, cover, three cells or more from the roots), two watch-fires; a drop off the balcony's west end lands by the west door |
 | M15 The Colossus's Arena | (3, 2), dark | **the exam:** four braziers (until put out), the Colossus, four root walls on the north wall beside his three climb spots (they end on the face, `holds_at_top`), the climb out to the Lookout (its seal at its foot until he falls), his full heart |
 
@@ -848,49 +864,67 @@ handholds); M15 lights while its four braziers burn, and for good once he falls.
   Feral alone (unsealed): `?skins=feral` (`-- --skins=feral`, also in the editor's Main Run Args for
   F6).
 
-### Outside: the camp, the Lookout, the cave road
+### Outside: the Spiral
 
-`"<Godot console exe>" --headless --path godot -s res://tools/build_mine_outside.gd [-- --dry]` lays
-them into three Crystal Caverns chunks (then bake: `tools/bake_elevation.gd --
---world=crystal-caverns-g4,crystal-caverns-h4`). Its nodes live under `MineOutside`, replaced on each
-run; inside its rects it takes out the placeholder's props, trees and worm camps and lays cavern
-floor; it owns G4's and H4's `elevation` layer.
+Since 2026-11-21 (roadmap 12.9; the design and its pictures:
+[the Spiral](../design/2026-11-20-caverns-spiral.md)) the Caverns' outside is a falling-slab maze:
+rings round a central peak, the main ring climbing from level 0 in G4's west to 3 in G5's west, four
+LONG runs and three short ones over the void (most of the damage area: a fall costs 10 and sets the
+slime back), a spike canyon along the ring's south side, five chunk-line crossings between lantern
+posts. Laid one chunk a run by `tools/build_caverns_spiral.gd -- --chunk=<g4|h4|g5|h5>` (its nodes
+under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves by
+`tools/build_caverns_rooms.gd -- --room=<id>`; then bake the four chunks. The old camp's tool
+(`build_mine_outside.gd`) is deleted.
 
-- **G4, the smith's mine camp** (roadmap 12.3): the mountain along the north (level 2, crystal top);
-  the mine's mouth in its face with the mine gate (`lantern-gate.tscn`, `crystal-mine-gate`) and the
-  cold brazier beside it (lit for good, group `mine-camp-gate`: one flame opens the gate for good);
-  behind the gate the way in (`exit-to-crystal-mine` to the mine's arrival door `mine-entrance`),
-  and the arrival door `camp-mine-mouth` in front of it (the mine's south doorway leads there, but
-  not while the mine is sealed; arrival doors: door.gd with no target, since 2026-10-31). The smith, Pip's dad (`game/scenes/characters/smith.tscn`, `smith_actor.gd`: four
-  poses, he works his anvil), talks through the camp's director (`mine_camp.gd`, node `MineCamp`):
-  the first talk gives the **Lantern** (`learn_ability("lantern")`, its ceremony; flag
-  `mine-camp.lantern-given`) and says "The lamp by the gate. Give it a flame."; while the gate is
-  shut he says it again; once it is open he sends the slime to Burr for the Bow, needed at the
-  Chasm before the Pearl (once, flag `mine-camp.sent-to-burr`), then gives tips. When the gate
-  opens he calls "That's it! Mind the dark in there." Once the Colossus fell he is gone (home to
-  Slimeshire; his place there is not built). The camp: two tents, the campfire, a cauldron, the
-  smith's cot (a bed: sleep, a full refill), lantern posts, rails out of the mouth south to G5.
-- **H4, the Lookout:** the mountain goes on as a plateau (level 2) with a two-wide flight of stairs
-  down its face at x 10, 11; on top, the arrival door `lookout-from-mine`, where the climb out of the arena
-  comes up, under a soft daylight glow; the path west along its foot leads to the camp.
-- **G5, the cave road:** a road from the west edge (Gloop Forest) and north to the camp, the mine's
-  rails along it, lantern posts, and a Crystal Crawler circling a crystal pillar by the road, alone.
-- **Not built outside:** the dark side cave by the road with its deadthorn plug (the Lantern's
-  come-back), the Feral hill up to the Lookout from the Wilds (it needs the map's way to the Wilds),
-  and the smith in Slimeshire.
+- **G4, the first yard** (by the way in from Gloop Forest, level 0): the gate mountain (level 2,
+  crystal top) with the mine's mouth in a notch of its face: the mine gate (`lantern-gate.tscn`,
+  `crystal-mine-gate`) and its cold brazier (lit for good, group `mine-camp-gate`, instance id
+  `mine-gate-brazier`: one flame opens the gate for good, and its flag
+  `candle-lit.mine-gate-brazier` tells the smith); behind the gate the way in (`exit-to-crystal-mine`
+  to the mine's `mine-entrance`), in front of it the arrival door `camp-mine-mouth` (the mine's south
+  doorway, not while the mine is sealed); beside it the end of the smith's cart line
+  (`yard-cart-station`, a MineCartStation with `cart_flag` `smith-cart.ridden`: the cart stands there
+  once ridden, and never rides back) and its arrival door `yard-cart`.
+- **The smith's cave** (`crystal-caverns-smith-cave`, the peak's south face in H5, roadmap 12.3): the
+  smith, Pip's dad (`smith.tscn`, `smith_actor.gd`), at his anvil in his camp (two tents, campfire,
+  cauldron, cot: a bed, a full refill), talks through `mine_camp.gd` (`Objects/MineCamp`): the first
+  talk gives the **Lantern** (its ceremony; flag `mine-camp.lantern-given`) and, in the same visit,
+  the **Smith's Crystal** (`mine-crystal`, once: `mine-camp.crystal-given`; none with the Bow learned
+  already) for Pip's bow rune, then "My ore cart runs down the old line to the gate ... Give it a
+  flame". His lamp (`smith-cave-lamp`, lit for good: `candle-lit.smith-cave-lamp`) frees his cart
+  (`smith_cart.gd`): it rides once, one way (a fade, a door's travel) down to the yard. Later talks:
+  the lamp's lesson while it is cold, "ride it down" until the gate burns, the crystal's errand until
+  the Bow, then tips; after the Colossus (`chapter-3-complete`, or the boss in `defeated_boss_ids`)
+  he stays (owner, 2026-11-20), proud of Pip. *Until 2026-11-21 his camp stood in G4 by the gate, and
+  he gave the crystal only once the gate was open; before 2026-11-20 he sent the slime to Burr.*
+- **H4, the Lookout:** kept as it was: the plateau (level 2) with its two-wide flight down its face
+  at x 10, 11 and the arrival door `lookout-from-mine` on top, where the climb out of the arena comes
+  up; its foot is the outer ring's north stretch (Short 3 back to the main road).
+- **The caves:** the Corner Cave (main road, lit), the Bay Cave (side way, by ladders), the Dark
+  Nook and the Under-line Tunnel (dark, deadthorn at their mouths: the Lantern, later):
+  [the Spiral, "The caves"](../design/2026-11-20-caverns-spiral.md#the-caves-room-worlds-crystal-cave-walls).
+- **Not built outside:** the Feral hill up to the Lookout from the Wilds (it waits for the Wilds).
 
 ### The mine's limits
 
-- The **Bow** is not built: the two lenses take its arrow's hook (`on_arrow_hit`) and nothing else
-  strikes them, so the Chasm cannot be crossed in play until it is (and so the Pearl and the second
-  half cannot be reached in play from the camp; `?sealed` or `room=` reach them).
-- **Heart quarters** and the **war journal's pages** are not built: S1, S5 and M10's chest hold coins
-  until then (their `KitMarkers` say what goes there).
+- The **Bow** is built (2026-11-20, [BODY_SHAPES.md](BODY_SHAPES.md#the-bow-2026-11-20)): the two
+  lenses take its arrow's hook (`on_arrow_hit`) and nothing else strikes them, so the Chasm is
+  crossed with it (it is in the Mine's F6 powers). In the story Pip carves its rune in Slimeshire
+  once the Matron's Pearl is home (its homecoming raises his Workshop) and the slime brings him 5
+  wood, the Matron's thread and the smith's crystal; the mine cart is the Bow-less slime's quick way
+  out to him and back in. Not playtested.
+- **Heart quarters** and S5's **war journal page** are not built: S1 and S5 hold coins until then
+  (their `KitMarkers` say what goes there; M10's chest holds the journal's third page since
+  2026-11-20). S1's chest also holds a belt slot
+  (2026-11-20, [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)).
 - The spire plank (S1) lands across the spire's own wall face; its walk across is untested.
 - The strike while clinging runs in the body-shapes mode only (the shapes strike there); in the
   classic game an attack press on a wall does nothing.
 - Tests: `test_crystal_mine.gd` (20) and `test_mine_camp.gd` (6), all passing on 2026-10-17 (run one
-  file at a time with `pnpm test:godot -- --filter=<file>`). The strike while clinging is tested in
+  file at a time with `pnpm test:godot -- --filter=<file>`). Since 2026-11-21 `test_mine_camp.gd`
+  holds 9 for the Spiral (the yard's gate and cart end, the first talk's Lantern and crystal, the lamp
+  freeing the one-way cart, the gate, the mine's way in and out, the seal, the later talks, the Bow
+  first, his stay after the Colossus): rewritten, not run. The strike while clinging is tested in
   the body-shapes mode turned on for the test (`test_the_spear_strikes_his_claws_from_the_face`).
 
 ## The Weaver Hollow (built)
@@ -1039,7 +1073,9 @@ its bridge drops across the void to the rim, and the far shore's Goo Heart is th
 stand-in. D1 the Old Cellar and D2 the
 Dark Bough are dark (the Lantern): D1's chest (its glint seen from the doorway) is for a page of the
 war journal; D2's three candles, all lit, light the room for good and bring its chest, for the
-Silkspun Stew recipe. Neither is an item yet: D1 holds 40 coins, D2 a health potion and 20 coins.
+Silkspun Stew recipe. D1's holds the war journal's second page since 2026-11-20 (40 coins before;
+[quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20));
+the stew recipe is not an item yet: D2 holds a health potion and 20 coins.
 Secrets behind web walls (the Silk skin): S1 in the forecourt
 (50 coins and an energy potion), S2 in the pantry (a health potion, an energy potion, 40 coins), S3
 off T1 (30 coins).
@@ -1111,8 +1147,9 @@ the doors between the floors go on.
   body shows above a row it wades, or through a cut lane. Cut lanes let the spiders roam between the
   corridors.
 - Not built: Mossy's tip at the ring's south gap, the Matron's three-way lash (8.7; if built it
-  pulls but never traps a silk-skinned slime). Quest 6 ("The Matron's Nest", `quests-chapter-2.json`)
-  still describes her old nest fight; it completes on her defeat in the Crown.
+  pulls but never traps a silk-skinned slime). Her defeat in the Crown counts for the main quest's
+  second stage and sets `chapter-2-complete` (the old quest "The Matron's Nest" is retired since
+  2026-11-19: [quests spec §14](specs/quests.md#14-the-main-quest-talks-and-tips-2026-11-19)).
 - Filmed (`tools/film_weaver_hollow.gd`, 41 shots, the forecourt to her fall and out) but not played
   through by the owner.
 
@@ -1206,7 +1243,7 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R12 the Larder | C3 | the Pearl room: Fatty's hoard, the Big Squint's ambush, the worms' altar with Pearl 1's glow, the north doorway nailed shut (the Heavy skin's first lock) |
 | C2 the Weigh House | C2 | the Heavy skin's teach (no enemy): a plate before the east stone door, a statue and a plate that holds the west stone door only while it stands on it; scale pans and weights; a pouch in a scale pan on the east wall |
 | R13 Fatty's Arena | D4 | Fatty One Eye, the Heavy skin's exam; the south shutter; the north doorway's seal; his full heart |
-| R14 the Postern | D3 | after Fatty: the green-key chest, the bolt-hole's barricade |
+| R14 the Postern | D3 | after Fatty: a chest with coins and a potion (`fatty-lair-postern-chest`; the green key until 2026-11-20, question 163), the bolt-hole's barricade |
 | the bolt-hole | D2 | a tunnel up to daylight in level-1-d4 |
 | the map nook | A5 | a small room behind R4's crates |
 
@@ -1231,13 +1268,24 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
    3 s, and both shut at once open it: **small key 1**.
 4. **The east wing:** R6's Pipe Worms, then R7: a thrown pot rings the bell, which opens the
    platform's door; two slabs to the rock, two to the platform: **small key 2**.
-5. **Burr's cell:** two keys, two keyholes; he thanks the slime, opens the Inner Stair's door and
-   warns of the bones. Then (owner, 2026-10-19) **the drawbridge takes two**: its chains run to two
+5. **Burr's cell:** two keys, two keyholes; *since 2026-11-20 (owner)* he first walks out of his cell
+   (through its doorway and a step to the slime's east side, `_out_of_cell_path`, so he never walks
+   into the slime that just turned the keys) and turns to it, then thanks it, opens the Inner
+   Stair's door and warns of the bones. *Since 2026-11-20 (owner: Burr's must be the first fragment)*, between his
+   thanks ("My boy taught you the trick...") and the Inner Stair he gives the first **Roll
+   Fragment**: he has been perfecting a better trick, the Charged Roll, carved into a training disc
+   years ago; Gorge's lot broke it in four and hid the pieces; he kept this one in his boot; find
+   the other three (`lair_director.gd` `FRAGMENT_LINES`, `_give_fragment`, `FRAGMENT_ITEM`, flag
+   `fatty-lair.burr-fragment`; its toast "Roll Fragment 1 of 4"). A save that freed him before this
+   gets it counted quietly on load (`RunState.install`); the four fragments: quests spec 14.8. Then (owner, 2026-10-19) **the drawbridge takes two**: its chains run to two
    plates on the hub's south walk, one body on each, at once; Burr walks to the west one and holds
    it ("That drawbridge takes two ... I'll hold this one. You take the other."). The slime sinks the
    east one: both down, the bridge comes down for good, the short way to the north ledge and the boss
    door. Burr says goodbye, wishes the slime luck and walks out (he waits by the bolt-hole after
-   Fatty). Left before the bridge is down, he is back on his plate each time the hub is built.
+   Fatty), once: the flag `fatty-lair.burr-left` (`FLAG_LEFT`) keeps him gone. Left before the bridge
+   is down, he is back on his plate each time the hub is built; once it is down he is gone, read from
+   the bridge's record before the bridge restores itself (drawbridge.gd `is_down_for_good`; until
+   2026-11-20 he stood on his plate on every visit and said goodbye again).
    Alone, the slime sinks its plate in vain.
 6. **The Deep:** down the Inner Stair into R8's crypt (Bone Marchers); door 3, an open doorway, into
    R11.
@@ -1263,9 +1311,11 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 10. **The hub:** the drawbridge is down since Burr's freeing (step 5): the short way from the entrance
    to the boss door; the north ledge (the calm spot: pots, an energy flower); the boss door with the
    big key.
-11. **R13:** Fatty One Eye, enraged (below); his fall breaks the seals. Then **R14 the Postern:** the
-   green key, and a Heavy Roll through the bolt-hole's barricade, up to daylight by the Verdant Gate,
-   where Burr waits.
+11. **R13:** Fatty One Eye, enraged (below); his fall breaks the seals. Then **R14 the Postern:** a
+   chest with 25 coins and a Slime Tonic, and a Heavy Roll through the bolt-hole's barricade, up to
+   daylight by the Verdant Gate, where Burr waits. The Verdant Gate is a grey fallen tree since
+   2026-11-20 (owner, question 163: the green key went with the gate): the slime's next Heavy Roll
+   breaks it ([SKINS.md](SKINS.md#heavy)).
 
 **The way back after a resume** (a faint or a quit wakes the slime at R1, inside the seal): R1, the
 bolt to the hub, the drawbridge (down since Burr's freeing), the ledge, the boss door. Were it still
@@ -1275,7 +1325,8 @@ once opened from inside). Nothing the main path needs lies outside after the tak
 Secrets: the map nook (behind R4's west shutter, which sinks when R4's Squints fall), R1's store (planks: the Heavy Roll, inside, after the
 Pearl, on the walk back after a faint or at the end; 100 coins), the Weigh House's pouch (a Heavy
 Roll into the east wall shakes the old scale pan's pouch down: 30 coins), the Old Armoury (its four sconces lit for good open its
-stone door: the Lantern, Chapter 3; coins for now) and the Glow-moss Burrow (the shadow path: the
+stone door: the Lantern, Chapter 3; its chest holds the war journal's first page since 2026-11-20,
+[quests spec 14.8](specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)) and the Glow-moss Burrow (the shadow path: the
 Lantern; a goo heart). *Changed 2026-10-19 (owner): the Lair caves in once Fatty falls, so its
 come-back secrets move outside ([the plan](../design/2026-10-19-lair-secrets-outside.md)). The sally
 port is now `slimeshire-sally-port` (`game/scenes/worlds/rooms/c4/slimeshire-sally-port.tscn`), under C4's
@@ -1285,7 +1336,9 @@ ladder climbs back to `sally-port-way-out` south of the pen. R5's crack is plain
 again the same day: an open hole in the pen (no bomb), a winding room, the way out a hatch on the
 town's east side ([Holes and hatches](#holes-and-hatches)). Linked on 2026-10-31 (they never were):
 C4's `SallyPort/sally-port-hole` falls onto the room's landing `sally-port-landing`
-(`object.landing`), the room's ladder climbs to C4's hatch `sally-port-way-out`.* *The Glow-moss Burrow (2026-10-19) is now
+(`object.landing`), the room's ladder climbs to C4's hatch `sally-port-way-out`. Since 2026-11-20
+its chest (`sally-chest`) holds its planned prize, a recipe page for the Berry Basket (it held two
+Slime Tonics).* *The Glow-moss Burrow (2026-10-19) is now
 `slimeshire-glow-moss-burrow` (`game/scenes/worlds/rooms/d4/slimeshire-glow-moss-burrow.tscn`, its heart
 `slimeshire-burrow-quarter`): in D4's south-west, a dark-forest maze (medium beeches and pines on the
 forest layer, two spiders and a worm) on the road down to D5 hides a clearing at the end of its
@@ -1313,7 +1366,7 @@ dust while the slime is still inside (`dungeon.collapse`), and a faint or a quit
 spot outside (the entrance record moves there), never at R1. `game/fattys_lair/lair_collapse.gd`
 buries the way in: the mouth in Fatty's Hollow shows its rubble and its door and R1's way out refuse
 ("Rubble buries the way. The Lair has caved in."). The way out is R14 and the bolt-hole, where the
-green key waits.
+Postern's chest waits.
 
 **Dev:** F6 on the world gives the Spear and the Roll (`dungeon.devPowers.fatty-lair`), the first
 half's powers; the Heavy skin is won at the Larder. To try the second half straight away, lend it:
@@ -1440,7 +1493,8 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
   shapes) only makes it pressed at once. The node is in group `boss_way_in` (metadata `boss_id`), so the tracked quest's "Defeat
   Fatty One Eye" points at it in D5 (`game/quests/quest_waypoint.gd`). `world-chunks.json` lists
   both mouths under level-1's `doors`.
-- **Fatty's old camp left D4** with its guarded chest (the green key is in the shrine). The camp's
+- **Fatty's old camp left D4** with its guarded chest (the green key went to the shrine, then to the
+  Postern; since 2026-11-20 nothing needs it, question 163). The camp's
   scene, `encounter.level-1-fatty-camp`, stays as the boss-camp tests' fixture
   (`godot/tests/lib/fatty_camp_fixture.gd` puts it back in the clearing for `test_boss.gd`,
   `test_audio.gd`, `test_chest_window.gd`, `test_interaction.gd`).
@@ -1463,7 +1517,7 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
 - The Weigh House's, R5's, R7's and the Armoury's latch doors are divider gates in low dividers
   (FENCES.md "Dungeon dividers"; the Armoury's divider is fort stone in a cave room until the cave
   style is made).
-- Not built: the war journal page (the Armoury's chest holds coins), heart quarters (the Burrow's
+- Not built: heart quarters (the Burrow's
   prize is a goo heart), the journal pointing home after Burr's talk (question 103, roadmap 5.17),
   the worm mural, Fatty's shrinking into a small calm slime (his built death clip plays), the
   drill hall's weights (the plan's other way for his exam).

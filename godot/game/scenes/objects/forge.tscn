@@ -40,16 +40,11 @@ y_sort_enabled = true
 
 [node name="RestorationSiteScript" type="Node" parent="Ruined/RestorationSite"]
 script = ExtResource("3")
-prompt = "Restore the Forge (40 stone, 20 wood, 6 iron ore)"
+prompt = "Look at the cold Forge"
 flag_id = "forge.restored"
 object_id = "forge"
-quest_id = "rekindle-the-forge"
-cost = {
-"stone": 40,
-"wood": 20,
-"iron-ore": 6
-}
-locked_message = "The Forge has gone cold. Pip, the smith's son, wants it lit again."
+story_only = true
+locked_message = "The Forge has gone cold. Pip, the smith's son, dreams of seeing it glow again."
 restored_message = "The Forge burns again!"
 interact_radius = 130.0
 badge_rise = 130.0

@@ -42,9 +42,16 @@ class_name Critter
 ##
 ## All its numbers are scene properties, tuned per animal in its scene (game/scenes/objects/animals/).
 ##
+## **Away while its part of Glimmerhill sleeps** (docs/godot/VILLAGERS.md "Asleep until its Pearl
+## comes home"): standing where the wake table (game/glimmerhill/glimmerhill_wake.gd) says a part
+## sleeps, it is parked from the start: hidden, still, colliding with nothing. When the part's wake
+## flag is set it comes back where it was placed after a short random delay, fading in, and lives as
+## usual. No scene holds any of it.
+##
 ## Owner: world (villagers).
 
 const ArcadeMover := preload("res://game/shared/arcade_mover.gd")
+const GlimmerhillWake := preload("res://game/glimmerhill/glimmerhill_wake.gd")
 const NpcWanderPolicy := preload("res://game/world/npc_wander_policy.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
@@ -146,6 +153,10 @@ var _glow_x: float = 0.0
 var _glow_z: int = 0
 var _glow_dark: bool = false
 var _wobble_phase: float = 0.0
+## The Glimmerhill part it is away for ("" when it lives here now), and its collision while away.
+var _asleep_part: String = ""
+var _parked_layer: int = 0
+var _parked_mask: int = 0
 
 
 func _ready() -> void:
@@ -170,6 +181,54 @@ func _ready() -> void:
 		_take_off(Services.now_ms())
 		_mode = STATE_FLIGHT
 		_set_height(flight_height)
+	_asleep_part = GlimmerhillWake.asleep_part_of(self)
+	if not _asleep_part.is_empty():
+		_park()
+
+
+func _enter_tree() -> void:
+	if not _asleep_part.is_empty():
+		GlimmerhillWake.listen(_on_story_flag_changed)
+
+
+func _exit_tree() -> void:
+	GlimmerhillWake.unlisten(_on_story_flag_changed)
+
+
+## Away while its part sleeps: hidden, not moving, colliding with nothing.
+func _park() -> void:
+	_parked_layer = collision_layer
+	_parked_mask = collision_mask
+	collision_layer = 0
+	collision_mask = 0
+	velocity = Vector2.ZERO
+	visible = false
+	set_physics_process(false)
+	if animation != null:
+		animation.pause()
+	GlimmerhillWake.listen(_on_story_flag_changed)
+
+
+func _on_story_flag_changed(payload: Dictionary) -> void:
+	if _asleep_part.is_empty() or not GlimmerhillWake.wakes(payload, _asleep_part):
+		return
+	_asleep_part = ""
+	GlimmerhillWake.unlisten(_on_story_flag_changed)
+	var tween := create_tween()
+	tween.tween_interval(randf() * GlimmerhillWake.tunable_number("animals", "wakeDelayMaxMs", 1400.0) / 1000.0)
+	tween.tween_callback(_come_back)
+	modulate.a = 0.0
+	tween.tween_property(self, "modulate:a", 1.0, GlimmerhillWake.tunable_number("animals", "appearMs", 700.0) / 1000.0)
+
+
+## Back where it was placed, living as usual.
+func _come_back() -> void:
+	collision_layer = _parked_layer
+	collision_mask = _parked_mask
+	visible = true
+	set_physics_process(true)
+	if animation != null:
+		animation.play()
 
 
 func _physics_process(delta: float) -> void:

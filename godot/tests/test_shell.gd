@@ -133,7 +133,13 @@ func test_settings_window_edits_the_settings(t: TestContext) -> void:
 	menu.controls_button.pressed.emit()
 	t.check(shell.controls_menu.is_open(), "Controls did not open from Settings")
 	var list := shell.controls_menu.rows
-	t.check(list.get_child_count() >= 30, "the controls list has %d cells" % list.get_child_count())
+	# Since 2026-11-20 a control without a key is left out (the old Swallow, Stretch Lash, Squash
+	# Slam and Teleport lost their digits) and the potion belt's keys have a row ("1–4").
+	t.check(list.get_child_count() >= 24, "the controls list has %d cells" % list.get_child_count())
+	var keys: Array = []
+	for index in range(0, list.get_child_count(), 2):
+		keys.append((list.get_child(index) as Label).text)
+	t.check(keys.has("1–4"), "the controls list has no row for the potion belt's keys: %s" % [keys])
 	if list.get_child_count() >= 2:
 		t.equal((list.get_child(0) as Label).text, "WASD", "first control key")
 		t.equal((list.get_child(1) as Label).text, "Move", "first control action")

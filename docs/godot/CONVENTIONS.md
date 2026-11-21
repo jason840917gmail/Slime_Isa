@@ -11,7 +11,7 @@ behaviour per area is in [specs/](specs).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`, and so do the art tools' own inputs: everything under `godot/asset/` ships in the web build, which is why the cliff kits moved to `asset/Originals/elevation/cliff-kit/` on 2026-10-17) |
-| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `npc-definitions.json`, `recipes.json`, `quests-chapter-1.json` / `-2.json`, `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
+| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `npc-definitions.json` (with the NPCs' conditional `talks` and tips), `recipes.json`, `quests-main.json` (the main quest) and `quests-chapter-1.json` / `-2.json` (Slime Basics; chapter 2 empty), `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `audio_cue_rules.gd`; and `sheet_sprite.gd`, the bestiary's sheet sprite (the converter's `unported_script.gd`, `modal_root.gd` and `scene_item_list.gd`, which no scene used, were removed in clean-out wave 1, 2026-10-17) |
@@ -70,7 +70,7 @@ Scenes that differ from the converter's copy or replace it:
 | `ui.minimap`, `ui.world-map-ui` | `res://game/ui/map/minimap.gd` (built in code), `world_map_window.tscn` | 2026-10-05: the minimap and the world map ([specs/map.md](specs/map.md)), made by `MapUi` under the HUD; loaded by path |
 | `ui.inventory-ui`, `ui.crafting-ui`, `ui.menu-tabs`, `ui.weapon-hotbar` | `res://game/ui/screens/inventory_screen.gd`, `crafting_screen.gd`, `menu_tabs.gd` (built in code; made by `menu_windows.gd` on GameWindows), `res://game/ui/weapon_hotbar.gd` (built in code under the HUD) | 2026-10-05: the bag, the crafting window, the menu tab strip and the HUD weapon belt ([specs/crafting.md](specs/crafting.md)); the converted copies stay unused |
 | `ui.npc-dialogue`, `ui.quest-offer-modal`, `ui.quest-tracker` | `res://game/ui/screens/dialogue_box.tscn`, `quest_offer_window.tscn`, `res://game/ui/quest_tracker.tscn` | 2026-10-05: the NPC dialogue box, the quest offer / turn-in window and the HUD quest tracker on the UI theme ([specs/quests.md](specs/quests.md)); the quest service mounts the first two on GameWindows, the HUD the tracker; loaded by path |
-| `ui.quest-journal`, `ui.chest-inventory-panel` | `res://game/ui/screens/quest_journal_window.gd`, `chest_window.gd` (built in code; main adds them to GameWindows) | 2026-10-05: the quest journal and the chest window ([specs/journal-and-chest.md](specs/journal-and-chest.md)); the converted copies stay unused |
+| `ui.quest-journal`, `ui.chest-inventory-panel` | `res://game/ui/screens/quest_journal_window.gd`, `chest_window.gd` (built in code; main adds them to GameWindows, with the Godot-only `shop_window.gd` and `page_window.gd`, 2026-11-20) | 2026-10-05: the quest journal and the chest window ([specs/journal-and-chest.md](specs/journal-and-chest.md)); the converted copies stay unused |
 
 ## Running a world
 
@@ -216,9 +216,12 @@ same chunk now (owner: "for the slime houes use the second muchroom house that h
 
 **Interior ways out:** the bottom wall's door is its own picture, a Sprite2D `house-door-art` in
 the room set as the door's `house_art` (the leaves are cut from it): `interior-timber-door.webp`
-(two plank leaves on a sill between the door posts; slime-home, gloop-hut, `double_leaf`) and
-`interior-mushroom-door.webp` (a root frame with a round-topped door; mushroom-home), packed by
-`scripts/art/pack-door-art.py` (it prints the leaf rect for the scene). The sprite's position is the
+(two plank leaves on a sill between the door posts; gloop-hut, `double_leaf`) and
+`interior-mushroom-door.webp` (a root frame with a round-topped door; mushroom-home until
+2026-11-20), packed by `scripts/art/pack-door-art.py` (it prints the leaf rect for the scene). The
+rooms with interior walls (every village house room, slime-home and mushroom-home among them since
+2026-11-20) take the wall's house door leaf instead, and a round room's ring makes its door itself
+(INTERIOR_WALLS.md "The cottage", "Round rooms"). The sprite's position is the
 picture's top edge, so the slime always draws in front of it (the door is seen from inside, like a
 top-wall door in Zelda); its feet are the room's bottom edge.
 
@@ -271,7 +274,7 @@ north, kind opening, its trigger the wall's `passage`) and `playground-bomb-cave
 (side south, with a `walk_area`). The house doors: level-1 `home-door` (the round mushroom house's
 door, on its door frame; the slime's home, moved from the forge 2026-11-12); `mushroom-home-door` (with the leaf picture) and gloop-forest `hut-door` are
 `north` real doors; the slime-home, mushroom-home and gloop-hut `house-door`s are `south` real
-doors with the room's door picture. The gloop and
+doors (slime-home's and mushroom-home's made by their round walls' `front-door` opening). The gloop and
 playground sinkholes are `ladder_down` (no side, arrival child) and their cave ladders `ladder_up`
 (side north).
 
@@ -279,12 +282,15 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
 
 - Input actions are the snake_case of Phaser's `PlayerInputActions.ts` (removed at the cutover):
   `move_up/down/left/right`, `attack` (LMB), `interact` (RMB), `sprint` (no key since 2026-10-08:
-  no sprint from the start), `jump` (no key since the jump was hidden, 2026-10-08), `dodge` (key 2: the Roll since
-  2026-10-09),
-  `stretch_lash`, `squash_slam`, `teleport`, `eat`, `weapon_next/previous` (wheel),
-  `menu`, `map`, `zoom_in/out`, `pause`; `ability_use` (F) is captured only in the body-shapes
-  rework mode, which also clears the number keys and moves the Roll to Space
-  ([BODY_SHAPES.md](BODY_SHAPES.md#controls-in-the-rework-mode)).
+  no sprint from the start), `jump` (no key since the jump was hidden, 2026-10-08), `dodge` (the
+  Roll since 2026-10-09; Space since 2026-11-20, key 2 before),
+  `stretch_lash`, `squash_slam`, `teleport` and `swallow` (no keys since 2026-11-20), `eat`,
+  `weapon_next/previous` (wheel), `menu`, `map`, `zoom_in/out`, `pause`; `potion_1` .. `potion_4`
+  (keys 1-4: drink from the potion belt, 2026-11-20,
+  [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)); `ability_use` (F)
+  is captured only in the body-shapes rework mode, whose input layer clears the old number keys and
+  puts the Roll on Space (project.godot has them that way since 2026-11-20;
+  [BODY_SHAPES.md](BODY_SHAPES.md#controls-in-the-rework-mode)).
 - Physics layers keep Phaser's bits and names; the names are set in `project.godot`
   (`[layer_names]`), the only place code and scenes take them from. Layer N is bit 2^(N-1).
   (Until clean-out wave 1, 2026-10-17, `game/data/collision-layers.json` held this list too, but no
@@ -363,7 +369,7 @@ playground sinkholes are `ladder_down` (no side, arrival child) and their cave l
 pnpm test:godot    # = --headless --path godot -s res://tests/run_tests.gd; Godot from $GODOT
 ```
 
-Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about ten minutes for the full suite; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](specs): walk,
+Run the tests only when the user asks or after a really big, breaking change ([AGENTS.md](../../AGENTS.md)). `pnpm test:godot` (about an hour for the full suite, 53 minutes for 611 tests on 2026-11-20; `--filter=<text>` runs one file) checks the trial's numbers from [specs/](specs): walk,
 sprint and the roll (a roll sticks in a floor web), sword and worm damage, i-frames, knockback, worm death, the starter camp's
 placed worms (standing at once, beaten ones back only when the chunk is built again) and the
 playground pen's timed spawning (`test_camp.gd`, `test_enemy_pen.gd`), respawn, the camera follow, level-1's tiles, the water mask, draw order and water-life
@@ -381,10 +387,17 @@ window and the respin, three rounds, no respawn, Pearl 2's Silk skin, the full h
 the Weaver Hollow's webs (`test_weaver_webs.gd`: floor webs halve a
 walk and stick a Roll, enemies unslowed, web walls block and let the Silk slime through at half
 speed, cut for good, silk parcels; [WEBS.md](WEBS.md)), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run
-records, offer / turn-in conversations, the dialogue reveal and keys, rewards, known facts, the
-tracker, markers, toasts, waypoint targets, saves), crafting, the bag and the belt (`test_crafting.gd`,
-`test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window, the menu
-key and tabs, consumables, drops, the wheel, the hotbar, the trial sword), the quest journal and the chest window
+records, plain talk, the dialogue reveal and keys, Slime Basics, the tracker, markers, toasts,
+saves), Release 1's story ([specs/quests.md](specs/quests.md) 14; `test_main_quest.gd`: the main
+quest's story-flag objectives and Pearl slots, talks and tips, Burr's and Pip's talks and Pip's bow
+rune, the quest Pip's Workshop, young Burr's Roll lesson and its load migration, the tool runs' saves; `test_chapter_one_flow.gd`, `test_chapter_two_flow.gd`,
+`test_chapter_two_gloop.gd`, `test_tom.gd`: Plop's tip to Burr's boy, the relit Forge, the web lane,
+Tom's Goo Bomb lesson; `test_glimmerhill.gd`: the sleeping and waking town and the homecoming;
+`test_release_one_world.gd`: the fallen trees, the heap hatch, the finds and the four Roll Fragments; `test_bow.gd`: the Bow),
+crafting, the bag, the potion belt and the shop (`test_crafting.gd`, `test_potion_belt.gd`,
+`test_inventory.gd`, `test_loadout.gd`: quotes and the status order, the crafting window at the
+stations, the menu key and tabs, consumables, drops, the wheel, the hotbar, the trial sword, the
+belt's slots and keys, Dollop's sales), the quest journal and the chest window
 (`test_journal.gd`, `test_chest_window.gd`), and a 600-frame run without engine errors. Add `--filter=<text>` to run some tests
 (`--filter=a|b` runs either; quote it in the shell), `--strict` to fail on known failures too. Sound
 checks ask `TestContext.played(player)` (cues started since `TestContext.silence(player)`), not

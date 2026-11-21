@@ -204,6 +204,7 @@
     "name": "Smelt Charcoal",
     "station": "forge",
     "tier": 1,
+    "learnedByQuest": true,
     "description": "Char wood slowly in the Forge into clean-burning fuel.",
     "ingredients": [
       {
@@ -221,6 +222,7 @@
     "name": "Smelt Iron Bar",
     "station": "forge",
     "tier": 1,
+    "learnedByQuest": true,
     "description": "Melt iron ore over charcoal and cast it into a bar.",
     "ingredients": [
       {
@@ -240,8 +242,9 @@
   {
     "id": "brew-tonic",
     "name": "Brew Slime Tonic",
-    "station": "portable",
+    "station": "campfire",
     "tier": 1,
+    "learnedByQuest": true,
     "description": "Turn meadow berries into a reliable healing tonic.",
     "ingredients": [
       {
@@ -257,8 +260,9 @@
   {
     "id": "cook-berry-basket",
     "name": "Berry Basket",
-    "station": "portable",
+    "station": "campfire",
     "tier": 1,
+    "learnedByQuest": true,
     "description": "A little woven basket of berries. Eat it for a quick boost of health and energy.",
     "ingredients": [
       {
@@ -278,8 +282,9 @@
   {
     "id": "brew-fizzy",
     "name": "Brew Fizzy Brew",
-    "station": "kitchen",
+    "station": "forge",
     "tier": 1,
+    "learnedByQuest": true,
     "description": "Charge berry juice with crystal shards for energy recovery.",
     "ingredients": [
       {

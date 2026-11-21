@@ -237,10 +237,15 @@ func _clear_test_saves() -> void:
 		dir.remove(file_name)
 
 
-## Releases held input, frees main and the world, and leaves the tree unpaused.
+## Releases held input, closes every Shell window (the Shell is an autoload: a window a test left
+## open, such as Release 1's end card when the Colossus falls, would refuse the next tests' menus),
+## frees main and the world, and leaves the tree unpaused.
 func _teardown(context: TestContext) -> void:
 	context.release_all()
 	context.disconnect_all()
+	var shell := Services.shell()
+	if shell != null and shell.is_any_open():
+		shell.close_all_menus()
 	await _settle()
 	if context.main != null and is_instance_valid(context.main):
 		context.main.queue_free()

@@ -131,7 +131,7 @@ origin (§1), `p` the player centre.
 | `world-beds` | `:1097-1125` | out of tree | `bed.interactRadius` (90) | **85** | `world-beds:<runtimeId>` | `bed.prompt` | o + (0, -badgeRise) | o + (0, -24) | [IN] |
 | `quest-npcs` reoffer | `QuestNpcController.ts:152-188` | | 96 | **85** | `quest-npcs:<instanceId>:reoffer` | `Resume quest with <name>` | as above | as above | [OUT] |
 | `managed-chests` | `:891-917` | (no tree check) | **112** (literal) | **80** | `managed-chests:<instanceId>` | see §3.4 | o + (0, -56) | o + (0, -24) | [IN] |
-| `world-usables` (Godot only, 2026-10-17: group `usable`; Fatty's Lair's worm levers, Burr outside, the Weaver Hollow's gate winch) | | `can_use()` false | `interact_radius` | **70** | `world-usables:<node path>` | `prompt` | o + (0, -badge_rise) | `origin()` | [IN] |
+| `world-usables` (Godot only, 2026-10-17: group `usable`; Fatty's Lair's worm levers, Burr outside, the Weaver Hollow's gate winch; since 2026-11-20 Dollop's shop counter "Shop" and Glimmerhill's goo fountains "Drink" / "Look at the fountain") | | `can_use()` false | `interact_radius` | **70** | `world-usables:<node path>` | `prompt` | o + (0, -badge_rise) | `origin()` | [IN] |
 | `gulp-spots` (Godot since 2026-10-08: `essences`, "Pick up <essence>", into the bag) | `WorldScene.ts:1109-1128` | | spot radius | **60** | `gulp-spots:<round x>:<round y>` | `Gulp the <material>` | none (no badge) | spot | [OUT] |
 | `quest-npcs` talk | `QuestNpcController.ts:189-209` | | 96 | **50** | `quest-npcs:<instanceId>:talk` | `Talk to <name>` | NPC + (30, -30) | NPC + (0, -24) | [IN] (§2.9) |
 | `placed-furniture` | `:1074-1095` | furniture with its own script | 90 (literal) | **40** | `placed-furniture:<placementId>` | `Pick up` | (x, y - 72) | (x, y - 24) | [OUT] |
@@ -148,7 +148,7 @@ Notes:
   (`QuestNpcController.ts:77-81`); all six level-1 NPCs have one.
 - `<name>` = `NpcDefinition.displayName` (`content/npcs/NpcDefinitions.ts`): Village Elder Plop,
   Mossy (`level-1-spider-giver`), Lili, Pip (`red-slime-boy`), Sunny (`yellow-blond-slime-girl`),
-  Lily the Fishergirl. Fallback: the definition id.
+  Lily the Fishergirl (Dora the Fishergirl in Godot since 2026-11-19). Fallback: the definition id.
 - The NPC `instanceId` is the authored instance id (`level-1-npc-lili`, ...), the same string as
   Godot's `npc.get_instance_id_key()` (body meta `instance_id`).
 - `game.interaction` scripts are **never** offered: no provider looks for them (§3.1).
@@ -386,8 +386,10 @@ counter resets when the slime lets go or leaves the trigger, while it walks out 
   no door, has no way in now); `mushroom-home-door` (kind door, a leaf picture laid over the painted
   door, `res://asset/MAPS/Houses/doors/mushroom-door-leaf.png`), gloop-forest `hut-door` (kind
   door, the leaf cut from the house art); the interiors' `house-door`s (kind door, the leaves cut
-  from the room's door picture `house-door-art`: two timber leaves, `double_leaf`, in slime-home
-  and gloop-hut, a round root-framed door in mushroom-home; CONVENTIONS.md "Doors"); the bomb
+  from the room's door picture `house-door-art`: two timber leaves, `double_leaf`, in gloop-hut;
+  the interior walls' house door leaf in the rooms converted to them, among them slime-home and
+  mushroom-home since 2026-11-20, whose round walls make the door: INTERIOR_WALLS.md "The
+  village's house rooms"; CONVENTIONS.md "Doors"); the bomb
   cave's `south-door` and the blown cracked wall's hole
   (opening; the hole's trigger is the wall's `passage` rect); `cave-ladder` (ladder_up, side north:
   arriving there the slime walks down off the ladder); `cracked-ground`'s sinkhole (ladder_down);
@@ -719,7 +721,7 @@ relax bath on any house bath". Built on the bed's pattern, with its own files.
 | Property | TS read (`WorkbenchScript.ts:29-41`) | Fallback | Godot export |
 |---|---|---|---|
 | `prompt` | non-empty string | `'Use workbench'` | `prompt: String = "Use workbench"` |
-| `recipeContext` | a `CraftingStation` other than `'portable'` (`workbench`, `workshop`, `forge`, `kitchen`) | `'workbench'` | `recipe_context: String = "workbench"` |
+| `recipeContext` | a `CraftingStation` other than `'portable'` (`workbench`, `workshop`, `forge`, `kitchen`; Godot also `campfire`, 2026-11-20) | `'workbench'` | `recipe_context: String = "workbench"` |
 | `tier` | integer `>= 1` | `1` | `tier: int = 1` |
 | `interactRadius` | finite `> 0` | `90` | `interact_radius: float = 90.0` |
 | `badgeRise` | finite | `80` | `badge_rise: float = 80.0` |
@@ -730,8 +732,9 @@ get a "Hold: Pick up" secondary [OUT]). Execute: `openCraftingStation(site)`
 else opens the crafting window for the site and emits `workbench.opened {mapId, context}`. Ported
 with crafting (2026-10-05, [crafting.md](crafting.md) §4.1): `MenuWindows.open_station(site)`
 and the InteractionController signal `workbench_opened` (no quest listens to it). Authored instances: workshop station "Use the Workshop" (workshop, tier
-1, r 150, rise 150), forge station "Use the Forge" (forge, tier 1, r 130, rise 130), interior
-benches "Use workbench" (r 90, rise 76-76.85). Placeable workbench items [OUT].
+1, r 150, rise 150; removed 2026-11-20, the raised Workshop has no station), forge station "Use the Forge" (forge, tier 1, r 130, rise 130), interior
+benches "Use workbench" (r 90, rise 76-76.85), and since 2026-11-20 every campfire's `CookStation`
+"Cook" (campfire, r 96, rise 104; [crafting.md](crafting.md) §12.1). Placeable workbench items [OUT].
 
 ### 3.7 `game.story-flag` (`StoryFlagScript.ts`, descriptor `registrations.ts:691-699`) [IN]
 
@@ -835,7 +838,7 @@ level-1 interactables (old Phaser positions; "o" = origin):
 | Verdant gate (`level-1-verdant-gate`, `object.gate-verdant`) | o (3776, 768) | gate `level-1-east-verdant-gate`, `green-key` consumed, r 150, rise 120 -> badge/messages at (3776, 648); prompt "Unlock the Verdant Gate"; locked "The Verdant Gate is locked. Fatty One Eye guards the Green Key."; unlocked "The Verdant Gate swings open!" |
 | exit-1 (same gate record) | Area2D (4064, 576) | locked message "The eastern gate needs a green key." -> `gloop-forest` west |
 | Guarded chest (`level-1-fatty-one-eye-camp/guarded-chest`) | o (2528, 1077) = camp (2528, 1472) + (0, -395) | `level-1-fatty-guarded-chest`, contents `{green-key: 1}`; inside Fatty's activation circle (r 440), so it is guarded whenever the player stands near it with Fatty alive. *Since 2026-10-17 not in the game: the camp moved into Fatty's Lair and the green key into its shrine's chest; the tests put this camp back (`tests/lib/fatty_camp_fixture.gd`)* |
-| Workshop station (`level-1-workshop/station-script`) | o (640, 392) | in the `restored` variant (`workshop.restored`) - absent in a new run |
+| Workshop station (`level-1-workshop/station-script`) | o (640, 392) | in the `restored` variant (`workshop.restored`) - absent in a new run. [DIFF, 2026-11-20] gone: the raised Workshop has no station ([crafting.md](crafting.md) §12.1) |
 | Forge station (`level-1-forge/station-script`) | o (1190, 1068) | in the `restored` variant (`forge.restored`) - absent in a new run |
 | Story variants | `chapter-1-villagers-variant` | `chapter-1-complete`, `whenUnset` = node `chapter-1-villagers` (instances `level-1-npc-yellow-blond-slime-girl`, `level-1-npc-mossy-scout`) |
 | | `level-1-workshop/variant`, `level-1-forge/variant` | `workshop.restored` / `forge.restored`: `restored` vs `ruined` (the ruined one holds the restoration site [OUT]) |
@@ -849,7 +852,9 @@ now in `gloop-forest-e4`, north; the interiors' `house-door` south, still naming
 `level-1` / `gloop-forest`, which `WorldChunks.redirect` sends to the chunk holding the door), and
 the slime arrives in the doorway and walks out of it (CONVENTIONS.md "Doors", world.md section 8);
 the `mushroom-home-door` moved to (1532, 387) in `level-1-c4`, in front of the mushroom house on its
-hill (its old spot was in the hill's cliff wall). The `hut-door` in `gloop-forest-e4` is a real door
+hill (its old spot was in the hill's cliff wall); since 2026-11-20 the red mushroom house stands
+near the plaza, where the Workshop stood, and the door (node `mushroom-door-level-1`) moved with it
+to (579, 391). The `hut-door` in `gloop-forest-e4` is a real door
 (`kind` door) without leaf art: the hut there is painted on a prop layer, so there is no house
 sprite to cut a leaf from. The sinkholes and ladders stay without a side, as below.
 
@@ -877,7 +882,9 @@ that world's door prompt.
 | playground-cavern `playground-cavern-ladder` (704, 200), r 90, rise 150 | playground `playground-sinkhole` | (1600, 1136) -> **(1632, 1120)** | down | no: 86.2 > 80 |
 
 Every pair is symmetric. Interior worlds: slime-home 14 x 11 tiles, mushroom-home 16 x 12, gloop-hut
-14 x 11 (all `fixed` camera); caverns 22 x 14 (follow). [QUIRK] Phaser finds a door's arrival
+14 x 11 (all `fixed` camera); caverns 22 x 14 (follow). [GODOT] Since 2026-11-20 slime-home is
+16 x 12 too, both houses round mushroom rooms whose ring makes the `house-door` at the bottom
+(INTERIOR_WALLS.md "The village's house rooms"): the interior rows of the table are Phaser's. [QUIRK] Phaser finds a door's arrival
 from scene data, so it works even while the door is parked in an unset story variant (arriving
 at `playground-sinkhole` from the cavern before the ground was cracked).
 
@@ -889,8 +896,8 @@ at `playground-sinkhole` from the cavern before the ground was cracked).
   `playground-lash-gate` (1984, 1408, lash bell; message "Ring the bell across the water: throw a
   pot at it.", since 2026-10-16: a thrown thing rings a bell, never the Lash). All require
   `green-key` [QUIRK §3.3.2].
-- Chests: gloop-cavern `gloop-cavern-hidden-chest` (1088, 640) `{iron-ore 6, charcoal 3,
-  hp-potion 1}`; gloop-forest `gloop-matron-guarded-chest` (3200, 708) `{iron-bar 3, hp-potion 2}`;
+- Chests: gloop-cavern `gloop-cavern-hidden-chest` (1088, 640; [GODOT] (1050, 593) since 2026-11-20) `{iron-ore 6, charcoal 3,
+  hp-potion 1}` (Godot since 2026-11-20: a `roll-fragment` too, quests spec 14.8); gloop-forest `gloop-matron-guarded-chest` (3200, 708) `{iron-bar 3, hp-potion 2}`;
   playground `playground-test-chest` (1120, 1440) `{stone-spear 1, stone-axe 1, stone-pickaxe 1,
   wood 20, stone 20, silk-clump 10, hp-potion 5, weaver-fang 3}`, `playground-reward-chest`
   (1344, 420), `playground-nook-chest` (384, 1624), `playground-lash-chest` (1984, 1270);
@@ -900,6 +907,8 @@ at `playground-sinkhole` from the cavern before the ground was cracked).
   `world.slime-home.west-bed` / `world.slime-home.east-bed`; mushroom-home `mushroom-home-bed`
   (238, 352) (r 118.78, rise 181.16, sleep (0, -96.642), wake (0, 16), id
   `world.mushroom-home.bed`); gloop-hut `gloop-hut-west-bed` (160, 340) (`world.gloop-hut.west-bed`).
+  [GODOT] Since 2026-11-20 (the round 16 x 12 rooms) slime-home's beds stand at (270, 340) and
+  (754, 340), mushroom-home's at (290, 380).
 - Workbench: gloop-forest `gloop-ch2-workbench` (1880, 1712), "Use workbench", r 90, rise 76.85.
 
 ---
@@ -1029,8 +1038,8 @@ Data holders (exports per §3.5 / §3.6) that join groups `bed` / `crafting_stat
   (else `instance_id`) - instance roots carry both (ARCHITECTURE §12); fallback `str(get_path())`.
   `sleep_request() -> {"bed_id", "sleep_point": origin() + sleep_point, "wake_point": origin() +
   wake_point}`.
-- workbench: `station()` = `recipe_context` if in `["workbench", "workshop", "forge", "kitchen"]`
-  else `"workbench"`; `site() -> {"station", "tier"}`; `tier` sanitised to an int `>= 1`.
+- workbench: `station()` = `recipe_context` if in `["workbench", "workshop", "forge", "kitchen",
+  "campfire"]` else `"workbench"`; `site() -> {"station", "tier"}`; `tier` sanitised to an int `>= 1`.
 
 ### 6.5 `story_flag.gd`, `story_variant.gd` [IN]
 
@@ -1328,7 +1337,7 @@ rebuild), then `await t.steps(2)`; `t.player()` is a new instance after travel.
 | `test_pointer_picks_target` | same placement; `refresh(pip_position - Vector2(0, 24))` | candidate `quest-npcs:level-1-npc-red-slime-boy:talk`; `refresh(far point)` -> back to Lili |
 | `test_priority_beats_distance` | `RunState.set_flag("workshop.restored")`, 2 frames; teleport to (640, 532) (station (640, 392) 140 px away, <= 150); place Lili's body so her phaser position is centre + (20, 0) | workbench candidate (88) wins over talk (50) |
 | `test_story_variant_parks_villagers` | `set_flag("chapter-1-complete")`, 2 frames | Sunny's and Mossy's NPC bodies not inside the tree; `switched` emitted `{"flagId": "chapter-1-complete", "set": true}`; they are never offered |
-| `test_workshop_station_appears` | `set_flag("workshop.restored")`, 2 frames, teleport (640, 470) | candidate id starts with `world-workbenches:`, prompt `Right-click: Use the Workshop`, priority 88 |
+| `test_workshop_station_appears` | `set_flag("workshop.restored")`, 2 frames, teleport (640, 470) | candidate id starts with `world-workbenches:`, prompt `Right-click: Use the Workshop`, priority 88. [DIFF, 2026-11-20] no longer holds: the raised Workshop has no station (and so neither does `test_priority_beats_distance`'s workbench) |
 | `test_chest_domain` | level-1 chest script (`instance_id == "level-1-fatty-guarded-chest"`) | `remaining() == {"green-key": 1}`; `transfer_stack("green-key") == 1`; `item_count("green-key") == 1`; `remaining() == {}`; `stack_transferred` `{"itemId": "green-key", "moved": 1}`; Visual frame 1 after the next step; second transfer returns 0 and emits nothing |
 | `test_chest_prompt` | teleport (2528, 1140) with no live boss (or boss camp absent) | id `managed-chests:level-1-fatty-guarded-chest`, priority 80, prompt `Right-click: Open chest`; with a live Fatty: `Right-click: Chest locked by Fatty One Eye`, tap -> `guard_blocked` and message `Fatty One Eye is guarding this chest!` at (2528, 1029) |
 | `test_use_chest_opens_window` | `_use_chest` on the level-1 chest | the chest window opens on it (`GameWindows.is_open(&"chest-inventory")`, `current_chest()`); the bag and messages unchanged; `closed {instanceId}` only after Close. The window itself: `test_chest_window.gd` ([journal-and-chest.md](journal-and-chest.md) §3.7) |

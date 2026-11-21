@@ -2,14 +2,15 @@ extends Node
 class_name WorkbenchScript
 ## Scene script `game.workbench` (Phaser `features/scripts/WorkbenchScript.ts`; interaction spec
 ## 3.6, 6.4). A crafting station: the interaction controller offers it (priority 88); using it
-## opens the crafting window for `site()` (crafting port).
+## opens the crafting window for `site()` (crafting port). Every campfire carries one
+## (`recipe_context` "campfire", prompt "Cook": the Release 1 craft panel, crafting spec 12).
 ##
 ## Owner: interaction.
 
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 
 const GROUP := &"crafting_station"
-const STATIONS: PackedStringArray = ["workbench", "workshop", "forge", "kitchen"]
+const STATIONS: PackedStringArray = ["workbench", "workshop", "forge", "kitchen", "campfire"]
 
 ## JSON `prompt`.
 @export var prompt: String = "Use workbench"

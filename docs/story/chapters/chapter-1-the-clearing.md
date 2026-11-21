@@ -5,8 +5,8 @@
 | **Region** | Slimeshire Meadow (`level-1`, `slime-home`, `mushroom-home`); Planned: the prologue between chunks B4 and C4 (the Wellspring and the glade), part of the West village and Fatty's Lair (owner, 2026-10-16). *Changed 2026-10-16 (seventh round, question 112): in B4 the prologue takes the south edge, sealed off by forest, and the West village's town sits in B4's north and A4* *Changed 2026-11-17 (owner, question 150): Burr's house is in Slimeshire's C4, so Chapter 1 no longer goes to the West village, whose town is Glimmerhill (question 149)* |
 | **Goal** | Grow from a newborn puddle into a slime that can leave home, and open the Verdant Gate |
 | **Boss** | Fatty One Eye |
-| **Earned** | Today: the first bag, stone tools, the Roll, home and vault, spears, the green key and Squash Slam. Planned: the **Spear** shape from Old Veteran Yoi, the **Roll** from young Burr, a small key, Pearl 1 with the **Heavy skin** and a boss heart. Burr's thanks, the **Bow** (question 80), waits until the slime comes back to the West village after Chapter 2, in Chapter 3 (owner, 2026-10-16, questions 85 and 94). Shapes replace the crafted tools and spears (built in the rework mode), and Squash Slam is removed (owner, 2026-10-15). The vault waits for a later release (owner, 2026-10-16). *Changed 2026-10-16 (sixth round): Yoi teaches the Spear in the prologue (question 97), Plop gives the 10-slot bag at the town's edge (question 100), and Burr builds the Bow from the Matron's thread once Pearl 2 is home (questions 102 and 106).* *Changed 2026-11-17 (owner): shapes are dropped as a concept, and the Spear is an ability, still Yoi's (question 146). Burr's son teaches the Roll in their house in Slimeshire's C4 (question 150). A fallen tree that a Heavy Roll breaks replaces the Verdant Gate, so the green key goes (question 163). The Charged Roll is Release 1's first ability upgrade, found in a secret (question 160).* |
-| **Status** | Built. The beats below mark each Planned change and Proposal. Every beat is a quest as built; quests no longer make sense (owner, 2026-10-15: NPCs give info and tips, question 50). In their place the journal keeps one main quest and the NPCs' tips, and an NPC hands over or teaches its find when the slime talks to it (owner, 2026-10-16, question 60). *As built (2026-11-14): the quests in the data are still the old crafting chain, and they cannot be finished: no story chunk has any wood, so the chain stops at A Place to Work. The slime has the Roll from the end of the prologue.* |
+| **Earned** | Today: the first bag, stone tools, the Roll, home and vault, spears and Squash Slam (the green key went on 2026-11-20 with the Verdant Gate, question 163). Planned: the **Spear** shape from Old Veteran Yoi, the **Roll** from young Burr, a small key, Pearl 1 with the **Heavy skin** and a boss heart. Burr's thanks, the **Bow** (question 80), waits until the slime comes back to the West village after Chapter 2, in Chapter 3 (owner, 2026-10-16, questions 85 and 94). Shapes replace the crafted tools and spears (built in the rework mode), and Squash Slam is removed (owner, 2026-10-15). The vault waits for a later release (owner, 2026-10-16). *Changed 2026-10-16 (sixth round): Yoi teaches the Spear in the prologue (question 97), Plop gives the 10-slot bag at the town's edge (question 100), and Burr builds the Bow from the Matron's thread once Pearl 2 is home (questions 102 and 106).* *Changed 2026-11-17 (owner): shapes are dropped as a concept, and the Spear is an ability, still Yoi's (question 146). Burr's son teaches the Roll in their house in Slimeshire's C4 (question 150). A fallen tree that a Heavy Roll breaks replaces the Verdant Gate, so the green key goes (question 163). The Charged Roll is Release 1's first ability upgrade, found in a secret (question 160).* *Changed 2026-11-20 (owner): the Bow is no longer Burr's thanks: Pip carves its rune in Chapter 3. Burr gives the first of four Roll Fragments in Fatty's Lair, and Yoi's chest holds the second; the fourth, found later, teaches the Charged Roll.* |
+| **Status** | Built. The beats below mark each Planned change and Proposal. Every beat is a quest as built; quests no longer make sense (owner, 2026-10-15: NPCs give info and tips, question 50). In their place the journal keeps one main quest and the NPCs' tips, and an NPC hands over or teaches its find when the slime talks to it (owner, 2026-10-16, question 60). *As built (2026-11-14): the quests in the data are still the old crafting chain, and they cannot be finished: no story chunk has any wood, so the chain stops at A Place to Work. The slime has the Roll from the end of the prologue.* *Built 2026-11-19: the old quests are retired (their beats below are the record); the journal keeps the main quest "Win back the Pearls", Slime Basics and the NPCs' tips, and Fatty's fall sets `chapter-1-complete` ([quests spec §14](../../godot/specs/quests.md#14-the-main-quest-talks-and-tips-2026-11-19)).* |
 
 Quest IDs are in brackets. Their dialogue lives in
 `godot/game/data/quests-chapter-1.json`. Lines quoted here that already
@@ -68,14 +68,16 @@ be saved (question 113).*
      are."
    - He gives it the **10-slot bag** (Beat 1) and its first tips, with the
      exclamation mark, and later sends it to Burr
-     ([below](#the-west-village-young-burrs-roll-planned-owner-2026-10-16)).
+     ([below](#the-west-village-young-burrs-roll-built-2026-11-19-owner-2026-10-16)).
 
 After the prologue, a short forest path from Slimeshire's south-west leads
 back to the Wellspring, and each Pearl's homecoming is a short scene there
 (owner, 2026-10-16, question 98). A campfire stands by it (question 104).
 *Since 2026-10-16 (seventh round): the path leaves Slimeshire, not the West
 village's town (question 112). Every Pearl goes home there, and its power
-flows into the town (question 110).*
+flows into the town (question 110).* *Built 2026-11-20: the homecoming and
+the campfire by the pool
+([PROLOGUE.md](../../godot/PROLOGUE.md#the-homecoming-2026-11-20)).*
 
 - **The game before the prologue (Built until 2026-10-16):** a new game
   started in the clearing, where Plop greets the slime (his quest offer
@@ -132,7 +134,7 @@ flows into the town (question 110).*
 - **Question 60:** with shapes, no crafted tools and no harvesting in Release
   1, this quest loses its point, and the quests go. In the plan young Burr
   teaches the Roll in the West village
-  ([below](#the-west-village-young-burrs-roll-planned-owner-2026-10-16);
+  ([below](#the-west-village-young-burrs-roll-built-2026-11-19-owner-2026-10-16);
   owner, 2026-10-16, question 61).
 
 ## Beat 3 — A Home of Your Own (new, Planned)
@@ -194,13 +196,27 @@ longer fits.*
   heal. Potions and food are both crafted at a campfire (question 66).*
   *Since 2026-10-16 (seventh round, question 108): Release 1's whole
   manuscripts, found in chests, teach campfire recipes (potions and food) and
-  lore, pages of the Thorn Guard's war journal.*
+  lore, pages of the Thorn Guard's war journal.* *Changed 2026-11-20 (owner):
+  the Forge is relit at the end of Chapter 3, when Pearl 3 comes home.*
 
-## Yoi's home (Planned, owner, 2026-10-16)
+## Yoi's home (Built 2026-11-20; planned by the owner, 2026-10-16)
 
 **Where:** under Lili's west yard, in Slimeshire. An optional secret
 ([question 99](../07-decisions-archive.md#contradictions-left-after-the-review-2026-10-15)).
-Not built.
+*Built 2026-11-20: seven light crates on a hatch south of Lili's mushroom house
+(level-1-c4, `object.heap-hatch`; at (169, 1313) since the owner moved it the same day); once the last is gulped away the hatch opens
+for good with the secret jingle (flag `level-1.yoi-hatch-open`), and a stair leads
+down to Yoi's den (`slimeshire-yoi-home`): Yoi, who welcomes the kid who saved him
+and gives four war tips, one a visit; Slimeshire's fifth heart quarter; and a
+chest by his cot with the Charged Roll, which plays its card. A ladder climbs
+back up to the hatch ([quests spec 14.3](../../godot/specs/quests.md#143-talks-talks-in-npc-definitionsjson),
+[14.8](../../godot/specs/quests.md#148-finds-the-war-journal-the-recipe-page-and-the-charged-roll-2026-11-20)).*
+*Changed 2026-11-20 (owner): the chest holds one of the four Roll Fragments
+that make the Charged Roll, and it sits behind a small Heavy statue maze, so
+it always comes after Burr's fragment: stone dividers close its corner, and
+two heavy statues fill the one gap, one behind the other, so pushing jams and
+only pulling both out with the Heavy skin opens the way. Built the same day;
+the room's walls are being redone, and the maze with them.*
 
 - Lili tells of the hideouts slimes dug during Gorge's war. Her tip goes in
   the journal: NPCs give tips, and the journal keeps them (owner, 2026-10-16,
@@ -230,7 +246,7 @@ Not built.
   (eighth round, question 115): no bell is the Spear's; bells are a ranged
   lock for a thrown pot or an arrow.*
 
-## The West village: young Burr's Roll (Planned, owner, 2026-10-16)
+## The West village: young Burr's Roll (Built 2026-11-19, owner, 2026-10-16)
 
 **Where:** Burr's house in the West village, west of Slimeshire Meadow. Part
 of the village joins Release 1: a small town like Kakariko, with Burr's house,
@@ -242,10 +258,12 @@ Not built.
 (`burr-house`), and his son, inside, teaches the Roll there. The lesson no
 longer sends the slime west: the West village's town is Glimmerhill, which the
 slime reaches only with the Heavy Roll (question 149). The rickety plank over
-a dry ditch goes to the yard of the house in C4. As built (2026-11-18): young
-Burr waits inside the house in C4 (moved from Glimmerhill's B4 gatehouse)
-with placeholder lines, and the slime has the Roll from the end of the
-prologue.*
+a dry ditch goes to the yard of the house in C4. As built (2026-11-19): young
+Burr waits inside the house in C4 (moved from Glimmerhill's B4 gatehouse on
+2026-11-18); his first talk is the lesson, with the Roll's ceremony and a tip
+about the planks, and he asks the slime to find his father. The slime no
+longer has the Roll from birth; a save already past Burr's cell or a Pearl
+learns it quietly.*
 
 1. **Plop's tip.** After the Spear, Plop says the worms have shut their
    burrow with the old Thorn Guard gate, and only **Burr**, the gatekeeper in
@@ -266,14 +284,20 @@ prologue.*
   question 78).
 - The Roll comes before Fatty One Eye, so the Heavy skin's Roll works as soon
   as the skin is won (Beat 5).
-- **Its first lock** (Planned, owner, 2026-10-16, question 132): a rickety
-  plank over a dry ditch in Burr's yard, right after the lesson. The same
+- **Its first lock** (Built 2026-11-19, owner, 2026-10-16, question 132): a
+  rickety plank over a dry ditch in Burr's yard, right after the lesson. The same
   yard later holds the Bow's first targets
-  ([Chapter 3](chapter-3-crystal-caverns.md#beats)).
+  ([Chapter 3](chapter-3-crystal-caverns.md#beats)); *moved 2026-11-20 to the
+  lake camp's river in C5 (owner: C4 was overcrowded).* *As built: a short dry
+  ditch with earth walls beside the cottage's west side, two old planks across
+  it that drop under a walking slime (one quick Roll crosses both), and a
+  small chest with 15 coins in the nook beyond; a fall puts the slime back in
+  the yard.*
 - The town's shop sells potions and food ingredients, so coins have a use
   (owner, 2026-10-16, question 88), and a secret in the village teaches a
   simpler potion (question 89). *Since 2026-11-17 the town is Glimmerhill,
-  asleep until the Pearls wake its parts (question 149).*
+  asleep until the Pearls wake its parts (question 149); built 2026-11-20
+  ([VILLAGERS.md](../../godot/VILLAGERS.md#asleep-until-its-pearl-comes-home-2026-11-20)).*
 
 ## Beat 4 — Worm Trouble [`worm-trouble`] (Built)
 
@@ -343,7 +367,12 @@ autosave waits until the slime is out.*
    takes two: one body on each of its two plates. Burr holds one; the slime
    sinks the other, the bridge comes down for good, and Burr says goodbye,
    wishes it luck and leaves to wait outside. The bridge no longer needs the
-   Heavy skin.*
+   Heavy skin.* *Since 2026-11-20 (owner): as he is freed, after "My boy
+   taught you the trick..." and before the Inner Stair and the drawbridge,
+   Burr gives the first **Roll Fragment**: he has been perfecting a better
+   trick, the Charged Roll, carved into a training disc that Gorge's lot broke
+   in four and hid; he kept this piece in his boot; find the other three.
+   Owner: Burr's must be the first fragment. Built the same day.*
 4. **Fatty One Eye.** The Spear on his eye beats him, and Pearl 1 gives the
    Heavy skin (Beat 5). *Since 2026-10-16 (eighth round): he also leaves a
    full heart (question 17), and the lair's way out is the Heavy skin's first
@@ -364,7 +393,8 @@ autosave waits until the slime is out.*
    ([the plan](../../design/2026-10-19-lair-secrets-outside.md)).*
    *As built (since 2026-10-24): in his second phase a thrown mud ball throws
    him off balance for 2 s, a Heavy Roll then knocks him down for 3 s, and the
-   Spear hits his eye. The green key lies in the Postern's chest (R14).*
+   Spear hits his eye. The green key lay in the Postern's chest (R14); since
+   2026-11-20 the chest holds coins and a potion (question 163).*
    *Changed 2026-11-17 (owner, question 146): bosses are hurt by throws, or by
    something the slime throws into a mechanism; his fight changes when the
    bosses are revisited (question 166).*
@@ -376,7 +406,9 @@ autosave waits until the slime is out.*
    flows into the town and brings the well back.* *Changed 2026-11-17 (owner,
    questions 149 and 153): Pearl 1's power fills Glimmerhill's first fountain
    and wakes Market Hill, and a woken fountain refills energy in place of
-   Slimeshire's well.*
+   Slimeshire's well.* *Built 2026-11-20: Pearl 1's homecoming at the
+   Wellspring wakes Market Hill, and the camera shows its fountain burst into
+   flow; the fountain's energy refill is not built.*
 6. **Back home.** In the West village Burr gives his thanks: an energy
    upgrade (max energy grows only through secrets and bosses, question 19) or
    a heart. Which one is not decided. *Since the eighth round (question 19):
@@ -396,6 +428,11 @@ autosave waits until the slime is out.*
    thread and Pearl 2 home, he teaches the Bow: one find, one trip back, and
    no crafting.* *Changed 2026-11-17 (owner, question 150): home is his house
    in Slimeshire's C4, so his thanks waits there, not in the West village.*
+   *Changed 2026-11-20 (owner): Burr no longer teaches the Bow. His thanks
+   tells how the Thorn Guard's bows were shaped from goo by carved runes, and
+   that Pip could carve one once Slimeshire's old Workshop stands; Pip carves
+   it in Chapter 3 ([Chapter 3](chapter-3-crystal-caverns.md#beats), beat 1).
+   Built the same day.*
 
 ## Beat 5 — The One-Eyed Guardian [`the-one-eyed-guardian`] (Built)
 
@@ -448,7 +485,12 @@ autosave waits until the slime is out.*
   Roll breaks replaces the Verdant Gate, so the green key goes; what the
   Postern's chest holds instead is question 163. Another fallen tree, broken
   the same way, blocks the way from C4 into Glimmerhill's Market Hill
-  (question 149).*
+  (question 149).* *Built 2026-11-20 (owner, question 163): the place keeps
+  its name, its gate long gone; a grey fallen tree lies across its road in D4,
+  another north to south across the Market Hill road a little inside C4's
+  west edge, and only a Heavy Roll breaks them (flags
+  `level-1.verdant-tree-smashed`, `level-1.market-hill-tree-smashed`). The
+  Postern's chest holds coins and a potion.*
 - **Reward:** 100 coins, the flag `chapter-1-complete` and, today, **Squash
   Slam** (Built 2026-10-08). Planned: the reward loses the Slam, which is
   removed (owner, 2026-10-15). Mossy moves to the forest camp.
@@ -475,7 +517,7 @@ Secrets: [first lock, open now] the first bell, on an islet in the little pond a
          outside in a separate interior with pots, grain sacks, a barrel, crate, desk and shelf.
          Tell: an ordinary shut storehouse and the pond bell. Way back: the bell's unlock stays
          remembered (question 136). The coffer retains its old save record.
-         [come-back] Yoi's home under Lili's west yard (not built yet, roadmap 5.12)
+         [come-back] Yoi's home under Lili's west yard (built 2026-11-20, roadmap 5.12)
 Enemies: the starter camp (3 worm swordsmen, unchanged); a quiet road from the forest path
 Rest: the town's campfire (the camp square)
 
@@ -490,6 +532,9 @@ Secrets: [open now] the lookout rock by the copse (no way up): a bell on its top
          north island; two swordsmen and an archer guard a cracked rock. The cave beyond
          holds chests and pots; its future secret spot is empty.
          [come-back, Swim skin] the dark square in the shallows near the fishing jetty
+         [come-back, Bow] the Bow's first lock (2026-11-20, from Burr's yard): two crystal
+         lenses on the river's north bank by the road, shot from the camp's bank across the
+         water; both struck, a chest of 20 coins rises by the camp
 Enemies: the south meadow camp (2 brawlers, a slime spider); three island worms
 Rest: the lake camp's campfire
 Comes back: deep water for the Swim skin, after Release 1 (no heart quarter behind it: the
@@ -505,6 +550,8 @@ Secrets: [come-back, Heavy] an old Thorn Guard pen by the road, its gap shut by 
          [open] the plateau's goo heart hidden in a chest (the cliff secret)
 Enemies: the Webwood's 3 slime spiders (unchanged)
 Out of the Lair: the bolt-hole's mouth by the Verdant Gate, Burr waiting
+The Verdant Gate (since 2026-11-20): no gate, a grey fallen tree across the lane north of the
+         banners; a Heavy Roll breaks it (`verdant-tree`)
 The south-east field's way into D5 closed with trees (the hill stands behind it)
 
 Chunk: level-1-d5 (Fatty's Hollow)
@@ -525,7 +572,7 @@ Rest: the forecourt's campfire, an energy flower, a pot hiding a heart (the calm
 Loop back: the forecourt's west rim is a ledge drop to the maze's door
 ```
 
-Not built here: Yoi's home (5.12), the forest path's skin locks (B4), Thorn
+Not built here: the forest path's skin locks (B4), Thorn
 Guard border posts (question 130: they need a striped barrier and a guard,
 no art yet), the grey leaning tree over a river (question 101: D5 has no
 river), a climbable wall (Feral).
@@ -539,14 +586,18 @@ river), a climbable wall (Feral).
   dark-forest maze, opened when the Lantern burns a dry trunk (a heart
   quarter); and the **Old Armoury** in D4, a level-2 hill with a hidden crack
   for the Goo Bomb, whose chest the Lantern opens (coins until its war-journal
-  page is built).*
+  page is built).* *Built 2026-11-20: the sally port's chest holds a recipe
+  page for the Berry Basket, and the Old Armoury's the war journal's first
+  page, "The Old Gates".*
 - *2026-11-12 (owner): the forge has no door, so it has no interior; the
   slime's home is behind the round mushroom house of C4.*
 - *2026-11-17 (owner, question 150): **Burr's house** stands in C4, his son
   inside, who teaches the Roll; the rickety plank over a dry ditch goes in its
   yard, and later the Bow's first targets. A fallen tree that a Heavy Roll
   breaks takes the Verdant Gate's place in D4, and another blocks the way from
-  C4 into Glimmerhill (question 149). Not built yet.*
+  C4 into Glimmerhill (question 149). Not built yet.* *Built 2026-11-20: both
+  trees ([SKINS.md](../../godot/SKINS.md#heavy)); C5's way south into the
+  Wilds is planted shut (question 164).*
 
 ## Secrets (Planned)
 
@@ -561,7 +612,7 @@ river), a climbable wall (Feral).
   (2026-11-14): all are quarters since 2026-10-26, and the four placed are
   D4's pen (the Heavy Roll), D4's cliff (open), the hill cave (the Goo Bomb)
   and the Glow-moss Burrow (the Lantern); Yoi's home holds a fifth
-  (question 151).*
+  (question 151), built 2026-11-20.*
 - At least one quarter should need a later power (the Silk skin, the Feral
   skin's climbing, the Heavy skin's Roll, the Goo Bomb), so that coming back
   pays off. A few optional secrets may combine a skin and an ability, each
@@ -598,22 +649,24 @@ river), a climbable wall (Feral).
 | The one bag (10 slots, from Plop) | 0 (the town's edge), 1 | Built 2026-10-16: Plop's satchel, given at the town's edge (questions 53, 74 and 100) |
 | Stone Axe, Stone Pickaxe | 1–2 | Built; they go with the crafted tools (2026-10-15) |
 | Spear (an ability since 2026-11-17, question 146) | 0, the prologue | Built 2026-10-16: Yoi teaches it in the prologue (owner, 2026-10-16, question 97; Yoi's Hideout from 2026-10-11, question 50); a box ability (15 energy) in throw mode |
-| Yoi's home (a heart quarter, his tips) | Yoi's home | Planned, an optional secret (owner, 2026-10-16, question 99); its quarter is Slimeshire's fifth (owner, 2026-11-17, question 151) |
-| Roll | Burr's house in C4 (question 150) | Built: on from the end of the prologue, and still a Stone Tools reward in the data; the lesson from Burr's son in their house in C4 Planned (owner, 2026-11-17, question 150; young Burr in the West village from 2026-10-16, question 61) |
-| Burr's house (C4) | The West village section | Planned (owner, 2026-11-17, question 150) |
+| Yoi's home (a heart quarter, his tips) | Yoi's home | Built 2026-11-20, an optional secret (owner, 2026-10-16, question 99): the heap hatch in Lili's west yard, his den with Yoi and his four war tips; its quarter is Slimeshire's fifth (owner, 2026-11-17, question 151) |
+| Roll | Burr's house in C4 (question 150) | Built 2026-11-19: the lesson from Burr's son in their house in C4, with its first lock in the yard (owner, 2026-11-17, question 150; young Burr in the West village from 2026-10-16, question 61) |
+| Burr's house (C4) | The West village section | Built (owner, 2026-11-17, question 150): the cottage, its room with young Burr (2026-11-18) and the yard's dry ditch, planks and chest (2026-11-19) |
 | Home (bed) | 3 | Planned (question 60); the home is behind the round mushroom house in C4 since 2026-11-12 |
 | Vault | 3 | Waits for a later release (owner, 2026-10-16, question 53) |
 | Wooden Spear, Stone Spear | 2–5 | Built; they go (the Spear replaces them) |
 | Small key (Burr's cell) | Fatty's Lair | Built 2026-10-17 ([DUNGEONS.md](../../godot/DUNGEONS.md)); planned by the owner on 2026-10-16 |
-| Burr's thanks (the Bow) | Fatty's Lair, then his house in C4 with the Matron's thread once Pearl 2 is home (question 150) | Planned (owner, 2026-10-16, questions 80, 94, 102 and 106); it is given in Chapter 3; not built |
+| Burr's thanks (the Bow until 2026-11-20) | Fatty's Lair, then his house in C4 (question 150) | Planned (owner, 2026-10-16, questions 80, 94, 102 and 106); it is given in Chapter 3; Built 2026-11-20 (Burr at home in C4, his talks and the first lenses, by the lake camp's river in C5 since the same day). *Changed 2026-11-20 (owner): his thanks points to Pip, who carves the Bow's rune in Chapter 3; Burr's lesson is gone* |
 | Squash Slam | 5 | Built (quest reward); its removal (2026-10-15) is Planned |
-| Green key | 5 | Built (the Postern's chest); it goes with the Verdant Gate (owner, 2026-11-17; the chest's new prize is question 163) |
-| The fallen tree in the Verdant Gate's place, and the one on the way into Glimmerhill | 5 | Planned (owner, 2026-11-17, questions 149 and 163) |
-| Pearl 1 | 5; Fatty's Lair, before Fatty, since 2026-10-17 | Built 2026-10-17 in the Larder (R12); its homecoming, which wakes Market Hill (question 149), Planned |
+| Green key | 5 | Gone from the main path (owner, 2026-11-17): since 2026-11-20 the Postern's chest holds coins and a potion (question 163) |
+| The fallen tree in the Verdant Gate's place, and the one on the way into Glimmerhill | 5 | Built 2026-11-20 (owner, 2026-11-17, questions 149 and 163): `object.fallen-tree` in D4, `object.fallen-tree-ns` on the Market Hill road in C4 |
+| Pearl 1 | 5; Fatty's Lair, before Fatty, since 2026-10-17 | Built 2026-10-17 in the Larder (R12); its homecoming, which wakes Market Hill (question 149), built 2026-11-20 |
 | Heavy skin | 5; Fatty's Lair's second half since 2026-10-17 | Built 2026-10-17 ([SKINS.md](../../godot/SKINS.md#heavy)) |
 | Boss heart (Fatty) | 5 | Built: a full heart, +20 max HP and +20 max energy (owner, 2026-10-16, questions 17 and 19) |
 | The first bell, by the town's edge | Secrets | Built 2026-10-17 in C4's pond (questions 115 and 132) |
-| 5 heart quarters (question 151) | Secrets | Four built and placed (quarters since 2026-10-26); Yoi's home's fifth Planned |
-| The Charged Roll, an ability upgrade | Secrets | Planned: found whole in a secret place (owner, 2026-11-17; which others, question 160); built as `roll-charge`, lent only in the playground |
+| 5 heart quarters (question 151) | Secrets | Built and placed (quarters since 2026-10-26); Yoi's home's fifth since 2026-11-20 |
+| The Charged Roll, an ability upgrade | Secrets | Built 2026-11-20: found whole in Yoi's chest, with its card (owner, 2026-11-17 and 2026-11-19; which others, question 160); the `roll-charge` upgrade, lent in the playground too. *Changed the same day (owner): four Roll Fragments make it, the fourth teaching it with the card* |
+| Roll Fragments 1 and 2 (of 4) | Fatty's Lair (Burr, as he is freed); Yoi's home (his chest, behind a Heavy statue maze) | Built 2026-11-20 (owner, the same day); the other two lie in Glimmerhill's A4 barn and the Gloop Cavern ([unlock map](../05-unlock-map.md)) |
+| The war journal's first page; the sally port's recipe page | Secrets | Built 2026-11-20: the Old Armoury's chest ("The Old Gates") and the sally port's chest (the Berry Basket at a campfire); each opens a reading panel |
 
-Second pass (2026-10-17): the maps and cave scenes are built; visual review and the owner's playthrough remain. The island bridge requires `roll-charge`, unavailable in Release 1. *Changed 2026-11-17 (owner): the Charged Roll is Release 1's first ability upgrade, found whole in a secret place (question 160), so the island bridge becomes its come-back.*
+Second pass (2026-10-17): the maps and cave scenes are built; visual review and the owner's playthrough remain. The island bridge requires `roll-charge`, unavailable in Release 1. *Changed 2026-11-17 (owner): the Charged Roll is Release 1's first ability upgrade, found whole in a secret place (question 160), so the island bridge becomes its come-back.* *Built 2026-11-20: the Charged Roll is in Yoi's chest.* *Changed the same day (owner): the fourth Roll Fragment teaches it, so the island waits for all four (Burr's, Yoi's, the A4 barn's in Glimmerhill, the Gloop Cavern's).*

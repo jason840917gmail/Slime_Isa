@@ -4,11 +4,14 @@ extends "res://game/ui/screens/game_window.gd"
 ## in code; main adds it to GameWindows (surface "quest-journal": the `modal` pause). Group
 ## `quest_journal`. The model is res://game/ui/screens/quest_journal_model.gd.
 ##
-## Left: the quests the player has taken on (two-line rows; finished ones dimmed). Right: the
-## selected quest's name, state line, page (description, steps, requirements, reward), the status
-## line, the action (Abandon / Retry / No action) and Close. Each opening shows the first quest and
-## a clear status; the selection follows its quest across changes, and any selection clears the
-## status. The page follows the quest service live (`quest_changed`, `quest_completed`).
+## Left: the quests the player has taken on (two-line rows; finished ones dimmed), with the Tips
+## row after the active ones once a tip is heard (quests spec 14.7) and the War journal row after it
+## once a page of the war journal is found (14.8). Right: the selected quest's
+## name, state line, page (description, steps, requirements, reward; the main quest's Pearl slots;
+## the Tips row's tips), the status line, the action (Abandon / Retry / No action) and Close. Each
+## opening shows the first row and a clear status; the selection follows its row across changes,
+## and any selection clears the status. The page follows the quest service live (`quest_changed`,
+## `quest_completed`, `talks_changed`).
 ##
 ## Opening: the menu's Journal tab (MenuWindows `register_tab`, done here) and the pause menu's
 ## Journal button (Shell action `journal`, set here); no key of its own. The menu key and Escape
@@ -29,6 +32,8 @@ const QuestJournalModel := preload("res://game/ui/screens/quest_journal_model.gd
 const ItemCell := preload("res://game/ui/screens/item_cell.gd")
 const Services := preload("res://game/shared/services.gd")
 const WindowStyle := preload("res://game/ui/screens/window_style.gd")
+## The war journal's pages found (its row, quests spec 14.8).
+const WarJournal := preload("res://game/quests/war_journal.gd")
 
 const SURFACE_ID := &"quest-journal"
 const GROUP := &"quest_journal"
@@ -51,6 +56,8 @@ const DETAILS_PITCH := 20.3
 const CONFIRM_SIZE := Vector2(420.0, 150.0)
 const CONFIRM_DIM := Color(0.0, 0.0, 0.0, 0.35)
 const PANEL_RADIUS := 12
+## The quest service's signals the page follows (`talks_changed`: a tip heard, a flag set).
+const SERVICE_SIGNALS: Array[StringName] = [&"quest_changed", &"quest_completed", &"talks_changed"]
 
 ## An action ran. Payload: {"action", "questId", "ok", "status"} (test hook).
 signal action_finished(payload: Dictionary)
@@ -110,8 +117,8 @@ func _exit_tree() -> void:
 	if menu != null and menu.has_method(&"register_tab"):
 		menu.call(&"register_tab", MENU_TAB, null)
 	if service != null and is_instance_valid(service):
-		for changed: StringName in [&"quest_changed", &"quest_completed"]:
-			if service.is_connected(changed, _on_quests_changed):
+		for changed: StringName in SERVICE_SIGNALS:
+			if service.has_signal(changed) and service.is_connected(changed, _on_quests_changed):
 				service.disconnect(changed, _on_quests_changed)
 
 
@@ -148,7 +155,7 @@ func quest_service() -> Node:
 	if (service == null or not is_instance_valid(service)) and is_inside_tree():
 		service = get_tree().get_first_node_in_group(QUESTS_GROUP)
 	if service != null and is_instance_valid(service):
-		for changed: StringName in [&"quest_changed", &"quest_completed"]:
+		for changed: StringName in SERVICE_SIGNALS:
 			if service.has_signal(changed) and not service.is_connected(changed, _on_quests_changed):
 				service.connect(changed, _on_quests_changed)
 		return service
@@ -217,7 +224,14 @@ func refresh() -> void:
 		return
 	var quests := quest_service()
 	var views: Array = quests.call(&"list") if quests != null else []
-	_model = QuestJournalModel.snapshot(views, _selected_id, _status)
+	var run := Services.run()
+	var extras := {
+		"tips": quests.call(&"heard_tips") if quests != null and quests.has_method(&"heard_tips") else [],
+		"has_flag": run.has_flag if run != null else Callable(),
+		"war_pages": WarJournal.found_pages(run),
+		"war_page_count": WarJournal.page_count(),
+	}
+	_model = QuestJournalModel.snapshot(views, _selected_id, _status, extras)
 	_selected_id = str(_model["selected_id"])
 	var rows: Array = _model["rows"]
 	_sync_rows(rows.size())

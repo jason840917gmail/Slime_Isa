@@ -221,7 +221,9 @@ func test_a_walk_over_falling_slabs_falls_and_a_roll_crosses(t: TestContext) -> 
 	var back := await t.until(func() -> bool: return bool(slabs[0].call(&"holds")) and bool(slabs[1].call(&"holds")),
 		DungeonState.number("slab.returnMs", 10000.0) + 2000.0)
 	t.check(back, "the fallen slabs did not come back")
-	# A Roll from the rim's edge crosses (and the way held on walks off the last slab).
+	# A Roll from the rim's edge crosses (and the way held on walks off the last slab). The Roll is
+	# young Burr's lesson since 2026-11-19: lent here.
+	Services.run().learn_session_ability("dodge")
 	falls.clear()
 	t.teleport_player(Vector2(2304, 2368.0 - FEET + 26.0 + 1.0))
 	player.face(Vector2.UP)

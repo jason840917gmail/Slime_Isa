@@ -17,6 +17,14 @@ extends "res://game/ui/screens/game_window.gd"
 ## Dropping closes the bag (also when it failed, K8). Destroy has no confirmation (K7). "Place"
 ## closes the bag and starts furniture placement.
 ##
+## The potion belt (crafting spec 12.4; owner, 2026-11-19, question 161): with a potion kind selected
+## (PotionBelt.is_potion) and a belt slot found, a Belt row under Use shows one cell per open slot
+## ("Belt 1" .. "Belt 4", the slot holding this kind pressed); a click, Space or Enter on a cell, or
+## the slot's own key (1 to 4) while the bag is open, sets the kind to that slot (moving it off any
+## other) or, on the slot that already holds it, empties the slot (InventoryActions
+## `assign_belt_slot`). The rows under it (amount, Drop, Destroy) move down while the row shows. A bag
+## cell whose kind is on the belt names its slot in its top-left corner, and the status adds "on belt N".
+##
 ## Body-shapes rework mode (game/shapes/rework_mode.gd; body-shapes plan sections 6 and 8.3,
 ## BODY_SHAPES.md "Ability Box and HUD"): the belt's band at the top (y 58-188) becomes two short
 ## rows, built the first time the window refreshes in the mode, and the belt hides:
@@ -54,6 +62,7 @@ const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
+const PotionBelt := preload("res://game/inventory/potion_belt.gd")
 
 const SURFACE_ID := &"inventory"
 const INVENTORY_ACTIONS_GROUP := &"inventory_actions"
@@ -63,6 +72,11 @@ const ITEMS_TITLE := "In the bag — click an item to see it"
 const KEYS_BELT_HELP := "Space on a slot holds that weapon; a weapon's card in the bag puts it on a slot. Outside, %s switches."
 const KEYS_ITEMS_TITLE := "In the bag — arrows or WASD choose, Space uses"
 const ASSIGN_TITLE := "Or put it on a belt slot:"
+## The potion belt's row: its title, cell height, gap, and how far the rows under it move down.
+const POTION_BELT_TITLE := "Belt"
+const POTION_BELT_CELL_HEIGHT := 38.0
+const POTION_BELT_GAP := 6
+const POTION_BELT_SHIFT := 46.0
 const IN_HAND_TAG := "IN HAND"
 ## inventory-ui.scene.json sizes.
 const BELT_CELL_HEIGHT := 78.0
@@ -119,6 +133,10 @@ var details_label: Label
 var primary_button: Button
 var assign_title_label: Label
 var assign_list: GridContainer
+var potion_belt_title_label: Label
+var potion_belt_list: GridContainer
+## True while the potion belt's row shows (the rows under it are laid out lower).
+var _potion_belt_shown: bool = false
 var quantity_label: Label
 var quantity_buttons: Dictionary = {}
 var drop_button: Button
@@ -163,7 +181,7 @@ func _ready() -> void:
 	super()
 	var run := Services.run()
 	if run != null:
-		for changed: Signal in [run.inventory_changed, run.weapon_loadout_changed, run.weapon_equipped]:
+		for changed: Signal in [run.inventory_changed, run.weapon_loadout_changed, run.weapon_equipped, run.potion_belt_changed]:
 			if not changed.is_connected(_on_run_changed):
 				changed.connect(_on_run_changed)
 
@@ -171,9 +189,25 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	var run := Services.run()
 	if run != null:
-		for changed: Signal in [run.inventory_changed, run.weapon_loadout_changed, run.weapon_equipped]:
+		for changed: Signal in [run.inventory_changed, run.weapon_loadout_changed, run.weapon_equipped, run.potion_belt_changed]:
 			if changed.is_connected(_on_run_changed):
 				changed.disconnect(_on_run_changed)
+
+
+## The potion belt's keys (1 to 4) while the bag is open: with a potion kind selected, the key's
+## slot takes it (`assign_potion_belt`); the key goes no further (the slime drinks nothing).
+func _input(event: InputEvent) -> void:
+	super(event)
+	if not is_open() or not is_visible_in_tree() or event.is_echo() or not event is InputEventKey:
+		return
+	for index in PotionBelt.ACTIONS.size():
+		if not event.is_action_pressed(PotionBelt.ACTIONS[index]):
+			continue
+		if bool(_model.get("potion_belt_visible", false)) and index < (_model.get("potion_belt", []) as Array).size():
+			play_select()
+			assign_potion_belt(index)
+		get_viewport().set_input_as_handled()
+		return
 
 
 func _on_opening() -> void:
@@ -314,6 +348,17 @@ func assign_slot(index: int) -> void:
 	refresh()
 
 
+## `set-potion-belt {index}`: the selected potion kind goes onto the open belt slot `index` (off any
+## other slot); on the slot that already holds it, the slot is emptied.
+func assign_potion_belt(index: int) -> void:
+	var slot := _selected_slot()
+	var item_id := str(slot.get("item_id", ""))
+	var actions := _actions()
+	if actions != null and PotionBelt.is_potion(item_id):
+		actions.call(&"assign_belt_slot", index, item_id)
+	refresh()
+
+
 ## `quantity-*`: the amount moves within 1..the slot's count.
 func adjust_quantity(delta: int) -> void:
 	var slot := _selected_slot()
@@ -384,6 +429,7 @@ func refresh() -> void:
 		var cell := item_list.get_child(index) as ItemCell
 		var item_id := str(entry["item_id"])
 		cell.set_content(str(entry["label"]), ItemIcons.icon(item_id) if not item_id.is_empty() else null, str(entry["tag"]))
+		cell.corner_label.text = str(entry.get("belt", ""))
 		cell.set_enabled(not bool(entry["disabled"]))
 		cell.set_selected(index == int(_model["selected_index"]))
 		cell.drag_payload = {"source_item_id": str(entry["id"]), "source_index": index} if bool(entry["draggable"]) else {}
@@ -401,6 +447,23 @@ func refresh() -> void:
 		var cell := assign_list.get_child(index) as ItemCell
 		cell.set_content(str((assign_rows[index] as Dictionary)["label"]))
 		cell.set_selected(index == int(_model["hotbar_selected_index"]))
+	var belt_shown := bool(_model["potion_belt_visible"])
+	potion_belt_title_label.visible = belt_shown
+	potion_belt_list.visible = belt_shown
+	var belt_rows: Array = _model["potion_belt"]
+	for index in potion_belt_list.get_child_count():
+		var cell := potion_belt_list.get_child(index) as ItemCell
+		var shown := index < belt_rows.size()
+		cell.visible = shown
+		if not shown:
+			continue
+		var row: Dictionary = belt_rows[index]
+		cell.set_content(str(row["label"]))
+		cell.tooltip_text = str(row["tooltip"])
+		cell.set_selected(index == int(_model["potion_belt_selected_index"]))
+	if belt_shown != _potion_belt_shown:
+		_potion_belt_shown = belt_shown
+		_layout(panel_width())
 	var quantity_visible := bool(_model["quantity_visible"])
 	quantity_label.visible = quantity_visible
 	quantity_label.text = str(_model["quantity"])
@@ -461,6 +524,17 @@ func _build() -> void:
 		cell.index = index
 		cell.pressed.connect(_on_assign_pressed.bind(cell))
 		assign_list.add_child(cell)
+	potion_belt_title_label = _label("PotionBeltTitle", &"MutedLabel", 14)
+	potion_belt_title_label.text = POTION_BELT_TITLE
+	potion_belt_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	potion_belt_list = _grid(content, "PotionBelt", PotionBelt.ACTIONS.size(), POTION_BELT_GAP)
+	for index in PotionBelt.ACTIONS.size():
+		var cell := ItemCell.new(ItemCell.Layout.TEXT, 0, 13)
+		cell.custom_minimum_size = Vector2(0.0, POTION_BELT_CELL_HEIGHT)
+		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cell.index = index
+		cell.pressed.connect(_on_potion_belt_pressed.bind(cell))
+		potion_belt_list.add_child(cell)
 	quantity_label = _label("Quantity", &"WarningLabel", 14)
 	for key: String in QUANTITY_STEPS:
 		var delta: int = QUANTITY_STEPS[key]
@@ -487,15 +561,19 @@ func _layout(width: float) -> void:
 	_place(primary_button, _rect(right, 366.0, w - 20.0, 412.0))
 	_place(assign_title_label, _rect(right, 422.0, w - 20.0, 444.0))
 	_place(assign_list, _rect(right, 448.0, w - 20.0, 540.0))
-	_place(quantity_label, _rect(right, 422.0, w - 20.0, 444.0))
-	_place(quantity_buttons["Minus10"], _rect(right, 448.0, 0.715 * w - 2.0, 488.0))
-	_place(quantity_buttons["Minus1"], _rect(0.715 * w + 2.0, 448.0, 0.81 * w - 2.0, 488.0))
-	_place(quantity_buttons["Plus1"], _rect(0.81 * w + 2.0, 448.0, 0.905 * w - 2.0, 488.0))
-	_place(quantity_buttons["Plus10"], _rect(0.905 * w + 2.0, 448.0, w - 20.0, 488.0))
-	_place(drop_button, _rect(right, 496.0, 0.81 * w - 4.0, 536.0))
-	_place(drop_all_button, _rect(0.81 * w + 4.0, 496.0, w - 20.0, 536.0))
-	_place(remove_button, _rect(right, 544.0, 0.81 * w - 4.0, 584.0))
-	_place(remove_all_button, _rect(0.81 * w + 4.0, 544.0, w - 20.0, 584.0))
+	_place(potion_belt_title_label, _rect(right, 418.0, right + 52.0, 418.0 + POTION_BELT_CELL_HEIGHT))
+	_place(potion_belt_list, _rect(right + 56.0, 418.0, w - 20.0, 418.0 + POTION_BELT_CELL_HEIGHT))
+	# The potion belt's row, when it shows, pushes the rows under Use down.
+	var y := POTION_BELT_SHIFT if _potion_belt_shown else 0.0
+	_place(quantity_label, _rect(right, 422.0 + y, w - 20.0, 444.0 + y))
+	_place(quantity_buttons["Minus10"], _rect(right, 448.0 + y, 0.715 * w - 2.0, 488.0 + y))
+	_place(quantity_buttons["Minus1"], _rect(0.715 * w + 2.0, 448.0 + y, 0.81 * w - 2.0, 488.0 + y))
+	_place(quantity_buttons["Plus1"], _rect(0.81 * w + 2.0, 448.0 + y, 0.905 * w - 2.0, 488.0 + y))
+	_place(quantity_buttons["Plus10"], _rect(0.905 * w + 2.0, 448.0 + y, w - 20.0, 488.0 + y))
+	_place(drop_button, _rect(right, 496.0 + y, 0.81 * w - 4.0, 536.0 + y))
+	_place(drop_all_button, _rect(0.81 * w + 4.0, 496.0 + y, w - 20.0, 536.0 + y))
+	_place(remove_button, _rect(right, 544.0 + y, 0.81 * w - 4.0, 584.0 + y))
+	_place(remove_all_button, _rect(0.81 * w + 4.0, 544.0 + y, w - 20.0, 584.0 + y))
 	if _band != null:
 		_layout_band(w)
 
@@ -619,7 +697,7 @@ func _refresh_band() -> void:
 	details_label.text = str(card["details"])
 	primary_button.visible = false
 	for control: Control in [assign_title_label, assign_list, quantity_label, drop_button, drop_all_button,
-			remove_button, remove_all_button]:
+			remove_button, remove_all_button, potion_belt_title_label, potion_belt_list]:
 		control.visible = false
 	for button: Button in quantity_buttons.values():
 		button.visible = false
@@ -796,6 +874,11 @@ func _on_belt_pressed(cell: ItemCell) -> void:
 func _on_assign_pressed(cell: ItemCell) -> void:
 	play_select()
 	assign_slot(cell.index)
+
+
+func _on_potion_belt_pressed(cell: ItemCell) -> void:
+	play_select()
+	assign_potion_belt(cell.index)
 
 
 func _on_belt_drop(index: int, data: Dictionary) -> void:

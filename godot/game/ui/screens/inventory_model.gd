@@ -9,7 +9,10 @@ extends RefCounted
 ## label, item_id, tag, disabled, draggable}], selected_index, details_name, details_status,
 ## details_status_color, details, quantity, primary_label, primary_disabled, hotbar_visible,
 ## hotbar_slots [{id, label}], hotbar_selected_index, quantity_visible, actions_visible,
-## drop_disabled, remove_disabled.
+## drop_disabled, remove_disabled; and the potion belt's row (crafting spec 12.4): potion_belt_visible
+## (a potion kind is selected and a belt slot is open), potion_belt [{id, label, kind, tooltip}] (one
+## per open slot), potion_belt_selected_index (the slot the selected kind is on, -1). A bag item
+## entry has `belt` too: the label of the belt slot its kind is on ("Belt 2"), else "".
 ##
 ## Owner: inventory (UI).
 
@@ -18,12 +21,15 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 const InventoryDrops := preload("res://game/inventory/inventory_drops.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
+const PotionBelt := preload("res://game/inventory/potion_belt.gd")
 
 ## STATUS_COLOR (InventorySurfacePort.ts:274): in hand, on the belt, anything else. The muted one
 ## is not a theme token (K12).
 const IN_HAND_COLOR := UiTokens.WARNING
 const ON_BELT_COLOR := UiTokens.ACCENT
 const MUTED_COLOR := Color("#a9c4b4")
+## The potion belt's cells and tags.
+const POTION_BELT_LABEL := "Belt %d"
 
 
 static func new_state() -> Dictionary:
@@ -77,6 +83,14 @@ static func snapshot(state: Dictionary) -> Dictionary:
 			"shortcut": str(belt_index + 1) if owned else ""})
 		assign_rows.append({"id": "assign-%d" % (belt_index + 1),
 			"label": "%d: %s" % [belt_index + 1, weapon_name if owned else "empty"]})
+	var potion_kind := item_id if PotionBelt.is_potion(item_id) else ""
+	var potion_rows: Array = []
+	var kinds := run.potion_belt_kinds()
+	for belt_index in run.potion_belt_open():
+		var kind := kinds[belt_index]
+		potion_rows.append({"id": "potion-belt-%d" % (belt_index + 1), "label": POTION_BELT_LABEL % (belt_index + 1),
+			"kind": kind, "tooltip": "Belt %d: %s" % [belt_index + 1, ItemCatalog.item_name(kind) if not kind.is_empty() else "empty"]})
+	var potion_slot := PotionBelt.slot_of(potion_kind)
 	var items: Array = []
 	for slot_index in int(run.inventory.get("max_slots", 0)):
 		var stack: Dictionary = slots[slot_index] if slot_index < slots.size() else {}
@@ -84,7 +98,7 @@ static func snapshot(state: Dictionary) -> Dictionary:
 		var stack_def := ItemCatalog.definition(stack_id) if not stack.is_empty() else {}
 		if stack_def.is_empty():
 			items.append({"id": "slot-%d" % (slot_index + 1), "label": "Empty", "item_id": "", "tag": "",
-				"disabled": true, "draggable": false})
+				"disabled": true, "draggable": false, "belt": ""})
 			continue
 		var stack_weapon := ItemCatalog.weapon_id_of(stack_id)
 		var tag := ""
@@ -96,8 +110,10 @@ static func snapshot(state: Dictionary) -> Dictionary:
 				tag = "belt %d" % (on_belt + 1)
 		elif int(stack.get("count", 0)) > 1:
 			tag = "×%d" % int(stack["count"])
+		var stack_belt := PotionBelt.slot_of(stack_id) if PotionBelt.is_potion(stack_id) else -1
 		items.append({"id": "slot-%d" % (slot_index + 1), "label": str(stack_def.get("name", stack_id)),
-			"item_id": stack_id, "tag": tag, "disabled": false, "draggable": not stack_weapon.is_empty()})
+			"item_id": stack_id, "tag": tag, "disabled": false, "draggable": not stack_weapon.is_empty(),
+			"belt": POTION_BELT_LABEL % (stack_belt + 1) if stack_belt >= 0 else ""})
 	var status := ""
 	var status_color := MUTED_COLOR
 	if not definition.is_empty():
@@ -112,6 +128,9 @@ static func snapshot(state: Dictionary) -> Dictionary:
 				status = "In the bag · not on your belt"
 		else:
 			status = "%s · %d in the bag" % [str(definition.get("category", "")).capitalize(), int(slot["count"])]
+			if potion_slot >= 0:
+				status += " · on belt %d" % (potion_slot + 1)
+				status_color = ON_BELT_COLOR
 	var details := "Pick things up in the world and they land here."
 	if not definition.is_empty():
 		details = str(definition.get("description", ""))
@@ -144,6 +163,9 @@ static func snapshot(state: Dictionary) -> Dictionary:
 		"actions_visible": not definition.is_empty() and not is_weapon,
 		"drop_disabled": definition.is_empty() or is_weapon or not InventoryDrops.can_drop(item_id),
 		"remove_disabled": definition.is_empty() or is_weapon,
+		"potion_belt_visible": not potion_kind.is_empty() and not potion_rows.is_empty(),
+		"potion_belt": potion_rows,
+		"potion_belt_selected_index": potion_slot,
 	}
 
 

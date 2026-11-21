@@ -10,7 +10,8 @@ the town's four chunks (below; since 2026-11-18 Young Burr waits in Burr's house
 C4 instead); a room stands behind every house door (27 doors; a building with
 no door in its art has no room, below). The wanderers walk in `npc-wander` areas drawn in the chunks (dragged and
 sized in the editor like the old NPCs'), and Gavy and Dan climb fences and walls (filmed in
-west-village-a4). No tests run, not played in the game with the slime.
+west-village-a4). No tests run, not played in the game with the slime. Since 2026-11-20 each part
+of the town sleeps until its Pearl comes home ([below](#asleep-until-its-pearl-comes-home-2026-11-20)).
 
 ## Where they are
 
@@ -33,6 +34,8 @@ leaf does not swing).
 |---|---|---|
 | Dollop, Burble, Crumb, Mayor Wobbleton, Bobbin, Auntie Suds, Dune, Granny Thistle, May | `characters/villagers/<id>.tscn` | stand in their room (below) |
 | Young Burr | same | stands in Burr's house in Slimeshire's C4 (`rooms/c4/slimeshire-burr-house.tscn`), moved there from B4's gatehouse on 2026-11-18 |
+| Burr | same (`burr.tscn`, his Lair sheet `asset/characters/authored/npcs/burr.webp`: idle stands, talk waves) | stands in his house beside young Burr, by his bow rack, once he has walked home from Fatty's Lair (the room's `BurrHome` story variant on `fatty-lair.burr-outside`; since 2026-11-20); his talks thank the slime, send it to Pip for a bow rune and, once it has the Bow, give archery tips ([quests spec 14.3](specs/quests.md)) |
+| Yoi | same (`yoi.tscn`, his prologue sheet `asset/characters/authored/npcs/yoi.webp`, the standing pose only, facing left: idle breathes, talk nods; since 2026-11-20) | stands in his den under Lili's west yard (`rooms/c4/slimeshire-yoi-home.tscn`), by his cot; his war tips are his talks (quests spec 14.3) |
 | Sprig, Dot, Dab, Bram, Zing, Plum, Gramps Reel | same | stand at their post outside |
 | Penny, Old Sedge, Wick | same | walk a route (`Route`) |
 | Tansy, Fizz, Tad, Isa, Gavy | same | wander their `npc-wander` area (Isa's and Gavy's wide; Gavy fast, climbing fences and walls) |
@@ -142,6 +145,11 @@ to the door `<room id>-door` in its chunk, and the house ambience and music.
 
 - With villagers: `shop` (Dollop), `inn` (Burble, Dune), `bakery` (Crumb), `town-hall` (the mayor),
   `tailor` (Bobbin), `bathhouse` (Auntie Suds), `herbalist` (Granny Thistle), `family-home` (May).
+- **Dollop's shop works** (2026-11-20, [crafting spec 12.3](specs/crafting.md#123-the-shop)): a
+  `shop-counter` node (`game/shop/shop_counter.gd`) in front of her counter in `west-village-shop`
+  offers "Shop" while Market Hill is awake and opens the shop window (potions, berries, crystal
+  shards and one belt slot for coins; the prices are `shop.dollop` in game-constants.json). Her talk,
+  from her right side, tells of the counter and the belt loop (tip `dollop.shop`).
 - **No door in the art, no room** (owner, 2026-11-12): the game booth is an open stall, so it has
   no door node and no room. The general store was one too; the owner had it repainted with a
   front door the same day (`asset/Originals/town/concepts/store-a.png`, the `store` sheet of
@@ -151,7 +159,8 @@ to the door `<room id>-door` in its chunk, and the house ambience and music.
 - Homes, empty for now and furnished by kind (cottage, flat, mushroom, farm, townhouse): A4's
   `a4-flat` (two-flats' ground floor), `a4-duplex-1`/`-2`, `a4-triplex-1`/`-2`/`-3`,
   `a4-twin-mushroom-1`/`-2`, `a4-thatch-cottage`, `a4-snail-house`, `a4-stump-house`, `a4-barn` (a
-  sheep and a hen inside); B4's `b4-townhouse` and `b4-gatehouse` (a bed, a table, lanterns; Burr's
+  sheep and a hen inside, and since 2026-11-20 a Roll Fragment behind the crates in its top-right
+  corner, a first placement the owner may move: quests spec 14.8); B4's `b4-townhouse` and `b4-gatehouse` (a bed, a table, lanterns; Burr's
   armour, helmets, bow rack and hammer rack moved with his room to his house in Slimeshire's C4,
   `rooms/c4/slimeshire-burr-house.tscn`, its door `burr-house-door`, 2026-11-18); A5's `a5-mushroom-farmhouse` and `a5-pumpkin-farmhouse`; B5's `b5-thatch-cottage`,
   `b5-snail-house` and `b5-townhouse` (room ids are `west-village-<name>`).
@@ -162,6 +171,76 @@ the painted door is off-centre (the family cottage, the inn, both townhouses, th
 painted door itself is the house scene's **door frame** (`DoorFrame`, one per painted door:
 [CONVENTIONS.md](CONVENTIONS.md#doors) "Door frames"): the door node takes the nearest one, its
 leaf swings there and the slime walks up to its sill (the inn's porch, the tailor's stair).
+
+## Asleep until its Pearl comes home (2026-11-20)
+
+Glimmerhill starts asleep (owner, 2026-11-17 and 2026-11-19, questions 149 and 159: "shader first"):
+each part of the town sleeps until its Pearl comes home to the Wellspring
+([PROLOGUE.md "The homecoming"](PROLOGUE.md#the-homecoming-2026-11-20)), then wakes live. No scene
+holds any of it: one table drives it all, so no villager, animal or room was edited for it.
+
+**The wake table** (`story.glimmerhill` in `game/data/game-constants.json`, read through
+`game/glimmerhill/glimmerhill_wake.gd`): `parts` gives each part its name, its wake flag, its chunk
+with the town's rectangle in it (world units) and its rooms; `pearls` gives each Pearl its part, its
+`alsoFlags` and its card's texts; `sleep`, `villagers`, `animals` and `fountain` hold the numbers.
+
+| Part | Wake flag | Chunk (town rectangle) | Rooms | Woken by |
+|---|---|---|---|---|
+| Market Hill | `glimmerhill.market-hill.awake` | `west-village-b4`, (0, 0) 2048 x 1152 (the camera room `town`: the Wellspring and the glade south of it stay out) | shop, inn, town hall, bathhouse, bakery, herbalist, `b4-townhouse`, `b4-gatehouse` | Pearl 1 (`fatty-one-eye`) |
+| West Hill | `glimmerhill.west-hill.awake` | `west-village-a4`, whole | tailor, family home and the twelve A4 homes | Pearl 2 (`orb-weaver-matron`), which also sets `workshop.restored` (Slimeshire's Workshop rises) |
+| the south gate's quarter | `glimmerhill.south-gate.awake` | `west-village-b5`, whole | the three B5 homes | Pearl 3 (`crystal-colossus`), which also sets `forge.restored` (Slimeshire's Forge is lit) |
+| the farms and the lake | `glimmerhill.farms.awake` | `west-village-a5`, whole | both farmhouses | none in Release 1 (Pearls 4 to 8) |
+
+A part sleeps where it stands: a room whole, a chunk inside its town rectangle, while its flag is
+unset. What sleeps:
+
+- **Villagers** (`villager_script.gd`): frozen on their idle's eyes-shut (blink) frame at the idle's
+  first scale, with no wander, route, follow or climb; out of the `npc` and `interactable` groups, so
+  no talk prompt, no name tag and no quest or tip marker, and they say nothing; a soft "z" drifts
+  over the head (`game/glimmerhill/sleep_z.gd`: `villagers.zCount` z's, `zCycleMs`, `zRisePx`,
+  `zFontSize`, drawn over the town's grey). When the flag is set each one wakes where it stands
+  after a random delay (`wakeDelayMaxMs`): the "z" fades, it stretches tall and squashes back
+  (`stretchMs`, `stretch`), then its idle plays and it lives as placed (its `npc-wander` area, route,
+  follow or circle).
+- **Animals** (`critter.gd`): away: hidden, still, colliding with nothing. They come back where they
+  were placed when the flag is set, after a random delay (`animals.wakeDelayMaxMs`), fading in.
+- **The town's look** (`game/glimmerhill/town_sleep.gd`, `town_sleep.gdshader`): main makes a
+  `TownSleep` node with a sleeping part's world (`TownSleep.mount`): a BackBufferCopy, then a
+  rectangle over the town that reads the screen under it and greys it toward a cool tint and darkens
+  it (`sleep.grey`, `tint`, `darken`), at z `sleep.overlayZ` (30: over the ground, the props and
+  the villagers, under the dark rooms and the effects drawn over everything; the HUD is a layer of
+  its own). Its sides inside the world fade over `edgeSoftPx` (B4's bottom, toward the Wellspring); a
+  soft circle of `slimeClearPx` round the slime keeps the slime's own colour. It works in the
+  Compatibility renderer. When the flag is set it fades out over `sleep.fadeMs` and is freed.
+- **The goo fountains** (`game/glimmerhill/goo_fountain.gd` on
+  `game/scenes/objects/town/props/goo-fountain.tscn`): dry while their part sleeps
+  (`asset/MAPS/town/props/goo-fountain-dry.webp`, one frame on the flowing sheet's canvas, no loop);
+  when it wakes, the flowing sheet and its loop come back with a splash of goo out of the spout, a
+  jolt of the picture (`fountain.burstMs`, `burstScale`, `burstSplashes`, `burstSpreadPx`) and the
+  `WaterSplash` cue (the fountain has no flowing sound of its own). **A drink** (2026-11-20; owner,
+  questions 153 and 113: a woken fountain refills energy, taking over Slimeshire's well, and its
+  refill grows back): a fountain is in the interaction's `usable` group. Flowing, it offers "Drink":
+  the slime's energy fills up in full (`restore_energy`; the PotionDrink and EnergyRestore cues, a
+  sparkle, a cyan "+N"), then that fountain rests `fountain.drinkRestMs` (60000) of play, saying
+  "The goo is still welling up. Come back in a while." if asked; the rest is kept for the session by
+  world and place (leaving and coming back does not end it; not saved). With full energy it says so
+  and does not rest. Dry, it offers "Look at the fountain" and says "Dry as dust. The Wellspring is
+  too weak to fill it yet." (the lines and the reach are the scene script's exports). One per part: Market Hill's plaza
+  (B4, 1670, 727), the lawn west of West Hill's gardens by the clothesline (A4, 860, 735), the flower
+  meadow under the booth's terrace (B5, 1024, 880) and the meadow east of the lake by the well (A5,
+  1310, 1345; dry all of Release 1). The homecoming finds them in the group `goo_fountains`.
+
+Seeing it: `"<Godot console exe>" --path godot -s res://tools/render_glimmerhill.gd -- --out=<dir>
+--map=<world> --feet=<x>,<y> [--camera=<x>,<y> --zoom=<z>] [--flags=...] [--then-flags=...
+--film-ms=...] [--pre-flags=...]` (a window, one at a time): `--flags` set after the build wake a part
+on screen, `--then-flags` film it waking, `--pre-flags` are in the run before the world is built;
+`--recipes=`, `--items=<id>:<n>,...`, `--coins=`, `--energy=` set up the run and `--interact` presses
+the interact key once the still is saved (a campfire's panel, the shop counter, a fountain's drink),
+saving `<still>-used.png`.
+In play a part wakes only through its homecoming (or a save that has its flag).
+
+Not built: the secret underground and the buildings that stay shut for Pearls 4 to 8; Zing's booth
+still does nothing. Built 2026-11-20: the fountains' drink (above) and Dollop's shop (Rooms).
 
 ## Art
 

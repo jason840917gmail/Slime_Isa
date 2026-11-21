@@ -7,13 +7,16 @@ extends Node2D
 ##   cell door (`cell_door`: the dungeon kit's door with two keyholes, a node with `is_open()` and an
 ##   `opened` signal). The first time the slime comes into the Pit Hall (`call_rect`) he calls out
 ##   (once, the flag FLAG_CALLED); later he calls the short line over his cell. When his door opens
-##   he is freed (`free_burr`): his lines, he opens the Inner Stair's door (`hatch`: the stair door,
+##   he is freed (`free_burr`): he first walks out of his cell (`burr_door`, its doorway) and turns
+##   to the slime, then his lines: his thanks, the Roll fragment (FRAGMENT_LINES, owner 2026-11-20),
+##   he opens the Inner Stair's door (`hatch`: the stair door,
 ##   game/scripts/stair_door.gd), the only way down to the Deep, then walks to `burr_plate` (one of
 ##   the drawbridge's pair of plates, heavy_plate.gd `pair_id`: two bodies, one each) and holds it
 ##   (owner, 2026-10-19). While the drawbridge (`bridge`) is up he stands there, each time the hub is
 ##   built; once the slime sinks the other plate and the bridge is down for good, he says goodbye,
-##   wishes it luck and walks out (`burr_exit`). FLAG_FREED keeps him out of his cell; the bridge's
-##   record keeps him gone once it is down; after Fatty he waits at the bolt-hole's mouth in daylight
+##   wishes it luck and walks out (`burr_exit`), once (FLAG_LEFT). FLAG_FREED keeps him out of his
+##   cell; FLAG_LEFT, or the bridge's record (read before the bridge restores itself:
+##   drawbridge.gd `is_down_for_good`), keeps him gone once it is down; after Fatty he waits at the bolt-hole's mouth in daylight
 ##   (the overworld's side, built with level-1-d4).
 ## - **Fatty One Eye** (`camp`, game/scripts/boss_camp.gd): when the camp spawns him, his phase two is
 ##   turned on (`phase_two`: game/scripts/fatty.gd `configure_phase_two`) and his landings drop light
@@ -55,6 +58,12 @@ const BurrActor := preload("res://game/fattys_lair/burr_actor.gd")
 const GROUP := &"lair_director"
 const FLAG_CALLED := "fatty-lair.burr-called"
 const FLAG_FREED := "fatty-lair.burr-freed"
+## His goodbye said (the bridge down): he never stands on his plate again.
+const FLAG_LEFT := "fatty-lair.burr-left"
+## His Roll fragment given (RunState BURR_FRAGMENT_FLAG: an old save freed him without it).
+const FLAG_FRAGMENT := "fatty-lair.burr-fragment"
+## The first of the four Roll fragments that make the Charged Roll (items.json, owner 2026-11-20).
+const FRAGMENT_ITEM := "roll-fragment"
 const SPEAKER := "Burr"
 const LIFTABLE_SCENE := "res://game/scenes/objects/liftable.tscn"
 const CLOD_KIND := "mud-ball"
@@ -65,6 +74,8 @@ const CLOD_KNOCKBACK := 160.0
 const CLOD_SPOT_FREE_PX := 40.0
 const CUE_CLOD := &"DropPop"
 const SHORT_CALL_EVERY_MS := 6000
+## How far from the slime Burr stops when it stands in his doorway (`_out_of_cell_path`).
+const OUT_OF_CELL_GAP := 64.0
 const SHUTTER_GROUP := &"shutter"
 ## game/dungeon/dungeon_map_draw.gd MARK_GROUP: the map marks this node's spot (once the map is held).
 const MAP_MARK_GROUP := &"dungeon_map_mark"
@@ -90,6 +101,13 @@ const FREED_LINES: Array[String] = [
 	"This door is the Inner Stair. The worms never learned the trick of its winch. There.",
 	"Mind the bones below: my old comrades of the Thorn Guard. Gorge's lot raised them to stand guard.",
 	"One more thing. That drawbridge takes two: one on each plate. I'll hold this one. You take the other.",
+]
+## Said between his first two lines and the Inner Stair: the Roll fragment (owner, 2026-11-20: Burr gives
+## the first fragment as he is freed, before the drawbridge).
+const FRAGMENT_LINES: Array[String] = [
+	"But the roll is only half of it. I've been perfecting a better one: the Charged Roll. Curl up tight, spin, then shoot off like a stone from a sling.",
+	"I carved it into a training disc, years ago. Gorge's lot broke it in four and hid the pieces. This one I kept in my boot. Here.",
+	"Find the other three, and the whole trick is yours.",
 ]
 ## When the drawbridge is down: his goodbye.
 const GOODBYE_LINES: Array[String] = [
@@ -163,7 +181,7 @@ func _ready() -> void:
 	var run := Services.run()
 	if run != null and run.has_flag(FLAG_FREED):
 		# freed: on his plate while the bridge is up (the hub built again), else gone
-		if _bridge_waiting():
+		if not run.has_flag(FLAG_LEFT) and _bridge_waiting():
 			_stand_on_plate()
 		else:
 			_remove_burr()
@@ -247,9 +265,18 @@ func free_burr() -> void:
 	var run := Services.run()
 	var actor := get_node_or_null(burr) as BurrActor
 	_freeze_player()
-	if actor != null:
+	# out of his cell first (owner, 2026-11-20), then he turns to the slime and talks
+	var door := get_node_or_null(burr_door) as Node2D
+	if actor != null and door != null:
+		for point: Vector2 in _out_of_cell_path(actor, door.global_position):
+			if is_instance_valid(actor):
+				await actor.walk_to(point, 90.0)
+	if actor != null and is_instance_valid(actor):
+		_face_slime(actor)
 		actor.wave(1.2)
-	await PrologueScene.say(get_tree(), SPEAKER, FREED_LINES.slice(0, 3))
+	await PrologueScene.say(get_tree(), SPEAKER, FREED_LINES.slice(0, 2))
+	await _give_fragment()
+	await PrologueScene.say(get_tree(), SPEAKER, FREED_LINES.slice(2, 3))
 	var stair := get_node_or_null(hatch)
 	if stair != null:
 		stair.call(&"open", true)
@@ -259,9 +286,6 @@ func free_burr() -> void:
 		run.set_flag(FLAG_FREED)
 	_release_player()
 	burr_freed.emit({})
-	var door := get_node_or_null(burr_door) as Node2D
-	if actor != null and door != null:
-		await actor.walk_to(door.global_position, 90.0)
 	var plate := get_node_or_null(burr_plate) as Node2D
 	if actor != null and plate != null and _bridge_waiting():
 		# to his plate, and he holds it until the bridge is down (`_watch_bridge`)
@@ -273,10 +297,45 @@ func free_burr() -> void:
 	_freeing = false
 
 
+## Burr's way out of his cell: to his doorway point (`burr_door`); or, when the slime stands there (it
+## just turned the keys), out through the doorway and a step to its side (east, the hall's open
+## side), OUT_OF_CELL_GAP from it, so he comes out into the hall beside it, never into it.
+func _out_of_cell_path(actor: Node2D, doorway: Vector2) -> Array[Vector2]:
+	var world := Services.world()
+	if world == null or world.player == null or not is_instance_valid(world.player):
+		return [doorway]
+	var slime := world.player.call(&"get_centre") as Vector2
+	if slime.distance_to(doorway) > OUT_OF_CELL_GAP:
+		return [doorway]
+	var threshold := Vector2(doorway.x, lerpf(actor.global_position.y, doorway.y, 0.75))
+	return [threshold, Vector2(slime.x + OUT_OF_CELL_GAP, doorway.y)]
+
+
+## Burr turns to face the slime.
+func _face_slime(actor: BurrActor) -> void:
+	var world := Services.world()
+	if world != null and world.player != null and is_instance_valid(world.player):
+		actor.face((world.player.call(&"get_centre") as Vector2).x - actor.global_position.x)
+
+
+## His Roll fragment: his lines, then the fragment counted (its toast, "Roll Fragment 1 of 4"), once.
+func _give_fragment() -> void:
+	var run := Services.run()
+	if run == null or run.has_flag(FLAG_FRAGMENT):
+		return
+	await PrologueScene.say(get_tree(), SPEAKER, FRAGMENT_LINES)
+	run.set_flag(FLAG_FRAGMENT)
+	run.add_item(FRAGMENT_ITEM, 1)
+
+
 ## True while the drawbridge Burr helps lower is still up (no bridge: false).
 func _bridge_waiting() -> bool:
 	var drawbridge := get_node_or_null(bridge)
-	return drawbridge != null and drawbridge.has_method(&"is_lowered") and not bool(drawbridge.call(&"is_lowered"))
+	if drawbridge == null:
+		return false
+	if drawbridge.has_method(&"is_down_for_good"):
+		return not bool(drawbridge.call(&"is_down_for_good"))
+	return drawbridge.has_method(&"is_lowered") and not bool(drawbridge.call(&"is_lowered"))
 
 
 ## Burr on his plate: his weight presses it (`plate_weights`) until the bridge is down.
@@ -334,6 +393,13 @@ func _keep_player_still() -> void:
 
 func _say_goodbye() -> void:
 	var actor := get_node_or_null(burr) as BurrActor
+	var run := Services.run()
+	if run != null and run.has_flag(FLAG_LEFT):
+		_holding = false
+		_remove_burr()
+		return
+	if run != null:
+		run.set_flag(FLAG_LEFT)
 	await PrologueScene.wait(get_tree(), 700.0)
 	_freeze_player()
 	if actor != null:

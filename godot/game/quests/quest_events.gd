@@ -29,6 +29,9 @@ const CONTROL_USED := &"control.used"
 const FURNITURE_PLACED := &"furniture.placed"
 const ESCORT_COMPLETED := &"escort.completed"
 const SURVIVAL_COMPLETED := &"survival.completed"
+## {flagId}: a story flag was set (Godot, 2026-11-19: the quest service forwards
+## `RunState.story_flag_changed`; nothing else needs to send it).
+const STORY_FLAG_SET := &"story.flag-set"
 
 
 static func emit(event: StringName, payload: Dictionary) -> void:

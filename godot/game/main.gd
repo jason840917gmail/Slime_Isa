@@ -17,8 +17,10 @@ extends Node2D
 ## mounted again on every build). InventoryActions
 ## (game/inventory/inventory_actions.gd: belt, consumables and craft glue) and GameWindows'
 ## MenuWindows child (game/ui/screens/menu_windows.gd: the menu key, the bag, the crafting window
-## and the tab strip) are made once too, as are the quest journal and the chest window on
-## GameWindows (game/ui/screens/quest_journal_window.gd, chest_window.gd). Launch options `recipes` (every recipe known) and
+## and the tab strip) are made once too, as are the quest journal, the chest window, the shop
+## window and the page reading panel on GameWindows (game/ui/screens/quest_journal_window.gd,
+## chest_window.gd, shop_window.gd, page_window.gd).
+## Launch options `recipes` (every recipe known) and
 ## `arsenal` (the development weapons) are dev aids (crafting spec C2, 8.2).
 ##
 ## `_ready()` order (world spec 1.2):
@@ -93,6 +95,8 @@ const QuestWaypointView := preload("res://game/ui/quest_waypoint_view.gd")
 const NpcNameTags := preload("res://game/ui/npc_name_tags.gd")
 const QuestJournalWindow := preload("res://game/ui/screens/quest_journal_window.gd")
 const ChestWindow := preload("res://game/ui/screens/chest_window.gd")
+const ShopWindow := preload("res://game/ui/screens/shop_window.gd")
+const PageWindow := preload("res://game/ui/screens/page_window.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 ## The body-shapes rework (docs/godot/BODY_SHAPES.md): its mode, input layer, shapes, testbed and box.
@@ -110,6 +114,9 @@ const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 ## The prologue (docs/godot/PROLOGUE.md): the `prologue` launch option starts a new run in it, and a
 ## run that plays it or has learned its Spear plays in the body-shapes mode (`decide_rework_mode`).
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
+## Glimmerhill asleep (docs/godot/VILLAGERS.md "Asleep until its Pearl comes home"): the greyed look
+## over a sleeping part of the town, made with its world.
+const TownSleep := preload("res://game/glimmerhill/town_sleep.gd")
 
 ## `STARTING_AREA_ID` (world/Area.ts:22).
 const TRIAL_MAP_ID := "level-1"
@@ -261,9 +268,13 @@ func _ready() -> void:
 	quests = QuestService.new()
 	quests.name = "Quests"
 	add_child(quests)
-	# The quest journal (it finds the quest service by group) and the chest window, on GameWindows.
+	# The quest journal (it finds the quest service by group), the chest and the shop windows, and
+	# the page reading panel (over the chest window: a page taken from a chest opens it), on
+	# GameWindows.
 	game_windows.add_window(QuestJournalWindow.new())
 	game_windows.add_window(ChestWindow.new())
+	game_windows.add_window(ShopWindow.new())
+	game_windows.add_window(PageWindow.new())
 	quest_markers = NpcQuestMarkers.new()
 	quest_markers.name = "QuestMarkers"
 	add_child(quest_markers)
@@ -314,6 +325,7 @@ func _build_world(target_map_id: String, navigation: Dictionary) -> bool:
 		if not WorldChunks.world_of(target_map_id).is_empty():
 			run.mark_area_discovered(WorldChunks.world_of(target_map_id))
 	WorldBounds.build(world_root, world_service.world_rect())
+	TownSleep.mount(world_root, target_map_id)
 	# Placed furniture comes back before the player spawns (furniture spec 7.3).
 	if furniture != null:
 		furniture.restore_world(target_map_id)
@@ -1035,9 +1047,9 @@ func dev_powers_for(target: String) -> PackedStringArray:
 
 
 ## The rework mode's part of the world build (step 6b above; nothing while the mode is off): when it
-## lends (`_rework_lending`: the playground, `?shapes`; not a story run) the three shapes and the
-## Ability Box abilities the game has (AbilityBox.socket_ids that AbilityDefinitions knows) learned
-## quietly for the session only (RunState.learn_session_ability: no save carries them; one the run
+## lends (`_rework_lending`: the playground, `?shapes`; not a story run) the three shapes, the Roll
+## (young Burr teaches it in the story) and the Ability Box abilities the game has
+## (AbilityBox.socket_ids that AbilityDefinitions knows) learned quietly for the session only (RunState.learn_session_ability: no save carries them; one the run
 ## had already learned stays as it was); always the ShapeController under
 ## the player root, handed to the player, and in the playground the ShapesTestbed (training dummies
 ## with the reaction presets and the enemy pen).
@@ -1048,6 +1060,7 @@ func start_rework() -> void:
 	if run != null and _rework_lending:
 		for id: StringName in ShapeDefs.IDS:
 			run.learn_session_ability(String(id))
+		run.learn_session_ability(String(AbilityDefinitions.DODGE))
 		for id: StringName in AbilityBox.socket_ids():
 			if AbilityDefinitions.has(id):
 				run.learn_session_ability(String(id))

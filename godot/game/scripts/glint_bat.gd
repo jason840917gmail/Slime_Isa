@@ -156,7 +156,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 	_place_art(now)
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow brings it down from any height. `hit` is the
+## The Bow's hook (bow_arrow.gd): an arrow brings it down from any height. `hit` is the
 ## arrow's hit (unused). True when it fell.
 func on_arrow_hit(_hit: Dictionary) -> bool:
 	if is_defeated():

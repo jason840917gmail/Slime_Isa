@@ -5,8 +5,8 @@
 | **Region** | Gloop Forest (`gloop-forest`, `gloop-hut`; `gloop-cavern`, a small secret cave: owner, 2026-10-16, question 18), its dungeon the Weaver Hollow (Planned, questions 25 and 133), plus Slimeshire for the Forge |
 | **Goal** | ~~Make iron gear,~~ learn the chapter's key tool (the Goo Bomb, owner, 2026-10-16, question 94), and break the Matron's hold on the forest. Iron gear left the plan on 2026-10-15: no crafted gear in Release 1 (question 50). Her Pearl's Silk skin opens the way on to Chapter 3 (owner, 2026-10-16, question 81) |
 | **Boss** | Orb-Weaver Matron |
-| **Earned** | Today: the Reinforced Pickaxe, the Forge, iron gear, Stretch Lash (Beyond the Verdant Gate) and Swallow (from Tom, Built 2026-10-09). Rework: the Goo Bomb and the Lantern (Chapter 3's since 2026-10-16: the smith gives it, question 59). Planned: the **Goo Bomb**, the chapter's key tool (owner, 2026-10-16, question 94; where it comes from is question 95), Pearl 2 with the **Silk skin** and a boss heart. Stretch Lash waits for the next release (question 94). Release 1 has one bag, Plop's 10-slot bag, so the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74). The pickaxe and the iron gear go with the crafted gear, Swallow is marked for deletion, and the Forge, relit when Pearl 2 comes home, brews the potions (questions 51 and 79). *Changed 2026-10-16 (sixth round): Tom teaches the Goo Bomb at the end of a maze (question 95, Beat 3), the Weaver Hollow's big chest holds a heart or the dungeon's big key (question 95, Beat 8), and the Matron's thread, taken from her web, goes to Burr for the Bow (question 106, Beat 9).* *Changed 2026-10-16 (seventh round, question 113): Tom teaches the Goo Bomb at the end of his maze, as soon as he is freed, and the Weaver Hollow's big chest holds a heart quarter.* *Changed 2026-11-17 (owner, question 146): shapes are dropped as a concept, and the Spear is an ability.* *As built (2026-11-14): nobody teaches the Goo Bomb (only dev runs have it), and the Weaver Hollow's root gate needs it, so the Hollow cannot be entered in play; Pearl 2 and the Silk skin are built inside it, in the Hoard.* |
-| **Status** | Built and in progress (roadmap 8.3–8.13). The beats below mark each Planned change and Proposal. Every beat is a quest as built; quests no longer make sense (owner, 2026-10-15, question 50). In their place the journal keeps one main quest and the NPCs' tips, and an NPC hands over or teaches its find when the slime talks to it (owner, 2026-10-16, question 60). *As built (2026-11-14): the quests in the data are still the old chain (they reward Stretch Lash and Swallow), and they cannot be finished: no story chunk has any wood.* |
+| **Earned** | Today: the Reinforced Pickaxe, the Forge, iron gear, Stretch Lash (Beyond the Verdant Gate) and Swallow (from Tom, Built 2026-10-09). Rework: the Goo Bomb and the Lantern (Chapter 3's since 2026-10-16: the smith gives it, question 59). Planned: the **Goo Bomb**, the chapter's key tool (owner, 2026-10-16, question 94; where it comes from is question 95), Pearl 2 with the **Silk skin** and a boss heart. Stretch Lash waits for the next release (question 94). Release 1 has one bag, Plop's 10-slot bag, so the 20-slot bag waits for the next release (owner, 2026-10-16, questions 53 and 74). The pickaxe and the iron gear go with the crafted gear, Swallow is marked for deletion, and the Forge, relit when Pearl 2 comes home, brews the potions (questions 51 and 79). *Changed 2026-10-16 (sixth round): Tom teaches the Goo Bomb at the end of a maze (question 95, Beat 3), the Weaver Hollow's big chest holds a heart or the dungeon's big key (question 95, Beat 8), and the Matron's thread, taken from her web, goes to Burr for the Bow (question 106, Beat 9).* *Changed 2026-10-16 (seventh round, question 113): Tom teaches the Goo Bomb at the end of his maze, as soon as he is freed, and the Weaver Hollow's big chest holds a heart quarter.* *Changed 2026-11-17 (owner, question 146): shapes are dropped as a concept, and the Spear is an ability.* *As built (2026-11-14): nobody teaches the Goo Bomb (only dev runs have it), and the Weaver Hollow's root gate needs it, so the Hollow cannot be entered in play; Pearl 2 and the Silk skin are built inside it, in the Hoard.* *Changed 2026-11-20 (owner): Pearl 2's homecoming raises Pip's Workshop, and the Forge waits for Pearl 3 (Chapter 3); the Matron's thread goes to Pip for the Bow's rune.* |
+| **Status** | Built and in progress (roadmap 8.3–8.13). The beats below mark each Planned change and Proposal. Every beat is a quest as built; quests no longer make sense (owner, 2026-10-15, question 50). In their place the journal keeps one main quest and the NPCs' tips, and an NPC hands over or teaches its find when the slime talks to it (owner, 2026-10-16, question 60). *As built (2026-11-14): the quests in the data are still the old chain (they reward Stretch Lash and Swallow), and they cannot be finished: no story chunk has any wood.* *Built 2026-11-19: the old quests are retired; Mossy and Tom give tips at the camp, Tom's web tears under the Spear with no quest, and the Matron's fall sets `chapter-2-complete`; the Chapter 2 end card is gone ([quests spec §14](../../godot/specs/quests.md#14-the-main-quest-talks-and-tips-2026-11-19)).* |
 
 Quest IDs are in brackets. Their dialogue lives in
 `godot/game/data/quests-chapter-2.json`. The older design is in
@@ -71,7 +71,21 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 > hangs in his cocoon at the end of the maze and teaches the Goo Bomb right
 > there, as soon as he is freed, no longer at Mossy's camp. Where in the
 > forest the maze lies is not decided. Not built. The text below is the beat
-> as built.
+> as built until 2026-11-19.
+>
+> **As built 2026-11-19 (question 117: E5's south-west woods; Tom first, his
+> maze later):** the quest is retired and Tom's web hangs in a small clearing
+> at the end of a short path cut into the forest band west of the trail
+> (gloop-forest-e5). Three Spear hits tear it, any time (Mossy's tip sends
+> the slime there). Torn, Tom calls "I'm free!", and his lesson plays right
+> there: he got caught studying the webs, the Matron's brood wrapped him up,
+> thanks; he teaches the **Goo Bomb** with its ceremony, points at the cracked
+> rock in the ledge beside his clearing and goes off to Mossy's camp, where he
+> waits with his tip about the Watch Oak's root gate. The cracked rock is the
+> Goo Bomb's first lock: blown (the secret jingle), it opens a short tunnel
+> back north to the trail, and the loop closes. A run that freed him before
+> (an old save) learns the Goo Bomb from him at the camp. He no longer teaches
+> Swallow.
 
 The iron hollow's gate and the cracked clearing both need something heavy, and
 from now on heavy comes from swallowing a stone essence. Swallowing is taught
@@ -154,7 +168,11 @@ Beyond the Verdant Gate).
   This replaces the quest and its ore cost. From then on the Forge brews the
   potions and knows their recipes (question 82).* *Changed 2026-10-16
   (seventh round, question 110): Pearl 2 goes home to the Wellspring, and its
-  power flows into the town and lights the Forge.*
+  power flows into the town and lights the Forge.* *Changed 2026-11-20
+  (owner): Pearl 2 raises Pip's Workshop instead, and Pearl 3 lights the
+  Forge, at the end of Chapter 3. Pip's quest is now Pip's Workshop
+  ([Chapter 3](chapter-3-crystal-caverns.md#beats), beat 1). The quest
+  Rekindle the Forge is retired (2026-11-19).*
 - **Reward:** the Iron Spear recipe and 40 coins. The Iron Spear goes with
   the crafted weapons (2026-10-15).
   - Pip: "Look at it glow! Dad would be so proud." *(in game)*
@@ -219,7 +237,10 @@ Beyond the Verdant Gate).
 - *As built (2026-11-14): the cracked ground breaks under the Goo Bomb, and
   the cave's Goo Heart is a heart quarter since 2026-10-26.*
 - **The cavern today:** a chest with iron ore, charcoal and a tonic, plus a Goo
-  Heart and crystal shards.
+  Heart and crystal shards. *Since 2026-11-20 (owner) its hidden chest
+  (`gloop-cavern-hidden-chest`) also holds a **Roll Fragment**, Gloop Forest's
+  one of the four that make the Charged Roll (Burr's in Fatty's Lair, Yoi's,
+  the A4 barn's in Glimmerhill; the fourth found teaches it).*
   - Planned: the Goo Heart becomes one of the region's heart quarters.
   - Proposal: the shards glow faintly, a hint of Chapter 3.
 
@@ -254,12 +275,17 @@ The forest has two kinds of web (2026-10-15):
 - **The way to Chapter 3** (Planned, owner, 2026-10-16, question 81): a maze
   of web walls on the forest's east side, which only the Silk skin passes,
   leads to the Crystal Caverns. The Silk skin opens Chapter 3, as a skin
-  opens the next region.
+  opens the next region. *Built 2026-11-20: three web walls stand across the
+  web lane in F4 before the Caverns (the lane is entered by its ford), so only
+  the Silk skin passes; the maze itself is designed with the owner later.*
 - **The way in from the Wilds** (Planned, owner, 2026-10-16, question 87): a
   second web maze, which only the Silk skin passes, so the Wilds never skip
   the Verdant Gate. *As built (2026-11-14): the North Wilds' link into the
   forest was closed on 2026-10-31, and the South Wilds' opening is a plain
-  one; question 164.*
+  one; question 164.* *Changed 2026-11-19 (owner, question 164): the Wilds are
+  walled off for all of Release 1, so this maze waits for the release that
+  opens them. Built 2026-11-20: E5's trail south into the South Wilds is
+  planted shut, its exit gone.*
 - Today spiders drop **silk essences** that give a Silk form when swallowed
   (built 2026-10-09). They are marked for deletion.
 - **Open until 2026-10-16:** the Weaver Hollow, once proposed as the place to earn silk. Keep
@@ -357,12 +383,19 @@ quest's text still tells the old nest fight.*
     and lights the Forge.* *Changed 2026-11-17 (owner, question 149): its
     power also fills Glimmerhill's next fountain and wakes the next part of
     town. Which part is question 159 (Proposal: West Hill, A4), and so is
-    whether it still lights the Forge (Proposal: it does).*
+    whether it still lights the Forge (Proposal: it does).* *Settled
+    2026-11-19 (question 159): the proposal. Built 2026-11-20: its homecoming
+    wakes West Hill and sets `forge.restored`, which lights the Forge.*
+    *Changed later on 2026-11-20 (owner): its homecoming wakes West Hill and
+    raises Slimeshire's old Workshop (`workshop.restored`; the card: "Far off
+    in Slimeshire, the old Workshop rises from its boards."), where Pip then
+    carves the Bow's rune; Pearl 3 lights the Forge. Built the same day.*
   - **Planned (owner, 2026-10-16, question 94):** when the slime comes back
     to the West village after this chapter, Burr gives it the Bow
     ([Chapter 3](chapter-3-crystal-caverns.md#beats)). *Changed 2026-11-17
     (owner, question 150): Burr's house is in Slimeshire's C4, so he gives it
-    there.*
+    there.* *Changed 2026-11-20 (owner): Pip carves its rune at the raised
+    Workshop instead.*
   - **Planned (owner, 2026-10-16, questions 102 and 106): the Matron's
     thread.** After she falls, the slime finds a spool of her thread in the
     nest (her web at the top of the Weaver Hollow since question 133) and,
@@ -370,9 +403,15 @@ quest's text still tells the old nest fight.*
     needs to build the Bow; his other things are already in his workshop. With
     the thread and Pearl 2 home, he teaches the Bow: one find, one trip back,
     and no crafting. *As built (2026-11-14): the thread drops in her fight
-    and has no use yet, as the Bow is not built.*
+    and has no use yet, as the Bow is not built.* *Changed 2026-11-20 (owner):
+    the Bow is the slime's own body, so Burr builds nothing: the thread
+    becomes its string. Built 2026-11-20: Burr takes the thread at his lesson.*
+    *Changed later on 2026-11-20 (owner): the thread is the string of Pip's
+    bow rune, brought to him with 5 wood and the smith's crystal; Burr no
+    longer takes it. Built the same day.*
   - **Planned (owner, 2026-10-16, question 98):** Pearl 2's homecoming is a
-    short scene at the Wellspring.
+    short scene at the Wellspring. *Built 2026-11-20
+    ([PROLOGUE.md](../../godot/PROLOGUE.md#the-homecoming-2026-11-20)).*
   - Mossy: "Two of them now. And the shaking is worse. Whatever is under that
     mountain is waking up."
 
@@ -404,20 +443,22 @@ quest's text still tells the old nest fight.*
 |---|---|---|
 | Stretch Lash | The next release (question 94; manuscripts, question 33) | Built at Beat 1 |
 | Reinforced Pickaxe | 1, 4 | Built; goes with the crafted tools (2026-10-15) |
-| Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion |
-| Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Goo Bomb built; nobody teaches it yet, which keeps the Weaver Hollow shut in play; Tom's lesson Planned |
+| Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion; Tom no longer teaches it (2026-11-19) |
+| Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Built: Tom's lesson as his web tears, and its first lock, the cracked rock by his clearing (2026-11-19) |
 | Tom's maze (secrets and tests, webs that slow; Tom at its end) | 3 | Planned (questions 95 and 113) |
 | The Weaver Hollow's big chest: a heart quarter (a heart or the big key until the seventh round) | 8 | Planned (questions 95 and 113) |
 | Clod Stomper | 3–4 | Built 2026-10-09 (its essence drop marked for deletion); it stays as it is, slam included (question 64) |
-| Forge | 5 today, 9 in the plan | Built (smelting); Planned: Pearl 2 relights it, and it brews the potions (questions 51 and 79); the smelting timer leaves Release 1 |
+| Forge | 5 today, 9 in the plan | Built (smelting); Planned: Pearl 2 relights it, and it brews the potions (questions 51 and 79); the smelting timer leaves Release 1. *Changed 2026-11-20 (owner): Pearl 3 lights it, in Chapter 3 (built)* |
+| The Workshop | 9 | Built 2026-11-20 (owner, the same day): Pearl 2's homecoming raises it, Pip's place, where he carves the Bow's rune in Chapter 3 |
 | Iron Spear, Iron Axe | 5–6 | Built; they go with the crafted gear (2026-10-15) |
 | 20-slot bag | 7 | Waits for the next release (question 74); the coffer held heart quarters, potions, coins or a piece of the story (question 63) until the coffer went (question 18) |
 | The Gloop Cavern's heart quarter, one of the forest's four | 7 | Planned (question 18; the Goo Bomb opens the cracked clearing) |
+| A Roll Fragment (one of four) | 7, the Gloop Cavern's hidden chest | Built 2026-11-20 (owner, the same day) |
 | Webs and web walls | 8 | Built 2026-10-17 ([WEBS.md](../../godot/WEBS.md)); −50% without the Silk skin |
-| The web-wall maze to the Crystal Caverns | 8 | Planned (question 81) |
-| The second web maze, from the Wilds | 8 | Planned (question 87); the Wilds' ways in are question 164 |
-| Pearl 2 and the Silk skin | 9; the Weaver Hollow, before the Matron, since 2026-10-17 | Built 2026-10-17 in the Hoard; its homecoming, which wakes a part of Glimmerhill (question 159), Planned |
-| The Matron's thread (for Burr's Bow) | 9 | Built: it drops in her fight; no use until the Bow (question 106) |
+| The web-wall maze to the Crystal Caverns | 8 | Built 2026-11-20 as three web walls across the web lane (question 81); the maze itself is designed with the owner later |
+| The second web maze, from the Wilds | 8 | Waits for a later release: the Wilds are walled off in Release 1 (owner, 2026-11-19, question 164); E5's way south planted shut 2026-11-20 |
+| Pearl 2 and the Silk skin | 9; the Weaver Hollow, before the Matron, since 2026-10-17 | Built 2026-10-17 in the Hoard; its homecoming, which wakes West Hill (question 159) and raises Slimeshire's Workshop (owner, 2026-11-20; it lit the Forge until then), built 2026-11-20 |
+| The Matron's thread (for the Bow's string) | 9 | Built: it drops in her fight; Pip takes it for the bow rune's string (built 2026-11-20, Burr's lesson until the owner's change the same day; question 106) |
 | Boss heart (Matron) | 9 | Built: a full heart, +20 max HP and +20 max energy (questions 17 and 19) |
 | The Weaver Hollow, the Matron at its top, her cocoon phase | 8, 9 | Built 2026-10-17 ([DUNGEONS.md](../../godot/DUNGEONS.md)); her fight is redone in the boss pass (question 166) |
 | 4 heart quarters | Secrets | Two placed (the Gloop Cavern, the silk nook), and the Hollow's in its Pillar room (B6) |

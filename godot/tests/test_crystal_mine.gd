@@ -588,6 +588,14 @@ func test_his_fall_breaks_the_seal_and_the_climb_out_leads_to_the_lookout(t: Tes
 	await t.steps(2)
 	t.check(bool(arena.call(&"is_beaten")), "his fall was not recorded")
 	t.check(COLOSSUS_ID in (run.world.get("defeated_boss_ids", []) as Array), "defeated_boss_ids has no crystal-colossus")
+	# His fall sets chapter-3-complete, and Release 1's end card opens over the game (quests spec
+	# 14.6); closed, the mine goes on.
+	t.check(run.has_flag("chapter-3-complete"), "his fall did not set chapter-3-complete")
+	var shell := Services.shell()
+	t.check(shell != null and shell.end_card.is_open(), "Release 1's end card did not open at his fall")
+	if shell != null and shell.end_card.is_open():
+		shell.end_card.close()
+	await t.steps(2)
 	t.check(not DungeonState.is_sealed(run, MAP_ID), "his fall did not break the seal")
 	t.check(bool(arena.call(&"all_lit")), "the braziers do not burn for good after his fall")
 	var heart: Node = _objects(t).get_node("M15-full-heart/FullHeartScript")

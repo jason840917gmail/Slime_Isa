@@ -1,7 +1,8 @@
 extends CanvasLayer
 ## The ceremony (owner, 2026-10-09: "the slime rise the new learn ability or something original but
 ## exciting"; roadmap 4.13): when the slime gets something permanent, the game stops for a moment
-## that is the slime's own. It plays for every ability learned (`request`), the first time each
+## that is the slime's own. It plays for every ability learned (`request`), every upgrade found
+## (`request_upgrade`: the Charged Roll), the first time each
 ## permanent item comes into the bag (`request_item`: a weapon, a tool, a key; RunState
 ## `permanent_item_gained`, so once per item, kept in saves) and for every Goo Heart
 ## (`request_heart`).
@@ -43,6 +44,8 @@ const NODE_NAME := "AbilityCeremony"
 const WORLD_MAIN_GROUP := &"world_main"
 ## What a tool harvests, in the card's how-to.
 const HARVEST_TARGETS := {"wood": "trees", "stone": "rocks", "iron": "iron ore"}
+## An upgrade's card (`request_upgrade`).
+const UPGRADE_KICKER := "Upgrade"
 ## How many quarters make a heart, in words (`request_heart`; a larger count stays a number).
 const COUNT_WORDS: Array[String] = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"]
 const LAYER := 95
@@ -148,6 +151,24 @@ static func request_heart(tree: SceneTree, filled: int, per: int, bonus: int, ic
 	_enqueue(tree, {"kicker": "Heart Quarter", "name": "%d of %d" % [filled, per],
 		"line": "Find %d more to make a whole heart." % missing if missing != 1 else "Find one more to make a whole heart.",
 		"how": "", "icon": icon})
+
+
+## Queues the card of an upgrade (AbilityDefinitions.UPGRADES: the Charged Roll), learned from a find.
+static func request_upgrade(tree: SceneTree, upgrade_id: StringName) -> void:
+	_enqueue(tree, upgrade_entry(upgrade_id))
+
+
+## An upgrade's card: "Upgrade", its title, its line, how to use it (with the upgraded ability's
+## key) and its icon (the HUD console's `ability-<id>`).
+static func upgrade_entry(upgrade_id: StringName) -> Dictionary:
+	var upgrade := AbilityDefinitions.upgrade(upgrade_id)
+	var of := StringName(str(upgrade.get("of", "")))
+	var key := ControlLabels.control_label(AbilityBox.key_action(of)) if of != &"" else ""
+	var how := str(upgrade.get("how", ""))
+	if how.contains("%s"):
+		how = how % key if not key.is_empty() else ""
+	return {"kicker": UPGRADE_KICKER, "name": str(upgrade.get("title", String(upgrade_id))),
+		"line": str(upgrade.get("line", "")), "how": how, "icon": AbilityDefinitions.icon(upgrade_id)}
 
 
 static func ability_entry(ability_id: StringName) -> Dictionary:

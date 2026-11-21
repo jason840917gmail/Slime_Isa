@@ -173,14 +173,17 @@ static func is_boss_beaten(run: Object, dungeon_id: String, boss_id: String) -> 
 	return run != null and run.has_method(&"is_boss_defeated") and bool(run.call(&"is_boss_defeated", boss_id))
 
 
-## A boss fell: kept in the dungeon's record and the run's `defeated_boss_ids`.
+## A boss fell: kept in the dungeon's record and the run's `defeated_boss_ids` (RunState
+## `record_boss_defeated`, which also sets his story flag).
 static func mark_boss_beaten(run: Object, dungeon_id: String, boss_id: String) -> void:
 	if boss_id.is_empty():
 		return
 	var found := record(run, dungeon_id)
 	if not found.is_empty() and not boss_id in (found["bosses"] as Array):
 		(found["bosses"] as Array).append(boss_id)
-	if run != null:
+	if run != null and run.has_method(&"record_boss_defeated"):
+		run.call(&"record_boss_defeated", boss_id)
+	elif run != null:
 		var world: Dictionary = run.get(&"world")
 		var defeated: Array = world.get_or_add("defeated_boss_ids", [])
 		if not boss_id in defeated:

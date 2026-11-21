@@ -17,6 +17,13 @@ extends TileMapLayer
 ## seeded shift, size and flip (`variation` rerolls them all), casts a soft shade on the ground, and
 ## sways in tree_sway.gdshader unless it is rigid (cacti, crystals, mushrooms, bare trees).
 ##
+## **Canopy walls** (owner, 2026-11-20): a palette tile whose trees are "canopy:<set>" paints the
+## other kind of wood, one solid mass of big round overlapping crowns (CanopyWalls) with roots only
+## along its foot, so a forest band reads as a wall nobody can pass. Its cells grow crowns on a
+## staggered lattice (every other cell, alternating rows) and on every cell at its sides and along
+## its south edge, and roots under the crowns of that edge. Both kinds paint the same layer and
+## collide alike.
+##
 ## The trees are drawn by this layer and saved nowhere: the scene stores only the painted cells.
 ## In the game the whole painted area is solid along its trunk line (one shape per run of cells).
 ## The squares are a painting aid, drawn at `paint_opacity` in the editor and hidden in the game.
@@ -29,6 +36,7 @@ extends TileMapLayer
 
 const TILESET := "res://game/world/forest/forest_tileset.tres"
 const BigTrees := preload("res://game/world/forest/big_trees.gd")
+const CanopyWalls := preload("res://game/world/forest/canopy_walls.gd")
 const MIX_DATA_LAYER := "forest_mix"
 const TREES_DATA_LAYER := "forest_trees"
 ## One candidate cell per block of this many cells a side.
@@ -46,6 +54,24 @@ const GAP_SAMPLES: Array[Vector2] = [
 	Vector2(0.25, 0.9), Vector2(0.75, 0.9),
 ]
 const GAP_REACH := Vector2i(3, 5)
+## Canopy walls: where a crown's bottom edge stands in its cell (its sort line), how far a crown
+## may stand from its place (units across and down), its size range, and how far a crown on the
+## wall's left or right side stands in from its cell's middle.
+const CROWN_FOOT_Y := 40.0
+const CROWN_JITTER := Vector2(12.0, 7.0)
+const CROWN_SIZE := Vector2(0.92, 1.1)
+## How dark a crown may be (its colour times a value in this range), so the mass is not a quilt.
+const CROWN_SHADE := Vector2(0.84, 1.0)
+const CROWN_EDGE_INSET := 12.0
+## A crown along the wall's south edge stands higher in its cell, so more of the trunk under it shows.
+const FOOT_CROWN_Y := 30.0
+## Where a root's feet reach in its cell, and its sort line: above its own crown's lowest (so that
+## crown always draws over the trunk's top, however its jitter falls) and below the lowest crown of
+## the row above (so the root stands in front of those). A root never shows above its own crown:
+## the owner's screenshot of 2026-11-20 had mushroom stems drawn over the cap behind them.
+const ROOT_FOOT_Y := 62.0
+const ROOT_SORT_Y := FOOT_CROWN_Y - CROWN_JITTER.y - 8.0
+const ROOT_JITTER := 6.0
 ## Placed wall tree scenes "Absorb trees" takes.
 const WALL_SCENE_PREFIX := "tree-forest-wall--"
 const HOLDER := "Trees"
@@ -134,16 +160,28 @@ func _rebuild() -> void:
 	var cells := get_used_cells()
 	cells.sort()
 	var painted := {}
+	var canopy := {}
+	var tree_cells: Array[Vector2i] = []
+	var tree_painted := {}
 	for cell in cells:
-		if not trees_of(cell).is_empty():
-			painted[cell] = true
+		var trees := trees_of(cell)
+		if trees.is_empty():
+			continue
+		painted[cell] = true
+		var canopy_set := CanopyWalls.set_of(trees)
+		if canopy_set != "":
+			canopy[cell] = canopy_set
+		else:
+			tree_cells.append(cell)
+			tree_painted[cell] = true
 	var placed := {}
-	var growing := _growing_cells(cells)
-	for cell in cells:
+	var growing := _growing_cells(tree_cells)
+	for cell in tree_cells:
 		if growing.has(cell):
 			placed[cell] = _placement(cell)
-	_fill_gaps(painted, placed)
-	for cell in cells:
+	_fill_gaps(tree_painted, painted, placed)
+	_grow_canopy(canopy, holder, shadows)
+	for cell in tree_cells:
 		if not placed.has(cell):
 			continue
 		var place: Dictionary = placed[cell]
@@ -175,24 +213,71 @@ func _placement(cell: Vector2i) -> Dictionary:
 	return {"tree": tree, "at": at, "size": size, "flip": flip}
 
 
-## A wall shows no ground: every painted cell whose solid part (as `_build_collision` shapes it) the
-## grown trees leave visible at one of its GAP_SAMPLES grows its own tree too. Bottom rows first,
-## as trees hide the ground above their feet, so a lower tree may already cover a cell.
-func _fill_gaps(painted: Dictionary, placed: Dictionary) -> void:
-	var order := painted.keys()
+## A wall shows no ground: every painted tree cell (`tree_painted`) whose solid part (as
+## `_build_collision` shapes it, by every painted cell in `solid`) the grown trees leave visible at
+## one of its GAP_SAMPLES grows its own tree too. Bottom rows first, as trees hide the ground above
+## their feet, so a lower tree may already cover a cell.
+func _fill_gaps(tree_painted: Dictionary, solid: Dictionary, placed: Dictionary) -> void:
+	var order := tree_painted.keys()
 	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y > b.y or (a.y == b.y and a.x < b.x))
 	var size := Vector2(tile_set.tile_size)
 	for cell: Vector2i in order:
 		if placed.has(cell):
 			continue
-		var top := 0.0 if painted.has(cell + Vector2i.UP) else FOOT.y - TRUNK_HEIGHT
-		var bottom := size.y if painted.has(cell + Vector2i.DOWN) else FOOT.y
+		var top := 0.0 if solid.has(cell + Vector2i.UP) else FOOT.y - TRUNK_HEIGHT
+		var bottom := size.y if solid.has(cell + Vector2i.DOWN) else FOOT.y
 		var corner := Vector2(cell) * size
 		for sample: Vector2 in GAP_SAMPLES:
 			var point := corner + Vector2(sample.x * size.x, lerpf(top, bottom, sample.y))
 			if not _hidden(point, cell, placed):
 				placed[cell] = _placement(cell)
 				break
+
+
+## The canopy walls (`canopy`: cell -> set): a crown on every other cell, alternating rows (so the
+## crowns, two to three cells wide, overlap like scales and hide all the ground), and on every cell
+## at the wall's left and right sides (stood a little inward) and along its south edge; roots and
+## their shade on every cell along the south edge, each under its own cell's crown, which hides the
+## trunk's top (a root on a cell without a crown drew its tall trunk over the crown behind it).
+## Each piece seeded by its cell and `variation`; never mirrored (the light comes from the upper
+## left); rigid (a sway would open gaps between the crowns).
+func _grow_canopy(canopy: Dictionary, holder: Node2D, shadows: Node2D) -> void:
+	var size := Vector2(tile_set.tile_size)
+	var order := canopy.keys()
+	order.sort()
+	for cell: Vector2i in order:
+		var set_name: String = canopy[cell]
+		var rng := RandomNumberGenerator.new()
+		var seeded := _seed_cell(cell)
+		rng.seed = hash([seeded.x, seeded.y, variation, "canopy"])
+		var left_side := not canopy.has(cell + Vector2i.LEFT)
+		var right_side := not canopy.has(cell + Vector2i.RIGHT)
+		var foot := not canopy.has(cell + Vector2i.DOWN)
+		var base := Vector2(cell) * size + Vector2(size.x * 0.5, 0.0)
+		if posmod(cell.x + cell.y, 2) == 0 or left_side or right_side or foot:
+			var crown := Sprite2D.new()
+			var pick := rng.randi_range(0, CanopyWalls.count(set_name, CanopyWalls.CROWNS) - 1)
+			if CanopyWalls.configure(crown, set_name, CanopyWalls.CROWNS, pick):
+				var inset := (CROWN_EDGE_INSET if left_side else 0.0) - (CROWN_EDGE_INSET if right_side else 0.0)
+				crown.scale *= rng.randf_range(CROWN_SIZE.x, CROWN_SIZE.y)
+				var shade := rng.randf_range(CROWN_SHADE.x, CROWN_SHADE.y)
+				crown.modulate = Color(shade, shade, shade)
+				crown.position = base + Vector2(inset + rng.randf_range(-CROWN_JITTER.x, CROWN_JITTER.x),
+						(FOOT_CROWN_Y if foot else CROWN_FOOT_Y) + rng.randf_range(-CROWN_JITTER.y, CROWN_JITTER.y))
+				holder.add_child(crown)
+			else:
+				crown.free()
+		if not foot:
+			continue
+		var root := Sprite2D.new()
+		var root_pick := rng.randi_range(0, CanopyWalls.count(set_name, CanopyWalls.ROOTS) - 1)
+		if not CanopyWalls.configure(root, set_name, CanopyWalls.ROOTS, root_pick, ROOT_FOOT_Y - ROOT_SORT_Y):
+			root.free()
+			continue
+		root.position = base + Vector2(rng.randf_range(-ROOT_JITTER, ROOT_JITTER), ROOT_SORT_Y)
+		holder.add_child(root)
+		shadows.add_child(BigTrees.shade_at(Vector2(root.position.x, base.y + ROOT_FOOT_Y),
+				root.region_rect.size.x * root.scale.x))
 
 
 ## True when a placed tree near `cell` hides the ground at `point`.

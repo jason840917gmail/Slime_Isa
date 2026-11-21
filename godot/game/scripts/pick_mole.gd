@@ -226,7 +226,7 @@ func _duck(now: float) -> void:
 	_cue(CUE_DUCK)
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow takes it while it is up. `hit` is the arrow's
+## The Bow's hook (bow_arrow.gd): an arrow takes it while it is up. `hit` is the arrow's
 ## hit (unused). True when it fell.
 func on_arrow_hit(_hit: Dictionary) -> bool:
 	if is_defeated() or not is_up():

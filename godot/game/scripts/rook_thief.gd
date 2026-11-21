@@ -17,7 +17,7 @@ class_name RookThiefScript
 ## - **Rise** (`riseMs`): back up to its loop.
 ## - **Knocked down** (`fallMs`, then `downMs` on the ground, open): a thrown thing that hits it
 ##   (a pot thrown as it swoops low; tag `thrown`), or the Bow's arrow (`on_arrow_hit`, the hook
-##   for the coming Bow: any height). It drops every coin it took (they go back to the slime) and
+##   the Bow's: any height). It drops every coin it took (they go back to the slime) and
 ##   then flies back up. Other hits only hurt it; a Spear jab as it swoops past can beat it too.
 ## Defeated, it drops what it took as well.
 ##
@@ -32,7 +32,7 @@ const FRAME_GLIDE := 0
 const FRAME_SWOOP := 1
 const FRAME_AWAY := 2
 const FRAME_DOWN := 3
-## The Bow's future targets: `on_arrow_hit(hit: Dictionary) -> bool`.
+## What the Bow's arrow strikes (bow_arrow.gd): `on_arrow_hit(hit: Dictionary) -> bool`.
 const BOW_TARGETS := &"bow_targets"
 const CUE_CAW := &"NpcBlip"
 const CUE_SWOOP := &"Lash"
@@ -142,7 +142,7 @@ func knock_down() -> bool:
 	return true
 
 
-## The Bow's hook (the coming Bow, Chapter 3): an arrow knocks it down from any height. `hit` is the
+## The Bow's hook (bow_arrow.gd): an arrow knocks it down from any height. `hit` is the
 ## arrow's hit (unused yet). True when it fell.
 func on_arrow_hit(_hit: Dictionary) -> bool:
 	return knock_down()

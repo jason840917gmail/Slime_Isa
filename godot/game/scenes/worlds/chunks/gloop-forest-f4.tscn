@@ -130,8 +130,8 @@ metadata = {
 "player": {
 "entries": {},
 "spawn": {
-"x": 1792,
-"y": 1728
+"x": 1344,
+"y": 1760
 }
 }
 }
@@ -285,7 +285,7 @@ autoplay_cue = true
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=601350158]
 y_sort_enabled = true
-position = Vector2(1792, 1728)
+position = Vector2(1344, 1760)
 
 [node name="edge-south" type="Area2D" parent="." unique_id=1468354113]
 position = Vector2(1024, 2046)
@@ -438,6 +438,27 @@ position = Vector2(352, 1816)
 
 [node name="lantern-south-e" parent="props" unique_id=1949485871 instance=ExtResource("prop_orld_solid__lantern_post")]
 position = Vector2(544, 1816)
+
+[node name="web-lane" type="Node2D" parent="." unique_id=159342438]
+y_sort_enabled = true
+
+[node name="web-lane-1" parent="web-lane" unique_id=2006010773 instance=ExtResource("24_tv6ie")]
+position = Vector2(1536, 1752)
+orientation = "side"
+span = 176.0
+flag_id = "gloop-forest.web-lane-1"
+
+[node name="web-lane-2" parent="web-lane" unique_id=1725565791 instance=ExtResource("24_tv6ie")]
+position = Vector2(1680, 1752)
+orientation = "side"
+span = 176.0
+flag_id = "gloop-forest.web-lane-2"
+
+[node name="web-lane-3" parent="web-lane" unique_id=122291795 instance=ExtResource("24_tv6ie")]
+position = Vector2(1824, 1752)
+orientation = "side"
+span = 176.0
+flag_id = "gloop-forest.web-lane-3"
 
 [connection signal="body_entered" from="exit-1" to="exit-1/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]

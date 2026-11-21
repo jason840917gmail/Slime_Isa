@@ -275,7 +275,7 @@ abilities.tryDodge(() => playerController.tryDodge(snapToCardinal(toward)))
 5. `energy` — cost 0, never.
 On success `cooldownUntil.dodge = sim + 750` (set before the roll itself; if the roll then fails the cooldown still runs — cannot happen through the key path because a suppressed player never reaches `handleActionInput`).
 
-Trial note: dodge is taught by a Chapter 1 quest ([OUT] story). For the trial treat it as learned (e.g. `@export var dodge_learned := true`), otherwise key 1 only shows "Not learned yet".
+Trial note: dodge is taught by a Chapter 1 quest ([OUT] story). For the trial treat it as learned (e.g. `@export var dodge_learned := true`), otherwise key 1 only shows "Not learned yet". *Godot since 2026-11-19: `dodge_learned` is false; young Burr teaches the Roll in Slimeshire (quests spec §14.3), the playground and `?shapes` lend it for the session, a dungeon's F6 powers (`dungeon.devPowers`) list it.*
 
 ### 5.2 Roll (`PlayerController.tryDodge`, `PlayerController.ts:111-133`; `PlayerScript.beginDodge`, `PlayerScript.ts:193-201`)
 

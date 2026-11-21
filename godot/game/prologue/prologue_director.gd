@@ -27,8 +27,8 @@ extends Node2D
 ##    the chunk into Slimeshire (level-1-c4), where Plop meets the slime
 ##    (game/prologue/town_edge_meeting.gd ends the prologue).
 ## While a scene plays the slime is held still (`_holding`: no movement, no input). The Roll is not
-## the slime's yet (player.gd `dodge_learned` off while the prologue runs). Timings are this node's
-## properties (roadmap 5.19).
+## the slime's yet: young Burr teaches it in Slimeshire after the prologue (quests spec 14.3). Timings
+## are this node's properties (roadmap 5.19).
 ##
 ## A run that is not playing the prologue (it is done, or never started: an old save, a launch
 ## option, the tests) sees the places after it (`_settle`): the path open, the gate open, no Yoi, no
@@ -211,8 +211,8 @@ func respawn_point() -> Variant:
 
 # --- the beats ---------------------------------------------------------------------------------
 
-## The first physics step with the slime: the Roll is not the slime's yet; the worms stand still in
-## their tableau; the birth plays unless it already did.
+## The first physics step with the slime: the worms stand still in their tableau; the birth plays
+## unless it already did.
 func _start() -> void:
 	var world := Services.world()
 	_player = world.player if world != null else null
@@ -220,7 +220,6 @@ func _start() -> void:
 		return
 	_started = true
 	var run := Services.run()
-	_player.set(&"dodge_learned", false)
 	if _player.has_signal(&"respawned"):
 		_player.connect(&"respawned", _on_player_respawned)
 	_freeze_worms()

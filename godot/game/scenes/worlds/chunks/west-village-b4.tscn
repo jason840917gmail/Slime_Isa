@@ -117,6 +117,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/animals/squirrel.tscn" id="life_16"]
 [ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="life_17"]
 [ext_resource type="Script" uid="uid://dwk8hk12boqk4" path="res://game/scripts/world_area.gd" id="life_area"]
+[ext_resource type="Script" path="res://game/glimmerhill/wellspring_homecoming.gd" id="homecoming"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--campfire.tscn" id="wellspring_campfire"]
 
 [sub_resource type="RectangleShape2D" id="shape_exit_to_level_1_1"]
 size = Vector2(32, 165)
@@ -472,6 +474,14 @@ collision_mask = 0
 [node name="GapWallShape" type="CollisionShape2D" parent="Wellspring/GapWall" unique_id=474892776]
 position = Vector2(1024, 1728)
 shape = SubResource("RectangleShape2D_otajl")
+
+[node name="wellspring-campfire" parent="Wellspring" unique_id=314692911 instance=ExtResource("wellspring_campfire")]
+position = Vector2(240, 1650)
+
+[node name="WellspringHomecoming" type="Node2D" parent="Wellspring" unique_id=1037798910 node_paths=PackedStringArray("pool", "glow")]
+script = ExtResource("homecoming")
+pool = NodePath("../Pool")
+glow = NodePath("../PoolGlow")
 
 [node name="Scenery" type="Node2D" parent="." unique_id=2118531341]
 y_sort_enabled = true

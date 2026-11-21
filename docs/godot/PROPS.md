@@ -106,8 +106,11 @@ at its own size under the room's `Objects` node (a room door under `RoomDoors`, 
 `Hazards`; made when missing); set its ids in the Inspector ([DUNGEONS.md](DUNGEONS.md)). The list
 is `DUNGEON_EXTRAS` and `DUNGEON_SKIP` in `addons/scenery_dock/scenery_dock.gd`.
 
-**Hearts & chests** (2026-11-18) lists the heart quarter (`goo-heart`), the full heart and the three
-chests (the wooden one for any world, the dungeon's two), for any world. Dragging one places its
+**Hearts & chests** (2026-11-18) lists the heart quarter (`goo-heart`), the full heart, the roll
+fragment (since 2026-11-20: `collectible-roll-fragment`, a Roll Fragment pickup; on its
+`CollectibleScript` set `map_id` to the world's id and an `instance_id` no other pickup in that world
+uses, or put `"roll-fragment": 1` in a chest's contents instead; four teach the Charged Roll, quests
+spec 14.8) and the three chests (the wooden one for any world, the dungeon's two), for any world. Dragging one places its
 scene under `Objects` with **Editable Children** on, so its script node shows in the Scene dock.
 A heart quarter or a full heart gets its own `heart_id` as it is dropped, `<world>-heart-<n>` (since
 2026-11-20: one left with the scene's placeholder, `unassigned`, is never picked up; B5's first
@@ -272,6 +275,6 @@ uids Godot's headless save drops. Close or reload the world in the editor afterw
 | `godot/tools/build_old_prop_palettes.gd` | Builds the `old-props` palette |
 | `godot/tools/lib/prop_pictures.gd` | What the builders share: scenery scenes, visible pictures |
 | `godot/tools/absorb_props.gd` | Turns placed props into paint (older layers) |
-| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables, its Dungeon objects category the dungeon pieces with logic, its Hearts & chests category the heart quarter and the chests, its Villagers and Animals categories the towns' people and animals |
+| `godot/addons/scenery_dock/` | The Scenery dock: props by picture, dragged in as nodes; its Enemies category places enemies, its Suckables category liftables, its Dungeon objects category the dungeon pieces with logic, its Hearts & chests category the heart quarter, the full heart, the roll fragment and the chests, its Villagers and Animals categories the towns' people and animals |
 | `godot/game/enemy/placed_enemy.gd`, `godot/game/scenes/encounters/placed-enemy.tscn` | A placed enemy: its type, wander area and overrides, its picture in the editor |
 | `godot/tools/paint_to_nodes.gd` | Turns painted props into nodes under `Scenery` |
