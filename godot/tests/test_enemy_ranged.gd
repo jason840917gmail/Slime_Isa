@@ -49,11 +49,10 @@ const CAMPS := {
 	"level-1-autumn-grove": ["level-1-d5", {"worm-archer": 1, "worm-brawler": 2}],
 	"level-1-hollow-maze-west": ["level-1-d5", {"worm-archer": 1}],
 }
-## The crystal caverns' placed enemies in each chunk (the old spawn table cut to
-## EnemyPlacement.TABLE_ENEMIES = 5, by weight 30 / 40 / 30), in two camps of 3 and 2 that share a
-## wander rect each.
-const CAVERN_ENEMIES := {"worm-brawler": 2, "worm-swordsman": 2, "worm-archer": 1}
-const CAVERN_CAMPS: Array[int] = [2, 3]
+## The crystal caverns' H5 since the Spiral (2026-11-21, tools/build_caverns_spiral.gd): the maze's own
+## placed enemies, no camps: the Prism Eye alone on the east side, the Glint Bats over Run 3, a
+## Crawler at its pillar on the south side and one in the bay.
+const CAVERN_ENEMIES := {"prism-eye": 1, "glint-bat": 1, "crystal-crawler": 2}
 const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
 const ARCHER_WINDUP_MS := 600.0
@@ -547,9 +546,8 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 
 
 ## The crystal caverns' old spawn table (legacy spawning around the player, every 1500 ms up to 16)
-## became 5 placed enemies per chunk, in two camps sharing an enemy-wander rect each: they stand at
-## once, in their camp's rect, and none comes on a timer. H5 keeps them; the Crystal Mine's build
-## (2026-10-17) cleared the placeholder camps of G4 (the smith's camp), G5 and H4.
+## became placed enemies (2026-10-16); since the Spiral (2026-11-21) H5 holds the maze's own
+## (CAVERN_ENEMIES), each standing at once where it was placed, none coming on a timer.
 func test_crystal_caverns_enemies_are_placed(t: TestContext) -> void:
 	if not t.check(t.main.travel_to("crystal-caverns-h5", "west"), "travel to crystal-caverns-h5 was refused"):
 		return
@@ -563,28 +561,12 @@ func test_crystal_caverns_enemies_are_placed(t: TestContext) -> void:
 		return
 	t.check(not population.uses_legacy_spawning(), "%s spawns the legacy way" % t.world().map_id())
 	t.equal(t.world().definition.metadata.get("spawns"), null, "%s's spawns table" % t.world().map_id())
-	var camps := {}
-	for area: Dictionary in t.world().areas("enemy-wander"):
-		camps[str(area["id"])] = area
 	var counts := {}
-	var per_camp := {}
 	for placed: PlacedEnemyScript in population.placed_enemies():
 		if not t.check(placed.is_standing(), "%s does not stand" % placed.name):
 			continue
 		counts[placed.enemy_type] = int(counts.get(placed.enemy_type, 0)) + 1
-		if not t.check(camps.has(placed.wander_area_id), "%s names no enemy-wander area of the chunk ('%s')" % [placed.name, placed.wander_area_id]):
-			continue
-		per_camp[placed.wander_area_id] = int(per_camp.get(placed.wander_area_id, 0)) + 1
-		var enemy := placed.get_enemy() as EnemyScript
-		t.equal(str(enemy.get_spawn_area().get("id", "")), placed.wander_area_id, "%s's territory" % placed.name)
-		t.check(Perimeter.distance_outside(camps[placed.wander_area_id]["perimeter"], enemy.get_centre()) <= 2.0,
-			"%s stands outside its camp" % placed.name)
 	t.equal(counts, CAVERN_ENEMIES, "%s's placed enemies by type" % t.world().map_id())
-	var sizes: Array[int] = []
-	for camp_id: String in per_camp:
-		sizes.append(int(per_camp[camp_id]))
-	sizes.sort()
-	t.equal(sizes, CAVERN_CAMPS, "%s's camps' sizes" % t.world().map_id())
 	var standing := population.alive_count_all()
 	await t.sim_wait(1600.0)
 	t.check(population.alive_count_all() <= standing, "an enemy came on a timer in %s" % t.world().map_id())

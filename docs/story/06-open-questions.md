@@ -10,17 +10,10 @@ Decisions waiting on the owner. When one is answered:
 > decisions; question numbers are kept, so "question 56" is found there. This file keeps only what
 > is still open. The owner settled every question that had a proposal on 2026-11-19
 > ([the archive](07-decisions-archive.md#answered-on-2026-11-19)), and the story's last ones (4, 9,
-> 10 and 168) on 2026-11-21 ([the archive](07-decisions-archive.md#answered-on-2026-11-21)).
+> 10 and 168) on 2026-11-21 ([the archive](07-decisions-archive.md#answered-on-2026-11-21)), with 141.
 
 ## Still open from the built dungeons
 
-141. **The seal and the take** (the rest was settled on 2026-11-19). A seal in a doorway at a
-     world's south edge (the Lair's R1, the Mine's M1) lies half under the HUD bar, in the glimpse
-     too; the roar's line shows over the skin's line on the take.
-     *Checked 2026-11-21 in the game (pictures sent to the owner): the seal shows whole, above the HUD
-     in R1 and in the take's glimpse, so that half is fixed. Left: on the take, the boss's red roar
-     line ("Fatty One Eye roars! The way out slams shut.") appears at once right on top of the skin's
-     two lines ("HEAVY SKIN!" and its description), three lines crowded over the slime.*
 143. **The Weaver Hollow's C4** (the rest was settled on 2026-11-19). The Slime Spiders' web shots
      are the forest's, untuned for C4.
 

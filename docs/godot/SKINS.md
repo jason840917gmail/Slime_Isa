@@ -16,6 +16,9 @@ are the owner's ([Direction "The skins"](../story/01-direction.md#the-skins)):
   or lending a skin never changes it (owner, 2026-10-18: a skin shows only while its power works).
 - **The Pearl grants its skin** and, the first time, shows the skin's
   short ceremony line (its name, big, and one line) over the slime, after the Pearl's card.
+  *Since 2026-11-21 (owner, question 141): not when the Pearl's card shows (the card holds the
+  skin's description, and the line ran on under the boss's roar after it); `SkinState.grant(id,
+  announce)` takes `announce` false then. Without a card (ceremonies off) the line still shows.*
 
 The Gulp's Stone and Silk forms no longer count as the Heavy and Silk checks. The forms themselves
 stay until roadmap 7.11 removes them (the Swim form's mechanics stay for the later Swim skin);
@@ -28,7 +31,7 @@ nothing in the dungeons needs a form.
 | Call | What it does |
 |---|---|
 | `SkinState.is_on(player, SkinState.HEAVY / SILK / FERAL)` | True once the skin is won or lent. `player` may be null (skins belong to the run). Every lock asks this |
-| `SkinState.grant(id)` | A Pearl's grant: won for good, the ceremony line the first time (the look stays as it was). True when new |
+| `SkinState.grant(id, announce := true)` | A Pearl's grant: won for good, the ceremony line the first time unless `announce` is false (the Pearl's card shows instead; the look stays as it was). True when new |
 | `SkinState.lend(id)` / `give_back(id)` | For this session only (dev powers, playground pedestals, `?skins=`); no save carries it |
 | `SkinState.is_won(id)`, `on_ids()`, `order()` | Won for good (not lent); the skins on; every skin in `skins.order` |
 | `SkinState.look()` / `set_look(id)` | The everyday look (`&""` = the goo) |

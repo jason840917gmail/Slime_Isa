@@ -11,7 +11,11 @@
 > **Canopy walls (owner, 2026-11-20; roadmap 12.10):** the layer paints a second kind of wood, one
 > solid mass of big round overlapping crowns with roots only along its foot, so a forest band reads
 > as a wall nobody can pass; both kinds stay on the palette ([Canopy walls](#canopy-walls-2026-11-20)).
-> Built for the forest, village and crystal sets; no world is repainted with it yet; not playtested.
+> Built for the forest, village and crystal sets. On 2026-11-21 (owner: "change all the walls that are
+> in the borders to canopy styles") every wood touching its chunk's edge in Release 1's sixteen chunks
+> (Slimeshire C4-D5, Gloop Forest E4-F5, Glimmerhill A4-B5, the Crystal Caverns G4-H5) became a
+> canopy wall of its kind; woods inside a chunk and the autumn trees (no canopy art) stay trees. Not
+> playtested.
 
 A tree wall placed tree by tree is hard to keep in order: hundreds of nodes, and with Editable
 Children on, a click in the 2D view picks a tree's picture (`Visual`), so a drag moves the picture

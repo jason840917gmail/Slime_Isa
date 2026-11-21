@@ -128,12 +128,16 @@ func take(quiet: bool = false) -> void:
 	var run := Services.run()
 	if run != null:
 		run.set_flag(FLAG_PREFIX + pearl_id)
-	if not skin_id.is_empty():
-		SkinState.grant(StringName(skin_id))
-	var icon: Texture2D = visual.texture if visual != null else null
 	# Only while main's ceremonies are on (off in the test runner, whose queued card would otherwise
 	# pause the next test's world: the ceremony lives under the tree's root).
-	if not quiet and AbilityCeremony.enabled(get_tree()):
+	var card := not quiet and AbilityCeremony.enabled(get_tree())
+	# The card is the skin's celebration and description: first the card, and once the player
+	# accepts it the boss's roar and the seal's glimpse (owner, 2026-11-21, question 141). The skin's
+	# own floating lines show only without a card (they ran on after it, under the roar's line).
+	if not skin_id.is_empty():
+		SkinState.grant(StringName(skin_id), not card)
+	var icon: Texture2D = visual.texture if visual != null else null
+	if card:
 		AbilityCeremony.request_entry(get_tree(), {"kicker": "Pearl of the Wellspring (%d of 8)" % number,
 			"name": card_name, "line": ControlLabels.with_keys(card_line), "how": ControlLabels.with_keys(card_how),
 			"icon": icon})

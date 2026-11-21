@@ -1402,3 +1402,8 @@ The owner answered the story's last open questions in a few words on 2026-11-21.
     included).*
 168. ~~**Do beaten bosses shrink back?**~~ *2026-11-21 (owner): "bosses stay defeated". A beaten boss stays beaten
      and does not come back; no shrinking scene is planned.*
+141. ~~**The seal and the take.**~~ *2026-11-21: checked in the game, the seal shows whole above the HUD in R1 and in
+     the take's glimpse. The owner's fix for the rest: "give space first the skin description and celebration and
+     after user accept the roar and the gate shot". The Pearl's card is the skin's celebration and description, the
+     skin's floating lines no longer show beside it, and the roar and the glimpse come once the card is accepted
+     (built and filmed the same day).*

@@ -5947,8 +5947,12 @@ rework.
   blossom) and the crystal set (column 20), rendered over Glimmerhill A5 and
   Crystal Caverns G5; then, owner: "use the blue mush trees even more than the
   crystal ones", so the crystal wall is mostly glowing mushroom caps (two to
-  every amethyst crown) with mushroom stems along its foot. Left: the owner's
-  verdict and repainting the walls the owner wants.
+  every amethyst crown) with mushroom stems along its foot. On 2026-11-21 (owner:
+  "change all the walls that are in the borders to canopy styles and i will go
+  from there") every wood touching its chunk's edge in the sixteen Release 1
+  chunks became a canopy wall of its kind (3,543 cells; woods inside a chunk and
+  Slimeshire's autumn trees stay trees). Left: the owner's touch-ups and a
+  playthrough.
 - Player proof: a forest band looks closed all along, and every place that
   looks open can be walked through.
 - Done when: the forest bands of Slimeshire, Gloop Forest and the Crystal

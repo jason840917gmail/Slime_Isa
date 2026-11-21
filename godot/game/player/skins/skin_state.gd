@@ -73,15 +73,17 @@ static func order() -> Array[StringName]:
 
 
 ## A Pearl grants skin `id`: won for good, and the first time its short ceremony line shows over the
-## slime. The everyday look stays as it was (the goo, unless the bag's Skins row picked one): a skin
-## shows only while it works (owner, 2026-10-18). Returns true when it was new (not won before).
-static func grant(id: StringName) -> bool:
+## slime, unless `announce` is false (the Pearl's card already says it all: its line ran on after the
+## card closed, under the boss's roar, owner 2026-11-21). The everyday look stays as it was (the goo,
+## unless the bag's Skins row picked one): a skin shows only while it works (owner, 2026-10-18).
+## Returns true when it was new (not won before).
+static func grant(id: StringName, announce := true) -> bool:
 	var run := Services.run()
 	if run == null or String(id).is_empty():
 		return false
 	var first := not is_won(id)
 	run.win_skin(String(id))
-	if first:
+	if first and announce:
 		ceremony_line(id)
 	return first
 

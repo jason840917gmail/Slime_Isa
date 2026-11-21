@@ -519,7 +519,10 @@ seal.
 
 **The take.** Walked into: its card ("Pearl of the Wellspring (n of 8)"), its skin granted
 (`SkinState.grant`; the everyday look stays as it was: a skin shows only while it works,
-[SKINS.md](SKINS.md)), and the Dungeon's `seal_now`: the record is sealed at once
+[SKINS.md](SKINS.md)). The card is the skin's celebration and description, and the skin's own
+floating lines do not show beside it (owner, 2026-11-21, question 141: they ran on after the card,
+under the roar's line); only once the player accepts the card do the roar and the glimpse follow.
+Then the Dungeon's `seal_now`: the record is sealed at once
 (`DungeonState.seal`), every seal of this world but the glimpse's shuts out of sight, and as the
 card closes (`game/dungeon/seal_moment.gd`, real time):
 
