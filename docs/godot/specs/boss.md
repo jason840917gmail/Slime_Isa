@@ -340,37 +340,47 @@ plays feel `boss-landing` with the scene's shake (`GameFeel.play(event, shake)`,
 at the point (direction `right`). Both the contact-hop end and the landing spawn the crack at the
 boss position (42 px above its feet).
 
-### 3.8 Phase two in Fatty's Lair: the Heavy skin's exam (Godot only, 2026-10-17)
+### 3.8 The Lair fight: the Spear and thrown things on his eye (Godot only; reworked 2026-11-21)
 Not in Phaser. Off unless `configure_phase_two(config)` turns it on (the Lair's director does, at
 his engage: docs/godot/DUNGEONS.md "Fatty's Lair (built)"), so the open-world camp's fight stays as
 above. Its numbers are the `phase_two_*` exports of `fatty.gd` (`config` overrides them, keys
-without the prefix). Since the Pearl lies inside the dungeon before him (the Pearl-inside plan,
-docs/design/2026-10-17-pearl-mid-dungeon.md "Fatty's exam"), the slime always meets him with the
-Heavy skin; his strength is the built one (the kit's `EnragedLook` only shows his rage).
-- **Start:** once his health falls to `health_share` (0.5) of his max: a camera shake (260 ms,
-  0.008) and `phase_two_started`.
-- **Two leaps in a row:** a leap cycle leaps twice (the second with its own small hops and
-  `second_air_time_ms` 700 in the air), then the recovery.
-- **Clods:** each landing emits `clods_requested({count: clods_per_landing (10), at, last})`; the
-  director drops light mud clods after a shadow (they hurt where they land, then lie as liftables).
-- **The ripple:** the second landing sends a mud ripple from his feet (`ripple_speed` 300 px/s up
-  to `ripple_max_radius` 560, crest `ripple_width` 30): it hits the slime once for `ripple_damage`
-  18 / `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it.
-- **The squint:** every hit is refused as `immune` (the clink), the Spear's too, except while he is
-  off balance. Airborne and contact-hop still refuse as `state-blocked`.
-- **Out of balance:** a mud ball thrown at him (tag `mud-ball`, the Gulp's throw) puts him in phase `unbalanced` for `unbalance_ms` 2000: his eye stays shut, the Spear clinks, his attack is cancelled (clip `out-of-balance`, sheet frame 38), and a floating "Out of balance!". The first time, the tip "A Heavy Roll knocks him down while he is out of balance." shows for 4 s. A plain Roll bonks off him. Then he chases again, and no leap comes right after it: a leap it cut short (its small hops, its landing or its recovery) ends there and the next one comes `leap_cadence_ms` after the unbalance; else not before `recovery_ms` after it.
-- **The topple:** a Heavy Roll's bonk (tags `roll` + `heavy`: game/fattys_lair/heavy_check.gd
-  `is_heavy_roll`) while he is in phase `unbalanced` (only then) knocks him
-  off balance: phase `dizzy` (the old name) for `dizzy_ms` 3000 (the stand-up included), his attack cancelled, collision
-  on, the `fall` clip (his eye wide open), a light shake (120 ms, 0.004), "Off balance!"
-  floating over him, daze stars until it ends, his art lies back `fall_lean_rad` 0.25 on the fall clip (sheet frame 39; out of balance only sways `unbalance_lean_rad` 0.16) toward the
-  Roll's push and wobbling on it (presentation); no leap until `recovery_ms` after it; the hit
-  itself does no damage (`pass`). While he is down the Spear lands as in phase one, and the first hit that lands ends the fall: he gets up with his eye shut. Then he
-  chases again.
-- **Another thrown thing** only splats: refused as `immune`, its line `thrown_text` ("It splats. Fatty
-  hardly notices.") at most every 2.2 s. A plain Roll (no Heavy skin) bonks off him (`immune`).
-- The hurtbox rule (classic hits) lets `thrown` and `roll` through to `can_receive_damage`, which
-  answers them; in the rework mode the router keeps no `acceptedSources` and the gate decides.
+without the prefix). The slime always meets him with the Heavy skin (the Pearl lies inside the
+dungeon before him); his strength is the built one (the kit's `EnragedLook` only shows his rage).
+The owner's rework of 2026-11-21 ("the boss rework"): his eye is his weak spot. **The Spear** hurts him
+there, and **a thrown thing** hurts for half a Spear hit (`thrown_damage_share` 0.5 of
+`shapes.spear.baseDamage` 12: 6; fatty.gd `mitigate_damage`), whatever it would do elsewhere. A
+Roll bonks off him (`immune`); the Heavy Roll has no part any more.
+- **Dirt from the roof:** every leap cycle asks the lair for clods (`clods_requested`) on its last
+  landing: `clods_phase_one` 6 in phase one, `clods_per_landing` 10 in phase two. The lair's director
+  first melts the clods lying from the last fall (a short sink and fade, `CLOD_MELT_S` 0.45 s; a
+  melted clod leaves nothing, its hidden heart or energy taken away first), then drops the new ones
+  at its `clod_spots` picked at random and scattered up to `clod_scatter_px` 40, each after a shadow
+  (`clod_shadow_ms` 600); a clod landing on the slime hurts (`clod_damage` 12); then it lies as a
+  liftable mud ball, the slime's ammo (a used one still leaves its heart or energy).
+- **Phase one:** a hit that lands shuts his eye for `eye_shut_ms` 3000 (the `closed-eye` clip while he
+  chases; `is_eye_open()` false): every hit clinks then, and a throw splats (`thrown_text`, "It splats
+  on his shut eye.", at most every 2.2 s). His eye opens again after it.
+- **Phase two** (once his health falls to `health_share` 0.5 of his max: a camera shake, 260 ms 0.008,
+  and `phase_two_started`): a leap cycle leaps twice (the second with `second_air_time_ms` 700 in the
+  air). **The first landing** sends a mud ripple from his feet (`ripple_speed` 300 px/s up to
+  `ripple_max_radius` 560, crest `ripple_width` 30) that hits the slime once for `ripple_damage` 18 /
+  `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it; **the
+  second** brings the dirt down (owner: only the first jump makes the wave). His eye stays shut and
+  every hit clinks, but **thrown things count**, whatever lies between them (a leap does not reset
+  the count, owner): the first sways him ("He wobbles!", `sway_lean_rad` 0.16 for `sway_ms` 700), and
+  `throws_to_fall` 2 knock him down: phase `dizzy` (the old name) for `dizzy_ms` 3000, his attack
+  cancelled, collision on, the `fall` clip (his eye wide open), a light shake (120 ms, 0.004), "Off
+  balance!", daze stars, his art lying back `fall_lean_rad` 0.25 away from the last throw and
+  wobbling (presentation); `dizzied` is emitted; no leap until `recovery_ms` after it. While he is
+  down the Spear lands (a throw for its half), and the first hit that lands ends the fall: he gets
+  up with his eye shut. Then he chases again.
+- Airborne and contact-hop still refuse every hit as `state-blocked`. The hurtbox rule (classic hits)
+  lets `thrown` and `roll` through to `can_receive_damage`, which answers them; in the rework mode
+  the router keeps no `acceptedSources` and the gate decides the Spear's.
+- *Until 2026-11-21 it was the Heavy skin's exam:* clods only in phase two (ten a landing at the
+  spots nearest the slime, never melting), a thrown mud ball threw him out of balance for 2 s, a
+  Heavy Roll then knocked him down, other throws only splatted, and phase one took only the Spear.
+  The Lair's second half (the Weigh House, the statues and plates) is now the Heavy skin's test.
 
 ---
 

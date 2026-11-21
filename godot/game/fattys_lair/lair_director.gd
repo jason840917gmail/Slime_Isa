@@ -18,12 +18,14 @@ extends Node2D
 ##   cell; FLAG_LEFT, or the bridge's record (read before the bridge restores itself:
 ##   drawbridge.gd `is_down_for_good`), keeps him gone once it is down; after Fatty he waits at the bolt-hole's mouth in daylight
 ##   (the overworld's side, built with level-1-d4).
-## - **Fatty One Eye** (`camp`, game/scripts/boss_camp.gd): when the camp spawns him, his phase two is
-##   turned on (`phase_two`: game/scripts/fatty.gd `configure_phase_two`) and his landings drop light
-##   mud clods (`clods_requested`): at `clod_spots` (the children of that node, ground points), the
-##   free ones nearest the slime, after a shadow of `clod_shadow_ms`; a clod landing on the slime hurts
-##   (`clod_damage`); then it lies there as a liftable mud ball (kind `mud-ball`), at most `max_clods`
-##   at once. His phase two is the Heavy skin's exam (a Heavy Roll knocks him off balance: fatty.gd).
+## - **Fatty One Eye** (`camp`, game/scripts/boss_camp.gd): when the camp spawns him, his Lair fight
+##   is turned on (`phase_two`: game/scripts/fatty.gd `configure_phase_two`; the owner's rework of
+##   2026-11-21: the Spear and thrown things on his eye) and each of his leap cycles drops light mud
+##   clods (`clods_requested`): the ones lying from the last fall melt away first (no loot), then the
+##   new ones fall at `clod_spots` (the children of that node, ground points) picked at random and
+##   scattered up to `clod_scatter_px`, after a shadow of `clod_shadow_ms`; a clod landing on the slime
+##   hurts (`clod_damage`); then it lies there as a liftable mud ball (kind `mud-ball`), at most
+##   `max_clods` at once, the slime's ammo against him.
 ##   Beaten, he never comes back (the camp stops for good once `defeated_boss_ids` has him): the
 ##   boss heart (`heart`) shows. The Pearl is no longer his prize: it lies in the Larder, guarded by
 ##   the Big Squint (since 2026-10-17, the Pearl before the boss), and shows by its own `boss_id`.
@@ -72,6 +74,10 @@ const CLOD_GROUP := &"fatty_lair_clod"
 const CLOD_HIT_RADIUS := 34.0
 const CLOD_KNOCKBACK := 160.0
 const CLOD_SPOT_FREE_PX := 40.0
+## How long a clod left from the last fall takes to melt away (seconds, presentation).
+const CLOD_MELT_S := 0.45
+## The hidden loot's node under a liftable (game/scripts/liftable_root.gd LOOT_NODE).
+const CLOD_LOOT_NODE := "PotLoot"
 const CUE_CLOD := &"DropPop"
 const SHORT_CALL_EVERY_MS := 6000
 ## How far from the slime Burr stops when it stands in his doorway (`_out_of_cell_path`).
@@ -141,6 +147,8 @@ signal burr_freed(payload: Dictionary)
 @export var clod_shadow_ms: float = 600.0
 @export var clod_damage: float = 12.0
 @export var max_clods: int = 10
+## How far a clod may fall from its spot (world units, across and down), so the falls look random.
+@export var clod_scatter_px: float = 40.0
 ## Fatty's phase two (game/scripts/fatty.gd `configure_phase_two`: the `phase_two_*` exports' names without the prefix).
 @export var phase_two: Dictionary = {}
 @export var heart: NodePath
@@ -549,15 +557,50 @@ func _boss_beaten() -> bool:
 	return run != null and boss_id in (run.world.get("defeated_boss_ids", []) as Array)
 
 
-## A phase-two landing: `count` clods at the free spots nearest the slime, after their shadows.
+## A leap in the Lair fight (owner, 2026-11-21): the clods lying from the last fall melt away (no
+## heart or energy: only a clod the slime uses leaves its loot), and `count` new ones fall at spots
+## picked at random, each scattered up to `clod_scatter_px` from its spot, after their shadows.
 func _on_clods_requested(payload: Dictionary) -> void:
+	_melt_clods()
 	var spots := _free_spots()
-	var room := max_clods - _live_clods()
-	var count := mini(int(payload.get("count", 2)), mini(room, spots.size()))
+	spots.shuffle()
+	var count := mini(int(payload.get("count", 2)), mini(max_clods, spots.size()))
 	for i in count:
-		_drop_clod(spots[i])
+		var scatter := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * clod_scatter_px
+		_drop_clod(spots[i] + scatter)
 
 
+## The clods lying on the floor melt into the mud (a short sink and fade); the shadows of clods
+## still falling are left alone.
+func _melt_clods() -> void:
+	for node: Node in get_tree().get_nodes_in_group(CLOD_GROUP):
+		if not is_instance_valid(node) or node.is_queued_for_deletion() or node is ClodShadow:
+			continue
+		var clod := node as Node2D
+		if clod == null:
+			continue
+		clod.remove_from_group(CLOD_GROUP)
+		# A melting clod leaves nothing: its hidden heart or energy (liftable_root.gd's PotLoot, which
+		# would drop as the clod leaves the tree) goes first.
+		var loot := clod.get_node_or_null(CLOD_LOOT_NODE)
+		if loot != null:
+			clod.remove_child(loot)
+			loot.free()
+		var feel := Services.feel()
+		if feel != null:
+			feel.particles(&"dodge-dust", clod.global_position)
+		# It can no longer be picked up while it melts.
+		for child: Node in clod.get_children():
+			if child is Area2D:
+				(child as Area2D).set_deferred(&"monitorable", false)
+				(child as Area2D).set_deferred(&"monitoring", false)
+		var tween := clod.create_tween().set_parallel(true)
+		tween.tween_property(clod, "scale", Vector2(1.3, 0.2), CLOD_MELT_S)
+		tween.tween_property(clod, "modulate:a", 0.0, CLOD_MELT_S)
+		tween.chain().tween_callback(clod.queue_free)
+
+
+## The clod spots (the children of `clod_spots`) with no shadow of a falling clod on them.
 func _free_spots() -> Array[Vector2]:
 	var out: Array[Vector2] = []
 	var root := get_node_or_null(clod_spots)
@@ -565,7 +608,7 @@ func _free_spots() -> Array[Vector2]:
 		return out
 	var taken: Array[Vector2] = []
 	for node: Node in get_tree().get_nodes_in_group(CLOD_GROUP):
-		if is_instance_valid(node) and node is Node2D:
+		if is_instance_valid(node) and node is ClodShadow:
 			taken.append((node as Node2D).global_position)
 	for child: Node in root.get_children():
 		if not child is Node2D:
@@ -573,15 +616,11 @@ func _free_spots() -> Array[Vector2]:
 		var at := (child as Node2D).global_position
 		var free := true
 		for point in taken:
-			if point.distance_to(at) < CLOD_SPOT_FREE_PX:
+			if point.distance_to(at) < CLOD_SPOT_FREE_PX + clod_scatter_px:
 				free = false
 				break
 		if free:
 			out.append(at)
-	var world := Services.world()
-	if world != null and world.player != null and is_instance_valid(world.player):
-		var centre: Vector2 = world.player.call(&"get_centre")
-		out.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.distance_to(centre) < b.distance_to(centre))
 	return out
 
 

@@ -171,9 +171,10 @@ hand, and running a tool again lays its chunk or room afresh (hand edits there a
 
 ## Not done
 
-- Not playtested: the runs' energy, the crawlers' and eyes' places, the falls and set-backs, the
-  rooms' doors, the cart ride and the smith's talks are all unplayed. `tests/test_mine_camp.gd` was
-  rewritten for the cave and the yard but not run.
+- Not playtested: the runs' energy, the crawlers' and eyes' places, the falls and set-backs and the
+  rooms' doors are unplayed by hand. The smith's talks, the cart ride, the yard's gate and the mine's
+  way in and out pass their tests (`tests/test_mine_camp.gd`, 9, on 2026-11-21), as do the mine's
+  (`test_crystal_mine.gd`, 20) and the Caverns' enemies in H5 (`test_enemy_ranged.gd`).
 - The Corner Cave has no stair art inside; the rooms have no floor trim.
 - The world map's "Mine camp" marker is now "The smith's cave"; the in-game map's room links are not
   checked.

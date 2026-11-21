@@ -382,6 +382,14 @@ autosave waits until the slime is out.*
    power. When the slime takes it he notices, enraged (his strength stays the
    same), and seals the lair's exits: the only way out is to beat him. The
    lair's second half teaches the Heavy skin, and his fight is its exam.
+   *Changed 2026-11-21 (owner, the boss rework): his fight no longer tests
+   the Heavy skin (the lair's second half does). The Spear still hurts his
+   eye, his weak spot, and thrown things hurt for half a Spear hit. Each
+   jump brings dirt down from the roof at random (it hurts where it lands,
+   and the last fall's clods melt before the new ones fall); a hit shuts his
+   eye for 3 seconds. In his second phase his eye stays shut until two
+   thrown things knock him down, his eye wide open, as before; only his
+   first jump makes the mud wave. Built the same day.*
    Fainting or quitting after the Pearl resumes at the entrance, inside, with
    the doors to the outside sealed until he falls. The built lair keeps the
    old order until its rework

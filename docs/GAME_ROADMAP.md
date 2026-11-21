@@ -5790,7 +5790,11 @@ rework.
   gone). Heavy plates gained `targets` and `shut_on_leave`; heavy blocks reset
   with their room (the Lair's director). Fatty's phase two is the Heavy exam:
   a Heavy Roll knocks him off balance for 1.6 s (the Spear lands then), a
-  thrown clod only splats; his full heart; R14 the Postern keeps the green key
+  thrown clod only splats (*reworked 2026-11-21, owner: the Spear and thrown
+  things on his eye, a throw for half a Spear hit; dirt from the roof every
+  jump, the last clods melting first; his eye shut 3 s after a hit; in phase
+  two two throws knock him down; no Heavy Roll: [specs/boss.md](godot/specs/boss.md)
+  3.8*); his full heart; R14 the Postern keeps the green key
   and the bolt-hole's barricade. New art: the Weigh House's beam scale,
   weights and scale pan (300 credits). Tests: `test_fattys_lair.gd` (18),
   passing. Dev: F6 gives the Spear and the Roll; `?map=fatty-lair&shapes&skins=heavy&room=c2-weigh-house`

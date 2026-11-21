@@ -157,8 +157,14 @@ func test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_fal
 	await t.sim_wait(1500.0)
 	t.release(&"move_down")
 	t.check(t.in_world(MINE_ID), "the slime walked out of the sealed mine")
-	# His fall breaks the seal: the mouth leads out to the yard again.
+	# His fall breaks the seal: the mouth leads out to the yard again. It sets chapter-3-complete, and
+	# Release 1's end card opens over the game, pausing it (quests spec 14.6): closed, the mine goes on.
 	DungeonState.mark_boss_beaten(run, MINE_ID, "crystal-colossus")
+	await t.steps(2)
+	var shell := Services.shell()
+	if shell != null and shell.end_card.is_open():
+		shell.end_card.close()
+	await t.steps(2)
 	await t.until(func() -> bool: return not bool(seal.call(&"is_shut")), 3000.0)
 	t.check(not bool(seal.call(&"is_shut")), "the mouth's seal did not sink when the Colossus fell")
 	_stand(t, Vector2(24 * CELL, 68.6 * CELL))

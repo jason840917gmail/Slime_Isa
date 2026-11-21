@@ -7,6 +7,15 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-11-21 (Fatty's rework, the first of the boss pass):** the Spear still hurts Fatty, his eye is his weak spot,
+  and thrown things hurt for half a Spear hit (owner: "Half a Spear hit"). Each jump brings dirt from the roof at
+  random; a clod landing on the slime hurts, and the clods of the last fall melt before the new ones fall, leaving
+  nothing (a used one still leaves its heart or energy). In phase one a hit shuts his eye for 3 seconds. In phase two
+  his eye stays shut until two thrown things knock him down, his eye open as before (a jump does not reset the
+  count), and only his first jump of the pair makes the mud wave (the second brings the dirt). The Heavy Roll is no
+  longer needed, so his fight no longer tests the Heavy skin; the Lair's second half does (this changes the
+  2026-10-17 rule that each boss is its skin's exam, for Fatty). Clods fall 6 a jump in phase one and 10 in phase
+  two; a Roll bonks off him. Question 166 is answered for Fatty. Built the same day, not playtested.
 - **2026-11-21 (the story's last open questions):** the hero is silent (question 4); Gorge wakes only after all the
   other bosses are beaten, not at a midpoint (question 9); after Chapter 3 and Release 1 the map is open, and only
   ability blockers stand in the slime's way, which it passes as its powers grow, so the later regions have no set

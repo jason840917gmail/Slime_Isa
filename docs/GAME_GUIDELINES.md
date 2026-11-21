@@ -47,7 +47,9 @@ and learns the Spear from him
 2026-10-17 (the owner's idea): the Pearl is found inside the boss's dungeon,
 before the boss, as Zelda's dungeon item; the dungeon's second half teaches
 its skin, and the boss fight is the skin's exam
-([roadmap](GAME_ROADMAP.md#the-2026-10-17-decisions)).*
+([roadmap](GAME_ROADMAP.md#the-2026-10-17-decisions)).* *Changed 2026-11-21 (owner):
+Fatty's fight no longer tests the Heavy skin (the Spear and thrown things on his eye); the Lair's
+second half does.*
 
 **Release 1** is Chapters 1 to 3 as a free web build (Chapters 1 and 2 until
 2026-10-15); its scope and order are in the

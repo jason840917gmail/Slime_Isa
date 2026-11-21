@@ -927,7 +927,8 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
   file at a time with `pnpm test:godot -- --filter=<file>`). Since 2026-11-21 `test_mine_camp.gd`
   holds 9 for the Spiral (the yard's gate and cart end, the first talk's Lantern and crystal, the lamp
   freeing the one-way cart, the gate, the mine's way in and out, the seal, the later talks, the Bow
-  first, his stay after the Colossus): rewritten, not run. The strike while clinging is tested in
+  first, his stay after the Colossus): all passing on 2026-11-21. The seal test closes Release 1's
+  end card, which opens over the game (and pauses it) when the Colossus is marked beaten. The strike while clinging is tested in
   the body-shapes mode turned on for the test (`test_the_spear_strikes_his_claws_from_the_face`).
 
 ## The Weaver Hollow (built)
@@ -1245,7 +1246,7 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 | R11 the Drop-gate Bridge | C4 | the inner drop gate, the slab bridge with its turn, a Pipe Worm |
 | R12 the Larder | C3 | the Pearl room: Fatty's hoard, the Big Squint's ambush, the worms' altar with Pearl 1's glow, the north doorway nailed shut (the Heavy skin's first lock) |
 | C2 the Weigh House | C2 | the Heavy skin's teach (no enemy): a plate before the east stone door, a statue and a plate that holds the west stone door only while it stands on it; scale pans and weights; a pouch in a scale pan on the east wall |
-| R13 Fatty's Arena | D4 | Fatty One Eye, the Heavy skin's exam; the south shutter; the north doorway's seal; his full heart |
+| R13 Fatty's Arena | D4 | Fatty One Eye (since 2026-11-21 the Spear and thrown things on his eye; the Heavy skin's exam before); the south shutter; the north doorway's seal; his full heart |
 | R14 the Postern | D3 | after Fatty: a chest with coins and a potion (`fatty-lair-postern-chest`; the green key until 2026-11-20, question 163), the bolt-hole's barricade |
 | the bolt-hole | D2 | a tunnel up to daylight in level-1-d4 |
 | the map nook | A5 | a small room behind R4's crates |
@@ -1444,20 +1445,26 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   stands in each room that needs one with that room's paths (the hub's: Burr, who stands in the
   hub's world behind his cell door; the arena's: Fatty, the map's boss mark; the Larder's; R4's,
   with none set).
-- **Fatty's phase two, the Heavy skin's exam** (`fatty.gd` `configure_phase_two`, its `phase_two_*`
-  exports; [specs/boss.md](specs/boss.md) section 3.8): under half his health he leaps twice in a
-  row; each landing drops ten light mud clods from the roots (after a shadow,
-  `game/fattys_lair/clod_shadow.gd`; liftable `mud-ball`s, at most ten alive, falling hazards; each leaves a heart or an energy shard where it stood when the slime sucks it up or a Roll breaks it (`under`: liftable_root.gd; the Roll's hurtbox: `clod_hurtbox.gd`); the arena has ten clod spots, so a landing drops up to ten), and the
-  second sends a mud ripple over the floor (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames
-  carry through; his eye stays squinted shut and he braces (every hit clinks). **Out of balance, then a fall.** A mud ball thrown at him (the Gulp's, tagged `mud-ball`) throws him out of balance for `phase_two_unbalance_ms` (2 s), his eye still shut; a Heavy Roll's bonk (tagged `heavy`) into him then makes him fall for
-  `phase_two_dizzy_ms` (3 s, the stand-up included): "Off balance!", he rocks back `phase_two_fall_lean_rad` and
-  wobbles, stars over him, his eye wide open, and the Spear lands then. Other thrown things only splat
-  ("It splats. Fatty hardly notices.", `phase_two_thrown_text`); a plain Roll bonks off him. Phase
-  one is as built (the Spear in his open eye after a leap). Enraged while the Lair is sealed (the
-  kit's `EnragedLook`, the same numbers). Beaten: the dungeon records him, the seals break, the
-  power he soaked up pours from him into the Pearl the slime carries (the director's sparkles, a
-  flash of light on the slime) and his full heart shows (`object.full-heart`, `fatty-one-eye`: +20
-  max HP and max energy, as every boss's; the Pearl plan's open point 12).
+- **Fatty's fight** (`fatty.gd` `configure_phase_two`, its `phase_two_*` exports; the clods: the
+  director's `_on_clods_requested`; [specs/boss.md](specs/boss.md) section 3.8), the owner's rework of
+  2026-11-21: his eye is his weak spot, the Spear hurts him there and a thrown thing for half a Spear
+  hit (6). Every leap cycle's last landing brings dirt from the roof: the clods from the last fall
+  melt away (leaving nothing), and new ones (6 in phase one, 10 in phase two) fall at the arena's
+  clod spots picked at random and scattered a little, after a shadow (`game/fattys_lair/clod_shadow.gd`),
+  hurting where they land and lying as liftable `mud-ball`s, the slime's ammo (a used one leaves a heart
+  or an energy shard: `under`, liftable_root.gd; a Roll breaks one: `clod_hurtbox.gd`). **Phase one:** a
+  hit that lands shuts his eye for 3 s, every hit clinking meanwhile. **Phase two** (under half his
+  health): he leaps twice in a row, the first landing sending a mud ripple over the floor
+  (`game/fattys_lair/mud_ripple.gd`) that a Roll's i-frames carry through, the second bringing the dirt;
+  his eye stays shut, but two thrown things (a leap does not reset the count) knock him down for 3 s:
+  "Off balance!", he lies back and wobbles, stars over him, his eye wide open, and the Spear lands (a
+  throw for its half); the first hit ends the fall. No Heavy Roll any more (a Roll bonks off him): the
+  Lair's second half tests the Heavy skin. Enraged while the Lair is sealed (the kit's `EnragedLook`,
+  the same numbers). Beaten: the dungeon records him, the seals break, the power he soaked up pours
+  from him into the Pearl the slime carries (the director's sparkles, a flash of light on the slime)
+  and his full heart shows (`object.full-heart`, `fatty-one-eye`: +20 max HP and max energy, as every
+  boss's; the Pearl plan's open point 12). *Until 2026-11-21 phase two was the Heavy skin's exam (a
+  thrown mud ball threw him out of balance, a Heavy Roll knocked him down) and the clods fell only then.*
 - **The Pearl** (`object.pearl`, `pearl.gd`, on `decoration-world-solid--pearl-altar`): Pearl 1 lies
   on the worms' altar in the Larder, its `boss_id` the Larder fight's (`fatty-lair-big-squint`): it
   rises once the Big Squint falls. A warm glow and a glint over the altar show from the door all

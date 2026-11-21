@@ -34,7 +34,6 @@ const CLIP_LANDING := "landing"
 const CLIP_RECOVERY := "recovery"
 const CLIP_DEATH := "death"
 const CLIP_CLOSED_EYE := "closed-eye"
-const CLIP_OUT_OF_BALANCE := "out-of-balance"
 const CLIP_FALL := "fall"
 ## FattyScript.ts:107: the landing phase lasts 360 ms (the length of the `landing` clip).
 const LANDING_PHASE_MS := 360.0
@@ -73,20 +72,25 @@ const STATE_BLOCKED_REASON := "state-blocked"
 ## JSON `landingShakeIntensity` (0.003).
 @export var landing_shake_intensity: float = 0.003
 @export_group("Phase two (Fatty's Lair)")
-## Phase two's settings (used once `configure_phase_two` turns it on; its `config` overrides them):
-## the share of his health under which it starts, the second leap's time in the air, the clods a
-## landing asks for, how long a Heavy Roll keeps him off balance (`dizzy_ms`) and how far he rocks
-## back, the line a thrown thing gets, the mud ripple's hit, shove, speed, crest width and reach.
+## The Lair fight's settings (used once `configure_phase_two` turns it on; its `config` overrides
+## them, keys without the `phase_two_` prefix): the share of his health under which phase two
+## starts, the second leap's time in the air, the clods a leap asks for in phase one and in phase
+## two, how long his eye stays shut after a hit in phase one, how many thrown hits make him fall in
+## phase two, a thrown hit's damage as a share of the Spear's base hit, how long his fall lasts and
+## how far he lies back (and sways at a counted throw), the line a throw at his shut eye gets, the
+## mud ripple's hit, shove, speed, crest width and reach.
 @export var phase_two_health_share: float = 0.5
 @export var phase_two_second_air_time_ms: float = 700.0
+@export var phase_two_clods_phase_one: int = 6
 @export var phase_two_clods_per_landing: int = 10
+@export var phase_two_eye_shut_ms: float = 3000.0
+@export var phase_two_throws_to_fall: int = 2
+@export var phase_two_thrown_damage_share: float = 0.5
 @export var phase_two_dizzy_ms: float = 3000.0
-## How long a mud ball thrown at him throws him out of balance (eye shut; a Heavy Roll then knocks him down).
-@export var phase_two_unbalance_ms: float = 2000.0
-## Presentation: how far he sways while out of balance (radians), and how far he lies down when he falls.
-@export var phase_two_unbalance_lean_rad: float = 0.16
 @export var phase_two_fall_lean_rad: float = 0.25
-@export var phase_two_thrown_text: String = "It splats. Fatty hardly notices."
+@export var phase_two_sway_lean_rad: float = 0.16
+@export var phase_two_sway_ms: float = 700.0
+@export var phase_two_thrown_text: String = "It splats on his shut eye."
 @export var phase_two_ripple_damage: float = 18.0
 @export var phase_two_ripple_knockback: float = 220.0
 @export var phase_two_ripple_speed: float = 300.0
@@ -98,38 +102,38 @@ const STATE_BLOCKED_REASON := "state-blocked"
 signal phase_changed(payload: Dictionary)
 ## Phase two began (Fatty's Lair). Payload {"time"}.
 signal phase_two_started(payload: Dictionary)
-## A phase-two landing: the lair drops `count` light mud clods (game/fattys_lair/lair_director.gd).
-## Payload {"count": int, "at": Vector2 (old Phaser position of the landing), "last": bool}.
+## A leap in the Lair: the lair drops `count` light mud clods (game/fattys_lair/lair_director.gd),
+## melting the last ones first. Payload {"count": int, "at": Vector2 (old Phaser position of the
+## landing), "last": bool}.
 signal clods_requested(payload: Dictionary)
-## A Heavy Roll knocked him off balance, his eye wide open. Payload {"until": float}.
+## Two thrown hits knocked him down, his eye wide open. Payload {"until": float}.
 signal dizzied(payload: Dictionary)
 
-## Phase two (Fatty's Lair, the Heavy skin's exam; docs/godot/DUNGEONS.md "Fatty's Lair (built)";
-## docs/godot/specs/boss.md section 3.8; the Pearl-inside plan, docs/design/2026-10-17-pearl-mid-dungeon.md
-## "Fatty's exam"). Off unless `configure_phase_two` turns it on, so the open-world camp's fight stays
-## as specs/boss.md has it. Below `health_share` of his health: two leaps in a row (the second with
-## `second_air_time_ms` in the air); his eye squints shut and he braces (every hit clinks, the
-## Spear's too) except while he is off balance; each landing asks the lair for `clods_per_landing`
-## light mud clods (`clods_requested`); **a Heavy Roll into him while he is on the ground** (the
-## Roll's bonk carrying the `heavy` tag: game/fattys_lair/heavy_check.gd) knocks him off balance for
-## `dizzy_ms`: he rocks back (`fall_lean_rad`), stars over him, his eye wide open, and the Spear
-## lands then; a thrown thing only splats (`thrown_text`, the clink); a plain Roll bonks off him; and
-## the second landing sends a mud ripple over the floor (game/fattys_lair/mud_ripple.gd) that hits for
-## `ripple_damage` where its crest meets the slime, unless the Roll's i-frames carry it through.
+## The Lair fight (owner's rework, 2026-11-21; docs/godot/DUNGEONS.md "Fatty's Lair (built)";
+## docs/godot/specs/boss.md section 3.8). Off unless `configure_phase_two` turns it on, so the
+## open-world camp's fight stays as specs/boss.md has it. His eye is his weak spot: the Spear hurts
+## him there, and a thrown thing hurts for half a Spear hit (`thrown_damage_share` of
+## `shapes.spear.baseDamage`). Every leap cycle asks the lair for clods (`clods_phase_one`, then
+## `clods_per_landing`) on its last landing; the lair melts the last ones as the new ones fall.
+## - **Phase one:** a hit that lands shuts his eye for `eye_shut_ms`; while it is shut every hit
+##   clinks (a throw splats: `thrown_text`).
+## - **Phase two** (below `health_share` of his health): two leaps in a row (the second with
+##   `second_air_time_ms` in the air). The first landing sends a mud ripple over the floor
+##   (game/fattys_lair/mud_ripple.gd) that hits for `ripple_damage` where its crest meets the slime
+##   unless the Roll's i-frames carry it through; the second brings the dirt down. His eye stays shut
+##   and every hit clinks, but thrown things count, leaps or not: the first sways him, and
+##   `throws_to_fall` of them knock him down for `dizzy_ms`: he lies back (`fall_lean_rad`), stars over
+##   him, his eye wide open, and the Spear lands (a throw for its half); the first hit that lands ends
+##   the fall. No Heavy Roll is needed any more (a Roll bonks off him).
 const PHASE_DIZZY := "dizzy"
-## Out of balance after a mud ball hits him: his eye stays shut, and a Heavy Roll now knocks him down.
-const PHASE_UNBALANCED := "unbalanced"
 const THROWN_TAG := "thrown"
 const ROLL_TAG := "roll"
 const MudRipple := preload("res://game/fattys_lair/mud_ripple.gd")
-const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 ## The ripple is a ground ellipse (mud_ripple.gd SQUASH_Y): its crest is measured the same way.
 const RIPPLE_SQUASH_Y := 0.5
 const DIZZY_TEXT := "Off balance!"
-const UNBALANCED_TEXT := "Out of balance!"
-const UNBALANCED_TIP := "A Heavy Roll knocks him down while he is out of balance."
-const UNBALANCED_TIP_MS := 4000.0
-const MUD_BALL_TAG := "mud-ball"
+const SWAY_TEXT := "He wobbles!"
+const SPEAR_BASE_DAMAGE_KEY := "shapes.spear.baseDamage"
 const DIZZY_TEXT_RISE := 110.0
 ## A thrown thing's line comes at most this often (real time, presentation).
 const THROWN_TEXT_EVERY_MS := 2200.0
@@ -154,10 +158,14 @@ var _two: Dictionary = {}
 ## see `_receiver_rule`). Empty when the router keeps no `acceptedSources` (rework mode's gate).
 var _spear_rule: Dictionary = {}
 var _two_on: bool = false
-## When the out-of-balance window ends (Services.now_ms()).
-var _unbalanced_until: float = 0.0
-## The first out-of-balance shows the tip (once per fight).
-var _unbalance_tip_shown: bool = false
+## Phase one: his eye stays shut until then after a hit (Services.now_ms()).
+var _eye_shut_until: float = 0.0
+## Whether the chase shows his shut eye now (so the clip changes only when it should).
+var _shut_clip_on: bool = false
+## Phase two: thrown hits counted toward his fall (they add up across leaps until he falls).
+var _throw_hits: int = 0
+## A counted throw sways him until then (presentation).
+var _sway_until: float = 0.0
 ## Leaps still to come in this leap cycle (phase two leaps twice).
 var _leaps_left: int = 0
 ## The current leap's time in the air.
@@ -165,7 +173,7 @@ var _air_ms: float = 1000.0
 var _dizzy_until: float = 0.0
 var _next_thrown_text_ms: float = 0.0
 var _topple_side: float = 1.0
-## How far the topple leans this time (the fall lies him down; the unbalance only sways).
+## How far the topple leans this time (the fall lies him down).
 var _lean_rad: float = 0.0
 var _ripple: Node2D = null
 var _ripple_from: Vector2 = Vector2.ZERO
@@ -220,9 +228,11 @@ func get_next_leap_at() -> float:
 ## Turns phase two on for this fight (`config` overrides the `phase_two_*` exports; see the notes there).
 func configure_phase_two(config: Dictionary = {}) -> void:
 	_two = {"health_share": phase_two_health_share, "second_air_time_ms": phase_two_second_air_time_ms,
-		"clods_per_landing": phase_two_clods_per_landing, "dizzy_ms": phase_two_dizzy_ms,
-		"unbalance_ms": phase_two_unbalance_ms, "fall_lean_rad": phase_two_fall_lean_rad,
-		"unbalance_lean_rad": phase_two_unbalance_lean_rad, "thrown_text": phase_two_thrown_text,
+		"clods_phase_one": phase_two_clods_phase_one, "clods_per_landing": phase_two_clods_per_landing,
+		"eye_shut_ms": phase_two_eye_shut_ms, "throws_to_fall": phase_two_throws_to_fall,
+		"thrown_damage_share": phase_two_thrown_damage_share, "dizzy_ms": phase_two_dizzy_ms,
+		"fall_lean_rad": phase_two_fall_lean_rad, "sway_lean_rad": phase_two_sway_lean_rad,
+		"sway_ms": phase_two_sway_ms, "thrown_text": phase_two_thrown_text,
 		"ripple_damage": phase_two_ripple_damage, "ripple_knockback": phase_two_ripple_knockback,
 		"ripple_speed": phase_two_ripple_speed, "ripple_width": phase_two_ripple_width,
 		"ripple_max_radius": phase_two_ripple_max_radius}
@@ -234,7 +244,7 @@ func is_in_phase_two() -> bool:
 	return _two_on
 
 
-## True while a Heavy Roll keeps him off balance (his eye wide open). The phase's name stays
+## True while two thrown hits keep him down (phase two, his eye wide open). The phase's name stays
 ## "dizzy" (the old throw's word).
 func is_dizzy() -> bool:
 	return _phase == PHASE_DIZZY
@@ -270,15 +280,7 @@ func _after_enemy_step(_delta: float) -> void:
 	var now := Services.now_ms()
 	_check_phase_two(now)
 	_step_ripple(now)
-	if _phase == PHASE_UNBALANCED:
-		body.velocity = Vector2.ZERO
-		if visual != null:
-			visual.rotation = sin(_elapsed(now) / 1000.0 * TAU * TIP_WOBBLE_HZ) * float(_two.get("unbalance_lean_rad", phase_two_unbalance_lean_rad))
-		if now >= _unbalanced_until:
-			if visual != null:
-				visual.rotation = 0.0
-			_resume_chase(now)
-		return
+	_step_sway(now)
 	if _phase == PHASE_DIZZY:
 		body.velocity = Vector2.ZERO
 		if now >= _dizzy_until:
@@ -289,6 +291,7 @@ func _after_enemy_step(_delta: float) -> void:
 		return
 	# The arena leash itself lives in the base step; Fatty only mirrors it as a phase.
 	if _phase == PHASE_CHASE:
+		_show_eye(now)
 		if is_returning_to_arena():
 			_begin_return(now)
 			return
@@ -341,31 +344,55 @@ func _after_enemy_step(_delta: float) -> void:
 # --- damage receiver (FattyScript.ts:19-43, 203-210) -----------------------------------------------
 
 ## Airborne and contact-hop phases reject hits as "state-blocked" (retryable); else the base rule.
-## Phase two: a thrown mud ball throws him out of balance for `unbalance_ms`; a Heavy Roll's bonk then knocks
-## him down (no damage); other thrown things splat (their line, the clink); his squinting eye refuses every other hit (the clink)
-## unless he is off balance.
+## The Lair fight (`configure_phase_two`): a Roll bonks off him; with his eye open a thrown thing hurts
+## (for half a Spear hit: `mitigate_damage`) and the Spear as ever; with it shut every hit clinks,
+## but in phase two a thrown one counts toward his fall (`_count_throw`).
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if _phase == PHASE_AIRBORNE or _phase == PHASE_CONTACT_HOP:
 		return {"accepted": false, "reason": STATE_BLOCKED_REASON}
 	var request: Dictionary = input.get("request", {})
-	if _two_on:
+	if not _two.is_empty():
+		var now := Services.now_ms()
 		var tags: Variant = request.get("weapon_tags", [])
-		if tags is Array and (tags as Array).has(THROWN_TAG):
-			if (tags as Array).has(MUD_BALL_TAG) and _phase != PHASE_DIZZY and _phase != PHASE_UNBALANCED:
-				_begin_unbalanced(Services.now_ms())
-				return {"accepted": false, "reason": "pass"}
-			_thrown_line()
+		var thrown := tags is Array and (tags as Array).has(THROWN_TAG)
+		if tags is Array and (tags as Array).has(ROLL_TAG) and not thrown:
 			return {"accepted": false, "reason": "immune"}
-		if _phase != PHASE_DIZZY:
-			if HeavyCheck.is_heavy_roll(request) and _phase == PHASE_UNBALANCED:
+		if not is_eye_open(now):
+			if thrown and _two_on:
 				var impact: Dictionary = request.get("impact", {})
-				_get_dizzy(Services.now_ms(), impact.get("knock", Vector2.ZERO))
+				_count_throw(now, impact.get("knock", Vector2.ZERO))
 				return {"accepted": false, "reason": "pass"}
+			if thrown:
+				_thrown_line()
 			return {"accepted": false, "reason": "immune"}
-	# A thrown thing or a roll passed the hurtbox for phase two; anything else still needs the spear.
+		if thrown:
+			return {"accepted": true, "reason": ""}
+	# A thrown thing or a roll passed the hurtbox for the Lair fight; anything else still needs the spear.
 	if not _spear_rule.is_empty() and not DamageResolverScript.source_matches(_spear_rule, request):
 		return {"accepted": false, "reason": DamageResolverScript.REASON_SOURCE_BLOCKED}
 	return super(input)
+
+
+## A thrown hit on his open eye in the Lair fight: half a Spear hit (`thrown_damage_share` of
+## `shapes.spear.baseDamage`), whatever the thrown thing would do elsewhere. Else the base rule.
+func mitigate_damage(input: Dictionary) -> float:
+	var request: Dictionary = input.get("request", {})
+	var tags: Variant = request.get("weapon_tags", [])
+	if not _two.is_empty() and tags is Array and (tags as Array).has(THROWN_TAG):
+		var constants := Services.constants()
+		var spear := float(constants.value(SPEAR_BASE_DAMAGE_KEY, 12.0)) if constants != null else 12.0
+		return spear * float(_two.get("thrown_damage_share", 0.5))
+	return super(input)
+
+
+## True while his eye is open to hits: the camp fight always (its own phases decide); the Lair
+## fight's phase one but for `eye_shut_ms` after a hit; its phase two only while he is down.
+func is_eye_open(now: float = Services.now_ms()) -> bool:
+	if _two.is_empty():
+		return true
+	if _two_on:
+		return _phase == PHASE_DIZZY
+	return now >= _eye_shut_until
 
 
 ## The hurtbox's rule: the authored one (the Spear only), plus thrown things and rolls, which must
@@ -508,10 +535,15 @@ func _land(now: float) -> bool:
 		_route_immediate_attack(target, landing_damage, landing_knockback_strength, -1.0, false)
 	_spawn_effect_at(landing_effect_id, get_centre())
 	_shake_camera(landing_shake_ms, landing_shake_intensity)
-	if _two_on:
+	if not _two.is_empty():
+		# The Lair fight: dirt falls from the roof once a leap cycle, on its last landing (phase one
+		# leaps once); phase two's first landing sends the mud ripple instead (owner, 2026-11-21: only
+		# the first jump makes the wave).
 		var last := _leaps_left == 0
-		clods_requested.emit({"count": int(_two.get("clods_per_landing", 2)), "at": get_centre(), "last": last})
 		if last:
+			var count := int(_two.get("clods_per_landing", 10)) if _two_on else int(_two.get("clods_phase_one", 6))
+			clods_requested.emit({"count": count, "at": get_centre(), "last": last})
+		elif _two_on:
 			_start_ripple(now)
 	return true
 
@@ -525,52 +557,72 @@ func _begin_recovery(now: float) -> bool:
 
 
 func _resume_chase(now: float) -> bool:
-	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY and _phase != PHASE_UNBALANCED:
+	if _phase != PHASE_CONTACT_HOP and _phase != PHASE_RECOVERY and _phase != PHASE_RETURN and _phase != PHASE_DIZZY:
 		return false
 	_set_body_collision(true)
 	_transition_to(PHASE_CHASE, now)
+	_shut_clip_on = _chase_clip() == CLIP_CLOSED_EYE
 	_play_animation(_chase_clip(), false)
 	return true
 
 
-## A mud ball thrown at him throws him out of balance for `unbalance_ms`: his eye stays shut, and a Heavy
-## Roll now knocks him down (`can_receive_damage`). No leap right after it: one it cut short (in its
-## small hops, its landing or its recovery) ends there, the unbalance standing for its recovery, and
-## the next comes `leap_cadence_ms` after it; else not before `recovery_ms` after it (as after a fall).
-func _begin_unbalanced(now: float) -> void:
-	if is_defeated() or body == null:
-		return
-	var leap_cut := _phase == PHASE_SMALL_HOP or _phase == PHASE_LANDING or _phase == PHASE_RECOVERY
-	cancel_attack()
-	_unbalanced_until = now + maxf(1.0, float(_two.get("unbalance_ms", phase_two_unbalance_ms)))
-	_next_leap_at = maxf(_next_leap_at, _unbalanced_until + maxf(1.0, leap_cadence_ms if leap_cut else recovery_ms))
-	_transition_to(PHASE_UNBALANCED, now)
-	_play_animation(CLIP_OUT_OF_BALANCE, true)
-	var feel := Services.feel()
-	if feel != null:
-		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), UNBALANCED_TEXT, &"yellow", true)
-		if not _unbalance_tip_shown:
-			feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE * 2.0), UNBALANCED_TIP, &"yellow", true, UNBALANCED_TIP_MS)
-	_unbalance_tip_shown = true
-
-
-## A hit that lands while he is down ends the fall at once: he gets up with his eye shut, so one
-## Spear hit is the whole opening (the fall's window closes; `_after_enemy_step` resumes the chase).
+## A hit that lands while he is down ends the fall at once: he gets up with his eye shut, so one hit
+## is the whole opening (the fall's window closes; `_after_enemy_step` resumes the chase). In the Lair
+## fight's phase one a hit that lands shuts his eye for `eye_shut_ms`.
 func commit_damage(commit: Dictionary) -> void:
 	var was_down := _phase == PHASE_DIZZY
+	var hp_before := float(get_damage_state().get("hp", 0.0))
 	super(commit)
-	if was_down and _phase == PHASE_DIZZY and not is_defeated():
+	if is_defeated():
+		return
+	if was_down and _phase == PHASE_DIZZY:
 		_dizzy_until = Services.now_ms()
+	var landed := float(get_damage_state().get("hp", 0.0)) < hp_before
+	if landed and not _two.is_empty() and not _two_on and not was_down:
+		_eye_shut_until = Services.now_ms() + maxf(1.0, float(_two.get("eye_shut_ms", 3000.0)))
 
 
-## His idle clip: the chase, or with his eye shut once phase two has begun.
+## His idle clip: the chase, or with his eye shut (phase two, or phase one's shut window).
 func _chase_clip() -> String:
-	return CLIP_CLOSED_EYE if _two_on else CLIP_CHASE
+	return CLIP_CLOSED_EYE if not is_eye_open() else CLIP_CHASE
 
 
-## True while a mud ball keeps him out of balance (before a Heavy Roll knocks him down).
-func is_unbalanced() -> bool:
-	return _phase == PHASE_UNBALANCED
+## While he chases, his clip follows his eye (shut after a hit in phase one, open again after).
+func _show_eye(now: float) -> void:
+	var shut := not is_eye_open(now)
+	if shut == _shut_clip_on:
+		return
+	_shut_clip_on = shut
+	_play_animation(CLIP_CLOSED_EYE if shut else CLIP_CHASE, false)
+
+
+## Phase two: a thrown hit on his shut eye counts; the first sways him, and `throws_to_fall` of them
+## (leaps do not reset the count) knock him down (`_get_dizzy`), lying back away from the throw.
+func _count_throw(now: float, knock: Vector2) -> void:
+	if is_defeated() or _phase == PHASE_DIZZY:
+		return
+	_throw_hits += 1
+	if _throw_hits >= maxi(1, int(_two.get("throws_to_fall", 2))):
+		_throw_hits = 0
+		_sway_until = 0.0
+		_get_dizzy(now, knock)
+		return
+	_sway_until = now + maxf(1.0, float(_two.get("sway_ms", 700.0)))
+	var feel := Services.feel()
+	if feel != null:
+		feel.floating_text(get_centre() - Vector2(0.0, DIZZY_TEXT_RISE), SWAY_TEXT, &"yellow", true)
+
+
+## A counted throw's sway (presentation): his art rocks from side to side until `_sway_until`.
+func _step_sway(now: float) -> void:
+	if _sway_until <= 0.0 or visual == null or _phase == PHASE_DIZZY:
+		return
+	if now >= _sway_until:
+		_sway_until = 0.0
+		visual.rotation = 0.0
+		return
+	var lean := float(_two.get("sway_lean_rad", phase_two_sway_lean_rad))
+	visual.rotation = sin((_sway_until - now) / 1000.0 * TAU * TIP_WOBBLE_HZ) * lean
 
 
 func _begin_return(now: float) -> bool:
@@ -602,8 +654,8 @@ func _check_phase_two(now: float) -> void:
 	phase_two_started.emit({"time": now})
 
 
-## A Heavy Roll hit him on the floor: off balance, rocked back along `knock` (the Roll's way), his
-## eye wide open, for `dizzy_ms`; no leap right after.
+## Two thrown hits knocked him down: off balance, rocked back along `knock` (the last throw's way),
+## his eye wide open, for `dizzy_ms`; no leap right after.
 func _get_dizzy(now: float, knock: Vector2 = Vector2.ZERO) -> void:
 	if body == null or is_defeated():
 		return
@@ -645,7 +697,7 @@ func _tip(now: float) -> void:
 	visual.rotation = _topple_side * (lean + wobble) * k
 
 
-## A thrown thing in phase two: it splats on him and he hardly notices (a line, now and then).
+## A thrown thing on his shut eye in phase one: it splats (a line, now and then).
 func _thrown_line() -> void:
 	var now := float(Time.get_ticks_msec())
 	var text := str(_two.get("thrown_text", ""))

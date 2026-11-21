@@ -603,7 +603,9 @@ The rules:
    (teach, test, twist), and the boss is its exam. Brown's contrast: *A Link to the Past*'s Swamp
    Palace uses its item in one room; *Link's Awakening*'s Catfish's Maw uses the same hookshot for
    keys, the boss key, the boss and the optional chests. Be the second. *Since 2026-10-17 the
-   boss is also the Pearl's skin's exam (rule 6).*
+   boss is also the Pearl's skin's exam (rule 6).* *Changed 2026-11-21 (owner): not Fatty, whose
+   reworked fight is the Spear and thrown things on his eye; his dungeon's second half is the Heavy
+   skin's test.*
 3. **The boss door is seen early** (from the hub or a balcony) and stays in mind.
 4. **Two loops at least:** the hub opens to two wings, and the big key's wing returns to the hub
    by a shortcut. With the entrance shortcut, the boss door is a short walk from the entrance. A

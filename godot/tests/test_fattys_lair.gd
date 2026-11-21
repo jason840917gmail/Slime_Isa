@@ -11,9 +11,10 @@ extends RefCounted
 ## guards Pearl 1, its take grants the Heavy skin and seals the Lair); the second half's Heavy locks
 ## (the Weigh House's two plates, R10's plate held by a statue, R9's plate raising the big chest, the
 ## hub's two plates lowering the drawbridge (Burr holding one), heavy blocks back when their room is entered
-## again); Fatty's phase two, the Heavy exam (a Heavy Roll knocks him off balance, a thrown clod only
-## splats, the Spear lands only while he is off balance) with the arena's shutter, his fall breaking
-## the seals; and the way in and out: the gate on level-1-d5's hill, the bolt-hole's mouth in
+## again); Fatty's fight as the owner reworked it on 2026-11-21 (the Spear and thrown things on his
+## eye, his eye shut for a while after a hit, two thrown things knocking him down in phase two, the
+## clods melting before new ones fall) with the arena's shutter, his fall breaking the seals; and the
+## way in and out: the gate on level-1-d5's hill, the bolt-hole's mouth in
 ## level-1-d4 with Burr waiting after Fatty. Burr's call is walked too.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
@@ -22,6 +23,7 @@ const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const HeavyCheck := preload("res://game/fattys_lair/heavy_check.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const LairDirector := preload("res://game/fattys_lair/lair_director.gd")
+const ClodShadow := preload("res://game/fattys_lair/clod_shadow.gd")
 
 ## The Lair's dungeon id and R1's world (the way in).
 const MAP_ID := "fatty-lair"
@@ -433,7 +435,7 @@ func test_burrs_cell_takes_two_keys_and_opens_the_inner_stair(t: TestContext) ->
 	t.check(up, "the crypt's stair did not lead back up to the hub (in %s, feet at %s)" % [t.world().map_id(), str(t.player_body().global_position / CELL - ORIGIN)])
 
 
-func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: TestContext) -> void:
+func test_fatty_rework_the_eye_the_throws_and_the_fall(t: TestContext) -> void:
 	if not await _enter(t, "r13"):
 		return
 	# The Pearl was taken: the Lair is sealed while he lives.
@@ -449,57 +451,74 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	var south := _objects(t).get_node("r13-shutter-south")
 	await t.steps(4)
 	t.check(bool(south.call(&"is_shut")), "the arena's shutter did not shut")
-	# Phase one: thrusts (refused only while he hops or flies) until he is under half his health.
+	# Phase one: the Spear lands on his open eye, which then shuts for a while: every hit clinks.
+	var ready := await t.until(func() -> bool: return _hittable(t, camp, true), 6000.0)
+	if not t.check(ready, "Fatty does not stand with his eye open"):
+		return
+	var hp := _hp(fatty)
+	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
+	t.check(_hp(fatty) < hp, "the Spear did not land on his open eye")
+	t.check(not bool(fatty.call(&"is_eye_open")), "his eye did not shut after a hit")
+	hp = _hp(fatty)
+	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
+	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
+	_route(t, fatty.get(&"damage_area"), ["roll"])
+	t.near(_hp(fatty), hp, 0.01, "a hit landed while his eye was shut, or a Roll hurt him")
+	# His eye opens again: a thrown thing lands for half a Spear hit (fatty.gd `mitigate_damage`).
+	var open := await t.until(func() -> bool: return _hittable(t, camp, true), 8000.0)
+	if not t.check(open, "his eye does not open again"):
+		return
+	hp = _hp(fatty)
+	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
+	var spear := float(Services.constants().value("shapes.spear.baseDamage", 12.0))
+	t.near(hp - _hp(fatty), spear * 0.5, 0.01, "a thrown thing did not hurt for half a Spear hit")
+	# The Spear whenever his eye is open, until he is under half his health.
 	var max_hp := float(fatty.get(&"max_health"))
 	var two := await t.until(func() -> bool:
 		var boss: Node = camp.call(&"get_live_boss")
 		_keep_safe(t, boss)
 		if boss == null:
 			return false
-		if _hp(boss) > max_hp * 0.45:
+		if _hittable(t, camp, true):
 			_route(t, boss.get(&"damage_area"), ["spear", "weapon"])
-		return bool(boss.call(&"is_in_phase_two")), 12000.0)
+		return bool(boss.call(&"is_in_phase_two")) or _hp(boss) <= max_hp * 0.5, 60000.0)
 	if not t.check(two, "below half his health Fatty is not in phase two"):
 		return
-	var chasing := await t.until(func() -> bool:
-		var boss: Node = camp.call(&"get_live_boss")
-		_keep_safe(t, boss)
-		return boss != null and str(boss.call(&"get_phase")) == "chase", 8000.0)
-	if not t.check(chasing, "Fatty does not chase again in phase two"):
+	var chasing := await t.until(func() -> bool: return _hittable(t, camp, false), 8000.0)
+	if not t.check(chasing, "Fatty does not stand again in phase two"):
 		return
 	fatty = camp.call(&"get_live_boss")
-	var hp := _hp(fatty)
+	t.check(bool(fatty.call(&"is_in_phase_two")), "he is not in phase two")
+	hp = _hp(fatty)
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.near(_hp(fatty), hp, 0.01, "a thrust landed while his eye is shut")
-	# A Heavy Roll on his feet in the chase bonks off him; a thrown mud ball throws him out of balance.
-	# With the Heavy skin on every Roll is a Heavy Roll (HeavyCheck.is_heavy_roll), so the plain
-	# Roll below is rolled without it.
-	SkinState.lend(SkinState.HEAVY)
-	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a Heavy Roll knocked him down in the chase")
-	SkinState.give_back(SkinState.HEAVY)
+	t.near(_hp(fatty), hp, 0.01, "a thrust landed on his shut eye in phase two")
+	# A thrown thing counts without hurting: one does not knock him down, a leap does not reset the
+	# count (owner, 2026-11-21), and the second knocks him down.
 	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
-	t.check(bool(fatty.call(&"is_unbalanced")), "a thrown mud ball did not throw him out of balance")
-	t.near(_hp(fatty), hp, 0.01, "the mud ball hurt him")
-	# Out of balance, a plain Roll and the Spear still do nothing; a Heavy Roll knocks him down.
-	_route(t, fatty.get(&"damage_area"), ["roll"])
-	t.check(not bool(fatty.call(&"is_dizzy")), "a plain Roll knocked him down while he was out of balance")
-	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
-	t.near(_hp(fatty), hp, 0.01, "a thrust landed while he was out of balance with his eye shut")
-	SkinState.lend(SkinState.HEAVY)
-	_route(t, fatty.get(&"damage_area"), ["roll", "heavy"])
-	t.check(bool(fatty.call(&"is_dizzy")), "a Heavy Roll did not knock him down while he was out of balance")
-	# Down, he rocks back; a Spear hit that lands ends the fall at once (fatty.gd `commit_damage`: one
-	# hit is the whole opening).
+	t.check(not bool(fatty.call(&"is_dizzy")), "one thrown thing knocked him down")
+	t.near(_hp(fatty), hp, 0.01, "a thrown thing hurt his shut eye")
+	var leapt := await t.until(func() -> bool:
+		var boss: Node = camp.call(&"get_live_boss")
+		_keep_safe(t, boss)
+		return boss != null and str(boss.call(&"get_phase")) == "airborne", 12000.0)
+	t.check(leapt, "he did not leap in phase two")
+	var back := await t.until(func() -> bool: return _hittable(t, camp, false), 8000.0)
+	if not t.check(back, "he does not stand again after his leaps"):
+		return
+	_route(t, fatty.get(&"damage_area"), ["thrown", "mud-ball"])
+	t.check(bool(fatty.call(&"is_dizzy")), "the second thrown thing, after a leap, did not knock him down")
+	# Down, he lies back with his eye open; a Spear hit that lands ends the fall at once (fatty.gd
+	# `commit_damage`: one hit is the whole opening).
 	await t.sim_wait(400.0)
 	var art := fatty.get(&"visual") as Node2D
-	t.check(art != null and absf(art.rotation) > 0.2, "he does not rock back while he is down (tilt %s)" % str(art.rotation if art != null else 0.0))
+	t.check(art != null and absf(art.rotation) > 0.2, "he does not lie back while he is down (tilt %s)" % str(art.rotation if art != null else 0.0))
+	t.check(bool(fatty.call(&"is_eye_open")), "his eye is not open while he is down")
 	hp = _hp(fatty)
 	_route(t, fatty.get(&"damage_area"), ["spear", "weapon"])
 	t.check(_hp(fatty) < hp, "the Spear did not land while he was down")
 	await t.steps(2)
 	t.check(not bool(fatty.call(&"is_dizzy")), "the Spear's hit did not end his fall")
-	# The rest of his health: a Heavy Roll on the ground, thrusts while he is off balance, until he falls.
+	# The rest of his health: throws while he stands, the Spear while he is down, until he falls.
 	var beaten := await t.until(func() -> bool:
 		if BOSS in (Services.run().world.get("defeated_boss_ids", []) as Array):
 			return true
@@ -509,11 +528,9 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 			return false
 		if bool(boss.call(&"is_dizzy")):
 			_route(t, boss.get(&"damage_area"), ["spear", "weapon"])
-		elif str(boss.call(&"get_phase")) == "chase":
+		elif _hittable(t, camp, false):
 			_route(t, boss.get(&"damage_area"), ["thrown", "mud-ball"])
-		elif bool(boss.call(&"is_unbalanced")):
-			_route(t, boss.get(&"damage_area"), ["roll", "heavy"])
-		return false, 20000.0)
+		return false, 40000.0)
 	t.check(beaten, "Fatty's fall is not kept")
 	await t.sim_wait(1200.0)
 	t.check(not bool(south.call(&"is_shut")), "the arena's shutter did not open after his fall")
@@ -526,6 +543,40 @@ func test_fatty_in_phase_two_is_toppled_by_a_heavy_roll_then_takes_the_spear(t: 
 	if not await _enter(t, "r1"):
 		return
 	t.check(not bool(_objects(t).get_node("r1-seal").call(&"is_shut")), "R1's seal is still shut after his fall")
+
+
+## Fatty's clods (owner, 2026-11-21): each fall drops its clods at random spots (scattered a little),
+## and the clods still lying from the last fall melt away first, leaving nothing.
+func test_fattys_clods_fall_at_random_and_the_old_ones_melt(t: TestContext) -> void:
+	if not await _enter(t, "r13"):
+		return
+	var director := _lair(t, "LairDirector")
+	if not t.check(director != null, "no director in the arena"):
+		return
+	_stand(t, _at("r13", Vector2(2.0, 2.0)))
+	director.call(&"_on_clods_requested", {"count": 4})
+	await t.sim_wait(float(director.get(&"clod_shadow_ms")) + 300.0)
+	var first := _clods(t)
+	t.equal(first.size(), 4, "clods lying after the first fall")
+	director.call(&"_on_clods_requested", {"count": 3})
+	await t.sim_wait(float(director.get(&"clod_shadow_ms")) + 700.0)
+	var second := _clods(t)
+	t.equal(second.size(), 3, "clods lying after the second fall (the first ones melted)")
+	for clod: Node2D in first:
+		t.check(not is_instance_valid(clod) or not clod.is_inside_tree() or clod.is_queued_for_deletion(), "a clod of the first fall did not melt")
+	# Melting leaves no heart or energy behind (only a clod the slime uses does): no DungeonPickup
+	# (game/dungeon/dungeon_pickup.gd) or EnergyShard dropped in the world.
+	var loot := t.world().world_root.find_children("DungeonPickup*", "", true, false).size() \
+			+ t.world().world_root.find_children("EnergyShard*", "", true, false).size()
+	t.equal(loot, 0, "loot left by the melted clods")
+
+
+func _clods(t: TestContext) -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	for node: Node in t.tree.get_nodes_in_group(LairDirector.CLOD_GROUP):
+		if node is Node2D and is_instance_valid(node) and not node.is_queued_for_deletion() and node.get_script() != ClodShadow:
+			out.append(node as Node2D)
+	return out
 
 
 ## The Pearl room: the Larder's ambush shuts its shutter until the Big Squint falls (a mini-boss
@@ -1362,6 +1413,19 @@ func _close_dialogues(t: TestContext, done: Callable, real_ms: float) -> void:
 
 
 ## A hit of 20 with `tags` on `area` from a stand-in source (the barred gate tests' way).
+## Fatty stands where a hit can reach him (not in the air or a hop), keeping the slime clear; with
+## `eye_open`, his eye open too.
+func _hittable(t: TestContext, camp: Node, eye_open: bool) -> bool:
+	var boss: Node = camp.call(&"get_live_boss")
+	_keep_safe(t, boss)
+	if boss == null or bool(boss.call(&"is_defeated")):
+		return false
+	var phase := str(boss.call(&"get_phase"))
+	if phase == "airborne" or phase == "contact-hop" or phase == "small-hop" or phase == "dizzy":
+		return false
+	return not eye_open or bool(boss.call(&"is_eye_open"))
+
+
 func _route(t: TestContext, area: Area2D, tags: Array) -> void:
 	if not t.check(area != null, "no area to hit"):
 		return

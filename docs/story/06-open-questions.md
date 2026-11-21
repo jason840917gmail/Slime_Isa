@@ -19,10 +19,11 @@ Decisions waiting on the owner. When one is answered:
 
 ## For the boss pass
 
-166. **How throws hurt each boss.** Decided when the bosses are revisited, Fatty first. Today a
-     thrown mud ball throws Fatty off balance, a Heavy Roll knocks him down, and the Spear hits his
-     eye; the Matron opens her cocoon to a blast, and the Colossus bares his weak spot to the
-     braziers and the Spear.
+166. **How throws hurt each boss.** Decided when the bosses are revisited, Fatty first. Today
+     the Matron opens her cocoon to a blast, and the Colossus bares his weak spot to the braziers
+     and the Spear. *Fatty decided 2026-11-21 (owner, built): a throw hurts his eye for half a
+     Spear hit, and in his second phase two throws knock him down ([the archive](07-decisions-archive.md#decisions-by-date)).
+     Left: the Matron and the Colossus.*
 
 ## For the next release
 
