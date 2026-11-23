@@ -773,16 +773,23 @@ its toast "Roll Fragment 2 of 4"), and the one that makes `fragmentsNeeded` lear
 
 A hatch in the ground under a heap of liftables (game/scripts/heap_hatch.gd,
 game/scenes/objects/heap-hatch.tscn): the lid (the Lair's stair-hatch sheet, shut and open frames),
-a door down (`DoorScript`, kind `ladder_down`, its trigger off while shut), an `arrival` in front of
-it and a `Heap` child to drop the liftables in. It stays shut while any liftable's root lies inside
-its `cover_rect`; the moment the last is gulped away (or thrown off) it opens with dust, the door
-sound and the secret jingle (only when something had lain on it since the world was built), and its
-`flag_id` keeps it open for good: built again, the heap's liftables are taken out and it lies open.
+a door down (`DoorScript`, kind `ladder_down`, its trigger off while shut) and an `arrival` in front
+of it. The heap is every liftable whose root lies inside its `cover_rect` (`heap_on_it`): it stays
+shut while there is one; the moment the last is gulped away (or thrown off) it opens with dust, the
+door sound and the secret jingle (only when something had lain on it since the world was built), and
+its `flag_id` keeps it open for good: built again, the liftables on the cover are taken out and it
+lies open. Put the heap's things as children of the hatch's own node (they move with it), never
+inside its old `Heap` child: Godot drops nodes added inside an instanced scene on any save of the
+world while that instance is not editable, and that is how Yoi's crates went missing again and
+again until 2026-11-21 (the `Heap` child stays, empty, for older scenes).
 Placed once: over Yoi's home in Lili's west yard (level-1-c4 `Chapter1/yoi-hatch`, at (169, 1313)
-since the owner moved it on 2026-11-20; seven light crates, `Chapter1/yoi-hatch/Heap/yoi-heap-crate-1`
-to `-7`; flag `level-1.yoi-hatch-open`, door `yoi-home-hatch` to `slimeshire-yoi-home`'s
-`yoi-home-ladder`). The crates were once lost in an editor save and put back the same day: check
-the heap after a "save all".
+since the owner moved it on 2026-11-20; seven light crates, `Chapter1/yoi-hatch/yoi-heap-crate-1`
+to `-7`, each a `liftable` with `kind` crate and `weight` light set on its root; flag
+`level-1.yoi-hatch-open`, door `yoi-home-hatch` to `slimeshire-yoi-home`'s `yoi-home-ladder`). The
+door's link lives in its own scene, `game/scenes/objects/slimeshire/yoi-home-hatch.tscn` (inherits
+heap-hatch.tscn and sets its `DoorScript`), so a save of C4 cannot drop it; until 2026-11-22 the
+hatch opened onto nothing (its door had no target), and the room's ladder instance is marked
+editable for the same reason.
 
 ### 8.3 Adding (`createTransactionDraft`, `Inventory.ts:95-144`; `collectWorldItem`, `InventoryWorldTransaction.ts:51-81`)
 

@@ -122,7 +122,8 @@ What needed the mouse, and what it does without it:
 - **Teleport:** it always goes its full range the way the slime faces. With a mouse it stops at
   the pointer.
 - **Choosing what to interact with:** the pointer no longer picks among several targets in
-  reach. The highest priority wins, as with no mouse (the interaction controller).
+  reach. The nearest wins, the one the slime faces helped, as with no mouse (the interaction
+  controller; the highest priority won until 2026-11-21).
 - **Placing furniture:** the bench's ghost stands 80 px in front of the slime, and walking moves
   it (`furniture_placement.gd` `_aim_point`). A places, E switches the variant, W or Esc cancels.
 - **The Gulp** (2026-10-09): Q sucks and throws where the slime faces, and 1 swallows, as in the

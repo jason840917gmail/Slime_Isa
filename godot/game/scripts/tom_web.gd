@@ -1,8 +1,8 @@
 extends Node
 class_name TomWebScript
 ## Scene script `game.tom-web` (owner, 2026-10-08; roadmap 8.13): the spider web Tom is caught in,
-## in his clearing in Gloop Forest's south-west woods (`object.tom-web`, gloop-forest-e5; question
-## 117). Tom went there to study the webs and the Matron's brood wrapped him up; the slime frees him
+## in his hollow on the Mere's shore, Gloop Forest's north-west thicket (`object.tom-web`,
+## gloop-forest-e3; the River Roads layout, 2026-11-21; question 117). Tom went there to study the webs and the Matron's brood wrapped him up; the slime frees him
 ## with its weapon.
 ##
 ## - Weapon hits (tags "weapon" or "spear": the Spear) tear at it; after `hits_to_tear` it gives way.

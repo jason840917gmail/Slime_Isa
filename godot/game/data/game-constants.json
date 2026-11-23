@@ -67,6 +67,9 @@
     "landingSquashMs": 180,
     "regionBorderScroll": 1
   },
+  "interaction": {
+    "facingBonusPx": 24
+  },
   "elevation": {
     "behindDepth": 32,
     "dropPushMs": 280,
@@ -91,10 +94,12 @@
     "bathHpRegenPerSec": 2
   },
   "gulp": {
-    "suckRangePx": 80,
+    "suckRangePx": 160,
     "suckNearPx": 40,
     "suckConeDeg": 75,
     "suckPullMs": 110,
+    "suckPullPxPerSec": 900,
+    "suckFacePx": 12,
     "throwSpeed": 560,
     "throwRangePx": 280,
     "throwHitRadiusPx": 30,
@@ -396,6 +401,15 @@
     "hearing": {
       "cueMarginPx": 96
     },
+    "wayAround": {
+      "probePx": 20,
+      "turnHoldMs": 160,
+      "leavePx": 6,
+      "progressPx": 12,
+      "giveUpMs": 8000,
+      "settleRadiusPx": 96,
+      "reengageMarginPx": 48
+    },
     "energyShard": {
       "dropChance": 0.2,
       "amount": 15,
@@ -543,7 +557,7 @@
       "cooldownMs": 300,
       "drawMs": 140,
       "recoverMs": 140,
-      "arrow": { "class": "arrow", "damage": 10, "holdMs": 220, "speed": 760, "rangePx": 512, "radiusPx": 7,
+      "arrow": { "class": "arrow", "damage": 20, "holdMs": 220, "speed": 760, "rangePx": 512, "radiusPx": 7,
         "feel": { "hitStopMs": 40, "trauma": 0.12, "kickPx": 2, "sparks": 4 } }
     }
   },

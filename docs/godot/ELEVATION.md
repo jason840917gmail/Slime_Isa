@@ -279,7 +279,11 @@ showcase (red rock, masonry). The square hills, the terraces and the other holes
    flight joins the higher ground behind the cell to the level of the cell (the ground it leads
    down to). A front flight stays in its wall; the others need room on that ground: a cell per
    level beside the hill (sides), 1.5 cells per level to the north (a diagonal cell per level at a
-   45° back rim), keep other hills out of it. The old `S` tile is a front flight. The flight's
+   45° back rim), keep other hills out of it. **A side flight's look follows the hill around it**
+   (2026-11-21, west-village B5's hill): beside a straight side it stands out on its own stone box,
+   a long slanted block in front of the side; with the hill on the cell just north of its top cell
+   (the flight tucked into a corner of the hill) it is drawn cut into the rock, the steps set into
+   the side. For the cut-in look, paint that one hill cell north of the flight. The old `S` tile is a front flight. The flight's
    colour comes from a road at its foot or its top end (cobble, sand or forest soil), else the
    ground of the top it leaves: paint the road up to the stairs to give them the road's colour.
    Any number of flights may leave one straight rim: each opens its own way through the rim's

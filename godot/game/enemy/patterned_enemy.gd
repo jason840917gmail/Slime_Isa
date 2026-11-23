@@ -38,6 +38,9 @@ class_name PatternedEnemyScript
 ##   hanging from `pose` (a Node2D), which the patterns lift, bob, squash and lean in code; the
 ##   reactions' hit motion keeps the Visual's own transform. The sheets face right; `face_x` mirrors
 ##   them.
+## - **The walk home** (`_velocity_home(speed, delta)`; owner, 2026-11-21): round what stands in the
+##   way instead of a straight line into it (game/enemy/way_around.gd), and a home it cannot reach
+##   moves to where it stands. While it walks, its pattern still watches for the slime as before.
 ##
 ## Owner: enemy builder.
 
@@ -490,6 +493,34 @@ func _velocity_toward(point: Vector2, speed: float, delta: float) -> Vector2:
 	if distance <= maxf(1.0, speed * maxf(delta, 0.0)):
 		return Vector2.ZERO
 	return offset / distance * speed
+
+
+## Velocity of its walk home at `speed`, stopping on it: round what stands in the way
+## (`_velocity_around`), and a home it cannot reach moves to where it stands, as after a fall.
+func _velocity_home(speed: float, delta: float) -> Vector2:
+	var velocity := _velocity_around(_home, speed, delta)
+	if _way != null and _way.is_lost(Services.now_ms()):
+		_home = get_centre()
+		_way.reset()
+		return Vector2.ZERO
+	return velocity
+
+
+## Velocity toward the old-centre point `point` at `speed`, stopping on it, as `_velocity_toward`,
+## but round whatever blocks the straight line (game/enemy/way_around.gd: a wall, a rim, water, a
+## fence, a rock). For the walks nobody watches the line of: home, to a thing on the ground. The
+## steering is the base enemy's `_way` (its territory walk never runs here: this step replaces it).
+func _velocity_around(point: Vector2, speed: float, delta: float) -> Vector2:
+	var offset := point - get_centre()
+	if _way == null:
+		_way = WayAround.new()
+	if _way_goal == Vector2.INF or _way_goal.distance_to(point) > 1.0:
+		_way.reset()
+		_way_goal = point
+	if offset.length() <= maxf(1.0, speed * maxf(delta, 0.0)):
+		_way.reset()
+		return Vector2.ZERO
+	return _way.heading(body, offset, Services.now_ms()) * speed
 
 
 ## Plays a global cue, but only where the slime could see this enemy (game/audio/hearing.gd): an

@@ -34,7 +34,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="31_4kme1"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/cave-mouth.tscn" id="33_h5ykr"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/deadthorn-hedge.tscn" id="34_ercgt"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-stump.tscn" id="35_md7yg"]
 [ext_resource type="Script" uid="uid://b0mro7235k1op" path="res://game/scripts/door.gd" id="door_end_script"]
 [ext_resource type="Script" uid="uid://conqjgmraiuoc" path="res://game/world/forest/forest_layer.gd" id="forest_layer"]
 [ext_resource type="TileSet" path="res://game/world/forest/forest_tileset.tres" id="forest_tileset"]
@@ -392,15 +391,6 @@ target_door_id = "dark-nook-door"
 
 [node name="dark-nook-mouth-deadthorn" parent="Spiral" unique_id=986691248 instance=ExtResource("34_ercgt")]
 position = Vector2(960, 412.8)
-
-[node name="hide-rock" parent="Spiral" unique_id=1473346081 instance=ExtResource("35_md7yg")]
-position = Vector2(2963.2, 2342.4)
-
-[node name="hide-rock-2" parent="Spiral" unique_id=1887578904 instance=ExtResource("35_md7yg")]
-position = Vector2(3020.8, 2476.8)
-
-[node name="hide-rock-3" parent="Spiral" unique_id=481692256 instance=ExtResource("35_md7yg")]
-position = Vector2(2918.4, 2195.2)
 
 [node name="peak-crystals-6" parent="Spiral" unique_id=1495123386 instance=ExtResource("15_xdovj")]
 position = Vector2(1760, 1760)

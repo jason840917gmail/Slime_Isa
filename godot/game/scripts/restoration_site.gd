@@ -43,8 +43,13 @@ const CUE_REFUSED := &"CraftFail"
 @export var locked_message: String = "It is in ruins."
 ## JSON `restoredMessage`.
 @export var restored_message: String = "Restored!"
-## JSON `interactRadius`.
-@export var interact_radius: float = 150.0
+## JSON `interactRadius`: how far the slime's centre may be from the site to be offered it; with
+## `reach_from_walls` from the building's walls, else from `origin()`.
+@export var interact_radius: float = 48.0
+## Measure the reach from the walls of the building (the collision boxes of the body this belongs
+## to), not from the middle of its base (owner, 2026-11-21: the Workshop's prompt reached too far
+## out in front of it, over Pip).
+@export var reach_from_walls: bool = true
 ## JSON `badgeRise`.
 @export var badge_rise: float = 200.0
 
@@ -57,7 +62,7 @@ func _ready() -> void:
 	if prompt.is_empty():
 		prompt = "Restore"
 	if not (is_finite(interact_radius) and interact_radius > 0.0):
-		interact_radius = 150.0
+		interact_radius = 48.0
 	if not (is_finite(badge_rise) and badge_rise > 0.0):
 		badge_rise = 200.0
 

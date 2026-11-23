@@ -19,6 +19,13 @@ itself: [BODY_SHAPES.md "The Lantern"](BODY_SHAPES.md#the-lantern-2026-10-14)). 
 
 ## Dark rooms (`game/world/darkness/dark_room.gd`)
 
+*Since 2026-11-21:*
+- **`darkness_override`** (0 to 1; below 0, the constant) makes a room dim rather than black: Gloop
+  Forest's outdoor glow grove uses 0.72.
+- **Glow-moss** (`game/world/darkness/glow_moss.gd`) is a light source that never goes out. It cuts
+  a small soft hole (`radius` 44) and draws a few glowing specks over the dark, so a dim place
+  shows its way.
+
 A `DarkRoom` node (`@tool`, drawn as a purple outline in the editor) placed in a world scene
 darkens the rectangle `size` from its position.
 

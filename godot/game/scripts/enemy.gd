@@ -71,6 +71,9 @@ const LineUpAI := preload("res://game/enemy/line_up_ai.gd")
 const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
 ## What the ground does to a body a blow moves: ledges, holes, deep water, danger zones.
 const EnemyHazards := preload("res://game/combat/reactions/enemy_hazards.gd")
+## How a walk to a spot gets round what stands in its way (the walk home, the walk to where the
+## slime was last seen).
+const WayAround := preload("res://game/enemy/way_around.gd")
 
 ## EnemyScript.ts literals (enemy spec 1.2).
 const SIGHT_CHECK_MS := 150.0
@@ -106,6 +109,11 @@ const RANK_BOSS := "boss"
 ## corpse glides out over the hole or the water in.
 const FALL_LEVEL_UNITS := 64.0
 const FATE_GLIDE_SHARE := 0.35
+## A corpse a Carnivore Plant took (`begin_fate`, game/scripts/carnivore_plant.gd): it slides into
+## her jaws in the first FATE_GLIDE_SHARE of the time, stays all but whole (its alpha 1 - t^EATEN_FADE_POW)
+## and is gone with no pop and no sound (the plant's own swallow is the end).
+const FATE_EATEN := "eaten"
+const EATEN_FADE_POW := 4.0
 ## Why a carried enemy (the enemy-ammo prototype) refuses a hit.
 const REASON_CARRIED := "carried"
 ## Four-way shooters (enemy spec 20): the Worm Archer's behaviour, and the spiders' when their type
@@ -263,6 +271,10 @@ var _line_up_checked: bool = false
 var _type_ai: Variant = null
 var _align: Dictionary = {}
 var _probe_exclude: Array[RID] = []
+## The territory's walks (home, to where the slime was last seen): the steering round obstacles
+## (made on first use) and the spot it steers to now.
+var _way: WayAround = null
+var _way_goal: Vector2 = Vector2.INF
 
 
 ## Clamps max_health, sets hp; push_error when damage_area / attack_area are missing; registers
@@ -420,12 +432,22 @@ func _step_enemy(delta: float) -> bool:
 		if territory["move_to"] is Vector2:
 			var to_spot: Vector2 = (territory["move_to"] as Vector2) - origin
 			if to_spot.length() > 0.0 and speed > 0.0:
-				walk = to_spot.normalized() * speed
+				# Round what stands in the way (way_around.gd), never a straight line into a wall.
+				walk = _walk_around(territory["move_to"], to_spot, now) * speed
+			# It cannot get home: it lives where it stands (a ledge it was knocked off, a gate shut
+			# behind it), wandering and fighting there as at home.
+			if territory["mode"] == CampTerritory.MODE_RETURNING and _way != null and _way.is_lost(now):
+				_territory.settle(origin, _way_number("settleRadiusPx"))
+				_way.reset()
+				walk = Vector2.ZERO
+		else:
+			_way_goal = Vector2.INF
 		_applied_slow = _current_slow(now)
 		body.velocity = walk * _applied_slow
 		_update_facing(walk)
 		_play_facing("walk" if walk.length() > WALK_SPEED_THRESHOLD else "idle")
 		return true
+	_way_goal = Vector2.INF
 	if not territory.is_empty() and territory["mode"] == CampTerritory.MODE_ENGAGED \
 			and (_ai_state == EnemyAI.STATE_IDLE or _ai_state == EnemyAI.STATE_WANDER):
 		# Noticed by sight or a hit: the combat AI starts chasing even beyond its aggro range.
@@ -501,6 +523,7 @@ func configure_navigation(spawn_area: Dictionary, safe_zones: Array[Dictionary])
 	if stay is Dictionary and not (stay as Dictionary).is_empty():
 		_territory = CampTerritory.new()
 		_territory.setup(stay, targeting_radius, attack_range, _optional_attribute("leashRange"))
+		_territory.reengage_margin = _way_number("reengageMarginPx")
 	elif not spawn_area.is_empty():
 		push_error("EnemyScript '%s': spawn area '%s' has no stay perimeter; no territory." % [get_path(), spawn_area.get("id", "")])
 
@@ -772,7 +795,8 @@ func is_falling() -> bool:
 ## popping, the defeated body is taken `over` there (gliding over the first FATE_GLIDE_SHARE of `ms`
 ## when `glides`, else at once), fades (a hole: late, as it shrinks; water: evenly, as it sinks) and
 ## is freed after `ms`; `EnemyHazards.fate_done` is told as it goes. Its shrinking, spinning and
-## sinking are the hit motion's. Only for a defeated enemy.
+## sinking are the hit motion's. FATE_EATEN: a Carnivore Plant's catch (see the constant). Only for a
+## defeated enemy.
 func begin_fate(fate: String, over: Vector2, ms: float, glides: bool) -> void:
 	if body == null or not _defeated:
 		return
@@ -1221,6 +1245,24 @@ func _step_camp_territory(now: float, delta: float, origin: Vector2, target: Dic
 	return decision
 
 
+## The unit heading of a territory walk to `spot` (`to_spot` away), round what stands in the way
+## (way_around.gd); a new spot starts a new walk.
+func _walk_around(spot: Vector2, to_spot: Vector2, now: float) -> Vector2:
+	if _way == null:
+		_way = WayAround.new()
+	if _way_goal == Vector2.INF or _way_goal.distance_to(spot) > 1.0:
+		_way.reset()
+		_way_goal = spot
+	return _way.heading(body, to_spot, now)
+
+
+## `combat.wayAround.<key>` (0 when missing).
+static func _way_number(key: String) -> float:
+	var constants := Services.constants()
+	var value: Variant = constants.value(WayAround.BLOCK + "." + key) if constants != null else null
+	return float(value) if value is float or value is int else 0.0
+
+
 ## `restoreHealth(hp)`: raise hp (never lower it) up to max; emit health_changed on a change.
 func _restore_health(value: float) -> void:
 	var next := minf(max_health, maxf(_hp, value))
@@ -1486,10 +1528,15 @@ func _step_fate(now: float) -> void:
 	var glide := clampf(t / FATE_GLIDE_SHARE, 0.0, 1.0)
 	body.global_position = (_fate["from"] as Vector2).lerp(_fate["to"], 1.0 - (1.0 - glide) * (1.0 - glide))
 	body.velocity = Vector2.ZERO
-	body.modulate.a = 1.0 - t * t if str(_fate["fate"]) == EnemyHazards.FATE_HOLE else 1.0 - t
+	var eaten := str(_fate["fate"]) == FATE_EATEN
+	if eaten:
+		body.modulate.a = 1.0 - pow(t, EATEN_FADE_POW)
+	else:
+		body.modulate.a = 1.0 - t * t if str(_fate["fate"]) == EnemyHazards.FATE_HOLE else 1.0 - t
 	if t < 1.0 or body.is_queued_for_deletion():
 		return
-	EnemyHazards.fate_done(self)
+	if not eaten:
+		EnemyHazards.fate_done(self)
 	body.queue_free()
 
 

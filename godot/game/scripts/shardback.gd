@@ -34,7 +34,8 @@ const FRAME_WALK := 0
 const FRAME_REAR := 1
 const FRAME_SLAM := 2
 const FIRE_TAG := "fire"
-const CUE_REAR := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_REAR := &"ShardbackRear"
 const CUE_SLAM := &"StomperSlam"
 const CUE_CLINK := &"HitBlocked"
 const CUE_CRACK := &"BreakGlass"
@@ -86,7 +87,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				if centre.distance_to(slime) <= pattern("slamRangePx", 96.0) and now >= _slam_ready_at:
 					_rear(now)
 			else:
-				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 50.0), delta)
+				body.velocity = _velocity_home(pattern("homeSpeed", 50.0), delta)
 				face_x(body.velocity.x)
 			if show_walk(delta, FRAME_WALK):
 				set_look(0.0)

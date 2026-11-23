@@ -24,6 +24,9 @@ class_name PrismEyeScript
 ##   takes `beamDamage` with `beamKnockback` along the beam, once. A heavy block on the line takes the
 ##   beam instead.
 ## - **Cool** (`coolMs`): the crystal petals shut over the orb, then it watches again.
+## - **Invulnerable** (`pattern.invulnerable`, the Prism Eye's since 2026-11-21: "you have to go
+##   around him"): every hit clinks from any side and the Bow's hook does not apply; the two rules
+##   below are the Watcher Eye's (and a Prism Eye's with `invulnerable` 0).
 ## - **Its back is open, its front clinks** (`_shields`, every phase): a hit from an attacker it looks
 ##   away from (`backDot`: the attacker behind it, against its gaze) lands, any other clinks. The
 ##   Spear from behind while its gaze is turned away (28 health: two jabs or two Lunges). A hit from
@@ -50,7 +53,8 @@ const FRAME_SHUT := 2
 const BOW_TARGETS := &"bow_targets"
 ## The layer its sight and its beam stop at (walls, rocks, props, heavy blocks).
 const WORLD_LAYER := 1
-const CUE_CHARGE := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_CHARGE := &"PrismCharge"
 const CUE_FIRE := &"Lash"
 const CUE_SHUT := &"HitBlocked"
 const CUE_SHATTER := &"BreakGlass"
@@ -307,6 +311,9 @@ func _pupil_shown() -> bool:
 func on_arrow_hit(hit: Dictionary) -> bool:
 	if is_defeated():
 		return false
+	if is_invulnerable():
+		_cue(CUE_SHUT)
+		return false
 	var along: Variant = hit.get("direction", hit.get("knock", Vector2.ZERO))
 	var into_eye := _phase == PHASE_CHARGE
 	if along is Vector2 and (along as Vector2) != Vector2.ZERO:
@@ -458,7 +465,15 @@ func _update_looks(now: float) -> void:
 
 ## Its front clinks; its back is open.
 func _shields(request: Dictionary) -> bool:
-	return not is_from_behind(request)
+	return is_invulnerable() or not is_from_behind(request)
+
+
+## Nothing hurts it from any side (`pattern.invulnerable` 1; owner, 2026-11-21, the Prism Eye: "make
+## prism eye invulnerable, you have to go around him"): every hit clinks and the Bow's arrow does not
+## break it. Only a sleep throw still lands (EnemyReactions `sleeps_through`, as on every
+## invulnerable enemy on the ground), so it can be slipped past. The Watcher Eye keeps its open back.
+func is_invulnerable() -> bool:
+	return pattern("invulnerable", 0.0) > 0.0
 
 
 ## Rooted: a knockback does not move it; a stun holds the charge's clock.

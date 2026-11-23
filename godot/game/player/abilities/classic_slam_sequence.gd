@@ -31,7 +31,7 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_player = player
 	_intent = intent
 	_started_ms = now_ms
-	_player.call(&"action_cue", &"SlamWindup")
+	_player.call(&"action_cue", &"SlamRise")
 	_player.call(&"play_animation", "squash")
 	_player.call(&"stop_movement")
 	_player.call(&"reset_effects")

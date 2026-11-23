@@ -5,7 +5,10 @@ extends RefCounted
 ## - **Suck** (hold Q): the nearest takeable suckable (game/scripts/essence.gd, liftable.gd) within
 ##   `gulp.suckNearPx` of the slime's feet (its origin to theirs), or within `gulp.suckRangePx` and a cone of
 ##   `gulp.suckConeDeg` around the aim, leaves the world and flies into the mouth over
-##   `gulp.suckPullMs` of simulation time. Letting go of Q before anything comes stops the suck.
+##   `pull_ms` of simulation time (`gulp.suckPullMs`, longer for a far one). Only what the suck
+##   reaches as a throw reaches its target (owner, 2026-11-21, with the range doubled to 160 px:
+##   "nothing should cross walls"): on the slime's own height level, with no wall between
+##   (`_reachable`). Letting go of Q before anything comes stops the suck.
 ##   Never a live enemy: only essences and liftables (pots, rocks, pumpkins, ...:
 ##   game/scripts/liftable.gd) are suckable. The suck plays `GulpSuck`, the catch `GulpCatch`.
 ## - **Vacuum** (`_sweep`, owner 2026-10-19): while it sucks, every walk-over pickup in the same reach
@@ -19,7 +22,8 @@ extends RefCounted
 ##   An essence is never thrown (owner, 2026-10-09): Q spits it out whole, GulpController.SPIT_PX in
 ##   front along the aim, where it stays as a released form does, to be sucked back or picked up.
 ## A hit makes the slime drop what it holds (`drop`): a thing bursts at its feet, an essence
-## falls whole and fades after `gulp.dropFadeMs`, a Goo Bomb (game/scripts/goo_bomb.gd, held kind
+## falls whole and fades after `gulp.dropFadeMs`, the Dung Roller's ball falls whole and stays
+## (game/enemy/dung_ball.gd), a Goo Bomb (game/scripts/goo_bomb.gd, held kind
 ## "goo-bomb", ticking all along) falls whole and ticks on; death discards a held bomb. Death loses it. A door or a save keeps it
 ## (player.gd `run_snapshot`, `restore_held`).
 ##
@@ -99,6 +103,12 @@ const CATCH_COLOR := &"yellow"
 const CUE_PITCH_KEY := "pitch"
 ## The enemy-ammo prototype: a carried enemy in the mouth.
 const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
+## The Dung Roller's ball (game/enemy/dung_ball.gd): a hit makes the slime drop it whole, this far
+## behind it (as an essence and a Goo Bomb fall).
+const DungBall := preload("res://game/enemy/dung_ball.gd")
+const DROP_BEHIND_PX := 28.0
+## The suck's reach follows the throw's: the height levels and the wall check (`_reachable`).
+const AbilityWorld := preload("res://game/player/abilities/ability_world.gd")
 
 ## {} or {"kind", "essence"}.
 var held: Dictionary = {}
@@ -198,7 +208,7 @@ func update(now_ms: float, q_held: bool, aim: Vector2) -> void:
 		return
 	_sweep(aim)
 	if not _pull.is_empty():
-		var progress := (now_ms - float(_pull["started"])) / maxf(1.0, _constant("gulp.suckPullMs"))
+		var progress := (now_ms - float(_pull["started"])) / maxf(1.0, float(_pull.get("ms", _constant("gulp.suckPullMs"))))
 		_move_pull_look(clampf(progress, 0.0, 1.0))
 		if progress >= 1.0:
 			_finish_pull()
@@ -228,17 +238,11 @@ func find_target(aim: Vector2) -> Node:
 	# (27 px higher) a thing touching its side came out beyond suckNearPx and below the cone.
 	var body := _player.get(&"body") as Node2D
 	var centre: Vector2 = body.global_position if body != null else _player.call(&"get_centre")
-	var best: Node = null
-	var best_distance := INF
+	var candidates: Array[Node] = []
 	for node: Node in tree.get_nodes_in_group(SUCKABLE_GROUP):
-		if not bool(node.call(&"can_take")):
-			continue
-		var offset: Vector2 = (node.call(&"origin") as Vector2) - centre
-		var distance := offset.length()
-		if _in_reach(offset, aim) and distance < best_distance:
-			best = node
-			best_distance = distance
-	return best
+		if bool(node.call(&"can_take")) and _in_reach((node.call(&"origin") as Vector2) - centre, aim):
+			candidates.append(node)
+	return _nearest_reachable(candidates, centre)
 
 
 ## Throw combat (docs/godot/THROW_COMBAT.md): the nearest liftable in reach that the Gulp's level is
@@ -248,16 +252,75 @@ func find_too_heavy(aim: Vector2) -> Node:
 	var body := _player.get(&"body") as Node2D if _player != null else null
 	if tree == null or body == null:
 		return null
-	var best: Node = null
-	var best_distance := INF
+	var candidates: Array[Node] = []
 	for node: Node in tree.get_nodes_in_group(SUCKABLE_GROUP):
-		if not node.has_method(&"is_too_heavy") or not bool(node.call(&"is_too_heavy")):
-			continue
-		var offset: Vector2 = (node.call(&"origin") as Vector2) - body.global_position
-		if _in_reach(offset, aim) and offset.length() < best_distance:
-			best = node
-			best_distance = offset.length()
-	return best
+		if node.has_method(&"is_too_heavy") and bool(node.call(&"is_too_heavy")) \
+				and _in_reach((node.call(&"origin") as Vector2) - body.global_position, aim):
+			candidates.append(node)
+	return _nearest_reachable(candidates, body.global_position)
+
+
+## The nearest of `things` (suckables in the cone) that the suck reaches from the slime's `feet`
+## (`_reachable`); null when none. The cheap cone test runs first, the rays only nearest first.
+func _nearest_reachable(things: Array[Node], feet: Vector2) -> Node:
+	things.sort_custom(func(a: Node, b: Node) -> bool:
+		return feet.distance_squared_to(a.call(&"origin") as Vector2) < feet.distance_squared_to(b.call(&"origin") as Vector2))
+	var level := _slime_level()
+	for thing: Node in things:
+		if _reachable(feet, thing.call(&"origin") as Vector2, _own_rids(thing), level):
+			return thing
+	return null
+
+
+## The suck reaches a thing whose feet are at `to` from the slime's `feet` as a throw reaches its
+## target (thrown_object.gd; owner: "nothing should cross walls"): it stands on the slime's height
+## level `level` (when the world has elevation: never up or down a cliff), and no wall lies between
+## (AbilityWorld.clear_line: the world layer's static bodies, past the slime's body and `skip`, the
+## thing's own bodies). The line is measured to the thing's near side, `gulp.suckFacePx` from its
+## feet toward the slime, so a thing set against a wall's foot is still reached from in front.
+func _reachable(feet: Vector2, to: Vector2, skip: Array[RID], level: int) -> bool:
+	var world := Services.world()
+	if level != AbilityWorld.ANY_LEVEL and world != null and world.elevation != null \
+			and world.elevation.level_at(to) != level:
+		return false
+	var exclude: Array[RID] = skip.duplicate()
+	if _player != null and _player.has_method(&"body_rids"):
+		for rid: RID in _player.call(&"body_rids"):
+			exclude.append(rid)
+	var face := to + (feet - to).limit_length(_constant("gulp.suckFacePx"))
+	return AbilityWorld.clear_line(feet, face, exclude)
+
+
+## The height level the slime stands on (AbilityWorld.body_level; ANY_LEVEL without elevation).
+func _slime_level() -> int:
+	var body := _player.get(&"body") as Node2D if _player != null else null
+	return AbilityWorld.body_level(body) if body != null else AbilityWorld.ANY_LEVEL
+
+
+## The physics bodies of `thing` itself (a pot's StaticBody2D root, a body beside its script), which
+## never block its own line.
+static func _own_rids(thing: Node) -> Array[RID]:
+	var rids: Array[RID] = []
+	var root := thing.get_parent()
+	var nodes: Array[Node] = [thing]
+	if root != null:
+		nodes.append(root)
+		nodes.append_array(root.get_children())
+	for node: Node in nodes:
+		if node is CollisionObject2D:
+			var rid := (node as CollisionObject2D).get_rid()
+			if not rids.has(rid):
+				rids.append(rid)
+	return rids
+
+
+## How long a thing `distance` px from the slime's feet takes to fly into the mouth: at least
+## `gulp.suckPullMs`, and at `gulp.suckPullPxPerSec` for a far one, so the long reach still reads as
+## a pull and not a jump.
+static func pull_ms(distance: float) -> float:
+	var speed := _constant("gulp.suckPullPxPerSec")
+	var by_speed := distance / speed * 1000.0 if speed > 0.0 else 0.0
+	return maxf(_constant("gulp.suckPullMs"), by_speed)
 
 
 ## `offset` (from the slime's feet) is within `gulp.suckNearPx`, or within `gulp.suckRangePx` and
@@ -271,9 +334,10 @@ static func _in_reach(offset: Vector2, aim: Vector2) -> bool:
 	return distance <= _constant("gulp.suckRangePx") and absf(unit.angle_to(offset)) <= cone
 
 
-## The vacuum (owner, 2026-10-19): while the mouth sucks, every walk-over pickup in reach that can
+## The vacuum (owner, 2026-10-19): while the mouth sucks, every walk-over pickup in reach (the same
+## reach as a thing's: the cone, the height level, no wall between) that can
 ## be taken (its pickup area on: not still flying from a drop) flies into the mouth over
-## `gulp.suckPullMs` and is picked up there as if walked over: coins paid, the bag filled, health
+## `pull_ms` and is picked up there as if walked over: coins paid, the bag filled, health
 ## or energy restored. It is never held, so the suck goes on (and a pot can still be caught). One
 ## that refuses the slime (a full bag, full health) flies back to where it lay and is left alone
 ## until the next suck. Only what was lying there when the suck began (`_lying`): what appears
@@ -283,6 +347,8 @@ func _sweep(aim: Vector2) -> void:
 	var body := _player.get(&"body") as Node2D if _player != null else null
 	if tree == null or body == null:
 		return
+	var level := AbilityWorld.ANY_LEVEL
+	var level_known := false
 	for node: Node in tree.get_nodes_in_group(COLLECTIBLE_GROUP):
 		var id := node.get_instance_id()
 		if _sweeping.has(id) or _refused.has(id) or not _lying.has(id):
@@ -291,7 +357,13 @@ func _sweep(aim: Vector2) -> void:
 		var area := node.get(&"pickup_area") as Area2D
 		if root == null or area == null or not area.monitorable or root.is_queued_for_deletion():
 			continue
-		if _in_reach(root.global_position - body.global_position, aim):
+		if not _in_reach(root.global_position - body.global_position, aim):
+			continue
+		# The slime's level, once, only when something lies in the cone (the rays only then too).
+		if not level_known:
+			level = _slime_level()
+			level_known = true
+		if _reachable(body.global_position, root.global_position, _own_rids(node), level):
 			_sweep_in(node, root, body)
 
 
@@ -301,7 +373,7 @@ func _sweep_in(script: Node, root: Node2D, body: Node2D) -> void:
 	_swept_any = true
 	var from := root.global_position
 	var size := root.scale
-	var seconds := maxf(0.01, _constant("gulp.suckPullMs") / 1000.0)
+	var seconds := maxf(0.01, pull_ms(from.distance_to(body.global_position)) / 1000.0)
 	var mouth := body.global_position - Vector2(0.0, MOUTH_RISE)
 	var tween := root.create_tween()
 	tween.tween_property(root, ^"global_position", mouth, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -430,6 +502,14 @@ func drop() -> void:
 	elif GulpableEnemy.is_enemy(held):
 		# A carried enemy comes out alive beside the slime (game/throw/gulpable_enemy.gd).
 		GulpableEnemy.release(held)
+	elif DungBall.is_ball(held):
+		# The Dung Roller's ball falls out whole behind the slime (at its feet where nothing may lie
+		# there), and its beetle comes for it (game/enemy/dung_ball.gd).
+		var facing: Vector2 = _player.call(&"get_facing")
+		var spot := feet - facing * DROP_BEHIND_PX
+		var ball_world := Services.world()
+		DungBall.lay(ball_world.entities_root() if ball_world != null else null,
+			spot if ThrowAmmo.fits(spot, feet) else feet, held)
 	elif GooBomb.from_held(held) != null:
 		# A Goo Bomb falls out whole and keeps ticking (game/scripts/goo_bomb.gd).
 		var facing: Vector2 = _player.call(&"get_facing")
@@ -499,8 +579,10 @@ func _start_pull(target: Node, now_ms: float) -> void:
 	else:
 		look.free()
 		look = null
+	var body := _player.get(&"body") as Node2D if _player != null else null
+	var distance := from.distance_to(body.global_position) if body != null else 0.0
 	_pull = {"info": info, "look": look, "from": from - Vector2(0.0, 14.0), "started": now_ms,
-		"scale": look.scale if look != null else Vector2.ONE}
+		"ms": pull_ms(distance), "scale": look.scale if look != null else Vector2.ONE}
 
 
 func _move_pull_look(progress: float) -> void:

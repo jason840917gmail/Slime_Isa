@@ -10,10 +10,12 @@
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_sxqd2"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="9_6qa4g"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--war-banner.tscn" id="10_npijo"]
-[ext_resource type="Texture2D" uid="uid://s230hfbvpo0h" path="res://asset/MAPS/objects/fattys-lair/war-banner.webp" id="11_xikmu"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="12_nqlg6"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/energy-flower.tscn" id="13_cv55v"]
+[ext_resource type="Texture2D" uid="uid://bg8xfjsqjkg70" path="res://asset/MAPS/objects/fattys-lair/ambient/decoration-world-solid--war-banner.webp" id="13_odart"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-lit.tscn" id="14_cv55v"]
 [ext_resource type="Texture2D" uid="uid://dayt011w27abm" path="res://asset/MAPS/objects/dungeon/pickups-2x2.webp" id="14_xg3ux"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="15_o4s6s"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/drawbridge.tscn" id="15_odart"]
 [ext_resource type="Texture2D" uid="uid://b7ktjvpgom0jr" path="res://asset/MAPS/objects/dungeon/drawbridge-down.webp" id="16_o4s6s"]
 [ext_resource type="Texture2D" uid="uid://3suo8v58fje7" path="res://asset/MAPS/objects/dungeon/drawbridge-up.webp" id="17_c4k88"]
@@ -36,6 +38,7 @@
 [ext_resource type="Script" uid="uid://chb2s4byl4u2a" path="res://game/fattys_lair/lair_director.gd" id="35_rw7004"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="36_rw9321"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="37_rw0548"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="42_c4k88"]
 [ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 [ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_test"]
@@ -89,8 +92,11 @@ position = Vector2(576, 800)
 y_sort_enabled = true
 
 [node name="hub-ledge-pot-0" parent="Scenery" unique_id=1660405551 instance=ExtResource("9_6qa4g")]
-position = Vector2(1216, 332.80005)
+position = Vector2(1347, 860)
 weight = "light"
+
+[node name="Visual" parent="Scenery/hub-ledge-pot-0" index="1"]
+position = Vector2(-572, -115)
 
 [node name="LiftableScript" parent="Scenery/hub-ledge-pot-0" index="2"]
 weight_class = "light"
@@ -99,7 +105,7 @@ weight_class = "light"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
 [node name="hub-ledge-pot-1" parent="Scenery" unique_id=1635434827 instance=ExtResource("9_6qa4g")]
-position = Vector2(1273.6001, 332.80005)
+position = Vector2(1366, 742)
 weight = "light"
 
 [node name="LiftableScript" parent="Scenery/hub-ledge-pot-1" index="2"]
@@ -109,8 +115,11 @@ weight_class = "light"
 weights = PackedFloat32Array(1, 1, 1, 1)
 
 [node name="hub-ledge-pot-2" parent="Scenery" unique_id=2100346850 instance=ExtResource("9_6qa4g")]
-position = Vector2(1331.2, 332.80005)
+position = Vector2(1462.2, 860)
 weight = "light"
+
+[node name="Visual" parent="Scenery/hub-ledge-pot-2" index="1"]
+position = Vector2(446.80005, -122)
 
 [node name="LiftableScript" parent="Scenery/hub-ledge-pot-2" index="2"]
 weight_class = "light"
@@ -122,23 +131,62 @@ weights = PackedFloat32Array(1, 1, 1, 1)
 position = Vector2(704, 857.6001)
 
 [node name="Visual" parent="Scenery/hub-banner-0" index="1"]
-texture = ExtResource("11_xikmu")
+texture = ExtResource("13_odart")
 
 [node name="hub-banner-1" parent="Scenery" unique_id=1209293206 instance=ExtResource("10_npijo")]
 position = Vector2(1600, 857.6001)
 
 [node name="Visual" parent="Scenery/hub-banner-1" index="1"]
-texture = ExtResource("11_xikmu")
+texture = ExtResource("13_odart")
 
 [node name="hub-pot-a" parent="Scenery" unique_id=464746301 instance=ExtResource("9_6qa4g")]
 position = Vector2(2073.6, 844.80005)
 weight = "light"
+
+[node name="Visual" parent="Scenery/hub-pot-a" index="1"]
+position = Vector2(0.39990234, 14.199951)
 
 [node name="LiftableScript" parent="Scenery/hub-pot-a" index="2"]
 weight_class = "light"
 
 [node name="PotLoot" parent="Scenery/hub-pot-a" index="3"]
 weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="brazier-lit" parent="Scenery" unique_id=1624675336 instance=ExtResource("14_cv55v")]
+position = Vector2(2124, 864)
+
+[node name="@StaticBody2D@43414" parent="Scenery" unique_id=1107807156 instance=ExtResource("14_cv55v")]
+position = Vector2(2126, 195)
+
+[node name="@StaticBody2D@43415" parent="Scenery" unique_id=639230806 instance=ExtResource("14_cv55v")]
+position = Vector2(1635, 181)
+
+[node name="liftable" parent="Scenery" unique_id=115195634 instance=ExtResource("15_o4s6s")]
+position = Vector2(1577, 177)
+kind = "clay-pot"
+weight = "light"
+
+[node name="@StaticBody2D@45260" parent="Scenery" unique_id=280423991 instance=ExtResource("15_o4s6s")]
+position = Vector2(848, 168)
+kind = "clay-pot"
+weight = "light"
+
+[node name="@StaticBody2D@45261" parent="Scenery" unique_id=1955598449 instance=ExtResource("15_o4s6s")]
+position = Vector2(667, 166)
+kind = "clay-pot"
+weight = "light"
+
+[node name="@StaticBody2D@45262" parent="Scenery" unique_id=190891539 instance=ExtResource("15_o4s6s")]
+position = Vector2(1212, 380)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
+
+[node name="@StaticBody2D@45263" parent="Scenery" unique_id=1765097702 instance=ExtResource("15_o4s6s")]
+position = Vector2(976, 380)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
 
 [node name="Hazards" type="Node2D" parent="." unique_id=1671171120]
 
@@ -302,6 +350,7 @@ open_flag = "fatty-lair.inner-stair-open"
 target_door = "fatty-lair-crypt-north-stair"
 arrival_offset = Vector2(-36, 8)
 target_world = "fatty-lair-r8-guard-crypt"
+trigger_rect = Rect2(-80, -88, 96, 80)
 
 [node name="Visual" parent="Lair/inner-stair" index="0" unique_id=1707481229]
 position = Vector2(-36, -44)
@@ -431,6 +480,21 @@ bus = &"Music"
 script = ExtResource("36_rw9321")
 loop = true
 autoplay_cue = true
+
+[node name="Enemies" type="Node2D" parent="." unique_id=391279754]
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=1550459290 instance=ExtResource("42_c4k88")]
+position = Vector2(1313, 790)
+enemy_type = "worm-archer"
+
+[node name="@Node2D@45249" parent="Enemies" unique_id=1331363006 instance=ExtResource("42_c4k88")]
+position = Vector2(2102, 384)
+enemy_type = "worm-archer"
+
+[node name="@Node2D@48407" parent="Enemies" unique_id=305376976 instance=ExtResource("42_c4k88")]
+position = Vector2(1318, 246)
+enemy_type = "worm-bulwark"
+wander_radius = 341.0
 
 [editable path="Scenery/hub-ledge-pot-0"]
 [editable path="Scenery/hub-ledge-pot-1"]

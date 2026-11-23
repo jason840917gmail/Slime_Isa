@@ -293,9 +293,10 @@ Slimeshire when the layout is redrawn. (The layout's second West village – Sli
 C4 rows 6-9, had no crossing in the scenes and was taken out on 2026-11-01, so the map draws no
 link there; the town's opening adds its passage when it is built. The same day a leftover road stub
 on the South Wilds C8 – Sticky Swamp D8 border, open on both sides with no exit, and one on D8's
-side at row 26 were planted over.) The release "Web" preset ships `west-village-b4` (it
-excludes `west-village-a*` and `west-village-b5*` only); `build_region_worlds.gd` rewrites the
-presets, so check that line after running it.
+side at row 26 were planted over.) The release "Web" preset ships all four West village chunks
+and their caches since 2026-11-22 (Glimmerhill is in Release 1). The region is still marked
+`placeholder` in `world-map.json`, so `split_region_chunks.gd` would add `chunks/west-village-*`
+back to the exclude list: check that line after running it (or after `build_region_worlds.gd`).
 
 **Openings on hand-made worlds:** a placeholder's exit into level-1, gloop-forest or crystal-caverns
 works one way until the hand-made world has its own opening and exit there: until then the player
@@ -414,6 +415,29 @@ same place and 2 at the opening back elsewhere, and none is one-sided (the five 
 chunk corners on 2026-11-01 have one exit a side, ten fewer). The arrival markers (`arrive-from-*`,
 `player-entry-<edge>`) were deleted that day (owner).
 
+### The west village's lake (2026-11-21)
+
+The owner turned B5's east side into the lake Slimeshire's C5 holds, so the lake runs on across
+the B5|C5 line ("make it look pretty, not straight but natural"):
+
+- **The lake** (`west-village-b5` ground, deep water) runs from the chunk line west to a winding
+  shore (its first column per row between 27 and 31, rows 2-28), joining C5's deep water along the
+  whole line; the line stays closed by water (`check_chunk_lines.gd`: B5|C5 passes). Its south end
+  meets a sand beach curving into C5's sand shore (rows 26-29).
+- **The hill and the fence:** the market terrace (level 1, rows 0-9) now ends at the shore, and the
+  same level runs on south as a narrow winding hill (rows 10-25, two or three cells wide) between
+  the lower town and the water; the main street (rows 15-16) climbs onto it by a flight on its
+  west side (`stairs-w` at (25, 15)-(25, 16)). A wood fence stands along the whole lake-side rim
+  (a new `fences` layer, every post the all-neighbour wood tile, rows 2-25), so nothing walks off
+  into the water.
+- **The island:** C5's west land piece (forest moss, cols 0-2 rows 11-14, the footbridge's west
+  end) runs on into the lake as an island (B5 cols 29-31 rows 11-14), deep water all round it:
+  unreachable for now (the owner will add a way to its secret later).
+- The tree band on B5's col 31 went from the lake rows; the crates, a goo lamp, the beehive and a
+  berry bush moved from the water onto the terrace and the hill; the flowers painted where the
+  water is were erased. The painting is `west-village-b5`'s own layers (ground, elevation, forest,
+  details, fences), all editable. B5 and the chunks around it (C5, B4, B6, C4, C6) were baked.
+
 ## Chunk worlds (2026-10-12)
 
 Worlds one chunk in size, the player walking from one into the next as in *A Link to the Past*'s
@@ -438,6 +462,13 @@ and that flag is accepted:
 ```bash
 "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/check_chunk_lines.gd [-- --world=<text>] [--all]
 ```
+
+**Gloop Forest since 2026-11-21 (River Roads, [the design](../design/2026-11-21-gloop-river-roads.md)):** six chunks, E3 and F3
+taken from the North Wilds (D3 and G3 closed against them by woods; North Wilds E3/F3 deleted).
+The Gloop runs down the E|F line from the Mere, a creek along E3|E4 and F4|F5, every other line a
+canopy wall; one crossing a line (footbridges X2, X3 and, north-south, X1, X5; a ford X4; lantern
+gaps X6, X7, X6 a path under the canopy), laid by
+`tools/build_gloop_river_roads.gd`. The paragraph below is the layout before it.
 
 Built first in **Gloop Forest** (picture `docs/design/chunk-lines/gloop-forest.png`): a stream from
 the river down the E|F line in row 4 with a footbridge (one deck per chunk at the same place) on

@@ -82,6 +82,11 @@ SHAPES = {
 		"label": "planks"},
 	"rubble": {"source": "rubble-a.png", "count": 8, "blocks": 2, "depth": 50, "inset": False, "loose": True,
 		"column": 9, "label": "rubble"},
+	# 2026-11-21 (the owner: a trim for the crystal interior walls that matches their art): slate blocks
+	# set with a cluster of crystal points, as the crystal-cave style's door frames (crystal-b.png took
+	# studded-b.png for its layout and a crop of the crystal-cave frames for its look; -a the other take)
+	"crystal": {"source": "crystal-b.png", "count": 8, "blocks": 2, "depth": 56, "inset": True, "column": 10,
+		"label": "crystal studs"},
 }
 
 # colour -> gradient map stops (grey 0..1 -> RGB) and its palette row: `stops` for a shape with an
@@ -118,6 +123,15 @@ COLOURS = {
 	"lichen": {"row": 11, "label": "lichen grey, moss inset", "stops": [
 		(0.00, "0c0e0a"), (0.18, "1c2218"), (0.40, "3c5230"), (0.52, "56703e"), (0.64, "6a6e64"), (0.82, "9a9c90"), (1.00, "d8dacc")],
 		"solid": [(0.00, "0c0e0a"), (0.18, "1c2218"), (0.45, "4a5440"), (0.70, "6e7a5e"), (0.88, "98a084"), (1.00, "d0d6bc")]},
+	# 2026-11-21, for the crystal-cave rooms: "crystal" is the crystal strip's own colours (its blocks'
+	# pixels binned by this sheet's grey, the mean colour of each bin: blue slate up to the glowing
+	# crystals), "amethyst" the same light in the crystals' violet.
+	"crystal": {"row": 12, "label": "crystal blue (crystal cave)", "stops": [
+		(0.00, "07070f"), (0.03, "090918"), (0.13, "0d244d"), (0.23, "183e7f"), (0.35, "2b5ba9"), (0.48, "3c7fcd"),
+		(0.60, "48a6df"), (0.72, "69c4e4"), (0.84, "95ddf2"), (0.97, "d4f3f9"), (1.00, "f2fdff")]},
+	"amethyst": {"row": 13, "label": "amethyst (crystal cave's violet)", "stops": [
+		(0.00, "0a0710"), (0.03, "0e0a1a"), (0.13, "1e1640"), (0.23, "33276c"), (0.35, "4c3a96"), (0.48, "6a4fc0"),
+		(0.60, "8c66d8"), (0.72, "ad86e6"), (0.84, "cfaef2"), (0.97, "efe2fc"), (1.00, "fdf8ff")]},
 }
 
 

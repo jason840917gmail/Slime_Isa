@@ -261,9 +261,9 @@ func test_forge_station_appears(t: TestContext) -> void:
 	t.check(_station(t, "workshop") == null, "the Workshop still has a station")
 
 
-## Two NPCs in reach: the smaller id wins, not the nearer one (a Phaser quirk kept); the pointer
-## picks the one it is near.
-func test_npc_tie_breaks_by_id_and_pointer_picks(t: TestContext) -> void:
+## Two NPCs in reach: the nearer wins (owner, 2026-11-21; Phaser picked the smaller id), and one the
+## slime faces wins a near call; the pointer picks the one it is near.
+func test_the_nearest_target_wins_and_the_pointer_picks(t: TestContext) -> void:
 	var interaction := _interaction(t)
 	var lili := _npc(t, "level-1-npc-lili")
 	var pip := _npc(t, "level-1-npc-red-slime-boy")
@@ -271,14 +271,43 @@ func test_npc_tie_breaks_by_id_and_pointer_picks(t: TestContext) -> void:
 		return
 	var centre := Vector2(900.0, 1200.0)
 	t.teleport_player(centre)
+	t.player().face(Vector2.DOWN)
 	_place_npc(pip, centre + Vector2(40.0, 0.0))
 	_place_npc(lili, centre + Vector2(-80.0, 0.0))
 	await t.steps(1)
 	interaction.refresh(null)
-	t.equal(interaction.current().get("id"), "quest-npcs:level-1-npc-lili:talk", "id tie-break")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Lili", "talk prompt")
+	t.equal(interaction.current().get("id"), "quest-npcs:level-1-npc-red-slime-boy:talk", "the nearer NPC")
+	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Pip", "talk prompt")
+	# Lili a little farther, but the slime faces her.
+	_place_npc(lili, centre + Vector2(-48.0, 0.0))
+	t.player().face(Vector2.LEFT)
+	await t.steps(1)
+	interaction.refresh(null)
+	t.equal(interaction.current().get("id"), "quest-npcs:level-1-npc-lili:talk", "the faced NPC")
 	interaction.refresh(pip.get_phaser_position() - Vector2(0.0, 24.0))
 	t.equal(interaction.current().get("id"), "quest-npcs:level-1-npc-red-slime-boy:talk", "pointer pick")
+
+
+## A building's prompt reaches from its walls (owner, 2026-11-21: the Workshop's reached far out in
+## front of it): offered at its front, not a hundred units below it, where Phaser's 150 from the
+## middle of its base still offered it.
+func test_a_building_is_offered_from_its_walls(t: TestContext) -> void:
+	var interaction := _interaction(t)
+	var site: Node = null
+	for node: Node in t.tree.get_nodes_in_group(&"restoration_site"):
+		if str(node.get(&"flag_id")) == "workshop.restored":
+			site = node
+	if not t.check(site != null, "no Workshop ruin in C4"):
+		return
+	var base: Vector2 = site.call(&"origin")
+	t.teleport_player(base + Vector2(0.0, 110.0))
+	await t.steps(2)
+	interaction.refresh(null)
+	t.check(not str(interaction.current().get("id", "")).begins_with("world-restorations:"), "the Workshop offered from 110 below it")
+	t.teleport_player(base + Vector2(0.0, 30.0))
+	await t.steps(2)
+	interaction.refresh(null)
+	t.check(str(interaction.current().get("id", "")).begins_with("world-restorations:"), "the Workshop not offered at its front: %s" % [interaction.current().get("id")])
 
 
 # --- helpers ----------------------------------------------------------------------------------

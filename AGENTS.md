@@ -40,6 +40,9 @@ its code is in git history.
   the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the throw-combat experiment:
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md); the prologue:
   [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md); the skins: [docs/godot/SKINS.md](docs/godot/SKINS.md)).
+- Dev powers board: **F10** in any world run from the project lists every shape, ability and skin
+  and switches each on or off for the session (never saved; not in the production web export:
+  [The powers board](docs/godot/CONVENTIONS.md#the-powers-board)).
 - `pnpm test:godot [-- --filter=<text>]` — the headless integration tests in `godot/tests/`
   (about an hour for the full suite: 53 minutes for 611 tests on 2026-11-20).
 - `"<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/verify_scenes.gd` — loads every
@@ -62,6 +65,17 @@ its code is in git history.
   by frame (windowed, one film at a time) and lays it out as a strip and GIFs in
   `output/throw-feel/<name>/`, to judge the throw's feel
   ([Filming a throw](docs/godot/THROW_COMBAT.md#filming-a-throw)).
+- `bash scripts/godot/film-enemy-ways.sh <name> --film=<film> [options]` — films the Dung Roller's
+  stolen ball (`axis`, `steal`, `throw-miss`, `throw-back`, `throw-other`, `leave`, `pen`) or an
+  enemy's walk home (`home-wall`, `home-notice`) in the playground into `output/enemy-ways/<name>/`
+  ([Dung Roller](docs/godot/BESTIARY.md#13-dung-roller-patroller),
+  "Getting home" in [docs/godot/specs/enemy.md](docs/godot/specs/enemy.md) §4.3); with
+  `--tool=film_worm_bulwark` the Worm Bulwark's charge (`dodge`, `bowl`, `wall`, `front`, `pen`)
+  ([Worm Bulwark](docs/godot/BESTIARY.md#37-worm-bulwark-charger)), with
+  `--tool=film_carnivore_plant` the Carnivore Plant (`bite`, `eat`, `doze`, `fire`, `feed`)
+  ([Carnivore Plant](docs/godot/BESTIARY.md#38-carnivore-plant-ambusher)), with
+  `--tool=film_jelly_bouncer` the Jelly Bouncer (`zap`, `throw`, `catch`, `spear`, `arrows`)
+  ([Jelly Bouncer](docs/godot/BESTIARY.md#39-jelly-bouncer-shocker)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
@@ -101,6 +115,8 @@ its code is in git history.
   `godot/addons/strike_preview/` — the body shapes' strike preview in the Inspector.
   `godot/addons/scenery_dock/` — the Scenery dock (props by picture, dragged in as nodes).
   `godot/addons/camera_room_handles/` — drag handles for camera rooms' corners and outline points.
+  `godot/addons/door_area_handles/` — every door's trigger area drawn in the 2D view, with drag
+  handles on the selected door's ([A door's area in the editor](docs/godot/CONVENTIONS.md#doors)).
 - `scripts/` — art and audio tools and the test runner; `tools/` is unrelated to the game build.
 
 ## Architecture Rules

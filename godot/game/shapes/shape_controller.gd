@@ -119,7 +119,7 @@ const STAND_IN_CLIP := "attack-1"
 const VISUALS_NAME := "ShapeVisuals"
 ## Cues (audio.global) until the shapes get their own sounds: the swing, the Hammer's impact, the
 ## switch (the old EquipBlade / EquipTool), the charge ring's chime when full, the fizzle.
-const SWING_CUES := {"spear": &"Lash", "axe": &"Dodge", "hammer": &"SlamWindup"}
+const SWING_CUES := {"spear": &"Lash", "axe": &"Dodge", "hammer": &"HammerSwing"}
 const IMPACT_CUES := {"hammer": &"SlamImpact"}
 const SWITCH_CUES := {"spear": &"EquipBlade", "axe": &"EquipBlade", "hammer": &"EquipTool"}
 const RING_FULL_CUE := &"Heal"
@@ -312,6 +312,21 @@ func learned_shape_ids() -> Array[StringName]:
 		if run != null and run.has_learned_ability(String(id)):
 			learned.append(id)
 	return learned
+
+
+## The learned shapes changed under the controller (the dev powers board, game/dev/dev_powers_board.gd,
+## lends and takes shapes mid-run): a current shape that is no longer learned gives way to the first
+## learned one, and so does no shape at all; with none learned there is no current shape.
+func sync_learned() -> void:
+	var learned := learned_shape_ids()
+	if learned.has(_current):
+		return
+	_pending_switch = &""
+	drop_press()
+	reset_chain(RESET_SWITCH)
+	_current = &""
+	if not learned.is_empty():
+		set_current(learned[0])
 
 
 ## Makes `id` current (a learned shape only); resets the chain and plays the switch cue. False when

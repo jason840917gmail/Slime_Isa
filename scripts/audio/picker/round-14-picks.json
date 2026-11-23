@@ -1,0 +1,60 @@
+{
+ "round": "round-14",
+ "decidedAt": "2026-11-22T05:08:57.129Z",
+ "source": "The Sound Picker's picks/round-14 document, version 21 (final), as saved: every cue picked, none Neither, no note or wishes. Dropped takes are the ones the owner struck out (indices from 0).",
+ "note": "",
+ "picks": {
+  "enemy.plant-burn": "a",
+  "enemy.plant-burp": "c",
+  "enemy.plant-doze": "a",
+  "enemy.plant-munch": "b",
+  "enemy.plant-open": "a",
+  "enemy.plant-snap": "a",
+  "enemy.plant-spit": "b",
+  "enemy.plant-swallow": "a"
+ },
+ "dropped": {
+  "enemy.plant-burp": {
+   "c": [
+    3
+   ]
+  },
+  "enemy.plant-doze": {
+   "a": [
+    2
+   ]
+  },
+  "enemy.plant-munch": {
+   "b": [
+    1,
+    2
+   ]
+  },
+  "enemy.plant-open": {
+   "a": [
+    1,
+    2
+   ],
+   "b": [
+    0
+   ]
+  },
+  "enemy.plant-snap": {
+   "a": [
+    3
+   ]
+  },
+  "enemy.plant-spit": {
+   "b": [
+    1,
+    2,
+    3
+   ]
+  },
+  "enemy.plant-swallow": {
+   "a": [
+    0
+   ]
+  }
+ }
+}

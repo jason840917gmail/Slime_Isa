@@ -18,6 +18,11 @@
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="16_rw2444"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="17_rw6125"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="18_r2bolt"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="21_88q30"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="22_71mf1"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier-unlit.tscn" id="23_bgm5w"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/floor-grate.tscn" id="24_wxt0l"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/barrel-stack.tscn" id="25_u3u7v"]
 [ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 
@@ -176,6 +181,73 @@ bus = &"Music"
 script = ExtResource("16_rw2444")
 loop = true
 autoplay_cue = true
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1897224214]
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=539788140 instance=ExtResource("21_88q30")]
+position = Vector2(325, 298)
+enemy_type = "worm-archer"
+
+[node name="@Node2D@39632" parent="Enemies" unique_id=924498270 instance=ExtResource("21_88q30")]
+position = Vector2(724, 280)
+enemy_type = "worm-archer"
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1384825368]
+y_sort_enabled = true
+
+[node name="liftable" parent="Scenery" unique_id=1522654960 instance=ExtResource("22_71mf1")]
+position = Vector2(295, 666)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
+
+[node name="@StaticBody2D@39633" parent="Scenery" unique_id=1916587795 instance=ExtResource("22_71mf1")]
+position = Vector2(304, 862)
+kind = "clay-pot"
+under = "random"
+weight = "light"
+
+[node name="@StaticBody2D@39634" parent="Scenery" unique_id=1203941747 instance=ExtResource("22_71mf1")]
+position = Vector2(169, 671)
+kind = "clay-pot"
+weight = "light"
+
+[node name="@StaticBody2D@39635" parent="Scenery" unique_id=1716413163 instance=ExtResource("22_71mf1")]
+position = Vector2(174, 863)
+kind = "clay-pot"
+weight = "light"
+
+[node name="@StaticBody2D@39663" parent="Scenery" unique_id=878671967 instance=ExtResource("22_71mf1")]
+position = Vector2(994, 380)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
+
+[node name="@StaticBody2D@39664" parent="Scenery" unique_id=30015273 instance=ExtResource("22_71mf1")]
+position = Vector2(1000, 259)
+kind = "clay-pot"
+under = "random"
+weight = "light"
+
+[node name="@StaticBody2D@39665" parent="Scenery" unique_id=1867386212 instance=ExtResource("22_71mf1")]
+position = Vector2(651, 157)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
+
+[node name="@StaticBody2D@39666" parent="Scenery" unique_id=1674095902 instance=ExtResource("22_71mf1")]
+position = Vector2(504, 159)
+kind = "clay-pot"
+weight = "light"
+
+[node name="brazier-unlit" parent="Scenery" unique_id=451989933 instance=ExtResource("23_bgm5w")]
+position = Vector2(191, 203)
+
+[node name="floor-grate" parent="Scenery" unique_id=563815544 instance=ExtResource("24_wxt0l")]
+position = Vector2(969, 816)
+
+[node name="barrel-stack" parent="Scenery" unique_id=1595168655 instance=ExtResource("25_u3u7v")]
+position = Vector2(972, 706)
 
 [editable path="Hazards/void-56-70"]
 [editable path="Hazards/void-59-74"]

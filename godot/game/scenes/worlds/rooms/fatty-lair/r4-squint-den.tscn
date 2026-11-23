@@ -122,11 +122,6 @@ weight = "light"
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1103266293]
 
-[node name="r4-squint-a" parent="Enemies" unique_id=1658090329 instance=ExtResource("12_h3to0")]
-position = Vector2(347, 372)
-enemy_type = "squint"
-wander_radius = 251.0
-
 [node name="r4-squint-b" parent="Enemies" unique_id=92276428 instance=ExtResource("12_h3to0")]
 position = Vector2(743, 424)
 enemy_type = "squint"
@@ -245,5 +240,4 @@ frame_drawn_by_wall = true
 size = Vector2(1152, 1024)
 fight_id = "r4-squint-den"
 
-[editable path="Enemies/r4-squint-a"]
 [editable path="Enemies/r4-squint-b"]

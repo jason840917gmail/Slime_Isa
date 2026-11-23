@@ -85,6 +85,33 @@ picture does not hide it. A dungeon item in `contents` ("dungeon-small-key": a k
 the Weaver Hollow's C4) drops in front of it as the kit's floor key (`DungeonKeyPickup`, recorded
 under the parcel's flag), and lies there again after the world is built again until it is taken.
 
+## Critters in silk (2026-11-21)
+
+`game/world/webs/silk_critter.gd` (on a silk parcel; placed by `tools/build_gloop_river_roads.gd` in
+Gloop Forest): a forest critter wrapped in silk.
+- **Look:** the silk parcel, wriggling now and then (its shiver, every `wriggle_every_ms`), so it
+  reads as alive before the Silk skin. A hit without the skin clinks: "Something wriggles inside
+  the silk...".
+- **Freed** (the Silk skin and the Spear, as any parcel; its flag `gloop-forest.critter-<animal>`):
+  the animal (`critter`, a town animal's scene) pops out and runs off along `run_toward` (toward the
+  camp), fading; only its picture runs (presentation, real time).
+- **Home:** `game/world/webs/freed_critter.gd` in Mossy's camp holds nothing until that flag is set,
+  then puts the animal there to wander (as the town's animals).
+- **The five:** squirrel, hedgehog, snail, robin, bluebird. All five home: Sunny's talk
+  `critters-prize` (npc-definitions.json) gives her prize once (`sunny.critters-prize`).
+
+## Tripwires (2026-11-21)
+
+`game/world/webs/tripwire.gd` (a Node2D, placed by `tools/build_gloop_river_roads.gd` in Gloop Forest):
+- **Look:** a silk thread `length` units along the node's x axis. Turn the node for a thread across a
+  north-south road.
+- **Snap:** when the slime's feet come within `touch_px` of it, it snaps with the `WebTear` cue.
+- **The drop:** every Silk Lurker within `reach` (260) of its middle drops at once
+  (`silk_lurker.gd` `trip()`: its tell, then its drop, even with the slime out of its usual range).
+- **Use:** a trap to step round, or to spring on purpose.
+- **Again:** it is spun again when its chunk is built again.
+- **Where:** at the foot of E3's spider column and on F4's road up to the Oak.
+
 ## Art
 
 Generated on Magnific (GPT 2.5, transparent, the Lili sheet as style reference) and packed by

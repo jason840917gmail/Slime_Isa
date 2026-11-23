@@ -235,9 +235,10 @@ func test_the_drawbridge_takes_two_plates_and_burr_holds_one(t: TestContext) -> 
 	t.check(t.world().world_root.get_node_or_null("Lair/burr") == null, "Burr stood on his plate again after his goodbye")
 
 
-## R5's north maze (the owner, 2026-10-19): three eye latches, struck in their order I, II, III with
-## the Spear before I's time runs out, open the gatehouse's G1 and G2 and the inner door (G3)
-## together, for good; struck out of order the run starts over.
+## R5's north maze (the owner, 2026-10-19; eye III taken out 2026-11-21): two eye latches, struck in
+## their order I, II with the Spear before I's time runs out, open the gatehouse's G1 and G2 and the
+## inner door (G3, opened by II since III went: its `more_gate_ids`) together, for good; struck out
+## of order the run starts over.
 func test_the_north_mazes_eyes_open_their_three_gates_only_in_order(t: TestContext) -> void:
 	if not await _enter(t, "r5"):
 		return
@@ -247,7 +248,7 @@ func test_the_north_mazes_eyes_open_their_three_gates_only_in_order(t: TestConte
 		enemy.queue_free()
 	var one := _objects(t).get_node("r5-maze-latch-1")
 	var two := _objects(t).get_node("r5-maze-latch-2")
-	var three := _objects(t).get_node("r5-latch-inner")
+	t.check(_objects(t).get_node_or_null("r5-latch-inner") == null, "eye III is back in R5")
 	var gates: Array[Node] = [_objects(t).get_node("r5-maze-g1/GateScript"), _objects(t).get_node("r5-maze-g2/GateScript"),
 		_objects(t).get_node("r5-inner-door/GateScript")]
 	var none_open := func() -> bool:
@@ -259,25 +260,19 @@ func test_the_north_mazes_eyes_open_their_three_gates_only_in_order(t: TestConte
 	_route(t, one.get(&"area"), ["thrown", "clay-pot"])
 	await t.steps(2)
 	t.check(not bool(one.call(&"is_shut")), "a roll or a thrown pot shut the eye")
-	# out of order: II first stays open; I then III starts the run over
+	# out of order: II first stays open
 	_route(t, two.get(&"area"), ["spear", "weapon"])
 	await t.steps(4)
 	t.check(not bool(two.call(&"is_shut")), "eye II shut before eye I")
-	_route(t, one.get(&"area"), ["spear", "weapon"])
-	await t.steps(4)
-	_route(t, three.get(&"area"), ["spear", "weapon"])
-	await t.steps(4)
-	t.check(not bool(one.call(&"is_shut")) and not bool(three.call(&"is_shut")), "eye III out of order did not start the run over")
 	t.check(none_open.call(), "a gate opened out of order")
-	# the run's time is I's: I and II shut, then I's time runs out and both open again
+	# the run's time is I's: I alone shut, its time runs out and it opens again
 	_route(t, one.get(&"area"), ["spear", "weapon"])
-	await t.steps(4)
-	_route(t, two.get(&"area"), ["spear", "weapon"])
 	await t.steps(4)
 	await t.sim_wait(float(one.get(&"open_ms")) + 300.0)
-	t.check(not bool(one.call(&"is_shut")) and not bool(two.call(&"is_shut")), "the run outlived eye I's time")
+	t.check(not bool(one.call(&"is_shut")), "the run outlived eye I's time")
+	t.check(none_open.call(), "a gate opened with eye I alone")
 	# in order, in time: the three gates open together, for good
-	for latch: Node in [one, two, three]:
+	for latch: Node in [one, two]:
 		_route(t, latch.get(&"area"), ["spear", "weapon"])
 		await t.steps(4)
 	await t.steps(60)

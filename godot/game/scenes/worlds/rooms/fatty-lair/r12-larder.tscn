@@ -1,34 +1,47 @@
-[gd_scene format=4]
+[gd_scene format=4 uid="uid://crk8oss2eb6p2"]
 
 [ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_0sdw5"]
-[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_wmcii"]
+[ext_resource type="TileSet" uid="uid://beb14n2ncw3u7" path="res://game/world/terrain_tileset.tres" id="2_wmcii"]
 [ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_t6d43"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cpvp5"]
+[ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cpvp5"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_w3pt3"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_s3oi3"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--pearl-altar.tscn" id="7_eyrq7"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/pearl-altar-empty.webp" id="8_fag7r"]
+[ext_resource type="Texture2D" uid="uid://m7cqxfxlum77" path="res://asset/MAPS/objects/fattys-lair/pearl-altar-empty.webp" id="8_fag7r"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--hay-bale.tscn" id="9_1smuf"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--cooking-cauldron.tscn" id="10_4mhn3"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="11_0py3s"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="12_a00wa"]
+[ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="12_a00wa"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/sarcophagus.tscn" id="13_7gplm"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-fight.tscn" id="13_x1o6l"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="14_a3qw6"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/shutter.webp" id="15_bthbr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/hanging-cage.tscn" id="14_ultqn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/hanging-chains.tscn" id="15_pu021"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/plank-barricade.tscn" id="16_7gplm"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/plank-barricade-2x1.webp" id="17_ultqn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/wall-shackles.tscn" id="16_rfie8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/weapon-rack.tscn" id="17_7m4k2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn" id="18_m70po"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/pearl.tscn" id="18_pu021"]
-[ext_resource type="Texture2D" path="res://asset/MAPS/objects/fattys-lair/pearl.webp" id="19_rfie8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/broken-crates.tscn" id="19_65ijy"]
+[ext_resource type="Texture2D" uid="uid://c8juxdidalk5d" path="res://asset/MAPS/objects/fattys-lair/pearl.webp" id="19_rfie8"]
 [ext_resource type="Script" uid="uid://bagjdby0ohf22" path="res://game/prologue/soft_glow.gd" id="20_7m4k2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/floor-grate.tscn" id="20_xlvmk"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="21_m70po"]
-[ext_resource type="Script" path="res://game/scripts/world_definition.gd" id="22_rw0782"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/candelabra.tscn" id="21_u6205"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="22_rw0782"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="23_rw6083"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="24_rw6047"]
-[ext_resource type="Script" path="res://game/fattys_lair/lair_director.gd" id="25_rw7868"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="26_rw7428"]
-[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="27_rw5160"]
-[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
+[ext_resource type="Texture2D" uid="uid://blu0v656gf8qr" path="res://asset/MAPS/walls/interior/cave-rock.webp" id="25_cv5wq"]
+[ext_resource type="Script" uid="uid://chb2s4byl4u2a" path="res://game/fattys_lair/lair_director.gd" id="25_rw7868"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="26_rw7428"]
+[ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="27_rw5160"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_kksxk"]
+blend_mode = 1
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_aiqdo"]
+blend_mode = 1
 
 [node name="r12-larder" type="Node2D" unique_id=935598741]
 y_sort_enabled = true
@@ -45,11 +58,14 @@ metadata/columns = 18
 metadata/rows = 16
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=2179340]
+self_modulate = Color(1, 1, 1, 0.3)
+y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAAAAAABAAAAAAABAAAAAAACAAAAAAABAAAAAAADAAAAAAABAAAAAAAEAAAAAAABAAAAAAAFAAAAAAABAAAAAAAGAAAAAAABAAAAAAAHAAAAAAABAAAAAAAIAAAAAAABAAAAAAAJAAAAAAABAAAAAAAKAAAAAAABAAAAAAALAAAAAAABAAsAAAAMAAAAAAABAAsAAAANAAAAAAABAAAAAAAOAAAAAAABAAAAAAAPAAAAAAABAAAAAAAQAAAAAAABAAAAAAARAAAAAAABAAAAAAAAAAEAAAABAAAAAAABAAEAAAABAAAAAAACAAEAAAABAAAAAAADAAEAAAABAAAAAAAEAAEAAAABAAAAAAAFAAEAAAABAAAAAAAGAAEAAAABAAAAAAAHAAEAAAABAAAAAAAIAAEAAAABAAAAAAAJAAEAAAABAAAAAAAKAAEAAAABAAAAAAALAAEAAAABAAsAAAAMAAEAAAABAAsAAAANAAEAAAABAAAAAAAOAAEAAAABAAAAAAAPAAEAAAABAAAAAAAQAAEAAAABAAAAAAARAAEAAAABAAAAAAAAAAIAAAABAAAAAAABAAIAAAABAAAAAAAQAAIAAAABAAAAAAARAAIAAAABAAAAAAAAAAMAAAABAAAAAAABAAMAAAABAAAAAAAQAAMAAAABAAAAAAARAAMAAAABAAAAAAAAAAQAAAABAAAAAAABAAQAAAABAAAAAAAQAAQAAAABAAAAAAARAAQAAAABAAAAAAAAAAUAAAABAAAAAAABAAUAAAABAAAAAAAQAAUAAAABAAAAAAARAAUAAAABAAAAAAAAAAYAAAABAAAAAAABAAYAAAABAAAAAAAQAAYAAAABAAAAAAARAAYAAAABAAAAAAAAAAcAAAABAAAAAAABAAcAAAABAAAAAAAAAAgAAAABAAAAAAABAAgAAAABAAAAAAAAAAkAAAABAAAAAAABAAkAAAABAAAAAAAAAAoAAAABAAAAAAABAAoAAAABAAAAAAAAAAsAAAABAAAAAAABAAsAAAABAAAAAAAQAAsAAAABAAAAAAARAAsAAAABAAAAAAAAAAwAAAABAAAAAAABAAwAAAABAAAAAAAQAAwAAAABAAAAAAARAAwAAAABAAAAAAAAAA0AAAABAAAAAAABAA0AAAABAAAAAAAQAA0AAAABAAAAAAARAA0AAAABAAAAAAAAAA4AAAABAAAAAAABAA4AAAABAAAAAAACAA4AAAABAAAAAAADAA4AAAABAAAAAAAEAA4AAAABAAAAAAAFAA4AAAABAAAAAAAGAA4AAAABAAAAAAAHAA4AAAABAAAAAAAIAA4AAAABAAAAAAAJAA4AAAABAAAAAAAKAA4AAAABAAAAAAALAA4AAAABAAAAAAAMAA4AAAABAAkAAAANAA4AAAABAAkAAAAOAA4AAAABAAAAAAAPAA4AAAABAAAAAAAQAA4AAAABAAAAAAARAA4AAAABAAAAAAAAAA8AAAABAAAAAAABAA8AAAABAAAAAAACAA8AAAABAAAAAAADAA8AAAABAAAAAAAEAA8AAAABAAAAAAAFAA8AAAABAAAAAAAGAA8AAAABAAAAAAAHAA8AAAABAAAAAAAIAA8AAAABAAAAAAAJAA8AAAABAAAAAAAKAA8AAAABAAAAAAALAA8AAAABAAAAAAAMAA8AAAABAAkAAAANAA8AAAABAAkAAAAOAA8AAAABAAAAAAAPAA8AAAABAAAAAAAQAA8AAAABAAAAAAARAA8AAAABAAAAAAAQAAcAAAABAAAAAAARAAcAAAABAAAAAAAQAAgAAAABAAAAAAARAAgAAAABAAAAAAAQAAkAAAABAAAAAAARAAkAAAABAAAAAAAQAAoAAAABAAAAAAARAAoAAAABAAAAAAA=")
 tile_set = ExtResource("4_cpvp5")
 script = ExtResource("5_w3pt3")
 
 [node name="floor-trim" type="TileMapLayer" parent="." unique_id=2126193070]
+self_modulate = Color(1, 1, 1, 0.2)
 tile_set = ExtResource("90_trims")
 script = ExtResource("91_triml")
 
@@ -94,20 +110,73 @@ position = Vector2(972.80005, 492.80005)
 [node name="r12-hoard-east-2" parent="Scenery" unique_id=1712564054 instance=ExtResource("9_1smuf")]
 position = Vector2(972.80005, 563.19995)
 
-[node name="r12-cauldron" parent="Scenery" unique_id=97583171 instance=ExtResource("10_4mhn3")]
-position = Vector2(896, 806.4)
-
 [node name="r12-hoard-crate-0" parent="Scenery" unique_id=1616119224 instance=ExtResource("11_0py3s")]
 position = Vector2(192, 409.59998)
+weight = "light"
 
 [node name="LiftableScript" parent="Scenery/r12-hoard-crate-0" index="2"]
 kind = "wicker-basket"
+weight_class = "light"
 
 [node name="r12-hoard-crate-1" parent="Scenery" unique_id=678419921 instance=ExtResource("11_0py3s")]
-position = Vector2(249.6001, 409.59998)
+position = Vector2(750, 891)
+weight = "light"
 
-[node name="LiftableScript" parent="Scenery/r12-hoard-crate-1" index="2"]
-kind = "wicker-basket"
+[node name="liftable" parent="Scenery" unique_id=1541237905 instance=ExtResource("11_0py3s")]
+position = Vector2(140, 888)
+kind = "clay-pot"
+under = "random"
+weight = "light"
+
+[node name="@StaticBody2D@27133" parent="Scenery" unique_id=122931705 instance=ExtResource("11_0py3s")]
+position = Vector2(1009, 151)
+kind = "clay-pot"
+under = "heart"
+weight = "light"
+
+[node name="@StaticBody2D@27134" parent="Scenery" unique_id=976223200 instance=ExtResource("11_0py3s")]
+position = Vector2(145, 147)
+kind = "clay-pot"
+under = "random"
+weight = "light"
+
+[node name="liftable2" parent="Scenery" unique_id=115419016 instance=ExtResource("11_0py3s")]
+position = Vector2(665, 147)
+kind = "gargoyle-head"
+weight = "heavy"
+
+[node name="sarcophagus" parent="Scenery" unique_id=383075548 instance=ExtResource("13_7gplm")]
+position = Vector2(973, 634)
+
+[node name="hanging-cage" parent="Scenery" unique_id=1227198410 instance=ExtResource("14_ultqn")]
+position = Vector2(402, 77)
+
+[node name="hanging-chains" parent="Scenery" unique_id=1057898966 instance=ExtResource("15_pu021")]
+position = Vector2(590, 92)
+
+[node name="hanging-chains2" parent="Scenery" unique_id=462645953 instance=ExtResource("15_pu021")]
+position = Vector2(936, 93)
+
+[node name="wall-shackles" parent="Scenery" unique_id=1485845176 instance=ExtResource("16_rfie8")]
+position = Vector2(218, 103)
+
+[node name="weapon-rack" parent="Scenery" unique_id=1467570838 instance=ExtResource("17_7m4k2")]
+position = Vector2(310, 146)
+
+[node name="worm-head-statue" parent="Scenery" unique_id=1348029190 instance=ExtResource("18_m70po")]
+position = Vector2(760, 362)
+
+[node name="broken-crates" parent="Scenery" unique_id=1301441750 instance=ExtResource("19_65ijy")]
+position = Vector2(167, 579)
+
+[node name="floor-grate" parent="Scenery" unique_id=1857557503 instance=ExtResource("20_xlvmk")]
+position = Vector2(164, 195)
+
+[node name="candelabra" parent="Scenery" unique_id=21028020 instance=ExtResource("21_u6205")]
+position = Vector2(866, 140)
+
+[node name="@StaticBody2D@28821" parent="Scenery" unique_id=1048182555 instance=ExtResource("18_m70po")]
+position = Vector2(416, 589)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1238226104]
 
@@ -115,6 +184,7 @@ kind = "wicker-basket"
 position = Vector2(576, 544)
 enemy_type = "big-squint"
 wander_radius = 220.0
+reach = null
 
 [node name="Objects" type="Node2D" parent="." unique_id=1017834318]
 y_sort_enabled = true
@@ -137,7 +207,14 @@ metadata/interior_door_block = "12,14"
 metadata/interior_door_kind = "shutter"
 
 [node name="Look" parent="Objects/r12-shutter-south" index="1"]
-texture = ExtResource("15_bthbr")
+visible = false
+modulate = Color(1, 1, 1, 0)
+position = Vector2(35.499996, -24.500004)
+rotation = -3.1415927
+texture = ExtResource("25_cv5wq")
+offset = Vector2(0, 0)
+region_enabled = true
+region_rect = Rect2(546, 1792, 141, 132)
 
 [node name="r12-barricade" parent="Objects" unique_id=1425990767 instance=ExtResource("16_7gplm")]
 position = Vector2(768, 128)
@@ -148,7 +225,12 @@ metadata/interior_door_block = "11,0"
 metadata/interior_door_kind = "barricade"
 
 [node name="Visual" parent="Objects/r12-barricade" index="1"]
-texture = ExtResource("17_ultqn")
+position = Vector2(-35, -90.5)
+texture = ExtResource("25_cv5wq")
+offset = Vector2(0, 0)
+hframes = 1
+region_enabled = true
+region_rect = Rect2(1497, 1792, 141, 132)
 
 [node name="Lair" type="Node2D" parent="." unique_id=591333897]
 y_sort_enabled = true
@@ -158,6 +240,9 @@ position = Vector2(416, 275.19995)
 boss_id = "fatty-lair-big-squint"
 take_radius = 90.0
 
+[node name="Glow" parent="Lair/pearl-1" index="0"]
+material = SubResource("CanvasItemMaterial_kksxk")
+
 [node name="Visual" parent="Lair/pearl-1" index="1"]
 texture = ExtResource("19_rfie8")
 
@@ -165,6 +250,7 @@ texture = ExtResource("19_rfie8")
 position = Vector2(416, 368)
 
 [node name="Glow" type="Node2D" parent="Lair/r12-pearl-glow" unique_id=1565040952]
+material = SubResource("CanvasItemMaterial_aiqdo")
 position = Vector2(0, -99.2)
 script = ExtResource("20_7m4k2")
 radius = Vector2(78, 54)
@@ -173,8 +259,16 @@ pulse = 0.45
 period_s = 2.2
 
 [node name="Glint" parent="Lair/r12-pearl-glow" unique_id=894308177 instance=ExtResource("21_m70po")]
+z_index = 46
+z_as_relative = false
 position = Vector2(0, -134.4)
 tint = Color(1, 0.86, 0.55, 1)
+
+[node name="LairDirector" type="Node2D" parent="Lair" unique_id=1260750184]
+script = ExtResource("25_rw7868")
+pearl = NodePath("../pearl-1")
+pearl_glint = NodePath("../r12-pearl-glow")
+boss_mark = false
 
 [node name="world-definition" type="Node" parent="." unique_id=1070617530]
 script = ExtResource("22_rw0782")
@@ -205,7 +299,6 @@ position = Vector2(768, 0)
 door_id = "r12-to-c2"
 target_room = "c2-weigh-house"
 target_door = "c2-to-r12"
-side = "north"
 requires = "flag:fatty-lair.larder-smashed"
 locked_text = "Planks are nailed across it."
 
@@ -216,12 +309,6 @@ target_room = "r11-drop-gate-bridge"
 target_door = "r11-to-r12"
 side = "south"
 
-[node name="LairDirector" type="Node2D" parent="Lair" unique_id=1260750184]
-script = ExtResource("25_rw7868")
-pearl = NodePath("../pearl-1")
-pearl_glint = NodePath("../r12-pearl-glow")
-boss_mark = false
-
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1780020278]
 process_mode = 3
 stream = ExtResource("27_rw5160")
@@ -231,16 +318,19 @@ script = ExtResource("26_rw7428")
 loop = true
 autoplay_cue = true
 
-[node name="Throwables" type="Node2D" parent="."]
+[node name="Throwables" type="Node2D" parent="." unique_id=949688138]
 y_sort_enabled = true
 
-[node name="throw-r12-big-squint-1" parent="Throwables" instance=ExtResource("11_0py3s")]
-position = Vector2(630, 589)
+[node name="throw-r12-big-squint-1" parent="Throwables" unique_id=695475051 instance=ExtResource("11_0py3s")]
+position = Vector2(999, 889)
 kind = "clay-pot"
+under = "heart"
+weight = "light"
 
-[node name="throw-r12-big-squint-2" parent="Throwables" instance=ExtResource("11_0py3s")]
+[node name="throw-r12-big-squint-2" parent="Throwables" unique_id=2012486396 instance=ExtResource("11_0py3s")]
 position = Vector2(582, 614)
 kind = "rock"
+weight = "light"
 
 [editable path="Scenery/r12-altar"]
 [editable path="Scenery/r12-hoard-0"]
@@ -250,9 +340,7 @@ kind = "rock"
 [editable path="Scenery/r12-hoard-east-0"]
 [editable path="Scenery/r12-hoard-east-1"]
 [editable path="Scenery/r12-hoard-east-2"]
-[editable path="Scenery/r12-cauldron"]
 [editable path="Scenery/r12-hoard-crate-0"]
-[editable path="Scenery/r12-hoard-crate-1"]
 [editable path="Enemies/r12-big-squint"]
 [editable path="Objects/r12-fight"]
 [editable path="Objects/r12-shutter-south"]

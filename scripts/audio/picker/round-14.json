@@ -1,0 +1,542 @@
+{
+ "round": "round-14",
+ "title": "Sound picker, round 14: the Carnivore Plant",
+ "intro": "The Carnivore Plant's own sounds (2026-11-22, after your note: \"use the sound play to give me some sound for here\"). Each moment has three new ideas with four takes each (the game picks one at random each time; drop the takes you do not like), and \"Now\", what it played before. The game plays option A of each meanwhile. Pick one per sound, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-14/takes",
+ "groups": [
+  {
+   "id": "plant",
+   "name": "The Carnivore Plant",
+   "note": "Every sound the plant makes, from her tell to her burp. Until now she borrowed the Cocoon Mimic's, the Gulp's and the slime's sounds."
+  }
+ ],
+ "cues": [
+  {
+   "id": "enemy.plant-open",
+   "group": "plant",
+   "name": "Plant: jaws open (the tell)",
+   "where": "Something comes near her pot: she rears up and opens her jaws wide, 0.35 s before she snaps",
+   "node": "PlantOpen",
+   "ship": "enemy/plant-open",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Hungry hiss",
+     "note": "A wet hiss as her slimy jaws peel open",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/open-a-1.mp3",
+      "temp/sound-round-14/raw/open-a-2.mp3",
+      "temp/sound-round-14/raw/open-a-3.mp3",
+      "temp/sound-round-14/raw/open-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Stem and jaws creak",
+     "note": "Her woody stem creaks and her sticky jaws creak wide open",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/open-b-1.mp3",
+      "temp/sound-round-14/raw/open-b-2.mp3",
+      "temp/sound-round-14/raw/open-b-3.mp3",
+      "temp/sound-round-14/raw/open-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Greedy growl",
+     "note": "A short greedy gurgling growl from a leafy throat",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/open-c-1.mp3",
+      "temp/sound-round-14/raw/open-c-2.mp3",
+      "temp/sound-round-14/raw/open-c-3.mp3",
+      "temp/sound-round-14/raw/open-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the Cocoon Mimic's wrap (a goo inhale)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-inhale-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-inhale-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-inhale-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-snap",
+   "group": "plant",
+   "name": "Plant: snap",
+   "where": "Her jaws snap shut on the slime, an enemy, or nothing",
+   "node": "PlantSnap",
+   "ship": "enemy/plant-snap",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Wet chomp",
+     "note": "One big wet crunchy chomp",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/snap-a-1.mp3",
+      "temp/sound-round-14/raw/snap-a-2.mp3",
+      "temp/sound-round-14/raw/snap-a-3.mp3",
+      "temp/sound-round-14/raw/snap-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Flytrap snap",
+     "note": "A sharp leafy snap and thorn teeth clacking together",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/snap-b-1.mp3",
+      "temp/sound-round-14/raw/snap-b-2.mp3",
+      "temp/sound-round-14/raw/snap-b-3.mp3",
+      "temp/sound-round-14/raw/snap-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Clack and squelch",
+     "note": "A hard woody clack, then a short squelch",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/snap-c-1.mp3",
+      "temp/sound-round-14/raw/snap-c-2.mp3",
+      "temp/sound-round-14/raw/snap-c-3.mp3",
+      "temp/sound-round-14/raw/snap-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the Cocoon Mimic's grab (a goo plop)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-plop-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-plop-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-plop-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-munch",
+   "group": "plant",
+   "name": "Plant: munch",
+   "where": "Each chew: the slime in her mouth (one chew, 30 damage), or an enemy she eats (two munches)",
+   "node": "PlantMunch",
+   "ship": "enemy/plant-munch",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Crunchy munch",
+     "note": "One crunchy munch",
+     "kind": "oneshot",
+     "max": 0.4,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/munch-a-1.mp3",
+      "temp/sound-round-14/raw/munch-a-2.mp3",
+      "temp/sound-round-14/raw/munch-a-3.mp3",
+      "temp/sound-round-14/raw/munch-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Squishy chew",
+     "note": "One squishy wet chew",
+     "kind": "oneshot",
+     "max": 0.4,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/munch-b-1.mp3",
+      "temp/sound-round-14/raw/munch-b-2.mp3",
+      "temp/sound-round-14/raw/munch-b-3.mp3",
+      "temp/sound-round-14/raw/munch-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Leafy gnash",
+     "note": "One quick gnash with a leafy rustle",
+     "kind": "oneshot",
+     "max": 0.4,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/munch-c-1.mp3",
+      "temp/sound-round-14/raw/munch-c-2.mp3",
+      "temp/sound-round-14/raw/munch-c-3.mp3",
+      "temp/sound-round-14/raw/munch-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the Cocoon Mimic's grab (a goo plop)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-plop-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-plop-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-plop-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-swallow",
+   "group": "plant",
+   "name": "Plant: swallow",
+   "where": "She swallows an enemy she ate (her head tipped back, a bulge down her stem)",
+   "node": "PlantSwallow",
+   "ship": "enemy/plant-swallow",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Big gulp",
+     "note": "One big deep wet gulp",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/swallow-a-1.mp3",
+      "temp/sound-round-14/raw/swallow-a-2.mp3",
+      "temp/sound-round-14/raw/swallow-a-3.mp3",
+      "temp/sound-round-14/raw/swallow-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Lump down the stem",
+     "note": "A gloopy sliding gulp going down",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/swallow-b-1.mp3",
+      "temp/sound-round-14/raw/swallow-b-2.mp3",
+      "temp/sound-round-14/raw/swallow-b-3.mp3",
+      "temp/sound-round-14/raw/swallow-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Throaty gulp and creak",
+     "note": "A throaty gulp and a woody creak of her stem",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/swallow-c-1.mp3",
+      "temp/sound-round-14/raw/swallow-c-2.mp3",
+      "temp/sound-round-14/raw/swallow-c-3.mp3",
+      "temp/sound-round-14/raw/swallow-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the Gulp's throat (a goo inhale)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-inhale-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-inhale-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-inhale-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-burp",
+   "group": "plant",
+   "name": "Plant: burp",
+   "where": "After the swallow, before she falls asleep digesting (\"Burp!\")",
+   "node": "PlantBurp",
+   "ship": "enemy/plant-burp",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Deep burp",
+     "note": "One deep satisfied burp",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burp-a-1.mp3",
+      "temp/sound-round-14/raw/burp-a-2.mp3",
+      "temp/sound-round-14/raw/burp-a-3.mp3",
+      "temp/sound-round-14/raw/burp-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Bubbly leafy burp",
+     "note": "A bubbly wet burp with a rustle of leaves",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burp-b-1.mp3",
+      "temp/sound-round-14/raw/burp-b-2.mp3",
+      "temp/sound-round-14/raw/burp-b-3.mp3",
+      "temp/sound-round-14/raw/burp-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Smug burp and chuckle",
+     "note": "A short smug burp and a little wicked chuckle",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burp-c-1.mp3",
+      "temp/sound-round-14/raw/burp-c-2.mp3",
+      "temp/sound-round-14/raw/burp-c-3.mp3",
+      "temp/sound-round-14/raw/burp-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's burp (GulpBurp)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/burp-1.wav",
+      "godot/asset/audio/sfx/library/player/burp-2.wav",
+      "godot/asset/audio/sfx/library/player/burp-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-spit",
+   "group": "plant",
+   "name": "Plant: spit the slime out",
+   "where": "She spits the slime far away after chewing it",
+   "node": "PlantSpit",
+   "ship": "enemy/plant-spit",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Big wet ptooey",
+     "note": "One big wet spit",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/spit-a-1.mp3",
+      "temp/sound-round-14/raw/spit-a-2.mp3",
+      "temp/sound-round-14/raw/spit-a-3.mp3",
+      "temp/sound-round-14/raw/spit-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Goo blast",
+     "note": "A gooey splattering spit burst",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/spit-b-1.mp3",
+      "temp/sound-round-14/raw/spit-b-2.mp3",
+      "temp/sound-round-14/raw/spit-b-3.mp3",
+      "temp/sound-round-14/raw/spit-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Cough and spit",
+     "note": "A hacking leafy cough and a wet spit",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/spit-c-1.mp3",
+      "temp/sound-round-14/raw/spit-c-2.mp3",
+      "temp/sound-round-14/raw/spit-c-3.mp3",
+      "temp/sound-round-14/raw/spit-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the Cocoon Mimic's spit (a goo ptoo)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-ptoo-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-ptoo-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-ptoo-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-doze",
+   "group": "plant",
+   "name": "Plant: dozes off",
+   "where": "A thrown thing hits her: she falls asleep for 5 s",
+   "node": "PlantDoze",
+   "ship": "enemy/plant-doze",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Woozy yawn",
+     "note": "A woozy sigh and a long sleepy yawn",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/doze-a-1.mp3",
+      "temp/sound-round-14/raw/doze-a-2.mp3",
+      "temp/sound-round-14/raw/doze-a-3.mp3",
+      "temp/sound-round-14/raw/doze-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Droop and snore",
+     "note": "Leaves rustling down and a soft deep snore",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/doze-b-1.mp3",
+      "temp/sound-round-14/raw/doze-b-2.mp3",
+      "temp/sound-round-14/raw/doze-b-3.mp3",
+      "temp/sound-round-14/raw/doze-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Dizzy wheeze",
+     "note": "A dizzy wobbly wheeze sliding down into a sleepy hum",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/doze-c-1.mp3",
+      "temp/sound-round-14/raw/doze-c-2.mp3",
+      "temp/sound-round-14/raw/doze-c-3.mp3",
+      "temp/sound-round-14/raw/doze-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the sleep breath (SleepBreath)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/sleep-breath.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.plant-burn",
+   "group": "plant",
+   "name": "Plant: burnt",
+   "where": "The Lantern's flame burns her (only fire kills her)",
+   "node": "PlantBurn",
+   "ship": "enemy/plant-burn",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Flame and shriek",
+     "note": "A whoosh of flame, crackling leaves and a shrill shriek fading out",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burn-a-1.mp3",
+      "temp/sound-round-14/raw/burn-a-2.mp3",
+      "temp/sound-round-14/raw/burn-a-3.mp3",
+      "temp/sound-round-14/raw/burn-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Sizzle and wilting groan",
+     "note": "A fierce sizzle and crackle and a long wilting groan",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burn-b-1.mp3",
+      "temp/sound-round-14/raw/burn-b-2.mp3",
+      "temp/sound-round-14/raw/burn-b-3.mp3",
+      "temp/sound-round-14/raw/burn-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Burst and crumble",
+     "note": "A fire burst, dry crackles and brittle leaves crumbling to ash",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-14/raw/burn-c-1.mp3",
+      "temp/sound-round-14/raw/burn-c-2.mp3",
+      "temp/sound-round-14/raw/burn-c-3.mp3",
+      "temp/sound-round-14/raw/burn-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: a goo ptoo (FireIgnite) and a soft splat",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/goo-ptoo-1.wav",
+      "godot/asset/audio/sfx/library/player/goo-ptoo-2.wav",
+      "godot/asset/audio/sfx/library/player/goo-ptoo-3.wav",
+      "godot/asset/audio/sfx/library/world/break-soft-1.wav"
+     ]
+    }
+   ]
+  }
+ ]
+}

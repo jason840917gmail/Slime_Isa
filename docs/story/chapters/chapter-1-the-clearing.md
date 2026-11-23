@@ -416,7 +416,8 @@ autosave waits until the slime is out.*
    and wakes Market Hill, and a woken fountain refills energy in place of
    Slimeshire's well.* *Built 2026-11-20: Pearl 1's homecoming at the
    Wellspring wakes Market Hill, and the camera shows its fountain burst into
-   flow; the fountain's energy refill is not built.*
+   flow.* *Built 2026-11-21: a woken fountain offers a drink that fills the
+   slime's energy, then rests a minute (`fountain.drinkRestMs`).*
 6. **Back home.** In the West village Burr gives his thanks: an energy
    upgrade (max energy grows only through secrets and bosses, question 19) or
    a heart. Which one is not decided. *Since the eighth round (question 19):

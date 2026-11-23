@@ -96,11 +96,11 @@
       "pattern": { "hideRangePx": 72, "unhideMs": 500, "riseMs": 200, "firstSpitMs": 400, "spitIntervalMs": 1700, "spitWindupMs": 550, "spitPoseMs": 300, "aimConeDeg": 160, "bonkReachPx": 60, "dazedMs": 2600, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 8 },
       "projectile": { "projectileId": "mud-glob", "assetId": "enemy.projectile.mud-glob", "damage": 14 },
-      "reactions": { "weight": "light", "material": "worm", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "hidden": { "immune": ["*", "!thrown"], "noSleep": true }, "up": { "immune": ["*", "!thrown"] }, "charge": { "immune": ["*", "!thrown"] }, "spit": { "immune": ["*", "!thrown"] } } }
+      "reactions": { "weight": "light", "material": "worm", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "hidden": { "immune": ["*", "!thrown", "!thrown-medium", "!thrown-heavy", "!thrown-freeze", "!thrown-sleep"], "noSleep": true }, "up": { "immune": ["*", "!thrown", "!thrown-medium", "!thrown-heavy", "!thrown-freeze", "!thrown-sleep"] }, "charge": { "immune": ["*", "!thrown", "!thrown-medium", "!thrown-heavy", "!thrown-freeze", "!thrown-sleep"] }, "spit": { "immune": ["*", "!thrown", "!thrown-medium", "!thrown-heavy", "!thrown-freeze", "!thrown-sleep"] } } }
     },
     "dung-roller": {
       "id": "dung-roller", "visualSetId": "enemy.dung-roller", "maxHp": 30,
-      "pattern": { "rollSpeed": 120, "pushOffsetPx": 34, "ballRadiusPx": 23, "ballHitPx": 40, "slimeBlockSlackPx": 14, "ballDamage": 20, "ballKnockback": 300, "contactCooldownMs": 600, "turnMs": 900, "minTurnShare": 0.3, "braceMs": 350, "rearDot": 0.3, "rearDamageTaken": 2, "corpseMs": 1000, "corpseFadeMs": 400 },
+      "pattern": { "rollSpeed": 120, "pushOffsetPx": 34, "ballRadiusPx": 23, "ballHitPx": 40, "slimeBlockSlackPx": 14, "ballDamage": 20, "ballKnockback": 300, "contactCooldownMs": 600, "turnMs": 900, "minTurnShare": 0.3, "braceMs": 350, "rearDot": 0.3, "rearDamageTaken": 2, "ballOutMs": 1200, "furyMs": 650, "chargeSpeed": 300, "chargePx": 240, "chargeHitPx": 34, "chargeDamage": 15, "chargeKnockback": 280, "chargeRestMs": 750, "chargeTellMs": 320, "fetchSpeed": 110, "homeSpeed": 70, "kneadMs": 1500, "corpseMs": 1000, "corpseFadeMs": 400 },
       "drop": { "coins": 8 },
       "reactions": { "weight": "medium", "material": "chitin", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
     },
@@ -174,7 +174,7 @@
     },
     "prism-eye": {
       "id": "prism-eye", "visualSetId": "enemy.prism-eye", "maxHp": 28,
-      "pattern": { "aimDirections": 0, "startGazeDeg": 90, "turnDegPerS": 45, "gazeHalfDeg": 14, "trackDegPerS": 60, "holdMs": 1300, "stepMs": 320, "lineTolerancePx": 16, "sightPx": 300, "chargeMs": 200, "beamMs": 300, "beamPx": 360, "beamHalfWidthPx": 12, "slimeRadiusPx": 12, "beamDamage": 22, "beamKnockback": 260, "coolMs": 1400, "backDot": 0.2, "alertMs": 1400, "alertTurnDegPerS": 150, "alertStepMs": 160, "corpseMs": 1500, "corpseFadeMs": 500 },
+      "pattern": { "aimDirections": 0, "startGazeDeg": 90, "turnDegPerS": 45, "gazeHalfDeg": 14, "trackDegPerS": 60, "holdMs": 1300, "stepMs": 320, "lineTolerancePx": 16, "sightPx": 300, "chargeMs": 200, "beamMs": 300, "beamPx": 360, "beamHalfWidthPx": 12, "slimeRadiusPx": 12, "beamDamage": 22, "beamKnockback": 260, "coolMs": 1400, "backDot": 0.2, "alertMs": 1400, "alertTurnDegPerS": 150, "alertStepMs": 160, "invulnerable": 1, "corpseMs": 1500, "corpseFadeMs": 500 },
       "drop": { "coins": 6 },
       "reactions": { "weight": "medium", "material": "stone", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "tap": "hold", "finisher": "hold" }, "byTag": {}, "immune": [], "states": {} }
     },
@@ -244,6 +244,25 @@
       "pattern": { "firstRestMs": 600, "wakeRangePx": 220, "tellMs": 450, "loopRadiusPx": 150, "loopRisePx": 40, "loops": 2, "loopSpeed": 340, "restMs": 1400, "contactReachPx": 30, "contactCooldownMs": 700, "corpseMs": 900, "corpseFadeMs": 400 },
       "drop": { "coins": 4 },
       "reactions": { "flies": true, "weight": "light", "material": "silk", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bowl", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
+    },
+    "worm-bulwark": {
+      "id": "worm-bulwark", "visualSetId": "enemy.worm-bulwark", "maxHp": 120,
+      "pattern": { "walkSpeed": 50, "homeSpeed": 50, "holdPx": 70, "sightPx": 260, "windupMs": 800, "chargeSpeed": 280, "chargeMaxMs": 1600, "chargeHitPx": 40, "chargeDamage": 30, "chargeKnockback": 340, "bowlSideShare": 0.8, "contactCooldownMs": 600, "skidMs": 600, "skidSpeedShare": 0.8, "turnMs": 900, "chargeCooldownMs": 600, "dazedMs": 1500, "crashShakeMs": 160, "crashShakeIntensity": 0.005, "shieldDot": 0.35, "corpseMs": 1800, "corpseFadeMs": 500 },
+      "hits": { "light": 3, "medium": 2, "heavy": 1, "byTag": { "cut": "light", "crush": "medium", "blast": "medium" }, "roundShield": ["blast"], "clinkTags": ["spear", "arrow", "fire", "roll"] },
+      "drop": { "coins": 12 },
+      "reactions": { "weight": "heavy", "material": "worm", "knockbackScale": 0.2, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 900 }, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "charge": { "armor": 4, "noSleep": true }, "skid": { "armor": 4, "noSleep": true } } }
+    },
+    "carnivore-plant": {
+      "id": "carnivore-plant", "visualSetId": "enemy.carnivore-plant", "maxHp": 60,
+      "pattern": { "tellRangePx": 60, "biteRangePx": 72, "tellMs": 350, "snapMs": 200, "pullMs": 160, "haulMs": 160, "munchMs": 260, "munches": 2, "swallowMs": 520, "burpMs": 520, "holdMs": 1200, "holdTickMs": 200, "chewMs": 550, "chewDamage": 33, "spitMs": 320, "spitDamage": 21, "spitKnockback": 200, "spitPx": 220, "spitFlyMs": 380, "recoverMs": 900, "missRecoverMs": 500, "dozeMs": 5000, "feedReachPx": 90, "feedBouncePx": 24, "feedBounceMs": 260, "feedDazeMs": 2500, "feedPickMs": 450, "snoreEveryMs": 900, "corpseMs": 2500, "corpseFadeMs": 600 },
+      "drop": { "coins": 8 },
+      "reactions": { "weight": "heavy", "material": "wood", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "tap": "armor", "finisher": "armor", "smash": "armor", "charge": "armor", "ring": "armor", "slam": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "landing": "armor", "roll": "armor", "arrow": "armor" }, "byTag": {}, "immune": [], "states": {} }
+    },
+    "jelly-bouncer": {
+      "id": "jelly-bouncer", "visualSetId": "enemy.jelly-bouncer", "maxHp": 40,
+      "pattern": { "hopEveryMs": 650, "hopMs": 420, "hopPx": 24, "hopLiftPx": 12, "goalReachPx": 14, "wanderRadiusPx": 110, "zapEveryMinMs": 4000, "zapEveryMaxMs": 6000, "chargeMs": 800, "zapMs": 320, "afterMs": 500, "zapRadiusPx": 96, "waterReachScale": 1.6, "zapDamage": 20, "shockMs": 800, "shockKnockPx": 60, "shockKnockMs": 220, "zapEnemyDamage": 20, "zapEnemyDazeMs": 1600, "weaponShockCooldownMs": 600, "bounceSpeed": 380, "bounceRangePx": 360, "bounceArcPx": 22, "bounceDamageLight": 12, "bounceDamageMedium": 18, "bounceDamageHeavy": 26, "bounceKnockback": 180, "arrowHits": 2, "thrownEnemyReachPx": 60, "thrownEnemyBouncePx": 26, "thrownEnemyBounceMs": 260, "corpseMs": 2500, "corpseFadeMs": 600 },
+      "drop": { "coins": 6 },
+      "reactions": { "weight": "medium", "material": "goo", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "bonk", "suck": "none", "classes": { "tap": "armor", "finisher": "armor", "smash": "armor", "charge": "armor", "ring": "armor", "slam": "armor", "thrown": "armor", "thrown-medium": "armor", "thrown-heavy": "armor", "thrown-freeze": "armor", "thrown-sleep": "armor", "landing": "armor", "roll": "armor", "arrow": "armor" }, "byTag": {}, "immune": [], "states": {} }
     }
   }
 }

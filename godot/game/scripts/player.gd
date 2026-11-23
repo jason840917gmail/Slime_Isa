@@ -1037,6 +1037,13 @@ func recoil(direction: Vector2, strength: float, duration_ms: float) -> void:
 		body.velocity = direction.normalized() * strength
 
 
+## After a crossing: the keys among `actions` still held down count as held again (the input was
+## cleared as the slime left), so a climb that goes on in the next world keeps going while they stay
+## down (game/scripts/climb_wall.gd `play_arrival`).
+func hold_keys_still_down(actions: Array[StringName]) -> void:
+	_input.hold_if_down(actions)
+
+
 ## Empties held keys and pending presses (pause / scene exit), and the wheel's partial notch.
 func clear_input() -> void:
 	_input.clear()

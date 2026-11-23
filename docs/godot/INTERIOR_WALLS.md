@@ -106,7 +106,7 @@ painted with every closed-door tile.
 > references, Zelda-like floor borders: `asset/Originals/dungeon-kit/interior-walls/reference/floor-trim-ref-*.png`).
 > He liked the first five shapes in six colours and asked the same day for "more shapes and colors
 > that can blend on the existing interior walls and floors", and for the layer in each room of Fatty's
-> Lair, which he paints himself: ten shapes in twelve colours now, the six new colours taken from the
+> Lair, which he paints himself: ten shapes in twelve colours then, the six new colours taken from the
 > three styles' walls and floors; all 19 Lair rooms have an empty `floor-trim` layer.
 
 ![Every trim as a room's corner: a column per shape, a row per colour](images/floor-trims.png)
@@ -122,11 +122,12 @@ that suits it, or none.
    for the walls.
 2. Pick a trim in its palette (TileMap panel, the `floor-trim` layer selected): a column per **shape**
    (framed blocks, bricks, slim bricks, studded tiles, cushion stones, cobble setts, diamond tiles,
-   flagstones, planks, rubble), a row per **colour** (fort cream, slate, umber: the three wall styles'
+   flagstones, planks, rubble, crystal studs), a row per **colour** (fort cream, slate, umber: the three wall styles'
    own; moss green with a blue inset, ember orange with plum joints, brick red with a navy inset: the
    owner's references; ochre, the lair stone's gold; khaki, the lair floor; taupe, the cave rock's
    brown; charcoal, the cave floor; clay, the root floor, tone on tone; lichen grey with a moss
-   inset). Rubble's gaps are see-through, so the floor shows between its stones.
+   inset; crystal blue and amethyst, the crystal cave's). Rubble's gaps are see-through, so the floor
+   shows between its stones.
 3. Paint the floor cells along the walls (or the whole floor with the bucket: only the cells beside a
    wall or a level's face draw). A painted cell draws its trim's band on every side where a wall's
    face meets it, and a corner block where two bands meet: at the floor's corners and round a wall
@@ -173,7 +174,7 @@ shape) holds each shape once, in grey: its own levels stretched to 0..1. Each co
 map over that grey (the joints, the inset, the rim, its light; a shape without an inset takes the
 colour's `solid` ramp), which the game lays on with `game/world/interior/interior_trim.gdshader`: the
 layer gives each trim a material whose `ramp` is a GradientTexture1D of its stops
-(`InteriorTrimLayer.material_of`), so a colour costs no sheet space (baked, ten shapes in twelve
+(`InteriorTrimLayer.material_of`), so a colour costs no sheet space (baked, eleven shapes in fourteen
 colours would have been a 3320 x 3264 sheet). The sheet imports lossless: the ramp would show a lossy
 sheet's noise as colour. The light stays on the upper left on every side: the west and east bands
 are the north band transposed. `floor-trims.json`: `shapes` (per shape its `depth`, `variants` and
@@ -448,7 +449,11 @@ painted rim: the same bevelled frame bent round an ellipse.
    `side` the way it faces; the crossings checker reads the opening's ids.
 3. A weak wall: a **cracked** opening, and a `cracked-wall` on the floor in front of it with
    `frame_drawn_by_wall` on and its door settings, as on a square rim; the blast turns the opening
-   into a blown hole (`change_opening_at`, from the cracked wall's `_blow_wall_opening`).
+   into a blown hole (`change_opening_at`, from the cracked wall's `_blow_wall_opening`). Give the
+   door to the `cracked-wall`, not to the opening: the wall makes its door as the world is built
+   (its flag set), in time for a slime arriving through it, while the ring opens a blown wall a
+   frame later. The first is level-1's mushroom-home, its back wall
+   ([DUNGEONS.md](DUNGEONS.md#a-weak-wall-in-a-house)).
 
 How it draws: the style's north run is wrapped round the ring a whole number of times, its top (the
 wall's top) outward, so every part of the wall is the north face turned, as every face and opening
@@ -522,6 +527,20 @@ its own render (`n` 15-224, `s` 800-1006, `w` 19-220, `e` 803-1005); the plain s
 boxes and passage are the cave rock's. It has only the plain doorway (no cracked, blown or stairs
 openings, no leaves yet: generate them from the frame as for the other styles when a crystal room
 needs one) and borrows the cave rock floor (`cave-floor.png`).
+
+**Its floor trim** (owner, 2026-11-21: "a floor trim for crystal interior walls that matches the
+art"): **crystal studs** (palette column 10), dark blue slate blocks each set with a cluster of
+crystal points, as the style's door frames (`trims/crystal-b.png`, GPT 2.5, `studded-b.png` as the
+layout reference and a crop of the crystal-cave frames for the look; `-a` the other take), in two
+new colours: **crystal blue** (row 12, the strip's own colours: its pixels binned by the sheet's
+grey, the mean colour of each bin) and **amethyst** (row 13, the same light in violet). Both colours
+serve every shape. Crystal studs in crystal blue is painted along the walls of every crystal-cave
+room: the Gloop Cavern, the silk nook's cave, and the Crystal Caverns' dark nook, corner cave,
+under-line tunnel, bay cave and smith cave. `python scripts/maps/paint-crystal-trim.py <room.tscn>`
+painted them: a small text edit that adds the `floor-trim` layer and its two resource lines and
+nothing else. It paints the floor cells beside a wall, never in front of an opening or under a
+ladder, and leaves a room that already has a trim layer alone. `tools/build_silk_nook_cave.gd`
+paints its room the same way.
 
 ## The box-room lab
 

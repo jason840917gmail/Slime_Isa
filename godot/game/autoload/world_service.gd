@@ -25,6 +25,8 @@ const TerrainEdges := preload("res://game/world/terrain_edges/terrain_edges.gd")
 const Elevation := preload("res://game/world/elevation/elevation.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
 const BridgeDeck := preload("res://game/world/bridge_deck.gd")
+## A scene whose sound files are not imported yet still loads, those sounds silent.
+const SceneFallback := preload("res://game/runtime/scene_fallback.gd")
 
 ## Scene id -> scene path for every scene Godot owns (docs/godot/CONVENTIONS.md "Scenes Godot owns").
 const SCENE_INDEX_PATH := "res://game/scenes/scene_index.json"
@@ -125,7 +127,8 @@ func instantiate_scene(scene_id: String) -> Node:
 ## and every spawn re-parses the file and reloads its textures and sounds). Phaser has every
 ## scene document and media file in memory before the world starts (MapLoadScene.ts:56-67);
 ## main.gd warms the trial's runtime-spawned scenes through this at bootstrap.
-## Null + push_error() when the id is unknown or the file does not load.
+## Null + push_error() when the id is unknown or the file does not load. A scene that fails only
+## because some sound files are not imported yet loads without them (scene_fallback.gd, a warning).
 func packed_scene(scene_id: String) -> PackedScene:
 	var path := scene_path(scene_id)
 	if path.is_empty():
@@ -135,6 +138,10 @@ func packed_scene(scene_id: String) -> PackedScene:
 	if cached != null:
 		return cached
 	var packed := load(path) as PackedScene
+	if packed == null:
+		# A sound file the editor has not imported yet fails the whole scene: load it without them
+		# (silent until imported) rather than lose every sound in it (game/runtime/scene_fallback.gd).
+		packed = SceneFallback.load_without_missing_audio(path)
 	if packed == null:
 		push_error("WorldService: could not load %s for '%s'" % [path, scene_id])
 		return null

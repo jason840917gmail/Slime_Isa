@@ -26,6 +26,8 @@ const Services := preload("res://game/shared/services.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
+const VineLayerType := preload("res://game/world/vines/vine_layer.gd")
+const AreaTravel := preload("res://game/world/area_travel.gd")
 
 const USABLE_GROUP := &"usable"
 const GROUP := &"climb_walls"
@@ -46,6 +48,10 @@ const FEET_BELOW_CENTRE := 27.56
 const END_PX := 6.0
 ## Letting go this near the upper end, where there is ground, the slime stands there (no fall).
 const UPPER_END_PX := 20.0
+## The holder of the picture's pieces on a tall wall (made in the game, never saved).
+const PIECES := "Pieces"
+## The keys a slime arriving on the climb from another world may still hold down (play_arrival).
+const HELD_ON_ARRIVAL: Array[StringName] = [&"interact", &"move_up", &"move_down", &"move_left", &"move_right"]
 
 ## Where the climb ends, from this node (world units: the slime's centre there).
 @export var top: Vector2 = Vector2(0, -192)
@@ -62,9 +68,22 @@ const UPPER_END_PX := 20.0
 @export var exit_area_id: String = ""
 @export var exit_door: String = ""
 ## The roots' picture (`Visual`): how much of the face it covers (world units; zero: the scene's
-## size), and whether it shows (a climb back down from a ledge shares the face's picture below).
+## size), and whether it shows (a climb back down from a ledge shares the face's picture below). A
+## picture much taller than wide is drawn in pieces, as painted vines on a tall wall, never stretched
+## (VineLayer.pieces; owner, 2026-11-21). On a climb down from a lip (`top.y` > 0) it hangs from this
+## node over the rim (a climb whose face below is in another world shows its roots there).
 @export var art_size: Vector2 = Vector2.ZERO
 @export var show_art: bool = true
+## Moves the picture from this node (world units): the node stays where the slime stands at the
+## foot (the climb gets off there), the roots' ends can sit on the face above it (2026-11-21).
+@export var art_offset: Vector2 = Vector2.ZERO
+@export_group("Arriving on it")
+## This climb is also an end of a climb out of another world (that climb's `exit_door` names it):
+## the slime comes in clinging at its far end (`top`) and climbs on while the interact key, held
+## through the crossing, stays held; let go, it drops (owner, 2026-11-21: "keep him climbing if he
+## holds W" instead of dropping in from above). "" = not an arrival end.
+@export var door_id: String = ""
+@export_group("")
 ## The climb ends on the face, with nothing to stand on at `top` (roots beside the Colossus's climb
 ## spots, docs/godot/DUNGEONS.md "The Crystal Colossus"): the slime clings there until it lets go
 ## or climbs back (game/player/skins/feral_climb.gd), and `hold_text` shows as it gets there ("" =
@@ -86,6 +105,8 @@ var _held_from_y := NAN
 func _enter_tree() -> void:
 	add_to_group(GROUP)
 	add_to_group(USABLE_GROUP)
+	if not door_id.is_empty():
+		add_to_group(AreaTravel.DOOR_GROUP)
 
 
 func _ready() -> void:
@@ -93,9 +114,79 @@ func _ready() -> void:
 	if visual == null:
 		return
 	visual.visible = show_art
+	visual.position += art_offset
 	if art_size != Vector2.ZERO and visual.texture != null:
 		var picture := visual.texture.get_size() / Vector2(visual.hframes, visual.vframes)
 		visual.scale = art_size / (picture * ART_FILL)
+		# A climb down from a lip hangs its picture from this node, over the rim.
+		if top.y > 0.0:
+			visual.position.y -= (visual.offset.y + VineLayerType.ART_REGION.position.y) * visual.scale.y
+		if show_art:
+			_lay_pieces(visual)
+
+
+## A picture much taller than wide is drawn as painted vines draw a tall wall (VineLayer.pieces): the
+## cap at the top, the roots' ends at the bottom, the middle repeated, nothing stretched much.
+func _lay_pieces(visual: Sprite2D) -> void:
+	var region := VineLayerType.ART_REGION
+	var area := Rect2(visual.position + (visual.offset + region.position) * visual.scale, region.size * visual.scale)
+	var laid := VineLayerType.pieces(area, false)
+	if laid.size() <= 1:
+		return
+	visual.visible = false
+	var holder := Node2D.new()
+	holder.name = PIECES
+	add_child(holder)
+	for piece: Dictionary in laid:
+		var sprite := Sprite2D.new()
+		sprite.texture = visual.texture
+		sprite.region_enabled = true
+		sprite.region_rect = piece["region"]
+		sprite.centered = true
+		sprite.position = (piece["area"] as Rect2).get_center()
+		sprite.scale = (piece["area"] as Rect2).size / (piece["region"] as Rect2).size
+		sprite.flip_h = bool(piece["mirrored"])
+		sprite.z_index = visual.z_index
+		sprite.z_as_relative = visual.z_as_relative
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		holder.add_child(sprite)
+
+
+# --- an end of a climb out of another world (`door_id`; game/world/area_travel.gd finds it) --------
+
+## Where the slime arrives: its centre at the far end of the climb.
+func arrival_point() -> Vector2:
+	var at := global_position + top
+	return Vector2(floorf(at.x + 0.5), floorf(at.y + 0.5))
+
+
+## The slime arrives exactly there, not on a tile centre.
+func exact_arrival() -> bool:
+	return true
+
+
+func has_side() -> bool:
+	return false
+
+
+## main.gd `_start_arrival`: the slime came in through this end. It is put at the far end and takes
+## hold of the climb; the keys still held down from the other world's climb count as held (the new
+## world's slime saw no press of them), so with the interact key held it clings and climbs on, and
+## without it it drops at once. Nothing to wait for (0).
+func play_arrival(player: Node, _delay_ms: float) -> float:
+	if player == null or not is_instance_valid(player) or not has_skin():
+		return 0.0
+	player.call(&"teleport", global_position + top)
+	# Tracked now: the elevation's own deferred track of the new world's slime would give its body
+	# back the level's walls in the middle of the climb (the climb turns them off).
+	var world := Services.world()
+	var body := player.get(&"body") as CharacterBody2D
+	if world != null and world.elevation != null and body != null:
+		world.elevation.track(body)
+	if player.has_method(&"hold_keys_still_down"):
+		player.call(&"hold_keys_still_down", HELD_ON_ARRIVAL)
+	player.call(&"start_climb", self)
+	return 0.0
 
 
 # --- the climb (game/player/skins/feral_climb.gd) ------------------------------------------------

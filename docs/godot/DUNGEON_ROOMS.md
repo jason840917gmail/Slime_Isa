@@ -111,8 +111,9 @@ key alcove are one world, `fatty-lair-r5-eye-hall`, three CameraRooms (the owner
 - **The Lair's director** stands in each room that needs it, with that room's paths: the hub (Burr,
   his cell door, the Inner Stair), the arena (Fatty, his clods, his heart, the shutters; the
   map's boss mark), the Larder (the Pearl's glow). R4's has none set since its room fight
-  (2026-10-28): three Squints, and its west shutter (to the map nook) and south one (to R5), shut
-  (`starts_shut`) each time the room is built, sink when they fall.
+  (2026-10-28): its Squints (two since 2026-11-21), and its west shutter (to the map nook) and south
+  one (to R5), shut (`starts_shut`) each time the room is built, sink once no living enemy is left in
+  the room (DUNGEONS.md "Shutters and room fights": however many the scene holds).
 - **Elevation**: each room world with painted holes has its own baked cache
   (`elevation_cache/rooms__fatty-lair__<room>.res`; `tools/bake_elevation.gd -- --world=<id>`).
 
@@ -129,7 +130,10 @@ editor; `tools/build_fattys_lair.gd` and the splitter are retired for the Lair a
 
 The authored rooms are in `godot/game/scenes/worlds/rooms/<world>/<room>.tscn`: 22 across the
 Hollow's four floors and 14 in the Mine. Open a room to edit its terrain, walls, objects and
-CameraRoom. F6 starts that room in the full game with the dungeon's normal direct-run powers.
+CameraRoom. *As built (2026-11-22): only the Hollow is assembled from its rooms. The game plays
+`crystal-mine.tscn` whole (its shell has no `RoomScenes`, and nothing loads `rooms/crystal-mine/M*.tscn`),
+so edit the Mine in `crystal-mine.tscn`; the M files are leftovers of the 2026-10-17 split
+([DUNGEONS.md](DUNGEONS.md)).* F6 starts that room in the full game with the dungeon's normal direct-run powers.
 
 Their rooms are written in dungeon coordinates (instance offset zero). The parent world is a shell
 holding the world definition, Dungeon node, shared logic and room scene instances.

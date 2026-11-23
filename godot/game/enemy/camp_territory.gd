@@ -3,7 +3,9 @@ class_name CampTerritory
 ## Camp territory layer for enemies spawned from an enemy-spawn area or placed with a wander area
 ## (game/enemy/placed_enemy.gd: the wander area is the home) (Phaser
 ## `enemies/ai/Territory.ts:42-169`). Enemy spec 4.3. Pure logic; all points are old Phaser
-## centres (FeetAnchor).
+## centres (FeetAnchor). Two things are not Phaser's (owner, 2026-11-21; enemy spec 4.3 "Getting
+## home"): an enemy walking home turns round on sight too (`reengage_margin`), and one that cannot
+## get home settles where it stands (`settle`).
 ##
 ## Owner: enemy builder.
 
@@ -32,6 +34,10 @@ var aggro: float = 0.0
 var attack_reach: float = 0.0
 ## `attributes.leashRange` when set, else max(MIN_LEASH, aggro * 2) (worm: 520).
 var leash: float = MIN_LEASH
+## How far inside its leash the slime must be for an enemy walking home to turn round on sight alone
+## (game-constants.json `combat.wayAround.reengageMarginPx`, set by enemy.gd; the margin keeps it
+## from flickering between the chase and the walk home at the leash's edge).
+var reengage_margin: float = 0.0
 
 
 ## Stores the stay perimeter, aggro (targeting_radius), attack reach (attack_range) and the leash
@@ -81,8 +87,11 @@ func step(now_ms: float, enemy_centre: Vector2, has_player: bool, player_centre:
 				return _go_home()
 			return _search(now_ms, enemy_centre)
 		MODE_RETURNING:
-			# Only a hit from within its leash turns it around; sight alone does not.
-			if hurt and reachable:
+			# A hit from within its leash turns it around, and so does the slime in plain sight well
+			# inside its leash (owner, 2026-11-21: an enemy on its way home must never be left unable
+			# to notice and attack; Phaser's turned round on a hit only, so one held up on the way
+			# looked dead).
+			if reachable and (hurt or (in_sight and _within_leash(from_home + reengage_margin, player_distance))):
 				return _engage(has_player, player_centre)
 			if from_home <= 0.0:
 				mode = MODE_HOME
@@ -95,6 +104,14 @@ func step(now_ms: float, enemy_centre: Vector2, has_player: bool, player_centre:
 	push_error("CampTerritory: unknown mode '%s'" % mode)
 	mode = MODE_HOME
 	return _decision(MODE_HOME)
+
+
+## It cannot get home (enemy.gd: WayAround gave the walk up): it lives where it stands from now on.
+## Its home becomes a circle of `radius` around `centre` (its old centre now) and it is at home.
+func settle(centre: Vector2, radius: float) -> void:
+	home = {"shape": Perimeter.SHAPE_CIRCLE, "x": centre.x, "y": centre.y, "radius": maxf(1.0, radius)}
+	mode = MODE_HOME
+	last_seen = null
 
 
 ## Walking speed while returning/searching: movement_speed * RETURN_SPEED_MULTIPLIER.

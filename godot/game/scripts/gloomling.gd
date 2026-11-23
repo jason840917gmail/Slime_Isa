@@ -201,7 +201,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			elif dark:
 				_rise(now)
 			else:
-				body.velocity = _velocity_toward(_home, pattern("creepSpeed", 40.0), delta)
+				body.velocity = _velocity_home(pattern("creepSpeed", 40.0), delta)
 				set_frame(FRAME_SCUTTLE if body.velocity.length() > WALK_SPEED_THRESHOLD else FRAME_REST)
 				face_x(-body.velocity.x)
 				if body.velocity == Vector2.ZERO:

@@ -36,8 +36,8 @@ it), the forest layer (the darker beech-and-pine mix round the Wellspring, the m
 glade), Scenery nodes from the palettes (flowers, ferns, glow mushrooms, stepping stones from the
 pool to the gap, boulders), the pool picture, glows and fireflies, and a `homecoming-spot` marker on
 the pool's south shore for the Pearls' homecoming scenes (5.17). No elevation is painted (nothing
-to bake). The release "Web" export now keeps `west-village-b4` (it excludes the other West village
-chunks only).
+to bake). The release "Web" export ships all four West village chunks and their baked caches
+(Glimmerhill is in Release 1; until 2026-11-22 it kept only `west-village-b4`).
 
 ## Camera rooms
 
@@ -75,7 +75,10 @@ walking, no input) and shows letterbox bars (`cinema_bars.gd`, layer 20, over th
    to day (`sunrise_ms`), the HUD fades in, the bars go.
 2. **Moving, the Gulp, the blocked path:** a lone clay pot by the shore and a boulder to throw it at
    (teach); the gap east is choked with a crate, two clay pots, a wicker basket and a flour sack
-   (`BlockedPath`; no log, which would read as the Heavy Roll's rotten trunk). An invisible
+   (`BlockedPath`; no log, which would read as the Heavy Roll's rotten trunk), all five `weight`
+   light on their roots, since a new run's Gulp lifts only light things (the crate and the sack had
+   taken their kind's usual medium weight in the editor and held the path shut until 2026-11-22;
+   the glade's crate too). An invisible
    `Barrier` holds until every one is gone; then the barrier goes and the secret jingle plays
    (`SecretFound`). Fireflies drift toward the gap and dawn light shines through it.
 3. **The attack** (5.19): stepping into `glade_trigger` holds the slime; the camera pans and zooms
@@ -182,7 +185,9 @@ out of the scene's way. Filmed with `godot/tools/render_glimmerhill.gd -- --map=
 --feet=520,1770 --then-flags=pearl.fatty-one-eye --film-ms=24000` (it closes the card with a key
 press after `--close-cards-ms`).
 
-Not built: the well's restoring and the Wellspring's or the fountains' energy refill.
+Not built: the well's restoring and the Wellspring's own energy refill. A woken **goo fountain**
+gives a drink since 2026-11-21 (`game/glimmerhill/goo_fountain.gd`): energy filled up in full, then
+it rests `fountain.drinkRestMs` (60 s of play) before the next.
 
 ## Art
 

@@ -218,7 +218,8 @@ the Verdant Gate's road and that it takes real weight to move it.
   holds, the damage and the charged Lunge stay as they are.
 - **Placing a climbable wall** (`object.climb-wall`, game/scenes/objects/climb-wall.tscn, script
   `game/scripts/climb_wall.gd`; for a climb that leads out of a world, `exit_area_id`, or ends on
-  the face, `holds_at_top`: every other climb is painted, below): put its root where the slime's feet
+  the face, `holds_at_top`: every other climb is painted, below; the Crystal Mine's climbs,
+  `crystal-mine.tscn`, made before vines could be painted, are still placed walls): put its root where the slime's feet
   stand at the wall's foot, about
   20 px below the face's foot line, and set `top` to where the slime's centre ends (on the ledge,
   about 40 px inside the rim). `art_size` sizes the roots' picture over the face; `grab_width` the
@@ -228,6 +229,21 @@ the Verdant Gate's road and that it takes real weight to move it.
   facing down: its root about 20 px inside the rim, `top.y` > 0 ending about 30 px below the
   face's foot line, `show_art` off. A climbable wall never stands beside a heavy block or the
   root-rock wall style (questions 91 and 129). In the Scenery dock's **Feral skin** category.
+  Its picture (2026-11-21, owner: "I don't want you to stretch the vine"): `art_size` sizes the
+  roots, and one much taller than wide is drawn in pieces as painted vines draw a tall wall
+  (`VineLayer.pieces`: the cap at the top, the roots' ends at the foot, the middle repeated), never
+  stretched; the Colossus arena's five tall root walls show so too. `art_offset` moves the picture
+  off the node (the node stays where the slime stands at the foot, which is also where the climb
+  lets it off). A climb down from a lip with `show_art` on hangs its picture from the node over the
+  rim (for a face whose foot is in another world). **An arrival end** (`door_id`, group `door`): a
+  climb out of another world whose `exit_door` names it lands the slime clinging at this climb's
+  far end (`play_arrival`), the keys still held down counting as held
+  (player.gd `hold_keys_still_down`: the input is cleared as the slime leaves a world), so a climb
+  goes on across a chunk line while W is held, and a let-go drops (no placed climb uses it yet: a
+  climb between two chunks is painted, [Across a chunk line](#across-a-chunk-line)). The placed
+  climb out of a world so far: the Colossus arena's way out to the Lookout. Testing one by script: lend the skin, press
+  interact (pushed as an InputEventAction and with `Input.action_press`) and call the wall's
+  `use()`, then hold the way, as `tests/test_crystal_mine.gd` does.
 
 ### Painting vines
 
@@ -277,6 +293,22 @@ the playground's painted plateau (`--scene`, `--cells` for another world) and, w
 where the slime takes hold, gets off and lands on every painted rectangle.
 
 ![The playground's Feral plateau, vines painted on cells 113-115 x 34-35](images/vines-painted-plateau.png)
+
+### Across a chunk line
+
+A wall on a chunk line (its top in the chunk world north of it) is climbed from one chunk into the
+other (owner, 2026-11-21: the mushroom yard's wall in level-1-c4 up into North Wilds C3, "a both
+way entrance"). Paint the wall's part in each chunk on that chunk's own `vines` layer, and paint
+each on **past the chunk's edge** (rows above its top edge, or under its bottom one): that says the
+vines go on there. Climbing toward the edge, the slime crosses when its centre is `CROSS_PX` (12)
+from it: the world changes and it comes in on the other chunk's vines, `CROSS_IN_PX` (28) inside
+its edge, at the same x, or on the nearest painted column within three cells
+(`vine_layer.gd` `climb_crosses`, `arrival_point`). It comes in **still clinging**: the keys still
+held down through the crossing count as held (player.gd `hold_keys_still_down`), so with the
+interact key held it climbs on, and let go, it drops. Getting off at the far rim or foot is the
+other layer's, as anywhere. Only up and down cross (the chunks north and south); a chunk with no
+vines there brings the slime in at its spawn. The first is level-1-c4's back yard
+([DUNGEONS.md](DUNGEONS.md#a-weak-wall-in-a-house)).
 
 ### Balconies
 

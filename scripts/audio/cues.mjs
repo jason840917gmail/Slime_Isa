@@ -111,7 +111,6 @@ export const CUES = {
     dodge: { library: ['swish-10', 'swish-8'], variants: 2, synth: (k) => ({ layers: [whoosh({ dur: 0.18, from: 500 * k, peak: 2600 * k, to: 900, q: 1.2 }), squelch({ dur: 0.07, gain: 0.3 })] }) },
     jump: { library: ['rubberduck-slime/slime_12', 'rubberduck-slime/slime_06'], variants: 2, synth: (k) => ({ layers: [{ type: 'tone', wave: 'sine', dur: 0.2, freq: [220 * k, 560 * k], glide: 0.12, vibrato: { rate: 18, depth: 0.04 }, env: { a: 0.005, d: 0.2 }, gain: 0.8 }, squelch({ dur: 0.08, gain: 0.35 })] }) },
     land: { variants: 2, library: ['rubberduck-slime/slime_03', 'rubberduck-slime/slime_08'], synth: (k) => ({ layers: [thump({ f0: 140 * k, f1: 55, dur: 0.14 }), squelch({ dur: 0.14, gain: 0.7, cutoff: [1300, 350] })] }) },
-    'slam-windup': { library: ['rubberduck-slime/bubble_01'], synth: () => ({ layers: [{ type: 'tone', wave: 'triangle', dur: 0.38, freq: [140, 420], env: { peak: 0.9 }, tremolo: { rate: 22, depth: 0.5 }, gain: 0.5 }, { type: 'noise', dur: 0.38, env: { peak: 0.95 }, filter: { type: 'bp', cutoff: [300, 1600], q: 1.5 }, gain: 0.4 }] }) },
     'slam-impact': { library: ['impactPunch_heavy_002'], synth: () => ({ drive: 2.5, echo: { delay: 0.08, feedback: 0.3, mix: 0.25 }, layers: [thump({ f0: 95, f1: 28, dur: 0.65 }), burst({ dur: 0.35, cutoff: [1100, 200], gain: 0.9, color: 'pink' }), squelch({ dur: 0.3, gain: 0.7, cutoff: [1200, 250] })] }) },
     lash: { library: ['swish-8', 'swish-4'], variants: 2, synth: (k) => ({ layers: [{ type: 'tone', wave: 'sine', dur: 0.12, freq: [300 * k, 1500 * k], glide: 0.1, env: { a: 0.004, d: 0.12 }, gain: 0.55 }, whoosh({ dur: 0.14, from: 800, peak: 3600, to: 1500, gain: 0.7 }), burst({ at: 0.11, dur: 0.02, type: 'hp', cutoff: 2500, gain: 0.7 })] }) },
     'teleport-out': { library: ['minimize_005'], synth: () => ({ layers: [{ type: 'tone', wave: 'sine', dur: 0.35, freq: [1400, 180], fm: { ratio: 3.5, index: [0.4, 0] }, env: { a: 0.01, d: 0.35 }, gain: 0.6 }, sparkle({ dur: 0.3 })] }) },
@@ -157,6 +156,10 @@ export const CUES = {
     // throw's kill (Pop and tinkle, its first take alone). He dropped the round's two body-blow cues: the thrown thing's own
     // material sound is the hit sound.
     'throw-toss': { library: ['magnific/player-throw-toss-r11-1'], variants: 1 },
+    // Round 13: the Slam's rise, the Goo Bomb forming and the Hammer's swing (they played SlamWindup, now gone).
+    'slam-rise': { library: ['magnific/player-slam-rise-r13-1', 'magnific/player-slam-rise-r13-2'], variants: 2 },
+    'goo-bomb-cast': { library: ['magnific/player-goo-bomb-cast-r13-1'], variants: 1 },
+    'hammer-swing': { library: ['magnific/player-hammer-swing-r13-1', 'magnific/player-hammer-swing-r13-2', 'magnific/player-hammer-swing-r13-3', 'magnific/player-hammer-swing-r13-4'], variants: 4 },
     'throw-kill': { library: ['magnific/player-throw-kill-r11-1'], variants: 1 },
     // The round-5 Gulp takes kept for the cues that borrowed them (Sound Picker round 7 gave the Gulp new ones): the inhale
     // plays GulpThroat, BubbleRise, MimicWrap and SpitcapCharge (PipeWormCharge's player is left, silent since round 8); the
@@ -229,6 +232,33 @@ export const CUES = {
     'web-splat': { library: ['magnific/enemy-web-splat-1', 'magnific/enemy-web-splat-2'], variants: 2, synth: (k) => ({ layers: [squelch({ dur: 0.26, gain: 0.9, cutoff: [1300 * k, 280] }), thump({ f0: 160 * k, f1: 60, dur: 0.16, gain: 0.6 }), ...[0.06, 0.12].map((at) => blip({ at, f0: 300, f1: 600, dur: 0.05, wave: 'sine', gain: 0.25 }))] }) },
     // Sound Picker round 5 (2026-10-09, option A of each as the owner accepted the defaults): the Clod Stomper's slam.
     'stomper-slam': { library: ['magnific/enemy-stomper-slam-r5-1', 'magnific/enemy-stomper-slam-r5-2', 'magnific/enemy-stomper-slam-r5-3'], variants: 3 },
+    // Sound Picker round 13 (2026-11-21): the Dung Roller's own sounds and every enemy wind-up that played SlamWindup.
+    'dung-brace': { library: ['magnific/enemy-dung-brace-r13-1'], variants: 1 },
+    'dung-push': { library: ['magnific/enemy-dung-push-r13-1', 'magnific/enemy-dung-push-r13-2', 'magnific/enemy-dung-push-r13-3', 'magnific/enemy-dung-push-r13-4'], variants: 4 },
+    'dung-bump': { library: ['magnific/enemy-dung-bump-r13-1', 'magnific/enemy-dung-bump-r13-2', 'magnific/enemy-dung-bump-r13-3', 'magnific/enemy-dung-bump-r13-4'], variants: 4 },
+    'dung-fury': { library: ['magnific/enemy-dung-fury-r13-1', 'magnific/enemy-dung-fury-r13-2', 'magnific/enemy-dung-fury-r13-3', 'magnific/enemy-dung-fury-r13-4'], variants: 4 },
+    'dung-charge': { library: ['magnific/enemy-dung-charge-r13-1', 'magnific/enemy-dung-charge-r13-2'], variants: 2 },
+    'dung-ball': { library: ['magnific/enemy-dung-ball-r13-1', 'magnific/enemy-dung-ball-r13-2', 'magnific/enemy-dung-ball-r13-3', 'magnific/enemy-dung-ball-r13-4'], variants: 4 },
+    'dung-hurt': { library: ['magnific/enemy-dung-hurt-r13-1', 'magnific/enemy-dung-hurt-r13-2', 'magnific/enemy-dung-hurt-r13-3'], variants: 3 },
+    'dung-death': { library: ['magnific/enemy-dung-death-r13-1', 'magnific/enemy-dung-death-r13-2', 'magnific/enemy-dung-death-r13-3', 'magnific/enemy-dung-death-r13-4'], variants: 4 },
+    'boar-scrape': { library: ['magnific/enemy-boar-scrape-r13-1', 'magnific/enemy-boar-scrape-r13-2'], variants: 2 },
+    'warden-windup': { library: ['magnific/enemy-warden-windup-r13-1', 'magnific/enemy-warden-windup-r13-2', 'magnific/enemy-warden-windup-r13-3'], variants: 3 },
+    'stomper-crouch': { library: ['magnific/enemy-stomper-crouch-r13-1', 'magnific/enemy-stomper-crouch-r13-2', 'magnific/enemy-stomper-crouch-r13-3', 'magnific/enemy-stomper-crouch-r13-4'], variants: 4 },
+    'colossus-raise': { library: ['magnific/enemy-colossus-raise-r13-1'], variants: 1 },
+    'prism-charge': { library: ['magnific/enemy-prism-charge-r13-1', 'magnific/enemy-prism-charge-r13-2'], variants: 2 },
+    'chucker-windup': { library: ['magnific/enemy-chucker-windup-r13-1'], variants: 1 },
+    'shardback-rear': { library: ['magnific/enemy-shardback-rear-r13-1'], variants: 1 },
+    'squint-rear': { library: ['magnific/enemy-squint-rear-r13-1', 'magnific/enemy-squint-rear-r13-2', 'magnific/enemy-squint-rear-r13-3'], variants: 3 },
+    'thornball-curl': { library: ['magnific/enemy-thornball-curl-r13-1', 'magnific/enemy-thornball-curl-r13-2'], variants: 2 },
+    // Sound Picker round 14 (2026-11-22): the Carnivore Plant's own sounds.
+    'plant-open': { library: ['magnific/enemy-plant-open-r14-1', 'magnific/enemy-plant-open-r14-2'], variants: 2 },
+    'plant-snap': { library: ['magnific/enemy-plant-snap-r14-1', 'magnific/enemy-plant-snap-r14-2', 'magnific/enemy-plant-snap-r14-3'], variants: 3 },
+    'plant-munch': { library: ['magnific/enemy-plant-munch-r14-1', 'magnific/enemy-plant-munch-r14-2'], variants: 2 },
+    'plant-swallow': { library: ['magnific/enemy-plant-swallow-r14-1', 'magnific/enemy-plant-swallow-r14-2', 'magnific/enemy-plant-swallow-r14-3'], variants: 3 },
+    'plant-burp': { library: ['magnific/enemy-plant-burp-r14-1', 'magnific/enemy-plant-burp-r14-2', 'magnific/enemy-plant-burp-r14-3'], variants: 3 },
+    'plant-spit': { library: ['magnific/enemy-plant-spit-r14-1'], variants: 1 },
+    'plant-doze': { library: ['magnific/enemy-plant-doze-r14-1', 'magnific/enemy-plant-doze-r14-2', 'magnific/enemy-plant-doze-r14-3'], variants: 3 },
+    'plant-burn': { library: ['magnific/enemy-plant-burn-r14-1', 'magnific/enemy-plant-burn-r14-2', 'magnific/enemy-plant-burn-r14-3', 'magnific/enemy-plant-burn-r14-4'], variants: 4 },
   },
 
   boss: {
@@ -357,6 +387,8 @@ export const CUES = {
     'break-crystal': { library: ['magnific/world-break-crystal-r12-1'], variants: 1 },
     'break-bone': { library: ['magnific/world-break-bone-r12-1'], variants: 1 },
     'break-stone-crack': { library: ['magnific/world-break-stone-crack-r12-1', 'magnific/world-break-stone-crack-r12-2', 'magnific/world-break-stone-crack-r12-3'], variants: 3 },
+    // Round 13: the Crystal Mine's ore lift (it played SlamWindup).
+    'ore-lift-ride': { library: ['magnific/world-ore-lift-ride-r13-1', 'magnific/world-ore-lift-ride-r13-2', 'magnific/world-ore-lift-ride-r13-3', 'magnific/world-ore-lift-ride-r13-4'], variants: 4 },
   },
 
   ui: {

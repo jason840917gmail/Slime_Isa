@@ -175,6 +175,12 @@ func step(now_ms: float, delta: float, held: bool, direction: Vector2) -> bool:
 	var speed := SkinState.setting("feral.climbSpeed", 150.0)
 	if _gliding:
 		return _glide(delta, speed)
+	# Vines going on past a chunk world's edge (vine_layer.gd `climb_crosses`): the climb goes on in the
+	# world there; the slime holds still, the key's release by the travel not letting go, while it changes.
+	if _wall.has_method(&"climb_crosses") \
+			and bool(_wall.call(&"climb_crosses", _body.global_position, direction if held else Vector2.ZERO)):
+		_body.velocity = Vector2.ZERO
+		return false
 	if not held:
 		_let_go(now_ms, true)
 		return false

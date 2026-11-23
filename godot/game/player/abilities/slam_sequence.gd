@@ -56,7 +56,6 @@ const CUE_IMPACT := &"SlamImpact"
 const CUE_IMPACT_STONE := &"SlamImpactStone"
 const CUE_CLINK := &"Clink"
 const PLACEHOLDER_CUES := {
-	CUE_RISE: &"SlamWindup",
 	CUE_DIVE: &"Dodge",
 	CUE_IMPACT_STONE: CUE_IMPACT,
 	CUE_CLINK: &"HitBlocked",

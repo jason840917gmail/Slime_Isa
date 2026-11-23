@@ -205,10 +205,18 @@ position = Vector2(2103, 2792)
 metadata/instance_id = "level-1-stone-node-001"
 metadata/persistence_key = "level-1.level-1-stone-node-001"
 
+[node name="ResourceNodeScript" parent="Nature/level-1-stone-node-001" index="3"]
+map_id = "level-1-d5"
+instance_id = "level-1-stone-node-001"
+
 [node name="level-1-stone-node-002" parent="Nature" unique_id=1568168358 instance=ExtResource("23_7l3ow")]
 position = Vector2(2192, 2791)
 metadata/instance_id = "level-1-stone-node-002"
 metadata/persistence_key = "level-1.level-1-stone-node-002"
+
+[node name="ResourceNodeScript" parent="Nature/level-1-stone-node-002" index="3"]
+map_id = "level-1-d5"
+instance_id = "level-1-stone-node-002"
 
 [node name="level-1-purple-berry-004" parent="Nature" unique_id=1509960016 instance=ExtResource("24_1r3bo")]
 position = Vector2(2265.6, 2489.6)
@@ -699,3 +707,5 @@ shape = NodePath("../wander-shape")
 [editable path="Chapter1/maze-pot-heart"]
 [editable path="Chapter1/maze-pot-coins"]
 [editable path="Chapter1/level-1-d5-maze-chest"]
+[editable path="Nature/level-1-stone-node-001"]
+[editable path="Nature/level-1-stone-node-002"]

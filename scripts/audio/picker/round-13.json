@@ -1,0 +1,1377 @@
+{
+ "round": "round-13",
+ "title": "Sound picker, round 13: the beetle and the bubble",
+ "intro": "The Dung Roller's own sounds, and a sound of its own for every moment that played the slime's SlamWindup bubble (2026-11-21, after your notes: \"we need to work on the sound effects of the beetle\" and \"SlamWindup why is use that much ... lets pick sound for all those\"). Each moment has three new ideas with four takes each (the game picks one at random each time; drop the takes you do not like), and \"Now\", what it played before. The game plays option A of each meanwhile. Pick one per sound, or choose Neither and say how it should sound.",
+ "takes": "temp/sound-round-13/takes",
+ "groups": [
+  {
+   "id": "beetle",
+   "name": "The Dung Roller",
+   "note": "Every sound the beetle makes. Until now it borrowed the slime's: the bubble wind-up (its brace and its fury), the Roll's whoosh and bonk, a synth pop, a generic hit and a soft splat."
+  },
+  {
+   "id": "windups",
+   "name": "Enemy wind-ups (they all played the bubble)",
+   "note": "Each enemy's tell before it attacks. All of them played the slime's SlamWindup bubble; each gets its own now. \"Now\" is that bubble, for comparison."
+  },
+  {
+   "id": "slime",
+   "name": "The slime and the mine (they played the bubble too)",
+   "note": "The Slam's rise, the Goo Bomb forming, the Hammer's swing and the Crystal Mine's ore lift also played SlamWindup."
+  }
+ ],
+ "cues": [
+  {
+   "id": "enemy.dung-brace",
+   "group": "beetle",
+   "name": "Beetle: brace",
+   "where": "At each end of its track it walks round its ball and braces against it (every few seconds while it patrols); also the lean-back before each furious dash",
+   "node": "DungBrace",
+   "ship": "enemy/dung-brace",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Chitin clicks",
+     "note": "Spiky legs gripping the floor: quick dry clicks and a tiny shell creak",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/brace-a-1.mp3",
+      "temp/sound-round-13/raw/brace-a-2.mp3",
+      "temp/sound-round-13/raw/brace-a-3.mp3",
+      "temp/sound-round-13/raw/brace-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Shell creak and grunt",
+     "note": "Its shell creaking as it leans into the ball, a soft insect grunt",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/brace-b-1.mp3",
+      "temp/sound-round-13/raw/brace-b-2.mp3",
+      "temp/sound-round-13/raw/brace-b-3.mp3",
+      "temp/sound-round-13/raw/brace-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Feet scrape",
+     "note": "Six spiky feet digging into the dirt for grip: one short gritty scrape",
+     "kind": "oneshot",
+     "max": 0.5,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/brace-c-1.mp3",
+      "temp/sound-round-13/raw/brace-c-2.mp3",
+      "temp/sound-round-13/raw/brace-c-3.mp3",
+      "temp/sound-round-13/raw/brace-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's bubble (SlamWindup)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-push",
+   "group": "beetle",
+   "name": "Beetle: push off",
+   "where": "It pushes off and the ball starts rolling",
+   "node": "DungPush",
+   "ship": "enemy/dung-push",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Heavy roll-off",
+     "note": "A heavy mud ball starting to roll on stone: a low thud and a short grind",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/push-a-1.mp3",
+      "temp/sound-round-13/raw/push-a-2.mp3",
+      "temp/sound-round-13/raw/push-a-3.mp3",
+      "temp/sound-round-13/raw/push-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Mud shove",
+     "note": "A short thick squelch and a low push into the ball",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/push-b-1.mp3",
+      "temp/sound-round-13/raw/push-b-2.mp3",
+      "temp/sound-round-13/raw/push-b-3.mp3",
+      "temp/sound-round-13/raw/push-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Gritty rumble",
+     "note": "A big dirt ball lurching forward: a short crunching rumble",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/push-c-1.mp3",
+      "temp/sound-round-13/raw/push-c-2.mp3",
+      "temp/sound-round-13/raw/push-c-3.mp3",
+      "temp/sound-round-13/raw/push-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's Roll whoosh",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/roll-launch-1.wav",
+      "godot/asset/audio/sfx/library/player/roll-launch-2.wav",
+      "godot/asset/audio/sfx/library/player/roll-launch-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-bump",
+   "group": "beetle",
+   "name": "Beetle: ball bumps a wall",
+   "where": "Its ball runs into a wall, a fence or a rock and it turns back; also a furious dash that hits a wall",
+   "node": "DungBump",
+   "ship": "enemy/dung-bump",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Mud thud",
+     "note": "One dull earthy thud on stone, a few crumbs falling",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bump-a-1.mp3",
+      "temp/sound-round-13/raw/bump-a-2.mp3",
+      "temp/sound-round-13/raw/bump-a-3.mp3",
+      "temp/sound-round-13/raw/bump-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Wet splat-thud",
+     "note": "One soft thick splat-thud",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bump-b-1.mp3",
+      "temp/sound-round-13/raw/bump-b-2.mp3",
+      "temp/sound-round-13/raw/bump-b-3.mp3",
+      "temp/sound-round-13/raw/bump-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Dry clod knock",
+     "note": "A hard dry clod knocking stone, a puff of dust",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bump-c-1.mp3",
+      "temp/sound-round-13/raw/bump-c-2.mp3",
+      "temp/sound-round-13/raw/bump-c-3.mp3",
+      "temp/sound-round-13/raw/bump-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's Roll bonk",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/roll-bonk-1.wav",
+      "godot/asset/audio/sfx/library/player/roll-bonk-2.wav",
+      "godot/asset/audio/sfx/library/player/roll-bonk-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-fury",
+   "group": "beetle",
+   "name": "Beetle: furious",
+   "where": "The Gulp stole its ball: it stamps, red and steaming, before it charges",
+   "node": "DungFury",
+   "ship": "enemy/dung-fury",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Angry hiss",
+     "note": "A sharp short insect hiss with clicking mandibles",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/fury-a-1.mp3",
+      "temp/sound-round-13/raw/fury-a-2.mp3",
+      "temp/sound-round-13/raw/fury-a-3.mp3",
+      "temp/sound-round-13/raw/fury-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Angry chitter",
+     "note": "Rapid furious chittering and a short buzz of its wing cases",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/fury-b-1.mp3",
+      "temp/sound-round-13/raw/fury-b-2.mp3",
+      "temp/sound-round-13/raw/fury-b-3.mp3",
+      "temp/sound-round-13/raw/fury-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Stamping feet",
+     "note": "Quick little stomps on the dirt and an angry click",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/fury-c-1.mp3",
+      "temp/sound-round-13/raw/fury-c-2.mp3",
+      "temp/sound-round-13/raw/fury-c-3.mp3",
+      "temp/sound-round-13/raw/fury-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's bubble (SlamWindup)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-charge",
+   "group": "beetle",
+   "name": "Beetle: dash",
+   "where": "Each furious dash at the slime (every second or so while it rages)",
+   "node": "DungCharge",
+   "ship": "enemy/dung-charge",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Leg skitter",
+     "note": "A rapid skitter of six legs on stone",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/charge-a-1.mp3",
+      "temp/sound-round-13/raw/charge-a-2.mp3",
+      "temp/sound-round-13/raw/charge-a-3.mp3",
+      "temp/sound-round-13/raw/charge-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Wing-case whirr",
+     "note": "A short whirring buzz of its wing cases flaring as it lunges",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/charge-b-1.mp3",
+      "temp/sound-round-13/raw/charge-b-2.mp3",
+      "temp/sound-round-13/raw/charge-b-3.mp3",
+      "temp/sound-round-13/raw/charge-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Claw scrape lunge",
+     "note": "A quick scrape of claws on dirt and a short whoosh",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/charge-c-1.mp3",
+      "temp/sound-round-13/raw/charge-c-2.mp3",
+      "temp/sound-round-13/raw/charge-c-3.mp3",
+      "temp/sound-round-13/raw/charge-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the slime's Roll whoosh",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/roll-launch-1.wav",
+      "godot/asset/audio/sfx/library/player/roll-launch-2.wav",
+      "godot/asset/audio/sfx/library/player/roll-launch-3.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-ball",
+   "group": "beetle",
+   "name": "Beetle: ball back",
+   "where": "It takes its ball back, or finishes kneading a new one",
+   "node": "DungBall",
+   "ship": "enemy/dung-ball",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Mud pats",
+     "note": "Two quick soft pats on a ball of wet mud",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/ball-a-1.mp3",
+      "temp/sound-round-13/raw/ball-a-2.mp3",
+      "temp/sound-round-13/raw/ball-a-3.mp3",
+      "temp/sound-round-13/raw/ball-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Mud squish",
+     "note": "A soft satisfying squish of mud pressed into shape",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/ball-b-1.mp3",
+      "temp/sound-round-13/raw/ball-b-2.mp3",
+      "temp/sound-round-13/raw/ball-b-3.mp3",
+      "temp/sound-round-13/raw/ball-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Soft thump",
+     "note": "A dirt ball set down: one soft dull thump",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/ball-c-1.mp3",
+      "temp/sound-round-13/raw/ball-c-2.mp3",
+      "temp/sound-round-13/raw/ball-c-3.mp3",
+      "temp/sound-round-13/raw/ball-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: a synth pop (DropPop)",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/synth/resource/drop-pop-1.wav",
+      "godot/asset/audio/sfx/synth/resource/drop-pop-2.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-hurt",
+   "group": "beetle",
+   "name": "Beetle: hurt",
+   "where": "A hit lands on the beetle (from behind, or any hit once it has lost its ball)",
+   "node": "DungHurt",
+   "ship": "enemy/dung-hurt",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Shell clack",
+     "note": "One hollow clack on its hard shell",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hurt-a-1.mp3",
+      "temp/sound-round-13/raw/hurt-a-2.mp3",
+      "temp/sound-round-13/raw/hurt-a-3.mp3",
+      "temp/sound-round-13/raw/hurt-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Knock and squeak",
+     "note": "A crunchy shell knock and a tiny insect squeak",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hurt-b-1.mp3",
+      "temp/sound-round-13/raw/hurt-b-2.mp3",
+      "temp/sound-round-13/raw/hurt-b-3.mp3",
+      "temp/sound-round-13/raw/hurt-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Nut thunk",
+     "note": "A dull thunk, like knocking on a hard nut",
+     "kind": "oneshot",
+     "max": 0.45,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hurt-c-1.mp3",
+      "temp/sound-round-13/raw/hurt-c-2.mp3",
+      "temp/sound-round-13/raw/hurt-c-3.mp3",
+      "temp/sound-round-13/raw/hurt-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the generic dull hit",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/synth/weapon/hit-dull-1.wav",
+      "godot/asset/audio/sfx/synth/weapon/hit-dull-2.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.dung-death",
+   "group": "beetle",
+   "name": "Beetle: beaten",
+   "where": "It is beaten and flops onto its back",
+   "node": "DungDeath",
+   "ship": "enemy/dung-death",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Crack and flop",
+     "note": "Its shell cracks and it flops onto its back, legs scrabbling",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/death-a-1.mp3",
+      "temp/sound-round-13/raw/death-a-2.mp3",
+      "temp/sound-round-13/raw/death-a-3.mp3",
+      "temp/sound-round-13/raw/death-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Squeal and topple",
+     "note": "A small falling squeal and a soft thud as it tips over",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/death-b-1.mp3",
+      "temp/sound-round-13/raw/death-b-2.mp3",
+      "temp/sound-round-13/raw/death-b-3.mp3",
+      "temp/sound-round-13/raw/death-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Crunchy pop",
+     "note": "A crunchy shell pop and a soft puff of dust",
+     "kind": "oneshot",
+     "max": 1.0,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/death-c-1.mp3",
+      "temp/sound-round-13/raw/death-c-2.mp3",
+      "temp/sound-round-13/raw/death-c-3.mp3",
+      "temp/sound-round-13/raw/death-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the soft splat",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/world/break-soft-1.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.boar-scrape",
+   "group": "windups",
+   "name": "Bramble Boar: scrape",
+   "where": "It lowers its head and scrapes the ground before its charge",
+   "node": "BoarScrape",
+   "ship": "enemy/boar-scrape",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Scrape and snort",
+     "note": "Two gritty hoof scrapes and a short angry snort",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/boar-a-1.mp3",
+      "temp/sound-round-13/raw/boar-a-2.mp3",
+      "temp/sound-round-13/raw/boar-a-3.mp3",
+      "temp/sound-round-13/raw/boar-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Hoof scrape",
+     "note": "One long gritty scrape kicking up dirt",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/boar-b-1.mp3",
+      "temp/sound-round-13/raw/boar-b-2.mp3",
+      "temp/sound-round-13/raw/boar-b-3.mp3",
+      "temp/sound-round-13/raw/boar-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Snort and grunt",
+     "note": "A short angry snort and grunt",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/boar-c-1.mp3",
+      "temp/sound-round-13/raw/boar-c-2.mp3",
+      "temp/sound-round-13/raw/boar-c-3.mp3",
+      "temp/sound-round-13/raw/boar-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.warden-windup",
+   "group": "windups",
+   "name": "Brood Warden: blades back",
+   "where": "The armoured spider pulls its scythe blades back before a sweep",
+   "node": "WardenWindup",
+   "ship": "enemy/warden-windup",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Blade scrape and hiss",
+     "note": "A sharp scrape of hard blades and a hiss",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/warden-a-1.mp3",
+      "temp/sound-round-13/raw/warden-a-2.mp3",
+      "temp/sound-round-13/raw/warden-a-3.mp3",
+      "temp/sound-round-13/raw/warden-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Steely shing",
+     "note": "Two chitin blades sliding against each other",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/warden-b-1.mp3",
+      "temp/sound-round-13/raw/warden-b-2.mp3",
+      "temp/sound-round-13/raw/warden-b-3.mp3",
+      "temp/sound-round-13/raw/warden-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Leg clicks and chitter",
+     "note": "Armoured legs clicking and a low menacing chitter",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/warden-c-1.mp3",
+      "temp/sound-round-13/raw/warden-c-2.mp3",
+      "temp/sound-round-13/raw/warden-c-3.mp3",
+      "temp/sound-round-13/raw/warden-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.stomper-crouch",
+   "group": "windups",
+   "name": "Clod Stomper: crouch",
+   "where": "The mud golem crouches before it stomps",
+   "node": "StomperCrouch",
+   "ship": "enemy/stomper-crouch",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Mud squelch and pebbles",
+     "note": "A thick muddy squelch and pebbles rattling",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/stomper-a-1.mp3",
+      "temp/sound-round-13/raw/stomper-a-2.mp3",
+      "temp/sound-round-13/raw/stomper-a-3.mp3",
+      "temp/sound-round-13/raw/stomper-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Earthy groan",
+     "note": "A low earthy grunt with a squish",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/stomper-b-1.mp3",
+      "temp/sound-round-13/raw/stomper-b-2.mp3",
+      "temp/sound-round-13/raw/stomper-b-3.mp3",
+      "temp/sound-round-13/raw/stomper-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Clay creak",
+     "note": "Wet clay creaking and stretching",
+     "kind": "oneshot",
+     "max": 0.7,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/stomper-c-1.mp3",
+      "temp/sound-round-13/raw/stomper-c-2.mp3",
+      "temp/sound-round-13/raw/stomper-c-3.mp3",
+      "temp/sound-round-13/raw/stomper-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.colossus-raise",
+   "group": "windups",
+   "name": "Crystal Colossus: raise",
+   "where": "The crystal golem lifts a fist before he stomps or slams",
+   "node": "ColossusRaise",
+   "ship": "enemy/colossus-raise",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Crystal grind",
+     "note": "Deep crystalline grinding and creaking",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/colossus-a-1.mp3",
+      "temp/sound-round-13/raw/colossus-a-2.mp3",
+      "temp/sound-round-13/raw/colossus-a-3.mp3",
+      "temp/sound-round-13/raw/colossus-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Ice crack and rumble",
+     "note": "Ice crystals scraping and cracking over a low rumble",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/colossus-b-1.mp3",
+      "temp/sound-round-13/raw/colossus-b-2.mp3",
+      "temp/sound-round-13/raw/colossus-b-3.mp3",
+      "temp/sound-round-13/raw/colossus-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Glassy growl",
+     "note": "A deep growl with glassy crackles",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/colossus-c-1.mp3",
+      "temp/sound-round-13/raw/colossus-c-2.mp3",
+      "temp/sound-round-13/raw/colossus-c-3.mp3",
+      "temp/sound-round-13/raw/colossus-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.prism-charge",
+   "group": "windups",
+   "name": "Prism Eye and Watcher Eye: charge",
+   "where": "The crystal eye gathers its beam before it fires",
+   "node": "PrismCharge",
+   "ship": "enemy/prism-charge",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Rising glassy hum",
+     "note": "A short rising glassy hum that swells",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/prism-a-1.mp3",
+      "temp/sound-round-13/raw/prism-a-2.mp3",
+      "temp/sound-round-13/raw/prism-a-3.mp3",
+      "temp/sound-round-13/raw/prism-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Ringing shimmer",
+     "note": "A crystal humming and ringing, a rising shimmer",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/prism-b-1.mp3",
+      "temp/sound-round-13/raw/prism-b-2.mp3",
+      "temp/sound-round-13/raw/prism-b-3.mp3",
+      "temp/sound-round-13/raw/prism-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Power-up whine",
+     "note": "A quick rising whine with sparkling tinkles",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/prism-c-1.mp3",
+      "temp/sound-round-13/raw/prism-c-2.mp3",
+      "temp/sound-round-13/raw/prism-c-3.mp3",
+      "temp/sound-round-13/raw/prism-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.chucker-windup",
+   "group": "windups",
+   "name": "Rock Chucker: heave",
+   "where": "The worm on the cliff heaves a boulder over its head before it throws",
+   "node": "ChuckerWindup",
+   "ship": "enemy/chucker-windup",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Grunt and stone grind",
+     "note": "A strained grunt and stone grinding",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/chucker-a-1.mp3",
+      "temp/sound-round-13/raw/chucker-a-2.mp3",
+      "temp/sound-round-13/raw/chucker-a-3.mp3",
+      "temp/sound-round-13/raw/chucker-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Rock lift scrape",
+     "note": "A gritty stone scrape and a heave",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/chucker-b-1.mp3",
+      "temp/sound-round-13/raw/chucker-b-2.mp3",
+      "temp/sound-round-13/raw/chucker-b-3.mp3",
+      "temp/sound-round-13/raw/chucker-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Effortful growl",
+     "note": "A short effortful growl",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/chucker-c-1.mp3",
+      "temp/sound-round-13/raw/chucker-c-2.mp3",
+      "temp/sound-round-13/raw/chucker-c-3.mp3",
+      "temp/sound-round-13/raw/chucker-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.shardback-rear",
+   "group": "windups",
+   "name": "Shardback: rear up",
+   "where": "The crystal tortoise rears up before its slam",
+   "node": "ShardbackRear",
+   "ship": "enemy/shardback-rear",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Shell creak and clinks",
+     "note": "A heavy shell creak and crystal shards clinking",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/shardback-a-1.mp3",
+      "temp/sound-round-13/raw/shardback-a-2.mp3",
+      "temp/sound-round-13/raw/shardback-a-3.mp3",
+      "temp/sound-round-13/raw/shardback-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Deep shell grind",
+     "note": "A huge shell lifting with a deep grinding creak",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/shardback-b-1.mp3",
+      "temp/sound-round-13/raw/shardback-b-2.mp3",
+      "temp/sound-round-13/raw/shardback-b-3.mp3",
+      "temp/sound-round-13/raw/shardback-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Tired old grunt",
+     "note": "An old tortoise's deep grunt as it heaves itself up",
+     "kind": "oneshot",
+     "max": 0.9,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/shardback-c-1.mp3",
+      "temp/sound-round-13/raw/shardback-c-2.mp3",
+      "temp/sound-round-13/raw/shardback-c-3.mp3",
+      "temp/sound-round-13/raw/shardback-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.squint-rear",
+   "group": "windups",
+   "name": "Squint and Big Squint: rear",
+   "where": "The armoured burrow beast rears up before it leaps",
+   "node": "SquintRear",
+   "ship": "enemy/squint-rear",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Plates grind and growl",
+     "note": "Clay armour plates grinding and a low growl",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/squint-a-1.mp3",
+      "temp/sound-round-13/raw/squint-a-2.mp3",
+      "temp/sound-round-13/raw/squint-a-3.mp3",
+      "temp/sound-round-13/raw/squint-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Visor clatter",
+     "note": "Clay plates clacking open, a short stony clatter",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/squint-b-1.mp3",
+      "temp/sound-round-13/raw/squint-b-2.mp3",
+      "temp/sound-round-13/raw/squint-b-3.mp3",
+      "temp/sound-round-13/raw/squint-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Growl and scuff",
+     "note": "A low rumbling growl and a scuff of dirt",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/squint-c-1.mp3",
+      "temp/sound-round-13/raw/squint-c-2.mp3",
+      "temp/sound-round-13/raw/squint-c-3.mp3",
+      "temp/sound-round-13/raw/squint-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enemy.thornball-curl",
+   "group": "windups",
+   "name": "Thornball: curl up",
+   "where": "The hedgehog curls into its spiked ball before it rolls (and when it cowers from a Goo Bomb)",
+   "node": "ThornballCurl",
+   "ship": "enemy/thornball-curl",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Quill rustle and huff",
+     "note": "A quick prickly rustle of quills and a little huff",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/thornball-a-1.mp3",
+      "temp/sound-round-13/raw/thornball-a-2.mp3",
+      "temp/sound-round-13/raw/thornball-a-3.mp3",
+      "temp/sound-round-13/raw/thornball-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Quills bristle",
+     "note": "Stiff quills bristling all at once: a short rattling rustle",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/thornball-b-1.mp3",
+      "temp/sound-round-13/raw/thornball-b-2.mp3",
+      "temp/sound-round-13/raw/thornball-b-3.mp3",
+      "temp/sound-round-13/raw/thornball-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Grumpy huff",
+     "note": "A short angry huff and snuffle",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/thornball-c-1.mp3",
+      "temp/sound-round-13/raw/thornball-c-2.mp3",
+      "temp/sound-round-13/raw/thornball-c-3.mp3",
+      "temp/sound-round-13/raw/thornball-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.slam-rise",
+   "group": "slime",
+   "name": "Slam: rise",
+   "where": "The slime springs up for a Slam (the Stone form's and the shapes')",
+   "node": "SlamRise",
+   "ship": "player/slam-rise",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Rubbery boing",
+     "note": "A short stretchy rubbery boing rising in pitch",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/slam-a-1.mp3",
+      "temp/sound-round-13/raw/slam-a-2.mp3",
+      "temp/sound-round-13/raw/slam-a-3.mp3",
+      "temp/sound-round-13/raw/slam-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Wobbly stretch",
+     "note": "A quick wobbly stretch and a rising whoosh",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/slam-b-1.mp3",
+      "temp/sound-round-13/raw/slam-b-2.mp3",
+      "temp/sound-round-13/raw/slam-b-3.mp3",
+      "temp/sound-round-13/raw/slam-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Spring wind-up",
+     "note": "A short rising coil boing",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/slam-c-1.mp3",
+      "temp/sound-round-13/raw/slam-c-2.mp3",
+      "temp/sound-round-13/raw/slam-c-3.mp3",
+      "temp/sound-round-13/raw/slam-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.goo-bomb-cast",
+   "group": "slime",
+   "name": "Goo Bomb: forming",
+   "where": "The slime forms a Goo Bomb inside it (the charge before the spit)",
+   "node": "GooBombCast",
+   "ship": "player/goo-bomb-cast",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Fuse in goo",
+     "note": "A short sizzle and a soft gooey squish",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bomb-a-1.mp3",
+      "temp/sound-round-13/raw/bomb-a-2.mp3",
+      "temp/sound-round-13/raw/bomb-a-3.mp3",
+      "temp/sound-round-13/raw/bomb-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Goo kneading",
+     "note": "A short wet squelchy churn, no bubbles",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bomb-b-1.mp3",
+      "temp/sound-round-13/raw/bomb-b-2.mp3",
+      "temp/sound-round-13/raw/bomb-b-3.mp3",
+      "temp/sound-round-13/raw/bomb-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Bomb armed",
+     "note": "A quick tick-tick and a soft spark crackle",
+     "kind": "oneshot",
+     "max": 0.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/bomb-c-1.mp3",
+      "temp/sound-round-13/raw/bomb-c-2.mp3",
+      "temp/sound-round-13/raw/bomb-c-3.mp3",
+      "temp/sound-round-13/raw/bomb-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "player.hammer-swing",
+   "group": "slime",
+   "name": "Hammer: swing",
+   "where": "The Hammer shape swings (the melee mode, and the Hammer's power)",
+   "node": "HammerSwing",
+   "ship": "player/hammer-swing",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Deep whoosh",
+     "note": "One deep whoosh of a heavy wooden hammer",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hammer-a-1.mp3",
+      "temp/sound-round-13/raw/hammer-a-2.mp3",
+      "temp/sound-round-13/raw/hammer-a-3.mp3",
+      "temp/sound-round-13/raw/hammer-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Mallet swoosh",
+     "note": "A short low swoosh with a creak of the handle",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hammer-b-1.mp3",
+      "temp/sound-round-13/raw/hammer-b-2.mp3",
+      "temp/sound-round-13/raw/hammer-b-3.mp3",
+      "temp/sound-round-13/raw/hammer-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Wind-up whoosh",
+     "note": "A rising whoosh that ends sharply",
+     "kind": "oneshot",
+     "max": 0.6,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/hammer-c-1.mp3",
+      "temp/sound-round-13/raw/hammer-c-2.mp3",
+      "temp/sound-round-13/raw/hammer-c-3.mp3",
+      "temp/sound-round-13/raw/hammer-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world.ore-lift-ride",
+   "group": "slime",
+   "name": "Ore lift: ride",
+   "where": "The Crystal Mine's ore lift takes the slime up or down",
+   "node": "OreLiftRide",
+   "ship": "world/ore-lift-ride",
+   "inGame": "a",
+   "rhythm": 1200,
+   "rhythmLabel": "▶ Repeat",
+   "options": [
+    {
+     "key": "a",
+     "label": "Pulley and chains",
+     "note": "A rope pulley creaks, chains rattle, the cage clunks into motion",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/lift-a-1.mp3",
+      "temp/sound-round-13/raw/lift-a-2.mp3",
+      "temp/sound-round-13/raw/lift-a-3.mp3",
+      "temp/sound-round-13/raw/lift-a-4.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Rails rumble",
+     "note": "A rumble of iron wheels on rails and wooden creaks",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/lift-b-1.mp3",
+      "temp/sound-round-13/raw/lift-b-2.mp3",
+      "temp/sound-round-13/raw/lift-b-3.mp3",
+      "temp/sound-round-13/raw/lift-b-4.mp3"
+     ]
+    },
+    {
+     "key": "c",
+     "label": "Winch ratchet",
+     "note": "A ratchet clicking and a rope groaning under load",
+     "kind": "oneshot",
+     "max": 1.8,
+     "even": true,
+     "takes": [
+      "temp/sound-round-13/raw/lift-c-1.mp3",
+      "temp/sound-round-13/raw/lift-c-2.mp3",
+      "temp/sound-round-13/raw/lift-c-3.mp3",
+      "temp/sound-round-13/raw/lift-c-4.mp3"
+     ]
+    },
+    {
+     "key": "now",
+     "label": "Now: the bubble",
+     "note": "What the game played before this round",
+     "kind": "oneshot",
+     "takes": [
+      "godot/asset/audio/sfx/library/player/slam-windup.ogg"
+     ]
+    }
+   ]
+  }
+ ]
+}

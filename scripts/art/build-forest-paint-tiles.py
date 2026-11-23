@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TABLE = ROOT / "godot/asset/MAPS/trees/sets/trees.json"
 CANOPY_TABLE = ROOT / "godot/asset/MAPS/trees/canopy/canopy.json"
 CANOPY_PREFIX = "canopy:"
+CANOPY_PATH_PREFIX = "canopy-path:"
 GODOT = ROOT / "godot"
 PNG = ROOT / "godot/asset/MAPS/forest/forest_paint_tiles.png"
 TRES = ROOT / "godot/game/world/forest/forest_tileset.tres"
@@ -70,6 +71,12 @@ MIXES = [
     ("canopy crystal", (54, 42, 80), ["canopy:crystal"]),
 ]
 SINGLE_BG = (44, 62, 48)
+## Paths under the canopy (River Roads, 2026-11-21): the same crowns, no collision, the crowns fading
+## over the slime. Each stands in row 1 under its canopy wall (columns 16-20 of row 1 hold no single
+## tree), so the palette picture keeps its size. Fixed places: append new ones only.
+CANOPY_PATHS = [
+    ((18, 1), "canopy path forest", (30, 58, 36), ["canopy-path:forest"]),
+]
 
 
 class Trees:
@@ -111,7 +118,19 @@ def canopy_thumb(set_name: str, bg: tuple[int, int, int]) -> Image.Image:
     return tile
 
 
+def canopy_path_thumb(set_name: str, bg: tuple[int, int, int]) -> Image.Image:
+    """A path under the canopy's tile: the canopy wall's, a dotted trail across it, a gap in the roots."""
+    tile = canopy_thumb(set_name, bg)
+    draw = ImageDraw.Draw(tile)
+    draw.rectangle((26, TILE - 16, 38, TILE - 3), fill=(20, 26, 16, 255))
+    for y in range(8, TILE - 4, 8):
+        draw.ellipse((29, y, 35, y + 6), fill=(255, 214, 80, 255), outline=(60, 50, 20, 255))
+    return tile
+
+
 def thumb(trees: Trees, picks: list[str], bg: tuple[int, int, int], mixed: bool) -> Image.Image:
+    if picks and picks[0].startswith(CANOPY_PATH_PREFIX):
+        return canopy_path_thumb(picks[0].removeprefix(CANOPY_PATH_PREFIX), bg)
     if picks and picks[0].startswith(CANOPY_PREFIX):
         return canopy_thumb(picks[0].removeprefix(CANOPY_PREFIX), bg)
     tile = Image.new("RGBA", (TILE, TILE), bg + (255,))
@@ -148,6 +167,10 @@ def main() -> None:
         tiles.append(((i, 0), thumb(trees, picks, bg, True), name, picks))
     for i, name in enumerate(trees.table):
         tiles.append(((i % COLUMNS, SINGLE_ROW + i // COLUMNS), thumb(trees, [name], SINGLE_BG, False), name, [name]))
+    taken = {c for c, *_ in tiles}
+    for cell, name, bg, picks in CANOPY_PATHS:
+        assert cell not in taken, f"{name}: {cell} is taken"
+        tiles.append((cell, thumb(trees, picks, bg, True), name, picks))
     rows = 1 + max(c[1] for c, *_ in tiles)
     out = Image.new("RGBA", (WIDTH * TILE, rows * TILE), (0, 0, 0, 0))
     for (cx, cy), img, *_ in tiles:

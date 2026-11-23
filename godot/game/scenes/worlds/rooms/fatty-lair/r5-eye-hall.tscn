@@ -75,13 +75,6 @@ position = Vector2(576, 352)
 [node name="Objects" type="Node2D" parent="." unique_id=92497629]
 y_sort_enabled = true
 
-[node name="r5-latch-inner" parent="Objects" unique_id=776023419 instance=ExtResource("9_3kmux")]
-position = Vector2(476, 138)
-latch_id = "fatty-lair.r5-inner"
-gate_id = "fatty-lair-r5-inner"
-group_id = "fatty-lair.r5-maze"
-order = 3
-
 [node name="r5-inner-door" parent="Objects" unique_id=1990432513 instance=ExtResource("92_dividergate")]
 position = Vector2(608, 544)
 metadata/fence_gate_cell = "9,8"
@@ -193,6 +186,7 @@ texture = ExtResource("10_mdv55")
 position = Vector2(928, 336)
 latch_id = "fatty-lair.r5-maze-2"
 gate_id = "fatty-lair-r5-maze-g2"
+more_gate_ids = PackedStringArray("fatty-lair-r5-inner")
 group_id = "fatty-lair.r5-maze"
 order = 2
 
@@ -300,37 +294,67 @@ wander_radius = 96.0
 [node name="Scenery" type="Node2D" parent="." unique_id=284314394]
 y_sort_enabled = true
 
+[node name="liftable" parent="Scenery" unique_id=1959382689 instance=ExtResource("throw_liftable")]
+position = Vector2(575, 865)
+kind = "clay-pot"
+under = "energy"
+weight = "light"
+
+[node name="@StaticBody2D@58348" parent="Scenery" unique_id=1994950775 instance=ExtResource("throw_liftable")]
+position = Vector2(987, 865)
+kind = "clay-pot"
+under = "energy"
+weight = "light"
+
+[node name="liftable2" parent="Scenery" unique_id=805291235 instance=ExtResource("throw_liftable")]
+position = Vector2(981, 588)
+kind = "clay-pot"
+under = "energy"
+weight = "light"
+
+[node name="liftable3" parent="Scenery" unique_id=97583111 instance=ExtResource("throw_liftable")]
+position = Vector2(171, 583)
+kind = "clay-pot"
+under = "energy"
+weight = "light"
+
 [node name="Throwables" type="Node2D" parent="." unique_id=233197278]
 y_sort_enabled = true
 
 [node name="throw-r5-maze-squint-top-1" parent="Throwables" unique_id=1732328903 instance=ExtResource("throw_liftable")]
-position = Vector2(742, 294)
+position = Vector2(439, 267)
 kind = "clay-pot"
+under = "heart"
 weight = "light"
 
 [node name="throw-r5-maze-squint-top-2" parent="Throwables" unique_id=983300283 instance=ExtResource("throw_liftable")]
-position = Vector2(666, 230)
+position = Vector2(646, 170)
 kind = "rock"
+under = "energy"
 weight = "light"
 
 [node name="throw-r5-maze-squint-west-1" parent="Throwables" unique_id=1981667655 instance=ExtResource("throw_liftable")]
-position = Vector2(154, 486)
+position = Vector2(799, 262)
 kind = "clay-pot"
+under = "energy"
 weight = "light"
 
 [node name="throw-r5-maze-squint-west-2" parent="Throwables" unique_id=1173825513 instance=ExtResource("throw_liftable")]
-position = Vector2(170, 435)
+position = Vector2(509, 173)
 kind = "rock"
+under = "energy"
 weight = "light"
 
 [node name="throw-r5-maze-squint-east-1" parent="Throwables" unique_id=121178740 instance=ExtResource("throw_liftable")]
-position = Vector2(858, 486)
+position = Vector2(670, 262)
 kind = "clay-pot"
+under = "heart"
 weight = "light"
 
 [node name="throw-r5-maze-squint-east-2" parent="Throwables" unique_id=1294212157 instance=ExtResource("throw_liftable")]
 position = Vector2(874, 435)
 kind = "rock"
+under = "energy"
 weight = "light"
 
 [editable path="Objects/r5-inner-door"]

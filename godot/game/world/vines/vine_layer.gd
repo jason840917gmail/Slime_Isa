@@ -38,6 +38,15 @@ extends TileMapLayer
 ## (-1). The palette squares are drawn at `paint_opacity` in the editor and never in the game.
 ## It is a climbable surface of game/player/skins/feral_climb.gd (in its WALL_GROUP).
 ##
+## **Across a chunk line** (owner, 2026-11-21: the mushroom yard's wall in level-1-c4 climbed up into
+## North Wilds C3 and back, "a both way entrance", painted on the vine tilemap): a chunk world's
+## vines painted on past its top or bottom edge go on in the chunk world there (the wall's other
+## part, painted on that world's own vines). Climbing toward that edge, the slime crosses when its
+## centre comes within CROSS_PX of it (`climb_crosses`): it travels there and comes in clinging on
+## that world's vines (this layer is that world's arrival end, door CROSS_DOOR) at the same x (else
+## on the nearest painted column within CROSS_REACH cells), CROSS_IN_PX inside the edge, and climbs
+## on while the interact key, held through the crossing, stays held; let go, it drops.
+##
 ## Owner: skins.
 
 const Services := preload("res://game/shared/services.gd")
@@ -45,8 +54,22 @@ const NodeFind := preload("res://game/shared/node_find.gd")
 const ElevationGrid := preload("res://game/world/elevation/elevation_grid.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 
+const AreaTravel := preload("res://game/world/area_travel.gd")
+const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
+const BorderCrossing := preload("res://game/world/crossings/border_crossing.gd")
+
 const TILESET := "res://game/world/vines/vine_tileset.tres"
 const ART := "res://asset/MAPS/props/mine/256x256-root-wall.webp"
+## Across a chunk line (see the class notes): the arrival end's door id, how near the edge (the
+## slime's centre) a climb crosses, how far inside the next world's edge it comes in, how many
+## columns away from its x it looks for painted vines there.
+const CROSS_DOOR := "vines-across"
+const CROSS_PX := 12.0
+const CROSS_IN_PX := 28.0
+const CROSS_REACH := 3
+## The keys a slime crossing on the vines may still hold down (play_arrival).
+const HELD_ON_ARRIVAL: Array[StringName] = [&"interact", &"move_up", &"move_down", &"move_left", &"move_right"]
+const MAIN_GROUP := &"world_main"
 ## The painted part of the picture (px).
 const ART_REGION := Rect2(4, 6, 248, 246)
 ## How far the picture reaches past the painted cells: its mossy cap over the rim, its roots under
@@ -117,6 +140,14 @@ var _queued := false
 var _faces := {}
 var _next_refusal_ms := 0.0
 static var _texture: Texture2D
+## The crossing under way to the next world: {"map", "x" (the slime's centre), "from" ("south": it
+## comes in at that world's bottom edge, climbing up; "north": at its top, climbing down)}; read by
+## that world's vines as the slime arrives.
+static var _crossing: Dictionary = {}
+## This layer's climb has crossed out of its world (it holds the slime still until the world goes).
+var _crossed := false
+## An arrival end's id (area_travel.gd `find_door` reads it).
+var door_id: String = CROSS_DOOR
 
 
 func _init() -> void:
@@ -126,6 +157,9 @@ func _init() -> void:
 func _enter_tree() -> void:
 	if not Engine.is_editor_hint():
 		add_to_group(GROUP)
+		# an arrival end only for a climb crossing into this world (the other doors' users never see it)
+		if not _crossing.is_empty():
+			add_to_group(AreaTravel.DOOR_GROUP)
 	# the balconies take the style of their wall, known once the elevation is built
 	add_to_group(Elevation.WALL_PICTURES_GROUP)
 
@@ -385,6 +419,107 @@ func climb_exit(feet: Vector2, way: Vector2) -> Vector2:
 		var under := Vector2(local.x, stand)
 		return to_global(_on_floor(cell + Vector2i.DOWN, under) if _balcony(cell + Vector2i.DOWN) else under)
 	return Vector2.INF
+
+
+## Climbing `way` with the feet at `feet` (feral_climb.gd asks each step, `way` ZERO when the slime
+## does not climb): true while this layer's climb crosses out of its world (it then holds the slime
+## still), and starts the crossing when the slime's centre comes within CROSS_PX of the world's top
+## or bottom edge climbing toward it, its column's vines painted on past that edge and a chunk world
+## lying there (see the class notes).
+func climb_crosses(feet: Vector2, way: Vector2) -> bool:
+	if _crossed:
+		return true
+	if Engine.is_editor_hint() or absf(way.y) < FACING_DOT:
+		return false
+	var world := Services.world()
+	if world == null or not is_instance_valid(world.world_root):
+		return false
+	var rect: Rect2 = world.world_rect()
+	var centre := feet - Vector2(0.0, FEET_BELOW_CENTRE)
+	var up := way.y < 0.0
+	var edge := rect.position.y if up else rect.end.y
+	if absf(centre.y - edge) > CROSS_PX:
+		return false
+	var past := local_to_map(to_local(Vector2(centre.x, edge + (-1.0 if up else 1.0))))
+	if not _painted(past):
+		return false
+	var target := chunk_beyond(world.world_root, Vector2i(0, -1 if up else 1))
+	var main := get_tree().get_first_node_in_group(MAIN_GROUP)
+	if target.is_empty() or main == null or not main.has_method(&"travel_to"):
+		return false
+	_crossed = true
+	_crossing = {"map": target, "x": centre.x, "from": "south" if up else "north"}
+	main.call(&"travel_to", target, "", CROSS_DOOR, "")
+	return true
+
+
+## The chunk world `step` away on the atlas grid from chunk world `root` (its `world_map_chunk`
+## metadata), in any region; "" when `root` is no chunk world or nothing lies there.
+static func chunk_beyond(root: Node, step: Vector2i) -> String:
+	if root == null or not root.has_meta(&"world_map_chunk"):
+		return ""
+	var at: Variant = BorderCrossing.chunk_cell(str(root.get_meta(&"world_map_chunk")))
+	if not at is Vector2i:
+		return ""
+	var want: Vector2i = (at as Vector2i) + step
+	var table := WorldChunks.table()
+	for world: String in table:
+		var chunk_names: Dictionary = (table[world] as Dictionary).get("chunks", {})
+		for chunk_world: String in chunk_names:
+			var cell: Variant = BorderCrossing.chunk_cell(str(chunk_names[chunk_world]))
+			if cell is Vector2i and cell == want:
+				return chunk_world
+	return ""
+
+
+# --- the arrival end of a crossing (area_travel.gd finds it by `door_id`) -------------------------
+
+## Where the slime comes in (its centre): CROSS_IN_PX inside the edge it crossed, at the x it left,
+## kept on the nearest painted column within CROSS_REACH cells.
+func arrival_point() -> Vector2:
+	var world := Services.world()
+	var rect: Rect2 = world.world_rect() if world != null else Rect2()
+	var x := float(_crossing.get("x", rect.get_center().x))
+	var y := rect.end.y - CROSS_IN_PX if str(_crossing.get("from", "south")) == "south" else rect.position.y + CROSS_IN_PX
+	var local := to_local(Vector2(x, y))
+	var cell := local_to_map(local)
+	for reach in range(0, CROSS_REACH + 1):
+		for dx: int in ([0] if reach == 0 else [-reach, reach]):
+			var near := Vector2i(cell.x + dx, cell.y)
+			if _painted(near):
+				var at := to_global(Vector2(_across(near, local.x), local.y))
+				return Vector2(floorf(at.x + 0.5), floorf(at.y + 0.5))
+	return Vector2(floorf(x + 0.5), floorf(y + 0.5))
+
+
+## The slime comes in exactly there.
+func exact_arrival() -> bool:
+	return true
+
+
+func has_side() -> bool:
+	return false
+
+
+## main.gd `_start_arrival`: the slime came in on these vines from the next world. It is put on them
+## and takes hold; the keys still held down from the climb there count as held (the new world's
+## slime saw no press of them), so with the interact key held it climbs on, else it drops.
+func play_arrival(player: Node, _delay_ms: float) -> float:
+	if player == null or not is_instance_valid(player) or _crossing.is_empty():
+		return 0.0
+	var centre := arrival_point()
+	_crossing = {}
+	player.call(&"teleport", centre)
+	# Tracked now: the elevation's own deferred track of the new slime would give its body back the
+	# level's walls in the middle of the climb.
+	var world := Services.world()
+	var body := player.get(&"body") as CharacterBody2D
+	if world != null and world.elevation != null and body != null:
+		world.elevation.track(body)
+	if player.has_method(&"hold_keys_still_down"):
+		player.call(&"hold_keys_still_down", HELD_ON_ARRIVAL)
+	player.call(&"start_climb", self)
+	return 0.0
 
 
 ## Where a let-go from `feet` lands: on a balcony under the slime, else before the foot of the wall.
@@ -653,25 +788,37 @@ func _rebuild() -> void:
 			var area := Rect2(patch.position.x * size.x + index * width - SIDE_PX, patch.position.y * size.y - CAP_PX,
 				width + SIDE_PX * 2.0, patch.size.y * size.y + CAP_PX + FOOT_PX)
 			var mirrored := (patch.position.x + index) % 2 != 0
-			var natural := ART_REGION.size.y * area.size.x / ART_REGION.size.x
-			if area.size.y <= natural * TALL_STRETCH:
-				_add_piece(holder, area, ART_REGION, mirrored)
-				continue
-			# A tall wall: the picture's cap at the rim, its foot at the foot, its middle repeated between
-			# them (every other one mirrored), none of them stretched much.
-			var ratio := area.size.x / ART_REGION.size.x
-			var cap := Rect2(ART_REGION.position, Vector2(ART_REGION.size.x, ART_CAP_PX))
-			var foot := Rect2(ART_REGION.position.x, ART_REGION.end.y - ART_FOOT_PX, ART_REGION.size.x, ART_FOOT_PX)
-			var body := Rect2(ART_REGION.position.x, cap.end.y, ART_REGION.size.x, foot.position.y - cap.end.y)
-			_add_piece(holder, Rect2(area.position, Vector2(area.size.x, cap.size.y * ratio)), cap, mirrored)
-			_add_piece(holder, Rect2(area.position.x, area.end.y - foot.size.y * ratio, area.size.x, foot.size.y * ratio), foot, mirrored)
-			var between := area.size.y - (cap.size.y + foot.size.y) * ratio
-			var count := maxi(1, roundi(between / (body.size.y * ratio)))
-			for piece in count:
-				_add_piece(holder, Rect2(area.position.x, area.position.y + cap.size.y * ratio + piece * between / count,
-					area.size.x, between / count), body, mirrored != (piece % 2 != 0))
+			for piece: Dictionary in pieces(area, mirrored):
+				_add_piece(holder, piece["area"], piece["region"], bool(piece["mirrored"]))
 	# over the vines: those under a balcony run in under its rim
 	_add_balconies(holder, size)
+
+
+## The pieces the vines' picture is drawn in over `area` (world or local units), each
+## {"area", "region" (of ART), "mirrored"}: the whole picture when the area is not much taller than
+## it at its width; on a tall wall the picture's cap at the top, its foot at the bottom and its middle
+## repeated between them (every other one mirrored), none of them stretched much. The placed
+## climbable wall draws its roots the same way (game/scripts/climb_wall.gd; owner, 2026-11-21: "I
+## don't want you to stretch the vine").
+static func pieces(area: Rect2, mirrored: bool) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var natural := ART_REGION.size.y * area.size.x / ART_REGION.size.x
+	if area.size.y <= natural * TALL_STRETCH:
+		out.append({"area": area, "region": ART_REGION, "mirrored": mirrored})
+		return out
+	var ratio := area.size.x / ART_REGION.size.x
+	var cap := Rect2(ART_REGION.position, Vector2(ART_REGION.size.x, ART_CAP_PX))
+	var foot := Rect2(ART_REGION.position.x, ART_REGION.end.y - ART_FOOT_PX, ART_REGION.size.x, ART_FOOT_PX)
+	var body := Rect2(ART_REGION.position.x, cap.end.y, ART_REGION.size.x, foot.position.y - cap.end.y)
+	out.append({"area": Rect2(area.position, Vector2(area.size.x, cap.size.y * ratio)), "region": cap, "mirrored": mirrored})
+	out.append({"area": Rect2(area.position.x, area.end.y - foot.size.y * ratio, area.size.x, foot.size.y * ratio),
+		"region": foot, "mirrored": mirrored})
+	var between := area.size.y - (cap.size.y + foot.size.y) * ratio
+	var count := maxi(1, roundi(between / (body.size.y * ratio)))
+	for piece in count:
+		out.append({"area": Rect2(area.position.x, area.position.y + cap.size.y * ratio + piece * between / count,
+			area.size.x, between / count), "region": body, "mirrored": mirrored != (piece % 2 != 0)})
+	return out
 
 
 ## Every painted balcony's picture, as wide as its cells, its back edge on the top of their row,

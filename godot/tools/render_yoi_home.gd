@@ -66,12 +66,11 @@ func _initialize() -> void:
 			_camera(Vector2(345.0, 900.0), 1.6)
 			await _wait_ms(400)
 			var hatch := _find(main, "yoi-hatch")
-			var heap: Node = hatch.get_node_or_null(^"Heap") if hatch != null else null
-			if heap != null:
-				for crate: Node in heap.get_children():
-					var script := crate.get_node_or_null(^"LiftableScript")
-					if script != null:
-						script.call(&"take")
+			var heap: Array = hatch.call(&"heap_on_it") if hatch != null else []
+			for crate: Node in heap:
+				var script := crate.get_node_or_null(^"LiftableScript")
+				if script != null:
+					script.call(&"take")
 			await _wait_ms(900)
 			print("hatch open: %s, flag: %s" % [str(hatch.call(&"is_open")) if hatch != null else "-",
 				str(run.has_flag("level-1.yoi-hatch-open"))])

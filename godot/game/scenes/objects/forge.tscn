@@ -46,7 +46,7 @@ object_id = "forge"
 story_only = true
 locked_message = "The Forge has gone cold. Pip, the smith's son, dreams of seeing it glow again."
 restored_message = "The Forge burns again!"
-interact_radius = 130.0
+interact_radius = 48.0
 badge_rise = 130.0
 
 [node name="Restored" type="Node2D" parent="."]
@@ -68,7 +68,8 @@ script = ExtResource("4")
 prompt = "Use the Forge"
 recipe_context = "forge"
 tier = 1
-interact_radius = 130.0
+interact_radius = 48.0
+reach_from_walls = true
 badge_rise = 130.0
 
 [node name="FireLoop" type="AudioStreamPlayer2D" parent="Restored"]

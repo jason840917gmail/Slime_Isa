@@ -269,9 +269,11 @@ Stand-ins and gaps (grey-box until art and sound passes):
   glint, the goo splat and the energy shard are painted; the charge ring, the clink tick, the shock
   rings, the speed streaks, the dust and the other particles are still drawn in code, and the
   Hammer's crack is the boss's crack decal.
-- **Sound:** swings play `Lash` / `Dodge` / `SlamWindup`, impacts `HitDull` / `SlamImpact`, the
+- **Sound:** swings play `Lash` / `Dodge` / `HammerSwing` (it was `SlamWindup` until Sound Picker
+  round 13), impacts `HitDull` / `SlamImpact`, the
   switch `EquipBlade` / `EquipTool`, the full ring `Heal`, the fizzle `AbilityDenied`, a clink
-  `HitBlocked`; the Slam's `SlamRise`, `SlamDive`, `SlamImpactStone`, `Clink` play placeholders;
+  `HitBlocked`; the Slam's `SlamDive`, `SlamImpactStone`, `Clink` play placeholders (`SlamRise` has its own
+  sound since Sound Picker round 13);
   `FinisherThump` and `MaterialGoo` / `Worm` / `Chitin` / `Mud` / `Stone` / `Silk` are silent until
   they are baked; the mouth's throat sound is the `GulpThroat` stream (the round-5 suck takes, kept
   for it when Sound Picker round 7 gave the Gulp a short suck) pitched up.
@@ -783,7 +785,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
 | `abilities.lantern` | the Lantern (2026-10-14): `energy` 10, `cooldownMs` 300, `clipMs` 200 (the spit clip sped up to this), `releaseMs` 70 (the flame leaves the mouth), `flame` {`class` tap, `damage` 5, `holdMs` 250, `rangePx` 72, `speed` 900, `lingerMs` 150, `radiusPx` 10, `lightRadiusPx` 90, `feel`}, `glow` {`radiusPx` 160, `flareMs` 260}, `candle` {`lightRadiusPx` 110, `gutterMs` 5000}, `burnable` {`burnMs` 600, `spreadPx` 24}, `darkness` {`alpha` 1.0, `softPx` 40, `maxLights` 16, `litFadeMs` 1500} |
 | `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 600, the cast `castMs` 2000 in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
-| `abilities.bow` | the Bow (2026-11-20, [The Bow](#the-bow-2026-11-20)): `energy` 6 (spent at the shot), `cooldownMs` 300, `drawMs` 140 (the least draw), `recoverMs` 140, `arrow` {`class` arrow, `damage` 10, `holdMs` 220, `speed` 760, `rangePx` 512, `radiusPx` 7, `feel`} |
+| `abilities.bow` | the Bow (2026-11-20, [The Bow](#the-bow-2026-11-20)): `energy` 6 (spent at the shot), `cooldownMs` 300, `drawMs` 140 (the least draw), `recoverMs` 140, `arrow` {`class` arrow, `damage` 20 (10 until 2026-11-22: the owner found it far too low), `holdMs` 220, `speed` 760, `rangePx` 512, `radiusPx` 7, `feel`} |
 | `puzzles.heavyPlate` | the heavy plate (2026-10-14, [Heavy plates](#heavy-plates-and-heavy-blocks-2026-10-14)): `sinkMs` 3000 (up to fully down), `riseMs` 5000 (back up), `sinkPx` 6 (the cap's travel), `playerRadiusPx` 30 (the Stone slime's feet from its middle), `blockRadiusPx` 24 (a block's middle), `ringRadiusPx` 46, `grindIntervalMs` 420 |
 | `puzzles.heavyBlock` | the heavy blocks: `cellPx` 64 (one move), `moveMs` 640 (a cell, 100 px/s), `startDelayMs` 180 (a walk key held this long before a block moves), `grabReachPx` 14, `strainLineMs` 2400, `strainWobble` 0.06, `strainHz` 7 |
 | `puzzles.blastKeg` | the blast kegs (2026-10-17, [Goo Bomb](#the-goo-bomb-2026-10-14)): `delayMs` 150 (lit by a blast, a keg blows this long after; about the bomb's own `chainDelayMs`) |
@@ -1671,8 +1673,8 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
   cue), each target's number, sparks and debris, the painted burst (blast-6x1.webp, 70 ms a frame,
   at 0.66), a flash, the shockwave ring, pebbles and dust, goo-splat blobs and a goo puddle that
   fades over 3.2 s; liftables within 220 px rock. The blast is a light source: 220 px, fading over
-  250 ms. Cues `GooBombCast`, `GooBombBlast`, `GooBombSink` play `SlamWindup`, `SlamImpact`,
-  `BreakSoft` until baked; `GooBombSpit` has its own player since 2026-10-16 (the Gulp's round-5
+  250 ms. Cues `GooBombBlast`, `GooBombSink` play `SlamImpact`, `BreakSoft` until baked (`GooBombCast`
+  has its own player since Sound Picker round 13); `GooBombSpit` has its own player since 2026-10-16 (the Gulp's round-5
   spit takes, kept for it when Sound Picker round 7 gave the Gulp a new throw).
 - **Cracked walls** (`object.cracked-wall`, `cracked_wall.gd`, `@tool`): a weak spot set on a real
   wall (an elevation cliff face of any style, or a built wall), never a wall of its own: the wall's

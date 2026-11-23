@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://gbyk4xkr57ww" path="res://game/scenes/objects/cracked-ground.tscn" id="1_crack"]
+
+[node name="silk-nook-crack" instance=ExtResource("1_crack")]
+
+[node name="CrackedGroundScript" parent="." index="0"]
+flag_id = "cracked.gloop-silk-nook"
+
+[node name="StoryVariantScript" parent="." index="1"]
+flag_id = "cracked.gloop-silk-nook"
+
+[node name="DoorScript" parent="Broken/Door" index="1"]
+map_id = "gloop-forest-f4"
+door_id = "silk-nook-crack"
+target_area_id = "silk-nook-cave"
+target_door_id = "silk-nook-cave-ladder"

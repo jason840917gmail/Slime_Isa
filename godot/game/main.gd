@@ -86,6 +86,8 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const WeaponLoadout := preload("res://game/player/weapon_loadout.gd")
 const LaunchOptions := preload("res://game/shell/launch_options.gd")
 const SOUND_AUDITION_SCRIPT := "res://game/dev/sound_audition.gd"
+## Dev: the powers board on F10 (loaded only when the file is there: release builds leave game/dev out).
+const DEV_POWERS_BOARD_SCRIPT := "res://game/dev/dev_powers_board.gd"
 const ControlHints := preload("res://game/hints/control_hints.gd")
 const FurniturePlacement := preload("res://game/building/furniture_placement.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
@@ -275,6 +277,11 @@ func _ready() -> void:
 	game_windows.add_window(ChestWindow.new())
 	game_windows.add_window(ShopWindow.new())
 	game_windows.add_window(PageWindow.new())
+	# Dev: F10 opens the powers board, which switches every shape, ability and skin on or off for the
+	# session (game/dev/dev_powers_board.gd). The production export leaves game/dev out, so the
+	# released game has no board.
+	if ResourceLoader.exists(DEV_POWERS_BOARD_SCRIPT):
+		game_windows.add_window((load(DEV_POWERS_BOARD_SCRIPT) as GDScript).new() as Control)
 	quest_markers = NpcQuestMarkers.new()
 	quest_markers.name = "QuestMarkers"
 	add_child(quest_markers)

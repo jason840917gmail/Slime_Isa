@@ -152,6 +152,13 @@ var session_ability_ids: Array[String] = []
 ## `lend_skin`): on while the run plays, but `serialize` leaves them out. Winning one for real
 ## (`win_skin`) keeps it. `new_run` and `install` forget the list.
 var session_skin_ids: Array[String] = []
+## Dev (the F10 powers board, game/dev/dev_powers_board.gd): abilities and skins the run has for
+## good that were switched off for this session (`switch_off_ability`, `switch_off_skin`): out of
+## the run while it plays, but `serialize` puts them back, so no save loses them. Switching one on
+## again, or learning or winning it, brings it back as it was. `new_run` and `install` forget the
+## lists.
+var session_off_ability_ids: Array[String] = []
+var session_off_skin_ids: Array[String] = []
 ## Dungeon facts that last while the run plays but are never saved (game/dungeon/dungeon_state.gd
 ## `session`: a plate held down in a room the slime left, the next far-off roar). `new_run` and
 ## `install` forget them.
@@ -226,6 +233,8 @@ func new_run() -> void:
 	debug_all_recipes_known = false
 	session_ability_ids = []
 	session_skin_ids = []
+	session_off_ability_ids = []
+	session_off_skin_ids = []
 	dungeon_session = {}
 	start_kit_pending = true
 	_navigation = {}
@@ -916,6 +925,8 @@ func learn_ability(ability_id: String, quiet := false) -> bool:
 			return true
 		return false
 	_story_list("learned_ability_ids").append(ability_id)
+	# One the dev powers board had switched off is back, for good as it was.
+	session_off_ability_ids.erase(ability_id)
 	if not quiet:
 		ability_learned.emit({"ability_id": ability_id})
 	return true
@@ -923,11 +934,29 @@ func learn_ability(ability_id: String, quiet := false) -> bool:
 
 ## Rework mode (main.gd `start_rework`): learns `ability_id` quietly for this session only (it is
 ## left out of every save, `session_ability_ids`). False when it was already learned (then it stays
-## as it was: a real lesson stays saved).
+## as it was: a real lesson stays saved). One the run has for good that the dev powers board
+## switched off (`session_off_ability_ids`) comes back as it was, not as a loan.
 func learn_session_ability(ability_id: String) -> bool:
+	var own := session_off_ability_ids.has(ability_id)
 	if not learn_ability(ability_id, true):
 		return false
-	session_ability_ids.append(ability_id)
+	if not own:
+		session_ability_ids.append(ability_id)
+	return true
+
+
+## Dev (the F10 powers board): switches `ability_id` off for this session, quietly. One lent for
+## the session is given back; one the run has for good leaves it while it plays and stays in every
+## save (`session_off_ability_ids`), until `learn_session_ability` or a lesson brings it back.
+## False when the run does not have it.
+func switch_off_ability(ability_id: String) -> bool:
+	if not has_learned_ability(ability_id):
+		return false
+	_story_list("learned_ability_ids").erase(ability_id)
+	if session_ability_ids.has(ability_id):
+		session_ability_ids.erase(ability_id)
+	elif not session_off_ability_ids.has(ability_id):
+		session_off_ability_ids.append(ability_id)
 	return true
 
 
@@ -966,18 +995,39 @@ func win_skin(skin_id: String) -> bool:
 		session_skin_ids.erase(skin_id)
 	else:
 		_story_list(SKIN_IDS_KEY).append(skin_id)
+		session_off_skin_ids.erase(skin_id)
 	skins_changed.emit({"skin_id": skin_id, "reason": "won"})
 	return true
 
 
 ## Lends `skin_id` for this session only (the F6 dev powers, the Skins corner): left out of every
-## save. False when it is already won or lent.
+## save. False when it is already won or lent. A won skin the dev powers board switched off
+## (`session_off_skin_ids`) comes back as it was, won.
 func lend_skin(skin_id: String) -> bool:
 	if skin_id.is_empty() or has_skin(skin_id):
 		return false
 	_story_list(SKIN_IDS_KEY).append(skin_id)
-	session_skin_ids.append(skin_id)
+	if session_off_skin_ids.has(skin_id):
+		session_off_skin_ids.erase(skin_id)
+	else:
+		session_skin_ids.append(skin_id)
 	skins_changed.emit({"skin_id": skin_id, "reason": "lent"})
+	return true
+
+
+## Dev (the F10 powers board): switches `skin_id` off for this session. A lent skin is given back
+## (`return_skin`); a won one leaves the run while it plays and stays in every save
+## (`session_off_skin_ids`; a look that is this skin shows the goo meanwhile), until `lend_skin` or
+## a Pearl brings it back. False when the skin is not on.
+func switch_off_skin(skin_id: String) -> bool:
+	if not has_skin(skin_id):
+		return false
+	if session_skin_ids.has(skin_id):
+		return return_skin(skin_id)
+	_story_list(SKIN_IDS_KEY).erase(skin_id)
+	if not session_off_skin_ids.has(skin_id):
+		session_off_skin_ids.append(skin_id)
+	skins_changed.emit({"skin_id": skin_id, "reason": "returned"})
 	return true
 
 
@@ -1415,6 +1465,9 @@ func serialize() -> Dictionary:
 		saved_story[SKIN_IDS_KEY] = won
 		if session_skin_ids.has(str(saved_story.get(SKIN_LOOK_KEY, ""))):
 			saved_story[SKIN_LOOK_KEY] = ""
+	# What the dev powers board switched off for the session is still the run's: it is saved.
+	_save_switched_off(saved_story, "learned_ability_ids", session_off_ability_ids)
+	_save_switched_off(saved_story, SKIN_IDS_KEY, session_off_skin_ids)
 	return {
 		"player": player.duplicate(true),
 		"inventory": inventory.duplicate(true),
@@ -1424,6 +1477,17 @@ func serialize() -> Dictionary:
 		"story": saved_story,
 		"play_time_ms": current_play_time_ms(),
 	}
+
+
+## Adds the ids switched off for the session (`off_ids`) back to `saved_story[key]` (`serialize`).
+func _save_switched_off(saved_story: Dictionary, key: String, off_ids: Array[String]) -> void:
+	if off_ids.is_empty():
+		return
+	var saved: Array = (saved_story[key] as Array) if saved_story.get(key) is Array else []
+	for id: String in off_ids:
+		if not saved.has(id):
+			saved.append(id)
+	saved_story[key] = saved
 
 
 ## Replaces the run with `data` (a `serialize()` result); false (and nothing changed) when it is
@@ -1461,6 +1525,8 @@ func install(data: Dictionary) -> bool:
 	# The loaded run lends nothing yet (the rework mode lends again on the world build).
 	session_ability_ids = []
 	session_skin_ids = []
+	session_off_ability_ids = []
+	session_off_skin_ids = []
 	# Saves from before roadmap 7.8: a Pearl's skin was a story flag ("skin.heavy").
 	for flag: Variant in _flags():
 		var flag_name := str(flag)

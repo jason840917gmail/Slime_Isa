@@ -560,9 +560,9 @@ static func _boughs() -> Node2D:
 	S.enemy(root, "den-egg-sac", "egg-sac", _at(44.5, 4.5), 360.0)
 	_kit(root, "den-shutter", "shutter", 40, 13, {"wall": "south", "fight_id": "b5-warden"})
 	_kit(root, "hoard-shutter", "shutter", 33, 8, {"wall": "west", "starts_shut": true, "shutter_id": "boughs-hoard-shutter"})
-	var warden: Array[NodePath] = [NodePath("../../Enemies/den-brood-warden")]
+	# Won when nothing lives in the den (room_fight.gd: the Warden, the egg sac and its Broodlings).
 	_kit(root, "den-fight", "room-fight", 32, 0, {"size": Vector2(16, 14) * float(S.CELL), "fight_id": "b5-warden",
-			"boss_id": WARDEN_BOSS_ID, "enemies": warden, "reward": NodePath("../hoard-shutter")})
+			"boss_id": WARDEN_BOSS_ID, "reward": NodePath("../hoard-shutter")})
 	_hoard(root)
 	for i in 4:
 		_dungeon_pot(root, "den-pot-%d" % i, [34.0, 45.5, 34.0, 45.5][i], [4.5, 9.0, 11.5, 11.5][i], "random")

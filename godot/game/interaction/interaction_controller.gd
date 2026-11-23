@@ -9,11 +9,15 @@ class_name InteractionController
 ## Every physics step (before the player, priority -10) each provider offers at most one target,
 ## the nearest of its kind within that object's reach: workbenches 88, beds 85,
 ## chests 80 (reach 112), and every NPC in reach (quest turn-in 100, offer 90, reoffer 85, talk 50,
-## from the quest service). A pointer within 64 px of a target's
-## pick point chooses it; otherwise the highest priority wins and a tie goes to the smaller id
-## (so two NPCs are picked by id, not distance: a Phaser quirk kept). The chosen target shows as
-## "Right-click: <prompt>" at the bottom of the screen and a key badge over it. The player's
-## interact press (right click, buffered 150 ms) runs `handle_interact`.
+## from the quest service). A building (`reach_from_walls`: a restoration site, the Forge's station)
+## measures its reach from its walls, the collision boxes of the body it belongs to, not from the
+## middle of its base. A pointer within 64 px of a target's pick point chooses it; otherwise the
+## nearest target wins (owner, 2026-11-21, replacing Phaser's highest priority first: "I'm closer to
+## Pip but the interaction is with the shop"): each target's `distance` from the slime, less
+## `interaction.facingBonusPx` as much as the slime faces it; a tie goes to the higher priority, then
+## the smaller id. The chosen target shows as "Right-click: <prompt>" at the bottom of the screen and
+## a key badge over it. The player's interact press (right click, buffered 150 ms) runs
+## `handle_interact`.
 ##
 ## The mouse control schemes (game/player/mouse/control_scheme.gd) click a target anywhere on
 ## screen: `target_at` finds it around the pointer, and while the slime walks there the player keeps
@@ -45,6 +49,8 @@ const MAIN_GROUP := &"world_main"
 const FURNITURE_GROUP := &"furniture_placement"
 ## InteractionRouter.ts:44.
 const POINTER_PICK_PX := 64.0
+## Two targets this close in the choice's score are a tie (priority, then id, decide).
+const SCORE_TIE := 0.5
 ## UniversalSceneWorldController.ts:343-345.
 const TARGET_BODY_RISE_PX := 24.0
 const CHEST_REACH := 112.0
@@ -165,14 +171,35 @@ func choose(candidates: Array[Dictionary], pointer: Variant) -> Dictionary:
 				best = candidate
 				best_distance = distance
 	if best.is_empty():
+		var player := _player()
+		var centre: Vector2 = player.call(&"get_centre") if player != null else Vector2.ZERO
+		var facing: Vector2 = player.call(&"get_facing") if player != null and player.has_method(&"get_facing") else Vector2.ZERO
+		var constants := Services.constants()
+		var bonus := constants.number("interaction.facingBonusPx") if constants != null else 0.0
+		var best_score := INF
 		for candidate in candidates:
+			var score := _score(candidate, centre, facing, bonus)
 			if not best.is_empty():
-				var priority := int(candidate["priority"])
-				var best_priority := int(best["priority"])
-				if priority < best_priority or (priority == best_priority and str(candidate["id"]) > str(best["id"])):
+				if score > best_score + SCORE_TIE:
 					continue
+				if absf(score - best_score) <= SCORE_TIE:
+					var priority := int(candidate["priority"])
+					var best_priority := int(best["priority"])
+					if priority < best_priority or (priority == best_priority and str(candidate["id"]) > str(best["id"])):
+						continue
 			best = candidate
+			best_score = score
 	return best
+
+
+## How near `candidate` is for the choice: its `distance` from the slime (else its pick point's), less
+## `bonus` times how squarely the slime at `centre` faces it.
+static func _score(candidate: Dictionary, centre: Vector2, facing: Vector2, bonus: float) -> float:
+	var at: Variant = _pick_point(candidate)
+	var distance := float(candidate.get("distance", (at as Vector2).distance_to(centre) if at is Vector2 else INF))
+	if at is Vector2 and facing != Vector2.ZERO and (at as Vector2) != centre:
+		distance -= bonus * maxf(0.0, facing.normalized().dot(((at as Vector2) - centre).normalized()))
+	return distance
 
 
 ## Runs the chosen target (Phaser `handleInteract`). False when there is none or it refused.
@@ -369,6 +396,7 @@ func _essence_candidate(at: Vector2) -> Dictionary:
 		"id": "essences:%d" % essence.get_instance_id(),
 		"prompt": "Pick up " + str(essence.call(&"display_name")),
 		"priority": PRIORITY_GULP,
+		"distance": best_distance,
 		"origin": func() -> Vector2: return essence_at,
 		"execute": func() -> bool: return is_instance_valid(essence) and bool(essence.call(&"pick_up")),
 		"node": essence,
@@ -382,7 +410,7 @@ func _nearest(at: Vector2, group: StringName, priority: int, prefix: String, key
 	for node: Node in get_tree().get_nodes_in_group(group):
 		if not node.is_inside_tree() or (offer.is_valid() and not bool(offer.call(node))):
 			continue
-		var distance := at.distance_to(node.call(&"origin"))
+		var distance := reach_distance(node, at)
 		if distance <= float(node.get(&"interact_radius")) and distance < best_distance:
 			best = node
 			best_distance = distance
@@ -393,11 +421,53 @@ func _nearest(at: Vector2, group: StringName, priority: int, prefix: String, key
 		"id": prefix + str(key.call(target)),
 		"prompt": str(target.get(&"prompt")),
 		"priority": priority,
+		"distance": best_distance,
 		"anchor": func() -> Vector2: return (target.call(&"origin") as Vector2) - Vector2(0.0, float(target.get(&"badge_rise"))),
 		"origin": func() -> Vector2: return (target.call(&"origin") as Vector2) - Vector2(0.0, TARGET_BODY_RISE_PX),
 		"execute": func() -> bool: return bool(use.call(target)),
 		"node": target,
 	}
+
+
+## How far `at` is from `node` for its reach: from the walls of the body it belongs to when it
+## measures from them (`reach_from_walls`: a building), else from its `origin()`.
+static func reach_distance(node: Node, at: Vector2) -> float:
+	if node.get(&"reach_from_walls") == true:
+		var walls := wall_distance(node, at)
+		if walls >= 0.0:
+			return walls
+	return at.distance_to(node.call(&"origin"))
+
+
+## The distance from `at` to the walls of the body `node` belongs to (its nearest CollisionObject2D
+## ancestor's enabled rectangle and polygon shapes, each as its box; 0 inside one); -1 without any.
+static func wall_distance(node: Node, at: Vector2) -> float:
+	var body := node.get_parent()
+	while body != null and not body is CollisionObject2D:
+		body = body.get_parent()
+	if body == null:
+		return -1.0
+	var best := -1.0
+	for child: Node in body.get_children():
+		var box := Rect2()
+		var shape := child as CollisionShape2D
+		var polygon := child as CollisionPolygon2D
+		if shape != null and not shape.disabled and shape.shape is RectangleShape2D:
+			var size := (shape.shape as RectangleShape2D).size
+			box = shape.global_transform * Rect2(-size * 0.5, size)
+		elif polygon != null and not polygon.disabled and not polygon.polygon.is_empty():
+			var points := polygon.global_transform * polygon.polygon
+			box = Rect2(points[0], Vector2.ZERO)
+			for point in points:
+				box = box.expand(point)
+		else:
+			continue
+		var dx := maxf(maxf(box.position.x - at.x, 0.0), at.x - box.end.x)
+		var dy := maxf(maxf(box.position.y - at.y, 0.0), at.y - box.end.y)
+		var distance := Vector2(dx, dy).length()
+		if best < 0.0 or distance < best:
+			best = distance
+	return best
 
 
 ## Every chest syncs its open/closed frame on every poll; the nearest within 112 px is offered.
@@ -422,6 +492,7 @@ func _chest_candidate(at: Vector2) -> Dictionary:
 		"id": "managed-chests:" + chest.instance_id,
 		"prompt": prompt,
 		"priority": PRIORITY_CHEST,
+		"distance": best_distance,
 		"anchor": func() -> Vector2: return chest.origin() - Vector2(0.0, CHEST_BADGE_RISE),
 		"origin": func() -> Vector2: return chest.origin() - Vector2(0.0, TARGET_BODY_RISE_PX),
 		"execute": func() -> bool: return _use_chest(chest),
@@ -442,7 +513,8 @@ func _npc_candidates(at: Vector2) -> Array[Dictionary]:
 		if not _npc_names.has(definition_id):
 			continue
 		var position: Vector2 = node.call(&"get_phaser_position")
-		if at.distance_to(position) > NPC_REACH:
+		var distance := at.distance_to(position)
+		if distance > NPC_REACH:
 			continue
 		var npc := node
 		var candidate: Dictionary = quests.call(&"npc_candidate", definition_id) if quests != null \
@@ -458,6 +530,7 @@ func _npc_candidates(at: Vector2) -> Array[Dictionary]:
 			"id": "quest-npcs:%s:%s" % [str(npc.call(&"get_instance_id_key")), kind],
 			"prompt": prompt,
 			"priority": int(candidate.get("priority", PRIORITY_TALK)),
+			"distance": distance,
 			"anchor": func() -> Vector2: return (npc.call(&"get_phaser_position") as Vector2) + NPC_BADGE_OFFSET,
 			"origin": func() -> Vector2: return (npc.call(&"get_phaser_position") as Vector2) - Vector2(0.0, NPC_BODY_RISE),
 			"execute": func() -> bool: return _talk(npc, kind),

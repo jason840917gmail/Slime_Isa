@@ -86,6 +86,16 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 > back north to the trail, and the loop closes. A run that freed him before
 > (an old save) learns the Goo Bomb from him at the camp. He no longer teaches
 > Swallow.
+>
+> *As built (2026-11-22; River Roads since 2026-11-21,
+> [the design](../../design/2026-11-21-gloop-river-roads.md)): Tom hangs in
+> E3, the forest's north-west, in his hollow under a rock ledge by the Mere,
+> behind a fallen tree that a Heavy Roll breaks (`tom-rubble`); Mossy's tip
+> sends the slime across the north creek into the webbed thicket. Three Spear
+> hits tear his web, then the Goo Bomb lesson plays. The cracked rock beside
+> him (`tom-crack`) is the old raft landing: blown, it is a one-way ride to
+> the camp's jetty in E4 (`raft-jetty`), no longer a tunnel to the trail.
+> His maze is not built.*
 
 The iron hollow's gate and the cracked clearing both need something heavy, and
 from now on heavy comes from swallowing a stone essence. Swallowing is taught
@@ -278,6 +288,16 @@ The forest has two kinds of web (2026-10-15):
   opens the next region. *Built 2026-11-20: three web walls stand across the
   web lane in F4 before the Caverns (the lane is entered by its ford), so only
   the Silk skin passes; the maze itself is designed with the owner later.*
+  *Since 2026-11-21 (River Roads, [the design](../../design/2026-11-21-gloop-river-roads.md)):
+  a small maze of five web walls south of the Watch Oak's glade, out at F4's
+  east edge. The forest is six chunks (E3 and F3 added); Tom hangs in E3 by the
+  Mere, his crack opens the old raft landing (a ride back to the camp), and
+  on the way to the Pearl the webs only slow: web walls stand on side ways
+  only (owner). Also built: lily pads to the Mere's islet (a Roll), five
+  critters wrapped in silk that run home to the camp (Sunny's prize), and a
+  ravine east of the Mere crossed only once an arrow strikes its lens (the
+  Bow, a come-back). The silk nook's heart quarter lies in a chest in a cave
+  under a cracked ground in the nook (the Silk skin, then the Goo Bomb).*
 - **The way in from the Wilds** (Planned, owner, 2026-10-16, question 87): a
   second web maze, which only the Silk skin passes, so the Wilds never skip
   the Verdant Gate. *As built (2026-11-14): the North Wilds' link into the
@@ -361,7 +381,11 @@ quest's text still tells the old nest fight.*
     again the same day (question 81): the end card and the crystal seal go,
     and the web-wall maze that only the Silk skin passes leads to the
     Caverns (Beat 8).* *As built (2026-11-14): the end card still says
-    Chapter 3 is still to come.*
+    Chapter 3 is still to come.* *As built (2026-11-22): there is no
+    Chapter 2 end card (gone 2026-11-19); the Matron's fall sets
+    `chapter-2-complete` (`story.bossFlags`), and the only end card is
+    Release 1's, shown when the Colossus's fall sets `chapter-3-complete`
+    (`game/shell/end_card.gd`).*
   - Today a Goo Heart appears in the nest. Proposal: it becomes a full heart
     (+20), the boss's own reward on top of the map's four quarters.
     *Planned since 2026-10-16 (owner, question 17): each boss also gives a
@@ -424,7 +448,10 @@ quest's text still tells the old nest fight.*
   round, question 113): the Weaver Hollow's big chest holds one; whether it
   is one of the forest's four is not decided.*
 - Today's Goo Hearts in the forest (one is in the silk nook) and in the cavern
-  become quarter spots.
+  become quarter spots. *As built (2026-11-22; River Roads since 2026-11-21):
+  four quarters placed: the Mere islet's chest (F3), the iron hollow's chest
+  (F5), the Gloop Cavern's Goo Heart (under E5) and the chest in the silk
+  nook's cave (F4); the Weaver Hollow's, in B6, is a fifth.*
 - Some secrets sit behind web walls (the Silk skin), cracked walls (the
   Bomb), old dead or built things lying or leaning in the way (the Heavy
   skin's Roll: rubble heaps, rotten trunks across paths, grey leaning old
@@ -444,7 +471,7 @@ quest's text still tells the old nest fight.*
 | Stretch Lash | The next release (question 94; manuscripts, question 33) | Built at Beat 1 |
 | Reinforced Pickaxe | 1, 4 | Built; goes with the crafted tools (2026-10-15) |
 | Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion; Tom no longer teaches it (2026-11-19) |
-| Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Built: Tom's lesson as his web tears, and its first lock, the cracked rock by his clearing (2026-11-19) |
+| Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Built: Tom's lesson as his web tears, and its first lock, the cracked rock by his clearing (2026-11-19); since 2026-11-21 Tom hangs in E3 by the Mere, behind a fallen tree (a Heavy Roll), and the rock is the old raft landing, a one-way ride to the camp's jetty |
 | Tom's maze (secrets and tests, webs that slow; Tom at its end) | 3 | Planned (questions 95 and 113) |
 | The Weaver Hollow's big chest: a heart quarter (a heart or the big key until the seventh round) | 8 | Planned (questions 95 and 113) |
 | Clod Stomper | 3–4 | Built 2026-10-09 (its essence drop marked for deletion); it stays as it is, slam included (question 64) |
@@ -452,13 +479,13 @@ quest's text still tells the old nest fight.*
 | The Workshop | 9 | Built 2026-11-20 (owner, the same day): Pearl 2's homecoming raises it, Pip's place, where he carves the Bow's rune in Chapter 3 |
 | Iron Spear, Iron Axe | 5–6 | Built; they go with the crafted gear (2026-10-15) |
 | 20-slot bag | 7 | Waits for the next release (question 74); the coffer held heart quarters, potions, coins or a piece of the story (question 63) until the coffer went (question 18) |
-| The Gloop Cavern's heart quarter, one of the forest's four | 7 | Planned (question 18; the Goo Bomb opens the cracked clearing) |
+| The Gloop Cavern's heart quarter, one of the forest's four | 7 | Built (question 18; the Goo Bomb opens the cracked clearing; a quarter since 2026-10-26) |
 | A Roll Fragment (one of four) | 7, the Gloop Cavern's hidden chest | Built 2026-11-20 (owner, the same day) |
 | Webs and web walls | 8 | Built 2026-10-17 ([WEBS.md](../../godot/WEBS.md)); −50% without the Silk skin |
-| The web-wall maze to the Crystal Caverns | 8 | Built 2026-11-20 as three web walls across the web lane (question 81); the maze itself is designed with the owner later |
+| The web-wall maze to the Crystal Caverns | 8 | Built 2026-11-20 as three web walls across the web lane (question 81); since 2026-11-21 a small maze of five web walls south of the Oak's glade (River Roads) |
 | The second web maze, from the Wilds | 8 | Waits for a later release: the Wilds are walled off in Release 1 (owner, 2026-11-19, question 164); E5's way south planted shut 2026-11-20 |
 | Pearl 2 and the Silk skin | 9; the Weaver Hollow, before the Matron, since 2026-10-17 | Built 2026-10-17 in the Hoard; its homecoming, which wakes West Hill (question 159) and raises Slimeshire's Workshop (owner, 2026-11-20; it lit the Forge until then), built 2026-11-20 |
 | The Matron's thread (for the Bow's string) | 9 | Built: it drops in her fight; Pip takes it for the bow rune's string (built 2026-11-20, Burr's lesson until the owner's change the same day; question 106) |
 | Boss heart (Matron) | 9 | Built: a full heart, +20 max HP and +20 max energy (questions 17 and 19) |
 | The Weaver Hollow, the Matron at its top, her cocoon phase | 8, 9 | Built 2026-10-17 ([DUNGEONS.md](../../godot/DUNGEONS.md)); her fight is redone in the boss pass (question 166) |
-| 4 heart quarters | Secrets | Two placed (the Gloop Cavern, the silk nook), and the Hollow's in its Pillar room (B6) |
+| 4 heart quarters | Secrets | Two placed (the Gloop Cavern, the silk nook), and the Hollow's in its Pillar room (B6). *As built (2026-11-22): all four placed (the Mere islet in F3, the iron hollow in F5, the Gloop Cavern, the silk nook's cave in F4), and the Hollow's in B6 as a fifth* |

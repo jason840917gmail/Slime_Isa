@@ -64,7 +64,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_BURROWED:
 			var goal: Vector2 = target.get("centre", _home) if engaged else _home
 			var speed := pattern("burrowSpeed", 90.0) if engaged else pattern("homeSpeed", 60.0)
-			body.velocity = _velocity_toward(goal, speed, delta)
+			body.velocity = _velocity_toward(goal, speed, delta) if engaged else _velocity_home(speed, delta)
 			var wobble := sin(now / WOBBLE_MS) * WOBBLE
 			set_look(0.0, Vector2(1.0 + wobble, 1.0 - wobble))
 			if body.velocity.length() > WALK_SPEED_THRESHOLD and now >= _dust_at:

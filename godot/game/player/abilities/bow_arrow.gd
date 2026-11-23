@@ -15,7 +15,7 @@ extends Node2D
 ##    one (step 2) or with a splat;
 ## 2. an **enemy hurtbox** on its level (not the player's, not a "resource"): one rework hit of its
 ##    own class `class` ("arrow", combat.hits; never the `thrown` tag, so a bell rings only through
-##    `on_arrow_hit` and the throw combat's material effects never apply), `damage` (10) and a short
+##    `on_arrow_hit` and the throw combat's material effects never apply), `damage` (20; 10 until 2026-11-22) and a short
 ##    hold (`holdMs`), tags `arrow`, `bow`, weapon id `bow`, through AbilityWorld.strike_targets
 ##    (as the Lantern's flame), with its number and `feel`; a refused hit (the bars of a barred gate,
 ##    a shielded back) clinks;

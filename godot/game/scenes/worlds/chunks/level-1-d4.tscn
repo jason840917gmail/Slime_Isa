@@ -273,6 +273,10 @@ position = Vector2(2276, 299)
 metadata/instance_id = "level-1-webwood-dead-tree-1"
 metadata/persistence_key = "level-1.level-1-webwood-dead-tree-1"
 
+[node name="ResourceNodeScript" parent="Nature/level-1-webwood-dead-tree-1" index="4"]
+map_id = "level-1-d4"
+instance_id = "level-1-webwood-dead-tree-1"
+
 [node name="level-1-webwood-dead-tree-2" parent="Nature" unique_id=81683648 instance=ExtResource("17_ruxgv")]
 position = Vector2(2867.2, 467.2)
 metadata/instance_id = "level-1-webwood-dead-tree-2"
@@ -322,6 +326,10 @@ instance_id = "level-1-tree-034"
 position = Vector2(2564, 767)
 metadata/instance_id = "level-1-tree-036"
 metadata/persistence_key = "level-1.level-1-tree-036"
+
+[node name="ResourceNodeScript" parent="Nature/level-1-tree-036" index="4"]
+map_id = "level-1-d4"
+instance_id = "level-1-tree-036"
 
 [node name="Landmarks" type="Node2D" parent="." unique_id=390398621]
 y_sort_enabled = true
@@ -559,10 +567,10 @@ flag_id = "level-1.verdant-tree-smashed"
 y_sort_enabled = true
 
 [node name="level-1-d4-loose-wood-1" parent="Wood" instance=ExtResource("loose_wood")]
-position = Vector2(2475, 315)
+position = Vector2(427, 315)
 
 [node name="level-1-d4-wood-pile-1" parent="Wood" instance=ExtResource("loose_wood_pile")]
-position = Vector2(2330, 336)
+position = Vector2(282, 336)
 
 [node name="CollectibleScript" parent="Wood/level-1-d4-wood-pile-1" index="2"]
 map_id = "level-1-d4"
@@ -585,3 +593,6 @@ quantity = 3
 [editable path="Chapter1/old-camp-crate-b"]
 [editable path="Chapter1/heart-chest-meadow-lakeside"]
 [editable path="Chapter1/heart-chest-meadow-cliff-secret"]
+[editable path="Nature/level-1-webwood-dead-tree-1"]
+[editable path="Nature/level-1-tree-036"]
+[editable path="Wood/level-1-d4-wood-pile-1"]

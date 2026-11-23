@@ -61,6 +61,8 @@ const EnemyHazards := preload("res://game/combat/reactions/enemy_hazards.gd")
 const KIND := "enemy"
 const NODE_NAME := "GulpableEnemy"
 const SUCKABLE_GROUP := &"suckable"
+## Enemies that eat a thrown enemy landing near them (`catch_thrown(enemy, spot)`): the Carnivore Plant.
+const EATERS_GROUP := &"enemy_eaters"
 ## Its numbers: `gulp.throwFeel.<BLOCK>`.
 const BLOCK := "enemyAmmo"
 ## The hit a landing enemy takes (`combat.hits.landing`, `combat.weights.<weight>.classes.landing`).
@@ -404,6 +406,11 @@ func _land(at: Vector2, direction: Vector2, feet: Vector2, level: int, struck: b
 	if not fate.is_empty():
 		EnemyHazards.landing_death(enemy, fate, at)
 		return {"at": at, "fate": fate}
+	# Food: a Carnivore Plant in reach takes it as it lands, with no landing hit (it bounces off her
+	# and she picks it up off the floor: game/scripts/carnivore_plant.gd `catch_thrown`).
+	for eater: Node in get_tree().get_nodes_in_group(EATERS_GROUP):
+		if eater.has_method(&"catch_thrown") and bool(eater.call(&"catch_thrown", enemy, spot)):
+			return {"at": spot, "eaten": true}
 	if on != _taken_level and enemy.has_method(&"settle_at"):
 		enemy.call(&"settle_at", enemy.call(&"get_centre"))
 	var feel := Services.feel()

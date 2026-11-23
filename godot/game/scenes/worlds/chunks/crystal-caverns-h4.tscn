@@ -355,15 +355,6 @@ position = Vector2(1120, 768)
 [node name="peak-crystals-3" parent="Spiral" unique_id=2084145990 instance=ExtResource("18_q1p2l")]
 position = Vector2(1056, 1152)
 
-[node name="hide-rock" parent="Spiral" unique_id=61332859 instance=ExtResource("17_rcm1k")]
-position = Vector2(915.19995, 2342.4)
-
-[node name="hide-rock-2" parent="Spiral" unique_id=829225168 instance=ExtResource("17_rcm1k")]
-position = Vector2(972.80005, 2476.8)
-
-[node name="hide-rock-3" parent="Spiral" unique_id=1202942422 instance=ExtResource("17_rcm1k")]
-position = Vector2(870.3999, 2195.2)
-
 [node name="peak-crystals-4" parent="Spiral" unique_id=664379324 instance=ExtResource("18_q1p2l")]
 position = Vector2(224, 1728)
 

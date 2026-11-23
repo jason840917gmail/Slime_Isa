@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-pillar.tscn" id="15_82dor"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="15_jvitl"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/falling-slab.tscn" id="16_fhl7c"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-stump.tscn" id="18_i3p3i"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/energy-flower.tscn" id="19_62ft8"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/chest-wooden.tscn" id="21_cerwq"]
 [ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="elevation_script"]
@@ -247,15 +246,6 @@ position = Vector2(1952, 326.3999)
 
 [node name="lantern-post-6" parent="Spiral" unique_id=1649307864 instance=ExtResource("13_s5f05")]
 position = Vector2(1952, 444.80005)
-
-[node name="hide-rock" parent="Spiral" unique_id=1491372530 instance=ExtResource("18_i3p3i")]
-position = Vector2(2963.2, 294.3999)
-
-[node name="hide-rock-2" parent="Spiral" unique_id=11282979 instance=ExtResource("18_i3p3i")]
-position = Vector2(3020.8, 428.80005)
-
-[node name="hide-rock-3" parent="Spiral" unique_id=632741238 instance=ExtResource("18_i3p3i")]
-position = Vector2(2918.4, 147.19995)
 
 [node name="energy-flower" parent="Spiral" unique_id=1250644202 instance=ExtResource("19_62ft8")]
 position = Vector2(928, 544)

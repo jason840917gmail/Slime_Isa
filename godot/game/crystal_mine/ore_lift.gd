@@ -26,7 +26,8 @@ const GROUP := &"ore_lift_landings"
 const STATE_PREFIX := "ore-lift:"
 const LOWER := "lower"
 const UPPER := "upper"
-const CUE_RIDE := &"SlamWindup"
+## The ride's sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_RIDE := &"OreLiftRide"
 const TEXT_RISE := 64.0
 const TEXT_MS := 2600.0
 const TELL_RADIUS := 100.0

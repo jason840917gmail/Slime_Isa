@@ -923,14 +923,14 @@ y_sort_enabled = true
 
 [node name="path-crate" parent="Prologue/BlockedPath" unique_id=1419089807 instance=ExtResource("63_1epcu")]
 position = Vector2(872, 1580)
-weight = "medium"
+weight = "light"
 
 [node name="BodyShape" parent="Prologue/BlockedPath/path-crate" index="0"]
 shape = SubResource("RectangleShape2D_1")
 
 [node name="LiftableScript" parent="Prologue/BlockedPath/path-crate" index="2"]
 kind = "crate"
-weight_class = "medium"
+weight_class = "light"
 
 [node name="path-pot-a" parent="Prologue/BlockedPath" unique_id=1874539248 instance=ExtResource("63_1epcu")]
 position = Vector2(864, 1652)
@@ -956,14 +956,14 @@ weight_class = "light"
 
 [node name="path-sack" parent="Prologue/BlockedPath" unique_id=1961913756 instance=ExtResource("63_1epcu")]
 position = Vector2(980, 1572)
-weight = "medium"
+weight = "light"
 
 [node name="BodyShape" parent="Prologue/BlockedPath/path-sack" index="0"]
 shape = SubResource("RectangleShape2D_1")
 
 [node name="LiftableScript" parent="Prologue/BlockedPath/path-sack" index="2"]
 kind = "flour-sack"
-weight_class = "medium"
+weight_class = "light"
 
 [node name="path-pot-b" parent="Prologue/BlockedPath" unique_id=1175857496 instance=ExtResource("63_1epcu")]
 position = Vector2(984, 1650)
@@ -1023,14 +1023,14 @@ weight_class = "light"
 
 [node name="glade-crate" parent="Prologue/GladeThings" unique_id=553885704 instance=ExtResource("63_1epcu")]
 position = Vector2(1404, 1872)
-weight = "medium"
+weight = "light"
 
 [node name="BodyShape" parent="Prologue/GladeThings/glade-crate" index="0"]
 shape = SubResource("RectangleShape2D_1")
 
 [node name="LiftableScript" parent="Prologue/GladeThings/glade-crate" index="2"]
 kind = "crate"
-weight_class = "medium"
+weight_class = "light"
 
 [node name="glade-pot-b" parent="Prologue/GladeThings" unique_id=514876092 instance=ExtResource("63_1epcu")]
 position = Vector2(1640, 1864)

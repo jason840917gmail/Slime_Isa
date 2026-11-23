@@ -18,8 +18,12 @@ const STATIONS: PackedStringArray = ["workbench", "workshop", "forge", "kitchen"
 @export var recipe_context: String = "workbench"
 ## JSON `tier` (integer >= 1).
 @export var tier: int = 1
-## JSON `interactRadius`.
+## JSON `interactRadius`: how far the slime's centre may be from the station to be offered it; with
+## `reach_from_walls` from the walls of its building, else from `origin()`.
 @export var interact_radius: float = 90.0
+## Measure the reach from the walls of the building the station is part of (the collision boxes of
+## its body: the lit Forge), not from the middle of its base.
+@export var reach_from_walls: bool = false
 ## JSON `badgeRise`.
 @export var badge_rise: float = 80.0
 

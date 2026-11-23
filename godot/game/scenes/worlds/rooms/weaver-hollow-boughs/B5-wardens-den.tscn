@@ -79,7 +79,6 @@ texture = ExtResource("9_ulkf3")
 position = Vector2(2048, 0)
 fight_id = "b5-warden"
 boss_id = "weaver-hollow-brood-warden"
-enemies = Array[NodePath]([NodePath("../../Enemies/den-brood-warden")])
 reward = NodePath("../hoard-shutter")
 metadata/instance_id = "weaver-hollow-boughs-den-fight"
 metadata/persistence_key = "weaver-hollow-boughs.den-fight"

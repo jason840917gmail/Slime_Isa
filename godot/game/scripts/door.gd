@@ -121,8 +121,10 @@ signal arrived
 ## ladders: pushed toward the trigger's middle, the "arrival" child, no facing). Its target door
 ## should be on the opposite side.
 @export_enum("none", "north", "south", "east", "west") var side: String = "none"
-## The doorway the slime's body must touch, relative to the door's parent (world units); unused
-## with a `walk_area`.
+## The doorway the slime's body must touch, relative to the door's parent (world units: x, y = its
+## top-left corner from the parent, w, h = its size); unused with a `walk_area` or a
+## `trigger_shape`. Drawn in the 2D view, with drag handles on the selected door
+## (addons/door_area_handles; docs/godot/CONVENTIONS.md "A door's area in the editor").
 @export var trigger_rect: Rect2 = Rect2(-16.0, -20.0, 32.0, 40.0)
 ## Optional doorway trigger instead of `trigger_rect`: an Area2D (layer trigger, mask player).
 @export var walk_area: Area2D

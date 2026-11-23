@@ -1249,7 +1249,7 @@ interaction candidate (`UniversalSceneWorldController.ts:1038-1071`).
 | `cost` (`Dictionary`) | `{}` | positive safe integers, authored order | `{}` (was `{"stone":40,"wood":20,"iron-ore":6}`) | `{"wood":60,"stone":40}` (unused while story-only) |
 | `lockedMessage` | required | "It is in ruins." | "The Forge has gone cold. Pip, the smith's son, dreams of seeing it glow again." | "The old Workshop has caved in. Nobody has worked here in years." |
 | `restoredMessage` | required | "Restored!" | "The Forge burns again!" | "The Workshop is restored!" |
-| `interactRadius` | 150 | 150 unless > 0 | 130 | 150 |
+| `interactRadius` | 150 | 150 unless > 0 (Godot: 48, from the walls, 2026-11-21) | 48 from its walls (was 130 from its base; the lit Forge's station too) | 48 from its walls (was 150 from its base) |
 | `badgeRise` | 200 | 200 unless > 0 | 130 | 150 |
 
 Both buildings: root StaticBody2D; `game.story-variant` on the flag swaps `ruined` ↔ `restored`
@@ -1427,7 +1427,7 @@ Audio cues (all exist in `audio/global.scene.json`, pitch randomness 0.06, min i
 |---|---|
 | Jump start / landing | `Jump` / `Land` |
 | Teleport out / in | `TeleportOut` / `TeleportIn` |
-| Slam start / impact | `SlamWindup` / `SlamImpact` |
+| Slam start / impact | `SlamRise` (it was `SlamWindup` until Sound Picker round 13, 2026-11-21) / `SlamImpact` |
 | Lash start | `Lash` |
 | Any rejection but `busy` (dodge: not `cooldown`) | `AbilityDenied` |
 | Eat clip | `Eat` |

@@ -6,18 +6,27 @@
 [ext_resource type="TileSet" uid="uid://dtulcyvm4c4ki" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cnvbu"]
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_rp2bd"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_0ngat"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/rock-world-wall-solid--large-02.tscn" id="7_veeiq"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="9_ar7bn"]
+[ext_resource type="PackedScene" uid="uid://ditsux0cr7ksh" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="9_ar7bn"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candles-triple-lit.tscn" id="10_t4yhl"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-urn-tall.tscn" id="11_5f3xx"]
+[ext_resource type="Texture2D" uid="uid://gilcfkk3aia8" path="res://asset/MAPS/interiors/ambient/interior-decor-candles-triple-lit.webp" id="11_t4yhl"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-lit.tscn" id="12_g8qwd"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="13_v6tew"]
+[ext_resource type="Texture2D" uid="uid://but6n2swmyoqn" path="res://asset/MAPS/interiors/ambient/interior-decor-sconce-lit.webp" id="14_5f3xx"]
 [ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="15_rw9512"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/fatty-lair-dungeon.tscn" id="16_rw5870"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/floor-grate.tscn" id="17_qka54"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="17_rw9083"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="18_rw8501"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/worm-head-statue.tscn" id="18_td2t7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/broken-pillar.tscn" id="19_78ggx"]
 [ext_resource type="AudioStream" uid="uid://bq1q7jcraap76" path="res://asset/audio/music/dungeon.wav" id="19_rw5818"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/weaver-hollow/brood-altar.tscn" id="20_e5bcc"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/bolted-door.tscn" id="20_r8bolt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="30_r8shutter"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-fight.tscn" id="31_r8fight"]
+[ext_resource type="TileSet" uid="uid://b6hbbbrfkchxq" path="res://game/world/fences/fence_tileset.tres" id="32_r8fencetiles"]
+[ext_resource type="Script" uid="uid://151vnn3b5bqv" path="res://game/world/fences/fence_layer.gd" id="33_r8fencelayer"]
 [ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="90_trims"]
 [ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="91_triml"]
 [ext_resource type="PackedScene" uid="uid://b8jbs0wed1k0m" path="res://game/scenes/objects/stair-door.tscn" id="stair_door_north"]
@@ -36,6 +45,11 @@ tile_set = ExtResource("2_v3bh7")
 script = ExtResource("3_cxrw3")
 metadata/columns = 18
 metadata/rows = 32
+
+[node name="fences" type="TileMapLayer" parent="." unique_id=1730558214]
+tile_map_data = PackedByteArray("AAAHAAcAAAACAAAAAAAIAAcAAAACAAAAAAAJAAcAAAACAAAAAAAKAAcAAAACAAAAAAAKAAgAAAACAAAAAAAKAAkAAAACAAAAAAAKAAoAAAACAAAAAAAKAAsAAAACAAAAAAAJAAsAAAACAAAAAAAIAAsAAAACAAAAAAAHAAsAAAACAAAAAAAHAAoAAAACAAAAAAAHAAkAAAACAAAAAAAHAAgAAAACAAAAAAAHABMAAAACAAAAAAAIABMAAAACAAAAAAAJABMAAAACAAAAAAAKABMAAAACAAAAAAAKABQAAAACAAAAAAAKABUAAAACAAAAAAAKABYAAAACAAAAAAAKABcAAAACAAAAAAAJABcAAAACAAAAAAAIABcAAAACAAAAAAAHABcAAAACAAAAAAAHABYAAAACAAAAAAAHABUAAAACAAAAAAAHABQAAAACAAAAAAA=")
+tile_set = ExtResource("32_r8fencetiles")
+script = ExtResource("33_r8fencelayer")
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1985138969]
 self_modulate = Color(1, 1, 1, 0.3)
@@ -64,12 +78,6 @@ position = Vector2(320, 1766.4)
 [node name="Scenery" type="Node2D" parent="." unique_id=401018938]
 y_sort_enabled = true
 
-[node name="r8-bier-north" parent="Scenery" unique_id=1188443192 instance=ExtResource("7_veeiq")]
-position = Vector2(576, 614.4)
-
-[node name="r8-bier-south" parent="Scenery" unique_id=860131090 instance=ExtResource("7_veeiq")]
-position = Vector2(576, 1446.3999)
-
 [node name="r8-guard-west-10" parent="Scenery" unique_id=1373619389 instance=ExtResource("9_ar7bn")]
 position = Vector2(187, 432)
 
@@ -97,14 +105,26 @@ position = Vector2(979.19995, 1600)
 [node name="r8-candles-6-8" parent="Scenery" unique_id=112664647 instance=ExtResource("10_t4yhl")]
 position = Vector2(448, 627.19995)
 
+[node name="Visual" parent="Scenery/r8-candles-6-8" index="0"]
+texture = ExtResource("11_t4yhl")
+
 [node name="r8-candles-10-8" parent="Scenery" unique_id=2046708864 instance=ExtResource("10_t4yhl")]
 position = Vector2(704, 627.19995)
+
+[node name="Visual" parent="Scenery/r8-candles-10-8" index="0"]
+texture = ExtResource("11_t4yhl")
 
 [node name="r8-candles-6-19" parent="Scenery" unique_id=899230934 instance=ExtResource("10_t4yhl")]
 position = Vector2(448, 1459.2)
 
+[node name="Visual" parent="Scenery/r8-candles-6-19" index="0"]
+texture = ExtResource("11_t4yhl")
+
 [node name="r8-candles-10-19" parent="Scenery" unique_id=925398030 instance=ExtResource("10_t4yhl")]
 position = Vector2(704, 1459.2)
+
+[node name="Visual" parent="Scenery/r8-candles-10-19" index="0"]
+texture = ExtResource("11_t4yhl")
 
 [node name="r8-urn-2-3" parent="Scenery" unique_id=142874771 instance=ExtResource("11_5f3xx")]
 position = Vector2(204.80005, 300.80005)
@@ -113,13 +133,40 @@ position = Vector2(204.80005, 300.80005)
 position = Vector2(947.19995, 300.80005)
 
 [node name="r8-urn-13-27" parent="Scenery" unique_id=51683957 instance=ExtResource("11_5f3xx")]
-position = Vector2(947.19995, 1920)
+position = Vector2(168, 1886)
 
 [node name="r8-sconce-4" parent="Scenery" unique_id=1698550169 instance=ExtResource("12_g8qwd")]
 position = Vector2(320, 262.40002)
 
+[node name="Visual" parent="Scenery/r8-sconce-4" index="0"]
+texture = ExtResource("14_5f3xx")
+
 [node name="r8-sconce-12" parent="Scenery" unique_id=1628250117 instance=ExtResource("12_g8qwd")]
 position = Vector2(832, 262.40002)
+
+[node name="Visual" parent="Scenery/r8-sconce-12" index="0"]
+texture = ExtResource("14_5f3xx")
+
+[node name="floor-grate" parent="Scenery" unique_id=1550027571 instance=ExtResource("17_qka54")]
+position = Vector2(578, 592)
+
+[node name="@Node2D@169422" parent="Scenery" unique_id=1947969438 instance=ExtResource("17_qka54")]
+position = Vector2(578, 1356)
+
+[node name="worm-head-statue" parent="Scenery" unique_id=296264121 instance=ExtResource("18_td2t7")]
+position = Vector2(178, 188)
+
+[node name="@StaticBody2D@169423" parent="Scenery" unique_id=1520955221 instance=ExtResource("18_td2t7")]
+position = Vector2(965, 186)
+
+[node name="broken-pillar" parent="Scenery" unique_id=1439503178 instance=ExtResource("19_78ggx")]
+position = Vector2(552, 556)
+
+[node name="broken-pillar2" parent="Scenery" unique_id=1573728581 instance=ExtResource("19_78ggx")]
+position = Vector2(555, 724)
+
+[node name="brood-altar" parent="Scenery" unique_id=1945488924 instance=ExtResource("20_e5bcc")]
+position = Vector2(548, 1308)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1368661214]
 
@@ -140,6 +187,21 @@ overrides = {
 "route": PackedVector2Array(0, 0, -448, 0, -448, -320, 0, -320),
 "route_loop": true
 }
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=1558969016 instance=ExtResource("13_v6tew")]
+position = Vector2(790, 479)
+enemy_type = "bone-marcher"
+wander_radius = 400.0
+
+[node name="@Node2D@127595" parent="Enemies" unique_id=163168653 instance=ExtResource("13_v6tew")]
+position = Vector2(370, 1671)
+enemy_type = "bone-marcher"
+wander_radius = 400.0
+
+[node name="@Node2D@127596" parent="Enemies" unique_id=1410374942 instance=ExtResource("13_v6tew")]
+position = Vector2(577, 1033)
+enemy_type = "bone-leaper"
+wander_radius = 400.0
 
 [node name="Lair" type="Node2D" parent="." unique_id=2076833577]
 y_sort_enabled = true
@@ -164,6 +226,19 @@ door_id = "fatty-lair-r8-west"
 frame_drawn_by_wall = true
 link_id = "fatty-lair-r9-way-back"
 interior_style = "cave-rock"
+
+[node name="r8-east-shutter" parent="Objects" unique_id=1394786521 instance=ExtResource("30_r8shutter")]
+position = Vector2(1024, 1856)
+rotation = 1.5707964
+wall = "east"
+fight_id = "r8-guard-crypt"
+starts_shut = true
+frame_drawn_by_wall = true
+interior_style = "cave-rock"
+
+[node name="room-fight" parent="Objects" unique_id=1867240953 instance=ExtResource("31_r8fight")]
+size = Vector2(1152, 2048)
+fight_id = "r8-guard-crypt"
 
 [node name="world-definition" type="Node" parent="." unique_id=1304042512]
 script = ExtResource("15_rw9512")
@@ -217,17 +292,17 @@ autoplay_cue = true
 y_sort_enabled = true
 
 [node name="throw-r8-marcher-a-1" parent="Throwables" unique_id=1786826933 instance=ExtResource("throw_liftable")]
-position = Vector2(438, 493)
+position = Vector2(498, 180)
 kind = "clay-pot"
 weight = "light"
 
 [node name="throw-r8-marcher-a-2" parent="Throwables" unique_id=1256783257 instance=ExtResource("throw_liftable")]
-position = Vector2(390, 518)
+position = Vector2(652, 188)
 kind = "rock"
 weight = "light"
 
 [node name="throw-r8-marcher-b-1" parent="Throwables" unique_id=1807975548 instance=ExtResource("throw_liftable")]
-position = Vector2(822, 1709)
+position = Vector2(979, 1805)
 kind = "clay-pot"
 weight = "light"
 
@@ -236,8 +311,6 @@ position = Vector2(774, 1734)
 kind = "rock"
 weight = "light"
 
-[editable path="Scenery/r8-bier-north"]
-[editable path="Scenery/r8-bier-south"]
 [editable path="Scenery/r8-guard-west-16"]
 [editable path="Scenery/r8-guard-east-10"]
 [editable path="Scenery/r8-guard-east-14"]
@@ -249,7 +322,6 @@ weight = "light"
 [editable path="Scenery/r8-candles-10-19"]
 [editable path="Scenery/r8-urn-2-3"]
 [editable path="Scenery/r8-urn-13-3"]
-[editable path="Scenery/r8-urn-13-27"]
 [editable path="Scenery/r8-sconce-4"]
 [editable path="Scenery/r8-sconce-12"]
 [editable path="Enemies/r8-marcher-a"]

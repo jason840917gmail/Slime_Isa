@@ -1,0 +1,131 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+[ext_resource type="Script" path="res://game/scripts/worm_bulwark.gd" id="script"]
+[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/worm-hurt-1.ogg" id="hurt_0"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/worm-hurt-2.ogg" id="hurt_1"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/worm-hurt-3.ogg" id="hurt_2"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/worm-death-1.ogg" id="death_0"]
+[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/enemy/worm-death-2.ogg" id="death_1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(44, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
+size = Vector2(56, 48)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 40.0
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hurt"]
+playback_mode = 1
+streams_count = 3
+stream_0/stream = ExtResource("hurt_0")
+stream_1/stream = ExtResource("hurt_1")
+stream_2/stream = ExtResource("hurt_2")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_death"]
+playback_mode = 1
+streams_count = 2
+stream_0/stream = ExtResource("death_0")
+stream_1/stream = ExtResource("death_1")
+
+[node name="WormBulwark" type="CharacterBody2D"]
+position = Vector2(0, 22)
+collision_layer = 4
+collision_mask = 1027
+motion_mode = 1
+wall_min_slide_angle = 0.0
+metadata/collide_world_bounds = true
+metadata/depth_anchor = Vector2(0, 22)
+
+[node name="BodyShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -11.0)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Pose" type="Node2D" parent="."]
+
+[node name="Visual" type="Sprite2D" parent="Pose"]
+scale = Vector2(0.46, 0.46)
+centered = false
+offset = Vector2(-128, -248)
+hframes = 20
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_20x1-worm-bulwark.webp"
+
+[node name="DamageArea" type="Area2D" parent="."]
+position = Vector2(0, -24)
+collision_layer = 8
+collision_mask = 16
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_hurt")
+
+[node name="AttackArea" type="Area2D" parent="."]
+position = Vector2(0, -22)
+collision_layer = 16
+collision_mask = 8
+monitoring = false
+monitorable = false
+
+[node name="AttackShape" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_attack")
+disabled = true
+
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose")]
+script = ExtResource("script")
+enemy_type = "worm-bulwark"
+body = NodePath("..")
+visual = NodePath("../Pose/Visual")
+damage_area = NodePath("../DamageArea")
+attack_area = NodePath("../AttackArea")
+faction = "hostile"
+rank = "ordinary"
+display_name = "Worm Bulwark"
+max_health = 120.0
+targeting_radius = 320.0
+attack_range = 0.0
+movement_speed = 0.0
+attack_cooldown_ms = 0.0
+attributes = {
+"knockbackResist": 0.8
+}
+damage_rule = {
+"priority": 0,
+"damageMultiplier": 1
+}
+rewards = {
+"coins": 12
+}
+pose = NodePath("../Pose")
+defeated_frame = 3
+walk_frame = 8
+walk_step_px = 10.0
+
+[node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_hurt")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+min_interval_ms = 90.0
+pan_distance = 400.0
+position = Vector2(0, -24)
+
+[node name="DeathSfx" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("sfx")
+process_mode = 3
+stream = SubResource("AudioStreamRandomizer_death")
+max_polyphony = 4
+bus = &"Effects"
+max_distance = 800.0
+pitch_randomness = 0.06
+detached = true
+pan_distance = 400.0
+position = Vector2(0, -24)
+
+[connection signal="damaged" from="EnemyScript" to="HurtSfx" method="play_cue"]
+[connection signal="defeated" from="EnemyScript" to="DeathSfx" method="play_cue"]

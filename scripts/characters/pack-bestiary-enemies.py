@@ -21,7 +21,9 @@ spiders (rows 15 and 16, repainted 2026-10-16): `slime-spider-sheet.png` to `-sh
 (row 33): `gloomling-sheet.png`, `glint-bat-sheet.png`, `crystal-crawler-sheet.png` (CENTRED),
 `prism-eye-sheet.png`, `pick-mole-sheet.png`, `shardback-sheet.png`, `crystal-mite-sheet.png`,
 `watcher-eye-sheet.png`, and `caverns-props-sheet.png` (the crystal pillar and the brazier into
-godot/asset/MAPS/props/caverns/, the pickaxe into 64x64-pickaxe.webp: PROP_SHEETS).
+godot/asset/MAPS/props/caverns/, the pickaxe into 64x64-pickaxe.webp: PROP_SHEETS). The Jelly
+Bouncer (row 39): `jelly-bouncer-sheet.png`, and the electrocution look's skeleton
+`shock-skeleton.png` (SINGLES: 128x128-shock-skeleton.webp).
 
 Each sheet is cut along its empty rows and columns into its four poses (top left, top right,
 bottom left, bottom right), each trimmed to its opaque pixels. The poses of one enemy are drawn at
@@ -81,7 +83,10 @@ POSES = {
     # viewer and away from it (WALK_MATCHED).
     "squint": ["stand", "rear", "open", "flipped"] + WALK,
     "pipe-worm": ["hole", "up", "spit", "dazed"],
-    "dung-roller": ["push-a", "push-b", "flipped", "ball"],
+    # Its second sheet (2026-11-21, the owner: "only have horizontal tiles, we need vertical tiles
+    # also"): pushing away from the viewer (seen from behind, two strides) and toward it (from the
+    # front, two strides), for a ball rolled up or down.
+    "dung-roller": ["push-a", "push-b", "flipped", "ball", "push-up-a", "push-up-b", "push-down-a", "push-down-b"],
     "big-squint": ["stand", "rear", "open", "flipped"] + WALK,
     # Chapter 2 (rows 18 to 22). brood-props: the egg sac's three states and the real silk cocoon
     # (the Cocoon Mimic's look-alike), at one scale.
@@ -129,7 +134,45 @@ POSES = {
     "rock-chucker": ["ready", "windup", "thrown", "dazed"],
     "spiny-caterpillar": ["crawl-a", "crawl-b", "turn", "flipped"],
     "ledge-raven": ["perch", "flap-up", "flap-down", "down"],
+    # The Worm Bulwark (row 37, 2026-11-21): his shield and charge facing right (standing guard, the
+    # wind-up, the charge, defeated), then charging toward the viewer and away from it, the skid and
+    # dazed after a wall (sheet 2); his inching walk (sheets 3 to 5: WALK).
+    "worm-bulwark": ["stand", "windup", "charge", "down", "charge-down", "charge-up", "skid", "dazed"] + WALK,
+    # The Carnivore Plant (row 38, 2026-11-21): waiting, about to strike, the snap (her stem
+    # stretched far to the right), chewing; dozing, digesting, spitting, burnt. One pot in all.
+    "carnivore-plant": ["wait", "open", "snap", "chew", "doze", "digest", "spit", "burnt",
+        # Sheets 3 and 4 (the owner: "eat from top and down as well"; the swallow): striking toward
+        # the viewer and away, spitting toward the viewer and away, the swallow, the burp.
+        "open-down", "snap-down", "open-up", "snap-up", "spit-down", "spit-up", "swallow", "burp"],
+    # The Jelly Bouncer (row 39, 2026-11-22): resting, charging up, zapping (bolts bursting out),
+    # melted into a puddle. His bounce is the resting pose squashed and lifted in code.
+    "jelly-bouncer": ["rest", "charge", "zap", "down"],
 }
+# Enemies drawn in bigger cells than CELL (the cell's side): the Carnivore Plant's snap reaches far
+# out of her pot.
+CELLS = {"carnivore-plant": 384}
+# Enemies that live in a pot (POT_ANCHORED): every pose is placed by its pot, so the pot never moves
+# between frames however far the plant reaches (to the side, down past the pot, up over it). The pot
+# is the pose's biggest terracotta blob (`pot_box`): its middle stands at the cell's middle and its
+# bottom on POT_FLOORS (the cell's y), which leaves room below for a head that strikes down. Where
+# the stem, the goo or the char hides much of the pot (its blob narrower than POT_MIN_SHARE of the
+# sheet's usual pot), the middle of the pose's bottom band (POT_BAND of its height) and the pose's
+# bottom stand in for it. Each later sheet is resized so its usual (median) pot is as wide as the
+# first sheet's (instead of WALK_MATCHED), and one scale keeps every pose inside the cell.
+POT_ANCHORED = {"carnivore-plant"}
+POT_FLOORS = {"carnivore-plant": 300}
+POT_BAND = 0.22
+POT_MIN_SHARE = 0.8
+# Poses whose pot is hidden too much for either (the stem across it, goo over it): their pot's middle
+# and bottom set by hand (x, y in the pose as cut and resized by `pot_matched`, measured on a grid).
+POT_ANCHORS = {("carnivore-plant", "snap-down"): (125.0, 256.0), ("carnivore-plant", "spit-down"): (120.0, 276.0)}
+# The pot's terracotta: red well above green, little blue (the dark warm outline and the green plant
+# fall outside it). Looked for on a grid of POT_GRID px.
+POT_MIN_RED = 110
+POT_RED_OVER_GREEN = 55
+POT_MAX_BLUE = 60
+POT_MIN_GREEN = 35
+POT_GRID = 4
 # Poses on one source sheet: an enemy with more is drawn from `<enemy>-sheet.png`, then
 # `<enemy>-sheet-2.png`, ... in order.
 SHEET_POSES = 4
@@ -138,11 +181,11 @@ SHEET_POSES = 4
 # pose's, so the walk draws the creature as big as its other poses whatever size the model drew it.
 WALK_MATCHED = {"squint", "big-squint", "bramble-boar", "thornball", "brood-warden", "shardback",
     "bone-marcher", "bone-thrower", "prologue-worm", "thorn-guard", "broodling", "cocoon-mimic",
-    "crystal-mite", "bone-leaper"}
+    "crystal-mite", "bone-leaper", "dung-roller", "worm-bulwark"}
 # Enemies whose poses stand with their weight (the middle of their opaque pixels) at x CENTRE_X
 # instead of their box's middle, so a sword, a bow or a fist thrust out to one side does not push
 # the body back; their scale keeps every pose inside FIT from that middle.
-MASS_CENTRED = {"prologue-worm", "worm-swordsman", "worm-archer", "worm-brawler"}
+MASS_CENTRED = {"prologue-worm", "worm-swordsman", "worm-archer", "worm-brawler", "worm-bulwark"}
 # Enemies whose poses are centred in their cell instead of standing on BOTTOM: the Crystal Crawler
 # turns round its middle as it crawls round its pillar.
 CENTRED = {"crystal-crawler", "spiny-caterpillar"}
@@ -204,17 +247,21 @@ HUNG = {("pipe-worm", "hole"), ("pipe-worm", "up"), ("pipe-worm", "spit")}
 HUNG_BAND = 0.3
 # Single pictures (one image each, not a sheet): source name -> (cell px, fit px), centred, into
 # godot/asset/MAPS/enemies/<cell>x<cell>-<name>.webp. The Pipe Worm's mud glob (a projectile).
-SINGLES = {"mud-glob": (64, 56)}
+# The cartoon skeleton every electrocuted body shows (game/feel/shock_look.gd; the Jelly Bouncer's
+# zap, row 39) is one too: 128x128-shock-skeleton.webp.
+SINGLES = {"mud-glob": (64, 56), "shock-skeleton": (128, 124)}
 # Sheets generated with a faint haze over the whole transparent background (alpha 2 or 3): alpha
 # under HAZE_ALPHA is cleared before the cut, or each pose's box shows as a pale square.
 HAZY = {"brood-props", "bone-leaper", "bone-thrower", "bone-marcher", "skeleton-props", "rock-chucker",
     "spiny-caterpillar", "ledge-raven"}
 HAZE_ALPHA = 12
+# Enemies whose later sheets (not the first) have the haze and stray specks: the same clean-up.
+HAZY_LATER = {"dung-roller"}
 # On a hazy sheet each pose keeps only the opaque parts within this many px of its main body.
 MERGE_PX = 15
 # Sheets (by the name before `-sheet`) with a fainter haze (alpha 16 at most, far from the art): it
 # is cleared the same way, but their stray goo drops and sprays are kept (no main-body pass).
-FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs", "climb-props"}
+FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs", "climb-props", "jelly-bouncer", "shock-skeleton"}
 
 
 def gap(mask: np.ndarray, axis: int) -> int:
@@ -235,13 +282,14 @@ def trimmed(image: Image.Image) -> Image.Image:
 def cut_poses(path: Path) -> list[Image.Image]:
     """The sheet's four poses in reading order, trimmed."""
     sheet = Image.open(path).convert("RGBA")
-    if path.name.removesuffix("-sheet.png") in HAZY or path.name.split("-sheet")[0] in FAINT_HAZE:
+    later_hazy = path.name.split("-sheet")[0] in HAZY_LATER and not path.name.endswith("-sheet.png")
+    if path.name.removesuffix("-sheet.png") in HAZY or path.name.split("-sheet")[0] in FAINT_HAZE or later_hazy:
         pixels = np.asarray(sheet).copy()
         pixels[pixels[..., 3] < HAZE_ALPHA] = 0
         sheet = Image.fromarray(pixels, "RGBA")
     mask = np.asarray(sheet)[..., 3] > ALPHA_CUT
     split_y = gap(mask, 1)
-    hazy = path.name.removesuffix("-sheet.png") in HAZY
+    hazy = path.name.removesuffix("-sheet.png") in HAZY or later_hazy
     boxes: list[tuple[int, int, int, int]] = []
     split_x = gap(mask, 0)
     if mask[split_y].any() and not mask[:, split_x].any():
@@ -287,11 +335,29 @@ def pack(enemy: str, names: list[str]) -> None:
     cut = [cut_poses(SOURCES / name) for name in sheets]
     if enemy in WALK_MATCHED:
         cut = [cut[0]] + [matched(poses, cut[0][0]) for poses in cut[1:]]
+    if enemy in POT_ANCHORED:
+        cut = [cut[0]] + [pot_matched(poses, cut[0]) for poses in cut[1:]]
     stills = [still for poses in cut for still in poses]
     frames = [(name, still) for name, still in zip(names, stills) if (enemy, name) != SEED_POSE]
     frames += [(f"{name}-mirrored", still.transpose(Image.Transpose.FLIP_LEFT_RIGHT))
         for name, still in list(frames) if name in MIRRORED.get(enemy, [])]
-    scale = min(min(FIT / still.width, FIT / still.height) for _, still in frames)
+    cell = CELLS.get(enemy, CELL)
+    bottom = cell - (CELL - BOTTOM)
+    centre_x = cell // 2
+    fit = cell - (CELL - FIT)
+    scale = min(min(fit / still.width, fit / still.height) for _, still in frames)
+    anchors = {}
+    if enemy in POT_ANCHORED:
+        floor = POT_FLOORS.get(enemy, bottom)
+        usual = sorted(pot_width(still) for _, still in frames)[len(frames) // 2]
+        anchors = {name: POT_ANCHORS.get((enemy, name), pot_anchor(still, usual)) for name, still in frames}
+        margin = (cell - fit) / 2
+        scale = min(min(
+            (centre_x - margin) / max(1.0, anchors[name][0]),
+            (cell - margin - centre_x) / max(1.0, still.width - anchors[name][0]),
+            (floor - margin) / max(1.0, anchors[name][1]),
+            (cell - margin - floor) / max(1.0, still.height - anchors[name][1]))
+            for name, still in frames)
     if enemy in MASS_CENTRED:
         scale = min([scale] + [FIT / 2 / max(mass_x(still), still.width - mass_x(still))
             for _, still in frames])
@@ -299,16 +365,19 @@ def pack(enemy: str, names: list[str]) -> None:
     if cores:
         scale = FIT / 2 / max(max(x, still.width - x, y, still.height - y)
             for (x, y), (_, still) in zip(cores.values(), frames))
-    sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (cell * len(frames), cell), (0, 0, 0, 0))
     hung_heights = [round(still.height * scale) for name, still in frames if (enemy, name) in HUNG]
     hung_top = BOTTOM - max(hung_heights) if hung_heights else 0
     for column, (name, still) in enumerate(frames):
         size = (round(still.width * scale), round(still.height * scale))
         art = still.resize(size, Image.LANCZOS)
-        left = CENTRE_X - size[0] // 2
+        left = centre_x - size[0] // 2
         if enemy in MASS_CENTRED:
-            left = CENTRE_X - round(mass_x(still) * scale)
-        top = CELL // 2 - size[1] // 2 if enemy in CENTRED else BOTTOM - size[1]
+            left = centre_x - round(mass_x(still) * scale)
+        top = cell // 2 - size[1] // 2 if enemy in CENTRED else bottom - size[1]
+        if name in anchors:
+            left = centre_x - round(anchors[name][0] * scale)
+            top = POT_FLOORS.get(enemy, bottom) - round(anchors[name][1] * scale)
         if (enemy, name) in HUNG:
             left, top = CENTRE_X - round(band_centre(still) * scale), hung_top
         if name in cores:
@@ -319,9 +388,9 @@ def pack(enemy: str, names: list[str]) -> None:
             top -= max(0, top + size[1] - floor)
             if top < 0:
                 raise SystemExit(f"{enemy} {name}: lifted out of its cell")
-        sheet.alpha_composite(art, (column * CELL + left, top))
+        sheet.alpha_composite(art, (column * cell + left, top))
         print(f"  {name:9s} {size[0]} x {size[1]}")
-    out = OUTPUT / f"{CELL}x{CELL}-tile_{len(frames)}x1-{enemy}.webp"
+    out = OUTPUT / f"{cell}x{cell}-tile_{len(frames)}x1-{enemy}.webp"
     save_game_webp(sheet, out)
     print(f"wrote {out.relative_to(REPO)} (scale {scale:.4f})")
     for name, still in zip(names, stills):
@@ -354,6 +423,66 @@ def band_centre(still: Image.Image) -> float:
     alpha = np.asarray(still)[: max(1, round(still.height * HUNG_BAND)), :, 3]
     xs = np.nonzero((alpha > ALPHA_CUT).any(axis=0))[0]
     return (xs.min() + xs.max() + 1) / 2 if xs.size else still.width / 2
+
+
+def pot_x(still: Image.Image) -> float:
+    """The x middle of the opaque pixels in the bottom POT_BAND of `still` (POT_ANCHORED's stand-in)."""
+    alpha = np.asarray(still)[-max(1, round(still.height * POT_BAND)):, :, 3]
+    xs = np.nonzero((alpha > ALPHA_CUT).any(axis=0))[0]
+    return (xs.min() + xs.max() + 1) / 2 if xs.size else still.width / 2
+
+
+def pot_box(still: Image.Image) -> tuple[float, float, float, float] | None:
+    """The box (left, right, top, bottom) of `still`'s biggest terracotta blob (POT_ANCHORED: its
+    pot), looked for on a POT_GRID px grid; None when it has none."""
+    from PIL import ImageDraw
+
+    pixels = np.asarray(still).astype(int)
+    red, green, blue, alpha = pixels[..., 0], pixels[..., 1], pixels[..., 2], pixels[..., 3]
+    terracotta = ((alpha > 200) & (red >= POT_MIN_RED) & (red - green >= POT_RED_OVER_GREEN)
+        & (blue <= POT_MAX_BLUE) & (green >= POT_MIN_GREEN))
+    size = (-(-still.width // POT_GRID), -(-still.height // POT_GRID))
+    small = Image.fromarray(np.where(terracotta, 255, 0).astype(np.uint8), "L").resize(size, Image.BOX)
+    small = small.point(lambda value: 255 if value >= 96 else 0)
+    label = 0
+    while label < 250:
+        ys, xs = np.nonzero(np.asarray(small) == 255)
+        if xs.size == 0:
+            break
+        label += 1
+        ImageDraw.floodfill(small, (int(xs[0]), int(ys[0])), label)
+    if label == 0:
+        return None
+    labels = np.asarray(small)
+    biggest = 1 + int(np.argmax([(labels == value).sum() for value in range(1, label + 1)]))
+    ys, xs = np.nonzero(labels == biggest)
+    return (float(xs.min() * POT_GRID), float((xs.max() + 1) * POT_GRID),
+        float(ys.min() * POT_GRID), float((ys.max() + 1) * POT_GRID))
+
+
+def pot_width(still: Image.Image) -> float:
+    box = pot_box(still)
+    return box[1] - box[0] if box is not None else 0.0
+
+
+def pot_anchor(still: Image.Image, usual_width: float) -> tuple[float, float]:
+    """Where `still`'s pot stands: its middle and its bottom (x, y in the still); the bottom band's
+    middle and the still's bottom when the pot is mostly hidden (see POT_ANCHORED)."""
+    box = pot_box(still)
+    if box is None or box[1] - box[0] < usual_width * POT_MIN_SHARE:
+        return pot_x(still), float(still.height)
+    return (box[0] + box[1]) / 2, box[3]
+
+
+def pot_matched(poses: list[Image.Image], first: list[Image.Image]) -> list[Image.Image]:
+    """`poses` (a later sheet, POT_ANCHORED) resized by one factor so their usual (median) pot is as
+    wide as `first`'s (the first sheet's)."""
+    def usual(stills: list[Image.Image]) -> float:
+        widths = sorted(pot_width(still) for still in stills)
+        return widths[len(widths) // 2]
+    factor = usual(first) / max(1.0, usual(poses))
+    return [pose.resize((max(1, round(pose.width * factor)), max(1, round(pose.height * factor))),
+        Image.LANCZOS) for pose in poses]
 
 
 def mass_x(still: Image.Image) -> float:
@@ -391,7 +520,12 @@ def body_core(still: Image.Image) -> tuple[float, float]:
 
 def pack_single(name: str, cell: int, fit: int) -> None:
     """A one-image source (`<name>.png`), trimmed, scaled to fit `fit` px and centred in `cell`."""
-    still = trimmed(Image.open(SOURCES / f"{name}.png").convert("RGBA"))
+    image = Image.open(SOURCES / f"{name}.png").convert("RGBA")
+    if name in FAINT_HAZE:
+        pixels = np.asarray(image).copy()
+        pixels[pixels[..., 3] < HAZE_ALPHA] = 0
+        image = Image.fromarray(pixels, "RGBA")
+    still = trimmed(image)
     scale = min(fit / still.width, fit / still.height)
     size = (round(still.width * scale), round(still.height * scale))
     picture = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))

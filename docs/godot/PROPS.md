@@ -138,7 +138,9 @@ outline: by default a circle of its own (`wander_radius`, in the Inspector); for
 enemies the same `wander_area_id`, the `area_id` of an `enemy-wander` world area (an Area2D with a
 rectangle or circle CollisionShape2D and a `world_area.gd` node of kind `enemy-wander`, as the
 converted camps have under `Areas`), and they all wander in it. Move the node to move the enemy;
-`overrides` changes one enemy's numbers (e.g. `{"max_health": 120}`).
+`overrides` changes one enemy's numbers (e.g. `{"max_health": 120}`). A Dung Roller also shows
+**Patrol Axis** (Horizontal or Vertical) and **Patrol Length** in the Inspector: the line it rolls
+back and forth on, drawn in the 2D view.
 
 **Painted props to nodes:** `tools/paint_to_nodes.gd` (headless, the world closed in the editor:
 `--path godot -s res://tools/paint_to_nodes.gd -- --scene=<world> [--scene=...] [--keep=<prefixes>]

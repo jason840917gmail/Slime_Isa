@@ -7,7 +7,9 @@ class_name MineCamp
 ##
 ## - **First talk:** he meets the slime and gives it the **Lantern**, the Forge's ember
 ##   (`RunState.learn_ability("lantern")`: the ceremony plays its card), and in the same visit the
-##   **Smith's Crystal** (`mine-crystal`, once: CRYSTAL_FLAG; not when the Bow is learned already) for
+##   **Smith's Crystal** (`mine-crystal`, once: CRYSTAL_FLAG, set only when it fits in the bag; a full
+##   bag keeps it with him, a line, and he offers it first at the next talk; not when the Bow is
+##   learned already) for
 ##   his son Pip in Slimeshire, who carves the Bow's rune from it, wood and the Matron's thread (the
 ##   mine's Chasm needs the Bow). Then the Lantern's first lock: "My ore cart ... Give its lamp a
 ##   flame." The story flag GIFT_FLAG keeps the gift once.
@@ -63,6 +65,10 @@ const RIDE: Array[String] = [
 ]
 const CRYSTAL_AGAIN: Array[String] = [
 	"Take that crystal to Pip, in Slimeshire. Some wood and a string strong as wire, and he'll carve you the rune.",
+]
+## His crystal does not fit in the bag: he keeps it until the slime comes back with room.
+const CRYSTAL_BAG_FULL: Array[String] = [
+	"I have a crystal for my boy Pip too, but your bag is stuffed full. Make some room and come back for it.",
 ]
 const AFTER_COLOSSUS: Array[String] = [
 	"Ha! Rubble, the lot of him. My lamps burn again, and the mine is mine.",
@@ -134,13 +140,15 @@ func _on_talked(_payload: Dictionary) -> void:
 		smith.hold_pose(SmithActorScript.FRAME_LANTERN)
 		give_lantern()
 		await PrologueScene.ceremony_done(get_tree())
-		if not has_bow and give_crystal():
-			smith.hold_pose(SmithActorScript.FRAME_LANTERN)
-			await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL)
+		if not has_bow:
+			await _offer_crystal()
 		smith.hold_pose(SmithActorScript.FRAME_POINT)
 		await PrologueScene.say(get_tree(), SPEAKER, TEACH)
 	elif _colossus_beaten():
 		await PrologueScene.say(get_tree(), SPEAKER, AFTER_COLOSSUS)
+	elif not has_bow and not is_crystal_given():
+		# A full bag kept it last time: offered again before anything else.
+		await _offer_crystal()
 	elif not is_lamp_lit():
 		smith.hold_pose(SmithActorScript.FRAME_POINT)
 		await PrologueScene.say(get_tree(), SPEAKER, TEACH)
@@ -148,12 +156,8 @@ func _on_talked(_payload: Dictionary) -> void:
 		smith.hold_pose(SmithActorScript.FRAME_POINT)
 		await PrologueScene.say(get_tree(), SPEAKER, RIDE)
 	elif not has_bow:
-		if give_crystal():
-			smith.hold_pose(SmithActorScript.FRAME_LANTERN)
-			await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL)
-		else:
-			smith.hold_pose(SmithActorScript.FRAME_POINT)
-			await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL_AGAIN)
+		smith.hold_pose(SmithActorScript.FRAME_POINT)
+		await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL_AGAIN)
 	else:
 		await PrologueScene.say(get_tree(), SPEAKER, TIPS)
 	if is_instance_valid(smith):
@@ -172,14 +176,30 @@ func give_lantern() -> bool:
 	return true
 
 
-## The Smith's Crystal into the bag, once (for Pip's bow rune). True when it was given now.
+func is_crystal_given() -> bool:
+	var run := Services.run()
+	return run != null and run.has_flag(CRYSTAL_FLAG)
+
+
+## The Smith's Crystal into the bag, once (for Pip's bow rune). True when it was given now. A full
+## bag keeps it with him (no flag): he says so and offers it again at the next talk.
 func give_crystal() -> bool:
 	var run := Services.run()
 	if run == null or run.has_flag(CRYSTAL_FLAG):
 		return false
+	if run.add_item(CRYSTAL_ITEM, 1) <= 0:
+		return false
 	run.set_flag(CRYSTAL_FLAG)
-	run.add_item(CRYSTAL_ITEM, 1)
 	return true
+
+
+## The crystal's errand: given with its lines, or the full-bag line when it does not fit.
+func _offer_crystal() -> void:
+	smith.hold_pose(SmithActorScript.FRAME_LANTERN)
+	if give_crystal():
+		await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL)
+	elif not is_crystal_given():
+		await PrologueScene.say(get_tree(), SPEAKER, CRYSTAL_BAG_FULL)
 
 
 func _on_lamp_lit() -> void:

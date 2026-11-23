@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c0dxyajir0usg" path="res://game/world/bridge_deck.gd" id="1_deck"]
+[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="2_sheet"]
+
+[node name="footbridge-north-south" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_deck")
+deck = Rect2(-40, -96, 80, 192)
+
+[node name="Visual" type="Sprite2D" parent="."]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+script = ExtResource("2_sheet")
+sheet_path = "res://asset/MAPS/props/gloop-river-roads/footbridge-north-south.webp"

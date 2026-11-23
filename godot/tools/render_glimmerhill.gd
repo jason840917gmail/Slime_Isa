@@ -19,6 +19,8 @@ extends SceneTree
 ## `--camera` looks there with a camera of its own (at `--zoom`, else 1) instead of the game's;
 ## `--grid` draws the 64-unit cells with their world coordinates over the picture. `--pre-flags=a,b`
 ## are in the run before the world is built, set quietly (no end card, nothing woken on screen).
+## `--then-call=<node name>[/<path>]:<method>,...` calls each method on the first node of that name in
+## the world (or on the node at <path> under it) after the still, with the `--then-flags` (a lens struck, a critter freed: then film it).
 
 const Services := preload("res://game/shared/services.gd")
 const MAIN_SCENE := "res://game/main.tscn"
@@ -34,6 +36,7 @@ func _initialize() -> void:
 	var window := Vector2i(960, 540)
 	var flags := PackedStringArray()
 	var then_flags := PackedStringArray()
+	var then_calls := PackedStringArray()
 	var pre_flags := PackedStringArray()
 	var settle_ms := 600.0
 	var still := "still"
@@ -70,6 +73,8 @@ func _initialize() -> void:
 			flags = arg.trim_prefix("--flags=").split(",", false)
 		elif arg.begins_with("--pre-flags="):
 			pre_flags = arg.trim_prefix("--pre-flags=").split(",", false)
+		elif arg.begins_with("--then-call="):
+			then_calls = arg.trim_prefix("--then-call=").split(",", false)
 		elif arg.begins_with("--then-flags="):
 			then_flags = arg.trim_prefix("--then-flags=").split(",", false)
 		elif arg.begins_with("--settle-ms="):
@@ -161,12 +166,22 @@ func _initialize() -> void:
 		while Time.get_ticks_msec() < used_until:
 			await process_frame
 		await _save(still + "-used")
-	if not then_flags.is_empty() or film_ms > 0.0:
+	if not then_flags.is_empty() or not then_calls.is_empty() or film_ms > 0.0:
 		if move_to != Vector2.INF:
 			_place(move_to)
 		if run != null:
 			for flag in then_flags:
 				run.set_flag(flag)
+		for call: String in then_calls:
+			var parts := call.split(":")
+			var names := parts[0].split("/", false, 1)
+			var target := main.find_child(names[0], true, false) if parts.size() == 2 else null
+			if target != null and names.size() > 1:
+				target = target.get_node_or_null(NodePath(names[1]))
+			if target != null and target.has_method(parts[1]):
+				target.call(parts[1])
+			else:
+				push_warning("render: no node %s with %s" % [parts[0], call])
 		var started := Time.get_ticks_msec()
 		var next := started
 		var frame := 0

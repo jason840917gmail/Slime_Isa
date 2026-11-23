@@ -12,7 +12,6 @@
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/land-2.ogg" id="10"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/teleport-out.ogg" id="11"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/teleport-in.ogg" id="12"]
-[ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/player/slam-windup.ogg" id="13"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/slam-impact.wav" id="14"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/lash-1.wav" id="15"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/player/lash-2.wav" id="16"]
@@ -168,6 +167,83 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-1.wav" id="sfx_0eb4ca83"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-2.wav" id="sfx_4914b053"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-stone-crack-3.wav" id="sfx_747499e3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-push-1.wav" id="sfx_ca80d2af"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-push-2.wav" id="sfx_8d20a87f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-push-3.wav" id="sfx_b04081cf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-push-4.wav" id="sfx_02605ddf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-bump-1.wav" id="sfx_d4db72ca"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-bump-2.wav" id="sfx_937b081a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-bump-3.wav" id="sfx_ae1b21aa"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-bump-4.wav" id="sfx_1c3bfdba"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-fury-1.wav" id="sfx_ed33b4e4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-fury-2.wav" id="sfx_aa93ce34"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-fury-3.wav" id="sfx_97f3e784"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-fury-4.wav" id="sfx_25d33b94"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-charge-1.wav" id="sfx_3d1f842e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-charge-2.wav" id="sfx_7abffefe"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-ball-1.wav" id="sfx_49239793"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-ball-2.wav" id="sfx_0e83ed43"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-ball-3.wav" id="sfx_33e3c4f3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-ball-4.wav" id="sfx_81c318e3"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-hurt-1.wav" id="sfx_922de597"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-hurt-2.wav" id="sfx_d58d9f47"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-hurt-3.wav" id="sfx_e8edb6f7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-death-1.wav" id="sfx_96defe0c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-death-2.wav" id="sfx_d17e84dc"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-death-3.wav" id="sfx_ec1ead6c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-death-4.wav" id="sfx_5e3e717c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/boar-scrape-1.wav" id="sfx_3eb530dd"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/boar-scrape-2.wav" id="sfx_79154a0d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/warden-windup-1.wav" id="sfx_3b8e26df"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/warden-windup-2.wav" id="sfx_7c2e5c0f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/warden-windup-3.wav" id="sfx_414e75bf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-crouch-1.wav" id="sfx_cdddab29"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-crouch-2.wav" id="sfx_8a7dd1f9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-crouch-3.wav" id="sfx_b71df849"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/stomper-crouch-4.wav" id="sfx_053d2459"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/prism-charge-1.wav" id="sfx_af7af4db"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/prism-charge-2.wav" id="sfx_e8da8e0b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/squint-rear-1.wav" id="sfx_3016b381"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/squint-rear-2.wav" id="sfx_77b6c951"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/squint-rear-3.wav" id="sfx_4ad6e0e1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/thornball-curl-1.wav" id="sfx_ee1d5972"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/thornball-curl-2.wav" id="sfx_a9bd23a2"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/slam-rise-1.wav" id="sfx_d15a37c7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/slam-rise-2.wav" id="sfx_96fa4d17"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/hammer-swing-1.wav" id="sfx_a5449a0f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/hammer-swing-2.wav" id="sfx_e2e4e0df"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/hammer-swing-3.wav" id="sfx_df84c96f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/hammer-swing-4.wav" id="sfx_6da4157f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ore-lift-ride-1.wav" id="sfx_fad23166"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ore-lift-ride-2.wav" id="sfx_bd724bb6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ore-lift-ride-3.wav" id="sfx_80126206"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/ore-lift-ride-4.wav" id="sfx_3232be16"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/dung-brace.wav" id="sfx_bbd03a05"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/colossus-raise.wav" id="sfx_5b97799c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/chucker-windup.wav" id="sfx_5cf89a2d"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/shardback-rear.wav" id="sfx_b8834090"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/player/goo-bomb-cast.wav" id="sfx_6676a602"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-open-1.wav" id="sfx_34563fa8"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-open-2.wav" id="sfx_73f64578"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-snap-1.wav" id="sfx_de6d2e44"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-snap-2.wav" id="sfx_99cd5494"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-snap-3.wav" id="sfx_a4ad7d24"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-munch-1.wav" id="sfx_3ff23cf9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-munch-2.wav" id="sfx_78524629"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-swallow-1.wav" id="sfx_2c7c37eb"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-swallow-2.wav" id="sfx_6bdc4d3b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-swallow-3.wav" id="sfx_56bc648b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burp-1.wav" id="sfx_caa02ef6"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burp-2.wav" id="sfx_8d005426"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burp-3.wav" id="sfx_b0607d96"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-doze-1.wav" id="sfx_18533e82"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-doze-2.wav" id="sfx_5ff34452"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-doze-3.wav" id="sfx_62936de2"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-1.wav" id="sfx_fd41c965"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-2.wav" id="sfx_bae1b3b5"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-3.wav" id="sfx_87819a05"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-4.wav" id="sfx_35a14615"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-spit.wav" id="sfx_4bb7ef50"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -591,6 +667,263 @@ stream_0/weight = 1.0
 stream_1/stream = ExtResource("sfx_a7f5c9d4")
 stream_1/weight = 1.0
 
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_push_DungPush"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_ca80d2af")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_8d20a87f")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_b04081cf")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_02605ddf")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_bump_DungBump"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_d4db72ca")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_937b081a")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_ae1b21aa")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_1c3bfdba")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_fury_DungFury"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_ed33b4e4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_aa93ce34")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_97f3e784")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_25d33b94")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_charge_DungCharge"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_3d1f842e")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_7abffefe")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_ball_DungBall"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_49239793")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_0e83ed43")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_33e3c4f3")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_81c318e3")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_hurt_DungHurt"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_922de597")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_d58d9f47")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_e8edb6f7")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_dung_death_DungDeath"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_96defe0c")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_d17e84dc")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_ec1ead6c")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_5e3e717c")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_boar_scrape_BoarScrape"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_3eb530dd")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_79154a0d")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_warden_windup_WardenWindup"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_3b8e26df")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_7c2e5c0f")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_414e75bf")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_stomper_crouch_StomperCrouch"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_cdddab29")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_8a7dd1f9")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_b71df849")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_053d2459")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_prism_charge_PrismCharge"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_af7af4db")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_e8da8e0b")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_squint_rear_SquintRear"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_3016b381")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_77b6c951")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_4ad6e0e1")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_thornball_curl_ThornballCurl"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_ee1d5972")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a9bd23a2")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_slam_rise_SlamRise"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_d15a37c7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_96fa4d17")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_player_hammer_swing_HammerSwing"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_a5449a0f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_e2e4e0df")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_df84c96f")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_6da4157f")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_ore_lift_ride_OreLiftRide"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_fad23166")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_bd724bb6")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_80126206")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_3232be16")
+stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_open_PlantOpen"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_34563fa8")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_73f64578")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_snap_PlantSnap"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_de6d2e44")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_99cd5494")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_a4ad7d24")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_munch_PlantMunch"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_3ff23cf9")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_78524629")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_swallow_PlantSwallow"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_2c7c37eb")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_6bdc4d3b")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_56bc648b")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_burp_PlantBurp"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_caa02ef6")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_8d005426")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_b0607d96")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_doze_PlantDoze"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_18533e82")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_5ff34452")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_62936de2")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_enemy_plant_burn_PlantBurn"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 4
+stream_0/stream = ExtResource("sfx_fd41c965")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_bae1b3b5")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_87819a05")
+stream_2/weight = 1.0
+stream_3/stream = ExtResource("sfx_35a14615")
+stream_3/weight = 1.0
+
 [node name="GlobalAudio" type="Node2D"]
 y_sort_enabled = true
 
@@ -658,15 +991,6 @@ min_interval_ms = 60.0
 script = ExtResource("1")
 process_mode = 3
 stream = ExtResource("12")
-max_polyphony = 4
-bus = &"Effects"
-pitch_randomness = 0.06
-min_interval_ms = 60.0
-
-[node name="SlamWindup" type="AudioStreamPlayer" parent="Effects"]
-script = ExtResource("1")
-process_mode = 3
-stream = ExtResource("13")
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06
@@ -1627,5 +1951,293 @@ volume_db = 0.70
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.08
+min_interval_ms = 60.0
+[node name="DungBrace" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_bbd03a05")
+volume_db = 7.00
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.08
+min_interval_ms = 60.0
+
+[node name="DungPush" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_push_DungPush")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungBump" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_bump_DungBump")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungFury" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_fury_DungFury")
+volume_db = -3.58
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungCharge" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_charge_DungCharge")
+volume_db = -2.37
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungBall" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_ball_DungBall")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungHurt" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_hurt_DungHurt")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="DungDeath" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_dung_death_DungDeath")
+volume_db = -4.49
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="BoarScrape" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_boar_scrape_BoarScrape")
+volume_db = -2.57
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="WardenWindup" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_warden_windup_WardenWindup")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="StomperCrouch" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_stomper_crouch_StomperCrouch")
+volume_db = -3.40
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ColossusRaise" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_5b97799c")
+volume_db = -4.52
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PrismCharge" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_prism_charge_PrismCharge")
+volume_db = -3.33
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ChuckerWindup" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_5cf89a2d")
+volume_db = -5.25
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ShardbackRear" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_b8834090")
+volume_db = -6.54
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SquintRear" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_squint_rear_SquintRear")
+volume_db = -4.21
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ThornballCurl" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_thornball_curl_ThornballCurl")
+volume_db = -4.13
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="SlamRise" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_slam_rise_SlamRise")
+volume_db = -5.82
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="GooBombCast" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_6676a602")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="HammerSwing" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_player_hammer_swing_HammerSwing")
+volume_db = -9.04
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="OreLiftRide" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_ore_lift_ride_OreLiftRide")
+volume_db = -2.49
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+[node name="PlantOpen" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_open_PlantOpen")
+volume_db = 6.03
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantSnap" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_snap_PlantSnap")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantMunch" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_munch_PlantMunch")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantSwallow" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_swallow_PlantSwallow")
+volume_db = -7.96
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantBurp" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_burp_PlantBurp")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantSpit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_4bb7ef50")
+volume_db = -1.38
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantDoze" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_doze_PlantDoze")
+volume_db = -6.35
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="PlantBurn" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_enemy_plant_burn_PlantBurn")
+volume_db = -8.28
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
 min_interval_ms = 60.0
 

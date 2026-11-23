@@ -52,6 +52,9 @@ const FILL_COLOR := Color(0.05, 0.03, 0.12, 0.25)
 @export var lit_for_good_when_all_lit: bool = false
 ## The story flag a room lit for good sets ("" = `dark-room-lit.<key>`).
 @export var lit_flag: String = ""
+## How dark it is where no light reaches (0..1); below 0, `abilities.lantern.darkness.alpha`. An
+## outdoor grove (Gloop Forest's glow grove, 2026-11-21) is dim, not black.
+@export_range(-1.0, 1.0) var darkness_override: float = -1.0
 
 var _overlay: ColorRect
 var _material: ShaderMaterial
@@ -87,7 +90,8 @@ func _ready() -> void:
 	_overlay.z_as_relative = false
 	add_child(_overlay)
 	_fit_overlay()
-	_material.set_shader_parameter(&"darkness", FireTargets.lantern_number("darkness.alpha", 1.0))
+	_material.set_shader_parameter(&"darkness", darkness_override if darkness_override >= 0.0
+			else FireTargets.lantern_number("darkness.alpha", 1.0))
 	_material.set_shader_parameter(&"soft_px", FireTargets.lantern_number("darkness.softPx", 40.0))
 
 

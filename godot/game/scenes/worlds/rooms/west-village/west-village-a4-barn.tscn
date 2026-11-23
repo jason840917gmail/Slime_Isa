@@ -188,3 +188,5 @@ bus = &"Music"
 script = ExtResource("sfx")
 loop = true
 autoplay_cue = true
+
+[editable path="roll-fragment"]

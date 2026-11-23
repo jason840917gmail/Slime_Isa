@@ -199,7 +199,7 @@ script = ExtResource("pen")
 number = 13
 enemy_name = "Dung Roller"
 kind = "Patroller"
-right_tool = "Roll through the gap; the beetle is soft from behind"
+right_tool = "Roll through the gap; the beetle is soft from behind. Or Gulp its ball: it rages, and the ball is yours to throw"
 enemy_types = PackedStringArray("dung-roller")
 posts = PackedVector2Array(256, 224)
 size = Vector2(512, 448)
@@ -367,7 +367,7 @@ script = ExtResource("pen")
 number = 26
 enemy_name = "Prism Eye"
 kind = "Sentinel"
-right_tool = "hide behind the block (the Heavy skin pushes it); the Spear from behind when it looks away"
+right_tool = "invulnerable: hide behind the block (the Heavy skin pushes it) and go round it when it looks away, or put it to sleep"
 enemy_types = PackedStringArray("prism-eye")
 posts = PackedVector2Array(288, 140)
 size = Vector2(512, 448)
@@ -526,3 +526,89 @@ size = Vector2(512, 448)
 position = Vector2(5632, 4474)
 lit_at_start = true
 burn_ms = -1.0
+
+[node name="pen-37" type="Node2D" parent="."]
+position = Vector2(5376, 4832)
+script = ExtResource("pen")
+number = 37
+enemy_name = "Worm Bulwark"
+kind = "Charger"
+right_tool = "dodge his charge, then throw at his back: 3 light, 2 medium or 1 heavy; the Spear clinks"
+enemy_types = PackedStringArray("worm-bulwark")
+posts = PackedVector2Array(330, 224)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(44, 128),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 224),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 320),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(110, 404),
+"kind": "crate",
+"scene": "object.liftable"
+}, {
+"at": Vector2(190, 404),
+"kind": "keg",
+"scene": "object.liftable"
+}])
+
+[node name="pen-38" type="Node2D" parent="."]
+position = Vector2(4736, 4832)
+script = ExtResource("pen")
+number = 38
+enemy_name = "Carnivore Plant"
+kind = "Ambusher"
+right_tool = "the Lantern's flame (F) burns her; a thrown pot puts her to sleep 5 s; or feed her the worm"
+enemy_types = PackedStringArray("carnivore-plant", "prologue-worm")
+posts = PackedVector2Array(256, 210, 430, 380)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(44, 128),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 224),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 320),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}])
+box_ability = &"lantern"
+
+[node name="pen-39" type="Node2D" parent="."]
+position = Vector2(4096, 4832)
+script = ExtResource("pen")
+number = 39
+enemy_name = "Jelly Bouncer"
+kind = "Shocker"
+right_tool = "keep out of his zap's ring; 2 arrows (the Bow, lent here) or 1 Goo Bomb; a throw comes back at you (Q catches it); the Spear, Axe and Hammer shock you; lure the brawler into his zap"
+enemy_types = PackedStringArray("jelly-bouncer", "worm-brawler")
+posts = PackedVector2Array(256, 224, 430, 380)
+size = Vector2(512, 448)
+supplies = Array[Dictionary]([{
+"at": Vector2(44, 128),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 224),
+"kind": "clay-pot",
+"scene": "object.liftable"
+}, {
+"at": Vector2(44, 320),
+"kind": "coal",
+"scene": "object.liftable"
+}, {
+"at": Vector2(110, 404),
+"kind": "lantern",
+"scene": "object.liftable"
+}])
+box_ability = &"bow"

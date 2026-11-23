@@ -717,3 +717,108 @@ crystal enemies). Those files are untouched, so those enemies sound as before; o
 players changed. The shipped takes of the new and changed cues are kept as
 `asset/Originals/audio/magnific/world-break-{snow,crystal,bone,stone-crack}-r12-<n>.wav` and
 registered in `cues.mjs` and `picks.json`; nobody had listened to the takes before the owner did.
+
+---
+
+## 15. Round 13: the beetle and the bubble
+
+Opened 2026-11-21, applied 2026-11-22 with `round-13-picks.json` (the picker's `picks/round-13`,
+version 57, final; every cue picked, none Neither, no note). The owner, on the Dung Roller: "we need
+to work on the sound effects of the beetle i dont like it"; then, on the slime's `SlamWindup` bubble
+(`library/player/slam-windup.ogg`, a rubberduck-slime bubble) that ten enemies borrowed for their
+wind-ups: "why is use that much i don't like at all, lets pick sound for all those". Manifest
+`scripts/audio/picker/round-13.json`, written by `round-13-make.py`. The Magnific downloads are in
+`temp/sound-round-13/raw/` (63 prompts of four one-second takes, the ore lift's two seconds; `ids.json`
+and `ids2.json` map them to the creations), trimmed by `prep-takes.py` to their loudest event and
+each cue's `max` length (no shape file), the prepared takes in `temp/sound-round-13/takes/`. Each
+cue had three new options of four takes and "now", what it played before. The shipped takes are
+`library/<category>/<cue>[-<n>].wav` (players under `Effects` in `global.tscn`), kept as
+`asset/Originals/audio/magnific/<category>-<cue>-r13-<n>.wav` and registered in `cues.mjs` and
+`picks.json`.
+
+| Cue | Plays when | Where | Played before |
+|---|---|---|---|
+| `DungBrace`, `DungPush`, `DungBump`, `DungFury`, `DungCharge`, `DungBall`, `DungHurt`, `DungDeath` | the Dung Roller ([BESTIARY.md](../BESTIARY.md)) | `dung_roller.gd` | `SlamWindup`, `RollLaunch`, `RollBonk`, `SlamWindup`, `RollLaunch`, `DropPop`, its scene's hit-dull and break-soft-1 players |
+| `BoarScrape` | the Bramble Boar scrapes before its charge | `bramble_boar.gd` | `SlamWindup` |
+| `WardenWindup` | the Brood Warden pulls its blades back | `brood_warden.gd` | `SlamWindup` |
+| `StomperCrouch` | the Clod Stomper crouches before its stomp | `clod_stomper.gd` | `SlamWindup` |
+| `ColossusRaise` | the Crystal Colossus lifts a fist | `crystal_colossus.gd` | `SlamWindup` |
+| `PrismCharge` | the Prism Eye and the Watcher Eye charge their beam | `prism_eye.gd` | `SlamWindup` |
+| `ChuckerWindup` | the Rock Chucker heaves its boulder | `rock_chucker.gd` | `SlamWindup` |
+| `ShardbackRear` | the Shardback rears up | `shardback.gd` | `SlamWindup` |
+| `SquintRear` | the Squint and the Big Squint rear up | `squint.gd` | `SlamWindup` |
+| `ThornballCurl` | the Thornball curls up (and cowers from a Goo Bomb) | `thornball.gd` | `SlamWindup` |
+| `SlamRise` | the slime springs up for a Slam | `slam_sequence.gd` (it was a placeholder for `SlamWindup`), `classic_slam_sequence.gd` | `SlamWindup` |
+| `GooBombCast` | the slime forms a Goo Bomb | `goo_bomb_sequence.gd` (a placeholder for `SlamWindup`) | `SlamWindup` |
+| `HammerSwing` | the Hammer shape swings | `shape_controller.gd` `SWING_CUES` | `SlamWindup` |
+| `OreLiftRide` | the Crystal Mine's ore lift rides | `ore_lift.gd` | `SlamWindup` |
+
+**Shipped** (the owner's picks; takes he struck out are not shipped):
+
+| Cue | Pick | Takes | Player |
+|---|---|---|---|
+| `DungBrace` | C Feet scrape | its second alone | +7.0 dB, pitch randomness 0.08 (one take, every few seconds) |
+| `DungPush` | B Mud shove | all four | +0.7 dB |
+| `DungBump` | B Wet splat-thud | all four | +0.7 dB |
+| `DungFury` | B Angry chitter | all four | -3.6 dB |
+| `DungCharge` | B Wing-case whirr | 3 and 4 | -2.4 dB |
+| `DungBall` | B Mud squish | all four | +0.7 dB |
+| `DungHurt` | B Knock and squeak | 2 to 4 | +0.7 dB |
+| `DungDeath` | B Squeal and topple | all four | -4.5 dB |
+| `BoarScrape` | B Hoof scrape | 2 and 4 | -2.6 dB |
+| `WardenWindup` | C Leg clicks and chitter | 2 to 4 | +0.7 dB |
+| `StomperCrouch` | A Mud squelch and pebbles | all four | -3.4 dB |
+| `ColossusRaise` | A Crystal grind | its second alone | -4.5 dB |
+| `PrismCharge` | C Power-up whine | 1 and 2 | -3.3 dB |
+| `ChuckerWindup` | C Effortful growl | its second alone | -5.2 dB |
+| `ShardbackRear` | C Tired old grunt | its second alone | -6.5 dB |
+| `SquintRear` | C Growl and scuff | 2 to 4 | -4.2 dB |
+| `ThornballCurl` | C Grumpy huff | 2 and 3 | -4.1 dB |
+| `SlamRise` | B Wobbly stretch | 3 and 4 | -5.8 dB |
+| `GooBombCast` | C Bomb armed | its second alone | +0.7 dB |
+| `HammerSwing` | A Deep whoosh | all four | -9.0 dB |
+| `OreLiftRide` | A Pulley and chains | all four | -2.5 dB |
+
+Volumes follow the loudness rule, held at +0.7 dB where it would push the peaks over full scale
+(§14). **`SlamWindup` is gone**: its player, `library/player/slam-windup.ogg`, its `cues.mjs` entry
+and its `picks.json` line; `slam_sequence.gd` and `goo_bomb_sequence.gd` no longer fall back to it.
+The manifest's "now" options still name that file, as the record of the round.
+
+## 16. Round 14: the Carnivore Plant
+
+Opened and applied 2026-11-22 with `round-14-picks.json` (the picker's `picks/round-14`, version 21,
+final; every cue picked, none Neither, no note). The owner, on the Carnivore Plant (bestiary row 38, [BESTIARY.md](../BESTIARY.md)):
+"use the sound play to give me some sound for here". Manifest `scripts/audio/picker/round-14.json`,
+written by `round-14-make.py`; the Magnific (ElevenLabs) downloads in `temp/sound-round-14/raw/` (24
+prompts of four takes, one second each, the burn's two; `ids.json` and `urls.json` map them to the
+creations), trimmed by `prep-takes.py` to their loudest event and each cue's `max` length, the
+prepared takes in `temp/sound-round-14/takes/`, the page published to the Sound Picker artifact
+(version 19; 560 credits). Each cue has three new options of four takes and "now", what she played
+before. The shipped takes are `library/enemy/plant-<cue>[-<n>].wav` (players under `Effects` in
+`global.tscn`), kept as `asset/Originals/audio/magnific/enemy-plant-<cue>-r14-<n>.wav` and registered
+in `cues.mjs` and `picks.json`; `carnivore_plant.gd` plays them. Her scene's old death player
+(`break-soft-1.wav`) is gone, as `PlantBurn` covers her death.
+
+| Cue | Plays when | Played before |
+|---|---|---|
+| `PlantOpen` | she rears up, jaws wide (the tell) | `MimicWrap` (a goo inhale) |
+| `PlantSnap` | her jaws snap shut | `MimicGrab` (a goo plop) |
+| `PlantMunch` | each chew: the slime (one, 30 damage) or an enemy (two) | `MimicGrab` |
+| `PlantSwallow` | she swallows an enemy | `GulpThroat` (a goo inhale) |
+| `PlantBurp` | the burp after the swallow | `GulpBurp` (the slime's burp) |
+| `PlantSpit` | she spits the slime far | `MimicSpit` (a goo ptoo) |
+| `PlantDoze` | a thrown thing puts her to sleep | `SleepBreath` |
+| `PlantBurn` | the Lantern's flame burns her | `FireIgnite` (a goo ptoo) and the scene's soft splat |
+
+**Shipped** (the owner's picks; takes struck out are not shipped):
+
+| Cue | Pick | Takes | Player |
+|---|---|---|---|
+| `PlantOpen` | A Hungry hiss | its first and fourth | +6.0 dB (the loudness rule asked +6.6, held for headroom) |
+| `PlantSnap` | A Wet chomp | its first three | +0.7 dB |
+| `PlantMunch` | B Squishy chew | its first and fourth | +0.7 dB |
+| `PlantSwallow` | A Big gulp | its last three | -8.0 dB |
+| `PlantBurp` | C Smug burp and chuckle | its first three | +0.7 dB |
+| `PlantSpit` | B Goo blast | its first alone | -1.4 dB |
+| `PlantDoze` | A Woozy yawn | its first, second and fourth | -6.3 dB |
+| `PlantBurn` | A Flame and shriek | all four | -8.3 dB |

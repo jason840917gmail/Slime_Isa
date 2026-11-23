@@ -116,6 +116,25 @@ room of another world: it travels there) set the dungeon up
 `sealed` starts it with its Pearl taken and its seal shut ([DUNGEONS.md](DUNGEONS.md#the-seal));
 the kit's lab is `?map=dungeon-lab`.
 
+### The powers board
+
+**F10** in any world run from the project opens the dev powers board
+(`game/dev/dev_powers_board.gd`, a game window: the game pauses, F10 or Escape closes it). It lists
+every power and switches each on or off for the session, by the arrows or WASD with Space or Enter,
+or by the mouse: the three shapes, the moves (the Roll, the Charged Roll, Swallow, the Goo Trail),
+the Ability Box abilities, the skins, and in the throw combat the Gulp's level; **All on** and
+**All off** switch everything.
+
+- **On** lends the power for the session (`RunState.learn_session_ability`, `SkinState.lend`): no
+  save carries it.
+- **Off** takes it away for the session (`RunState.switch_off_ability`, `switch_off_skin`): a lent
+  power is given back; one the run really has is only set aside (the board says "off (saved)") and
+  every save still keeps it. What the board switched off stays off through world changes, until it
+  is switched on again, a save is loaded or the game goes back to the title.
+
+The board is dev only: `main.gd` adds it when the file exists, and the production web export
+("Web") leaves `game/dev/` out, so the released game has no board; "Web (dev)" keeps it.
+
 ## Doors
 
 **No keys for transitions** (owner, 2026-10-14): the slime goes through a door, a cave mouth, a
@@ -150,8 +169,9 @@ is only the fallback when a link is broken. Check every link with
 one-way pairs, ends still arriving at markers, border crossings); every kind can be tried on the
 playground's crossings corner (east of the webs corner; `tools/build_crossings_lab.gd`).
 
-**Push to enter:** the player body's collision rect must touch the door's trigger (`walk_area`, an
-Area2D, else `trigger_rect` around the door node: default (-16, -20, 32, 40)) while the movement
+**Push to enter:** the player body's collision rect (30 x 26) must touch the door's trigger (a
+`trigger_shape`, a collision shape, else a `walk_area`, an Area2D, else `trigger_rect` around the
+door node: default (-16, -20, 32, 40)) while the movement
 input points into the door for `worldNavigation.doorPushMs` (200) of simulation time: the side
 within `doorPushAlignment` (0.7), or for a door without a side toward the trigger's middle
 (`holePushAlignment` 0.35); in a hole any walking counts once the slime's centre is over it. Size
@@ -165,6 +185,25 @@ stops it (a bonk). **Locked doors:** fill `gate` (`id`, `requiredItemId`, `consu
 `lockedMessage`, optional `unlockedMessage`, as a world exit's lock). Without the key the push
 shows the locked line once per push; with it the push unlocks the door (the key is spent,
 `GateUnlock`), opens it and goes through.
+
+**A door's area in the editor** (owner, 2026-11-21; the Door Area Handles plugin,
+`godot/addons/door_area_handles/`): a door is a bare Node2D and its trigger is a number on its
+script node (`trigger_rect`: x, y = the area's top-left corner measured from the door node, w, h =
+its size, world units; it does not turn or scale with the node), so the node alone shows as a point.
+The plugin draws the area of every door of the open scene in the 2D view: an orange rectangle with
+the door's id over it (when it is wide enough on screen) and an arrow for the way the slime pushes
+into a door with a `side`; grey for a door without a target (an arrival point only). A door set off
+by a `trigger_shape` or a `walk_area` has those shapes outlined instead: edit them as any collision
+shape. Select a door (its Node2D, as a click in the 2D view does, or its script node): drag a corner
+dot to resize the area (the opposite corner stays put), the square grip hanging under it to move it
+(the door node's own point stays free, to drag the door itself); the area's size and offset are
+written under it, and are `Trigger Rect` on the script node in the Inspector, where they can be
+typed. Drags snap the numbers to 4 units (hold Alt for 1), each is one undo step, Escape cancels.
+The stair doors' wells get the same handles (`stair_hatch.gd` `trigger_rect`, measured from the
+stair's node; there the slime's centre must be inside). Doors made by code when the game runs (a
+blown cracked wall's hole, a cracked floor's, a round room's openings, the dungeon rooms'
+`RoomDoor`s) take their area from the code that makes them. The drag maths is covered by
+`tests/test_door_area_handles.gd`.
 
 **Gates are pushed too** (owner, 2026-10-15; `game/scripts/gate.gd`): no interact key. The body
 within `worldNavigation.gatePushReachPx` (6) of the gate's `doors` body, the input pointing at it

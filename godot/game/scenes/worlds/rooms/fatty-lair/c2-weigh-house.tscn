@@ -7,9 +7,10 @@
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_806a3"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_o3vvj"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--weigh-beam-scale.tscn" id="9_3q2qn"]
-[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn" id="11_ffvil"]
-[ext_resource type="Texture2D" uid="uid://boby61017emfh" path="res://asset/MAPS/objects/fattys-lair/weigh-weights.webp" id="12_8ji8i"]
+[ext_resource type="PackedScene" uid="uid://dmfdo0gcgrihx" path="res://game/scenes/objects/decoration-world-solid--weigh-weights.tscn" id="11_ffvil"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/liftable.tscn" id="13_baay3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/hanging-chains.tscn" id="14_o3vvj"]
+[ext_resource type="PackedScene" uid="uid://ditsux0cr7ksh" path="res://game/scenes/objects/decoration-world-solid--armor-statue.tscn" id="15_o3vvj"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-plate.tscn" id="16_26hto"]
 [ext_resource type="Texture2D" uid="uid://bk0ypb3o688i3" path="res://asset/MAPS/objects/dungeon/divider-pen-gate.png" id="16_o3vvj"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="17_nivqn"]
@@ -42,7 +43,7 @@ metadata/rows = 16
 
 [node name="fences" type="TileMapLayer" parent="." unique_id=1227225412]
 z_index = -1
-tile_map_data = PackedByteArray("AAACAAcAAAAHAAAAAAADAAcAAAAHAAAAAAAEAAcAAAAJAAAAAAAFAAcAAAAHAAAAAAAGAAcAAAAHAAAAAAAHAAcAAAAHAAAAAAAIAAcAAAAHAAAAAAAJAAcAAAAHAAAAAAAKAAcAAAAHAAAAAAALAAcAAAAJAAAAAAAMAAcAAAAHAAAAAAANAAcAAAAHAAAAAAAOAAcAAAAHAAAAAAAPAAcAAAAHAAAAAAAGAAgAAAAHAAAAAAAGAAkAAAAHAAAAAAAGAAoAAAAHAAAAAAAGAAsAAAAHAAAAAAAGAAwAAAAHAAAAAAAGAA0AAAAHAAAAAAA=")
+tile_map_data = PackedByteArray("AAACAAcAAAAHAAAAAAADAAcAAAAHAAAAAAAEAAcAAAAJAAAAAAAFAAcAAAAHAAAAAAAHAAcAAAAHAAAAAAAIAAcAAAAHAAAAAAAJAAcAAAAHAAAAAAAKAAcAAAAHAAAAAAALAAcAAAAJAAAAAAAMAAcAAAAHAAAAAAANAAcAAAAHAAAAAAAOAAcAAAAHAAAAAAAPAAcAAAAHAAAAAAAIAAgAAAAHAAAAAAAIAAkAAAAHAAAAAAAIAAoAAAAHAAAAAAAIAAsAAAAHAAAAAAAIAAwAAAAHAAAAAAAIAA0AAAAHAAAAAAAGAAcAAAAHAAAAAAA=")
 tile_set = ExtResource("90_fencetiles")
 script = ExtResource("91_fencelayer")
 
@@ -74,14 +75,13 @@ position = Vector2(763, 888)
 y_sort_enabled = true
 
 [node name="c2-beam-scale" parent="Scenery" unique_id=668137360 instance=ExtResource("9_3q2qn")]
-position = Vector2(599, 184)
+position = Vector2(859, 193)
 
 [node name="c2-weights-entry" parent="Scenery" unique_id=599657000 instance=ExtResource("11_ffvil")]
 position = Vector2(345, 888)
 
-[node name="Visual" parent="Scenery/c2-weights-entry" index="1"]
+[node name="Visual" parent="Scenery/c2-weights-entry" index="1" unique_id=1806038120]
 position = Vector2(7, -19)
-texture = ExtResource("12_8ji8i")
 
 [node name="c2-weights-north" parent="Scenery" unique_id=875302413 instance=ExtResource("11_ffvil")]
 position = Vector2(197, 184)
@@ -99,13 +99,13 @@ under = "none"
 weight = "light"
 
 [node name="liftable3" parent="Scenery" unique_id=1265440686 instance=ExtResource("13_baay3")]
-position = Vector2(465, 533)
+position = Vector2(647, 523)
 kind = "clay-pot"
 under = "heart"
 weight = "light"
 
 [node name="liftable4" parent="Scenery" unique_id=583563313 instance=ExtResource("13_baay3")]
-position = Vector2(459, 892)
+position = Vector2(649, 456)
 kind = "clay-pot"
 under = "none"
 weight = "light"
@@ -119,6 +119,16 @@ weight = "light"
 position = Vector2(1006, 152)
 kind = "clay-pot"
 weight = "light"
+
+[node name="hanging-chains" parent="Scenery" unique_id=1183585628 instance=ExtResource("14_o3vvj")]
+position = Vector2(412, 119)
+
+[node name="@Node2D@36286" parent="Scenery" unique_id=1647267391 instance=ExtResource("14_o3vvj")]
+position = Vector2(714, 127)
+
+[node name="armor-statue" parent="Scenery" unique_id=128036420 instance=ExtResource("15_o3vvj")]
+position = Vector2(412, 329)
+scale = Vector2(-1, 1)
 
 [node name="Objects" type="Node2D" parent="." unique_id=241774626]
 y_sort_enabled = true
@@ -166,12 +176,12 @@ gate_id = "fatty-lair-weigh-west"
 locked_message = "A stone door. The plate holds it only while a weight stays on it."
 
 [node name="c2-plate-statue" parent="Objects" unique_id=647362177 instance=ExtResource("16_26hto")]
-position = Vector2(416, 352)
+position = Vector2(237, 283)
 gate_id = "fatty-lair-weigh-west"
 shut_on_leave = true
 
 [node name="c2-statue" parent="Objects" unique_id=1261777387 instance=ExtResource("17_nivqn")]
-position = Vector2(800, 352)
+position = Vector2(803, 290)
 
 [node name="c2-scale-pouch" parent="Objects" unique_id=1043108651 instance=ExtResource("18_7lxeb")]
 position = Vector2(963, 118)
@@ -229,13 +239,8 @@ autoplay_cue = true
 
 [node name="Enemies" type="Node2D" parent="." unique_id=2097033293]
 
-[node name="eye-2" parent="Enemies" unique_id=1511469051 instance=ExtResource("26_3q2qn")]
-position = Vector2(322, 270)
-enemy_type = "watcher-eye"
-wander_radius = 373.0
-
 [node name="eye-1" parent="Enemies" unique_id=1676488593 instance=ExtResource("26_3q2qn")]
-position = Vector2(556, 623)
+position = Vector2(724, 660)
 enemy_type = "watcher-eye"
 wander_radius = 490.0
 
@@ -244,8 +249,13 @@ position = Vector2(842, 604)
 enemy_type = "worm-swordsman"
 
 [node name="sword-man2S" parent="Enemies" unique_id=2070663645 instance=ExtResource("26_3q2qn")]
-position = Vector2(641, 607)
+position = Vector2(348, 377)
 enemy_type = "worm-swordsman"
+
+[node name="PlacedEnemy" parent="Enemies" unique_id=490856752 instance=ExtResource("26_3q2qn")]
+position = Vector2(600, 309)
+enemy_type = "prism-eye"
+wander_radius = 200.0
 
 [node name="Throwables" type="Node2D" parent="." unique_id=1562914969]
 y_sort_enabled = true
@@ -256,12 +266,12 @@ kind = "clay-pot"
 weight = "light"
 
 [node name="throw-sword-man1-1" parent="Throwables" unique_id=428587700 instance=ExtResource("13_baay3")]
-position = Vector2(896, 649)
+position = Vector2(846, 901)
 kind = "clay-pot"
 weight = "light"
 
 [node name="throw-sword-man2S-1" parent="Throwables" unique_id=75834238 instance=ExtResource("13_baay3")]
-position = Vector2(695, 652)
+position = Vector2(704, 899)
 kind = "clay-pot"
 weight = "light"
 
@@ -270,4 +280,3 @@ weight = "light"
 [editable path="Objects/c2-plate-stand"]
 [editable path="Objects/c2-west-door"]
 [editable path="Objects/c2-plate-statue"]
-[editable path="Objects/c2-statue"]

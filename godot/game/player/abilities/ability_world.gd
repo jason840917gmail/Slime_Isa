@@ -12,7 +12,8 @@ extends RefCounted
 ## (slam_sequence.gd) strikes a ground ellipse on the slime's own height level
 ## (`hurtboxes_in_ellipse`, `strike_targets`). A thrown thing (thrown_object.gd) strikes only what
 ## it can reach (owner: "nothing should cross walls"): hurtboxes on its own height level with no
-## wall between it and them (`hurtboxes_in_reach`, `clear_line`).
+## wall between it and them (`hurtboxes_in_reach`, `clear_line`; a target in a wall is reached at
+## its wall's face, `reach_point`).
 ##
 ## Owner: abilities.
 
@@ -34,6 +35,9 @@ const WORLD_MASK := 1
 const SMALL_BODY_PX := 20.0
 ## A line whose reach stops more than this short of its end met a wall (`clear_line`).
 const CLEAR_LINE_SLACK_PX := 0.5
+## The method a target set in a wall answers with the point a throw's line must reach
+## (`reach_point`).
+const REACH_POINT := &"reach_point"
 ## The lash: a goo hook 16 px wide each side; bell posts right next to the slime are skipped.
 const LASH_HALF_WIDTH := 16.0
 const LASH_NEAR_PX := 24.0
@@ -138,18 +142,31 @@ static func hurtboxes_at(player: Node, centre: Vector2, radius: float, level: in
 
 ## What a thrown thing at `centre` reaches (thrown_object.gd): the hurtboxes of `hurtboxes_at` on
 ## height level `level` (unless ANY_LEVEL) with no wall between `centre` and each (`clear_line`, past
-## `exclude` and the target's own body).
+## `exclude` and the target's own body), measured to the target's `reach_point` (`REACH_POINT`).
 static func hurtboxes_in_reach(player: Node, centre: Vector2, radius: float, level: int, exclude: Array[RID]) -> Array[Area2D]:
 	var reached: Array[Area2D] = []
 	var router := Services.router()
 	for area: Area2D in hurtboxes_at(player, centre, radius, level):
 		var skip := exclude.duplicate()
-		var body := _target_body(area, router.receiver_for_area(area) if router != null else null)
+		var receiver: Object = router.receiver_for_area(area) if router != null else null
+		var body := _target_body(area, receiver)
 		if body is CollisionObject2D:
 			skip.append((body as CollisionObject2D).get_rid())
-		if clear_line(centre, area.global_position, skip):
+		if clear_line(centre, reach_point(area, receiver), skip):
 			reached.append(area)
 	return reached
+
+
+## Where a line to the target behind `area` must get to reach it: its receiver's `reach_point()`
+## when it has one, else the hurtbox's middle. A target set in a wall (the Pipe Worm in its pipe,
+## its hurtbox inside the wall's collision) names a point on its wall's face, so "nothing crosses
+## walls" still lets a throw from in front of the wall reach it (owner, 2026-11-21).
+static func reach_point(area: Area2D, receiver: Object) -> Vector2:
+	if receiver != null and is_instance_valid(receiver) and receiver.has_method(REACH_POINT):
+		var point: Variant = receiver.call(REACH_POINT)
+		if point is Vector2:
+			return point as Vector2
+	return area.global_position
 
 
 ## True when the line from `from` to `to` meets no wall (`line_reach`: static world bodies past

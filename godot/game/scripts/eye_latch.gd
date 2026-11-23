@@ -25,7 +25,9 @@ class_name EyeLatchScript
 ##   open, it clinks (`order_text`) and every latch of the group already shut opens again: the run
 ##   starts over. When a latch opens again (its time ran out), every later one of its group opens
 ##   too, so the first latch's `open_ms` is the whole run's time. Solved, each latch opens its own
-##   `gate_id`: three openers, three gates, sinking together.
+##   `gate_id` (and its `more_gate_ids`): the gates sink together. The run is the group's latches
+##   standing in the world now, however many the scene holds: R5's maze has two since 2026-11-21
+##   (owner: eye III taken out; eye II also opens the inner door, `more_gate_ids`).
 ##
 ## Owner: dungeons (Fatty's Lair).
 
@@ -64,6 +66,9 @@ signal refused(payload: Dictionary)
 @export var latch_id: String = ""
 ## The gates it opens (game/scripts/gate.gd `gate_id`).
 @export var gate_id: String = ""
+## More gates it opens with `gate_id` (their own ids kept: a gate whose eye was taken out, R5's inner
+## door).
+@export var more_gate_ids: PackedStringArray = PackedStringArray()
 ## Latches that must all be shut at once ("" = alone).
 @export var group_id: String = ""
 ## How long a thrust keeps it shut (ms, gameplay time); 0 = for good.
@@ -204,10 +209,13 @@ func _solve() -> void:
 	var run := Services.run()
 	if run != null and not latch_id.is_empty():
 		run.set_flag(SOLVED_FLAG_PREFIX + latch_id)
+	var opens := PackedStringArray(more_gate_ids)
 	if not gate_id.is_empty():
-		for gate: Node in get_tree().get_nodes_in_group(GATE_GROUP):
-			if str(gate.get(&"gate_id")) == gate_id and not bool(gate.call(&"is_open")):
-				gate.call(&"open_for_good" if gate.has_method(&"open_for_good") else &"open")
+		opens.append(gate_id)
+	for gate: Node in get_tree().get_nodes_in_group(GATE_GROUP):
+		var id := str(gate.get(&"gate_id"))
+		if not id.is_empty() and opens.has(id) and not bool(gate.call(&"is_open")):
+			gate.call(&"open_for_good" if gate.has_method(&"open_for_good") else &"open")
 	var feel := Services.feel()
 	if feel != null and _is_group_leader():
 		feel.audio_cue(CUE_SOLVED)

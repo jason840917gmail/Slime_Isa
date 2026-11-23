@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://game/world/interior/round_interior_walls.gd" id="round_walls"]
 [ext_resource type="Script" path="res://game/world/interior/round_wall_opening.gd" id="round_opening"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/interior-b.wav" id="music_track"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cracked-wall.tscn" id="weak_wall"]
 
 [node name="mushroom-home" type="Node2D" unique_id=1198239468]
 y_sort_enabled = true
@@ -43,6 +44,21 @@ kind = "door"
 door_id = "house-door"
 target_area_id = "level-1"
 target_door_id = "mushroom-home-door"
+
+[node name="back-crack" type="Node2D" parent="round-walls"]
+position = Vector2(0, -312)
+script = ExtResource("round_opening")
+kind = "cracked"
+
+[node name="back-wall-crack" parent="." instance=ExtResource("weak_wall")]
+position = Vector2(512, 136)
+flag_id = "level-1.mushroom-home-back-wall"
+frame_drawn_by_wall = true
+refusal_text = "It sounds hollow. It needs a blast."
+passage = Rect2(-32, -128, 64, 128)
+door_id = "back-wall-hole"
+target_area_id = "level-1"
+target_door_id = "mushroom-home-yard"
 
 [node name="cell-props" type="TileMapLayer" parent="." unique_id=632751471]
 y_sort_enabled = true

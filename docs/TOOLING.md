@@ -205,7 +205,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   (`--direct`: as F6 on it, e.g. `--map=fatty-lair-c2-weigh-house --direct --block=800,352`); `--quick`
   grabs at once, without the touch ([SKINS.md](godot/SKINS.md#heavy)).
 - `"<Godot console exe>" --path godot -s res://tools/render_door_walk.gd -- --out=<dir> --map=<id>
-  --feet=<x>,<y> [--key=move_up] [--then=move_down] [--after-ms=1400] [--slow=0.25]` (windowed) —
+  --feet=<x>,<y> [--key=move_up] [--then=move_down] [--after-ms=1400] [--slow=0.25]
+  [--flag=<story flag>]` (windowed; `--flag`, repeatable, sets a flag first, e.g. a blown wall's) —
   records the slime going through a door in the running game: it puts the slime at `--feet` in front
   of the door, holds the key until the world changes, films the arrival, and with `--then` goes back
   out; a frame every 40 ms of game time (the game runs slowed), with the world, the feet and the
@@ -677,8 +678,11 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   recipe) and `picks.json` so `pnpm audio:bake -- --library` keeps them.
 
   The game plays staged takes only once Godot has imported them (the editor does when it gets
-  focus; with the editor closed, one headless `--import`, never while it is open): until then a run
-  started outside the editor cannot load `global.tscn` and every global cue is silent. While a
+  focus; with the editor closed, one headless `--import`, never while it is open). Until then those
+  takes are silent: a scene holding a sound file that does not load yet (`global.tscn`, an enemy's
+  scene) loads without it, the file swapped for silence, and the log warns which files
+  (`game/runtime/scene_fallback.gd`, through WorldService `packed_scene`; since 2026-11-22: before,
+  one such file failed the whole `global.tscn` and every global cue went silent). While a
   round that replaces cues already in `cues.mjs` is open (as round 7 did the Gulp's suck, catch and
   throw), the staged files do not match their entries, so leave `pnpm audio:bake` until the picks
   are applied and registered. A round of new cues is not in `cues.mjs` until then either:
@@ -694,7 +698,16 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   **Round 12 is applied** (2026-11-17, `scripts/audio/picker/round-12.json`,
   `round-12-picks.json`): snow, crystal and bone have their own break sounds, stone a new one, and
   ice, wood and soft play only the takes the owner kept
-  ([audio spec §14](godot/specs/audio.md#14-round-12-each-material-its-own-sound)). No round is open.
+  ([audio spec §14](godot/specs/audio.md#14-round-12-each-material-its-own-sound)).
+
+  **Round 13 is applied** (2026-11-22, `scripts/audio/picker/round-13.json`, written by
+  `round-13-make.py`, and `round-13-picks.json`): the Dung Roller's own sounds and a sound of its own
+  for every moment that played the `SlamWindup` bubble, which is gone
+  ([audio spec §15](godot/specs/audio.md#15-round-13-the-beetle-and-the-bubble)).
+
+  **Round 14 is applied** (2026-11-22, `scripts/audio/picker/round-14.json`, written by
+  `round-14-make.py`, and `round-14-picks.json`): the Carnivore Plant's own sounds
+  ([audio spec §16](godot/specs/audio.md#16-round-14-the-carnivore-plant)). No round is open.
   Enemy and projectile scenes play some break files by path (`library/world/break-soft-<n>.wav`,
   `break-stone-<n>.wav`, `break-ice-<n>.wav`, `break-wood-2.wav`, `break-glass-<n>.wav` as hurt and
   death sounds), so a round that replaces or drops a break take must leave those files alone or

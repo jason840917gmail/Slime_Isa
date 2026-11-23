@@ -234,33 +234,13 @@ autoplay_cue = true
 y_sort_enabled = true
 
 [node name="throw-r6-pipe-worm-a-1" parent="Throwables" unique_id=2079695564 instance=ExtResource("8_vwojy")]
-position = Vector2(256, 552)
+position = Vector2(615, 529)
 kind = "clay-pot"
-weight = "light"
-
-[node name="throw-r6-pipe-worm-a-2" parent="Throwables" unique_id=453317444 instance=ExtResource("8_vwojy")]
-position = Vector2(327, 535)
-kind = "rock"
-weight = "light"
-
-[node name="throw-r6-pipe-worm-a2-1" parent="Throwables" unique_id=881448033 instance=ExtResource("8_vwojy")]
-position = Vector2(677, 808)
-kind = "clay-pot"
-weight = "light"
-
-[node name="throw-r6-pipe-worm-b2-1" parent="Throwables" unique_id=1640776727 instance=ExtResource("8_vwojy")]
-position = Vector2(679, 400)
-kind = "rock"
 weight = "light"
 
 [node name="throw-PlacedEnemy-1" parent="Throwables" unique_id=885367196 instance=ExtResource("8_vwojy")]
-position = Vector2(780, 547)
+position = Vector2(575, 527)
 kind = "clay-pot"
-weight = "light"
-
-[node name="throw-PlacedEnemy-2" parent="Throwables" unique_id=1443261119 instance=ExtResource("8_vwojy")]
-position = Vector2(681, 637)
-kind = "rock"
 weight = "light"
 
 [editable path="Enemies/r6-pipe-worm-a"]

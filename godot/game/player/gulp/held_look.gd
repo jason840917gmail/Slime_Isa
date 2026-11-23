@@ -7,7 +7,8 @@ extends RefCounted
 ##
 ## A caught enemy projectile (the Spitcap's spore seed, game/scripts/spore_seed.gd) brings its own
 ## picture: `held.texture` (a res:// path, game/runtime/sheet_sprite.gd `load_picture`), drawn
-## `held.art_px` across, and its `material` (`material_of`).
+## `held.art_px` across, and its `material` (`material_of`). The picture may be one frame of a sheet
+## (`held.hframes`, `held.frame`: the Dung Roller's ball, game/enemy/dung_ball.gd).
 ##
 ## A carried enemy (the enemy-ammo prototype, game/throw/gulpable_enemy.gd: `held.kind` "enemy") is
 ## its own picture, wriggling (GulpableEnemy.make_look).
@@ -47,6 +48,9 @@ static func make(held: Dictionary, size_px: float) -> Node2D:
 	# A caught projectile's own picture (the spore seed).
 	if held.get("texture") is String and not str(held["texture"]).is_empty():
 		sprite.texture = SheetSprite.load_picture(str(held["texture"]))
+		# One frame of a sheet (`held.hframes`, `held.frame`: the Dung Roller's ball).
+		sprite.hframes = maxi(1, int(held.get("hframes", 1)))
+		sprite.frame = clampi(int(held.get("frame", 0)), 0, sprite.hframes - 1)
 		sprite.scale = Vector2.ONE * (size_px / maxf(1.0, float(held.get("art_px", size_px))))
 		return sprite
 	# The Goo Bomb (game/scripts/goo_bomb.gd) is its own picture, not a liftables sheet frame.

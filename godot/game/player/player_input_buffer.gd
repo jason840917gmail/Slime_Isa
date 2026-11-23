@@ -87,6 +87,14 @@ func movement_vector() -> Vector2:
 		float(int(_held.has(&"move_down")) - int(_held.has(&"move_up"))))
 
 
+## Marks held each of `actions` the device reports down now: a key held through a world's change,
+## whose press this buffer never saw (the input is cleared as the slime leaves). No press is buffered.
+func hold_if_down(actions: Array[StringName]) -> void:
+	for action in actions:
+		if InputMap.has_action(action) and Input.is_action_pressed(action):
+			_held[action] = true
+
+
 ## Empties held keys and pending presses (pause, scene exit, death is NOT a clear).
 func clear() -> void:
 	_held.clear()

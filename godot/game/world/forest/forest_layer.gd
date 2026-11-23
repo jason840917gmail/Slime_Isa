@@ -24,6 +24,13 @@ extends TileMapLayer
 ## its south edge, and roots under the crowns of that edge. Both kinds paint the same layer and
 ## collide alike.
 ##
+## **Paths under the canopy** (River Roads, 2026-11-21): a palette tile whose trees are
+## "canopy-path:<set>" (palette row 1, under its canopy wall) grows the same crowns over its cells, so
+## the wood looks unbroken, but its cells have no collision and no roots: where it meets open ground
+## its mouth is a dark gap in the root band. While the slime's feet are on a path cell, the crowns
+## near the path fade around it (`FADE_*`, real time, presentation only), so it can be seen
+## walking beneath the treetops.
+##
 ## The trees are drawn by this layer and saved nowhere: the scene stores only the painted cells.
 ## In the game the whole painted area is solid along its trunk line (one shape per run of cells).
 ## The squares are a painting aid, drawn at `paint_opacity` in the editor and hidden in the game.
@@ -74,6 +81,18 @@ const ROOT_SORT_Y := FOOT_CROWN_Y - CROWN_JITTER.y - 8.0
 const ROOT_JITTER := 6.0
 ## Placed wall tree scenes "Absorb trees" takes.
 const WALL_SCENE_PREFIX := "tree-forest-wall--"
+## Paths under the canopy: crowns within this many cells of a path cell fade over the slime; how
+## far from its feet a crown is faded most and not at all (units, from the crown's middle, this far
+## above its foot), how faint it gets, and how fast it follows (per second).
+const FADE_REACH := 2
+const FADE_NEAR := 80.0
+const FADE_FAR := 190.0
+const CROWN_FADE_LIFT := 56.0
+const FADE_ALPHA := 0.2
+const FADE_SPEED := 8.0
+## A path's mouth: the dark gap in the root band, as wide as a root's shade.
+const MOUTH_SHADE_WIDTH := 80.0
+const Services := preload("res://game/shared/services.gd")
 const HOLDER := "Trees"
 ## The holder of the trees' shades (each shade draws at BigTrees.SHADOW_Z).
 const SHADOWS := "Shadows"
@@ -116,6 +135,9 @@ const COLLISION := "Collision"
 @export_tool_button("Absorb trees", "Add") var absorb_button: Callable = _absorb_pressed
 
 var _queued := false
+## The painted path cells (paths under the canopy) and the crowns that fade over them.
+var _paths := {}
+var _fade_crowns: Array[Sprite2D] = []
 
 
 func _ready() -> void:
@@ -163,12 +185,17 @@ func _rebuild() -> void:
 	var canopy := {}
 	var tree_cells: Array[Vector2i] = []
 	var tree_painted := {}
+	_paths = {}
+	_fade_crowns.clear()
 	for cell in cells:
 		var trees := trees_of(cell)
 		if trees.is_empty():
 			continue
-		painted[cell] = true
 		var canopy_set := CanopyWalls.set_of(trees)
+		if CanopyWalls.is_path(trees):
+			_paths[cell] = true
+		else:
+			painted[cell] = true
 		if canopy_set != "":
 			canopy[cell] = canopy_set
 		else:
@@ -196,6 +223,48 @@ func _rebuild() -> void:
 		shadows.add_child(BigTrees.shadow_for(sprite))
 	if not Engine.is_editor_hint():
 		_build_collision(cells)
+	set_process(not Engine.is_editor_hint() and not _fade_crowns.is_empty())
+
+
+## Paths under the canopy: while the slime's feet are on a path cell (or right above or below one),
+## the crowns near it fade with its distance; elsewhere they come back. Real time (presentation).
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint() or _fade_crowns.is_empty():
+		return
+	var feet := _player_feet()
+	var inside := false
+	if feet != Vector2.INF:
+		var cell := Vector2i((feet / Vector2(tile_set.tile_size)).floor())
+		inside = _paths.has(cell) or _paths.has(cell + Vector2i.UP) or _paths.has(cell + Vector2i.DOWN)
+	var step := clampf(delta * FADE_SPEED, 0.0, 1.0)
+	for crown in _fade_crowns:
+		if not is_instance_valid(crown):
+			continue
+		var target := 1.0
+		if inside:
+			var away := (crown.position + Vector2(0.0, -CROWN_FADE_LIFT)).distance_to(feet)
+			target = lerpf(FADE_ALPHA, 1.0, clampf((away - FADE_NEAR) / (FADE_FAR - FADE_NEAR), 0.0, 1.0))
+		crown.modulate.a = lerpf(crown.modulate.a, target, step)
+
+
+## The slime's feet in this layer's space, or Vector2.INF when there is no slime.
+func _player_feet() -> Vector2:
+	var world := Services.world()
+	if world == null or not is_instance_valid(world.player) or not world.player.is_inside_tree():
+		return Vector2.INF
+	var body := world.player.get(&"body") as Node2D
+	return to_local(body.global_position) if body != null else Vector2.INF
+
+
+## True when a path cell lies within FADE_REACH cells of `cell`.
+func _near_path(cell: Vector2i) -> bool:
+	if _paths.is_empty():
+		return false
+	for dy in range(-FADE_REACH, FADE_REACH + 1):
+		for dx in range(-FADE_REACH, FADE_REACH + 1):
+			if _paths.has(cell + Vector2i(dx, dy)):
+				return true
+	return false
 
 
 ## Where and how `cell` grows its tree, seeded by the cell and `variation`: {tree, at, size, flip}.
@@ -265,9 +334,15 @@ func _grow_canopy(canopy: Dictionary, holder: Node2D, shadows: Node2D) -> void:
 				crown.position = base + Vector2(inset + rng.randf_range(-CROWN_JITTER.x, CROWN_JITTER.x),
 						(FOOT_CROWN_Y if foot else CROWN_FOOT_Y) + rng.randf_range(-CROWN_JITTER.y, CROWN_JITTER.y))
 				holder.add_child(crown)
+				if _near_path(cell):
+					_fade_crowns.append(crown)
 			else:
 				crown.free()
 		if not foot:
+			continue
+		if _paths.has(cell):
+			# A path's mouth: no root, a dark gap in the root band.
+			shadows.add_child(BigTrees.shade_at(base + Vector2(0.0, ROOT_FOOT_Y), MOUTH_SHADE_WIDTH))
 			continue
 		var root := Sprite2D.new()
 		var root_pick := rng.randi_range(0, CanopyWalls.count(set_name, CanopyWalls.ROOTS) - 1)
@@ -367,7 +442,8 @@ func _build_collision(cells: Array[Vector2i]) -> void:
 	add_child(body)
 	var painted := {}
 	for cell in cells:
-		if not trees_of(cell).is_empty():
+		var trees := trees_of(cell)
+		if not trees.is_empty() and not CanopyWalls.is_path(trees):
 			painted[cell] = true
 	var size := Vector2(tile_set.tile_size)
 	var done := {}

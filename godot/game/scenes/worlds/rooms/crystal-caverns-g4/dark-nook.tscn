@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://game/world/darkness/dark_room.gd" id="10_5h5u4"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="11_y81fy"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="12_6r2ih"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="trim_tiles"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="trim_layer"]
 
 [node name="crystal-caverns-dark-nook" type="Node2D" unique_id=1697713520]
 y_sort_enabled = true
@@ -30,6 +32,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAFAAAAAAABAAAAAAAFAAAAAAACAAAAAAAFAAA
 tile_set = ExtResource("3_ip4kn")
 script = ExtResource("4_imyu1")
 draw_floor = false
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1777952857]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAAKAAwAAAADAAIAAAAKAAwAAAAEAAIAAAAKAAwAAAAFAAIAAAAKAAwAAAAGAAIAAAAKAAwAAAAHAAIAAAAKAAwAAAAIAAIAAAAKAAwAAAAJAAIAAAAKAAwAAAAKAAIAAAAKAAwAAAALAAIAAAAKAAwAAAACAAMAAAAKAAwAAAALAAMAAAAKAAwAAAACAAQAAAAKAAwAAAALAAQAAAAKAAwAAAACAAUAAAAKAAwAAAALAAUAAAAKAAwAAAACAAYAAAAKAAwAAAALAAYAAAAKAAwAAAACAAcAAAAKAAwAAAADAAcAAAAKAAwAAAAEAAcAAAAKAAwAAAAFAAcAAAAKAAwAAAAIAAcAAAAKAAwAAAAJAAcAAAAKAAwAAAAKAAcAAAAKAAwAAAALAAcAAAAKAAwAAAA=")
+tile_set = ExtResource("trim_tiles")
+script = ExtResource("trim_layer")
 
 [node name="world-definition" type="Node" parent="." unique_id=1135638779]
 script = ExtResource("5_g8u0j")

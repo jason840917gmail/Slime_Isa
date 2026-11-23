@@ -215,11 +215,20 @@ the room its face looks into; `wall` is that room's wall; `door_id`.
   a hatch.
 - **Room fights:** `object.room-fight` (`room_fight.gd`, class `RoomFight`): its room is `size` from
   its position (put it on the camera room). Once the slime is `dungeon.shutter.insetPx` inside the
-  room and as far from each of its shutters, while one of its enemies stands, every shutter with its
-  `fight_id` shuts. Its enemies: the PlacedEnemy nodes in `enemies` (or anything with
-  `is_standing()` / `is_defeated()`), else every placed enemy in its room. With none standing, after
-  `dungeon.shutter.openDelayMs` the shutters open and `reward` is set off (a hidden chest, a
-  drawbridge). `once`: an ambush won once never runs again and its enemies never come back.
+  room and as far from each of its shutters, while a living enemy stands in it, every shutter with
+  its `fight_id` shuts. **Its enemies are whatever lives in its room now** (owner, 2026-11-21: "no
+  alive enemies in the room; never count the dead enemies, because I can remove or add enemies"):
+  every enemy whose centre is in its rectangle and that is not beaten, asked each step
+  (`game/enemy/live_enemies.gd`, the one helper every "open once the enemies are beaten" piece
+  asks), never a kill count, a stored number or a list made with the scene. Placed enemies added to
+  the room or taken out of it in the editor need no wiring; one hatched or walking in during the
+  fight (an egg sac's Broodlings) holds the shutters too; one the slime carries in its mouth still
+  lives. With no living enemy left, after `dungeon.shutter.openDelayMs` the shutters open and
+  `reward` is set off (a hidden chest, a drawbridge). A fight's shutters shut from the start
+  (`starts_shut`, R4's) in a room where nothing lives open the same way once the slime is in the
+  room, so an emptied room is never stuck shut; a room without them and without enemies never
+  shuts. `once`: an ambush won once never runs again and the placed enemies of its room never come
+  back.
   `boss_id`: a boss or mini-boss fight (once by itself): won, the boss is recorded beaten; the
   map marks its room until then, once the map is held (only the dungeon's boss when the Dungeon
   node names one). Fainting or leaving the room ends a fight unwon (the shutters
@@ -372,6 +381,11 @@ The slabs' twin over deep water (owner, 2026-10-17: Slimeshire's lake, a falling
   cliff, the chest `burr-yard-chest` (15 coins). A blocker (`burr-house-back`) closes the strip behind
   the cottage, so the nook is reached only over the planks: one quick Roll from the rim crosses
   both; walking drops into the ditch.
+- **Lily pads** (2026-11-21, Gloop Forest's Mere, F3): the same pieces with a lily look,
+  `game/world/water/sinking_lily_pad.gd` (a falling plank: the water-life sheet's round pad on its
+  idle loop, a dip cue `WaterEnter`) and `lily_pad_landing.gd` (a HazardDeck like the plank landing:
+  the white-lily pad); laid by `tools/build_gloop_river_roads.gd` with the water hazard over the
+  lane ([the design](../design/2026-11-21-gloop-river-roads.md)).
 
 ## Holes and hatches
 
@@ -438,6 +452,42 @@ its west wall, not yet played.
 - Until 2026-11-19 (the same day) the weak wall was a picture laid over the old painted back wall,
   coming out behind the shell where the house's picture hid the slime; the owner moved it to a side
   wall, which needed the four-wall interior.
+
+The second is level-1's **mushroom-home** (owner, 2026-11-21: a crack in the back wall that a bomb
+opens onto the back yard where C4's heart quarter is):
+
+- The room is round (`round-walls`, the mushroom style): `round-walls/back-crack` is a **cracked**
+  opening at the top of the ring (the mushroom set's cracked panel), and `back-wall-crack`, a
+  `cracked-wall` with `frame_drawn_by_wall` on, stands on the floor line in front of it (512, 136).
+  The blast turns the panel into the **blown** hole (leaves and daylight behind) and opens it; the
+  flag `level-1.mushroom-home-back-wall` keeps it open. The wall holds the door (`back-wall-hole`,
+  side north): pushing up into the hole travels to C4.
+- The yard is the fenced pocket east of the mushroom house, under the cliff, the heart quarter in
+  its middle; nothing else leads there (the cliff behind the house leaves no room to come out
+  there). Its end is `mushroom-home-yard` in level-1-c4 (704, 204): a door with no side on the
+  house's east face, so the slime lands at the cap's edge beside the heart (its `arrival`, snapped
+  to the yard's top-left tile: feet (736, 188)) and walks left into the house's side to go back in.
+  A door without a side is not held to the north–south pairing.
+- The outside shows no mark of the hole on the house yet.
+- The yard's back wall (the three-level cliff on C4's north edge, its top in North Wilds C3)
+  carries a **Feral climb to C3** (owner, 2026-11-21: "a climb vine here in this wall that allows
+  the player to climb to the other chunk"; "a both way entrance"; painted on the vine tilemap, not
+  stretched): vines painted on each chunk's `vines` VineLayer, going on past the chunk line
+  ([Across a chunk line](SKINS.md#across-a-chunk-line)).
+  - C4 `vines`: column 12, rows -1 to 1, the face above the yard (row -1 past C4's top edge, the
+    face's top part, says they go on into C3). The slime takes hold at the yard's foot facing up.
+  - C3 `vines`: column 13, rows 31 to 33, the face under the strip (rows 32–33 past C3's bottom
+    edge). The slime takes hold on the strip's lip facing down. The trees at forest cells (12, 30)
+    and (13, 30) were erased to open a gap beside the old one at (14, 30)–(15, 30); the two columns
+    differ (the tree crown at (11, 30) covers the strip over column 12), so a crossing keeps the
+    slime on the nearest painted column (x 846 coming up, 818 coming down).
+  - Crossing, the slime arrives **still clinging** on the other chunk's vines (owner: "keep him
+    climbing if he holds W", not dropped in from above): with the interact key held through the
+    crossing it climbs on (up over C3's rim onto the strip, or down C4's face to the yard); let go,
+    it drops. The heart quarter stands at (804, 208) since the owner moved it.
+
+  The Wilds stay shut until the Feral skin (Pearl 3), as the open map after Release 1 wants
+  ([decision 10](../story/07-decisions-archive.md)).
 
 ## Refills that grow back
 
@@ -651,22 +701,27 @@ numbers.
   imported picture when there is one, and a stale import shows the old art.
 - A door, a shutter or a bolt in an east, west or south wall shows the front art turned (foreshortened
   in a side wall); no side or back views are drawn, so a bolted door in a side wall shows its bolt
-  from both rooms.
+  from both rooms. *As built (2026-11-22): that holds in the cliff-walled Hollow and Mine; in rooms
+  with interior walls (Fatty's Lair's) every opening is the north piece turned and a
+  bolted door's far side shows the plain shut slab (`bolt_here` off: [INTERIOR_WALLS.md](INTERIOR_WALLS.md)).*
 - The void watches the player only for walking: enemies do not walk in (they keep to their wander
   areas and do not drop off rims). An enemy a blow knocks or throws over a void's rim dies falling,
   one knocked into spikes or lava is hurt on the slime's rhythm until it is out or dead (owner,
   2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
 - Rooms reset only within one world: a dungeon of several worlds rebuilds a world on each travel
   (all its enemies and pots back), as any world does.
-- The map shows the rooms of the world the slime is in.
+- The map shows the rooms of the world the slime is in (the Hollow: its floor). *Since 2026-10-19
+  a dungeon of one world per room (Fatty's Lair) draws every room of its layout instead
+  ([Keys and the map](#keys-and-the-map)).*
 - **The seal:** a seal in a south doorway shows the turned block (as every kit piece there); at a
   world's south edge (the lab's B3, most entrances) half of it lies under the HUD console. The
   dungeon's music does not carry the boss's drums while sealed (the plan's open point 4: only the
-  far-off roar is built). No journal has a Pearl slot yet, so the take lights none (the flag
-  `pearl.<id>` is there for it). The boss bar shows only for bosses with a camp (Fatty, the Matron,
+  far-off roar is built). *Since 2026-11-19 the journal's main quest shows the Pearl slots, and the
+  take's flag `pearl.<id>` marks its slot won (▶) until the Pearl is home
+  ([quests spec 14.7](specs/quests.md#147-the-journal-tips-and-the-pearl-slots)).* The boss bar shows only for bosses with a camp (Fatty, the Matron,
   the Colossus), not for a room-fight boss such as the lab's Big Squint. The first travel refused
   while sealed reads its target world's scene once (a short hitch).
-- **Music (2026-10-18):** every dungeon world (each of Fatty's Lair's 22 room worlds, the four
+- **Music (2026-10-18):** every dungeon world (each of Fatty's Lair's room worlds, 19 today, the four
   `weaver-hollow-*` floors, `crystal-mine`) has a `MusicPlayer` playing `asset/audio/music/dungeon.wav`
   (volume 0.5); a room scene of a shell has none (the shell's plays through all its rooms). A travel
   between two floors keeps the track's place (it dips with the leave fade and fades back in); the
@@ -687,7 +742,12 @@ rebuilds the whole world (hand edits are lost), then bake its elevation
 (`tools/bake_elevation.gd -- --world=crystal-mine`). Its code is `godot/game/crystal_mine/` and the
 Colossus's `game/scripts/crystal_colossus.gd`; its art `scripts/art/pack-mine-art.py` (sources and
 prompts in `asset/Originals/mine/`). Tests: `godot/tests/test_crystal_mine.gd` and
-`test_mine_camp.gd`.
+`test_mine_camp.gd`. *As built (2026-11-22): the game plays this one scene. Its root carries the
+room shell's script (`room_scene_shell.gd`) but holds no `RoomScenes`, and no door, no
+`scene_index.json` entry and no script loads the 14 `rooms/crystal-mine/M*.tscn` files: they are
+leftovers of the 2026-10-17 split, and an edit to them does not reach the game (F6 on one opens
+`crystal-mine` at that room). A run of the builder splits the world into them again
+(`tools/lib/dungeon_room_splitter.gd`).*
 
 **Its shape** (the plan's dungeon template): the first half uses what the slime brings and is the
 Lantern's (six dark rooms, the maze), the Heavy Roll's and the Bow's (the Chasm, its last lock); the
@@ -788,7 +848,9 @@ reached only up the Den's ledge.
   from the Den's rim at -1 to the floor at -2), M1's S5 shelf. M15's four `holds_at_top` (added
   2026-10-17): the climb ends on the face, the slime clings at his height until it lets go or moves
   away. The climb out (`exit_area_id` `crystal-caverns-h4`, `exit_door` `lookout-from-mine`) refuses
-  while the mine is sealed.
+  while the mine is sealed. *As built (2026-11-22): every climb in the mine is one of these placed
+  nodes (19 in `crystal-mine.tscn`); the mine has no `vines` layer, so none is painted
+  ([SKINS.md](SKINS.md#painting-vines)).*
 - **The rails** (`mine_rails.gd`): drawn rails along `points` (the leading line), no collision.
 - **The world script** (`crystal_mine.gd`, node `CrystalMine`): keeps each placed enemy to the
   camera room it stands in (its arena), so bats, eyes and Gloomlings fight in their own room.
@@ -892,8 +954,10 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
   smith, Pip's dad (`smith.tscn`, `smith_actor.gd`), at his anvil in his camp (two tents, campfire,
   cauldron, cot: a bed, a full refill), talks through `mine_camp.gd` (`Objects/MineCamp`): the first
   talk gives the **Lantern** (its ceremony; flag `mine-camp.lantern-given`) and, in the same visit,
-  the **Smith's Crystal** (`mine-crystal`, once: `mine-camp.crystal-given`; none with the Bow learned
-  already) for Pip's bow rune, then "My ore cart runs down the old line to the gate ... Give it a
+  the **Smith's Crystal** (`mine-crystal`, once: `mine-camp.crystal-given`, set only when it fits in
+  the bag; none with the Bow learned already) for Pip's bow rune (a full bag: "your bag is stuffed
+  full. Make some room and come back for it", and he offers it before anything else at the next
+  talk; until 2026-11-22 a full bag lost it for good), then "My ore cart runs down the old line to the gate ... Give it a
   flame". His lamp (`smith-cave-lamp`, lit for good: `candle-lit.smith-cave-lamp`) frees his cart
   (`smith_cart.gd`): it rides once, one way (a fade, a door's travel) down to the yard. Later talks:
   the lamp's lesson while it is cold, "ride it down" until the gate burns, the crystal's errand until
@@ -920,6 +984,10 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
   (their `KitMarkers` say what goes there; M10's chest holds the journal's third page since
   2026-11-20). S1's chest also holds a belt slot
   (2026-11-20, [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)).
+  *As built (2026-11-22): heart quarters exist since 2026-10-26 (a chest holds one through its
+  `goo_heart_id`), but S1's chest has none: 50 coins and the belt slot. The war journal has its
+  three pages, none in S5 (quests spec 14.8), whose chest holds 40 coins and an energy potion; its
+  marker still asks for a page.*
 - The spire plank (S1) lands across the spire's own wall face; its walk across is untested.
 - The strike while clinging runs in the body-shapes mode only (the shapes strike there); in the
   classic game an attack press on a wall does nothing.
@@ -1034,7 +1102,9 @@ section 8). Tests: `godot/tests/test_weaver_hollow.gd`, `test_weaver_webs.gd`,
     alcove's web wall.
 12. **The Warden's door** (key 2, one keyhole) opens **B5 the Warden's Den:** the Brood Warden (the
     first half's last test: a blast plants it), the den's shutter shut behind the slime; Pearl 2's
-    glow twinkles at the Hoard's shutter through the fight. Beaten, the Hoard's shutter sinks.
+    glow twinkles at the Hoard's shutter through the fight. Beaten, the Hoard's shutter sinks:
+    *since 2026-11-21* once nothing lives in the den (the Warden, the egg sac by the back wall and
+    its Broodlings: the room fight's live rule; before, the fight named the Warden alone).
 13. **The Hoard, the Pearl room:** the big chest with the big key and, on the brood's altar, Pearl 2,
     risen with the Warden's fall. **The take:** the Silk skin, worn; the Matron's roar from the
     Crown, silk dust, "The Orb-Weaver Matron roars! The way out slams shut."; the seals shut (T1's
@@ -1071,7 +1141,8 @@ lifts, on the way out.
 
 **Off the path:** B4 the Nursery and B6 the Pillar, an optional bomb wing (from B2's east doorway).
 The Nursery's ambush (once: shutters close both doorways; three egg sacs in rings of webs and an
-orb-weaver) brings a chest with 30 coins and a health potion. B6 (from B4): a bomb on the first
+orb-weaver; won once nothing lives in the room, the Broodlings the sacs hatched too) brings a chest
+with 30 coins and a health potion. B6 (from B4): a bomb on the first
 blast keg sets off the line along the broken parapet, and the last breaks the pillar's cracked post:
 its bridge drops across the void to the rim, and the far shore's Goo Heart is the heart quarter's
 stand-in. D1 the Old Cellar and D2 the
@@ -1110,7 +1181,9 @@ the doors between the floors go on.
 - **`weaver-hollow-forecourt`:** the Watch Oak (`watch-oak`: its picture
   `asset/MAPS/landmarks/watch-oak.webp` at 0.6, drawn at z -1 like a wall's face so the slime, the
   trees and the gate's decals draw over it; its upper trunk fades into the forest painted behind
-  it; `Trunk` collision in bands round its silhouette); the root gate (`object.cracked-wall` on the
+  it (since 2026-11-21 the oak stands at (964, 265), its root gate at (964, 271), placed by the owner
+  in the editor: the fade lies
+  under the canopy wall over the glade, never over open ground, the owner); `Trunk` collision in bands round its silhouette); the root gate (`object.cracked-wall` on the
   bricked arch, `weaver-hollow.root-gate`; its `blocker` is the `ArchBricks` body; blown, a door to
   `trunk-entrance`); S1 (a web wall closing a nook in the forest's edge east of the gate, its parcel
   inside); the marker `weaver-hollow-silk-drop` where C3's drop lands.
@@ -1167,7 +1240,8 @@ what the slime brings (the Roll, the Spear, the Gulp's throw) and ends in the La
 Squint guards **Pearl 1**; its take grants the Heavy skin and seals the Lair ([The seal](#the-seal));
 the second half teaches, tests and twists the Heavy skin, and Fatty's phase two is its exam.
 **One world per room since 2026-10-18** (the owner's decision; [DUNGEON_ROOMS.md](DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)):
-24 rooms in 22 worlds, each built when the slime walks in (R1 the Gatehouse is `world.fatty-lair`;
+21 rooms in 19 worlds (24 in 22 until the Armoury, the Burrow and the sally port moved outside on
+2026-10-19, below), each built when the slime walks in (R1 the Gatehouse is `world.fatty-lair`;
 R5's eye hall, lower hall and key alcove are one world behind their dividers;
 the others `world.fatty-lair-<room>`), joined by room doors that scroll the screen, laid on a 5 x 5
 map of rooms of 18 x 16 cells (a little more than a screen: the camera moves inside them; the map is
@@ -1180,7 +1254,7 @@ stairs. The room tables below are in the old 16 x 14 room's cells: the builder m
 layout one cell in (`_map_local`; a two-wide or two-tall room three cells past its INSERT, the hub's
 at its column 20), so every puzzle keeps its cells and every doorway lands on the new floor line;
 each room's layout starts one cell in from its own scene's origin. Its ways in and out are outside
-(below). **Edited in the editor** since 2026-10-18: its 22 room scenes
+(below). **Edited in the editor** since 2026-10-18: its 19 room scenes
 (`game/scenes/worlds/rooms/fatty-lair/`) are the source of truth (DUNGEON_ROOMS.md).
 `tools/build_fattys_lair.gd`, which first built it, is retired and writes nothing. After painting
 holes or stairs in a room, bake that room's world (`tools/bake_elevation.gd -- --world=fatty-lair-<room>`;
@@ -1208,23 +1282,27 @@ sheet `godot/asset/characters/authored/npcs/burr.webp`. Tests: `godot/tests/test
   R1; its seal: `boss_id` `fatty-one-eye`, "Fatty One Eye", his mud red `#b4462c`, his roar
   `fatty-roar.ogg` at pitch 0.9, earthy dust), a `RoomEntry` in every camera room (`?room=<name>`);
   small keys 1 and 2 in chests (R5's alcove, R7's landing; owner 2026-10-19: keys are never left floating) for Burr's door (two keyholes); the boss door; the big
-  chest in R9's alcove (hidden: R9's plate raises it); chests for the map (the nook), R1's store,
-  the Armoury; five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
-  R11 to the ledge); two shutters (the Larder's, the arena's south one) and the Larder's room fight
-  (`once`, `boss_id` `fatty-lair-big-squint`: the mini-boss, Pearl 1's guard); two seals
+  chest in R9's alcove (hidden: R9's plate raises it); chests for the map (the nook), R1's store
+  and R14 (the Armoury's went outside with it); five bolted doors (the hub to R1, R5 to R1, R7 to R2, R9 to R8,
+  R11 to the ledge); shutters (the Larder's, the arena's south one, R4's two and R8's east one) and
+  room fights (R4's, R8's, and the Larder's: `once`, `boss_id` `fatty-lair-big-squint`, the
+  mini-boss, Pearl 1's guard); two seals
   (`object.dungeon-seal`: R1's south doorway, the take's glimpse, and R13's north doorway, the way
   out past Fatty); the hub's drawbridge; 24 falling slabs (R2, R7, R11) and R2's landing (a
   `hazard-deck`); a void hazard over every rectangle of hole cells (`draw_look` off; the Armoury's
-  and the Burrow's with `Return` points at their doorways) and a spikes hazard over the pit; the
-  shadow path and three prize glints (the Burrow's, the Armoury's, the Larder's altar); pots that
+  and the Burrow's, with `Return` points at their doorways, went outside with those rooms) and a spikes hazard over the pit; the
+  prize glint over the Larder's altar (the shadow path and the Burrow's and the Armoury's glints went
+  outside with those rooms); pots that
   grow back; an energy flower on the ledge. The arena's south shutter is driven by the boss camp
   through the Lair's director. No compass is placed (the director is the map's boss mark, group
   `dungeon_map_mark`; the Larder's fight, with its `boss_id`, is marked too until it is won).
 - **The Heavy skin's locks** ([SKINS.md](SKINS.md#heavy)), all in the second half or after the
   Pearl: three plank barricades (the Larder's north doorway, R1's store, the bolt-hole), four heavy
   plates (the Weigh House's two, R10's, R9's; the hub's two drawbridge plates are not heavy since
-  2026-10-19: two bodies, the slime and Burr), six armour statues that are
-  heavy blocks (the Weigh House's, R10's, R9's four) and the Weigh House's loose prize. Nothing
+  2026-10-19: two bodies, the slime and Burr), three armour statues that are
+  heavy blocks (the Weigh House's, R10's, R9's: since 2026-11-01 R9's other three are solid
+  scenery statues, `decoration-world-solid--armor-statue`, and the Weigh House has one since
+  2026-11-22) and the Weigh House's loose prize. Nothing
   before the Pearl needs a plate or the skin.
 
 ### The rooms
@@ -1233,21 +1311,21 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 
 | Room | Cell | What is there |
 |---|---|---|
-| R1 the Gatehouse | C6 | the entrance (south, to Fatty's Hollow), the store behind planks |
+| R1 the Gatehouse | C6 | the entrance (south, to Fatty's Hollow), the store behind planks (its own world, `fatty-lair-r1-store`: a chest with 100 coins, `r1-store-chest`) |
 | R2 the Slab Steps | D6 | an L of void: two slabs over its west arm; two over its north arm to a landing |
 | R3 the Pit Hall | C5-D5 | the hub: the chasm round the north ledge, Burr's cell in the west gallery, the Inner Stair's door in the north wall, the drawbridge, the boss door |
-| R4 the Squint Den | B5 | three Squints and a room fight (`r4-squint-den`, the whole room): its west shutter (to the map nook) and its south one (to R5) are shut (`starts_shut`) each time the room is built, until the Squints fall |
-| R5 the Eye Hall | B6 | the north maze (2026-10-19): low dividers, three eye latches struck in order on a timer, three Squints on guard, three gates opening together; the alcove's timed pair, small key 1 |
+| R4 the Squint Den | B5 | Squints (two since 2026-11-21: the owner's room) and a room fight (`r4-squint-den`, the whole room): its west shutter (to the map nook) and its south one (to R5) are shut (`starts_shut`) each time the room is built, until no living enemy is left in the room, however many the scene holds |
+| R5 the Eye Hall | B6 | the north maze (2026-10-19): low dividers, two eye latches (three until 2026-11-21) struck in order on a timer, three Squints on guard, three gates opening together; the alcove's timed pair, small key 1 |
 | R6 the Pipe Gallery | E5 | two Pipe Worms (the Burrow's mouth walled 2026-10-19: the Burrow moved to D4) |
 | R7 the Bell Bridge | E6 | the spike pit, the bell on its rock, the turning slab bridge, small key 2 |
-| R8 the Guard Crypt | B3-B4 | the Inner Stair's foot (its stair door up, in the north wall), two Bone Marchers, the Thorn Guard's statues, door 3 (an open doorway into R11) |
-| R9 the Watcher Hall | A3 | the Heavy skin's twist: the Watcher Eye among four armour statues, a plate in its sight that raises the big chest in the south alcove (**the big key**); its north stone door held by R10's plate; its east door bolted on its side |
-| R10 the Dung Roller Run | A2-B2 | the Heavy skin's test: the Dung Roller's lane, a statue in the north niche, a plate before the corridor down to R9's stone door |
+| R8 the Guard Crypt | B3-B4 | the Inner Stair's foot (its stair door up, in the north wall), skeletons (Bone Marchers and a Bone Leaper: the owner's room), the Thorn Guard's statues, door 3 into R11 (the east doorway near the bottom): *since 2026-11-21 (owner)* a shutter in it (`r8-east-shutter`, cave rock, `starts_shut`) and a room fight over the whole room (`r8-guard-crypt`), so it opens once no living enemy is left in the room (a skeleton's bone pile still lives until it is broken), shut again each time the room is built; an empty `fences` layer to paint fences and dividers on |
+| R9 the Watcher Hall | A3 | the Heavy skin's twist: the Watcher Eye among four armour statues (since 2026-11-01 one heavy block to push, the other three solid scenery statues: cover), a war banner, pots; a plate in its sight that raises the big chest in the south alcove (**the big key**); its north stone door held by R10's plate; its east door bolted on its side |
+| R10 the Dung Roller Run | A2-B2 | the Heavy skin's test: the Dung Roller's lane, a statue in the north niche, a plate before the corridor down to R9's stone door. *As built (2026-11-22): three Dung Rollers and a Carnivore Plant* |
 | R11 the Drop-gate Bridge | C4 | the inner drop gate, the slab bridge with its turn, a Pipe Worm |
 | R12 the Larder | C3 | the Pearl room: Fatty's hoard, the Big Squint's ambush, the worms' altar with Pearl 1's glow, the north doorway nailed shut (the Heavy skin's first lock) |
-| C2 the Weigh House | C2 | the Heavy skin's teach (no enemy): a plate before the east stone door, a statue and a plate that holds the west stone door only while it stands on it; scale pans and weights; a pouch in a scale pan on the east wall |
+| C2 the Weigh House | C2 | the Heavy skin's teach (planned with no enemy): a plate before the east stone door, a statue and a plate that holds the west stone door only while it stands on it; scale pans and weights; a pouch in a scale pan on the east wall. *As built (2026-11-22):* a Watcher Eye and two Worm Swordsmen (since 2026-10-19), an invulnerable Prism Eye at (600, 309), a solid armour statue at (412, 329) (scenery, not pushed: the owner's placement), two hanging chains, pots |
 | R13 Fatty's Arena | D4 | Fatty One Eye (since 2026-11-21 the Spear and thrown things on his eye; the Heavy skin's exam before); the south shutter; the north doorway's seal; his full heart |
-| R14 the Postern | D3 | after Fatty: a chest with coins and a potion (`fatty-lair-postern-chest`; the green key until 2026-11-20, question 163), the bolt-hole's barricade |
+| R14 the Postern | D3 | after Fatty: a chest with 25 coins and a Slime Tonic (`hp-potion`; `fatty-lair-postern-chest`; the green key until 2026-11-20, question 163), the bolt-hole's barricade. *Since 2026-11-22* the chest stands at (541, 381) on a raised floor (level 1, five cells square, a three-wide flight down its south side) painted on the room's `Elevation` layer (`room_back_faces` on; no baked cache yet) |
 | the bolt-hole | D2 | a tunnel up to daylight in level-1-d4 |
 | the map nook | A5 | a small room behind R4's crates |
 
@@ -1263,10 +1341,12 @@ Columns A to E (west to east), rows 2 to 6 (north to south), as the design names
 3. **The west wing:** R4's Squints, then R5's **north maze** (owner, 2026-10-19; it replaced the
    single teach latch): the hall north of the inner door is a maze of low dividers (a row across
    with two gaps, a pocket each side, a gatehouse in the middle holding G1 and G2 above the inner
-   door, G3). Three eye latches, I under the west pocket's divider, II under the east pocket's, III
-   on the north wall (the old inner latch, `r5-latch-inner`, its records kept), must be thrust in
-   that order (`order`), all within I's 20 s (its `open_ms`; a broken run opens the later ones too):
-   out of order the run starts over. Three Squints guard the top corridor and the two lower lanes.
+   door, G3). Two eye latches, I under the west pocket's divider and II under the east pocket's,
+   must be thrust in that order (`order`), both within I's 20 s (its `open_ms`; a broken run opens
+   the later one too): out of order the run starts over. *Until 2026-11-21 a third, III on the north
+   wall (the old inner latch, `r5-latch-inner`), came last; the owner took it out, and II now opens
+   the inner door too (its `more_gate_ids`; the door keeps its gate id and record,
+   `fatty-lair-r5-inner`).* Three Squints guard the top corridor and the two lower lanes.
    Solved, the three gates sink together, for good (each latch its own `gate_id`; together, so a
    failed run never shuts the slime between two gates). Then the alcove's two eyes each stay shut
    3 s, and both shut at once open it: **small key 1**.
@@ -1394,7 +1474,11 @@ settings for F6); `?sealed` takes Pearl 1 quietly and seals the Lair.
   R5's north maze, 2026-10-19) they must be struck in it: struck while an earlier one is still open,
   a latch clinks (`order_text`) and the group's shut latches open again; a latch whose time runs out
   opens every later one of its group with it, so the first one's `open_ms` is the run's time. A timed
-  latch's eye flickers in its last 1.5 s. Solved, each latch opens its own `gate_id`.
+  latch's eye flickers in its last 1.5 s. Solved, each latch opens its own `gate_id` and any
+  `more_gate_ids` (gates keeping their own ids: R5's inner door, on eye II since eye III was taken
+  out). A group is the latches with its `group_id` in the world now, however many the scene holds:
+  taking one out of the scene leaves the rest a shorter run (give its gate to another latch's
+  `more_gate_ids`, or nothing opens that gate).
 - **The plank barricade** (`object.plank-barricade`, `plank_barricade.gd`): only the Heavy Roll smashes
   it (`game/fattys_lair/heavy_check.gd`: a Roll's bonk with the Heavy skin on, which carries the
   `heavy` tag; [SKINS.md](SKINS.md#heavy)); anything else bonks with its line. Kept smashed by
@@ -1527,10 +1611,10 @@ built by `tools/build_slimeshire_chunks.gd` (its map: [Chapter 1](../story/chapt
 - The Weigh House's, R5's, R7's and the Armoury's latch doors are divider gates in low dividers
   (FENCES.md "Dungeon dividers"; the Armoury's divider is fort stone in a cave room until the cave
   style is made).
-- Not built: heart quarters (the Burrow's
-  prize is a goo heart), the journal pointing home after Burr's talk (question 103, roadmap 5.17),
+- Not built: the journal pointing home after Burr's talk (question 103, roadmap 5.17),
   the worm mural, Fatty's shrinking into a small calm slime (his built death clip plays), the
-  drill hall's weights (the plan's other way for his exam).
+  drill hall's weights (the plan's other way for his exam). *Heart quarters were listed here until
+  2026-10-26, when they were built: the Burrow's goo heart is one (`slimeshire-burrow-quarter`).*
 - The clods' art is the liftable `mud-ball`; a generated clod picture was not used.
 
 
@@ -1542,6 +1626,9 @@ anything beyond the current outline with darkness; Burr's cell is separate from 
 L-shaped Pit Hall. Doorways use the wall's own courses with two-cell arches (root arches
 in the Hollow, timber in the Mine), and moving leaves/blocks sit inside them. See
 [Dungeon room scenes](DUNGEON_ROOMS.md) for editing, builders, art packing and checks.
+*As built (2026-11-22): only the Weaver Hollow's four floors are assembled from room scenes (each
+floor's `RoomScenes`); Fatty's Lair is one world per room since 2026-10-18, and the Crystal Mine
+plays its one world, its `rooms/crystal-mine/` scenes unused ([The Crystal Mine](#the-crystal-mine-built)).*
 
 **Interior walls (2026-10-18, awaiting the owner's verdict):** the replacement for these cliff walls
 and doorway frames is the InteriorWallLayer ([INTERIOR_WALLS.md](INTERIOR_WALLS.md)): a room scene

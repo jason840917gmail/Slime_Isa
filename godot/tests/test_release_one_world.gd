@@ -74,7 +74,7 @@ func test_the_heap_hatch_opens_once_its_crates_are_gone(t: TestContext) -> void:
 	var hatch := t.world().world_root.get_node_or_null(HATCH)
 	if not t.check(hatch != null, "no heap hatch in Lili's west yard"):
 		return
-	var crates := (hatch.get_node("Heap") as Node).get_children()
+	var crates: Array[Node2D] = hatch.call(&"heap_on_it")
 	t.equal(crates.size(), 7, "crates on the hatch")
 	t.check(not bool(hatch.call(&"is_open")), "the hatch starts open")
 	t.equal(int(hatch.call(&"lying_on")), 7, "crates lying on the hatch")

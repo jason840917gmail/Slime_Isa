@@ -30,6 +30,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--09.tscn" id="28_a8os4"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="29_0sm5v"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="30_lywf7"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="trim_tiles"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="trim_layer"]
 
 [node name="crystal-caverns-smith-cave" type="Node2D" unique_id=1454505651]
 y_sort_enabled = true
@@ -48,6 +50,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAFAAAAAAABAAAAAAAFAAAAAAACAAAAAAAFAAA
 tile_set = ExtResource("3_rgwuw")
 script = ExtResource("4_7ydb2")
 draw_floor = false
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=202951117]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAAKAAwAAAADAAIAAAAKAAwAAAAEAAIAAAAKAAwAAAAFAAIAAAAKAAwAAAAGAAIAAAAKAAwAAAAHAAIAAAAKAAwAAAAIAAIAAAAKAAwAAAAJAAIAAAAKAAwAAAAKAAIAAAAKAAwAAAALAAIAAAAKAAwAAAAMAAIAAAAKAAwAAAANAAIAAAAKAAwAAAAOAAIAAAAKAAwAAAAPAAIAAAAKAAwAAAAQAAIAAAAKAAwAAAARAAIAAAAKAAwAAAASAAIAAAAKAAwAAAATAAIAAAAKAAwAAAAUAAIAAAAKAAwAAAAVAAIAAAAKAAwAAAACAAMAAAAKAAwAAAAVAAMAAAAKAAwAAAACAAQAAAAKAAwAAAAVAAQAAAAKAAwAAAACAAUAAAAKAAwAAAAVAAUAAAAKAAwAAAACAAYAAAAKAAwAAAAVAAYAAAAKAAwAAAACAAcAAAAKAAwAAAAVAAcAAAAKAAwAAAACAAgAAAAKAAwAAAAVAAgAAAAKAAwAAAACAAkAAAAKAAwAAAAVAAkAAAAKAAwAAAACAAoAAAAKAAwAAAAVAAoAAAAKAAwAAAACAAsAAAAKAAwAAAAVAAsAAAAKAAwAAAACAAwAAAAKAAwAAAADAAwAAAAKAAwAAAAEAAwAAAAKAAwAAAAFAAwAAAAKAAwAAAAGAAwAAAAKAAwAAAAHAAwAAAAKAAwAAAAIAAwAAAAKAAwAAAAJAAwAAAAKAAwAAAAKAAwAAAAKAAwAAAANAAwAAAAKAAwAAAAOAAwAAAAKAAwAAAAPAAwAAAAKAAwAAAAQAAwAAAAKAAwAAAARAAwAAAAKAAwAAAASAAwAAAAKAAwAAAATAAwAAAAKAAwAAAAUAAwAAAAKAAwAAAAVAAwAAAAKAAwAAAA=")
+tile_set = ExtResource("trim_tiles")
+script = ExtResource("trim_layer")
 
 [node name="world-definition" type="Node" parent="." unique_id=1274378196]
 script = ExtResource("5_n0xtc")

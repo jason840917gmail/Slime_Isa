@@ -27,7 +27,8 @@ const PHASE_THROWN := "thrown"
 const FRAME_READY := 0
 const FRAME_WINDUP := 1
 const FRAME_THROWN := 2
-const CUE_WINDUP := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_WINDUP := &"ChuckerWindup"
 const CUE_THROW := &"Lash"
 ## level_at's answer on a wall's face (no level there).
 const ON_WALL := -1000

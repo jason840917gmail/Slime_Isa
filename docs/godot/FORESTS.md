@@ -15,7 +15,8 @@
 > in the borders to canopy styles") every wood touching its chunk's edge in Release 1's sixteen chunks
 > (Slimeshire C4-D5, Gloop Forest E4-F5, Glimmerhill A4-B5, the Crystal Caverns G4-H5) became a
 > canopy wall of its kind; woods inside a chunk and the autumn trees (no canopy art) stay trees. Not
-> playtested.
+> playtested. Gloop Forest's six chunks (E3-F5) were repainted the same day with canopy walls only
+> (River Roads, [the design](../design/2026-11-21-gloop-river-roads.md)).
 
 A tree wall placed tree by tree is hard to keep in order: hundreds of nodes, and with Editable
 Children on, a click in the 2D view picks a tree's picture (`Visual`), so a drag moves the picture
@@ -197,6 +198,22 @@ has; the packer can take only a sheet's first pieces for that (`(name, n)` in `S
   1); never mirrored (the light comes from the upper left); rigid (a sway would open gaps).
 - **Collision:** the same as trees (every painted cell solid, as below), so where the wall looks
   closed it is closed, and where it looks open it is open.
+- **Paths under the canopy** (2026-11-21, Gloop Forest's River Roads;
+  [the design](../design/2026-11-21-gloop-river-roads.md)): palette row 1, column 18, "canopy path
+  forest" (data `canopy-path:forest`), right under the canopy wall it belongs to. Paint it inside a
+  canopy wall, two cells wide for a main way, one for a secret one:
+  - **Look:** its cells grow the same crowns as the wall around them (they count as wall for the
+    lattice, the sides and the foot), so the wood looks unbroken.
+  - **Collision:** it has none (`_build_collision` leaves it out).
+  - **Mouths:** where it meets open ground it has no root, only a dark shade: a gap in the root band.
+  - **The fade:** while the slime's feet are on a path cell (or right above or below one), the
+    crowns within two cells of a path fade with the distance from its feet (`FADE_NEAR` 80 and
+    `FADE_FAR` 190 units from a crown's middle, down to `FADE_ALPHA` 0.2, following at
+    `FADE_SPEED`). It is real time, presentation only. Off the path they come back.
+  - **Tells:** a main way shows lantern posts at its mouth; a secret one only a firefly (a small
+    `soft_glow` over the treetops).
+  - **Palette build:** `CANOPY_PATHS` in `scripts/art/build-forest-paint-tiles.py`. It uses row 1's
+    empty columns 16-20, so the palette picture keeps its size.
 - **Art:** in `asset/Originals/trees/canopy-wall/`: the forest set's `canopy-crowns-<a|b>.png` and
   `canopy-roots-b.png`, the village set's `village-crowns-apple-<a|b>.png`,
   `village-crowns-cherry-a.png` and `village-roots-a.png`, the crystal set's
@@ -218,6 +235,20 @@ has; the packer can take only a sheet's first pieces for that (`(name, n)` in `S
   every painted cell repainted with that canopy tile, to compare the two on the same cells. Until
   the editor imports a new canopy atlas or the rebuilt palette picture, the tool reads them from
   their files.
+
+## The lookout tree (2026-11-21)
+
+`game/scenes/objects/gloop/lookout-tree.tscn` (`game/world/forest/lookout_tree.gd`), a giant tree
+with stairs up its trunk to a deck, placed in Gloop Forest's F5
+([the design](../design/2026-11-21-gloop-river-roads.md)):
+- **Climb:** a usable (group `usable`): the interact key at `stairs_foot` offers "Climb the
+  lookout". A fade puts a copy of the slime's picture on the deck (`deck_offset`); its body waits,
+  hidden and held, at the foot.
+- **View:** the camera pans to `view_offset` and eases out to `view_zoom`, never past the world's
+  bounds. A prize glint twinkles over every unopened chest in sight.
+- **Down:** any move, interact or attack key climbs down, back to the zoom it had.
+- **Walk behind:** the trunk collides; the picture fades while the slime walks behind it
+  (`WalkBehind`, `walk_through.gd`).
 
 ## Limits
 

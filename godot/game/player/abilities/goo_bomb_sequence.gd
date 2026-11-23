@@ -38,7 +38,6 @@ const RING_NAME := "GooBombRing"
 const CUE_CAST := &"GooBombCast"
 const CUE_SPIT := &"GooBombSpit"
 const PLACEHOLDER_CUES := {
-	CUE_CAST: &"SlamWindup",
 	CUE_SPIT: &"GulpSpit",
 }
 const CLIP_CAST := "idle"

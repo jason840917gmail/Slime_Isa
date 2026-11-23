@@ -72,7 +72,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_SCUTTLE:
 			var goal := slime if engaged else _home
 			var speed := pattern("scuttleSpeed", 115.0) if engaged else pattern("homeSpeed", 60.0)
-			var velocity := _velocity_toward(goal, speed, delta)
+			var velocity := _velocity_toward(goal, speed, delta) if engaged else _velocity_home(speed, delta)
 			if velocity != Vector2.ZERO and engaged:
 				var zig := sin(now / maxf(1.0, pattern("zigzagMs", 160.0)) + _zig_seed) * pattern("zigzagRad", 0.5)
 				velocity = velocity.rotated(zig)

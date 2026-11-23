@@ -162,7 +162,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_OPEN:
 			var going_home := not engaged or elapsed >= pattern("openMs", 5000.0)
 			if going_home:
-				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 50.0), delta)
+				body.velocity = _velocity_home(pattern("homeSpeed", 50.0), delta)
 				if body.velocity == Vector2.ZERO:
 					_transition(PHASE_WRAP, now)
 					set_frame(FRAME_HOLD)

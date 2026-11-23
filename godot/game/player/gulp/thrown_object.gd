@@ -86,6 +86,17 @@ extends Node2D
 ## numbers; it has no effect of its own, is never sturdy and never hot. Where its flight ends the
 ## enemy is put down (GulpableEnemy.land, which deals its own landing hit): no shards, no break cue.
 ##
+## The Dung Roller's ball (game/enemy/dung_ball.gd; `held.kind` "dung-ball", its picture a frame of
+## the beetle's sheet): a light soft thing that breaks only on a blow that struck something. A throw
+## that hurt nothing (the ground, a wall, a clink) lays it whole where it came down (`_lay_ball`), and
+## its beetle goes for it.
+##
+## Off a jelly (docs/godot/BESTIARY.md "39. Jelly Bouncer"; owner, 2026-11-22): a thing (no carried
+## enemy, no Goo Bomb) that touches a bouncer (an enemy in BouncedThrow.BOUNCERS_GROUP whose
+## `bounces_throw()` says yes) does not strike or break: it bounces back at the slime whole
+## (game/throw/bounced_throw.gd: it hurts the slime it meets, and the mouth can catch it). A piercing
+## thing stops at him too.
+##
 ## Owner: abilities (the rework hit: mouth; the new feel: throw combat's sender).
 
 const Services := preload("res://game/shared/services.gd")
@@ -124,6 +135,10 @@ const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
 const ThrowGlow := preload("res://game/throw/throw_glow.gd")
 ## The enemy-ammo prototype: a carried enemy as the thrown thing.
 const GulpableEnemy := preload("res://game/throw/gulpable_enemy.gd")
+## The Dung Roller's ball: it stays whole on a miss.
+const DungBall := preload("res://game/enemy/dung_ball.gd")
+## A thing that touches a Jelly Bouncer bounces back whole.
+const BouncedThrow := preload("res://game/throw/bounced_throw.gd")
 ## A sturdy thing's blow knocks a few chips off it (the ParticleFx preset, its tint by material; a
 ## metal thing only sparks).
 const CHIP_PRESET := &"stone-chip"
@@ -302,8 +317,9 @@ func _physics_process(delta: float) -> void:
 		return
 	var met := _targets(next_air, _constant("gulp.throwHitRadiusPx"))
 	if not met.is_empty() and _locked.is_empty():
-		# Throw combat: a piercing thing strikes what it meets and flies on, up to its count.
-		if _pierce_left > 1:
+		# Throw combat: a piercing thing strikes what it meets and flies on, up to its count (but it
+		# stops at a jelly, which sends it back: `_break`).
+		if _pierce_left > 1 and _bouncer_among(met) == null:
 			_pierce_left -= 1
 			var passing := _strike_rework(next_air, _damage(), str(_held.get("kind", "")), met)
 			# The new feel: its blow sounds as the thing itself (it does not break here).
@@ -419,6 +435,15 @@ func _break(at: Vector2, cause: Cause = Cause.GROUND) -> void:
 			bomb.call(&"land", global_position)
 		queue_free()
 		return
+	# Off a jelly: a thing that touched a bouncer goes back at the slime whole (no strike, no break).
+	if cause == Cause.TARGET and not _enemy and _player != null and is_instance_valid(_player):
+		var touched := _locked.duplicate()
+		touched.append_array(_targets(at, _constant("gulp.throwHitRadiusPx")))
+		var bouncer := _bouncer_among(touched)
+		if bouncer != null:
+			_bounce_off(bouncer, at)
+			queue_free()
+			return
 	var material := HeldLook.material_of(_held)
 	# The new feel: what the blow did ({"hurt", "impact"}; {} when it struck nothing).
 	var blow: Dictionary = {}
@@ -457,6 +482,17 @@ func _finish(at: Vector2, cause: Cause, blow: Dictionary, play_cue: bool) -> voi
 	var material := HeldLook.material_of(_held)
 	var hurt := bool(blow.get("hurt", false))
 	var rebounds := _sturdy and _uses > 0 and _rebound(at, cause, hurt)
+	# The Dung Roller's ball (game/enemy/dung_ball.gd; owner, 2026-11-21: "if you throw it at
+	# nothing, the ball stays"): a blow that struck something breaks it; anything else leaves it whole
+	# where it came down, for its beetle to fetch (`rebounds`: nothing bursts, nothing breaks).
+	var lies := false
+	if DungBall.is_ball(_held):
+		var struck := hurt or (not _feel_on and not _struck.is_empty())
+		lies = not struck and _lay_ball()
+		if lies:
+			rebounds = true
+		else:
+			DungBall.broke(_held)
 	if not rebounds and _look is Sprite2D:
 		BreakBurst.burst(get_parent(), at, _look as Sprite2D, _shard_options(at, cause, hurt))
 	var feel := Services.feel()
@@ -470,7 +506,8 @@ func _finish(at: Vector2, cause: Cause, blow: Dictionary, play_cue: bool) -> voi
 				feel.particles(preset, at)
 		if rebounds and hurt and CHIP_TINTS.has(material):
 			feel.burst(CHIP_PRESET, impact, _direction, CHIP_TINTS[material], ThrowFeel.rebound_number("chips", 1.0))
-	if play_cue:
+	# A ball that lies whole did not break: its landing has its own thud (dung_ball.gd `lay`).
+	if play_cue and not lies:
 		_play_break_cue(material, not hurt)
 	# The landing's dust on the ground under it, and a heavy thing's nudge (gulp_feel.gd); a blow that
 	# hurt has its own kick and no ground under it.
@@ -519,6 +556,46 @@ func _rebound(at: Vector2, cause: Cause, hurt: bool) -> bool:
 	ThrowRebound.launch(get_parent(), info, ground, maxf(0.0, ground.y - at.y), spot, ms * lerpf(REBOUND_MIN_TIME_SHARE, 1.0, share),
 		arc * lerpf(REBOUND_MIN_TIME_SHARE, 1.0, share), _look_px, _launch_feet, _level, break_cue(HeldLook.material_of(_held)), hurt, spin)
 	return true
+
+
+## The bouncer (BouncedThrow.BOUNCERS_GROUP: a Jelly Bouncer) whose hurtbox is among `areas` and that
+## sends a thrown thing back now; null for none.
+func _bouncer_among(areas: Array) -> Node:
+	if areas.is_empty() or _enemy or GooBomb.from_held(_held) != null:
+		return null
+	for node: Node in get_tree().get_nodes_in_group(BouncedThrow.BOUNCERS_GROUP):
+		if areas.has(node.get(&"damage_area")) and bool(node.call(&"bounces_throw")):
+			return node
+	return null
+
+
+## The thing touched `bouncer` at `at` (over the ground point it is on): it flies back whole at where
+## the slime stands (game/throw/bounced_throw.gd), with the hits it has left, and the jelly wobbles.
+func _bounce_off(bouncer: Node, at: Vector2) -> void:
+	var body := _player.get(&"body") as Node2D
+	var aim := body.global_position if body != null else _launch_feet
+	var info := _held.duplicate()
+	var material := HeldLook.material_of(_held)
+	if _sturdy:
+		info["uses"] = _uses
+	bouncer.call(&"on_throw_bounced", at, -_direction)
+	BouncedThrow.launch(get_parent(), info, global_position, maxf(0.0, global_position.y - at.y), aim, _look_px,
+		bouncer, _player, break_cue(material), BREAK_PARTICLES.get(material, [&"dodge-dust"]),
+		_weight if not _weight.is_empty() else ThrowMode.LIGHT)
+
+
+## The Dung Roller's ball comes down whole: on the ground point it is over, else the nearest spot
+## back toward where it was thrown from that a thing may lie on (`_can_land`; `rebound.tries` spots).
+## False when there is none (it breaks then).
+func _lay_ball() -> bool:
+	var ground := global_position
+	var back := _launch_feet - ground
+	var tries := maxi(1, int(ThrowFeel.rebound_number("tries", 1.0)))
+	for i in tries:
+		var spot := ground + back * (float(i) / float(tries))
+		if _can_land(ground, spot):
+			return DungBall.lay(get_parent(), spot, _held) != null
+	return false
 
 
 ## True when the thing may land on `spot` coming from the ground point `from`: a liftable fits there
@@ -643,6 +720,10 @@ static func rework_hit(direction: Vector2, hit_class_override: String = "", weig
 		"knock_px": float(block.get("knockbackPx", 0.0)),
 		"knock_speed_scale": float(block.get("knockbackSpeedScale", 1.0)),
 	}
+	# The thing's weight rides on the hit, so an enemy can tell what struck it whatever the effect's
+	# class (the Worm Bulwark counts hits by weight: a thrown ice block is a medium hit).
+	if not weight.is_empty():
+		fields["weight"] = weight
 	if ThrowFeel.is_on():
 		var strong := ThrowFeel.hit_block(weight)
 		fields["launch_speed"] = float(strong.get("launchSpeed", fields["launch_speed"]))

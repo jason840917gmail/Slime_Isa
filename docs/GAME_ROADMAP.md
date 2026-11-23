@@ -3275,7 +3275,8 @@ the next release (7.11).
     training dummies east of the spawn. 1 swallows a held essence; 1 with
     nothing held spits the form out. A right click (W in the keys-only scheme)
     on an essence puts it in the bag, and Use in the bag puts it back in the
-    mouth. The suck reaches 80 px (`gulp.suckRangePx`, shortened 2026-10-09).
+    mouth. The suck reaches 80 px (`gulp.suckRangePx`, shortened 2026-10-09; doubled to 160 px on
+    2026-11-21 with a wall check: [THROW_COMBAT.md](godot/THROW_COMBAT.md#how-it-plays)).
   - A hit pops the form out for about 3 s. Orb-weavers and slime-spiders drop a
     silk essence a third of the time; the Clod Stomper (8.12) always drops a
     stone essence.

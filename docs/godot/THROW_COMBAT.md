@@ -65,6 +65,16 @@ more damage, a faster and bigger thing, thrown on the key press, a real knockbac
 that pops). The damage, speed and knockback numbers in this section are the ones with that feel
 switched off; the rules (weights, effects, what a throw reaches) hold either way.
 
+- **The suck's reach** (owner, 2026-11-21: doubled, since the Gulp is the only weapon): 160 px
+  (`gulp.suckRangePx`, 80 before) in a 75° cone around the aim (`suckConeDeg`), and 40 px all
+  around (`suckNearPx`). It reaches only what a throw would reach (owner: "nothing should cross
+  walls"; mouth.gd `_reachable`): a thing on the slime's own height level, never up or down a cliff,
+  with no wall between (`AbilityWorld.clear_line`: the static bodies on the world layer, such as built
+  walls, tree walls, room walls and houses; water does not block). The line is measured to the thing's near side
+  (`suckFacePx` 12 from its feet), so a pot standing against a wall's foot is still sucked from in
+  front. The coins and pickups swept in by a suck follow the same reach. A far thing flies in
+  longer: at least `suckPullMs` (110 ms), at `suckPullPxPerSec` (900) beyond that, about 180 ms
+  from the edge of the reach (mouth.gd `pull_ms`).
 - **Lifting.** Every liftable kind has a weight (`kindWeights`: the medium and heavy kinds; every
   other kind, and bones, seeds, globs and arrows, is light). A thing heavier than the Gulp's level
   is not sucked in: an empty burst with one in reach says "Too heavy! (Gulp N needed)" with the
@@ -120,7 +130,8 @@ switched off; the rules (weights, effects, what a throw reaches) hold either way
   patterned_enemy.gd's and the dummy's stun step), so it sleeps until a hit that deals damage wakes
   it (`wake_if_hurt`: any hit, old-style ones too; being bowled into). It lands through the enemy's
   immunities (`immune`, a phase's `immune`, a patterned enemy's `_shields`: the Gloomling, a
-  walking Squint, a charging Bramble Boar, a Prism Eye from the front) while it is on the ground
+  walking Squint, a charging Bramble Boar, the Prism Eye (invulnerable since 2026-11-21), a Watcher
+  Eye from the front) while it is on the ground
   (`HitReaction.sleeps_through`); the phases off the ground, where a sleep throw still clinks, are
   marked `noSleep` in the enemy's `reactions.states` (the Hopper's, the Squints' and the Bone
   Leaper's `air`, the Popworm's `burrowed`, `tell` and `sink`, the Pick Mole's `ducked` and
@@ -158,7 +169,10 @@ switched off; the rules (weights, effects, what a throw reaches) hold either way
   knocks a mossy rock loose (`rockOnAttack`: half its blows, `rockAheadPx` ahead of its feet along
   the swing, only where a body fits: on its height level, not on a solid tile or against a wall or
   other static body; never within `rockSpacingPx` of another liftable; else no rock). Fatty already
-  knocks rocks loose.
+  knocks rocks loose. The **Dung Roller's ball** (2026-11-21) is sucked straight off the beetle:
+  a light soft thing with its own picture that breaks only on a blow that hurts; a throw that hurts
+  nothing leaves it whole where it came down, and a hit on the slime drops it whole
+  ([BESTIARY.md](BESTIARY.md), "The stolen ball").
 - **Aim help.** When on, a throw within half of `aimAssist.coneDeg` either side (24: 12° each way)
   of a live enemy within `rangePx` (320) of the slime's feet, on the slime's height level with no
   wall between, flies straight at the feet of the one closest to the aim (the throw's ground track
@@ -213,6 +227,7 @@ feel on, the thrown hit (`thrown_object.gd` `rework_hit(direction, class, weight
 | `knock_motion` | the knocked-back motion (`EnemyHitMotion` `KNOCK`, numbers in `combat.verbs.knock`) before the verb's own |
 | `chains`, `bowl_damage` | the stun slide opens the launch window while it is faster than `wallSplat.minSpeed`, so splats and bowling run |
 | `kill_sendoff` | a kill flies off and pops (`enemy.gd` `begin_sendoff`; never a boss or a dummy) |
+| `weight` | the thrown thing's weight (light, medium, heavy; a thrown enemy is medium), with the feel on or off: the Worm Bulwark counts his hits by it ([BESTIARY.md](BESTIARY.md#37-worm-bulwark-charger)) |
 
 Loot and the quest's death event still happen where and when the enemy died, not at the pop.
 
@@ -252,6 +267,24 @@ shatter, **stone, metal and bone are sturdy**.
 Code: `game/throw/throw_rebound.gd` (the arc, the landing, the catch), `throw_glow.gd` (the hot
 glow), `throw_impact.gd` `snap`, `throw_ammo.gd` `fits` and the spawn options.
 
+### Off a jelly (2026-11-22)
+
+The Jelly Bouncer ([BESTIARY.md](BESTIARY.md#39-jelly-bouncer-shocker); owner, 2026-11-22: "throw
+objects bounce off him back to the thrower, so it is better to avoid them"; "if the slime sucks it
+can catch the object"). A thrown thing that touches an enemy in the group `throw_bouncers` whose
+`bounces_throw()` says yes (thrown_object.gd `_break`, `_bouncer_among`; no carried enemy, no Goo
+Bomb) does not strike or break and spends no use: it flies back whole (game/throw/bounced_throw.gd)
+from where it touched him toward where the slime stood then (it does not home in), at the
+bouncer's `bounce_numbers()` (the jelly's `bounceSpeed` 380, `bounceRangePx` 360, `bounceArcPx`
+22), and he wobbles and boings (`on_throw_bounced`). It hurts the slime it meets (its middle within
+20 px, on the thrower's level) through the bouncer's `bounced_hit` (`bounceDamage<Weight>`) and
+breaks there as a thrown thing does, or (stone, metal, bone) falls whole at its feet; a wall or the
+end of its flight breaks it as a miss, a sturdy thing lies there. It joins the rebounds' group with
+the same `can_catch`, `take` and `air_point`, so the mouth's catch above takes it out of the air (Q
+with an empty mouth within `catchRangePx`, from `catchFromMs`: "Catch!" and a hot throw). A
+piercing thing stops at a bouncer too. A thrown enemy is the bouncer's to catch where it lands
+(`catch_thrown`, as the Carnivore Plant's food below): the jelly shocks it.
+
 ### Stunned enemies as ammo (prototype)
 
 `gulp.throwFeel.enemyAmmo.enabled` (on); **Ctrl+F1** in the throw yard flips it. Kirby, Klonoa,
@@ -280,6 +313,12 @@ Super Mario Bros. 2: the enemy you just stunned is the next thing you throw.
   (reward, quest event, the send-off). On a miss it lands for `missDamageScale` (0.75) x the base
   and lies knocked down, to be gulped again. An enemy immune where it lands takes nothing there.
 - It is never sturdy and never hot, and the rebound's catch cannot take it.
+- **Food** (2026-11-21): landing within reach of an awake Carnivore Plant it takes no landing hit:
+  it bounces off her, lies dazed and she picks it up off the floor and eats it. `_land` asks every
+  node in the group `enemy_eaters` (`catch_thrown(enemy, spot)`) before the landing
+  ([BESTIARY.md](BESTIARY.md#38-carnivore-plant-ambusher)). A Jelly Bouncer is in that group too
+  (2026-11-22): landing by him it is shocked instead
+  ([BESTIARY.md](BESTIARY.md#39-jelly-bouncer-shocker)).
 
 Filmed: `s-ammo-gulp`, `s-ammo-throw`, `s-ammo-snowball`, `s-ammo-miss`, and `r-carry-hit` (a Worm
 Brawler hits the slime while it carries a spider: the spider comes out beside it, alive, once, and
@@ -435,12 +474,14 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 | `game/feel/enemy_hit_motion.gd`, `hit_flash_curve.gd`, `daze_stars.gd` | the `KNOCK` motion and the shake in the freeze; the flash's blink; bigger stars |
 | `tools/film_throw.gd`, `scripts/godot/film-throw.sh`, `throw-film-sheet.py` | filming a throw frame by frame |
 | `game/throw/throw_rebound.gd`, `throw_glow.gd` | a sturdy thing's rebound, landing and catch; the hot glow |
+| `game/throw/bounced_throw.gd` | a thing bounced back off a Jelly Bouncer: its flight at the slime, its hit, the catch |
 | `game/throw/gulpable_enemy.gd`, `gulped_enemy_look.gd` | a helpless enemy as a suckable, carried and thrown; its picture in the mouth |
 | `game/combat/reactions/enemy_hazards.gd` | knocked enemies at ledges, holes, deep water and danger zones |
 | `game/throw/throw_status_look.gd` | the freeze, sleep and honey looks (the honey coat's shader, `_art_rect`) |
 | `game/combat/reactions/hit_reaction.gd`, `enemy_reactions.gd`, `reaction_state.gd` | the `sleep` verb, `sleeps_through`, `keep_asleep`, `wake` |
 | `game/scripts/enemy.gd`, `game/enemy/patterned_enemy.gd` | `apply_tempo` (honey), `_paced` pattern numbers, sleep through `_shields` |
 | `game/throw/spent_shot.gd` | a missed arrow lying on the ground, suckable |
+| `game/enemy/dung_ball.gd` | the Dung Roller's ball: suckable on the beetle and lying on the ground; `lay` and `broke` are called by the throw's end (thrown_object.gd `_finish`, `_lay_ball`) and the mouth's `drop` |
 | `game/throw/throw_ammo.gd` | the Brawler's rocks (where a body fits); `spawn_liftable` for any liftable at run time |
 | `game/throw/throw_testbed.gd` | the playground's throw yard and its keys |
 | `game/main.gd` | `decide_throw_mode` (with the rework mode), the yard, `throw_combat` (the test runner's switch) |

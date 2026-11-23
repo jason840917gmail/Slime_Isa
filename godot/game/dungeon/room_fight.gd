@@ -2,20 +2,26 @@
 extends Node2D
 class_name RoomFight
 ## A room fight (docs/godot/DUNGEONS.md "Shutters and room fights"): the shutters close when the
-## slime steps into the room, and open when the room's enemies are beaten (Zelda's shutter rooms,
+## slime steps into the room, and open when no living enemy is left in it (Zelda's shutter rooms,
 ## the ambush rooms, the mini-boss and boss rooms as trap gates).
 ##
 ## - Its room is the rectangle `size` from its position (drawn in the editor). The fight starts
 ##   once the slime's centre is `dungeon.shutter.insetPx` inside it and as far from each of its
-##   shutters (never in a doorway) while one of its enemies stands.
-## - Its enemies: the PlacedEnemy nodes in `enemies` (or anything with `is_standing()`, or
-##   `is_defeated()`); when `enemies` is empty, every placed enemy standing in its rectangle.
+##   shutters (never in a doorway) while a living enemy stands in it.
+## - **Its enemies are whatever lives in its room now** (game/enemy/live_enemies.gd; owner,
+##   2026-11-21): every enemy whose centre is in the rectangle and that is not beaten, asked each
+##   step, never a count of kills or a list made with the scene. Enemies added to the room scene or
+##   taken out of it in the editor change nothing to wire; one hatched or called in during the fight
+##   (an egg sac's Broodlings) holds the shutters too, and one the slime carries in its mouth still
+##   lives.
 ## - Its shutters: every Shutter (shutter.gd) whose `fight_id` is this `fight_id`.
-## - Won (no enemy stands): after `dungeon.shutter.openDelayMs` the shutters open, `reward` (a
-##   hidden chest, a drawbridge, a shutter...) is set off (DungeonState.fire), `cleared` fires.
-## - `once`: an ambush that never repeats (template rule 8): cleared, it is recorded, and its
-##   placed enemies are taken out of the world for good (they never come back on re-entry). A fight
-##   that is not `once` runs again each time its room is entered with its enemies back.
+## - Won (no living enemy in the room): after `dungeon.shutter.openDelayMs` the shutters open,
+##   `reward` (a hidden chest, a drawbridge, a shutter...) is set off (DungeonState.fire), `cleared`
+##   fires. Its shutters shut from the start (`starts_shut`, R4) in a room with no living enemy open
+##   the same way once the slime is in the room (won without a fight): such a room is never stuck.
+## - `once`: an ambush that never repeats (template rule 8): cleared, it is recorded, and the placed
+##   enemies of its room are taken out of the world for good (they never come back on re-entry). A
+##   fight that is not `once` runs again each time its room is entered with its enemies back.
 ## - `boss_id`: a boss (or mini-boss) fight, once by itself: won, the boss is recorded beaten
 ##   (DungeonState.mark_boss_beaten, RunState `defeated_boss_ids`) and never comes back; the
 ##   map marks its room until then, once the map is held (only the dungeon's boss when its Dungeon
@@ -28,6 +34,7 @@ class_name RoomFight
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const PlacedEnemy := preload("res://game/enemy/placed_enemy.gd")
+const LiveEnemies := preload("res://game/enemy/live_enemies.gd")
 const Shutter := preload("res://game/dungeon/shutter.gd")
 
 const GROUP := &"room_fight"
@@ -51,14 +58,15 @@ signal reset(payload: Dictionary)
 @export var once: bool = false
 ## A boss fight: the boss's id (recorded beaten when won; never comes back).
 @export var boss_id: String = ""
-## Its enemies (PlacedEnemy nodes); empty: every placed enemy standing in the room.
-@export var enemies: Array[NodePath] = []
 ## Called when won (`appear()` or `trigger()`).
 @export var reward: NodePath
 
 var _active := false
+## When the room was last found with no living enemy in it (-1: it holds one).
 var _won_at_ms := -1.0
-var _members: Array[Node] = []
+## The placed enemies standing in its room when it was built: the ones a won `once` or boss fight
+## takes out of the world for good. Never what wins it (that is the living enemies in the room).
+var _placed: Array[Node] = []
 
 
 func _enter_tree() -> void:
@@ -70,11 +78,11 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		set_physics_process(false)
 		return
-	_members = _find_members()
+	_placed = _find_placed()
 	# Won before (an ambush, a boss): its enemies never stand again. Taken out of the placed
 	# enemies' group now, before the world's population collects them (main.gd builds it after).
 	if _is_done_now():
-		_retire_members()
+		_retire_placed()
 
 
 ## The room in world coordinates.
@@ -91,63 +99,73 @@ func is_done() -> bool:
 	return _is_done_now()
 
 
-## Its enemies (PlacedEnemy nodes, or anything with `is_standing()` / `is_defeated()`).
+## The living enemies in its room now (game/enemy/live_enemies.gd).
 func members() -> Array[Node]:
-	var out: Array[Node] = []
-	for member: Node in _members:
-		if is_instance_valid(member):
-			out.append(member)
-	return out
+	return LiveEnemies.in_rect(get_tree(), rect())
+
+
+## How many living enemies stand in its room now.
+func standing_count() -> int:
+	return members().size()
+
+
+## True while a living enemy stands in its room.
+func is_held() -> bool:
+	return LiveEnemies.any_in_rect(get_tree(), rect())
 
 
 ## Ends it as won without the fight (the `?sealed` dev option: the Pearl's guard already beaten):
-## recorded like a won `once` or boss fight, its enemies taken away, its shutters open.
+## recorded like a won `once` or boss fight, its room's enemies taken away, its shutters open.
 func finish_quietly() -> void:
 	_active = false
 	_won_at_ms = -1.0
 	DungeonState.mark_done(get_tree(), _record_key())
-	# Its enemies spawned already: they go with it.
-	for member: Node in _members:
-		var enemy: Node = member.call(&"get_enemy") if is_instance_valid(member) and member.has_method(&"get_enemy") else null
-		if enemy != null and is_instance_valid(enemy) and enemy.get_parent() != null:
-			enemy.get_parent().queue_free()
-	_retire_members()
+	# The enemies living in its room go with it.
+	for enemy: Node in members():
+		var root := enemy.get_parent()
+		if root != null and root != get_tree().root:
+			root.queue_free()
+	_retire_placed()
 	for shutter: Shutter in _shutters():
 		shutter.open()
 
 
-## How many of its enemies stand.
-func standing_count() -> int:
-	var count := 0
-	for member: Node in _members:
-		if not is_instance_valid(member):
-			continue
-		if member.has_method(&"is_standing"):
-			if bool(member.call(&"is_standing")):
-				count += 1
-		elif member.has_method(&"is_defeated"):
-			if not bool(member.call(&"is_defeated")):
-				count += 1
-	return count
-
-
 func _physics_process(_delta: float) -> void:
-	if _is_done_now() and not _active:
-		return
 	var world := Services.world()
 	if world == null or world.player == null or not is_instance_valid(world.player):
 		return
 	var centre: Vector2 = world.player.get_centre()
 	var dead := bool(world.player.call(&"is_dead"))
+	if _active:
+		if dead or not rect().has_point(centre):
+			_reset()
+			return
+		_win_when_clear()
+		return
 	var inside := rect().grow(-DungeonState.number("shutter.insetPx", 80.0)).has_point(centre)
-	if not _active:
-		if inside and not dead and standing_count() > 0 and _clear_of_shutters(centre):
+	if dead or not inside:
+		_won_at_ms = -1.0
+		return
+	if is_held():
+		_won_at_ms = -1.0
+		if not _is_done_now() and _clear_of_shutters(centre):
 			_start()
 		return
-	if dead or not rect().has_point(centre):
-		_reset()
+	# The slime is in the room and nothing lives in it: shutters shut from the start open.
+	if _shut_shutters().is_empty():
+		_won_at_ms = -1.0
 		return
-	if standing_count() > 0:
+	if _is_done_now():
+		for shutter: Shutter in _shut_shutters():
+			shutter.open()
+		return
+	_win_when_clear()
+
+
+## Won `dungeon.shutter.openDelayMs` after its room was last seen with no living enemy in it; a
+## living enemy in it (one that came back or hatched) starts the wait again.
+func _win_when_clear() -> void:
+	if is_held():
 		_won_at_ms = -1.0
 		return
 	if _won_at_ms < 0.0:
@@ -191,7 +209,7 @@ func _win() -> void:
 		DungeonState.mark_boss_beaten(run, dungeon_id, boss_id)
 	if once or not boss_id.is_empty():
 		DungeonState.mark_done(get_tree(), _record_key())
-		_retire_members()
+		_retire_placed()
 	for shutter: Shutter in _shutters():
 		shutter.open()
 	if not reward.is_empty():
@@ -209,23 +227,18 @@ func _record_key() -> String:
 	return DungeonState.object_key(self, "fight:" + (fight_id if not fight_id.is_empty() else String(name)))
 
 
-## Its placed enemies leave the world for good: out of the placed enemies' group (so a population
-## built later never collects them) and freed (one built already skips freed ones).
-func _retire_members() -> void:
-	for member: Node in _members:
-		if is_instance_valid(member) and member is PlacedEnemy:
-			member.remove_from_group(PlacedEnemy.GROUP)
-			member.queue_free()
+## The placed enemies of its room leave the world for good: out of the placed enemies' group (so a
+## population built later never collects them) and freed (one built already skips freed ones).
+func _retire_placed() -> void:
+	for node: Node in _placed:
+		if is_instance_valid(node) and node is PlacedEnemy:
+			node.remove_from_group(PlacedEnemy.GROUP)
+			node.queue_free()
 
 
-func _find_members() -> Array[Node]:
+## Every placed enemy standing in its room.
+func _find_placed() -> Array[Node]:
 	var out: Array[Node] = []
-	for path: NodePath in enemies:
-		var node := get_node_or_null(path)
-		if node != null:
-			out.append(node)
-	if not enemies.is_empty():
-		return out
 	var area := rect()
 	for node: Node in get_tree().get_nodes_in_group(PlacedEnemy.GROUP):
 		if node is Node2D and area.has_point((node as Node2D).global_position):
@@ -240,6 +253,14 @@ func _shutters() -> Array[Shutter]:
 	for node: Node in get_tree().get_nodes_in_group(Shutter.GROUP):
 		if node is Shutter and (node as Shutter).fight_id == fight_id:
 			out.append(node as Shutter)
+	return out
+
+
+func _shut_shutters() -> Array[Shutter]:
+	var out: Array[Shutter] = []
+	for shutter: Shutter in _shutters():
+		if shutter.is_shut():
+			out.append(shutter)
 	return out
 
 

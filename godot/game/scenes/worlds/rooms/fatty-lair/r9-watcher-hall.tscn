@@ -7,7 +7,6 @@
 [ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_wi047"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_m46p3"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-solid--war-banner.tscn" id="7_y242r"]
-[ext_resource type="Texture2D" uid="uid://s230hfbvpo0h" path="res://asset/MAPS/objects/fattys-lair/war-banner.webp" id="8_gmc75"]
 [ext_resource type="PackedScene" uid="uid://bq33wsjpk6gne" path="res://game/scenes/encounters/placed-enemy.tscn" id="9_if44v"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/heavy-statue.tscn" id="10_yffdn"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/latch-door.tscn" id="11_jiiih"]
@@ -71,9 +70,6 @@ y_sort_enabled = true
 
 [node name="r9-banner" parent="Scenery" unique_id=1704552413 instance=ExtResource("7_y242r")]
 position = Vector2(921.6, 281.59998)
-
-[node name="Visual" parent="Scenery/r9-banner" index="1"]
-texture = ExtResource("8_gmc75")
 
 [node name="armor-statue" parent="Scenery" unique_id=1641677801 instance=ExtResource("11_yffdn")]
 position = Vector2(359, 772)

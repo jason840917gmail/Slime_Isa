@@ -47,7 +47,7 @@ cost = {
 }
 locked_message = "The old Workshop has caved in. Nobody has worked here in years."
 restored_message = "The Workshop is restored!"
-interact_radius = 150.0
+interact_radius = 48.0
 badge_rise = 150.0
 
 [node name="Restored" type="Node2D" parent="."]

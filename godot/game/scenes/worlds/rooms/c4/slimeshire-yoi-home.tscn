@@ -182,3 +182,5 @@ loop = true
 autoplay_cue = true
 
 [editable path="yoi-chest"]
+[editable path="Furniture/ladder"]
+[editable path="yoi-quarter"]

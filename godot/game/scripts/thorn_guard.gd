@@ -93,7 +93,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			body.velocity = _asked
 			_animate_march(now, delta)
 		PHASE_RETURN:
-			body.velocity = _velocity_toward(_home, movement_speed, delta)
+			body.velocity = _velocity_home(movement_speed, delta)
 			_animate_march(now, delta)
 			if engaged:
 				_transition(PHASE_MARCH, now)

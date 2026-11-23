@@ -39,7 +39,8 @@ const CLIP_AIR := "air"
 const CLIP_SLAM := "slam"
 const CLIP_DAZED := "dazed"
 const PHASE_CLIPS: Array[String] = [CLIP_CROUCH, CLIP_AIR, CLIP_SLAM, CLIP_DAZED]
-const CUE_CROUCH := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_CROUCH := &"StomperCrouch"
 const CUE_HOP := &"Jump"
 const CUE_SLAM := &"StomperSlam"
 

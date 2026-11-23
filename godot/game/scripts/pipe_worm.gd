@@ -33,6 +33,10 @@ class_name PipeWormScript
 ##   is how far past its mouth its line first leaves the world's collision (`_wall_depth`, found once);
 ##   the glob leaves there, at the wall's foot, and the bonk's reach and the shaken-out worm move out
 ##   by as much. A pipe at its wall's foot (the Bestiary pen) has no depth: nothing changes.
+## - **Thrown things reach it at its wall's face** (owner, 2026-11-21: "can't hit the pipe worm in
+##   R6"): a throw strikes only what it has a clear line to (AbilityWorld.hurtboxes_in_reach, "nothing
+##   should cross walls"), and its hurtbox's middle is inside its wall, so the line is measured to
+##   `reach_point`, just out of the wall's face along its pipe's line.
 ##
 ## Owner: enemy builder.
 
@@ -74,6 +78,8 @@ const FALLEN_HURTBOX_PX := 30.0
 const WALL_SEARCH_PX := 192.0
 const WALL_STEP_PX := 4.0
 const GLOB_CLEAR_PX := 10.0
+## A throw reaches it at this far out of its wall's face (`reach_point`).
+const REACH_OUT_PX := 2.0
 ## The empty pipes beaten worms leave (`_leave_empty_pipe`); a worm back on the spot (the
 ## playground's pens bring one back) takes its pipe's place within this distance.
 const EMPTY_PIPE_GROUP := &"pipe_worm_empty_pipe"
@@ -96,6 +102,8 @@ var _aim: Vector2 = Vector2.DOWN
 var _hurtbox_rest: Vector2 = Vector2.ZERO
 ## How deep its pipe sits in its wall past the mouth (`_wall_depth`); NAN until found.
 var _depth: float = NAN
+## How far along its line from its centre its wall's face is (found with `_depth`; 0 in the open).
+var _face_px: float = 0.0
 
 
 func _ready() -> void:
@@ -265,9 +273,20 @@ func _wall_depth() -> float:
 		walked += WALL_STEP_PX
 	if not inside or walked > MOUTH_PX + WALL_SEARCH_PX:
 		_depth = 0.0
+		_face_px = 0.0
 	else:
 		_depth = maxf(0.0, walked + GLOB_CLEAR_PX - MOUTH_PX)
+		_face_px = walked
 	return _depth
+
+
+## Where a thrown thing's line must get to reach it (AbilityWorld.reach_point): its centre when its
+## pipe is in the open, else REACH_OUT_PX past its wall's face along its line (its hurtbox's middle is
+## inside the wall, which cuts every line to it).
+func reach_point() -> Vector2:
+	_wall_depth()
+	var centre := get_centre()
+	return centre if _face_px <= 0.0 else centre + _pipe_line() * (_face_px + REACH_OUT_PX)
 
 
 func _show_glint(on: bool) -> void:

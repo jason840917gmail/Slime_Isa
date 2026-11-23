@@ -18,7 +18,10 @@ the Shardback and the Crystal Mite; and row 33, every dungeon's Watcher Eye, on 
 beam. Rows 1 to 5, Gorge's worm soldiers, were
 repainted on 2026-10-16 (the [Art](#art) section). Rows 34 to 36, the climb monsters for the tall
 walls (2026-11-14): the Rock Chucker, the Spiny Caterpillar and the Ledge Raven
-([The climb monsters](#the-climb-monsters-rows-34-to-36)).
+([The climb monsters](#the-climb-monsters-rows-34-to-36)). Row 37, the Worm Bulwark (2026-11-21,
+the owner's new enemy): a shield worm who charges ([37. Worm Bulwark](#37-worm-bulwark-charger)).
+Row 38, the Carnivore Plant (2026-11-21, the owner's next): a man-eating plant in a pot who eats
+whatever comes near, enemies too ([38. Carnivore Plant](#38-carnivore-plant-ambusher)).
 
 ## The Bestiary corner
 
@@ -35,7 +38,14 @@ The owner sees every enemy in the playground before it goes into its chapter.
   each gives the row's number, name, kind and right tool; the pens of enemies not built yet are
   grey and say "coming next". Rows 1 to 10 (Chapter 1) are the top two rows. **Pen 34** (2026-11-13,
   beside pen 33) is no bestiary row: three Gloomlings in a dark pen round a brazier that burns, to
-  try their hunt in full darkness ("23. Gloomling").
+  try their hunt in full darkness ("23. Gloomling"). **Pen 37** (2026-11-21) holds the Worm Bulwark:
+  under pen 34, top-left x 5376, y 4832 (on the open grass south of the last row; the last row's
+  fifth slot is the Sky corner's sign and sky). **Pen 38** (2026-11-21, under pen 33, top-left
+  x 4736, y 4832) holds the Carnivore Plant and a prologue worm to feed her, three clay pots, and
+  the Lantern on the Ability Box (`box_ability = &"lantern"`). **Pen 39** (2026-11-22, under pen
+  32, top-left x 4096, y 4832) holds the Jelly Bouncer and a Worm Brawler to lure into his zap, two
+  clay pots, a lump of coal and a lantern (stone and metal, light and sturdy: they lie whole after
+  a bounce), and the Bow on the Ability Box (`box_ability = &"bow"`).
 - **The fence:** posts and a rope, and a body on the `stairs` physics layer (19), the layer every
   walking body but the slime collides with ([ELEVATION.md](ELEVATION.md#stairs-walk)): the enemies
   stay in, the slime walks in and out, and the Bramble Boar crashes into it.
@@ -179,7 +189,8 @@ energy shard stay the base enemy's.
   knocked down from any height); the Bow (12.6) calls it. The Silk Lurker is in it too (an arrow
   cuts its thread at any height). So are the Glint Bat (brought down from any height), the Crystal
   Crawler (killed by an arrow across its way, `hit.direction` or `hit.knock`, or in a turn), the
-  Prism Eye and the Watcher Eye (an arrow into the eye, against its gaze) and the Pick Mole (while
+  Watcher Eye (an arrow into the eye, against its gaze; the Prism Eye only shuts its petals since it
+  became invulnerable, 2026-11-21) and the Pick Mole (while
   it is up). So is every bell (`game/scripts/lash_bell.gd`: an arrow rings it, as a thrown thing
   does; the Spear and the Lash never do; owner, 2026-10-16).
 - **The Lantern's flame:** its hit carries the tags `fire` + `lantern` (`lantern_flame.gd`,
@@ -215,7 +226,7 @@ moves it (2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-
 | 10 | Rook Thief | `rook-thief.tscn`, `rook_thief.gd` | light, silk |
 | 11 | Squint | `squint.tscn`, `squint.gd` | medium, stone |
 | 12 | Pipe Worm | `pipe-worm.tscn`, `pipe_worm.gd`; its glob `projectile.mud-glob` (`mud_glob.gd`) | light, worm |
-| 13 | Dung Roller | `dung-roller.tscn`, `dung_roller.gd` | medium, chitin |
+| 13 | Dung Roller | `dung-roller.tscn`, `dung_roller.gd`; its ball for the Gulp `game/enemy/dung_ball.gd` | medium, chitin |
 | 14 | Big Squint | `big-squint.tscn`, the Squint's `squint.gd` with its own numbers | heavy, stone |
 | 18 | Silk Lurker | `silk-lurker.tscn`, `silk_lurker.gd` | light, chitin |
 | 19 | Thornball | `thornball.tscn`, `thornball.gd` | light, straw |
@@ -236,6 +247,9 @@ moves it (2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-
 | 34 | Rock Chucker | `rock-chucker.tscn`, `rock_chucker.gd`; its boulder `game/enemy/wall_rock.gd` | medium, worm |
 | 35 | Spiny Caterpillar | `spiny-caterpillar.tscn`, `spiny_caterpillar.gd` | light, chitin |
 | 36 | Ledge Raven | `ledge-raven.tscn`, `ledge_raven.gd` | light, silk |
+| 37 | Worm Bulwark | `worm-bulwark.tscn`, `worm_bulwark.gd` | heavy (poise 4), worm |
+| 38 | Carnivore Plant | `carnivore-plant.tscn`, `carnivore_plant.gd` | heavy (rooted), wood |
+| 39 | Jelly Bouncer | `jelly-bouncer.tscn`, `jelly_bouncer.gd`; his ring and bolts `game/enemy/zap_look.gd`, the shock `game/feel/shock_look.gd`, a bounce `game/throw/bounced_throw.gd` | medium, goo |
 
 Scenes in `godot/game/scenes/characters/` (the seed, the glob and the bone in `projectiles/`), all
 in `scene_index.json`.
@@ -295,7 +309,7 @@ clips are mirrored for left.
   then it spits one spore seed straight down it (`projectile.spore-seed`: 170 px/s, 16 damage,
   2.6 s; a slime that stepped off the line is missed) and shows its spitting pose (`spitPoseMs`
   260). The slime stepping close cancels the charge (it hides).
-- **Right tool:** the seed is suckable (Q catches it in flight, within the suck's 80 px cone);
+- **Right tool:** the seed is suckable (Q catches it in flight, within the suck's 160 px cone);
   thrown back (Q), its hit carries the tag `spore-seed`, which kills a Spitcap at once, hidden or
   not. The Spear reaches it from just outside its hiding range (the jab's line is 110 px; a chain
   from 96 px kills it).
@@ -414,7 +428,13 @@ blocks the slime.
   hit carries the tag `mud-glob`: one hit, it dies, hidden or not. Anything else thrown (a pot, a
   rock: tag `thrown`) hits it too, hidden or not, for its own damage (owner, 2026-10-19): its
   shield lets the tag through (`_shields`) and, in the rework, its phases' immunity is every class
-  but `thrown` (`"immune": ["*", "!thrown"]`).
+  but the throws' (`"immune": ["*", "!thrown", "!thrown-medium", "!thrown-heavy", "!thrown-freeze",
+  "!thrown-sleep"]`: a crate, a keg, an ice block or a puffball hits it as a pot does; owner,
+  2026-11-21, after only `thrown`, the light throws' class, got through). A throw strikes only what it has a clear line to
+  (owner, 2026-11-01: "nothing should cross walls"), and the worm's hurtbox sits inside its wall, so
+  the line is measured to its `reach_point`, just out of its wall's face along its pipe's line
+  (AbilityWorld `reach_point`; 2026-11-21: measured to the hurtbox's middle, the wall cut every
+  line and five of R6's six worms could not be hit).
 - **Spear + Roll:** a Roll's bonk within `bonkReachPx` 60 of its feet (rolling into the wall under
   its pipe; any bonk, heavy or not, through GroundShake) jolts it out: it lies on the floor in front
   of the pipe, dazed for `dazedMs` 2600 and open to every hit (30 health: two jabs), then wriggles
@@ -437,10 +457,14 @@ blocks the slime.
 A dung beetle pushing a big mud ball back and forth along a fixed track. Its body is the ball (the
 root stands where the ball meets the ground); the beetle (`beetle`, with its own body shape and
 hurtbox shape that follow it) walks behind the ball, moved round it by the script.
-- **Track** (`track`, a `PackedVector2Array` of points from where it was placed, old centres; pen
-  13 sets `(-150, 0), (150, 0)` through `enemy_properties`): the ball rolls from point to point at
-  `rollSpeed` 120 and back. Anything but the slime that stops it (a wall, the fence, a rock) turns
-  it back early. A dungeon hall gives it its own points.
+- **Track:** a straight line through where it was placed. On the placed enemy, the Inspector's
+  **Patrol Axis** picks Horizontal or Vertical and **Patrol Length** how far it rolls to each side
+  (owner, 2026-11-21: "modify in what direction they wander, horizontal or vertical, since they
+  always go straight"); the editor draws the line. With the axis on "Its own track" it keeps its
+  `track` (a `PackedVector2Array` of points from where it was placed, old centres; pen 13 sets
+  `(-150, 0), (150, 0)` through `enemy_properties`, Fatty's Lair's R10 a long one through
+  `overrides`). The ball rolls from point to point at `rollSpeed` 120 and back. Anything but the
+  slime that stops it (a wall, the fence, a rock) turns it back early.
 - **The ball:** rolling, it hits the slime within `ballHitPx` 40 for `ballDamage` 20 with 300
   knockback (every `contactCooldownMs` 600 at most). A hit from the ball's side clinks.
 - **Turn** (the tell, `turnMs` 900 for a half turn): at each end the ball stops and the beetle walks
@@ -450,7 +474,58 @@ hurtbox shape that follow it) walks behind the ball, moved round it by the scrip
   from the ball) lands, times `rearDamageTaken` 2; any other clinks. A hit's stun holds it on its
   track. 30 health: two Spear jabs from behind.
 - **Right tool:** Roll through the gap (into the lane behind it as it passes, or past the resting
-  ball) and hit the beetle from behind.
+  ball) and hit the beetle from behind. Or steal its ball.
+
+**The stolen ball** (owner, 2026-11-21: "you can suck the dung and they get furious and charge at
+you. The dung is a throwable: you can throw it at him or at other monsters. If you throw it at
+nothing, the ball stays and the beetle forgets about you and goes for it"; `game/enemy/dung_ball.gd`):
+- **The Gulp takes the ball** off the beetle (the ball is a suckable while the beetle has it, as the
+  skull on a bone pile is; a light thing, so Gulp level 1 lifts it). From then on the body is the
+  beetle alone and nothing shields it: every hit lands, as it is (no rear bonus).
+- **Furious:** it stamps for `furyMs` 650 (red, steaming, "!!"), then charges the slime in straight
+  dashes: `chargeSpeed` 300 for `chargePx` 240 or until something stops it, a breather of
+  `chargeRestMs` 750 between dashes, the last `chargeTellMs` 320 of it leaning back (the tell). A
+  dash that reaches the slime (`chargeHitPx` 34) deals `chargeDamage` 15 with 280 knockback. It
+  rages while the slime has the ball, or has broken it, and stands inside its reach (its pen, else
+  its `targeting_radius` 320).
+- **The ball thrown** is a light soft throwable ([THROW_COMBAT.md](THROW_COMBAT.md)): a blow that
+  hurts an enemy breaks it (a mud splat, `BreakSoft`); thrown back at a beetle that has lost its
+  ball it is the kill hit, whatever its health.
+- **A miss leaves it whole** where it came down (the ground, a wall, a clink), and so does a hit on
+  the slime: the mouth drops the ball whole behind it instead of bursting it. The beetle then
+  forgets the slime at once, walks to its ball (`fetchSpeed` 110, round what stands in the way),
+  takes it and rolls it back to the nearest point of its track. The Gulp can steal it again, lying
+  or pushed.
+- **A new ball:** once the slime is out of its reach it walks home (`homeSpeed` 70). There, when its
+  ball is no more (broken, or gone with the slime through a door: it counts as gone `ballOutMs`
+  1200 after the mouth last held it with no ball lying anywhere), it kneads a new one (`kneadMs`
+  1500) and patrols again; while the slime still carries the ball somewhere, it waits at home.
+- **Beaten with its ball**, the ball stays on the ground as a throwable of nobody.
+
+Filmed, not played with a keyboard: `bash scripts/godot/film-enemy-ways.sh <name> --film=<axis |
+steal | throw-miss | throw-back | throw-other | leave | pen>` stages each case on the playground's
+grass (`pen`: in the Bestiary corner's pen 13 as it stands) and writes a frame strip to
+`output/enemy-ways/<name>/` (`godot/tools/film_enemy_ways.gd`). Filmed on 2026-11-21: all seven
+behave as described.
+
+**Up and down** (owner, 2026-11-21: "dung-roller only have horizontal tiles, we need vertical tiles
+also"): its sheet has eight frames (`256x256-tile_8x1-dung-roller.webp`): the side pushes, on its
+back, the ball, then pushing away from the viewer seen from behind (frames 4 and 5) and toward it
+seen from the front (6 and 7). The beetle looks the way it pushes, walks, dashes or turns
+(`_look_toward`: the side view, mirrored for left, when the way is more across than up or down,
+else the back or the front view; `_pose_frame` picks the stride). Its orbit round the ball is
+flattened less (`ORBIT_Y` 0.8, it was 0.55), so pushing up or down it stands clear enough of the
+ball to read: in front of it rolling up, behind it rolling down. Filmed (`--film=axis`), not played.
+
+**Its sounds** (owner, 2026-11-21: "we need to work on the sound effects of the beetle i dont like
+it"): it borrowed the slime's (the `SlamWindup` bubble for its brace, the Roll's whoosh and bonk, a
+synth pop) and a generic hit and splat. It has its own cues now, chosen in [Sound Picker round 13](specs/audio.md#15-round-13-the-beetle-and-the-bubble):
+`DungBrace` (the brace, and the lean-back before a dash), `DungPush` (pushing off), `DungBump` (the
+ball or a dash meeting a wall), `DungFury` (the stamp), `DungCharge` (each dash), `DungBall` (its
+ball back, or a new one kneaded), `DungHurt` and `DungDeath` (played by its script on `damaged` and
+`_defeat`: its scene has no hurt or death player now). His picks (2026-11-22): a gritty feet scrape
+for the brace, a mud shove, a wet splat-thud, an angry chitter, a wing-case whirr for the dash, a mud
+squish for the ball, a knock and squeak, a squeal and topple.
 
 ### 14. Big Squint (mini-boss)
 
@@ -666,14 +741,18 @@ blank orb and follows its gaze; a faint wedge on the ground shows where it looks
   at most, cut at its pen's edge); the slime's centre within `beamHalfWidthPx` 12 + `slimeRadiusPx`
   12 of it takes `beamDamage` 22 (260 knockback along the beam), once.
 - **Cool** (`coolMs` 1400): crystal petals shut over the orb, then it watches again.
-- **Its back is open, its front clinks** (every phase): a hit from an attacker it looks away from
-  (`backDot` 0.2) lands. A hit from behind alarms it: for `alertMs` 1400 it turns toward the slime at
-  `alertTurnDegPerS` 150.
+- **Invulnerable** (owner, 2026-11-21: "make prism eye invulnerable, you have to go around him";
+  `invulnerable` 1 in its `pattern`): every hit clinks, from any side and in every phase, and an
+  arrow into its eye only makes it shut its petals. Only a sleep throw lands (as on every
+  invulnerable enemy on the ground: [THROW_COMBAT.md](THROW_COMBAT.md)), so a puffball lets the
+  slime slip past it. It is an obstacle to get round, not an enemy to beat.
 - **Right tool:** do not be seen: hide behind the heavy block on its column (pen 26; the Heavy skin
-  pushes the block, `heavy_block.gd`, to other cover), and
-  when it looks away, the Spear from behind (28 health: two jabs, or two Lunges; owner,
-  2026-11-01: two Spear hits). The Bow's hook: an arrow into its
-  eye shatters it.
+  pushes the block, `heavy_block.gd`, to other cover) and go round while it looks away, or put it to
+  sleep. Before 2026-11-21 its back was open (a hit from an attacker it looked away from, `backDot`
+  0.2, landed and alarmed it for `alertMs` 1400, turning it at `alertTurnDegPerS` 150; 28 health: two
+  Spear hits) and an arrow into its eye shattered it: the Watcher Eye keeps those rules, and so does
+  a Prism Eye whose `invulnerable` is 0. `godot/tools/check_prism_eye_invulnerable.gd` checks both
+  eyes headless.
 - **Aim switch** (`aimDirections`, 0 here): 4 or 8 makes it a line shooter: the gaze holds one of the
   4 (or 8) lines for `holdMs` 1300, turns to the next over `stepMs` 320, sees the slime only on the
   line it holds (`lineTolerancePx` 16, drawn as a band) and beams straight down it (no tracking). The
@@ -921,6 +1000,199 @@ A big scruffy raven with amber eyes, perched on a balcony's floor (place it ther
 - **Right tool:** hit it on its perch (30 health); in flight every hit clinks. It flies on the
   wall's face as seen from the front: no height, no shadow; neither solid nor stopped.
 
+### 37. Worm Bulwark (charger)
+
+The owner, 2026-11-21: "a heavy-armour worm with a big shield. The Spear does not hurt him. They
+charge at you when they see you, with a wind-up first. They are not easy to stop, so you can dodge
+them while they pass; they can't stop running easily either. 3 light hits to die, 2 medium, 1
+heavy." The rest are the defaults he accepted the same day. A hulking dark-olive worm of Gorge's
+army in a dented iron helmet and iron plates, behind an iron tower shield with Gorge's horned
+mark. `worm-bulwark.tscn`, `game/scripts/worm_bulwark.gd` (on the patterned enemy, the Bramble
+Boar's charge as its model); pen 37; placeable from the Scenery dock's Enemies category.
+
+- **Plod:** he faces the slime behind his shield and plods toward it at `walkSpeed` 50 (stopping
+  `holdPx` 70 from it), inching along on his walk cycles; out of the pen he walks home at
+  `homeSpeed` 50.
+- **Wind-up** (the tell, `windupMs` 800): once the slime is within `sightPx` 260 with a clear line
+  (and `chargeCooldownMs` 600 after his last run) he crouches behind the shield, stamps, kicks dust
+  and glares red.
+- **Charge:** the line from his feet to the slime's is locked at the wind-up's end; he runs it dead
+  straight at `chargeSpeed` 280 (the slime walks at 180: step aside, do not outrun him) for up to
+  `chargeMaxMs` 1600, about 450 px. The slime in his way (`chargeHitPx` 40) is **bowled aside**:
+  `chargeDamage` 30 with `chargeKnockback` 340, knocked mostly sideways (`bowlSideShare` 0.8) at
+  most every `contactCooldownMs` 600, and he runs on (while he runs and skids the slime's body
+  does not stop his). Anything else that stops him (a wall, the
+  pen's fence, a rock, another enemy) and his shield slams into it: **dazed** for `dazedMs` 1500,
+  his back to the slime (a shake and sparks).
+- **Skid** (`skidMs` 600): at the run's end he skids on along his line, from `skidSpeedShare` 0.8
+  of his charge speed to a stop (about 70 px); early in it he still bowls the slime over.
+- **Turn** (`turnMs` 900): after a skid or a daze he turns round slowly to the slime, then plods.
+  His back is open the whole skid, daze and turn.
+- **The shield** blocks every hit from his front with the clink (a hit within `shieldDot` 0.35 of
+  the way he faces, about 70° either side): a thrown thing by the way it flies, any other hit by
+  where the slime stands. Hits into his sides and back land.
+- **Hits, not damage** (the type's `hits` block): a light hit takes a third of his health, a medium
+  half, a heavy all of it (`light` 3, `medium` 2, `heavy` 1; 120 health: 40, 60, 120), whatever the
+  thing is made of (a hot throw, a metal kettle, a snowball are one hit of their weight). A thrown
+  thing's weight is its hit (the hit carries it: `thrown_object.gd` `rework_hit`, the `weight`
+  field), a thrown enemy is a medium hit; the shape powers and the Goo Bomb by their tags
+  (`byTag`: the Axe's `cut` light, the Hammer's `crush` and the bomb's `blast` medium). The bomb's
+  blast goes round the shield (`roundShield`). The Spear, arrows, the Lantern's flame and the Roll
+  (`clinkTags`: `spear`, `arrow`, `fire`, `roll`) clink from every side. The blows a knock brings
+  (a wall splat, a bowled enemy, a fall, a danger zone) do not hurt him (`take_reaction_damage`):
+  only counted hits wear him down, so a pot that knocks him into the wall he faces is still one
+  light hit. A hole or deep water still takes him.
+- **Hard to stop:** his run and skid are armoured (`states.charge`, `states.skid`: armor 4,
+  `noSleep`): a hit in the back hurts but does not stop him, and a sleep throw clinks. A hit that
+  lands in the wind-up cancels it. Heavy (`knockbackScale` 0.2): throws barely push him, and only a
+  Gulp 3 can pick him up while he is dazed (enemies as ammo).
+- **Right tool:** step aside from his charge and throw at his back while he skids, lies dazed
+  against a wall or turns. Pen 37 has three clay pots, a crate and a keg (the crate needs Gulp 2,
+  the keg Gulp 3: the dev powers board, F10).
+- **Sounds:** borrowed cues for now (`BoarScrape` on the wind-up, `RollLaunch` on the run,
+  `RollBonk` and `HitBlocked` on a wall, `Land` getting up; the worm soldiers' hurt and death
+  sounds); his own wait for a Sound Picker round.
+- **Filmed** (2026-11-21, `scripts/godot/film-enemy-ways.sh <name> --tool=film_worm_bulwark
+  --film=<dodge|bowl|wall|front|pen|walk>`, `godot/tools/film_worm_bulwark.gd`, in the corridor between
+  the pen rows and in pen 37): `output/enemy-ways/bulwark-*/strip.png`; all as intended (a pot in
+  his back 120 to 80, three pots 80, 40, down, two crates 60, down, a keg down, a pot at the shield
+  clinks, the bowled slime takes 27 and he runs on, the pen's fence dazes him).
+
+### 38. Carnivore Plant (ambusher)
+
+The owner, 2026-11-21: "she stays in her pot waiting for a victim; she eats everything that comes
+near, even enemies; if she gets an enemy she goes to sleep to digest until the scene gets
+reloaded; if she gets you she damages you and spits you back; if you hit her with a liftable she
+goes to sleep for 10 seconds; only fire kills them; if you get too close you get eaten, so the
+best way is to sleep her or give her something to eat." A greedy flytrap-headed plant with mean
+yellow eyes in a big cracked clay pot. `carnivore-plant.tscn`, `game/scripts/carnivore_plant.gd`
+(on the patterned enemy; her hold on the slime is the Cocoon Mimic's); pen 38; placeable from the
+Scenery dock's Enemies category. She never moves (rooted: `knockbackScale` 0, every hit class
+`armor`, so nothing stuns or pushes her).
+
+- **Her reach** (owner, 2026-11-22: "make the reach distance editable in the editor"): set per
+  plant, her placed enemy's **Reach** in the Inspector (or `reach_px` in a pen's
+  `enemy_properties`), in world units from her pot; 0 keeps her type's `biteRangePx` 72. The editor
+  draws it round her: the bite reach in red, where she starts to open in orange. The numbers below
+  are the type's; a plant's own reach scales her tell (`tellRangePx` / `biteRangePx` of it) and her
+  feed reach (as much more as `feedReachPx` is beyond `biteRangePx`) with it. She has no wander
+  settings (she never moves), and a placed plant goes for the slime wherever it is: her reach alone
+  decides (in her pen, while it is in the pen). Filmed at 140: `output/carnivore-plant/reach-sheet.png`.
+- **Wait:** she watches from her pot with a slow sway. Anything within `tellRangePx` 60 of her pot
+  (the slime's feet, an enemy's feet), `recoverMs` 900 after her last bite, sets her off.
+- **Open** (the tell, `tellMs` 350): she rears up, jaws wide, toward it: to either side, down toward
+  the viewer or up away from it (whichever way it is more: her side, down and up poses, owner
+  2026-11-21). Step back now.
+- **Snap** (`snapMs` 200): her head lunges that way at the nearest thing within `biteRangePx` 72
+  (the slime only while it is not rolling: a Roll slips past), and the jaws close on it where her
+  head reaches in the snap pose (`_jaw`, measured on the sheet).
+  - **An enemy** (any on the ground: not a boss, a flyer, a carried one or another plant) dies
+    where it stood, quietly (no death puff; its rewards fall there, rooms and quests hear its
+    death), and its body slides up into her jaws as they close and is gone (the base enemy's
+    `FATE_EATEN`, over the snap). Then she **eats** it (owner, 2026-11-21: "she gets him and
+    swallows it, all part of the eat animation"): she hauls it back over her pot (`haulMs` 160),
+    munches it twice (`munches` 2 x `munchMs` 260, her head bulging), **swallows** (`swallowMs`
+    520: her head tipped back, a bulge down her stem) and **burps** ("Burp!", `burpMs` 520), then
+    **digests**, asleep for good, until the world is built again (the chunk built anew, the room
+    entered again). Asleep she bites nothing.
+  - **The slime** is dragged into her jaws (its own recoil, `pullMs` 160), hidden and rooted there
+    (`sticky`) while she chews (`holdMs` 1200; `chewDamage` 33 every `chewMs` 550, none in the last
+    `chewMs`), then she **spits** it far back out the way she struck (owner: "far away, not that
+    close"): `spitDamage` 21, then the slime's own recoil `spitPx` 220 in `spitFlyMs` 380. The chew
+    alone costs the slime 30 health (owner, 2026-11-21: "the chew alone makes 30 damage"; 33 less
+    its `character.player.stats.defense` 3), the spit 18 more: 48 a bite.
+  - Nothing in reach: she misses and rests `missRecoverMs` 500.
+- **A thrown thing** (any liftable, light to heavy, a puffball too) hurts her not at all but puts
+  her to sleep (**doze**) for `dozeMs` 5000 (the owner, 2026-11-22: 5 s, down from the first 10);
+  another throw starts the count again. A "z" floats up every `snoreEveryMs` 900 while she dozes
+  or digests.
+- **Feed her:** a thrown enemy (enemies as ammo, [THROW_COMBAT.md](THROW_COMBAT.md#stunned-enemies-as-ammo-prototype))
+  is food, but she never catches it in the air (owner, 2026-11-21: "it has to bounce and then she
+  picks him up from the floor"). Landing within `feedReachPx` 90 of her pot while she is awake, it
+  bounces off her (a hop, `feedBouncePx` 24 in `feedBounceMs` 260, never out of her reach) and lies
+  dazed (`feedDazeMs` 2500) with no landing hit (`catch_thrown`, which
+  `game/throw/gulpable_enemy.gd` asks of every node in the group `enemy_eaters` as the enemy
+  lands); `feedPickMs` 450 later she opens, snaps it up off the floor and eats it.
+- **Only fire kills her:** a hit tagged `fire` (the Lantern's flame) burns her in any phase, asleep
+  too (`_kill_hit`; charred, smoking). Every other blow (the Spear, the Axe, the Hammer, the Roll,
+  arrows, the Goo Bomb) clinks.
+- **Right tool:** the Lantern's flame; else put her to sleep with a throw and walk past, or lure an
+  enemy into her reach (or throw one at her) and she sleeps for good.
+- **Sounds:** her own, the owner's picks of Sound Picker round 14
+  ([audio spec §16](specs/audio.md#16-round-14-the-carnivore-plant)): `PlantOpen` on the tell,
+  `PlantSnap`, `PlantMunch` on each chew, `PlantSwallow`, `PlantBurp`, `PlantSpit`, `PlantDoze`,
+  `PlantBurn`.
+- **Filmed** (`scripts/godot/film-enemy-ways.sh <name> --tool=film_carnivore_plant
+  --film=<bite|eat|doze|fire|feed> [--approach=left|below|above]`, `godot/tools/film_carnivore_plant.gd`,
+  in pen 38): `output/enemy-ways/plant-*/strip.png`.
+
+### 39. Jelly Bouncer (shocker)
+
+The owner, 2026-11-22: "a jelly form monster that does not attack you, he just wanders around
+slowly; eventually he emits lightning and if you are close enough you get electrocuted (an
+electrocution animation that shows your bones). Thrown objects bounce off him back to the thrower,
+so it is better to avoid them. If hit by the Spear, the Axe or the Hammer you get electrocuted; the
+only way to kill him is range attacks." His answers the same day: the zap only in his random zap,
+never at a touch; a thing that bounces back can be caught by the mouth (the rebound's catch); 2
+arrows or 1 bomb kill him; the Lantern's flame does not hurt him (he is jelly); his zap shocks other
+enemies too and reaches further in shallow water; the owner places him in the worlds himself. The
+rest are the defaults he accepted. A plump dome of glossy electric-cyan jelly with a glowing yellow
+spark core and small mean yellow eyes. `jelly-bouncer.tscn`, `game/scripts/jelly_bouncer.gd` (on the
+patterned enemy); pen 39; placeable from the Scenery dock's Enemies category (a placed one wanders in
+its wander area).
+
+- **Wander:** a soft hop of `hopPx` 24 over `hopMs` 420 (lifted `hopLiftPx` 12, stretched up, a
+  squash as he lands) every `hopEveryMs` 650 or so, toward a spot of his pen, his placed enemy's
+  wander area, or `wanderRadiusPx` 110 round where he started; a new spot once there or when a hop
+  would meet a wall. About 20 px a second: slow. Resting, he wobbles.
+- **Charge** (the tell, `chargeMs` 800), every `zapEveryMinMs` 4000 to `zapEveryMaxMs` 6000 at
+  random: he stops, swells and blazes (his charge pose, a quiver), and the ring of his reach flickers
+  on the ground, brighter as the zap nears (`zap_look.gd`, drawn behind him). Step out of it.
+- **Zap** (`zapMs` 320): everything within `zapRadiusPx` 96 of his feet (x `waterReachScale` 1.6
+  while he stands in shallow water), on his level and with no wall between, is **shocked**; jagged
+  bolts reach each of them and the ring's edge, and his art flashes white. Then he rests (`afterMs`
+  500) and wanders on. Touching him does nothing at any time.
+  - **The slime:** `zapDamage` 20 (17 after its defence), no knock; it is **frozen** for `shockMs`
+    800 (`suppress_movement`: no walking, no action) while its look flickers, then kicked
+    `shockKnockPx` 60 away from him (its own recoil, `shockKnockMs` 220). A Roll that dodges the hit
+    (its invulnerability) dodges the shock.
+  - **Other enemies** (on the ground; not another jelly, not a flyer): `zapEnemyDamage` 20 and dazed
+    `zapEnemyDazeMs` 1600 (`EnemyReactions.put_down`), their bones flickering too. Lure an enemy that
+    chases the slime past him as he charges.
+- **The electrocution look** (`game/feel/shock_look.gd`, on any body, the slime's and the
+  enemies'): every 70 ms the body flips between an **X-ray** (its art darkened to a deep blue
+  silhouette through `self_modulate` with the cartoon skeleton glowing in it: one picture for every
+  shape and skin, sized to the body's hurtbox) and its own look lit pale yellow; little sparks
+  crackle round it; at the end a grey puff of smoke and (the slime) the kick away. A slime has no
+  bones: the gag says it does.
+- **The shapes** (the Spear, the Axe, the Hammer: a hit tagged `weapon`) do him no harm, with no
+  clink (the hit is refused as `conducts`), and the slime that struck is shocked as by the zap, at
+  most every `weaponShockCooldownMs` 600. The Roll, the Lash, the Slam and every other blow clink.
+- **A thrown thing bounces off him** (thrown_object.gd: it touches him and does not strike or break;
+  [THROW_COMBAT.md](THROW_COMBAT.md#off-a-jelly-2026-11-22)): he wobbles and boings, and the thing
+  flies back whole from where it touched him toward where the slime stood (not homing) at
+  `bounceSpeed` 380 for up to `bounceRangePx` 360, rising `bounceArcPx` 22. It hits the slime it
+  meets for `bounceDamageLight` 12, `-Medium` 18 or `-Heavy` 26 by the throw's weight
+  (`bounceKnockback` 180 along its flight) and breaks there; a wall or the end of its flight breaks
+  it as a missed throw (a sturdy stone, metal or bone thing lies there whole instead). **The catch:**
+  Q with an empty mouth while it is within the rebound's `catchRangePx` of the slime takes it out of
+  the air ("Catch!", and its next throw is hot), as a sturdy thing's rebound. A piercing thing stops
+  at him too; a Goo Bomb does not bounce (it drops at him and blows).
+- **A thrown enemy** (enemies as ammo) is shocked where it lands by him (`catch_thrown`, the
+  eaters' contract of game/throw/gulpable_enemy.gd, within `thrownEnemyReachPx` 60): it takes the
+  zap's damage and daze with no landing hit and bounces off him `thrownEnemyBouncePx` 26.
+- **What kills him:** arrows, `arrowHits` 2 of them whatever an arrow's damage (each takes half his
+  40 health), and the Goo Bomb's blast, at once (his `_kill_hit`). The Lantern's flame clinks. He
+  melts into a puddle with a fizz of sparks (`BubblePop`).
+- **Right tool:** the Bow from outside his ring, or a Goo Bomb thrown or set by him; keep out of his
+  ring when he charges; do not throw at him (or catch what comes back).
+- **Sounds:** borrowed cues for now (`PrismCharge` on the charge, `SlamImpact` on the zap,
+  `StatusBurn` on a shock, `StatusBouncy` on a bounce, `BubblePop` melting); his own wait for a
+  Sound Picker round.
+- **Filmed** (2026-11-22, `scripts/godot/film-enemy-ways.sh <name> --tool=film_jelly_bouncer
+  --film=<zap|throw|catch|spear|arrows>`, `godot/tools/film_jelly_bouncer.gd`, in pen 39):
+  `output/enemy-ways/jelly-*/strip.png`.
+
 ## Art
 
 One Magnific GPT 2.5 sheet per enemy (four key poses in a 2 x 2 grid, Lili's sheet as the style
@@ -1042,6 +1314,41 @@ prologue worm 0.269, the Crystal Mite 0.165. The Clod
 Stomper's walk is in its own sheet (`256x256-tile_17x1-clod-stomper.webp`,
 `asset/Originals/enemies/clod-stomper/README.md`).
 
+The Worm Bulwark (row 37, 2026-11-21, 160 credits: two takes of each of his two sheets, the first
+with Lili and the Worm Brawler's sheet as references, the second with his first): `worm-bulwark-sheet.png`
+(take A: standing guard, the wind-up, the charge, defeated; facing right; take B kept beside it as
+`worm-bulwark-sheet-take-b.png`) and `worm-bulwark-sheet-2.png` (take B: charging toward the viewer
+behind the shield, charging away seen from behind, the skid, dazed); then his walk cycles (the
+owner's go-ahead the same day, 240 credits: two takes of each, take A kept), an inching crawl with
+no legs, the shield held level: `-sheet-3.png` facing right, `-4` toward the viewer behind the
+shield, `-5` away seen from behind. Packed into `256x256-tile_20x1-worm-bulwark.webp`
+(`MASS_CENTRED`, the later sheets `WALK_MATCHED`; `walk_frame` 8, `walk_step_px` 10), drawn at
+0.46: about 60 px tall, bigger than the Brawler. The charge shows its front or back frame while he
+runs up or down the screen; standing, the wind-up and the turn facing up or down use the first
+step of the walk toward or away from the viewer (no front or back stand of their own).
+
+The Carnivore Plant (row 38, 2026-11-21, 320 credits: two takes of each of her four sheets; the
+first sheet's take B beside it as `carnivore-plant-sheet-take-b.png`): `carnivore-plant-sheet.png`
+(waiting, about to strike with the jaws open, the snap with her stem stretched far to the right,
+chewing), `-sheet-2.png` (dozing, digesting fat and asleep, spitting, burnt), `-sheet-3.png`
+(striking toward the viewer and away: open and snap each) and `-sheet-4.png` (spitting toward the
+viewer and away, the swallow with a bulge down her stem, the burp), packed into
+`384x384-tile_16x1-carnivore-plant.webp`: bigger cells than the others (`CELLS`), as her snap
+reaches far out of the pot, and every pose placed by its pot (`POT_ANCHORED`: the pose's biggest
+terracotta blob, its middle at the cell's middle and its bottom on `POT_FLOORS` 300, which leaves
+room below for the down strike; two poses whose pot hides behind the stem or the goo by hand,
+`POT_ANCHORS`; each later sheet sized by its usual pot), so the pot never moves. Drawn at 0.5
+(about 60 px tall waiting, her side snap reaching about 60 px from her pot); her side poses face
+right, mirrored for left.
+
+The Jelly Bouncer (row 39, 2026-11-22, 160 credits: two takes each of his sheet and of the
+skeleton, take A of both kept, take B beside them): `jelly-bouncer-sheet.png` (resting, charging up
+with sparks over his skin, zapping with bolts bursting out, melted into a puddle), packed into
+`256x256-tile_4x1-jelly-bouncer.webp` (`FAINT_HAZE`: his sparks are kept), drawn at 0.3 (about 59 x
+37 px resting); and `shock-skeleton.png`, the cartoon skeleton every shocked body shows, packed as a
+single picture `128x128-shock-skeleton.webp` (`SINGLES`). His hop, wobble and swell, the ring, the
+bolts, the sparks round a shocked body and the X-ray tint are code.
+
 The scenes load their sheets through `game/runtime/sheet_sprite.gd` (`sheet_path`): the imported
 texture when there is one, else the file itself, so a sheet packed while an editor holds the
 project shows before the editor imports it; it loads as soon as `sheet_path` is set, so a scene
@@ -1049,6 +1356,21 @@ instanced outside the tree (the placed enemies' editor picture) has it too. Comm
 files the editor makes for them.
 
 ## Not done yet
+
+- The Jelly Bouncer (row 39, 2026-11-22) is a first take: filmed in pen 39, not played with a
+  keyboard; his numbers are first guesses; borrowed sounds; in no region's world yet (the owner
+  places him); no test covers him. The electrocution look's skeleton is one front view for every
+  body, whichever way it faces.
+
+- The Carnivore Plant (row 38, 2026-11-21) is a first take: filmed in pen 38, not played with a
+  keyboard; her numbers are first guesses; she strikes four ways (a diagonal victim takes the
+  nearer way); her chew, swallow and burp poses face the viewer whichever way she struck; in no region's world yet; no test covers her.
+
+- The Worm Bulwark (row 37, 2026-11-21) is a first take: filmed in the playground, not played with
+  a keyboard; his numbers are the defaults the owner accepted, untuned; his front and back stands
+  and wind-ups borrow the walk's first steps; borrowed sounds; in no region's world yet; no test
+  covers him. The shapes' and the Goo Bomb's hits on him (by tag) and the Roll's clink were not
+  filmed.
 
 - The climb monsters (rows 34 to 36, 2026-11-14) are first takes: none is in a region's world yet
   (only the climb lab), their numbers are untuned, their sounds are stand-in global cues (the

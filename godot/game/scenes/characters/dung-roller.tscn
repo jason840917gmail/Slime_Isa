@@ -2,10 +2,6 @@
 
 [ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
 [ext_resource type="Script" path="res://game/scripts/dung_roller.gd" id="script"]
-[ext_resource type="Script" path="res://game/runtime/sfx_player_2d.gd" id="sfx"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-1.wav" id="hurt_0"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/synth/weapon/hit-dull-2.wav" id="hurt_1"]
-[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/world/break-soft-1.wav" id="death"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ball"]
 radius = 19.0
@@ -21,12 +17,6 @@ size = Vector2(36, 26)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
 radius = 40.0
-
-[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hurt"]
-playback_mode = 1
-streams_count = 2
-stream_0/stream = ExtResource("hurt_0")
-stream_1/stream = ExtResource("hurt_1")
 
 [node name="DungRoller" type="CharacterBody2D"]
 y_sort_enabled = true
@@ -55,10 +45,10 @@ position = Vector2(0, -23)
 scale = Vector2(0.215, 0.215)
 centered = false
 offset = Vector2(-128, -139.5)
-hframes = 4
+hframes = 8
 frame = 3
 script = ExtResource("sheet")
-sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-dung-roller.webp"
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_8x1-dung-roller.webp"
 
 [node name="Beetle" type="Node2D" parent="."]
 position = Vector2(34, 0)
@@ -69,9 +59,9 @@ position = Vector2(34, 0)
 scale = Vector2(0.19, 0.19)
 centered = false
 offset = Vector2(-128, -248)
-hframes = 4
+hframes = 8
 script = ExtResource("sheet")
-sheet_path = "res://asset/MAPS/enemies/256x256-tile_4x1-dung-roller.webp"
+sheet_path = "res://asset/MAPS/enemies/256x256-tile_8x1-dung-roller.webp"
 
 [node name="DamageArea" type="Area2D" parent="."]
 collision_layer = 8
@@ -96,7 +86,7 @@ monitorable = false
 shape = SubResource("CircleShape2D_attack")
 disabled = true
 
-[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose", "beetle", "beetle_shape", "beetle_hurt_shape", "ball_look")]
+[node name="EnemyScript" type="Node" parent="." node_paths=PackedStringArray("body", "visual", "damage_area", "attack_area", "pose", "beetle", "beetle_shape", "beetle_hurt_shape", "ball_look", "ball_shape", "ball_hurt_shape")]
 script = ExtResource("script")
 enemy_type = "dung-roller"
 body = NodePath("..")
@@ -127,30 +117,6 @@ beetle = NodePath("../Beetle")
 beetle_shape = NodePath("../BeetleShape")
 beetle_hurt_shape = NodePath("../DamageArea/BeetleHurt")
 ball_look = NodePath("../BallLook/Spin")
+ball_shape = NodePath("../BallShape")
+ball_hurt_shape = NodePath("../DamageArea/BallHurt")
 
-[node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]
-script = ExtResource("sfx")
-process_mode = 3
-stream = SubResource("AudioStreamRandomizer_hurt")
-max_polyphony = 4
-bus = &"Effects"
-max_distance = 800.0
-pitch_randomness = 0.06
-min_interval_ms = 90.0
-pan_distance = 400.0
-position = Vector2(0, -22)
-
-[node name="DeathSfx" type="AudioStreamPlayer2D" parent="."]
-script = ExtResource("sfx")
-process_mode = 3
-stream = ExtResource("death")
-max_polyphony = 4
-bus = &"Effects"
-max_distance = 800.0
-pitch_randomness = 0.06
-detached = true
-pan_distance = 400.0
-position = Vector2(0, -22)
-
-[connection signal="damaged" from="EnemyScript" to="HurtSfx" method="play_cue"]
-[connection signal="defeated" from="EnemyScript" to="DeathSfx" method="play_cue"]

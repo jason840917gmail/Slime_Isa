@@ -64,7 +64,9 @@ CUE_INTERVAL = {"player.web-struggle": 700.0, "world.plate-press": 150.0, "world
 ## The break cues that ship one take (round 12: soft, crystal, bone) get the same wider spread, so
 ## repeats are not identical.
 CUE_PITCH = {"player.throw-kill": 0.0, "player.throw-toss": 0.08,
-             "world.break-soft": 0.08, "world.break-crystal": 0.08, "world.break-bone": 0.08}
+             "world.break-soft": 0.08, "world.break-crystal": 0.08, "world.break-bone": 0.08,
+             # Round 13: the beetle's brace ships one take and plays every few seconds.
+             "enemy.dung-brace": 0.08}
 ## Headroom. The loudness rule (TARGET_DB) asks a positive player volume for click-like takes (a crack,
 ## a splat: little energy under a tall peak), which pushes their peaks over full scale; the buses
 ## have no limiter, so that clips at the output. Takes the tool ships are held to PEAK_CEILING_DB

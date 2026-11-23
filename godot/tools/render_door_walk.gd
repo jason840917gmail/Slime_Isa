@@ -7,6 +7,7 @@ extends SceneTree
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/render_door_walk.gd -- --out=<dir>
 ##         --map=<world id> --feet=<x>,<y> [--key=move_up] [--then=move_down] [--frame-ms=40]
 ##         [--after-ms=1400] [--max-ms=4000] [--zoom=<camera zoom>] [--slow=<time scale, 0.25>] [--window=<w>x<h>, 960x540]
+##         [--flag=<story flag set before the walk, repeatable>]
 ## Saving a frame takes real time, so the game runs slowed (`--slow`) to get close frames.
 ## Writes <dir>/frame-<n>.png and prints a line per frame (key, time, world, feet, art, alpha, the feet on screen, the clip).
 
@@ -28,6 +29,7 @@ func _initialize() -> void:
 	var zoom := 0.0
 	var slow := 0.25
 	var window := Vector2i(960, 540)
+	var flags: PackedStringArray = []
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			_out = arg.trim_prefix("--out=")
@@ -53,6 +55,8 @@ func _initialize() -> void:
 			window = Vector2i(int(wh[0]), int(wh[1]))
 		elif arg.begins_with("--slow="):
 			slow = clampf(float(arg.trim_prefix("--slow=")), 0.05, 1.0)
+		elif arg.begins_with("--flag="):
+			flags.append(arg.trim_prefix("--flag="))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_out))
 	DisplayServer.window_set_size(window)
 	var main := (load(MAIN_SCENE) as PackedScene).instantiate()
@@ -61,6 +65,8 @@ func _initialize() -> void:
 	root.add_child(main)
 	for i in 40:
 		await process_frame
+	for flag in flags:
+		Services.run().set_flag(flag)
 	var body := _body()
 	body.global_position = feet
 	body.velocity = Vector2.ZERO

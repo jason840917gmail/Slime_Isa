@@ -188,6 +188,21 @@ func choose(candidates: Array[Dictionary], pointer: Variant) -> Dictionary:
 - Across kinds, priority wins regardless of distance (a door 85 px away beats a bed 10 px away).
 - Ties between object kinds of equal priority (door 90 vs quest offer 90) go to the smaller id:
   `quest-npcs:...` < `world-doors:...`.
+- **[GODOT] Nearest first (owner, 2026-11-21: "I'm closer to Pip but the interaction button is with
+  the shop").** The three rules above are gone: without a pointer the target nearest the slime
+  wins. Every candidate carries its `distance` from the slime's centre (an NPC: to its position, the
+  reach check's; a chest, bed, bath, workbench, usable or essence: to its origin; a building, below:
+  to its walls); the score is that distance less `interaction.facingBonusPx` (24) times how squarely
+  the slime faces the target's pick point (the dot of its facing and the direction, 0 when behind),
+  and the lowest score wins; scores within half a unit are a tie, decided by the higher priority,
+  then the smaller id. The priorities stay on the candidates (and the pointer pick and a click
+  order's preferred target are unchanged).
+- **[GODOT] A building reaches from its walls (2026-11-21).** A target node with
+  `reach_from_walls` (every restoration site by default, the lit Forge's station) measures its
+  `interact_radius` from the walls of the body it belongs to (its nearest CollisionObject2D
+  ancestor's enabled rectangle and polygon shapes, as boxes; `InteractionController.wall_distance`),
+  not from the middle of its base: the Workshop's 150 from its base reached a hundred units out in
+  front of it, over Pip. The Workshop's and the Forge's reach is 48 from their walls.
 
 ### 2.5 The prompt (`InteractionRouter.ts:27-31, 59-66, 105, 199-201`)
 

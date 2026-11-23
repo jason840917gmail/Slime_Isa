@@ -272,7 +272,15 @@ wandering area, and "they come back when the player reloads a chunk, like in Zel
   is turned, set with the editor's rotate tool as a collision shape is: unturned it faces down, and
   the facing snaps to the nearest of down, left, up and right (`facing()`). The editor draws the
   half it sees (its `targeting_radius`) and an arrow out, the picture and label staying upright. An
-  `aim_direction` in `overrides` still wins.
+  `aim_direction` in `overrides` still wins. **Patrol** (owner, 2026-11-21): an enemy that goes
+  back and forth on a straight line (its EnemyScript has `patrol_axis`: the Dung Roller) shows
+  `patrol_axis` (Its own track, Horizontal, Vertical) and `patrol_length` (to each side of where it
+  stands) in the Inspector, and the editor draws the line; the other types hide both. **Reach**
+  (owner, 2026-11-22): an enemy that never leaves its spot and bites what comes near (its
+  EnemyScript has `reach_px`: the Carnivore Plant) shows `reach` (world units from its spot; 0 keeps
+  its type's `biteRangePx`) instead of `wander_area_id` and `wander_radius`, which it does not use,
+  and the editor draws its bite reach (red, filled) and where it starts to open (orange). A
+  `reach_px` in `overrides` still wins.
 - **`enemy-wander` areas** (`world_area.gd`): one shape (rectangle or circle), no data; the record
   is `{id, kind, data, perimeter, stay_perimeter = perimeter}`.
 - **Spawning:** `EnemyPopulation.setup` finds the world's PlacedEnemy nodes and enemy-wander areas;
@@ -396,12 +404,39 @@ and `|last_seen − enemy| > 18` and `home_distance(home, last_seen) <= 520` →
 | home | `(in_sight or hurt) and reachable` → engage; `from_home > 18` → go_home; else `{mode:home}` (AI runs, may_engage false) |
 | engaged | `!player or !reachable` → go_home; `lost = !sees_player or distance > aggro*1.5`; `lost and !hurt` → search; else engage |
 | searching | `(in_sight or hurt) and reachable` → engage; `now >= search_until` → go_home; else search |
-| returning | `hurt and reachable` → engage (sight alone does not); `from_home <= 0` → mode home, `last_seen = null`, `{mode:home, regenerate:true, restore_health:true}`; else go_home |
+| returning | `reachable and (hurt or (in_sight and within_leash with from_home + reengage_margin))` → engage (Phaser: a hit only; see "Getting home"); `from_home <= 0` → mode home, `last_seen = null`, `{mode:home, regenerate:true, restore_health:true}`; else go_home |
 
 After the decision (`EnemyScript.ts:568-569`): `restore_health` → `restore_health(max_health)`; else
 `regenerate` → `restore_health(hp + max_health * 0.35 * delta)`.
 `restore_health(v)`: `next = min(max, max(hp, v))`; if unchanged or defeated → nothing; else set and emit
 `health_changed({hp, maxHp})`.
+
+**Getting home** (not Phaser's; owner, 2026-11-21: on their way back "sometimes they get stuck in
+a wall and then they can't attack or do anything, they are lost. Make sure the intelligence is enough
+so they don't get stuck"). Phaser's walk home was a straight line at the home's centre, and on it
+only a hit turned the enemy round, so one held against a wall, a cliff, water or a fence stood there
+for good and ignored the slime. Three changes, numbers in `combat.wayAround` (game-constants.json):
+- **Round obstacles** (`game/enemy/way_around.gd`, used by every `move_to` walk: home and to
+  `last_seen`): while the body's own shape, moved `probePx` (20) along the line, meets nothing it
+  collides with, it walks the line. Once blocked it picks the side that opens with the smaller turn
+  and feels its way along the obstacle on the compass's eight headings, keeping it on that side:
+  each step it tries to turn back toward it (after `turnHoldMs` 160 on its heading), then straight
+  on, then away, round to straight back out of a dead end. It is back on the line as soon as it is
+  `leavePx` (6) nearer its goal than where it met the obstacle and the line is open.
+- **Sight turns it round too:** in `returning`, the slime in sight within aggro and inside the leash
+  by `reengageMarginPx` (48) engages it, as a hit does (the margin keeps it from flickering between
+  the chase and the walk at the leash's edge).
+- **It settles when it cannot get home:** `giveUpMs` (8000) without getting `progressPx` (12)
+  nearer than it has ever been (a ledge it was knocked off, a gate shut behind it), its home becomes
+  a circle of `settleRadiusPx` (96) where it stands (`CampTerritory.settle`) and it is at home there:
+  it wanders, notices and attacks as any camp enemy. The world's next build puts it back.
+The bestiary's patterned enemies have no territory: their own patterns watch for the slime on every
+step, walk home included. Their walks home use the same steering (`patterned_enemy.gd`
+`_velocity_home`: the Popworm, Bramble Boar, Thorn Guard, Squints, Thornball, Broodling, Cocoon
+Mimic, Brood Warden, Gloomling, Shardback, Bone Leaper), and a home one of them
+cannot reach moves to where it stands. Not changed: the chase itself still runs straight at the slime.
+Filmed: `bash scripts/godot/film-enemy-ways.sh <name> --film=home-wall` (add
+`--set=combat.wayAround.probePx=0` for the old straight line) and `--film=home-notice`.
 
 Consequences worth knowing:
 - `may_engage` is false in every mode except engaged, so idle/wandering worms only start chasing via the
@@ -1050,7 +1085,9 @@ the stun slide); a shielded phase refuses hits with "immune", and each type's pa
 `projectile.gd` (section 12) the Gulp can catch; the Spitcap and the Pipe Worm spit four-way, only
 along a line they share with the slime (section 20). Fatty's Lair's Squint (and the Big Squint, the same
 script), Pipe Worm and Dung Roller (rows 11 to 14) extend it the same way; the Pipe Worm's mud glob
-(`projectile.mud-glob`) is the seed with its own kind. A kill hit (`_kill_hit`) is accepted in every
+(`projectile.mud-glob`) is the seed with its own kind. The Dung Roller's ball is a suckable of its
+own (`res://game/enemy/dung_ball.gd`, as the skeletons' skull): taken, the roller's body becomes the
+beetle alone and its pattern turns to fury, fetching and kneading ([BESTIARY.md](../BESTIARY.md)). A kill hit (`_kill_hit`) is accepted in every
 phase, before the shield and the reaction profile's gate. Chapter 2's Silk Lurker, Thornball,
 Broodling (and its egg sac, which spawns them with its own arena), Cocoon Mimic and Brood Warden
 (rows 18 to 22) extend it the same way; the Goo Bomb's blast reaches them as any hit, tagged `blast`.
@@ -1063,4 +1100,22 @@ per leg and does not expire on a hit. The Crystal Caverns' seven (rows 23 to 29)
 (row 33, on the Prism Eye's `prism_eye.gd`) extend it the same way; their hits that do not start at
 the enemy's centre (a beam, a pickaxe's landing, a mite's landing) go through `_route_hit_from`
 (section 5's request from another point), and the Pick Mole's pickaxe is no projectile scene but a
-node that only flies an arc (`res://game/enemy/lobbed_shot.gd`) and calls the mole when it lands.
+node that only flies an arc (`res://game/enemy/lobbed_shot.gd`) and calls the mole when it lands. The Worm
+Bulwark (row 37, 2026-11-21, `res://game/scripts/worm_bulwark.gd`) extends it the same way: his
+shield is a `_shields` that answers by where a hit comes from (his front clinks), and his
+`mitigate_damage` counts hits instead of damage (a light, medium or heavy hit takes a third, a half
+or all of his health; the thrown hit carries its thing's `weight`), both from the `hits` block of
+his type in `enemy-types.json`; his `take_reaction_damage` refuses the blows a knock brings (a
+splat, a bowl, a fall) unless they are all his health (a hole, deep water). The Carnivore Plant
+(row 38, `res://game/scripts/carnivore_plant.gd`) extends it rooted: she eats other enemies by
+killing them quietly (the reaction state's `sendoff`, then `take_reaction_damage` of all their
+health) and giving their corpse the fate `FATE_EATEN` (`begin_fate`: it slides into her jaws and is
+gone, no pop, no cue) toward her jaws, and she takes a thrown enemy as it lands (`catch_thrown`, the
+group `enemy_eaters`: it bounces off her and lies dazed, and she picks it up). The Jelly Bouncer
+(row 39, 2026-11-22, `res://game/scripts/jelly_bouncer.gd`) extends it too: his `can_receive_damage`
+takes only arrows (each `ceil(maxHp / arrowHits)` in `mitigate_damage`) and the Goo Bomb's blast
+(his `_kill_hit`), refuses a shape's hit as `conducts` (no clink: he shocks the slime back) and a
+thrown thing as `bounces`, and clinks the rest; his zap hits the slime through `_route_hit_from`
+with no knock, holds it with its `suppress_movement` and hurts other enemies by
+`take_reaction_damage` and `EnemyReactions.put_down`; he is in the group `throw_bouncers`
+(game/throw/bounced_throw.gd) and in `enemy_eaters` (a thrown enemy landing by him is shocked).

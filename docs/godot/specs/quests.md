@@ -588,8 +588,9 @@ confirm (owner decision J1); full behaviour in [journal-and-chest.md](journal-an
 Every `NpcScript` with a known definition is a record `{instanceId, npcId = npcDefinitionId, actor}`
 (`:77-81`); `isActive` = in the tree (a story variant can park it). Reach 96 from the NPC position
 (sprite bottom) to the player **[CENTRE]**; badge anchor NPC + (30, -30); pointer origin NPC −
-(0, 24); every NPC in reach is a candidate (`getCandidates`, interaction spec §2.3-2.4: equal
-priorities are decided by the smaller id, not distance).
+(0, 24); every NPC in reach is a candidate (`getCandidates`, interaction spec §2.3-2.4: the
+nearest target wins since 2026-11-21, the one the slime faces helped; Phaser decided equal
+priorities by the smaller id, not distance).
 
 ### 5.2 Candidate per NPC (`candidateFor :130-210`), evaluated every poll
 
@@ -775,7 +776,7 @@ Givers and where they stand (old Phaser NPC positions = sprite bottom; they wand
 | `fisherman-slime` | Lily the Fishergirl | level-1 `level-1-npc-fisherman-slime` | (1350.4, 742.4) |
 | `level-1-spider-giver` | Mossy | level-1 `level-1-npc-mossy-scout` (in `chapter-1-villagers`, parked once `chapter-1-complete` is set); gloop-forest `gloop-ch2-npc-mossy` (camp) | (857.6, 697.6); (1816, 1768) |
 | `yellow-blond-slime-girl` | Sunny | level-1 `level-1-npc-yellow-blond-slime-girl` (same variant); gloop-forest `gloop-ch2-npc-sunny` | (857.6, 947.2); (1952, 1904) |
-| `tom` (Godot, 2026-10-09) | Tom | gloop-forest: wrapped in `object.tom-web` in the south-west spider thicket until freed, then the camp's story variant `camp/tom-at-camp` (`character.tom`, idles in place) | web (860, 2470); camp (1764, 1858). *Since 2026-11-19 the web hangs in Tom's clearing in `gloop-forest-e5` at (736, 1440) (§14.3)* |
+| `tom` (Godot, 2026-10-09) | Tom | gloop-forest: wrapped in `object.tom-web` in the south-west spider thicket until freed, then the camp's story variant `camp/tom-at-camp` (`character.tom`, idles in place) | web (860, 2470); camp (1764, 1858). *Since 2026-11-19 the web hangs in Tom's clearing in `gloop-forest-e5` at (736, 1440) (§14.3)* *Since 2026-11-21 (River Roads) in his hollow under a rock ledge in `gloop-forest-e3` at (416, 397), by the Mere, behind the fallen tree `tom-rubble` (a Heavy Roll); the camp's variant is in `gloop-forest-e4`* |
 
 ### 7.1 Chapter 1 (`chapterOne.ts`), catalog order
 
@@ -866,7 +867,7 @@ Every quest has `failurePolicy: permanent` (none can fail in practice). Every NP
 | the-old-workshop | restoration site (ported) | reachable only after chapter 2 |
 | a-tonic-for-lili, snack-for-the-road | crafting | ported (`test_lili_tonic_and_snack`) |
 | beyond-the-verdant-gate | `enemy.died` for orb-weavers; weaver-fang loot piles | ported (`test_beyond_the_verdant_gate_weavers_and_fangs`) |
-| tom-in-the-web (Godot, 2026-10-09) | the web `object.tom-web` (`game/scripts/tom_web.gd`: 3 weapon hits tear it while the quest is active, `object.activated` counts, flag `tom-freed`); Tom's turn-in at the camp | built (`test_tom.gd`); awaiting the owner |
+| tom-in-the-web (Godot, 2026-10-09) | the web `object.tom-web` (`game/scripts/tom_web.gd`: 3 weapon hits tear it, with no quest gating it since 2026-11-19, `object.activated` counts, flag `tom-freed`); Tom's turn-in at the camp | built (`test_tom.gd`); awaiting the owner |
 | a-harder-pick | crafting; iron ore piles (iron nodes need tier 2: the reinforced pickaxe) | ported (`test_chapter_two_gloop.gd`) |
 | rekindle-the-forge | restoration (ported); forge crafting | ported (`test_chapter_two_flow.gd`) |
 | iron-gear | crafting | ported (`test_chapter_two_flow.gd`) |
@@ -1523,7 +1524,9 @@ session (main.gd `start_rework`); a dungeon's F6 powers list it.
 **Tom's Goo Bomb** (step A3, built 2026-11-19): taught where he hangs, as the web tears
 (game/scripts/tom_lesson.gd, the `TomLesson` node of `object.tom-web`; not a talk: the slime is held
 with the PrologueScene helpers, his lines, `RunState.learn_ability("goo-bombs")` with its ceremony,
-the flag `tom.goo-bomb-taught`, a line about the cracked wall by his clearing). A run that tore the
+the flag `tom.goo-bomb-taught`, a line about the cracked rock in the ledge beside his hollow,
+gloop-forest-e3 `RiverRoads/tom-crack`: blown, the old raft landing, a one-way ride back to E4's
+camp). A run that tore the
 web without it (an old save) gets it from Tom at the camp: his `goo-bomb-lesson` talk
 (`ifFlags: ["tom-freed"]`, `unlessFlags: ["tom.goo-bomb-taught"]`, the same flag and
 `learnAbility`). His old Swallow lines are gone.
@@ -1606,7 +1609,7 @@ service's `heard_tips()` gives them newest first with the speaker's name.
 | `pip.bow-rune` | Pip | `workshop.restored`, the Bow not learned: he can carve a bow rune at the Workshop from 5 wood, the Matron's thread and a clear crystal from his dad's mine |
 | `pip.camp-lenses` | Pip | with his bow rune (the Bow learned): two old crystal lenses on the river's north bank by the lake camp, south of the village: strike both with arrows, from the camp across the water |
 | `pip.fizzy-brew` | Pip | `forge.restored` (Pearl 3 home since 2026-11-20): the Forge glows and brews the Fizzy Brew (teaches `brew-fizzy`) |
-| `mossy.tom` | Mossy | at the camp (`chapter-1-complete`), before `tom-freed`: Tom went into the south-west woods; the Weaver Hollow's root gate needs something that blows up |
+| `mossy.tom` | Mossy | at the camp (`chapter-1-complete`), before `tom-freed`: Tom crossed the north creek into the webbed thicket (the south-west woods until 2026-11-21); the Weaver Hollow's root gate needs something that blows up |
 | `tom.watch-oak` | Tom | `tom-freed` (after his Goo Bomb lesson): the Watch Oak's root gate, north-east, cracks to a bomb |
 | `young-burr.planks` | Young Burr | with his Roll lesson: the old planks over the dry ditch beside Burr's cottage drop under a walking slime |
 | `burr.bow-rune` | Burr | his first talk at home (his thanks): Pip, the smith's son, could carve a bow rune once Slimeshire's old Workshop stands again (since 2026-11-20; `burr.goo-bow`, `burr.matron-thread` and `burr.camp-lenses` went with his Bow lesson the same day) |

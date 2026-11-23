@@ -98,7 +98,7 @@ func _step_skeleton(now: float, delta: float, target: Dictionary, engaged: bool)
 				if now >= _ready_at and _sees(now, target):
 					_cast(now, slime)
 			elif centre.distance_to(_home) > pattern("homeSlackPx", 8.0):
-				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 40.0), delta)
+				body.velocity = _velocity_home(pattern("homeSpeed", 40.0), delta)
 				face_x(body.velocity.x)
 				show_walk(delta, FRAME_WATCH)
 			else:

@@ -1,0 +1,117 @@
+{
+ "round": "round-13",
+ "decidedAt": "2026-11-22T04:28:32.304Z",
+ "source": "The Sound Picker's picks/round-13 document, version 57 (final), as saved: every cue picked, none Neither, no note or wishes. Dropped takes are the ones he struck out (indices from 0).",
+ "note": "",
+ "picks": {
+  "enemy.boar-scrape": "b",
+  "enemy.chucker-windup": "c",
+  "enemy.colossus-raise": "a",
+  "enemy.dung-ball": "b",
+  "enemy.dung-brace": "c",
+  "enemy.dung-bump": "b",
+  "enemy.dung-charge": "b",
+  "enemy.dung-death": "b",
+  "enemy.dung-fury": "b",
+  "enemy.dung-hurt": "b",
+  "enemy.dung-push": "b",
+  "enemy.prism-charge": "c",
+  "enemy.shardback-rear": "c",
+  "enemy.squint-rear": "c",
+  "enemy.stomper-crouch": "a",
+  "enemy.thornball-curl": "c",
+  "enemy.warden-windup": "c",
+  "player.goo-bomb-cast": "c",
+  "player.hammer-swing": "a",
+  "player.slam-rise": "b",
+  "world.ore-lift-ride": "a"
+ },
+ "dropped": {
+  "enemy.boar-scrape": {
+   "b": [
+    0,
+    2
+   ]
+  },
+  "enemy.chucker-windup": {
+   "c": [
+    0,
+    2,
+    3
+   ]
+  },
+  "enemy.colossus-raise": {
+   "a": [
+    0,
+    2,
+    3
+   ]
+  },
+  "enemy.dung-brace": {
+   "c": [
+    0,
+    2,
+    3
+   ]
+  },
+  "enemy.dung-charge": {
+   "b": [
+    0,
+    1
+   ]
+  },
+  "enemy.dung-hurt": {
+   "b": [
+    0
+   ]
+  },
+  "enemy.prism-charge": {
+   "a": [
+    1
+   ],
+   "c": [
+    2,
+    3
+   ]
+  },
+  "enemy.shardback-rear": {
+   "c": [
+    0,
+    2,
+    3
+   ]
+  },
+  "enemy.squint-rear": {
+   "b": [
+    2
+   ],
+   "c": [
+    0
+   ]
+  },
+  "enemy.thornball-curl": {
+   "c": [
+    0,
+    3
+   ]
+  },
+  "enemy.warden-windup": {
+   "c": [
+    0
+   ]
+  },
+  "player.goo-bomb-cast": {
+   "c": [
+    0,
+    2,
+    3
+   ]
+  },
+  "player.slam-rise": {
+   "b": [
+    0,
+    1
+   ]
+  }
+ }
+}

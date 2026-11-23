@@ -103,3 +103,4 @@ loop = true
 autoplay_cue = true
 
 [editable path="Objects/sally-chest"]
+[editable path="Objects/ladder"]

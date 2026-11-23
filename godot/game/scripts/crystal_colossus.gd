@@ -69,7 +69,8 @@ const CLAW_GLOW_AT := Vector2(0, -170)
 const STUN_GLOW_AT := Vector2(0, -88)
 const CUE_GRIP_LOST := &"StomperSlam"
 const MITE_SCENE := "character.crystal-mite"
-const CUE_RAISE := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_RAISE := &"ColossusRaise"
 const CUE_STOMP := &"StomperSlam"
 const CUE_CLINK := &"HitBlocked"
 const CUE_CRACK := &"BreakGlass"

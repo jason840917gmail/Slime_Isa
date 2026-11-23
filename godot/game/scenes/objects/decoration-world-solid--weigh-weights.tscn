@@ -1,20 +1,22 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dmfdo0gcgrihx"]
 
-[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://boby61017emfh" path="res://asset/MAPS/objects/fattys-lair/weigh-weights.webp" id="1_8npew"]
+[ext_resource type="Script" uid="uid://dlc3n8dnts8jd" path="res://game/runtime/sheet_sprite.gd" id="1_sheet"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
-size = Vector2(72, 28)
+size = Vector2(72, 55)
 
-[node name="weigh-weights" type="StaticBody2D"]
+[node name="weigh-weights" type="StaticBody2D" unique_id=1629370110]
 y_sort_enabled = true
 collision_mask = 0
 
-[node name="BodyShape" type="CollisionShape2D" parent="."]
-position = Vector2(0, -14)
+[node name="BodyShape" type="CollisionShape2D" parent="." unique_id=2097507437]
+position = Vector2(0, -27.5)
 shape = SubResource("body_shape")
 
-[node name="Visual" type="Sprite2D" parent="."]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1806038120]
 scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_8npew")
 centered = false
 offset = Vector2(-84, -176)
 script = ExtResource("1_sheet")

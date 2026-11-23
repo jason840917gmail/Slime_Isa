@@ -6,8 +6,9 @@ class_name TomLesson
 ## slime is held still (PrologueScene.hold every physics step) and he speaks: he got caught studying
 ## the webs, the Matron's brood wrapped him up, thanks. Then he teaches the **Goo Bomb** right there
 ## (`RunState.learn_ability("goo-bombs")`: QuestNotifications plays its ceremony card), sets
-## TAUGHT_FLAG, points at the cracked wall in the ledge beside his clearing (gloop-forest-e5
-## `tom-crack`, game/scripts/cracked_wall.gd: blown, a short way back to the trail) and fades away
+## TAUGHT_FLAG, points at the cracked wall in the ledge beside his hollow (gloop-forest-e3
+## `RiverRoads/tom-crack`, game/scripts/cracked_wall.gd: blown, the old raft landing, a ride back to
+## the camp's jetty) and fades away
 ## to Mossy's camp, where he waits (gloop-forest-e4 `camp/tom-at-camp`, shown on `tom-freed`).
 ##
 ## A run that tore the web without the lesson (a save from before 2026-11-19, or a game closed during
@@ -31,7 +32,7 @@ const THANKS: Array[String] = [
 	"You cut me loose, so here's my best trick. Brew a little bomb of goo inside you, nice and slow... then spit it out!",
 ]
 const AFTER: Array[String] = [
-	"See the cracked rock in that ledge? One bomb, and you have a quick way back to the trail.",
+	"See the cracked rock in that ledge? One bomb, and the old raft takes you back to camp.",
 	"Mind the blast, though! I'm off to Mossy's camp. Come and find me there.",
 ]
 

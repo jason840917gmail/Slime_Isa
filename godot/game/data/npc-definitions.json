@@ -89,12 +89,12 @@
         ],
         "pages": [
           "Psst! Over here. Welcome to my camp, behind these old walls.",
-          "Tom, a friend of mine, went into the south-west woods to look at the webs. He never came back.",
-          "And the Weaver Hollow, up in the north-east? Its root gate is shut tight. Only something that blows up would open it."
+          "Tom, a friend of mine, crossed the north creek into the thicket to look at the webs. He never came back.",
+          "And the Weaver Hollow, across the river to the east? Its root gate is shut tight. Only something that blows up would open it."
         ],
         "tip": {
           "id": "mossy.tom",
-          "text": "Tom went into Gloop Forest's south-west woods to look at the webs, and never came back."
+          "text": "Tom crossed the north creek into the webbed thicket, and never came back."
         }
       }
     ]
@@ -272,6 +272,39 @@
     ],
     "talks": [
       {
+        "id": "critters-prize",
+        "ifFlags": [
+          "gloop-forest.critter-squirrel",
+          "gloop-forest.critter-hedgehog",
+          "gloop-forest.critter-snail",
+          "gloop-forest.critter-robin",
+          "gloop-forest.critter-bluebird"
+        ],
+        "unlessFlags": [
+          "sunny.critters-prize"
+        ],
+        "pages": [
+          "They're all home! The squirrel, the hedgehog, the snail, and both little birds!",
+          "The spiders had wrapped them up like presents. You set every one of them free!",
+          "Here, my three best baskets of sunny berries. You earned every one!"
+        ],
+        "giveItems": {
+          "berry-basket": 3
+        },
+        "setFlags": [
+          "sunny.critters-prize"
+        ]
+      },
+      {
+        "id": "critters-home",
+        "ifFlags": [
+          "sunny.critters-prize"
+        ],
+        "pages": [
+          "Look at them all, safe and sound in the camp. The forest feels brighter already!"
+        ]
+      },
+      {
         "id": "lost-basket",
         "ifFlags": [
           "chapter-1-complete"
@@ -279,7 +312,9 @@
         "pages": [
           "Oh, hello again! I came to the forest with Mossy to pick berries.",
           "But my berry basket fell across the north stream, and I can't reach it from here.",
-          "Maybe one day you'll find a way to fetch it back. No hurry! The sun will wait."
+          "Maybe one day you'll find a way to fetch it back. No hurry! The sun will wait.",
+          "Oh, and the spiders have wrapped the forest's little animals up in silk! Five of them.",
+          "If you ever free them, I bet they'd run straight home to the camp. I'd love to see them!"
         ]
       }
     ]
@@ -483,14 +518,14 @@
         "id": "shop-after-belt",
         "ifFlags": ["shop.dollop.belt-slot.sold"],
         "pages": [
-          "Back again! Tonics, Fizzy Brew, berries and sticks for your fire, all at the counter.",
+          "Back again! Tonics, Fizzy Brew, berries and crystal shards, all at the counter.",
           "That belt loop suits you, by the way. Only the one, I'm afraid: the worms took the rest."
         ]
       },
       {
         "id": "shop",
         "pages": [
-          "Welcome to Dollop's! Step up to the counter for tonics, Fizzy Brew, berries and a bundle of sticks for your campfire.",
+          "Welcome to Dollop's! Step up to the counter for tonics, Fizzy Brew, berries and crystal shards.",
           "And look here: one fine belt loop, the last I have. Hang a potion on it and it's always at hand.",
           "Coins? The worms drop them when you bonk them. Don't ask me where they get them."
         ],

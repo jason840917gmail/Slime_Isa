@@ -12,6 +12,9 @@ extends RefCounted
 const TABLE := "res://asset/MAPS/trees/canopy/canopy.json"
 ## A tile's `forest_trees` entry that paints a canopy wall of the set after it.
 const PREFIX := "canopy:"
+## ... and one that paints a path under the canopy (River Roads, 2026-11-21): the same crowns
+## overhead, no collision on its cells, no roots at its mouths, the crowns fading over the slime.
+const PATH_PREFIX := "canopy-path:"
 const CROWNS := "crowns"
 const ROOTS := "roots"
 
@@ -27,11 +30,21 @@ static func table() -> Dictionary:
 	return _table
 
 
-## The canopy set a painted cell's trees name ("canopy:forest" -> "forest"), or "" for trees.
+## The canopy set a painted cell's trees name ("canopy:forest" or "canopy-path:forest" -> "forest"),
+## or "" for trees.
 static func set_of(trees: PackedStringArray) -> String:
-	if trees.size() != 1 or not trees[0].begins_with(PREFIX):
+	if trees.size() != 1:
 		return ""
-	return trees[0].trim_prefix(PREFIX)
+	if trees[0].begins_with(PREFIX):
+		return trees[0].trim_prefix(PREFIX)
+	if trees[0].begins_with(PATH_PREFIX):
+		return trees[0].trim_prefix(PATH_PREFIX)
+	return ""
+
+
+## True when a painted cell's trees are a path under the canopy.
+static func is_path(trees: PackedStringArray) -> bool:
+	return trees.size() == 1 and trees[0].begins_with(PATH_PREFIX)
 
 
 ## How many pieces of `kind` (CROWNS or ROOTS) the set has.

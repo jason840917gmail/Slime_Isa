@@ -117,7 +117,11 @@ their void stretches (the checker walks a hole as open ground), accepted as Burr
 | The Under-line Tunnel (the Lantern) | `crystal-caverns-under-line-tunnel` | two south doorways: the east shelf (H4, `tunnel-north`) and the bay (H5, `tunnel-south`), deadthorn at both |
 
 Their doors target the chunk worlds directly, as the mine's do. The dark rooms are `DarkRoom`s lit
-for good by their two braziers.
+for good by their two braziers. *As built (2026-11-22): each brazier burns 60 s alone
+(`burn_ms` 60000) and goes out; the room lights for good once both burn at the same time
+(`lit_for_good_when_all_lit`, saved as its `lit_flag`: `crystal-caverns-dark-nook.lit`,
+`crystal-caverns-under-line-tunnel.lit`), which keeps them lit. The
+gate's brazier in G4 and the smith's lamp burn for good on one flame (`burn_ms` 0).*
 
 ## Side ways and secrets
 

@@ -70,6 +70,9 @@ var _climb_from: float = 0.0
 var _swing: float = 0.0
 var _cut: bool = false
 var _thread: Line2D
+## Sprung by a tripwire (game/world/webs/tripwire.gd): its tell and drop run on even with the slime
+## out of its range; cleared once it hangs.
+var _tripped: bool = false
 
 
 func _ready() -> void:
@@ -96,7 +99,7 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 				_cue(CUE_TELL)
 		PHASE_TELL:
 			_swing = sin(now / SHIVER_MS) * SHIVER_PX
-			if not engaged:
+			if not engaged and not _tripped:
 				_transition(PHASE_LURK, now)
 			elif elapsed >= pattern("tellMs", 450.0):
 				_transition(PHASE_DROP, now)
@@ -109,6 +112,7 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 			_swing = 0.0
 			if t >= 1.0:
 				_transition(PHASE_HANG, now)
+				_tripped = false
 				_puff(DUST, feet())
 				if engaged and feet().distance_to(slime_feet) <= pattern("biteRangePx", 34.0):
 					_route_immediate_attack(target, pattern("dropDamage", 18.0), pattern("dropKnockback", 220.0))
@@ -148,6 +152,18 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 				_cut = false
 				_begin_climb(now)
 	_place_art(now)
+
+
+## A tripwire's pull (game/world/webs/tripwire.gd; Gloop Forest's River Roads, 2026-11-21): a
+## lurking spider starts its tell at once and drops, wherever the slime is. False when it is not
+## lurking (already dropping, hanging, climbing or cut down).
+func trip() -> bool:
+	if _phase != PHASE_LURK or _cut:
+		return false
+	_tripped = true
+	_transition(PHASE_TELL, Services.now_ms())
+	_cue(CUE_TELL)
+	return true
 
 
 ## Cuts it off its thread (the Bow, a thrown thing): it falls and lies on its back. False when it

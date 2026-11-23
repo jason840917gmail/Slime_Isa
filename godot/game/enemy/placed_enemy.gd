@@ -24,6 +24,20 @@ class_name PlacedEnemy
 ## `targeting_radius`) with an arrow, the picture and the label staying upright. An `aim_direction`
 ## in `overrides` still wins over the rotation.
 ##
+## **Patrol** (owner, 2026-11-21: "modify in what direction they wander, horizontal or vertical,
+## since they always go straight"): an enemy that goes back and forth on a straight line (its
+## EnemyScript has `patrol_axis`: the Dung Roller) shows `patrol_axis` and `patrol_length` in the
+## Inspector: Horizontal or Vertical rolls it that way through where it stands, `patrol_length` to
+## each side; "Its own track" keeps the enemy's own (its scene's `track`, or a `track` in
+## `overrides`). The editor draws the line it will go. A `patrol_axis` in `overrides` still wins.
+##
+## **Reach** (owner, 2026-11-22: "make the reach distance editable in the editor"): an enemy that
+## never leaves its spot and bites what comes near (its EnemyScript has `reach_px`: the Carnivore
+## Plant) shows `reach` in the Inspector instead of the wander settings (it never wanders): how far it
+## bites from where it stands (world units), 0 for its type's (`biteRangePx` in enemy-types.json).
+## The editor draws it round the spot: the bite (red, filled) and where it starts to open (orange).
+## A `reach_px` in `overrides` still wins.
+##
 ## Owner: enemy builder.
 
 const Perimeter := preload("res://game/shared/perimeter.gd")
@@ -59,12 +73,34 @@ const VIEW_ARROW_HEAD_PX := 12.0
 const VIEW_SEGMENTS := 32
 ## Editor: how often a wander area name that found nothing is looked for again (ms).
 const SEARCH_AGAIN_MS := 1000
+## The EnemyScript properties a patroller goes by (set from `patrol_axis` and `patrol_length`), its
+## own track's property, and the axis values (dung_roller.gd AXIS_*).
+const PATROL_PROPERTY := &"patrol_axis"
+const PATROL_LENGTH_PROPERTY := &"patrol_length"
+const TRACK_PROPERTY := &"track"
+const PATROL_OWN := 0
+const PATROL_HORIZONTAL := 1
+const PATROL_VERTICAL := 2
+## Editor drawing of a patroller's line: its colour, its ends' arrowheads.
+const PATROL_LINE := Color(1.0, 0.9, 0.35, 0.9)
+const PATROL_HEAD_PX := 12.0
+## The EnemyScript property a biter's reach is (set from `reach`), and its type's numbers for it.
+const REACH_PROPERTY := &"reach_px"
+const BITE_KEY := "biteRangePx"
+const TELL_KEY := "tellRangePx"
+## Editor drawing of a biter's reach: the bite (fill and edge) and where it starts to open.
+const REACH_FILL := Color(1.0, 0.3, 0.3, 0.12)
+const REACH_EDGE := Color(1.0, 0.3, 0.3, 0.9)
+const TELL_EDGE := Color(1.0, 0.65, 0.3, 0.75)
+const REACH_SEGMENTS := 64
 
 ## The `enemy-types.json` id; the enemy's scene is `character.<enemy_type>` (scene_index.json).
 @export var enemy_type: String = "":
 	set(value):
 		enemy_type = value
 		_changed()
+		if Engine.is_editor_hint():
+			notify_property_list_changed()
 ## The `area_id` of the `enemy-wander` world area (world_area.gd) this enemy wanders in, shared by
 ## the enemies of a camp. Empty: it wanders within `wander_radius` of where it stands.
 @export var wander_area_id: String = "":
@@ -77,6 +113,24 @@ const SEARCH_AGAIN_MS := 1000
 @export_range(16.0, 2048.0, 1.0, "or_greater") var wander_radius: float = 160.0:
 	set(value):
 		wander_radius = value
+		_changed()
+## A patroller only (the Dung Roller): the way it goes back and forth through where it stands.
+## "Its own track" keeps the enemy's own line.
+@export_enum("Its own track", "Horizontal", "Vertical") var patrol_axis: int = PATROL_OWN:
+	set(value):
+		patrol_axis = value
+		_changed()
+## A patroller only: how far it goes to each side of where it stands, along `patrol_axis` (world
+## units).
+@export_range(16.0, 2048.0, 1.0, "or_greater") var patrol_length: float = 150.0:
+	set(value):
+		patrol_length = value
+		_changed()
+## A biter only (the Carnivore Plant): how far it bites from where it stands (world units); 0 keeps
+## its type's reach (`biteRangePx`).
+@export_range(0.0, 512.0, 1.0, "or_greater") var reach: float = 0.0:
+	set(value):
+		reach = value
 		_changed()
 ## EnemyScript properties set before the enemy enters the tree, e.g. `{"max_health": 120,
 ## "attributes": {"leashRange": 700}}`: an `attributes` dictionary is merged into the scene's.
@@ -95,6 +149,7 @@ var _search_again_at: int = 0
 static var _type_ids: PackedStringArray = PackedStringArray()
 static var _scene_index: Dictionary = {}
 static var _pictures: Dictionary = {}
+static var _types: Dictionary = {}
 
 
 func _enter_tree() -> void:
@@ -156,11 +211,18 @@ func facing() -> Vector2:
 	return way if way != Vector2.ZERO else Vector2.DOWN
 
 
-## Sets the facing (`facing()`, on an enemy that has `aim_direction`) and then `overrides` on
+## Sets the facing (`facing()`, on an enemy that has `aim_direction`), the patrol line (`patrol_axis`
+## and `patrol_length`, on an enemy that has them, unless the axis is "Its own track"), the reach
+## (`reach`, on an enemy that has `reach_px`, unless it is 0) and then `overrides` on
 ## `enemy` (its EnemyScript, before it enters the tree). An unknown property is a push_error.
 func apply_overrides(enemy: Node) -> void:
 	if FACING_PROPERTY in enemy:
 		enemy.set(FACING_PROPERTY, facing())
+	if PATROL_PROPERTY in enemy and patrol_axis != PATROL_OWN:
+		enemy.set(PATROL_PROPERTY, patrol_axis)
+		enemy.set(PATROL_LENGTH_PROPERTY, patrol_length)
+	if REACH_PROPERTY in enemy and reach > 0.0:
+		enemy.set(REACH_PROPERTY, reach)
 	for key: Variant in overrides:
 		var property := str(key)
 		if not property in enemy:
@@ -203,6 +265,18 @@ func _validate_property(property: Dictionary) -> void:
 	if property["name"] == "enemy_type":
 		property["hint"] = PROPERTY_HINT_ENUM_SUGGESTION
 		property["hint_string"] = ",".join(known_types())
+	elif (property["name"] == "patrol_axis" or property["name"] == "patrol_length") and Engine.is_editor_hint():
+		# Only a patroller shows them (they stay saved).
+		if not bool(picture_of(enemy_type).get("patrols", false)):
+			property["usage"] = PROPERTY_USAGE_NO_EDITOR
+	elif property["name"] == "reach" and Engine.is_editor_hint():
+		# Only a biter shows it (it stays saved).
+		if not bool(picture_of(enemy_type).get("reaches", false)):
+			property["usage"] = PROPERTY_USAGE_NO_EDITOR
+	elif (property["name"] == "wander_area_id" or property["name"] == "wander_radius") and Engine.is_editor_hint():
+		# A biter never leaves its spot: no wander settings (they stay saved).
+		if bool(picture_of(enemy_type).get("reaches", false)):
+			property["usage"] = PROPERTY_USAGE_NO_EDITOR
 
 
 func _get_configuration_warnings() -> PackedStringArray:
@@ -219,18 +293,22 @@ func _get_configuration_warnings() -> PackedStringArray:
 func _draw() -> void:
 	if not Engine.is_editor_hint():
 		return
+	var picture := picture_of(enemy_type)
 	var outline: Variant = _shared_outline()
 	_drawn_outline = outline
-	if outline is Dictionary:
+	if bool(picture.get("reaches", false)):
+		_draw_reach(float(picture.get("bite", 0.0)), float(picture.get("tell", 0.0)))
+	elif outline is Dictionary:
 		_draw_perimeter(outline, SHARED_OUTLINE)
 	elif wander_area_id.is_empty():
 		draw_arc(Vector2.ZERO, wander_radius, 0.0, TAU, 64, OWN_OUTLINE, OUTLINE_WIDTH)
 	# the rest upright in the world, whatever this node's rotation (it is the facing)
 	var upright := Transform2D(-global_rotation, Vector2.ZERO)
 	draw_set_transform_matrix(upright)
-	var picture := picture_of(enemy_type)
 	if bool(picture.get("faces", false)):
 		_draw_view(float(picture.get("view_radius", 0.0)))
+	if bool(picture.get("patrols", false)):
+		_draw_patrol(picture.get("track", PackedVector2Array()))
 	if picture.is_empty():
 		draw_circle(Vector2.ZERO, MARKER_RADIUS, MISSING, false, OUTLINE_WIDTH)
 		draw_line(Vector2(-MARKER_RADIUS, -MARKER_RADIUS), Vector2(MARKER_RADIUS, MARKER_RADIUS), MISSING, OUTLINE_WIDTH)
@@ -264,6 +342,48 @@ func _draw_view(radius: float) -> void:
 	draw_line(Vector2.ZERO, tip, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
 	draw_line(tip, tip - way.rotated(0.5) * VIEW_ARROW_HEAD_PX, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
 	draw_line(tip, tip - way.rotated(-0.5) * VIEW_ARROW_HEAD_PX, VIEW_EDGE, OUTLINE_WIDTH * 1.5)
+
+
+## A biter's reach round its spot: the bite (`reach`, else its type's `bite`) filled, and where it
+## starts to open (the same share of it as its type's `tell` is of `bite`). A `reach_px` in
+## `overrides` wins over `reach`.
+func _draw_reach(type_bite: float, type_tell: float) -> void:
+	var bite := reach if reach > 0.0 else type_bite
+	var given: Variant = overrides.get(String(REACH_PROPERTY))
+	if (given is float or given is int) and float(given) > 0.0:
+		bite = float(given)
+	if bite <= 0.0:
+		return
+	draw_circle(Vector2.ZERO, bite, REACH_FILL)
+	draw_arc(Vector2.ZERO, bite, 0.0, TAU, REACH_SEGMENTS, REACH_EDGE, OUTLINE_WIDTH)
+	if type_bite > 0.0 and type_tell > 0.0:
+		draw_arc(Vector2.ZERO, bite * type_tell / type_bite, 0.0, TAU, REACH_SEGMENTS, TELL_EDGE, OUTLINE_WIDTH * 0.75)
+
+
+## The line a patroller goes (in world orientation: the current draw transform is upright): through
+## this spot along `patrol_axis`, `patrol_length` to each side, or its own track (`own`: its scene's,
+## or the one in `overrides`), with an arrowhead at each end.
+func _draw_patrol(own: PackedVector2Array) -> void:
+	var points := patrol_points(own)
+	if points.size() < 2:
+		return
+	draw_polyline(points, PATROL_LINE, OUTLINE_WIDTH)
+	for end: int in [0, points.size() - 1]:
+		var tip := points[end]
+		var back := (points[1 if end == 0 else points.size() - 2] - tip).normalized()
+		draw_line(tip, tip + back.rotated(0.5) * PATROL_HEAD_PX, PATROL_LINE, OUTLINE_WIDTH * 1.5)
+		draw_line(tip, tip + back.rotated(-0.5) * PATROL_HEAD_PX, PATROL_LINE, OUTLINE_WIDTH * 1.5)
+
+
+## The points of the line a patroller goes, from where it stands: along `patrol_axis`, else the
+## `track` in `overrides`, else `own` (its scene's).
+func patrol_points(own: PackedVector2Array) -> PackedVector2Array:
+	if patrol_axis == PATROL_HORIZONTAL:
+		return PackedVector2Array([Vector2.LEFT * patrol_length, Vector2.RIGHT * patrol_length])
+	if patrol_axis == PATROL_VERTICAL:
+		return PackedVector2Array([Vector2.UP * patrol_length, Vector2.DOWN * patrol_length])
+	var given: Variant = overrides.get(String(TRACK_PROPERTY))
+	return given if given is PackedVector2Array else own
 
 
 func _changed() -> void:
@@ -346,7 +466,10 @@ static func known_types() -> PackedStringArray:
 ## `type_id`'s picture for the editor, read once from its scene's sprite (first frame): {"texture",
 ## "region" (in the texture), "rect" (in the sprite's space), "transform" (the sprite's in the
 ## enemy root's), "modulate", "faces" (its EnemyScript has `aim_direction`), "view_radius" (its
-## `targeting_radius`)}; {} when the type has no scene or sprite.
+## `targeting_radius`), "patrols" (its EnemyScript has `patrol_axis`), "track" (its own track),
+## "reaches" (its EnemyScript has `reach_px`), "bite" and "tell" (its type's `biteRangePx` and
+## `tellRangePx`)};
+## {} when the type has no scene or sprite.
 static func picture_of(type_id: String) -> Dictionary:
 	if type_id.is_empty():
 		return {}
@@ -380,6 +503,15 @@ static func picture_of(type_id: String) -> Dictionary:
 			if script_node != null and FACING_PROPERTY in script_node:
 				picture["faces"] = true
 				picture["view_radius"] = float(script_node.get(&"targeting_radius"))
+			if script_node != null and PATROL_PROPERTY in script_node:
+				picture["patrols"] = true
+				var own: Variant = script_node.get(TRACK_PROPERTY)
+				picture["track"] = own if own is PackedVector2Array else PackedVector2Array()
+			if script_node != null and REACH_PROPERTY in script_node:
+				picture["reaches"] = true
+				var pattern := _pattern_of(type_id)
+				picture["bite"] = float(pattern.get(BITE_KEY, 0.0))
+				picture["tell"] = float(pattern.get(TELL_KEY, 0.0))
 		instance.free()
 	_pictures[type_id] = picture
 	return picture
@@ -401,6 +533,18 @@ static func reload() -> void:
 	_type_ids = PackedStringArray()
 	_scene_index = {}
 	_pictures = {}
+	_types = {}
+
+
+## `type_id`'s `pattern` block in enemy-types.json (read once; the editor has no autoloads), {} when none.
+static func _pattern_of(type_id: String) -> Dictionary:
+	if _types.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(ENEMY_TYPES_PATH))
+		var types: Variant = (parsed as Dictionary).get("types", {}) if parsed is Dictionary else {}
+		_types = types if types is Dictionary else {}
+	var entry: Variant = _types.get(type_id, {})
+	var pattern: Variant = (entry as Dictionary).get("pattern", {}) if entry is Dictionary else {}
+	return pattern if pattern is Dictionary else {}
 
 
 static func _scene_path(type_id: String) -> String:

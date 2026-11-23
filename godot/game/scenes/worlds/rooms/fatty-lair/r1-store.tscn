@@ -69,6 +69,13 @@ y_sort_enabled = true
 [node name="r1-store-chest" parent="Objects" unique_id=1089206223 instance=ExtResource("7_ny2vb")]
 position = Vector2(223, 217)
 
+[node name="ChestScript" parent="Objects/r1-store-chest" index="2"]
+map_id = "fatty-lair"
+instance_id = "r1-store-chest"
+initial_contents = {
+"coins": 100
+}
+
 [node name="world-definition" type="Node" parent="." unique_id=2044291445]
 script = ExtResource("10_rw7195")
 map_id = "fatty-lair-r1-store"
@@ -109,3 +116,5 @@ bus = &"Music"
 script = ExtResource("13_rw4234")
 loop = true
 autoplay_cue = true
+
+[editable path="Objects/r1-store-chest"]

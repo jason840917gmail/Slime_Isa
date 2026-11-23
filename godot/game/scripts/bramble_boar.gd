@@ -28,7 +28,8 @@ const FRAME_STAND := 0
 const FRAME_SCRAPE := 1
 const FRAME_CHARGE := 2
 const FRAME_STUNNED := 3
-const CUE_SCRAPE := &"SlamWindup"
+## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
+const CUE_SCRAPE := &"BoarScrape"
 const CUE_CHARGE := &"RollLaunch"
 const CUE_CRASH := &"RollBonk"
 const CUE_GET_UP := &"Land"
@@ -74,7 +75,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 					set_frame(FRAME_SCRAPE)
 					_cue(CUE_SCRAPE)
 			else:
-				body.velocity = _velocity_toward(_home, pattern("homeSpeed", 50.0), delta)
+				body.velocity = _velocity_home(pattern("homeSpeed", 50.0), delta)
 				face_x(body.velocity.x)
 				var walking := body.velocity.length() > WALK_SPEED_THRESHOLD
 				if show_walk(delta, FRAME_STAND):

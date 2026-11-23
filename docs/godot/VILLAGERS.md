@@ -236,7 +236,8 @@ Seeing it: `"<Godot console exe>" --path godot -s res://tools/render_glimmerhill
 on screen, `--then-flags` film it waking, `--pre-flags` are in the run before the world is built;
 `--recipes=`, `--items=<id>:<n>,...`, `--coins=`, `--energy=` set up the run and `--interact` presses
 the interact key once the still is saved (a campfire's panel, the shop counter, a fountain's drink),
-saving `<still>-used.png`.
+saving `<still>-used.png`. `--then-call=<node name>:<method>,...` calls those methods on nodes of the
+world after the still, before the film (a crystal lens's `strike`, a silk parcel's `free_parcel`).
 In play a part wakes only through its homecoming (or a save that has its flag).
 
 Not built: the secret underground and the buildings that stay shut for Pearls 4 to 8; Zing's booth

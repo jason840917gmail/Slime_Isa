@@ -14,6 +14,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="12_q7f8w"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/cave-a.wav" id="13_vf4ro"]
 [ext_resource type="Script" path="res://game/runtime/sfx_player.gd" id="14_lyx1q"]
+[ext_resource type="TileSet" uid="uid://ebcxu0geywu" path="res://game/world/interior/interior_trim_tileset.tres" id="trim_tiles"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="trim_layer"]
 
 [node name="crystal-caverns-bay-cave" type="Node2D" unique_id=298278957]
 y_sort_enabled = true
@@ -32,6 +34,12 @@ tile_map_data = PackedByteArray("AAAAAAAAAAAFAAAAAAABAAAAAAAFAAAAAAACAAAAAAAFAAA
 tile_set = ExtResource("3_3ktyg")
 script = ExtResource("4_4byfl")
 draw_floor = false
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=220372286]
+self_modulate = Color(1, 1, 1, 0.2)
+tile_map_data = PackedByteArray("AAACAAIAAAAKAAwAAAADAAIAAAAKAAwAAAAGAAIAAAAKAAwAAAAHAAIAAAAKAAwAAAAIAAIAAAAKAAwAAAAJAAIAAAAKAAwAAAAKAAIAAAAKAAwAAAALAAIAAAAKAAwAAAAMAAIAAAAKAAwAAAANAAIAAAAKAAwAAAAOAAIAAAAKAAwAAAAPAAIAAAAKAAwAAAASAAIAAAAKAAwAAAATAAIAAAAKAAwAAAACAAMAAAAKAAwAAAATAAMAAAAKAAwAAAACAAQAAAAKAAwAAAATAAQAAAAKAAwAAAACAAUAAAAKAAwAAAATAAUAAAAKAAwAAAACAAYAAAAKAAwAAAATAAYAAAAKAAwAAAACAAcAAAAKAAwAAAADAAcAAAAKAAwAAAAEAAcAAAAKAAwAAAAFAAcAAAAKAAwAAAAGAAcAAAAKAAwAAAAHAAcAAAAKAAwAAAAIAAcAAAAKAAwAAAAJAAcAAAAKAAwAAAAKAAcAAAAKAAwAAAALAAcAAAAKAAwAAAAMAAcAAAAKAAwAAAANAAcAAAAKAAwAAAAOAAcAAAAKAAwAAAAPAAcAAAAKAAwAAAAQAAcAAAAKAAwAAAARAAcAAAAKAAwAAAASAAcAAAAKAAwAAAATAAcAAAAKAAwAAAA=")
+tile_set = ExtResource("trim_tiles")
+script = ExtResource("trim_layer")
 
 [node name="world-definition" type="Node" parent="." unique_id=1731193403]
 script = ExtResource("5_l30mf")
