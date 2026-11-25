@@ -460,9 +460,12 @@ the hang, the thread and the glow on the scene. Her poses: `384x384-tile_4x1-mat
 dazed B, flinch, climbing), drawn at `pose_scale` with their feet at hers; the hit flash and the
 reactions' hit motion follow it (`visual`).
 
-### 8.4 The Weaver Hollow's camp (`encounter.weaver-hollow-matron`)
-`game/scenes/encounters/weaver-hollow-matron.tscn`, for the Crown room C2 (world rect (0, 0) to (1024,
-896), floor x 64 to 1024, y 192 to 896): its origin goes at the floor centre (512, 544).
+### 8.4 The Weaver Hollow's camp (today's Crown: `weaver-hollow-matron-old.tscn`)
+Since the switch-over of 2026-11-25 this camp is `game/scenes/encounters/weaver-hollow-matron-old.tscn`,
+a copy of the encounter as it was, instanced only by today's Crown (no longer entered; it goes at step
+5); `encounter.weaver-hollow-matron` itself is the ram fight's camp (section 9). For the Crown room C2
+(world rect (0, 0) to (1024, 896), floor x 64 to 1024, y 192 to 896): its origin goes at the floor
+centre (512, 544).
 - `BossCampScript`: `map_id` "weaver-hollow-crown", `camp_id` "weaver-hollow-matron", `boss_id`
   "orb-weaver-matron", `boss_scene` `character.orb-weaver-matron`, `spawn` (0, −144) (her shadow at
   (512, 430), in the web's middle), `respawn_ms` −1 (once beaten she never comes back: no timer is
@@ -548,8 +551,14 @@ random; "one of her attacks also activate rams to try to hurt you"; "make matron
 webs bigger to match her size"). Her own scene, `character.orb-weaver-matron-rework`
 (`game/scenes/characters/orb-weaver-matron-rework.tscn`: the Matron's scene with the script
 `game/bosses/matron_ram.gd`, `MatronRamScript extends MatronScript`, the cocoon fight on and her
-volley's radius 84), so the Weaver Hollow keeps section 8's fight until its Crown is rebuilt with
-rams, five as in the lab (step 3). Only `world.matron-lab` places her. matron.gd changed only by the hook
+volley's radius 84). `world.matron-lab` places her, and since 2026-11-25 the rebuilt Hollow's Crown
+(`world.weaver-hollow-c2-crown`), which the game enters since the switch-over of the same day:
+`encounter.weaver-hollow-matron`'s own values are hers (`boss_scene` this scene, `map_id`
+`weaver-hollow-c2-crown`, `spawn` (0, −30), the lab's wake and arena shapes, her heart and thread where
+the lab has them), the lab's arena carried into the room at the lab's coordinates, nothing of hers
+changed ([DUNGEONS.md "The Crown"](../DUNGEONS.md#the-crown-step-3s-third-piece-2026-11-25), [the
+switch-over](../DUNGEONS.md#the-switch-over-2026-11-25); its films: `tools/film_crown.gd`). Today's
+Crown keeps section 8's fight through a copy of the encounter. matron.gd changed only by the hook
 `_runs_ai()` (the base step runs from inside the cocoon; her subclass adds hanging free).
 
 ### 9.1 The fight
@@ -677,4 +686,6 @@ editor last imported it shows.
 
 ### 9.4 Not yet
 Played only by the films, never with a keyboard; no tests written for it (`tests/test_matron.gd`
-covers section 8). The Weaver Hollow's Crown is not rebuilt yet (step 3).
+covers section 8, and its Hollow tests build `encounter.weaver-hollow-matron`, which is this fight
+since the switch-over: they fail until step 5 rewrites them). The rebuilt Crown (C2) places her, and
+the game enters it since the switch-over (2026-11-25).

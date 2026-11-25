@@ -1,0 +1,127 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_o35ib"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_wy5cn"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_mk5h2"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_6ee0r"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_koeuk"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="6_b6xgw"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="7_drob5"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_udhpj"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="9_1gp17"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/bone-pile.tscn" id="10_nwttv"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-tree-01.tscn" id="11_4qk4s"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-cluster.tscn" id="12_i8bl3"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="13_3oo3e"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="14_digrg"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="15_jfy41"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/weaver-hollow-dungeon.tscn" id="16_be4e4"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="17_4xcx6"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="18_ful0b"]
+
+[node name="r2-compass-pocket" type="Node2D" unique_id=2034494902]
+y_sort_enabled = true
+script = ExtResource("1_o35ib")
+world_id = "weaver-hollow-r2-compass-pocket"
+room_id = "r2-compass-pocket"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=575166393]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAABAAAAAQABAAAAAAACAAAAAQACAAAAAAADAAAAAQADAAAAAAAEAAAAAQAEAAAAAAAFAAAAAQAFAAAAAAAGAAAAAQAGAAAAAAAHAAAAAQAHAAAAAAAIAAAAAQAIAAAAAAAJAAAAAQAJAAAAAAAAAAEAAQAAAAEAAAABAAEAAQABAAEAAAACAAEAAQACAAEAAAADAAEAAQADAAEAAAAEAAEAAQAEAAEAAAAFAAEAAQAFAAEAAAAGAAEAAQAGAAEAAAAHAAEAAQAHAAEAAAAIAAEAAQAIAAEAAAAJAAEAAQAJAAEAAAAAAAIAAQAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAAAAMAAQAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAAAAQAAQAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAAAAUAAQAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAAAAYAAQAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAAAAcAAQAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAA=")
+tile_set = ExtResource("2_wy5cn")
+script = ExtResource("3_mk5h2")
+metadata/columns = 10
+metadata/rows = 8
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1999330951]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAIAAIAAAACAAAAAAAJAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAIAAMAAAACAAAAAAAJAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAIAAQAAAACAAAAAAAJAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAIAAUAAAACAAAAAAAJAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAACAAYAAAACAAAAAAADAAYAAAACAAAAAAAEAAYAAAACAAMAAAAFAAYAAAACAAMAAAAGAAYAAAACAAAAAAAHAAYAAAACAAAAAAAIAAYAAAACAAAAAAAJAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAACAAcAAAACAAAAAAADAAcAAAACAAAAAAAEAAcAAAACAAMAAAAFAAcAAAACAAMAAAAGAAcAAAACAAAAAAAHAAcAAAACAAAAAAAIAAcAAAACAAAAAAAJAAcAAAACAAAAAAA=")
+tile_set = ExtResource("4_6ee0r")
+script = ExtResource("5_koeuk")
+floor_gives_way_to = PackedStringArray()
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1164411168]
+tile_map_data = PackedByteArray("AAACAAIAAAAJAAIAAAADAAIAAAAJAAIAAAAEAAIAAAAJAAIAAAAFAAIAAAAJAAIAAAAGAAIAAAAJAAIAAAAHAAIAAAAJAAIAAAACAAMAAAAJAAIAAAADAAMAAAAJAAIAAAAEAAMAAAAJAAIAAAAFAAMAAAAJAAIAAAAGAAMAAAAJAAIAAAAHAAMAAAAJAAIAAAACAAQAAAAJAAIAAAADAAQAAAAJAAIAAAAEAAQAAAAJAAIAAAAFAAQAAAAJAAIAAAAGAAQAAAAJAAIAAAAHAAQAAAAJAAIAAAACAAUAAAAJAAIAAAADAAUAAAAJAAIAAAAGAAUAAAAJAAIAAAAHAAUAAAAJAAIAAAA=")
+tile_set = ExtResource("6_b6xgw")
+script = ExtResource("7_drob5")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=1445374350]
+
+[node name="r2-compass-pocket" type="Node2D" parent="CameraRooms" unique_id=814659653]
+script = ExtResource("8_udhpj")
+outline = PackedVector2Array()
+size = Vector2(640, 512)
+metadata/wall_bands = false
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/r2-compass-pocket" unique_id=259314412]
+position = Vector2(320, 307.2)
+
+[node name="Objects" type="Node2D" parent="." unique_id=1983481736]
+y_sort_enabled = true
+
+[node name="r2-compass-chest" parent="Objects" unique_id=1578694699 instance=ExtResource("9_1gp17")]
+position = Vector2(320, 192)
+contents = {
+"dungeon-compass": 1
+}
+chest_id = "weaver-hollow-r2-compass-chest"
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1874743091]
+y_sort_enabled = true
+
+[node name="bone-pile" parent="Scenery" unique_id=296801517 instance=ExtResource("10_nwttv")]
+position = Vector2(179.2, 307.2)
+
+[node name="ambient--web-tree-01" parent="Scenery" unique_id=407856472 instance=ExtResource("11_4qk4s")]
+position = Vector2(454.4, 166.4)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-decor-glow-mushroom-cluster" parent="Scenery" unique_id=616504733 instance=ExtResource("12_i8bl3")]
+position = Vector2(172.8, 172.8)
+
+[node name="decor-sconce-iron-lit" parent="Scenery" unique_id=1091081600 instance=ExtResource("13_3oo3e")]
+position = Vector2(230.4, 131.2)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1663007641]
+y_sort_enabled = true
+
+[node name="RoomDoors" type="Node2D" parent="." unique_id=1633696181]
+
+[node name="pocket-south" parent="RoomDoors" unique_id=1952239238 instance=ExtResource("14_digrg")]
+position = Vector2(320, 512)
+door_id = "pocket-south"
+target_room = "r2-bone-cellar"
+target_door = "r2-north-pocket"
+side = "south"
+transition = "iris"
+
+[node name="world-definition" type="Node" parent="." unique_id=1544137503]
+script = ExtResource("15_jfy41")
+map_id = "weaver-hollow-r2-compass-pocket"
+tile_size = 64
+columns = 10
+rows = 8
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 320,
+"y": 307
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=1972015782]
+position = Vector2(320, 307.2)
+
+[node name="Dungeon" parent="." unique_id=553401691 instance=ExtResource("16_be4e4")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=995920729]
+process_mode = 3
+stream = ExtResource("17_4xcx6")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("18_ful0b")
+loop = true
+autoplay_cue = true

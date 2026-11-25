@@ -16,6 +16,12 @@ class_name BroodWardenScript
 ##   on soft glowing joints: the only time it can be hurt (old-style hits `plantedDamageTaken`
 ##   times; rework hits: the profile's `states.planted`). Every other hit clinks off its armour.
 ## - **Recover** (`recoverMs`), then it guards again.
+## - **The ram** (the rebuilt Hollow's B5, 2026-11-25; DUNGEONS.md "The hooks"): a ram's log that
+##   reaches it on its lane (`on_mechanism_hit(&"ram", ...)`, instead of the ram's damage) flings it
+##   `ramSlidePx` along the swing over `ramSlideMs`, takes `ramDamage` as it stops (a hit's stun would
+##   hold its body still: the slide comes first) and leaves it **knocked** `knockedMs` from the blow:
+##   legs splayed, back plates open on their glowing joints, every hit landing as when it is planted.
+##   The sheet has no pose on its back: knocked shows the planted frame, squashed flat.
 ##
 ## Owner: enemy builder.
 
@@ -27,6 +33,12 @@ const PHASE_SWEEP := "sweep"
 const PHASE_BETWEEN := "between"
 const PHASE_PLANTED := "planted"
 const PHASE_RECOVER := "recover"
+const PHASE_KNOCKED := "knocked"
+const RAM_KIND := &"ram"
+const WAYS := {"north": Vector2.UP, "south": Vector2.DOWN, "east": Vector2.RIGHT, "west": Vector2.LEFT}
+## Knocked flat: how much flatter and wider the planted frame is drawn, and how fast it twitches.
+const KNOCKED_SQUASH := Vector2(1.12, 0.82)
+const KNOCKED_TWITCH_MS := 90.0
 const FRAME_GUARD := 0
 const FRAME_WINDUP := 1
 const FRAME_SWEEP := 2
@@ -49,6 +61,11 @@ var _sweep: int = 0
 var _aim: Vector2 = Vector2.DOWN
 var _ready_at: float = 0.0
 var _zone: Array[Dictionary] = []
+
+
+## The way the ram's log flung it (its lane's `toward`), and its blow's damage still to come.
+var _knock_dir := Vector2.RIGHT
+var _ram_blow_due := false
 
 
 func _ready() -> void:
@@ -111,6 +128,24 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var pant := sin(now / PANT_MS) * PANT
 			set_look(0.0, Vector2(1.0 + pant, 1.0 - pant))
 			if elapsed >= pattern("plantedMs", 1200.0):
+				_transition(PHASE_RECOVER, now)
+				set_frame(FRAME_GUARD)
+				set_look(0.0)
+				_cue(CUE_RISE)
+		PHASE_KNOCKED:
+			var slide_ms := pattern("ramSlideMs", 260.0)
+			if elapsed < slide_ms:
+				# eased out: the speed falls to nothing over the slide, covering `ramSlidePx`
+				var top := 2.0 * pattern("ramSlidePx", 110.0) / maxf(0.001, slide_ms / 1000.0)
+				body.velocity = _knock_dir * top * (1.0 - elapsed / slide_ms)
+			else:
+				body.velocity = Vector2.ZERO
+				if _ram_blow_due:
+					_ram_blow_due = false
+					_ram_blow()
+			var twitch := absf(sin(now / KNOCKED_TWITCH_MS)) * 0.03
+			set_look(0.0, KNOCKED_SQUASH + Vector2(-twitch, twitch))
+			if elapsed >= pattern("knockedMs", 3000.0):
 				_transition(PHASE_RECOVER, now)
 				set_frame(FRAME_GUARD)
 				set_look(0.0)
@@ -189,15 +224,46 @@ func is_planted() -> bool:
 	return _phase == PHASE_PLANTED
 
 
-## Its armour turns every hit but while it is planted.
+## Knocked flat by a ram (see the notes), its plates open.
+func is_knocked() -> bool:
+	return _phase == PHASE_KNOCKED
+
+
+## A mechanism's blow (DUNGEONS.md "The hooks"): the ram knocks it flat; a cart is not its mechanism.
+func on_mechanism_hit(kind: StringName, source: Node) -> void:
+	if kind != RAM_KIND or is_defeated() or body == null:
+		return
+	var now := Services.now_ms()
+	AttackTelegraph.clear_for(self)
+	_knock_dir = WAYS.get(str(source.get(&"toward")), Vector2.RIGHT) if source != null and &"toward" in source else Vector2.RIGHT
+	_transition(PHASE_KNOCKED, now)
+	set_frame(FRAME_PLANTED)
+	_cue(CUE_PLANT)
+	_puff(DUST, feet())
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(pattern("plantShakeMs", 120.0) * 2.0, pattern("plantShakeIntensity", 0.003) * 2.0)
+	_ram_blow_due = true
+
+
+## The ram's blow tells as the slide ends: its damage, the hit's numbers and sparks.
+func _ram_blow() -> void:
+	var dealt := take_reaction_damage(pattern("ramDamage", 20.0))
+	var feel := Services.feel()
+	if feel != null and dealt > 0:
+		feel.play_hit({"hit_stop_ms": 90.0, "trauma": 0.5, "kick_px": 0.0, "sparks": 12, "number": dealt,
+			"number_big": true}, get_centre(), _knock_dir)
+
+
+## Its armour turns every hit but while it is planted or knocked flat.
 func _shields(_request: Dictionary) -> bool:
-	return _phase != PHASE_PLANTED
+	return _phase != PHASE_PLANTED and _phase != PHASE_KNOCKED
 
 
-## Old-style hits on its joints: `plantedDamageTaken` times (rework hits: `states.planted`).
+## Old-style hits on its joints: `plantedDamageTaken` times (rework hits: `states.planted`, `knocked`).
 func mitigate_damage(input: Dictionary) -> float:
 	var damage := super(input)
-	if _phase == PHASE_PLANTED and not ReworkMode.is_rework_request(input.get("request", {})):
+	if (_phase == PHASE_PLANTED or _phase == PHASE_KNOCKED) and not ReworkMode.is_rework_request(input.get("request", {})):
 		damage *= pattern("plantedDamageTaken", 1.0)
 	return damage
 

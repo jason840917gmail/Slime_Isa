@@ -83,6 +83,21 @@ func _ready() -> void:
 	# enemies' group now, before the world's population collects them (main.gd builds it after).
 	if _is_done_now():
 		_retire_placed()
+		if not boss_id.is_empty():
+			_reward_if_beaten_elsewhere.call_deferred()
+
+
+## Its boss fell, but never in this fight (in another world of his dungeon: a save from today's
+## Weaver Hollow, before the rebuilt one took over on 2026-11-25): its reward was never given here
+## (the Hoard's shutter stayed shut). Given now, once, and the fight recorded as won.
+func _reward_if_beaten_elsewhere() -> void:
+	if not is_inside_tree() or DungeonState.is_done(get_tree(), _record_key()):
+		return
+	DungeonState.mark_done(get_tree(), _record_key())
+	for shutter: Shutter in _shutters():
+		shutter.open()
+	if not reward.is_empty():
+		DungeonState.fire(get_node_or_null(reward), {"fightId": fight_id})
 
 
 ## The room in world coordinates.

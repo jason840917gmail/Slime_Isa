@@ -150,9 +150,9 @@
     },
     "brood-warden": {
       "id": "brood-warden", "visualSetId": "enemy.brood-warden", "maxHp": 120,
-      "pattern": { "walkSpeed": 45, "homeSpeed": 60, "sweepRangePx": 84, "windupMs": 650, "windup2Ms": 450, "sweepMs": 180, "betweenMs": 250, "sweeps": 2, "sweepArcDeg": 170, "sweepRadiusPx": 104, "sweepDamage": 20, "sweepKnockback": 300, "plantedMs": 1200, "plantedDamageTaken": 1, "recoverMs": 500, "nextSweepMs": 600, "plantShakeMs": 120, "plantShakeIntensity": 0.003, "corpseMs": 2000, "corpseFadeMs": 600 },
+      "pattern": { "walkSpeed": 45, "homeSpeed": 60, "sweepRangePx": 84, "windupMs": 650, "windup2Ms": 450, "sweepMs": 180, "betweenMs": 250, "sweeps": 2, "sweepArcDeg": 170, "sweepRadiusPx": 104, "sweepDamage": 20, "sweepKnockback": 300, "plantedMs": 1200, "plantedDamageTaken": 1, "recoverMs": 500, "nextSweepMs": 600, "plantShakeMs": 120, "plantShakeIntensity": 0.003, "ramDamage": 20, "ramSlidePx": 110, "ramSlideMs": 260, "knockedMs": 3000, "corpseMs": 2000, "corpseFadeMs": 600 },
       "drop": { "coins": 30 },
-      "reactions": { "weight": "heavy", "material": "chitin", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "break", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "planted": { "damageTaken": 1 } } }
+      "reactions": { "weight": "heavy", "material": "chitin", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "break", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "planted": { "damageTaken": 1 }, "knocked": { "damageTaken": 1 } } }
     },
     "gloomling": {
       "id": "gloomling", "visualSetId": "enemy.gloomling", "maxHp": 1,

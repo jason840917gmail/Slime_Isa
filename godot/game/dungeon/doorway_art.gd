@@ -16,6 +16,10 @@ static func apply(world: Node2D) -> void:
 	# Fatty's Lair draws its walls and doorways with interior walls (docs/godot/INTERIOR_WALLS.md)
 	if not (map_id == "crystal-mine" or map_id.begins_with("weaver-hollow-")):
 		return
+	# nor do the rebuilt Weaver Hollow's room worlds (2026-11-25, step 3 of the dungeons rework: their
+	# ids also begin with "weaver-hollow-"); any world with interior walls draws its own doorways
+	if world.get_node_or_null(^"interior-walls") is TileMapLayer:
+		return
 	for node: Node in world.find_children("*", "Node2D", true, false):
 		if node.has_meta(&"wall_doorway_applied"):
 			continue

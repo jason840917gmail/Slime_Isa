@@ -646,6 +646,12 @@ forelegs, drawn about twice the slime's size.
   (`nextSweepMs` 600).
 - **Right tool:** hit it while it is planted (120 health: a Spear chain per window, three windows).
   Back out of the half-ring in the wind-up (or Roll), step in when it plants.
+- **The ram** (2026-11-25, the rebuilt Weaver Hollow's den: DUNGEONS.md "The Weaver Hollow rebuilt"):
+  a ram's log that reaches it on its lane (`on_mechanism_hit(&"ram", ...)`) slides it `ramSlidePx`
+  110 along the swing over `ramSlideMs` 260, hurts it `ramDamage` 20 as it stops (a hit's stun would
+  hold its body still, so the slide comes first) and leaves it **knocked** `knockedMs` 3000 from the
+  blow: plates open, every hit landing as when it is planted (`states.knocked`). The sheet has no
+  pose on its back: knocked is the planted frame squashed flat and twitching.
 
 ### 23. Gloomling (shadow)
 

@@ -13,8 +13,9 @@ class_name MatronScript
 ## (VolleySfx on `volley-telegraph`, SpitSfx on `volley-rest`).
 ##
 ## **The cocoon** (the Weaver Hollow's fight, 2026-10-17; matron spec section 8; roadmap 8.7,
-## question 133), on while `cocoon_enabled` (the Hollow's camp, `encounter.weaver-hollow-matron`,
-## turns it on through its `boss_overrides`; the open-world nest keeps the fight above):
+## question 133), on while `cocoon_enabled` (today's Crown's camp, `weaver-hollow-matron-old.tscn`,
+## turns it on through its `boss_overrides`; since the switch-over of 2026-11-25 the rebuilt Hollow
+## fights the rework, matron_ram.gd; the open-world nest keeps the fight above):
 ## - **Cocooned:** she hangs in a web cocoon from her thread over its shadow (her feet). She never
 ##   walks; she still spits and volleys from inside. Every hit clinks with `clink_text`
 ##   (BlastBarrier.refuse). The cocoon breathes (the Cocoon Mimic's tell; `breath_ms`).

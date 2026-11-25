@@ -1,0 +1,130 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_5hpg5"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_1hjlb"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_833bx"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_sttm0"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_dbbbq"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="6_ra5ry"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="7_iekm0"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="8_0o6jx"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-chest.tscn" id="9_tqsg2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-tree-01.tscn" id="10_cysux"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/storage/interior-storage-sack-grain.tscn" id="11_hhr1n"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-cluster.tscn" id="12_d83hc"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="13_u1gie"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-mossy.tscn" id="14_nc24j"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="15_4cy08"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="16_aia0q"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/weaver-hollow-dungeon.tscn" id="17_w26hh"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="18_d28mp"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="19_kdac3"]
+
+[node name="t3-map-nook" type="Node2D" unique_id=2051024988]
+y_sort_enabled = true
+script = ExtResource("1_5hpg5")
+world_id = "weaver-hollow-t3-map-nook"
+room_id = "t3-map-nook"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=464451274]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAFAAAAAAAAAABAAAAFAABAAAAAAACAAAAFAACAAAAAAADAAAAFAADAAAAAAAEAAAAFAAEAAAAAAAFAAAAFAAFAAAAAAAGAAAAFAAGAAAAAAAHAAAAFAAHAAAAAAAIAAAAFAAIAAAAAAAJAAAAFAAJAAAAAAAAAAEAFAAAAAEAAAABAAEAFAABAAEAAAACAAEAFAACAAEAAAADAAEAFAADAAEAAAAEAAEAFAAEAAEAAAAFAAEAFAAFAAEAAAAGAAEAFAAGAAEAAAAHAAEAFAAHAAEAAAAIAAEAFAAIAAEAAAAJAAEAFAAJAAEAAAAAAAIAFAAAAAIAAAABAAIAFAABAAIAAAACAAIAFAACAAIAAAADAAIAFAADAAIAAAAEAAIAFAAEAAIAAAAFAAIAFAAFAAIAAAAGAAIAFAAGAAIAAAAHAAIAFAAHAAIAAAAIAAIAFAAIAAIAAAAJAAIAFAAJAAIAAAAAAAMAFAAAAAMAAAABAAMAFAABAAMAAAACAAMAFAACAAMAAAADAAMAFAADAAMAAAAEAAMAFAAEAAMAAAAFAAMAFAAFAAMAAAAGAAMAFAAGAAMAAAAHAAMAFAAHAAMAAAAIAAMAFAAIAAMAAAAJAAMAFAAJAAMAAAAAAAQAFAAAAAQAAAABAAQAFAABAAQAAAACAAQAFAACAAQAAAADAAQAFAADAAQAAAAEAAQAFAAEAAQAAAAFAAQAFAAFAAQAAAAGAAQAFAAGAAQAAAAHAAQAFAAHAAQAAAAIAAQAFAAIAAQAAAAJAAQAFAAJAAQAAAAAAAUAFAAAAAUAAAABAAUAFAABAAUAAAACAAUAFAACAAUAAAADAAUAFAADAAUAAAAEAAUAFAAEAAUAAAAFAAUAFAAFAAUAAAAGAAUAFAAGAAUAAAAHAAUAFAAHAAUAAAAIAAUAFAAIAAUAAAAJAAUAFAAJAAUAAAAAAAYAFAAAAAYAAAABAAYAFAABAAYAAAACAAYAFAACAAYAAAADAAYAFAADAAYAAAAEAAYAFAAEAAYAAAAFAAYAFAAFAAYAAAAGAAYAFAAGAAYAAAAHAAYAFAAHAAYAAAAIAAYAFAAIAAYAAAAJAAYAFAAJAAYAAAAAAAcAFAAAAAcAAAABAAcAFAABAAcAAAACAAcAFAACAAcAAAADAAcAFAADAAcAAAAEAAcAFAAEAAcAAAAFAAcAFAAFAAcAAAAGAAcAFAAGAAcAAAAHAAcAFAAHAAcAAAAIAAcAFAAIAAcAAAAJAAcAFAAJAAcAAAA=")
+tile_set = ExtResource("2_1hjlb")
+script = ExtResource("3_833bx")
+metadata/columns = 10
+metadata/rows = 8
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=2050008258]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAIAAIAAAACAAAAAAAJAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAIAAMAAAACAAMAAAAJAAMAAAACAAMAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAIAAQAAAACAAMAAAAJAAQAAAACAAMAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAIAAUAAAACAAAAAAAJAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAACAAYAAAACAAAAAAADAAYAAAACAAAAAAAEAAYAAAACAAAAAAAFAAYAAAACAAAAAAAGAAYAAAACAAAAAAAHAAYAAAACAAAAAAAIAAYAAAACAAAAAAAJAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAACAAcAAAACAAAAAAADAAcAAAACAAAAAAAEAAcAAAACAAAAAAAFAAcAAAACAAAAAAAGAAcAAAACAAAAAAAHAAcAAAACAAAAAAAIAAcAAAACAAAAAAAJAAcAAAACAAAAAAA=")
+tile_set = ExtResource("4_sttm0")
+script = ExtResource("5_dbbbq")
+draw_floor = false
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1154663956]
+tile_map_data = PackedByteArray("AAACAAIAAAAJAAIAAAADAAIAAAAJAAIAAAAEAAIAAAAJAAIAAAAFAAIAAAAJAAIAAAAGAAIAAAAJAAIAAAAHAAIAAAAJAAIAAAACAAMAAAAJAAIAAAADAAMAAAAJAAIAAAAEAAMAAAAJAAIAAAAFAAMAAAAJAAIAAAAGAAMAAAAJAAIAAAACAAQAAAAJAAIAAAADAAQAAAAJAAIAAAAEAAQAAAAJAAIAAAAFAAQAAAAJAAIAAAAGAAQAAAAJAAIAAAACAAUAAAAJAAIAAAADAAUAAAAJAAIAAAAEAAUAAAAJAAIAAAAFAAUAAAAJAAIAAAAGAAUAAAAJAAIAAAAHAAUAAAAJAAIAAAA=")
+tile_set = ExtResource("6_ra5ry")
+script = ExtResource("7_iekm0")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=782925571]
+
+[node name="t3-map-nook" type="Node2D" parent="CameraRooms" unique_id=881293024]
+script = ExtResource("8_0o6jx")
+outline = PackedVector2Array()
+size = Vector2(640, 512)
+metadata/wall_bands = false
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/t3-map-nook" unique_id=1726474942]
+position = Vector2(409.6, 268.8)
+
+[node name="Objects" type="Node2D" parent="." unique_id=731795148]
+y_sort_enabled = true
+
+[node name="t3-map-chest" parent="Objects" unique_id=1777096048 instance=ExtResource("9_tqsg2")]
+position = Vector2(256, 204.8)
+contents = {
+"dungeon-map": 1
+}
+chest_id = "weaver-hollow-t3-map-chest"
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1246029240]
+y_sort_enabled = true
+
+[node name="ambient--web-tree-01" parent="Scenery" unique_id=1049619953 instance=ExtResource("10_cysux")]
+position = Vector2(185.6, 166.4)
+
+[node name="storage-sack-grain" parent="Scenery" unique_id=1072248096 instance=ExtResource("11_hhr1n")]
+position = Vector2(166.4, 281.6)
+
+[node name="mushroom-decor-glow-mushroom-cluster" parent="Scenery" unique_id=597404142 instance=ExtResource("12_d83hc")]
+position = Vector2(460.8, 166.4)
+
+[node name="decor-sconce-iron-lit" parent="Scenery" unique_id=864542863 instance=ExtResource("13_u1gie")]
+position = Vector2(358.4, 131.2)
+
+[node name="mushroom-floor-pebbles-mossy" parent="Scenery" unique_id=83854536 instance=ExtResource("14_nc24j")]
+position = Vector2(345.6, 339.2)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=636682214]
+y_sort_enabled = true
+
+[node name="RoomDoors" type="Node2D" parent="." unique_id=2127762350]
+
+[node name="nook-east" parent="RoomDoors" unique_id=1931801143 instance=ExtResource("15_4cy08")]
+position = Vector2(640, 256)
+door_id = "nook-east"
+target_room = "t3-larder"
+target_door = "t3-west-nook"
+side = "east"
+transition = "iris"
+
+[node name="world-definition" type="Node" parent="." unique_id=1927238872]
+script = ExtResource("16_aia0q")
+map_id = "weaver-hollow-t3-map-nook"
+tile_size = 64
+columns = 10
+rows = 8
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 409,
+"y": 268
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=114036474]
+position = Vector2(409.6, 268.8)
+
+[node name="Dungeon" parent="." unique_id=649653627 instance=ExtResource("17_w26hh")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1093195778]
+process_mode = 3
+stream = ExtResource("18_d28mp")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("19_kdac3")
+loop = true
+autoplay_cue = true

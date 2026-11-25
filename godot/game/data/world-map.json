@@ -91,10 +91,7 @@
 				"gloop-hut",
 				"gloop-cavern",
 				"silk-nook-cave",
-				"weaver-hollow-trunk",
-				"weaver-hollow-roots",
-				"weaver-hollow-boughs",
-				"weaver-hollow-crown"
+				"weaver-hollow"
 			],
 			"placeholder": false,
 			"theme": "forest",
@@ -352,8 +349,8 @@
 			"y": 52,
 			"label": "Weaver Hollow",
 			"needs": "Goo Bomb",
-			"map": "weaver-hollow-trunk",
-			"notes": "The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17): a Goo Bomb blows its root gate; four floors climbed from the Roots to the Crown; Pearl 2 (the Silk skin) in the Hoard behind the Brood Warden, and its take seals the Hollow; the Silk second half (webbed rooms, the Spinning Loft), then the Orb-Weaver Matron at the top, enraged, fighting from a cocoon a blast tears open"
+			"map": "weaver-hollow",
+			"notes": "The Watch Oak, an old Thorn Guard watch fort inside a giant oak (built 2026-10-17, rebuilt one world per room 2026-11-25): a Goo Bomb blows its root gate; the Trunk, the Roots, the Boughs and the Crown; Pearl 2 (the Silk skin) in the Hoard behind the Brood Warden, whom a ram knocks flat, and its take seals the Hollow; the Silk second half (the Spinning Loft, the rafters, the big key), then the Orb-Weaver Matron in the Crown, brought down by its five rams; out by the Outer Bough's drop to the forecourt"
 		},
 		{
 			"type": "gate",

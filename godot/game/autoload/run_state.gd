@@ -191,6 +191,15 @@ const PEARL_FLAG_PREFIX := "pearl."
 ## (`install`).
 const VERDANT_GATE_ID := "level-1-east-verdant-gate"
 const VERDANT_TREE_FLAG := "level-1.verdant-tree-smashed"
+## The Weaver Hollow rebuilt one world per room (2026-11-25, docs/godot/DUNGEONS.md "The
+## switch-over"): a save standing in one of today's four floors, no longer entered, wakes at the
+## rebuilt Hollow's entrance (T1's player spawn, its `dungeon-entrance`), inside, as a dungeon's
+## resume save does; its record's entrance naming one of them is forgotten (T1 records it again).
+## The record itself ("weaver-hollow") is the same dungeon's (`moved_world`, `install`).
+const RETIRED_HOLLOW_WORLDS: Array[String] = ["weaver-hollow-trunk", "weaver-hollow-roots",
+	"weaver-hollow-boughs", "weaver-hollow-crown"]
+const HOLLOW_ENTRANCE_WORLD := "weaver-hollow-t1-root-door"
+const HOLLOW_DUNGEON_ID := "weaver-hollow"
 
 ## The pending area handoff [RunNavigationHandoff]: {"kind": "area"|"load"|"reset", "map_id",
 ## "entry_edge"?, "entry_door"?, "entry_marker"?, "respawn_home"?}. Empty when none. Never saved:
@@ -1557,6 +1566,17 @@ func install(data: Dictionary) -> bool:
 	# smashed (set quietly).
 	if not has_flag(VERDANT_TREE_FLAG) and _verdant_gate_was_open():
 		_flags().append(VERDANT_TREE_FLAG)
+	# Saves from before 2026-11-25 standing in one of today's Hollow floors: the rebuilt Hollow's
+	# entrance (no spot: the world's player spawn, T1's entrance); an entrance record naming one of
+	# them goes (`RETIRED_HOLLOW_WORLDS`).
+	var saved_world := str(location.get("map_id", ""))
+	if moved_world(saved_world) != saved_world:
+		location = {"area_id": moved_world(saved_world), "map_id": moved_world(saved_world), "facing": "up"}
+	var dungeons: Variant = world.get(DungeonState.RECORD_KEY)
+	var hollow: Variant = (dungeons as Dictionary).get(HOLLOW_DUNGEON_ID) if dungeons is Dictionary else null
+	if hollow is Dictionary and (hollow as Dictionary).get("entrance") is Dictionary \
+			and str(((hollow as Dictionary)["entrance"] as Dictionary).get("map_id", "")) in RETIRED_HOLLOW_WORLDS:
+		(hollow as Dictionary)["entrance"] = {}
 	# Saves from before 2026-11-20 have no potion belt (none open). A belt slot bought from Dollop
 	# then sat in the bag: it leaves the bag and opens its slot now, quietly.
 	var bag_slots: Array = []
@@ -1586,6 +1606,12 @@ func install(data: Dictionary) -> bool:
 	_emit_potion_belt(-1, true)
 	coins_changed.emit({"coins": coins(), "delta": 0})
 	return true
+
+
+## The world a save standing in `map_id` loads into: the rebuilt Hollow's entrance for one of today's
+## four Hollow floors (`RETIRED_HOLLOW_WORLDS`), else `map_id` itself.
+static func moved_world(map_id: String) -> String:
+	return HOLLOW_ENTRANCE_WORLD if map_id in RETIRED_HOLLOW_WORLDS else map_id
 
 
 ## True when the run is past where the Roll is taught (`install`'s migration): Burr freed from his
@@ -1663,14 +1689,15 @@ func save_slot(slot: int = 0) -> bool:
 	return true
 
 
-## Installs the run in `slot` and queues a "load" navigation into its world; false when the file
-## is missing, unreadable, from a newer schema, or names a world that does not exist.
+## Installs the run in `slot` and queues a "load" navigation into its world (a world that moved:
+## `moved_world`); false when the file is missing, unreadable, from a newer schema, or names a world
+## that does not exist.
 func load_slot(slot: int = 0) -> bool:
 	var record := read_slot(slot)
 	if record.is_empty():
 		return false
 	var data: Dictionary = record["data"]
-	var map_id := str((data["location"] as Dictionary).get("map_id", ""))
+	var map_id := moved_world(str((data["location"] as Dictionary).get("map_id", "")))
 	var world_service := Services.world()
 	if map_id.is_empty() or (world_service != null and world_service.scene_path("world." + map_id).is_empty()):
 		return false

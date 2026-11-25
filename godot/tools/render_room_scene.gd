@@ -1,8 +1,9 @@
 extends SceneTree
 ## Renders one room scene on its own, as the editor shows it (its interior walls, floor and objects,
 ## no game around it), at 2 px a unit (docs/godot/INTERIOR_WALLS.md). Run windowed:
-##     "<Godot console exe>" --path godot -s res://tools/render_room_scene.gd -- --scene=res://... --out=<dir>
-## Writes <dir>/<scene name>.png.
+##     "<Godot console exe>" --path godot -s res://tools/render_room_scene.gd -- --scene=res://... --out=<dir> [--hide=<node path>,...]
+## Writes <dir>/<scene name>.png. `--hide` leaves nodes of the room out of the picture (a dark room's
+## `DarkRooms`, to see its floor).
 
 
 const Elevation := preload("res://game/world/elevation/elevation.gd")
@@ -11,7 +12,10 @@ const Elevation := preload("res://game/world/elevation/elevation.gd")
 func _initialize() -> void:
 	var scene := ""
 	var out := "user://room-scene"
+	var hide: PackedStringArray = []
 	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--hide="):
+			hide = arg.trim_prefix("--hide=").split(",", false)
 		if arg.begins_with("--scene="):
 			scene = arg.trim_prefix("--scene=")
 		elif arg.begins_with("--out="):
@@ -19,6 +23,10 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
 	await process_frame
 	var room := (load(scene) as PackedScene).instantiate() as Node2D
+	for path: String in hide:
+		var hidden := room.get_node_or_null(path)
+		if hidden != null:
+			hidden.free()
 	var walls := room.get_node_or_null("interior-walls") as TileMapLayer
 	var size := Vector2(1152, 1024)
 	if walls != null:

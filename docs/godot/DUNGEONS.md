@@ -685,7 +685,8 @@ block; the way between them is open. Signal `smashed`.
   four levels above the hurtbox: called INSTEAD of damage, once per swing or run, with kind `&"ram"`
   or `&"cart"`. For bosses and mini-bosses (step 2 of the rework): the node decides what the blow
   does. The cart stops with its front against such a node's hurtbox and calls it at that touch; the
-  ram calls it as its head reaches it and swings on.
+  ram calls it as its head reaches it and swings on. Who answers it: the Matron (the rework's fight)
+  and, since 2026-11-25, the Brood Warden (knocked flat, BESTIARY.md row 22).
 - A mechanism is any node in the group `knock_mechanisms` that has `trigger(payload)` and calls the
   payload's `source.rearm()` when it is ready again.
 
@@ -1600,6 +1601,12 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
 
 ## The Weaver Hollow (built)
 
+**No longer entered since [the switch-over](#the-switch-over-2026-11-25) (2026-11-25):** the game plays
+the Hollow rebuilt one world per room ([below](#the-weaver-hollow-rebuilt-the-trunk-and-the-roots-step-3-2026-11-25)).
+The four worlds this section describes stay on disk and in `scene_index.json`, unreached, until step 5
+of the rework retires them with their tests; their Crown keeps its cocoon fight through a copy of the
+encounter (`weaver-hollow-matron-old.tscn`).
+
 Chapter 2's dungeon, built 2026-10-17 from [its design](../design/2026-10-16-dungeon-weaver-hollow.md)
 (its status lists what moved in the build): the Thorn Guard's old watch fort inside the Watch Oak,
 climbed from its roots to the Matron's web at its top. Four worlds are one dungeon (`weaver-hollow`,
@@ -1783,7 +1790,7 @@ the doors between the floors go on.
   in the editor: the fade lies
   under the canopy wall over the glade, never over open ground, the owner); `Trunk` collision in bands round its silhouette); the root gate (`object.cracked-wall` on the
   bricked arch, `weaver-hollow.root-gate`; its `blocker` is the `ArchBricks` body; blown, a door to
-  `trunk-entrance`); S1 (a web wall closing a nook in the forest's edge east of the gate, its parcel
+  the rebuilt T1's `weaver-hollow-entrance` since the switch-over, `trunk-entrance` before); S1 (a web wall closing a nook in the forest's edge east of the gate, its parcel
   inside); the marker `weaver-hollow-silk-drop` where C3's drop lands.
 - The forecourt has no elevation, so it needs no bake.
 
@@ -1804,11 +1811,12 @@ the doors between the floors go on.
   `godot/asset/MAPS/props/weaver-hollow/` (loaded through `sheet_sprite.gd` until the editor imports
   them).
 - **F6 on the second half with the Silk skin:** F6 on a floor gives the Hollow's dev powers (the
-  Spear, the Roll, the Heavy skin, the Goo Bomb: Silk is won mid-dungeon, from Pearl 2). F6 on
-  `game/dev/weaver-hollow-second-half.tscn` (`game/dev/second_half_run.gd`; dev only) runs
-  `weaver-hollow-crown` the same way and lends the Silk skin for the session, worn; on the web or a
-  desktop launch `?map=weaver-hollow-crown&skins=silk` does the same, and `?sealed` takes Pearl 2
-  quietly and seals.
+  Spear, the Roll, the Heavy skin, the Goo Bomb: Silk is won mid-dungeon, from Pearl 2; one line,
+  `dungeon.devPowers.weaver-hollow`, read for every world of the dungeon). F6 on
+  `game/dev/weaver-hollow-second-half.tscn` (`game/dev/second_half_run.gd`; dev only) runs the
+  rebuilt Hollow's Hoard (`weaver-hollow-hoard`, since the switch-over; today's Crown before) the same
+  way and lends the Silk skin for the session, worn; on the web or a desktop launch
+  `?map=weaver-hollow-hoard&skins=silk` does the same, and `?sealed` takes Pearl 2 quietly and seals.
 
 ### Limits
 
@@ -1827,6 +1835,239 @@ the doors between the floors go on.
   2026-11-19: [quests spec §14](specs/quests.md#14-the-main-quest-talks-and-tips-2026-11-19)).
 - Filmed (`tools/film_weaver_hollow.gd`, 41 shots, the forecourt to her fall and out) but not played
   through by the owner.
+
+## The Weaver Hollow rebuilt: the Trunk and the Roots (step 3, 2026-11-25)
+
+The first piece of step 3 of [the dungeons rework](../design/2026-11-23-dungeons-2-3-rework.md#the-weaver-hollow):
+the Hollow's ground floor (the Trunk) and cellar (the Roots) rebuilt as **one world per room** with
+the root-rock interior walls, exactly as [Fatty's Lair](#fattys-lair-built) is built (room doors that
+scroll, records instead of links, a layout for the map). It was built **beside** today's Hollow
+([above](#the-weaver-hollow-built)), and since [the switch-over](#the-switch-over-2026-11-25)
+(2026-11-25) the game enters it: the forecourt's root gate leads into the new T1, and today's four
+worlds stay on disk, unreached, until step 5 retires them. Every link (rooms,
+cells, levels, doors, locks): [the handover's list](../handover/2026-11-23-dungeons-rework.md#the-list-of-links-written-before-any-scene).
+
+| Room | World | Its level |
+|---|---|---|
+| T1 Root Door | `weaver-hollow-t1-root-door` | the corner loft (L1) with a chest (100 coins, a Slime Tonic), seen from the floor, reached later from the hub's east gallery (Silk) |
+| T2 the Hollow Heart (2 x 2) | `weaver-hollow-t2-hollow-heart` | the gallery (L1) round three sides: key 1 west, the Crown Door and the winch north, the east gallery behind a web wall; its stair blocked by a stone block |
+| T3 the Larder | `weaver-hollow-t3-larder` | the walk (L1) down the east wall, cut by a gap the drawbridge crosses |
+| T3's map nook | `weaver-hollow-t3-map-nook` | - (behind T3's west crack: the map) |
+| T4 the Well Room | `weaver-hollow-t4-well-room` | the ledge (L1) down the east side, the Guard's stair at its top |
+| R1 Root Fall | `weaver-hollow-r1-root-fall` | the landing ledge (L1), a front flight down |
+| R2 the Bone Cellar (2 x 1) | `weaver-hollow-r2-bone-cellar` | - (the Watcher Eye, two Bone Throwers, pillars) |
+| R2's compass pocket | `weaver-hollow-r2-compass-pocket` | - (behind R2's north crack: the compass) |
+| R3 the Ram Cellar | `weaver-hollow-r3-ram-cellar` | - (the ram, the bricked arch, the target on an island in a void) |
+| D1 the Old Cellar | `weaver-hollow-d1-old-cellar` | - (dark, as today) |
+
+- **The scenes** are `godot/game/scenes/worlds/rooms/weaver-hollow/<room>.tscn` (each `world.<id>` in
+  `scene_index.json`), their map `layout.tscn` (the Trunk on floor 0, the Roots on floor -1), their
+  Dungeon node an instance of `game/scenes/objects/dungeon/weaver-hollow-dungeon.tscn` (`dungeon_id`
+  and `record_map_id` `weaver-hollow`, the final ids; the entrance T1; the Matron's seal settings).
+  `tools/build_weaver_hollow_rooms.gd` wrote their first version (`-- --room=<name>[,...] | --all
+  [--layout] [--force]`); **from now on the scenes are edited by hand** and the tool refuses to
+  overwrite one without `--force`. After painting a room's `elevation`, bake it
+  (`tools/bake_elevation.gd -- --world=weaver-hollow-<room>`) or let the next run from the project do it.
+- **Running it:** `?map=weaver-hollow-t1-root-door` (or any room's world; F6 on a room scene): the
+  run gets the Hollow's first-half powers (`dungeon.devPowers.weaver-hollow`: the Spear, the Roll,
+  the Heavy skin, the Goo Bomb). `?room=<room>` travels to a room as in the Lair.
+- **The way through:** T1, north into the hub (key 1 and the Crown Door in sight on the gallery, the
+  stair's foot shut by a stone block); west into T3 (two orb-weavers): a Goo Bomb on the west crack
+  opens the map nook, one on the north crack opens T4; in T4 a bomb breaks the cracked floor, a fall
+  (one way) onto R1's landing ledge over the egg sac; R2 (a bomb on the north crack for the compass);
+  R3: a pot thrown over the void at the knock target lets the ram go, its log bursts the bricked
+  arch, and the Guard's stair behind it climbs to **T4's ledge**, above the room the slime left; the
+  wall-walk: the ledge's south doorway into T3's walk, a Goo Bomb spat at the gap's edge, sucked in and
+  thrown over the gap at the cracked winch post, which lets the bridge down; over it and east into the
+  hub's west gallery: **key 1**; the north gallery's winch sinks the stair block for good (the short
+  way up after a faint); key 1 opens the hub's south door. A drop off any walk or gallery lands
+  unhurt on the floor below (the ledge drop), and the walk starts again.
+- **Upper doorways** (the walk, the gallery, the loft, the ledge): the doorway's block and the rim
+  cells beside a raised floor are painted at its level on the `elevation` layer (INTERIOR_WALLS.md
+  "Pits and holes"); a room door's scroll carries the slime's level into the next room
+  (`main.gd` `_arrival_level`), which arrives on the far doorway's level. Nothing else was needed.
+- **A drawbridge over a floor** (T3): the kit's drawbridge at `level` 1 over level-0 floor, as R7's
+  slabs over its pit; lowered, its deck opens the level-1 passage across the gap and the orb-weavers
+  walk under it. It stands raised on the gap's near edge (where the slime comes in), held by a chain
+  from the cracked winch post on the far rim (`chain_end`: the marker `t3-bridge-top`).
+  `winch_post.gd` gained `blast_rise` (opt-in, 0 by default: every post placed before reaches as it
+  did): T3's post has 56, the middle of its hurtbox, since a bomb thrown at it from the north stops at
+  the top of its hurtbox, 104 units above its foot, out of the blast's reach (60) from the foot.
+- **The Guard's stair** is a stair door (`object.stair-door`, `stair_door.gd`) in the north wall's
+  **stairs** opening, its own picture hidden (the wall draws the stairs) and its well raised into the
+  passage (`trigger_rect` (-40, -112, 80, 56)), so the bricked arch in front of it holds it until the
+  ram bursts it; its pair stands in T4's ledge's stairs opening (level 1).
+- **R3's lesson:** the ram (`toward` north, 4 cells) aimed at the arch; its knock target on a
+  two-by-two island in a void (level -2, a `void` hazard, `draw_look` off) straight below the ram, its
+  rope up to the ram's post; dungeon pots on the void's west rim (they grow back). Only a throw
+  reaches the target; the lane's grooves show where the log swings.
+- **The hub's stair block** is a shutter (`starts_shut`, `wall` north, the kit's own block) at the foot
+  of the gallery's front flight; the winch on the gallery sinks it for good.
+- **The cracks** stand on both sides of a doorway with one flag (T3/T4), or in front of a pocket
+  world entered with the iris (the nook, R2's pocket; the pocket's own side a blown hole). The
+  root-rock wall's cracked piece was remade on 2026-11-25 (`scripts/art/make-root-cracked.py`: the
+  generated one had see-through gaps), and `root-rock.webp` repacked (only its eight cracked pieces
+  changed).
+- **D1** is parted as today, its corridor walled off by stacked casks (solid) where today's rock
+  column stood (a one-cell raised strip read as a walk), and keeps today's record for its chest (`weaver-hollow-roots-old-cellar-chest` on map
+  `weaver-hollow-roots`), so the war journal's page cannot be had twice.
+- **Floors:** the Trunk's rooms are packed earth (T1 to T4 and the map nook: the wall layer's
+  `draw_floor` off, the `ground` painted garden soil), with gravel paths between doors (the hub, T1,
+  T3), a grass bed at the hub's heart and wood planks in the Larder's store corner, each ground's edge
+  art over the soil (TERRAIN_LAB.md); the Roots keep the root-rock stone floor. A room is all ground or
+  all wall-style floor: a ground patch beside the wall style's floor draws its base ground in a ring
+  round it, and a ground without a 128 px sheet (forest-moss) loses its edge under garden soil's.
+  One floor trim in every room, `rubble-umber`.
+- **Dressing:** the Scenery dock's props (root posts and humps, hanging roots, glow mushrooms, moss
+  beds, stepping stones in the Roots, the Guard's racks, casks, sacks, bones, chains, the loft's silk),
+  sconces, braziers and fireflies that move. **No cocoon or egg sac for show** (the Hollow's clarity
+  rule, [its design](../design/2026-10-16-dungeon-weaver-hollow.md): a cocoon or an egg sac in here is
+  a lock or an enemy); the first versions had them, taken out of every room on 2026-11-25, and the
+  rooms that read thin after were dressed by hand (T1, R1, B1, B4, B5, the Hoard, D2: bones, webs,
+  silk, mushrooms; [the handover's list](../handover/2026-11-23-dungeons-rework.md#the-dressing-after-the-clean-out-2026-11-25-the-reviewers-round)).
+- **The old doorway art stays out:** `doorway_art.gd` (the cliff-wall doorway frames of today's
+  Hollow and the Mine, chosen by a world id beginning `weaver-hollow-`) skips any world with an
+  `interior-walls` layer; it had turned the hub's stair block into a root arch.
+- **Films:** `tools/film_weaver_hollow_rooms.gd` (windowed) plays it: `--film=walk` the whole way
+  with a check a step (a picture each and `walk.json`; PASS or FAIL), `--film=ram` R3's lesson and
+  `--film=wall-walk` the wall-walk frame by frame; `--film=look --world=<room> --at=<x>,<y> --zoom=<z>` (`--slime=<x>,<y>`: where the slime stands)
+  a still picture of a room in the game (its ground edges show there, not in the editor render). The enemies are calmed and the slime's health kept
+  full while it runs (the walk proves the way, not a fight).
+- **Switched over** (2026-11-25, [below](#the-switch-over-2026-11-25)): the forecourt's root gate
+  enters the new T1, and T1's way out leads to the forecourt. T1's loft is reached through the east gallery's web wall (Silk, after
+  Pearl 2). No tests; not played with a keyboard.
+
+### The Boughs (step 3's second piece, 2026-11-25)
+
+The Hollow's upper floor, built the same way, beside today's Boughs (entered since the switch-over): ten more room worlds in
+`rooms/weaver-hollow/` (floor 1 on the map, the stair foot on floor 0), their links in
+[the handover](../handover/2026-11-23-dungeons-rework.md#step-3-the-boughs).
+
+| Room | World | What is there |
+|---|---|---|
+| The stair foot | `weaver-hollow-stair-foot` | behind the hub's south key door (key 1): the Guard's stair up |
+| B1 the Bough Stair | `weaver-hollow-b1-bough-stair` | a Silk Lurker, floor webs; D2 west |
+| B2 the Drawbridge (2 x 1) | `weaver-hollow-b2-drawbridge` | a void down the middle (four cells), the drawbridge raised on its west rim, chained to a cracked post on the east rim's edge: a Goo Bomb thrown over the void lets it down; the Warden's key door (key 2) east; the rafters (L1) along the north wall, cut by the void: slab, landing, slab, slab under floor webs |
+| B3 the Mimic's Pantry | `weaver-hollow-b3-mimics-pantry` | the Cocoon Mimic (key 2); the rafters (L1) with the big chest (the big key) in sight from the floor, and an open hole: the drop onto the hub's north gallery; S2's three parcels behind a web wall |
+| B4 the Nursery | `weaver-hollow-b4-nursery` | the optional ambush (once), its chest |
+| B5 the Warden's Den | `weaver-hollow-b5-wardens-den` | the Brood Warden (a room fight, his `boss_id` today's); a ram across the den (lane east, rows 10-11), its knock target at the lane's east end, the rope along the lane; won, the Hoard's shutter sinks |
+| The Hoard | `weaver-hollow-hoard` | Pearl 2 on the brood's altar (Silk; the seal); the loft (L1) on the west, its stair behind a web wall (the Silk skin's first lock) |
+| B6 the Spinning Loft | `weaver-hollow-b6-spinning-loft` | two rows of web walls, two Slime Spiders, key 3 in a silk parcel (no levels inside: reached only from the Rafter Run) |
+| B7 the Pillar | `weaver-hollow-b7-pillar` | the optional wing's end: four blast kegs on a parapet in a void to the cracked post, the drawbridge to the far shore, its chest (40 coins, an energy potion; no heart quarter) |
+| D2 the Dark Bough | `weaver-hollow-d2-dark-bough` | dark, as today: three candles, its chest (today's record) |
+
+- **The way:** the hub's south door (key 1), the stair foot, the stair up to B1, B2 (the bomb over the
+  void, the bridge), B3 (the Mimic's key 2), the Warden's door, B5 (lure the Warden onto the ram's
+  lane, throw at the target from beside it: knocked flat, his plates open), the Hoard (Pearl 2, the
+  Silk skin, the seal), the loft's web wall, the Spinning Loft (key 3), B2's rafters (the webbed
+  slabs: a Roll sticks without the skin and falls with its slab; with it a quick Roll from the east
+  rim's edge to the landing, a second from the landing's west edge), B3's rafters (the big key), the
+  hole down onto the hub's north gallery by the Crown Door. The Silk skin then opens the hub's east
+  gallery web wall and T1's loft chest (built in the first piece).
+- **Levels across rooms:** a room-door scroll keeps the slime's level when it stands at the doorway
+  or at the spot it walks out onto, and otherwise takes the level of that spot (`main.gd`, 2026-11-25:
+  the doorway spot of a room door lies off the painted floor, past it in an east or south wall, above
+  it in a north one, where the level read 0). So a walk on L1 runs on through upper doorways on every
+  side, and the Spinning Loft needs no levels of its own.
+- **Floors:** packed earth (garden soil) with gravel paths, wood planks on the rafters, the loft and
+  the Spinning Loft, grass round the Hoard's altar, cavern stone in the voids; one floor trim.
+- **The Warden and the ram:** `brood_warden.gd` `on_mechanism_hit` (above, "The hooks"); his numbers
+  `ramDamage`, `ramSlidePx`, `ramSlideMs`, `knockedMs` in `enemy-types.json`.
+- **A slab under a floor web:** the kit's falling slab and the `webs` layer as they are; the room's
+  `webs` layer at z 0 (the decks draw at z -1), so the webs show over the slabs. A hazard drops only
+  a body at its rim (the lowest level painted round it), so the one void has two: the floor's
+  (rows 4-13, rim 0) and the rafters' crossing (rows 2-3, rim 1); with one, a slime stuck on a fallen
+  slab up there stood on the air. Proven in the walk and `--film=webbed-slab`.
+- **Films:** `tools/film_weaver_hollow_rooms.gd --film=walk` now runs on from the hub's south door to
+  the big key, the gallery and T1's loft (`--from=boughs` starts there); `--film=warden-ram`,
+  `--film=webbed-slab`.
+- **Not checked:** the map layout places the Boughs on floor 1 and the Crown on floor 2, but the
+  minimap's floor tabs were not looked at.
+
+### The Crown (step 3's third piece, 2026-11-25)
+
+The Hollow's top floor, the last piece of step 3, built the same way beside today's Crown
+(`weaver-hollow-crown`; entered since the switch-over): three more room worlds in `rooms/weaver-hollow/` (floor 2 on the
+map), their links in [the handover](../handover/2026-11-23-dungeons-rework.md#step-3-the-crown).
+
+| Room | World | What is there |
+|---|---|---|
+| C1 the Crown Stair | `weaver-hollow-c1-crown-stair` | behind the hub's Crown Door (the big key; a room door `t2-north-crown` behind it in the hub): floor webs wall to wall on the floor (L0), the front flight up (cols 8-9) choked by a web wall (with the Silk skin the slime wades it, or a Spear hit cuts it for good: `weaver-hollow.c1-stair-web`); the top (L1, planks): four pots (two hearts, two energy) by the key 3 door, the calm spot before her |
+| C2 the Crown | `weaver-hollow-c2-crown` | the Matron's ram fight, **her lab's arena at the lab's coordinates** (24 x 20: five rams, their targets, her camp, twelve pots); the boss shutter south, the seal east |
+| C3 the Outer Bough | `weaver-hollow-c3-outer-bough` | 18 x 8: a timber walk past the sunk seal, her web wall across it wall to wall (`weaver-hollow.c3-web-wall`), the open hole at its end in a patch of bark: the drop to the forecourt (`gloop-forest-f4`, the marker `weaver-hollow-silk-drop`: today's landing, by S1's nook) |
+
+- **Her arena is the lab's** (`game/dev/bosses/matron-lab.tscn`, [above](#the-matron-lab-a-boss-that-answers-the-hook)),
+  carried into the room as it is, the room sized to it: the same floor (cols 2-21, rows 2-17), the
+  rams `ram-1` to `ram-5` at x 288, 524.8, 768, 1011.2 and 1248 on y 358.4 (lanes south, 9 cells), the
+  targets `target-1` to `target-5` straight below on y 1075.2, her camp at (768, 640) with the lab's
+  arena (1280 x 1024) and wake (1280 x 864, 80 up) shapes, `spawn` and `boss_overrides`, the pots
+  `pot-1` to `pot-12` where the lab has them, the slime's way in (the south door, cols 9-10) where the
+  lab's slime starts, between targets 2 and 3. `matron_ram.gd`, her scene and the lab are unchanged.
+  The builder's `CROWN_*` constants hold the lab's numbers.
+- **Her camp** is the encounter (`encounter.weaver-hollow-matron`), whose own values are the lab's
+  since the switch-over: `boss_scene` `character.orb-weaver-matron-rework`, `boss_id`
+  `orb-weaver-matron`, `camp_id` `weaver-hollow-matron`, `map_id` `weaver-hollow-c2-crown`, `spawn`
+  (0, -30), the wake and arena shapes, `respawn_ms` -1 (a dungeon boss never returns); C2 sets only the
+  arena's position (0, 0).
+  Her roar, her full heart (raises the maximum energy; no heart quarter) and her thread are the
+  encounter's. Her camp's `boss_engaged` shuts the boss shutter (`weaver-hollow-crown-shutter`) behind
+  the slime and `boss_defeated` opens it (connections in the scene, as in today's Crown). Her fall goes
+  into `defeated_boss_ids` and the Hollow's record, which breaks the seals: C2's east doorway and T1's
+  way out.
+- **The way:** the hub's gallery, the Crown Door, C1 (through the floor webs, the web wall at the
+  flight's foot, up the flight), the key 3 door (one keyhole), C2: she wakes as the slime walks in and
+  the shutter shuts; the seal holds the east doorway; her fall sinks it and opens the shutter; C3: her
+  web wall, the hole, down to the forecourt.
+- **A faint** in her fight wakes the slime at T1 (the Hollow's entrance), everything kept, and the way
+  back up is short, every lock on it open for good: T1, the hub, the gallery's stair (its block sunk by
+  the winch), the Crown Door, C1's flight, the key 3 door: four doors, no key spent (proven in the walk).
+- **The nest's dressing:** sconces and her silk on the north wall between the rams' gantries, a web in
+  the north-east corner and a spool of her silk below it on the east strip, the bones of her prey on the side strips, glow mushrooms, floor scraps between
+  the lanes: nothing on a lane, nothing between a target and where the slime throws from. No cocoon or
+  egg sac for show (her cocoon is the lock) and no floor webs (the lab's floor is bare; they would slow
+  the slime in her fight).
+- **Films:** the walk runs on through the Crown (her fight ended by the tool; `--from=crown` starts at
+  the Crown Door). `tools/film_crown.gd` films her fight in C2 with `tools/film_matron.gd`'s own films
+  and staging, only the world changed and the Silk skin lent (`scripts/godot/film-matron.sh <name>
+  --film=<film> --tool=film_crown`, into `output/dungeon-rework/hollow/crown-films/<name>/`); round1,
+  ram-catch and round3 say PASS or FAIL.
+- **Switched over** (2026-11-25): the walk now starts in the forecourt (a Goo Bomb on the root gate,
+  in through it), and after C3's drop goes in through the gate again and out by T1's way out.
+
+### The switch-over (2026-11-25)
+
+The owner's call ("Switch it over"), made before he has played the rebuilt rooms: the game enters the
+rebuilt Hollow; today's four worlds stay on disk and in `scene_index.json`, unreached, until step 5
+retires them with their tests (the handover's Next lists those tests and how to turn the switch back).
+
+- **The way in:** the forecourt's root gate (`gloop-forest-f4`, `weaver-hollow-forecourt/root-gate`)
+  leads to the new T1 (`target_area_id` `weaver-hollow-t1-root-door`, `target_door_id`
+  `weaver-hollow-entrance`); T1's way out lands at the gate. The atlas's area scene
+  `game/dev/area_edit/areas/area-e4-f5.tscn` (not in git) has the same two lines, and its write-back
+  refuses anyway: F4 changed on disk since it was opened (each chunk's hash), so nothing is written.
+- **Her fight:** `encounter.weaver-hollow-matron`'s own values are the rework's (above); C2 keeps only
+  its arena's position and the `[editable path]` line that its camp-to-shutter connections need, so an
+  editor save that loses the line loses the shutter's wiring but never brings the old fight back.
+- **Today's Crown** keeps its cocoon fight: its C2 room scene (`rooms/weaver-hollow-crown/C2-the-crown.tscn`)
+  instances `game/scenes/encounters/weaver-hollow-matron-old.tscn`, the encounter as it was (one line
+  changed in that room scene). It goes with today's worlds at step 5.
+- **Nothing leads into today's Hollow:** the world map lists the Hollow by its record id
+  (`weaver-hollow`, as `fatty-lair`: `interiors` and the marker's `map`); the area banner is one for all
+  its rooms (`AreaTitles` `weaver-hollow`; today's four names stay for an old save's slot label); the
+  dev powers are one line, `dungeon.devPowers.weaver-hollow`; the second-half dev run starts in the
+  Hoard.
+- **Saves:** a save standing in one of today's four floors loads into the new T1 at its entrance,
+  inside, as a dungeon's resume save does (RunState `moved_world`, `RETIRED_HOLLOW_WORLDS`); a record
+  entrance naming one of them is forgotten (T1 records it again). The record (`weaver-hollow`) is the
+  same dungeon's, so small keys held, the big key, the map, the seal and her defeat carry over; Pearl
+  2, the Silk skin, the Warden's fall and her full heart are the run's own. The prizes keep today's
+  records (D1's page, D2's chest, B4's chest, S2's three parcels), so none is had twice. A boss fight
+  whose boss fell elsewhere gives its reward when its room is built (`room_fight.gd`
+  `_reward_if_beaten_elsewhere`: the Warden beaten in today's Boughs, the Hoard's shutter). A
+  half-played save loses its doors, bridges, winches, webs and fights (today's object keys; played
+  again), the doors its small keys opened (the keys spent there are gone, and the new chests and the
+  Mimic give theirs again, so it holds at least enough, often more), the rooms on its map, and S3's 30
+  coins and B6's heart quarter if not taken (gone with the rework).
 
 ## Fatty's Lair (built)
 

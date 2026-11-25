@@ -1,0 +1,308 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_okg14"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_f8bpa"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_bxkph"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_mraa7"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_4m0mo"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="6_7v0ah"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="7_psin6"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="8_i18po"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="9_ifdgx"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="10_ae26x"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/landing.tscn" id="11_2ajme"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="12_5arej"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-roots-hanging.tscn" id="13_clepl"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-moss-overhang.tscn" id="14_3efju"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-root-hump.tscn" id="15_2ime0"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-post-root.tscn" id="16_ak7be"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-structure/interior-mushroom-structure-moss-patch.tscn" id="19_8agm0"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-grass-moss-2.tscn" id="20_irs0u"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-4.tscn" id="21_coq0l"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-pebbles-mossy.tscn" id="22_rciwr"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-1.tscn" id="23_hog7o"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-moss-2.tscn" id="24_rgov8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-grass-moss-1.tscn" id="25_ip1nn"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-3.tscn" id="26_dyw52"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-4.tscn" id="27_k5vm7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-7.tscn" id="28_adl54"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-8.tscn" id="29_g6m2j"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-stepping-stone-1.tscn" id="30_e1jmk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-7.tscn" id="31_wywpk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-root-1.tscn" id="32_e08sk"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-leaves-fallen.tscn" id="33_urg6b"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-decor/interior-mushroom-decor-glow-mushroom-cluster.tscn" id="34_g5m2f"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/decoration-world-ambient--web-tree-01.tscn" id="35_f8bpa"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/glow-worm.tscn" id="35_qn6dq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/mushroom-floor/interior-mushroom-floor-mushrooms-cream.tscn" id="36_bxkph"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/firefly.tscn" id="36_m7uum"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="37_5d3jj"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/bone-pile.tscn" id="37_mraa7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="38_r713a"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="39_truys"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/weaver-hollow-dungeon.tscn" id="40_8dxl1"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="41_ybrwi"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="42_hqaoy"]
+
+[node name="r1-root-fall" type="Node2D" unique_id=1847159132]
+y_sort_enabled = true
+script = ExtResource("1_okg14")
+world_id = "weaver-hollow-r1-root-fall"
+room_id = "r1-root-fall"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=67237754]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAABAAAAAQABAAAAAAACAAAAAQACAAAAAAADAAAAAQADAAAAAAAEAAAAAQAEAAAAAAAFAAAAAQAFAAAAAAAGAAAAAQAGAAAAAAAHAAAAAQAHAAAAAAAIAAAAAQAIAAAAAAAJAAAAAQAJAAAAAAAKAAAAAQAKAAAAAAALAAAAAQALAAAAAAAMAAAAAQAMAAAAAAANAAAAAQANAAAAAAAOAAAAAQAOAAAAAAAPAAAAAQAPAAAAAAAQAAAAAQAQAAAAAAARAAAAAQARAAAAAAAAAAEAAQAAAAEAAAABAAEAAQABAAEAAAACAAEAAQACAAEAAAADAAEAAQADAAEAAAAEAAEAAQAEAAEAAAAFAAEAAQAFAAEAAAAGAAEAAQAGAAEAAAAHAAEAAQAHAAEAAAAIAAEAAQAIAAEAAAAJAAEAAQAJAAEAAAAKAAEAAQAKAAEAAAALAAEAAQALAAEAAAAMAAEAAQAMAAEAAAANAAEAAQANAAEAAAAOAAEAAQAOAAEAAAAPAAEAAQAPAAEAAAAQAAEAAQAQAAEAAAARAAEAAQARAAEAAAAAAAIAAQAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIAAQAPAAIAAAAQAAIAAQAQAAIAAAARAAIAAQARAAIAAAAAAAMAAQAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMAAQAPAAMAAAAQAAMAAQAQAAMAAAARAAMAAQARAAMAAAAAAAQAAQAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQAAQAPAAQAAAAQAAQAAQAQAAQAAAARAAQAAQARAAQAAAAAAAUAAQAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUAAQAPAAUAAAAQAAUAAQAQAAUAAAARAAUAAQARAAUAAAAAAAYAAQAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYAAQAPAAYAAAAQAAYAAQAQAAYAAAARAAYAAQARAAYAAAAAAAcAAQAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAQANAAcAAAAOAAcAAQAOAAcAAAAPAAcAAQAPAAcAAAAQAAcAAQAQAAcAAAARAAcAAQARAAcAAAAAAAgAAQAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAQANAAgAAAAOAAgAAQAOAAgAAAAPAAgAAQAPAAgAAAAQAAgAAQAQAAgAAAARAAgAAQARAAgAAAAAAAkAAQAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAQANAAkAAAAOAAkAAQAOAAkAAAAPAAkAAQAPAAkAAAAQAAkAAQAQAAkAAAARAAkAAQARAAkAAAAAAAoAAQAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAQANAAoAAAAOAAoAAQAOAAoAAAAPAAoAAQAPAAoAAAAQAAoAAQAQAAoAAAARAAoAAQARAAoAAAAAAAsAAQAAAAsAAAABAAsAAQABAAsAAAACAAsAAQACAAsAAAADAAsAAQADAAsAAAAEAAsAAQAEAAsAAAAFAAsAAQAFAAsAAAAGAAsAAQAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsAAQAJAAsAAAAKAAsAAQAKAAsAAAALAAsAAQALAAsAAAAMAAsAAQAMAAsAAAANAAsAAQANAAsAAAAOAAsAAQAOAAsAAAAPAAsAAQAPAAsAAAAQAAsAAQAQAAsAAAARAAsAAQARAAsAAAAAAAwAAQAAAAwAAAABAAwAAQABAAwAAAACAAwAAQACAAwAAAADAAwAAQADAAwAAAAEAAwAAQAEAAwAAAAFAAwAAQAFAAwAAAAGAAwAAQAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwAAQAJAAwAAAAKAAwAAQAKAAwAAAALAAwAAQALAAwAAAAMAAwAAQAMAAwAAAANAAwAAQANAAwAAAAOAAwAAQAOAAwAAAAPAAwAAQAPAAwAAAAQAAwAAQAQAAwAAAARAAwAAQARAAwAAAAAAA0AAQAAAA0AAAABAA0AAQABAA0AAAACAA0AAQACAA0AAAADAA0AAQADAA0AAAAEAA0AAQAEAA0AAAAFAA0AAQAFAA0AAAAGAA0AAQAGAA0AAAAHAA0AAQAHAA0AAAAIAA0AAQAIAA0AAAAJAA0AAQAJAA0AAAAKAA0AAQAKAA0AAAALAA0AAQALAA0AAAAMAA0AAQAMAA0AAAANAA0AAQANAA0AAAAOAA0AAQAOAA0AAAAPAA0AAQAPAA0AAAAQAA0AAQAQAA0AAAARAA0AAQARAA0AAAAAAA4AAQAAAA4AAAABAA4AAQABAA4AAAACAA4AAQACAA4AAAADAA4AAQADAA4AAAAEAA4AAQAEAA4AAAAFAA4AAQAFAA4AAAAGAA4AAQAGAA4AAAAHAA4AAQAHAA4AAAAIAA4AAQAIAA4AAAAJAA4AAQAJAA4AAAAKAA4AAQAKAA4AAAALAA4AAQALAA4AAAAMAA4AAQAMAA4AAAANAA4AAQANAA4AAAAOAA4AAQAOAA4AAAAPAA4AAQAPAA4AAAAQAA4AAQAQAA4AAAARAA4AAQARAA4AAAAAAA8AAQAAAA8AAAABAA8AAQABAA8AAAACAA8AAQACAA8AAAADAA8AAQADAA8AAAAEAA8AAQAEAA8AAAAFAA8AAQAFAA8AAAAGAA8AAQAGAA8AAAAHAA8AAQAHAA8AAAAIAA8AAQAIAA8AAAAJAA8AAQAJAA8AAAAKAA8AAQAKAA8AAAALAA8AAQALAA8AAAAMAA8AAQAMAA8AAAANAA8AAQANAA8AAAAOAA8AAQAOAA8AAAAPAA8AAQAPAA8AAAAQAA8AAQAQAA8AAAARAA8AAQARAA8AAAA=")
+tile_set = ExtResource("2_f8bpa")
+script = ExtResource("3_bxkph")
+metadata/columns = 18
+metadata/rows = 16
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1814979727]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAKAAAAAAACAAAAAAALAAAAAAACAAAAAAAMAAAAAAACAAAAAAANAAAAAAACAAAAAAAOAAAAAAACAAAAAAAPAAAAAAACAAAAAAAQAAAAAAACAAAAAAARAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAKAAEAAAACAAAAAAALAAEAAAACAAAAAAAMAAEAAAACAAAAAAANAAEAAAACAAAAAAAOAAEAAAACAAAAAAAPAAEAAAACAAAAAAAQAAEAAAACAAAAAAARAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAQAAIAAAACAAAAAAARAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAQAAMAAAACAAAAAAARAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAQAAQAAAACAAAAAAARAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAQAAUAAAACAAAAAAARAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAAQAAYAAAACAAAAAAARAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAAQAAcAAAACAAEAAAARAAcAAAACAAEAAAAAAAgAAAACAAAAAAABAAgAAAACAAAAAAAQAAgAAAACAAEAAAARAAgAAAACAAEAAAAAAAkAAAACAAAAAAABAAkAAAACAAAAAAAQAAkAAAACAAAAAAARAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAAQAAoAAAACAAAAAAARAAoAAAACAAAAAAAAAAsAAAACAAAAAAABAAsAAAACAAAAAAAQAAsAAAACAAAAAAARAAsAAAACAAAAAAAAAAwAAAACAAAAAAABAAwAAAACAAAAAAAQAAwAAAACAAAAAAARAAwAAAACAAAAAAAAAA0AAAACAAAAAAABAA0AAAACAAAAAAAQAA0AAAACAAAAAAARAA0AAAACAAAAAAAAAA4AAAACAAAAAAABAA4AAAACAAAAAAACAA4AAAACAAAAAAADAA4AAAACAAAAAAAEAA4AAAACAAAAAAAFAA4AAAACAAAAAAAGAA4AAAACAAAAAAAHAA4AAAACAAAAAAAIAA4AAAACAAAAAAAJAA4AAAACAAAAAAAKAA4AAAACAAAAAAALAA4AAAACAAAAAAAMAA4AAAACAAAAAAANAA4AAAACAAAAAAAOAA4AAAACAAAAAAAPAA4AAAACAAAAAAAQAA4AAAACAAAAAAARAA4AAAACAAAAAAAAAA8AAAACAAAAAAABAA8AAAACAAAAAAACAA8AAAACAAAAAAADAA8AAAACAAAAAAAEAA8AAAACAAAAAAAFAA8AAAACAAAAAAAGAA8AAAACAAAAAAAHAA8AAAACAAAAAAAIAA8AAAACAAAAAAAJAA8AAAACAAAAAAAKAA8AAAACAAAAAAALAA8AAAACAAAAAAAMAA8AAAACAAAAAAANAA8AAAACAAAAAAAOAA8AAAACAAAAAAAPAA8AAAACAAAAAAAQAA8AAAACAAAAAAARAA8AAAACAAAAAAA=")
+tile_set = ExtResource("4_mraa7")
+script = ExtResource("5_4m0mo")
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=38867106]
+visible = false
+tile_map_data = PackedByteArray("AAAAAAAAAAADAAAAAAABAAAAAAADAAAAAAACAAAAAAADAAAAAAADAAAAAAADAAAAAAAEAAAAAAADAAAAAAAFAAAAAAADAAAAAAAGAAAAAAADAAAAAAAAAAEAAAADAAAAAAABAAEAAAADAAAAAAACAAEAAAADAAAAAAADAAEAAAADAAAAAAAEAAEAAAADAAAAAAAFAAEAAAADAAAAAAAGAAEAAAADAAAAAAAAAAIAAAADAAAAAAABAAIAAAADAAAAAAACAAIAAAADAAAAAAADAAIAAAADAAAAAAAEAAIAAAADAAAAAAAFAAIAAAADAAAAAAAGAAIAAAADAAAAAAAAAAMAAAADAAAAAAABAAMAAAADAAAAAAACAAMAAAADAAAAAAADAAMAAAADAAAAAAAEAAMAAAADAAAAAAAFAAMAAAADAAAAAAAGAAMAAAADAAAAAAAAAAQAAAADAAAAAAABAAQAAAADAAAAAAACAAQAAAADAAAAAAADAAQAAAADAAAAAAAEAAQAAAADAAAAAAAFAAQAAAADAAAAAAAGAAQAAAADAAAAAAAAAAUAAAADAAAAAAABAAUAAAADAAAAAAACAAUAAAADAAAAAAADAAUAAAADAAAAAAAEAAUAAAADAAAAAAAFAAUAAAADAAAAAAAGAAUAAAADAAAAAAADAAYAAAAAAAEAAAAEAAYAAAAAAAEAAAA=")
+tile_set = ExtResource("6_7v0ah")
+script = ExtResource("7_psin6")
+room_back_faces = true
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=1530126487]
+tile_map_data = PackedByteArray("AAACAAIAAAAJAAIAAAADAAIAAAAJAAIAAAAEAAIAAAAJAAIAAAAFAAIAAAAJAAIAAAAGAAIAAAAJAAIAAAAHAAIAAAAJAAIAAAAIAAIAAAAJAAIAAAAJAAIAAAAJAAIAAAAKAAIAAAAJAAIAAAALAAIAAAAJAAIAAAAMAAIAAAAJAAIAAAANAAIAAAAJAAIAAAAOAAIAAAAJAAIAAAAPAAIAAAAJAAIAAAACAAMAAAAJAAIAAAADAAMAAAAJAAIAAAAEAAMAAAAJAAIAAAAFAAMAAAAJAAIAAAAGAAMAAAAJAAIAAAAHAAMAAAAJAAIAAAAIAAMAAAAJAAIAAAAJAAMAAAAJAAIAAAAKAAMAAAAJAAIAAAALAAMAAAAJAAIAAAAMAAMAAAAJAAIAAAANAAMAAAAJAAIAAAAOAAMAAAAJAAIAAAAPAAMAAAAJAAIAAAACAAQAAAAJAAIAAAADAAQAAAAJAAIAAAAEAAQAAAAJAAIAAAAFAAQAAAAJAAIAAAAGAAQAAAAJAAIAAAAHAAQAAAAJAAIAAAAIAAQAAAAJAAIAAAAJAAQAAAAJAAIAAAAKAAQAAAAJAAIAAAALAAQAAAAJAAIAAAAMAAQAAAAJAAIAAAANAAQAAAAJAAIAAAAOAAQAAAAJAAIAAAAPAAQAAAAJAAIAAAACAAUAAAAJAAIAAAADAAUAAAAJAAIAAAAEAAUAAAAJAAIAAAAFAAUAAAAJAAIAAAAGAAUAAAAJAAIAAAAHAAUAAAAJAAIAAAAIAAUAAAAJAAIAAAAJAAUAAAAJAAIAAAAKAAUAAAAJAAIAAAALAAUAAAAJAAIAAAAMAAUAAAAJAAIAAAANAAUAAAAJAAIAAAAOAAUAAAAJAAIAAAAPAAUAAAAJAAIAAAACAAYAAAAJAAIAAAAFAAYAAAAJAAIAAAAGAAYAAAAJAAIAAAAHAAYAAAAJAAIAAAAIAAYAAAAJAAIAAAAJAAYAAAAJAAIAAAAKAAYAAAAJAAIAAAALAAYAAAAJAAIAAAAMAAYAAAAJAAIAAAANAAYAAAAJAAIAAAAOAAYAAAAJAAIAAAAPAAYAAAAJAAIAAAACAAcAAAAJAAIAAAADAAcAAAAJAAIAAAAEAAcAAAAJAAIAAAAFAAcAAAAJAAIAAAAGAAcAAAAJAAIAAAAHAAcAAAAJAAIAAAAIAAcAAAAJAAIAAAAJAAcAAAAJAAIAAAAKAAcAAAAJAAIAAAALAAcAAAAJAAIAAAAMAAcAAAAJAAIAAAANAAcAAAAJAAIAAAAOAAcAAAAJAAIAAAACAAgAAAAJAAIAAAADAAgAAAAJAAIAAAAEAAgAAAAJAAIAAAAFAAgAAAAJAAIAAAAGAAgAAAAJAAIAAAAHAAgAAAAJAAIAAAAIAAgAAAAJAAIAAAAJAAgAAAAJAAIAAAAKAAgAAAAJAAIAAAALAAgAAAAJAAIAAAAMAAgAAAAJAAIAAAANAAgAAAAJAAIAAAAOAAgAAAAJAAIAAAACAAkAAAAJAAIAAAADAAkAAAAJAAIAAAAEAAkAAAAJAAIAAAAFAAkAAAAJAAIAAAAGAAkAAAAJAAIAAAAHAAkAAAAJAAIAAAAIAAkAAAAJAAIAAAAJAAkAAAAJAAIAAAAKAAkAAAAJAAIAAAALAAkAAAAJAAIAAAAMAAkAAAAJAAIAAAANAAkAAAAJAAIAAAAOAAkAAAAJAAIAAAAPAAkAAAAJAAIAAAACAAoAAAAJAAIAAAADAAoAAAAJAAIAAAAEAAoAAAAJAAIAAAAFAAoAAAAJAAIAAAAGAAoAAAAJAAIAAAAHAAoAAAAJAAIAAAAIAAoAAAAJAAIAAAAJAAoAAAAJAAIAAAAKAAoAAAAJAAIAAAALAAoAAAAJAAIAAAAMAAoAAAAJAAIAAAANAAoAAAAJAAIAAAAOAAoAAAAJAAIAAAAPAAoAAAAJAAIAAAACAAsAAAAJAAIAAAADAAsAAAAJAAIAAAAEAAsAAAAJAAIAAAAFAAsAAAAJAAIAAAAGAAsAAAAJAAIAAAAHAAsAAAAJAAIAAAAIAAsAAAAJAAIAAAAJAAsAAAAJAAIAAAAKAAsAAAAJAAIAAAALAAsAAAAJAAIAAAAMAAsAAAAJAAIAAAANAAsAAAAJAAIAAAAOAAsAAAAJAAIAAAAPAAsAAAAJAAIAAAACAAwAAAAJAAIAAAADAAwAAAAJAAIAAAAEAAwAAAAJAAIAAAAFAAwAAAAJAAIAAAAGAAwAAAAJAAIAAAAHAAwAAAAJAAIAAAAIAAwAAAAJAAIAAAAJAAwAAAAJAAIAAAAKAAwAAAAJAAIAAAALAAwAAAAJAAIAAAAMAAwAAAAJAAIAAAANAAwAAAAJAAIAAAAOAAwAAAAJAAIAAAAPAAwAAAAJAAIAAAACAA0AAAAJAAIAAAADAA0AAAAJAAIAAAAEAA0AAAAJAAIAAAAFAA0AAAAJAAIAAAAGAA0AAAAJAAIAAAAHAA0AAAAJAAIAAAAIAA0AAAAJAAIAAAAJAA0AAAAJAAIAAAAKAA0AAAAJAAIAAAALAA0AAAAJAAIAAAAMAA0AAAAJAAIAAAANAA0AAAAJAAIAAAAOAA0AAAAJAAIAAAAPAA0AAAAJAAIAAAA=")
+tile_set = ExtResource("8_i18po")
+script = ExtResource("9_ifdgx")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=1368849836]
+
+[node name="r1-root-fall" type="Node2D" parent="CameraRooms" unique_id=842466929]
+script = ExtResource("10_ae26x")
+outline = PackedVector2Array()
+size = Vector2(1152, 1024)
+metadata/wall_bands = false
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/r1-root-fall" unique_id=1287292333]
+position = Vector2(288, 224)
+
+[node name="Objects" type="Node2D" parent="." unique_id=139935340]
+y_sort_enabled = true
+
+[node name="r1-landing" parent="Objects" unique_id=507259514 instance=ExtResource("11_2ajme")]
+position = Vector2(288, 217.6)
+door_id = "weaver-hollow-r1-landing"
+
+[node name="r1-pot-1" parent="Objects" unique_id=133481793 instance=ExtResource("12_5arej")]
+position = Vector2(179.2, 806.4)
+
+[node name="PotLoot" parent="Objects/r1-pot-1" index="3"]
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="r1-pot-2" parent="Objects" unique_id=725164036 instance=ExtResource("12_5arej")]
+position = Vector2(947.2, 192)
+
+[node name="PotLoot" parent="Objects/r1-pot-2" index="3"]
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="r1-ledge-pot" parent="Objects" unique_id=1443814878 instance=ExtResource("12_5arej")]
+position = Vector2(179.2, 185.6)
+
+[node name="PotLoot" parent="Objects/r1-ledge-pot" index="3"]
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1599635808]
+y_sort_enabled = true
+
+[node name="mushroom-structure-roots-hanging" parent="Scenery" unique_id=2082798047 instance=ExtResource("13_clepl")]
+position = Vector2(576, 140.8)
+
+[node name="mushroom-structure-roots-hanging-2" parent="Scenery" unique_id=1099020384 instance=ExtResource("13_clepl")]
+position = Vector2(832, 140.8)
+
+[node name="mushroom-structure-moss-overhang" parent="Scenery" unique_id=489901397 instance=ExtResource("14_3efju")]
+position = Vector2(294.4, 137.6)
+
+[node name="mushroom-structure-root-hump" parent="Scenery" unique_id=1484664722 instance=ExtResource("15_2ime0")]
+position = Vector2(870.4, 806.4)
+
+[node name="mushroom-structure-post-root" parent="Scenery" unique_id=1436727701 instance=ExtResource("16_ak7be")]
+position = Vector2(512, 704)
+
+[node name="mushroom-structure-post-root-2" parent="Scenery" unique_id=1021712559 instance=ExtResource("16_ak7be")]
+position = Vector2(934.4, 448)
+
+[node name="mushroom-structure-moss-patch" parent="Scenery" unique_id=1661229715 instance=ExtResource("19_8agm0")]
+position = Vector2(652.8, 729.6)
+
+[node name="mushroom-floor-grass-moss-2" parent="Scenery" unique_id=1255932507 instance=ExtResource("20_irs0u")]
+position = Vector2(727.63306, 744.1781)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-moss-4" parent="Scenery" unique_id=1352332754 instance=ExtResource("21_coq0l")]
+position = Vector2(671.8814, 768.19403)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-pebbles-mossy" parent="Scenery" unique_id=93148311 instance=ExtResource("22_rciwr")]
+position = Vector2(633.5742, 789.67804)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-moss-1" parent="Scenery" unique_id=1677529441 instance=ExtResource("23_hog7o")]
+position = Vector2(580.9012, 749.4608)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-moss-2" parent="Scenery" unique_id=1109512519 instance=ExtResource("24_rgov8")]
+position = Vector2(605.51404, 680.40906)
+
+[node name="mushroom-floor-grass-moss-1" parent="Scenery" unique_id=1051358681 instance=ExtResource("25_ip1nn")]
+position = Vector2(713.88995, 691.681)
+
+[node name="mushroom-structure-moss-patch-2" parent="Scenery" unique_id=1057050074 instance=ExtResource("19_8agm0")]
+position = Vector2(268.8, 665.6)
+
+[node name="mushroom-floor-moss-2-2" parent="Scenery" unique_id=262865 instance=ExtResource("24_rgov8")]
+position = Vector2(330.55084, 651.03107)
+
+[node name="mushroom-floor-moss-2-3" parent="Scenery" unique_id=773512453 instance=ExtResource("24_rgov8")]
+position = Vector2(304.64636, 696.225)
+
+[node name="mushroom-floor-grass-moss-2-2" parent="Scenery" unique_id=805369576 instance=ExtResource("20_irs0u")]
+position = Vector2(222.05902, 692.6478)
+
+[node name="mushroom-floor-moss-2-4" parent="Scenery" unique_id=1528918307 instance=ExtResource("24_rgov8")]
+position = Vector2(232.83014, 636.0023)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-moss-2-5" parent="Scenery" unique_id=777015681 instance=ExtResource("24_rgov8")]
+position = Vector2(281.2817, 610.3967)
+
+[node name="mushroom-floor-stepping-stone-3" parent="Scenery" unique_id=331093617 instance=ExtResource("26_dyw52")]
+position = Vector2(255.25655, 486.73425)
+
+[node name="mushroom-floor-stepping-stone-4" parent="Scenery" unique_id=371811742 instance=ExtResource("27_k5vm7")]
+position = Vector2(340.51447, 483.44412)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-stepping-stone-7" parent="Scenery" unique_id=24370242 instance=ExtResource("28_adl54")]
+position = Vector2(424.864, 496.20282)
+
+[node name="mushroom-floor-stepping-stone-8" parent="Scenery" unique_id=97499114 instance=ExtResource("29_g6m2j")]
+position = Vector2(509.6183, 501.81073)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-stepping-stone-1" parent="Scenery" unique_id=1825171046 instance=ExtResource("30_e1jmk")]
+position = Vector2(595.86456, 481.05966)
+
+[node name="mushroom-floor-stepping-stone-8-2" parent="Scenery" unique_id=532443300 instance=ExtResource("29_g6m2j")]
+position = Vector2(680.02704, 497.12186)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-stepping-stone-8-3" parent="Scenery" unique_id=1422249027 instance=ExtResource("29_g6m2j")]
+position = Vector2(764.4718, 508.19937)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-stepping-stone-3-2" parent="Scenery" unique_id=378337274 instance=ExtResource("26_dyw52")]
+position = Vector2(849.41656, 510.44113)
+scale = Vector2(-1, 1)
+
+[node name="mushroom-floor-stepping-stone-8-4" parent="Scenery" unique_id=1645054769 instance=ExtResource("29_g6m2j")]
+position = Vector2(933.6243, 525.7035)
+
+[node name="mushroom-floor-root-7" parent="Scenery" unique_id=511388562 instance=ExtResource("31_wywpk")]
+position = Vector2(384, 524.8)
+
+[node name="mushroom-floor-root-1" parent="Scenery" unique_id=1541830889 instance=ExtResource("32_e08sk")]
+position = Vector2(768, 320)
+
+[node name="mushroom-floor-moss-2-6" parent="Scenery" unique_id=1703688637 instance=ExtResource("24_rgov8")]
+position = Vector2(204.8, 550.4)
+
+[node name="mushroom-floor-leaves-fallen" parent="Scenery" unique_id=1867348207 instance=ExtResource("33_urg6b")]
+position = Vector2(448, 832)
+
+[node name="mushroom-decor-glow-mushroom-cluster" parent="Scenery" unique_id=1985122100 instance=ExtResource("34_g5m2f")]
+position = Vector2(972.8, 768)
+
+[node name="glow-worm" parent="Scenery" unique_id=583534295 instance=ExtResource("35_qn6dq")]
+position = Vector2(576, 793.6)
+walk_speed = 5.0
+pause_min_ms = 2500.0
+pause_max_ms = 7000.0
+wander_radius = 40.0
+rest_clips = PackedStringArray()
+
+[node name="firefly" parent="Scenery" unique_id=1399211793 instance=ExtResource("36_m7uum")]
+position = Vector2(704, 256)
+wander_radius = 72.0
+rest_clips = PackedStringArray()
+notice_px = 56.0
+flee_speed = 90.0
+flee_ms = 900.0
+fly_ms = 500.0
+flight_height = 22.0
+flight_speed = 20.0
+flight_wobble_px = 5.0
+
+[node name="ambient--web-tree-01" parent="Scenery" unique_id=1503014533 instance=ExtResource("35_f8bpa")]
+position = Vector2(185.6, 166.4)
+
+[node name="mushroom-floor-mushrooms-cream" parent="Scenery" unique_id=1092002788 instance=ExtResource("36_bxkph")]
+position = Vector2(390.4, 294.4)
+
+[node name="bone-pile" parent="Scenery" unique_id=45036171 instance=ExtResource("37_mraa7")]
+position = Vector2(857.6, 345.6)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1910268917]
+y_sort_enabled = true
+
+[node name="r1-egg-sac" parent="Enemies" unique_id=648112787 instance=ExtResource("37_5d3jj")]
+position = Vector2(704, 576)
+enemy_type = "egg-sac"
+wander_radius = 60.0
+
+[node name="RoomDoors" type="Node2D" parent="." unique_id=965489428]
+
+[node name="r1-east" parent="RoomDoors" unique_id=1641838276 instance=ExtResource("38_r713a")]
+position = Vector2(1152, 512)
+door_id = "r1-east"
+target_room = "r2-bone-cellar"
+target_door = "r2-west"
+side = "east"
+
+[node name="world-definition" type="Node" parent="." unique_id=1290329920]
+script = ExtResource("39_truys")
+map_id = "weaver-hollow-r1-root-fall"
+tile_size = 64
+columns = 18
+rows = 16
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 288,
+"y": 224
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=2088101319]
+position = Vector2(288, 224)
+
+[node name="Dungeon" parent="." unique_id=777161250 instance=ExtResource("40_8dxl1")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=267524083]
+process_mode = 3
+stream = ExtResource("41_ybrwi")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("42_hqaoy")
+loop = true
+autoplay_cue = true
+
+[editable path="Objects/r1-pot-1"]
+[editable path="Objects/r1-pot-2"]
+[editable path="Objects/r1-ledge-pot"]

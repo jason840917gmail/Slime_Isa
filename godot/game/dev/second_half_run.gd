@@ -1,12 +1,13 @@
 extends Node
 ## Dev only (game/dev/ stays out of the release export): F6 on a dungeon's second half with its Pearl's
-## skin lent. `game/dev/weaver-hollow-second-half.tscn` runs `weaver-hollow-crown` (C1, C4 the
-## Spinning Loft, the Matron) as F6 on that world does (main `direct_world_run`: the floor's
-## `dungeon.devPowers`, the Spear, the Roll, the Heavy skin and the Goo Bomb), and lends `skins` for
-## the session (SkinState.lend; the look stays the goo: a skin shows only while it works,
-## docs/godot/SKINS.md), since the Silk skin is won mid-dungeon, from Pearl 2 in the
-## Hoard (docs/godot/DUNGEONS.md "The Weaver Hollow (built)"). On the web or a desktop launch,
-## `?map=weaver-hollow-crown&skins=silk` does the same (`-- --map=... --skins=silk`).
+## skin lent. `game/dev/weaver-hollow-second-half.tscn` runs `weaver-hollow-hoard` (the rebuilt
+## Hollow's Hoard, where the Silk half starts: the loft stair's web wall, then the Spinning Loft, the
+## rafters, the big key and the Crown) as F6 on that world does (main `direct_world_run`: the
+## dungeon's `dungeon.devPowers`, the Spear, the Roll, the Heavy skin and the Goo Bomb), and lends
+## `skins` for the session (SkinState.lend; the look stays the goo: a skin shows only while it works,
+## docs/godot/SKINS.md), since the Silk skin is won mid-dungeon, from Pearl 2 in the Hoard
+## (docs/godot/DUNGEONS.md "The Boughs"). On the web or a desktop launch,
+## `?map=weaver-hollow-hoard&skins=silk` does the same (`-- --map=... --skins=silk`).
 ##
 ## Owner: dungeons (the Weaver Hollow).
 
@@ -17,7 +18,7 @@ const MAIN_SCENE := "res://game/main.tscn"
 const SELF_PATH := "res://game/dev/second_half_run.gd"
 
 ## The world the run starts in.
-@export var map_id: String = "weaver-hollow-crown"
+@export var map_id: String = "weaver-hollow-hoard"
 ## The skins lent for the session once its world is built.
 @export var skins: PackedStringArray = ["silk"]
 

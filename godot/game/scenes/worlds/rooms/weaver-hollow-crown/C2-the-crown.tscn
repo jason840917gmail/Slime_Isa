@@ -8,7 +8,7 @@
 [ext_resource type="TileSet" path="res://game/world/elevation/cliffs/cliff_tileset.tres" id="5_hba4a"]
 [ext_resource type="Script" uid="uid://kwcdiy1mquk" path="res://game/world/elevation/cliffs/cliff_layer.gd" id="6_sre50"]
 [ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="7_n0hug"]
-[ext_resource type="PackedScene" path="res://game/scenes/encounters/weaver-hollow-matron.tscn" id="8_37tja"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/weaver-hollow-matron-old.tscn" id="8_37tja"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="9_8gxuk"]
 [ext_resource type="Texture2D" path="res://asset/MAPS/objects/dungeon/shutter.webp" id="10_22vbl"]
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-seal.tscn" id="11_rkggr"]

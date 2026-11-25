@@ -150,6 +150,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `-- --scene=<world> [--scene=...] [--dry]`) turns a world's placed scenery into paint on its prop layers.
   Both headless converters save through `res://tools/lib/scene_save.gd`, which puts back the uids Godot's
   headless save drops.
+- `python scripts/art/make-root-cracked.py` — root rock's cracked interior-wall frame
+  (`asset/Originals/dungeon-kit/interior-walls/root-bevel-cracked-made.png`) from its plain frame and the
+  Goo Bomb's crack decal (the generated one had see-through gaps); then pack root rock as below.
 - `python scripts/art/pack-interior-walls.py [style ...]` (**numpy**) — the interior walls
   ([godot/INTERIOR_WALLS.md](godot/INTERIOR_WALLS.md)): cuts each style's bevel kit (faces, mitred outer
   and inner corners, every opening per side, the door leaves, a seamless floor) from its Magnific frame

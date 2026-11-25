@@ -28,7 +28,11 @@ const AREAS := {
 	"icege": {"name": "Icege", "biome": "icege"},
 	"gloop-forest": {"name": "Gloop Forest", "biome": "gloop-forest"},
 	"crystal-caverns": {"name": "Crystal Caverns", "biome": "crystal-caverns"},
-	# The Weaver Hollow, Chapter 2's dungeon (docs/godot/DUNGEONS.md "The Weaver Hollow"): its floors.
+	# The Weaver Hollow, Chapter 2's dungeon, one world per room since 2026-11-25 (DUNGEONS.md "The
+	# switch-over"): one banner for all its rooms' worlds, as Fatty's Lair.
+	"weaver-hollow": {"name": "Weaver Hollow", "biome": "gloop-forest"},
+	# Today's four floors, no longer entered (a save standing in one wakes in the rebuilt Hollow:
+	# RunState `moved_world`); kept for an old save's slot label until they are retired (step 5).
 	"weaver-hollow-trunk": {"name": "Weaver Hollow", "biome": "gloop-forest"},
 	"weaver-hollow-roots": {"name": "Weaver Hollow: the Roots", "biome": "gloop-forest"},
 	"weaver-hollow-boughs": {"name": "Weaver Hollow: the Boughs", "biome": "gloop-forest"},

@@ -7,10 +7,10 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/matron-thread.tscn" id="7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(960, 608)
+size = Vector2(1280, 864)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
-size = Vector2(960, 704)
+size = Vector2(1280, 1024)
 
 [node name="WeaverHollowMatron" type="Node2D"]
 y_sort_enabled = true
@@ -22,7 +22,7 @@ collision_mask = 4
 monitorable = false
 
 [node name="ActivationShape" type="CollisionShape2D" parent="ActivationArea"]
-position = Vector2(32, -48)
+position = Vector2(0, -80)
 shape = SubResource("RectangleShape2D_1")
 
 [node name="ArenaArea" type="Area2D" parent="."]
@@ -40,15 +40,15 @@ y_sort_enabled = true
 
 [node name="BossCampScript" type="Node" parent="." node_paths=PackedStringArray("activation_area", "arena_area", "active_bosses")]
 script = ExtResource("1")
-map_id = "weaver-hollow-crown"
+map_id = "weaver-hollow-c2-crown"
 camp_id = "weaver-hollow-matron"
 boss_id = "orb-weaver-matron"
-boss_scene = "character.orb-weaver-matron"
+boss_scene = "character.orb-weaver-matron-rework"
 activation_area = NodePath("../ActivationArea")
 arena_area = NodePath("../ArenaArea")
 active_bosses = NodePath("../ActiveBosses")
 respawn_ms = -1.0
-spawn = Vector2(0, -144)
+spawn = Vector2(0, -30)
 boss_overrides = {
 "arena_recovery_ms": 0.0,
 "cocoon_enabled": true
@@ -65,14 +65,14 @@ max_distance = 1600.0
 pan_distance = 400.0
 
 [node name="FullHeart" parent="." instance=ExtResource("6")]
-position = Vector2(112, -96)
+position = Vector2(0, 0)
 
 [node name="FullHeartScript" parent="FullHeart" index="1"]
 heart_id = "orb-weaver-matron"
 boss_id = "orb-weaver-matron"
 
 [node name="MatronThread" parent="." instance=ExtResource("7")]
-position = Vector2(-256, -296)
+position = Vector2(-588.8, -422.4)
 
 [connection signal="boss_spawn_requested" from="BossCampScript" to="RoarSfx" method="play_cue"]
 

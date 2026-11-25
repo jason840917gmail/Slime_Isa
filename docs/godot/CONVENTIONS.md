@@ -92,7 +92,7 @@ then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They a
 session (abilities through `learn_session_ability`, the `skin.<name>` entries as lent skins:
 `SkinState.lend`, [SKINS.md](SKINS.md)) and
 the autosave is off (owner, 2026-10-17; `main.gd` `dev_powers_for`). Fatty's Lair also lends the Heavy skin (owner, 2026-10-18: to test the second half without taking Pearl 1 first). Fatty's Lair is one world per room (2026-10-18, [DUNGEON_ROOMS.md](DUNGEON_ROOMS.md#fattys-lair-one-world-per-room-2026-10-18)): **F6 on one of its room scenes** (`game/scenes/worlds/rooms/fatty-lair/<room>.tscn`) runs that room's world (`fatty-lair` for R1, `fatty-lair-<room>` for the others) with the Lair's powers, its `world-definition` doing the swap (`room_scene.gd` leaves it to it); `?map=fatty-lair-<room>` does the same from the web. D5 starts at its upper-west path marker (384, 384), clear of the cliff. F6 on
-`game/dev/weaver-hollow-second-half.tscn` runs the Weaver Hollow's Crown that way with the Silk
+`game/dev/weaver-hollow-second-half.tscn` runs the Weaver Hollow's Hoard (`weaver-hollow-hoard`, where its Silk half starts) that way with the Silk
 skin lent too (won mid-dungeon from Pearl 2; [DUNGEONS.md](DUNGEONS.md#the-weaver-hollow-built)). Or launch with `?map=<id>` (web) / `-- --map=<id>` (desktop). `?spawn=<x>,<y>` / `-- --spawn=<x>,<y>` places the player at an old Phaser
 position. `?quest=<id>[:<stage>]` / `-- --quest=<id>[:<stage>]` makes a quest active at that stage
 (default the first) when the first world is built (`QuestService.debug_activate`: earlier stages
@@ -276,8 +276,8 @@ When you build the scene behind a door:
   `target_door_id` = the other door's `door_id`.
 - **One-way ways in** (2026-10-31): a fall names a landing (`object.landing`) in the target world in
   its `target_door_id`, as a door names its pair; nothing there leads back. The Weaver Hollow's
-  blown Well Room floor (`object.cracked-floor`, a `fall` hole) drops onto `roots-landing` in
-  `weaver-hollow-roots`, the Crown's bough drop onto `weaver-hollow-silk-drop` in gloop-forest-f4.
+  blown Well Room floor (T4's `object.cracked-floor`, a `fall` hole) drops onto `weaver-hollow-r1-landing`
+  in `weaver-hollow-r1-root-fall`, C3's hole onto `weaver-hollow-silk-drop` in gloop-forest-f4.
   A door with no `target_door_id` arrives at the target world's `player-spawn` (the dev labs' ways
   back to the playground). A door with no `target_area_id` is an arrival point only: pushing into it
   never travels; a world exit that is no border (the mine's mouth) or a climb out of a world

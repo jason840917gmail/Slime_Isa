@@ -1,0 +1,215 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://djsxexesn4e5p" path="res://game/dungeon/dungeon_layout.gd" id="1_4p75e"]
+[ext_resource type="Script" uid="uid://cd84i8eduuwpg" path="res://game/dungeon/layout_room.gd" id="2_oyxr6"]
+
+[node name="weaver-hollow-layout" type="Node2D" unique_id=751866336]
+script = ExtResource("1_4p75e")
+
+[node name="t1-root-door" type="Node2D" parent="." unique_id=835101942]
+position = Vector2(3456, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/t1-root-door.tscn"
+world_id = "weaver-hollow-t1-root-door"
+room_name = "t1-root-door"
+outline = PackedVector2Array()
+
+[node name="t2-hollow-heart" type="Node2D" parent="." unique_id=435526965]
+position = Vector2(2304, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/t2-hollow-heart.tscn"
+world_id = "weaver-hollow-t2-hollow-heart"
+room_name = "t2-hollow-heart"
+size = Vector2(2304, 2048)
+outline = PackedVector2Array()
+
+[node name="t3-larder" type="Node2D" parent="." unique_id=930220123]
+position = Vector2(1152, 1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/t3-larder.tscn"
+world_id = "weaver-hollow-t3-larder"
+room_name = "t3-larder"
+outline = PackedVector2Array()
+
+[node name="t3-map-nook" type="Node2D" parent="." unique_id=1999459981]
+position = Vector2(512, 1152)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/t3-map-nook.tscn"
+world_id = "weaver-hollow-t3-map-nook"
+room_name = "t3-map-nook"
+size = Vector2(640, 512)
+outline = PackedVector2Array()
+
+[node name="t4-well-room" type="Node2D" parent="." unique_id=786500409]
+position = Vector2(1152, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/t4-well-room.tscn"
+world_id = "weaver-hollow-t4-well-room"
+room_name = "t4-well-room"
+outline = PackedVector2Array()
+
+[node name="r1-root-fall" type="Node2D" parent="." unique_id=1838756633]
+position = Vector2(1152, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/r1-root-fall.tscn"
+world_id = "weaver-hollow-r1-root-fall"
+room_name = "r1-root-fall"
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="r2-bone-cellar" type="Node2D" parent="." unique_id=293082508]
+position = Vector2(2304, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/r2-bone-cellar.tscn"
+world_id = "weaver-hollow-r2-bone-cellar"
+room_name = "r2-bone-cellar"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="r2-compass-pocket" type="Node2D" parent="." unique_id=214871188]
+position = Vector2(2624, -512)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/r2-compass-pocket.tscn"
+world_id = "weaver-hollow-r2-compass-pocket"
+room_name = "r2-compass-pocket"
+size = Vector2(640, 512)
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="r3-ram-cellar" type="Node2D" parent="." unique_id=1463473490]
+position = Vector2(4608, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/r3-ram-cellar.tscn"
+world_id = "weaver-hollow-r3-ram-cellar"
+room_name = "r3-ram-cellar"
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="d1-old-cellar" type="Node2D" parent="." unique_id=121868356]
+position = Vector2(3456, 1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/d1-old-cellar.tscn"
+world_id = "weaver-hollow-d1-old-cellar"
+room_name = "d1-old-cellar"
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="stair-foot" type="Node2D" parent="." unique_id=1326604335]
+position = Vector2(2304, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/stair-foot.tscn"
+world_id = "weaver-hollow-stair-foot"
+room_name = "stair-foot"
+outline = PackedVector2Array()
+
+[node name="b1-bough-stair" type="Node2D" parent="." unique_id=141388334]
+position = Vector2(1152, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b1-bough-stair.tscn"
+world_id = "weaver-hollow-b1-bough-stair"
+room_name = "b1-bough-stair"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b2-drawbridge" type="Node2D" parent="." unique_id=934173436]
+position = Vector2(1152, 1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b2-drawbridge.tscn"
+world_id = "weaver-hollow-b2-drawbridge"
+room_name = "b2-drawbridge"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b3-mimics-pantry" type="Node2D" parent="." unique_id=1562688383]
+position = Vector2(0, 1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b3-mimics-pantry.tscn"
+world_id = "weaver-hollow-b3-mimics-pantry"
+room_name = "b3-mimics-pantry"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b4-nursery" type="Node2D" parent="." unique_id=879768962]
+position = Vector2(2304, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b4-nursery.tscn"
+world_id = "weaver-hollow-b4-nursery"
+room_name = "b4-nursery"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b5-wardens-den" type="Node2D" parent="." unique_id=430590752]
+position = Vector2(3456, 1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b5-wardens-den.tscn"
+world_id = "weaver-hollow-b5-wardens-den"
+room_name = "b5-wardens-den"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="hoard" type="Node2D" parent="." unique_id=134524239]
+position = Vector2(3456, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/hoard.tscn"
+world_id = "weaver-hollow-hoard"
+room_name = "hoard"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b6-spinning-loft" type="Node2D" parent="." unique_id=1379348144]
+position = Vector2(2304, 0)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b6-spinning-loft.tscn"
+world_id = "weaver-hollow-b6-spinning-loft"
+room_name = "b6-spinning-loft"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="b7-pillar" type="Node2D" parent="." unique_id=317464459]
+position = Vector2(3456, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/b7-pillar.tscn"
+world_id = "weaver-hollow-b7-pillar"
+room_name = "b7-pillar"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="d2-dark-bough" type="Node2D" parent="." unique_id=254101308]
+position = Vector2(0, 2048)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/d2-dark-bough.tscn"
+world_id = "weaver-hollow-d2-dark-bough"
+room_name = "d2-dark-bough"
+outline = PackedVector2Array()
+floor_level = 1
+
+[node name="c1-crown-stair" type="Node2D" parent="." unique_id=1710141112]
+position = Vector2(2816, -1024)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/c1-crown-stair.tscn"
+world_id = "weaver-hollow-c1-crown-stair"
+room_name = "c1-crown-stair"
+outline = PackedVector2Array()
+floor_level = 2
+
+[node name="c2-crown" type="Node2D" parent="." unique_id=1594644565]
+position = Vector2(2752, -2304)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/c2-crown.tscn"
+world_id = "weaver-hollow-c2-crown"
+room_name = "c2-crown"
+size = Vector2(1536, 1280)
+outline = PackedVector2Array()
+floor_level = 2
+
+[node name="c3-outer-bough" type="Node2D" parent="." unique_id=9202264]
+position = Vector2(4288, -1920)
+script = ExtResource("2_oyxr6")
+room_scene = "res://game/scenes/worlds/rooms/weaver-hollow/c3-outer-bough.tscn"
+world_id = "weaver-hollow-c3-outer-bough"
+room_name = "c3-outer-bough"
+size = Vector2(1152, 512)
+outline = PackedVector2Array()
+floor_level = 2

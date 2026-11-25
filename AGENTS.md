@@ -89,11 +89,26 @@ its code is in git history.
 - `bash scripts/godot/film-matron.sh <name> --film=<film> [options]` — films the Orb-Weaver Matron's
   ram fight (the rework) in her lab (`world.matron-lab`, built by `tools/build_matron_lab.gd`) into
   `output/boss-rework/matron-films/<name>/`: `round1`, `dive`, `ram-catch`, `ring`, `round3`,
-  `ram-call`, `look` ([matron spec §9](docs/godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow)).
+  `ram-call`, `look` ([matron spec §9](docs/godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow));
+  with `--tool=film_crown` the same films in the rebuilt Weaver Hollow's Crown (C2, the lab's arena in
+  the room) into `output/dungeon-rework/hollow/crown-films/<name>/`, round1, ram-catch and round3 with
+  a PASS or FAIL ([The Crown](docs/godot/DUNGEONS.md#the-crown-step-3s-third-piece-2026-11-25)).
 - `bash scripts/godot/film-colossus.sh <name> --film=<film> [options]` — films the Crystal Colossus's
   plate fight (the rework) in his lab (`world.colossus-lab`, built by `tools/build_colossus_lab.gd`)
   into `output/boss-rework/colossus-films/<name>/`: `look`, `poses`, `walks`, `glow`, `burst`, `clang`,
   `pass`, `dip`, `bare`, `wall`, `core` ([The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab)).
+- `"<Godot console exe>" --path godot -s res://tools/film_weaver_hollow_rooms.gd -- --film=<walk|ram|wall-walk|warden-ram|webbed-slab|look> --out=<dir>`
+  — plays the rebuilt Weaver Hollow (step 3 of the dungeons rework; the game enters it since the
+  switch-over of 2026-11-25, today's four worlds unreached until step 5;
+  `?map=weaver-hollow-t1-root-door`) the designed way, windowed: `walk` checks every step from the
+  forecourt (a Goo Bomb on the root gate) through T1, the Trunk, the Roots, the Boughs and the Crown
+  (her fight ended by the tool, a faint and the way back up) to C3's drop, in through the gate again
+  and out by T1's way out (`--from=boughs`: from the hub's south door,
+  `--from=crown`: from the Crown Door; PASS or FAIL, a picture a step), the others film R3's lesson, the wall-walk, the Warden and the ram,
+  B2's webbed slabs, or take a still of a room in the game (`look --world=<room> --at=<x>,<y> --zoom=<z> [--slime=<x>,<y>]`);
+  its rooms' first versions came from `tools/build_weaver_hollow_rooms.gd` (refuses to overwrite a
+  hand-edited room without `--force`)
+  ([The Weaver Hollow rebuilt](docs/godot/DUNGEONS.md#the-weaver-hollow-rebuilt-the-trunk-and-the-roots-step-3-2026-11-25)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;

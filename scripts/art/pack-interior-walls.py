@@ -130,7 +130,9 @@ STYLES = {
 		# Fatty's arena, the Glow-moss Burrow, the bolt-hole: umber root rock (root-bevel-*)
 		"column": 2,
 		"frame": "root-bevel-doorways-a.png",
-		"openings": {"cracked": "root-bevel-cracked.png", "blown": "root-bevel-blown.png", "stairs": "root-bevel-stairs.png"},
+		# the generated cracked frame had see-through gaps for cracks: made from the plain frame by
+		# scripts/art/make-root-cracked.py (2026-11-25)
+		"openings": {"cracked": "root-bevel-cracked-made.png", "blown": "root-bevel-blown.png", "stairs": "root-bevel-stairs.png"},
 		"leaves": {k: f"root-bevel-leaf-{k}.png" for k in LEAVES},
 		"floor": "root-floor.png",
 

@@ -916,10 +916,17 @@ func spawn_player(navigation: Dictionary = {}) -> PlayerScript:
 	_arrival_facing = ""
 	# A scroll carries the slime's level over where that level can stand here (else the ground's, as
 	# `Elevation.track` takes it by itself); tracked now, the elevation's own deferred track skips it.
+	# Where the level can stand: the doorway's spot, or the spot the slime walks out to. A room door
+	# stands on the room's edge, its doorway spot off the painted floor (a cell past it in an east or
+	# south wall, above it in a north one), where the ground's level is 0: a room-door scroll that
+	# carries no level that stands there takes the level of the spot it walks out onto (2026-11-25).
 	var elevation := world_service.elevation
-	if _arrival_level != NO_ARRIVAL_LEVEL and not saved_spot is Vector2 and elevation != null \
-			and elevation.is_walkable(player_root.global_position, _arrival_level):
-		elevation.track(player_root, _arrival_level)
+	if not saved_spot is Vector2 and elevation != null:
+		if _arrival_level != NO_ARRIVAL_LEVEL and (elevation.is_walkable(player_root.global_position, _arrival_level) \
+				or elevation.is_walkable(spawn_point, _arrival_level)):
+			elevation.track(player_root, _arrival_level)
+		elif _scroll_arrival and AreaTravel.walks_out(AreaTravel.find_door(world_root, str(navigation.get("entry_door", "")))):
+			elevation.track(player_root, elevation.walkable_level_at(spawn_point))
 	_arrival_level = NO_ARRIVAL_LEVEL
 	return script_node
 

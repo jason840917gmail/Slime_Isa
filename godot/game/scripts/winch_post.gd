@@ -47,6 +47,12 @@ const REFUSAL_RISE := 60.0
 @export var flag_id: String = ""
 ## Said (once every BlastBarrier.REFUSAL_INTERVAL_MS) when a weapon, a throw or a slam hits it.
 @export var refusal_text: String = "It needs a blast."
+## How far above its foot a blast must reach it (world units). 0, every post placed before
+## 2026-11-25 (a bomb laid or a keg blown beside its foot: B6's last keg stands 86 units from it, at
+## the edge of a blast's reach). A post a bomb is thrown at from the north wants about 56, the
+## middle of its hurtbox: a thrown bomb stops at the hurtbox's top, 104 above the foot, out of the
+## blast's reach (60 up or down) from the foot (the rebuilt Hollow's T3).
+@export var blast_rise: float = 0.0
 ## Mirrors the art (the chain's ring and the stump's chain).
 @export var flip_h: bool = false:
 	set(value):
@@ -103,8 +109,9 @@ func is_broken() -> bool:
 	return _broken
 
 
+## Where a blast must reach: `blast_rise` above its foot.
 func blast_point() -> Vector2:
-	return global_position
+	return global_position - Vector2(0.0, blast_rise)
 
 
 ## A Goo Bomb blast (game/player/abilities/goo_blast.gd) reached it: it breaks for good and sets its

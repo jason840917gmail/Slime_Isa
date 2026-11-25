@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="1_dungeon"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="2_roar"]
+[ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/weaver-hollow/layout.tscn" id="3_layout"]
+
+[node name="weaver-hollow-dungeon" instance=ExtResource("1_dungeon")]
+dungeon_id = "weaver-hollow"
+display_name = "Weaver Hollow"
+entrance_map_id = "weaver-hollow-t1-root-door"
+record_map_id = "weaver-hollow"
+layout = ExtResource("3_layout")
+boss_id = "orb-weaver-matron"
+boss_name = "The Orb-Weaver Matron"
+seal_color = Color(0.6039216, 0.3529412, 0.84705883, 1)
+roar_sound = ExtResource("2_roar")
+roar_pitch = 0.4
+dust_color = Color(0.9372549, 0.9019608, 0.8392157, 1)

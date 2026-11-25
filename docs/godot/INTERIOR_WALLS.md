@@ -292,7 +292,8 @@ draws its faces and corners only toward the floor of that room (or of a pocket r
 holds, `walls_in`): a two-cell wall between two rooms shows its painting room's face, and from the
 other room it reads as the top of a wall. A room that is its own world (Fatty's Lair) has no
 `cell_rooms`: its walls face its floor on every side. `tools/render_room_scene.gd` renders one room
-scene alone, as the editor shows it.
+scene alone, as the editor shows it (`--hide=<node path>,...` leaves nodes out: a dark room's
+`DarkRooms`).
 
 ## Collision
 
@@ -357,7 +358,11 @@ inside its side's opening piece, `in_opening`).
 (`cave-bevel-doorways-b`, `root-bevel-doorways-a`, with the style's elevation wall art as material
 reference), one render per leaf and opening kind from it (`cave-bevel-*`, `root-bevel-*`), and a plain
 floor each (`cave-floor.png`, `root-floor.png`; the busier first tries are `*-floor-busy.png`), which
-keep their own colours (the Lair stone's cobble follows the Lair's ground).
+keep their own colours (the Lair stone's cobble follows the Lair's ground). Root rock's cracked
+render (`root-bevel-cracked.png`) came out with see-through gaps where the cracks should be; since
+2026-11-25 its cracked pieces are cut from `root-bevel-cracked-made.png`, made by
+`python scripts/art/make-root-cracked.py` from the plain frame (each face's middle filled with its own
+plain stone, the Goo Bomb's crack decal laid over it), no generation.
 
 **Lair stone** (GPT 2.5, `gpt-2-mini`, transparent, the Lili creation as style reference; the first
 frame also took the owner's Zelda frame as structure reference), sources in
