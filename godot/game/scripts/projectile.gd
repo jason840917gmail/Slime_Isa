@@ -94,6 +94,12 @@ func is_launched() -> bool:
 	return _launched
 
 
+## True once it hit its target (the slime); a shot that expired without it missed (the Matron's ram
+## fight leaves a web ball where her missed spit ends: game/bosses/matron_ram.gd).
+func did_hit_target() -> bool:
+	return _hit_target
+
+
 ## Gameplay ms since the launch.
 func get_age_ms() -> float:
 	return _age_ms

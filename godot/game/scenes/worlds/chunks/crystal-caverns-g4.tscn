@@ -363,11 +363,9 @@ position = Vector2(1664, 1024)
 
 [node name="north-shelf-chest" parent="Spiral" unique_id=117057846 instance=ExtResource("31_4kme1")]
 position = Vector2(672, 288)
-
-[node name="ChestScript" parent="Spiral/north-shelf-chest" index="2"]
 map_id = "crystal-caverns-g4"
-instance_id = "crystal-caverns-g4-north-shelf-chest"
-initial_contents = {
+chest_id = "crystal-caverns-g4-north-shelf-chest"
+contents = {
 "coins": 20
 }
 

@@ -1,0 +1,51 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/bricked_arch.gd" id="arch"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(128, 40)
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(84, 74)
+
+[node name="bricked-arch" type="Node2D" node_paths=PackedStringArray("body", "damage_area", "panel", "rubble")]
+script = ExtResource("arch")
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+panel = NodePath("Panel")
+rubble = NodePath("Rubble")
+
+[node name="Body" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, -20)
+shape = SubResource("body_shape")
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="Shape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -27)
+shape = SubResource("hurt_shape")
+
+[node name="Rubble" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+position = Vector2(-11, -20)
+scale = Vector2(0.3, 0.3)
+centered = false
+offset = Vector2(-66, -91)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/mechanisms/bricked-arch-rubble.webp"
+
+[node name="Panel" type="Sprite2D" parent="."]
+position = Vector2(-35, -90.5)
+scale = Vector2(0.5, 0.5)
+centered = false
+hframes = 2
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/mechanisms/bricked-arch-2x1.webp"

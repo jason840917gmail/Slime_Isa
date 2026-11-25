@@ -248,6 +248,10 @@ var _orders: ClickOrders = ClickOrders.new()
 var _order_button_down: bool = false
 var _order_press_ms: float = -1.0
 var _use_button_down: bool = false
+## The climb's cling toggle (`_step_climb`): clinging, the climb seen last step, its fall seen last step.
+var _climb_hold: bool = false
+var _climb_was_active: bool = false
+var _climb_was_falling: bool = false
 var _use_press_ms: float = -1.0
 var _order_from_use: bool = false
 var _click_marker: ClickMarker
@@ -551,6 +555,8 @@ func _physics_process(delta: float) -> void:
 	# the swim step adds back every step must wait until the climb is over.
 	if not _climb.is_active():
 		_swim.update()
+		# the next climb starts its cling toggle afresh (`_step_climb`), however this one ended
+		_climb_was_active = false
 	_status.update(delta * 1000.0)
 	if not _dead:
 		_regen_energy(delta * 1000.0)
@@ -583,6 +589,10 @@ func _physics_process(delta: float) -> void:
 			_roll.update(Services.now_ms(), delta, _input.is_held(&"dodge"))
 		if _climb.is_active():
 			_step_climb(delta) # The Feral skin's climb owns the slime (feral_climb.gd).
+			# No Roll off a wall: a Roll press made while climbing is dropped, so none fires as the
+			# climb ends (2026-11-24: a roll off the Colossus's roots ended behind the wall).
+			_input.consume(&"dodge", Services.now_ms(), _buffer_ms)
+			_drop_roll_press()
 		elif is_movement_suppressed():
 			pass # Roll / knockback own the body: their velocity persists, presses stay buffered.
 		elif ReworkMode.is_on() and _rework_owns_step():
@@ -1148,8 +1158,9 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 
 
 ## `scaled == 0 -> 0`; else `max(1, scaled - defense) * DAMAGE_TAKEN_MULTIPLIER`
-## (defense = `character.player.stats.defense`); true damage (OUT; request key `true_damage`)
-## skips the defense.
+## (defense = `character.player.stats.defense`, 0 since 2026-11-24: the slime has no armour, so an
+## attack's number is what it loses, docs/design/2026-11-24-health-and-damage.md); true damage (OUT;
+## request key `true_damage`) skips the defense.
 func mitigate_damage(input: Dictionary) -> float:
 	var scaled: float = float(input.get("scaled_damage", 0.0))
 	if scaled == 0.0:
@@ -1966,13 +1977,38 @@ func get_grabbed_block() -> Node2D:
 
 
 ## The Feral skin's climb owns the step (game/player/skins/feral_climb.gd): the other presses are
-## dropped; the held interact key clings, the movement keys move the slime over the wall.
+## dropped; the interact key's toggle clings, the movement keys move the slime over the wall.
+## **The cling is a toggle** (2026-11-24; the owner: "i cant use e while climbing since W have to be
+## press ... i can't neither use spear while climbing"): the press that took hold clings, the next
+## interact press lets go; a fall (let go, or a hit) starts let go, so a press while it falls catches
+## the wall again (feral_climb.gd's catch). Nothing has to be held, so on the wall the chosen box
+## ability's key strikes with the Spear (the shape power chosen) as the Gulp's does, and E (the wheel)
+## opens the ability carousel in the throw mode.
 func _step_climb(delta: float) -> void:
 	var now := Services.now_ms()
+	if not _climb_was_active:
+		# just took hold: the press that did it clings and is spent
+		_climb_was_active = true
+		_climb_hold = true
+		_climb_was_falling = false
+		_input.consume(&"interact", now, _buffer_ms)
+	if _climb.is_falling() and not _climb_was_falling:
+		_climb_hold = false
+	_climb_was_falling = _climb.is_falling()
+	if _input.consume(&"interact", now, _buffer_ms):
+		_climb_hold = not _climb_hold
 	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press; in
-	# the throw mode, whose attack has no key, the Gulp's (nothing can be gulped from a wall).
-	if _input.consume(&"eat" if ThrowMode.is_on() else &"attack", now, _buffer_ms):
+	# the throw mode, whose attack has no key, the Gulp's (nothing can be gulped from a wall), and the
+	# chosen box ability's when it is the Spear's power.
+	var strike := _input.consume(&"eat" if ThrowMode.is_on() else &"attack", now, _buffer_ms)
+	if _input.consume(&"ability_use", now, _buffer_ms) and ThrowMode.is_shape_power(AbilityBox.selected(self)):
+		strike = true
+	if strike:
 		_climb_strike()
+	if ThrowMode.is_on():
+		for wheel: StringName in [&"weapon_next", &"weapon_previous"]:
+			if _input.consume(wheel, now, _buffer_ms):
+				_open_ability_carousel()
 	for action: StringName in [&"attack", &"dodge", &"ability_use", &"eat", &"interact", &"weapon_next",
 			&"weapon_previous", &"swallow"]:
 		_input.consume(action, now, _buffer_ms)
@@ -1981,7 +2017,9 @@ func _step_climb(delta: float) -> void:
 	if _climb_strike_running():
 		_climb.hold_still()
 		return
-	var moving := _climb.step(now, delta, _input.is_held(&"interact") or _use_button_down, _grab_direction)
+	var moving := _climb.step(now, delta, _climb_hold or _use_button_down, _grab_direction)
+	if not _climb.is_active():
+		_climb_was_active = false
 	if not _climb.is_active():
 		_balcony.update(body, not _abilities.is_busy())
 	if _climb.is_active():
@@ -2296,7 +2334,8 @@ func _flip_for(clip: String) -> bool:
 ## quickRollEnergy`, "Low energy" when short), or with `charged` the spin-up that launches at the
 ## key's release (`_due_roll`); the ability bar's click is a quick roll.
 func _try_dodge(charged: bool = false) -> bool:
-	if not _roll.can_begin(Services.now_ms()) or body == null:
+	# Never off a wall (climbing or dropping off one).
+	if not _roll.can_begin(Services.now_ms()) or body == null or _climb.is_active():
 		return false
 	var toward: Vector2 = _pointer_aim()
 	if toward == Vector2.ZERO:

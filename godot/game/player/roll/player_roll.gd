@@ -32,7 +32,14 @@ extends RefCounted
 ##   or not, the listeners decide), and a Heavy ball rumbles `rollHeavyRumbleRadiusPx` round its feet
 ##   every step it rolls (a Popworm's mound there throws it out, dazed; docs/godot/BESTIARY.md). It
 ##   pushes no enemy away (a later upgrade, owner 2026-10-16), and the slime shows the skin while it
-##   rolls (player.gd `show_skin`).
+##   rolls (player.gd `show_skin`). It **crushes tiny enemies** (reaction weight `tiny`: the Matron's
+##   Broodlings, the Colossus's Crystal Mites; owner, 2026-11-24, "crush them"): a tiny one's hurtbox
+##   within `rollHeavyCrushRadiusPx` of the ball's front (`rollHeavyCrushAheadPx` ahead of the bonk's
+##   point) takes a killing hit (`rollHeavyCrushDamage`, tags roll and heavy) before the ball touches
+##   it, pops flat, and the ball rolls on through, no bonk (`_crush_ahead`). It **breaks light things
+##   to throw** in its way the same way (a pot, a rock, a web ball: weight `light`; owner, 2026-11-24):
+##   each bursts into its picture's shards with its material's particles and sound, as a thrown one
+##   breaks, and goes as if sucked up, leaving what it hid (`_break_ahead`); heavier ones still bonk.
 ## - **Webs:** a Roll sticks in a web (owner, 2026-10-16, question 131): a floor web or a web
 ##   barrier catches the rolling slime as it does a walking one (game/enemy/spider_web_port.gd),
 ##   which ends the roll there (`cancel` through player.gd `stop_movement`; no bonk) and roots the
@@ -59,6 +66,9 @@ const RollFx := preload("res://game/player/roll/roll_fx.gd")
 const AbilityWorld := preload("res://game/player/abilities/ability_world.gd")
 const GroundShake := preload("res://game/enemy/ground_shake.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
+const ReactionProfile := preload("res://game/combat/reactions/reaction_profile.gd")
+const BreakBurst := preload("res://game/player/gulp/break_burst.gd")
+const ThrownObject := preload("res://game/player/gulp/thrown_object.gd")
 
 const CLIP_BALL := "ball"
 const CLIP_BOUNCE := "knockback"
@@ -87,6 +97,14 @@ const BALL_REACH_PX := 18.0
 ## The bonk's hit tags; HEAVY_TAG joins them with the Heavy skin.
 const BONK_TAG := "roll"
 const HEAVY_TAG := "heavy"
+## The Heavy Roll's crush: the squish's sound, its weapon id, the reaction weight it crushes, and how
+## long after a crush a cut step is the crushed one's body, not a bonk (ms).
+const CUE_CRUSH := &"BreakSoft"
+const CRUSH_WEAPON := "roll-crush"
+const CRUSH_WEIGHT := "tiny"
+const CRUSH_GRACE_MS := 80.0
+## The things to throw a Heavy ball breaks in its way: light ones (a pot, a rock, a web ball).
+const BREAK_WEIGHT := "light"
 ## Rework mode: the upgrade that lets a held Roll key charge (the spin-up); without it every roll is
 ## the quick roll. The playground's testbed lends it for the session (shapes_testbed.gd).
 const CHARGE_UPGRADE_ID := &"roll-charge"
@@ -111,6 +129,8 @@ var _asked: Vector2 = Vector2.ZERO
 ## the key's release (`begin` with `launch_on_release`).
 var _quick: bool = false
 var _launch_on_release: bool = false
+## When the Heavy Roll last crushed a tiny enemy (a cut step just after is its body, not a bonk).
+var _crushed_ms: float = -INF
 
 
 func _init(player: Node) -> void:
@@ -261,8 +281,12 @@ func _launch(now_ms: float, body: CharacterBody2D) -> void:
 
 
 func _roll(now_ms: float, delta: float, held: bool, body: CharacterBody2D) -> void:
-	# The mover cut an axis on the last step: a wall, a rock or an enemy is in the way.
-	if _blocked(body.velocity):
+	# A Heavy ball crushes the tiny enemies just ahead of it before it touches them.
+	if _crush_ahead():
+		_crushed_ms = now_ms
+	# The mover cut an axis on the last step: a wall, a rock or an enemy is in the way (not a tiny
+	# one just crushed: its body clears at the end of the step).
+	if _blocked(body.velocity) and now_ms - _crushed_ms > CRUSH_GRACE_MS:
 		_bonk(now_ms, body)
 		return
 	if is_heavy():
@@ -321,6 +345,68 @@ func _blocked(velocity: Vector2) -> bool:
 	var cut_x := absf(_asked.x) > 1.0 and absf(velocity.x) < absf(_asked.x) * BLOCKED_SHARE
 	var cut_y := absf(_asked.y) > 1.0 and absf(velocity.y) < absf(_asked.y) * BLOCKED_SHARE
 	return cut_x or cut_y
+
+
+## The Heavy Roll crushes the tiny enemies in its way (see the head): a killing hit on each tiny
+## one's hurtbox within reach of the ball's front, a squish, a short hit-stop. True when one was hit.
+func _crush_ahead() -> bool:
+	if not is_heavy():
+		return false
+	var broke := _break_ahead()
+	var router := Services.router()
+	if router == null:
+		return broke
+	var front := _centre() + _direction * (BALL_REACH_PX + _constant("rollHeavyCrushAheadPx"))
+	var tiny: Array[Area2D] = []
+	for area: Area2D in AbilityWorld.hurtboxes_at(_player, front, _constant("rollHeavyCrushRadiusPx")):
+		var receiver: Variant = router.receiver_for_area(area)
+		if not receiver is Node or not (receiver as Node).has_method(&"is_defeated") or bool((receiver as Node).call(&"is_defeated")):
+			continue
+		if str(ReactionProfile.for_enemy(receiver as Node).get("weight", "")) == CRUSH_WEIGHT:
+			tiny.append(area)
+	if tiny.is_empty():
+		return broke
+	var tags: Array[String] = [BONK_TAG, HEAVY_TAG]
+	AbilityWorld.strike_targets(_player, front, tiny, _constant("rollHeavyCrushDamage"), 0.0, tags, CRUSH_WEAPON)
+	_cue(CUE_CRUSH)
+	var feel := Services.feel()
+	if feel != null:
+		feel.hit_stop(_constant("rollHeavyCrushHitStopMs"))
+		feel.particles(PARTICLES_LAUNCH, front)
+	return true
+
+
+## The Heavy Roll breaks the light things to throw in its way (the owner, 2026-11-24: "it make no sence
+## that light throwables make you bounce back on roll, you should be able to breake them with heavy
+## roll, so they break with the same animation as when throw"): each light liftable whose feet lie
+## within `rollHeavyBreakRadiusPx` of the ball's front bursts into its own picture's shards with its
+## material's particles and sound (a thrown thing's break: break_burst.gd, thrown_object.gd) and goes
+## as if sucked up (what it hid is left where it stood: pot_loot.gd). True when one broke.
+func _break_ahead() -> bool:
+	var tree := _player.get_tree() if _player != null else null
+	if tree == null:
+		return false
+	var front := _feet() + _direction * (BALL_REACH_PX + _constant("rollHeavyCrushAheadPx"))
+	var radius := _constant("rollHeavyBreakRadiusPx")
+	var broke := false
+	for node: Node in tree.get_nodes_in_group(LiftableScript.GROUP):
+		var root := node.get_parent() as Node2D
+		if root == null or root.is_queued_for_deletion() or root.global_position.distance_to(front) > radius:
+			continue
+		if not node.has_method(&"weight") or str(node.call(&"weight")) != BREAK_WEIGHT:
+			continue
+		var visual := root.get_node_or_null(^"Visual") as Sprite2D
+		if visual != null:
+			BreakBurst.burst(root.get_parent(), root.global_position, visual)
+		var material := LiftableScript.material_of(str(node.get(&"kind")))
+		var feel := Services.feel()
+		if feel != null:
+			for preset: StringName in ThrownObject.BREAK_PARTICLES.get(material, [PARTICLES_LAUNCH]):
+				feel.particles(preset, root.global_position)
+			feel.audio_cue(ThrownObject.break_cue(material))
+		node.call(&"take")
+		broke = true
+	return broke
 
 
 func _bonk(now_ms: float, body: CharacterBody2D) -> void:

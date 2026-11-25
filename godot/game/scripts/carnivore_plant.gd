@@ -256,7 +256,7 @@ func _step_chew(now: float, target: Dictionary) -> void:
 	if now >= _chew_at and _elapsed(now) <= pattern("holdMs", 1200.0) - pattern("chewMs", 550.0):
 		_chew_at = now + pattern("chewMs", 550.0)
 		_cue(CUE_MUNCH)
-		_route_hit_from(feet(), target, pattern("chewDamage", 33.0), 0.0)
+		_route_hit_from(feet(), target, pattern("chewDamage", 20.0), 0.0)
 	if _elapsed(now) >= pattern("holdMs", 1200.0):
 		_spit(now, target)
 
@@ -450,7 +450,7 @@ func _spit(now: float, target: Dictionary) -> void:
 	_transition(PHASE_SPIT, now)
 	_show(FRAME_SPIT, FRAME_SPIT_DOWN, FRAME_SPIT_UP)
 	_cue(CUE_SPIT)
-	_route_hit_from(feet(), target, pattern("spitDamage", 21.0), pattern("spitKnockback", 200.0), _strike_way)
+	_route_hit_from(feet(), target, pattern("spitDamage", 20.0), pattern("spitKnockback", 200.0), _strike_way)
 	var fly_ms := maxf(1.0, pattern("spitFlyMs", 380.0))
 	if player != null and is_instance_valid(player) and player.has_method(&"recoil"):
 		player.call(&"recoil", _strike_way, pattern("spitPx", 220.0) / (fly_ms / 1000.0), fly_ms)

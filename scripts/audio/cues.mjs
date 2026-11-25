@@ -274,6 +274,14 @@ export const CUES = {
     'fatty-recover': { library: ['magnific/boss-fatty-recover-3'], synth: () => ({ layers: [0, 0.35, 0.7].map((at) => ({ type: 'noise', at, dur: 0.28, env: { peak: 0.4 }, filter: { type: 'bp', cutoff: 700, q: 1.3 }, gain: 0.5 })) }) },
     // Magnific takes (sound picks 2026-09-30, "come with other ideas").
     'fatty-death': { library: ['magnific/boss-fatty-death-1'], synth: () => ({ drive: 1.8, echo: { delay: 0.12, feedback: 0.35, mix: 0.3 }, layers: [{ type: 'tone', wave: 'saw', dur: 1.6, freq: [150, 38], vibrato: { rate: 8, depth: [0.02, 0.1] }, filter: { type: 'lp', cutoff: [1100, 250] }, env: { a: 0.05, d: 1.6 }, gain: 0.9 }, thump({ at: 1.3, f0: 70, f1: 25, dur: 0.8 }), squelch({ at: 1.3, dur: 0.4, gain: 0.7, cutoff: [800, 200] })] }) },
+    // Round 16 (picked by the owner 2026-11-24): the reworked Matron (game/bosses/matron_ram.gd) and Crystal Colossus.
+    'matron-hiss': { library: ['magnific/boss-matron-hiss-r16-1'], variants: 1 },
+    'matron-shriek': { library: ['magnific/boss-matron-shriek-r16-1'], variants: 1 },
+    'matron-impact': { library: ['magnific/boss-matron-impact-r16-1', 'magnific/boss-matron-impact-r16-2'], variants: 2 },
+    'colossus-stomp': { library: ['magnific/boss-colossus-stomp-r16-1', 'magnific/boss-colossus-stomp-r16-2'], variants: 2 },
+    'colossus-roar': { library: ['magnific/boss-colossus-roar-r16-1', 'magnific/boss-colossus-roar-r16-2'], variants: 2 },
+    'colossus-shatter': { library: ['magnific/boss-colossus-shatter-r16-1', 'magnific/boss-colossus-shatter-r16-2'], variants: 2 },
+    'colossus-clang': { library: ['magnific/boss-colossus-clang-r16-1', 'magnific/boss-colossus-clang-r16-2'], variants: 2 },
     victory: { library: ['jingles_NES00'], synth: () => ({ echo: { delay: 0.12, feedback: 0.35, mix: 0.3 }, layers: [...notes([G4, C5, E5], { step: 0.12, dur: 0.2, wave: 'square', gain: 0.25 }), ...notes([G5], { at: 0.36, dur: 0.3, wave: 'square', gain: 0.25 }), ...notes([E5], { at: 0.66, dur: 0.18, wave: 'square', gain: 0.25 }), ...[C6, E6, G5].map((freq) => ({ type: 'tone', wave: 'triangle', at: 0.84, dur: 0.9, freq, env: { a: 0.01, d: 0.9 }, gain: 0.3 })), sparkle({ at: 0.84, dur: 0.8 })] }) },
   },
 
@@ -389,6 +397,17 @@ export const CUES = {
     'break-stone-crack': { library: ['magnific/world-break-stone-crack-r12-1', 'magnific/world-break-stone-crack-r12-2', 'magnific/world-break-stone-crack-r12-3'], variants: 3 },
     // Round 13: the Crystal Mine's ore lift (it played SlamWindup).
     'ore-lift-ride': { library: ['magnific/world-ore-lift-ride-r13-1', 'magnific/world-ore-lift-ride-r13-2', 'magnific/world-ore-lift-ride-r13-3', 'magnific/world-ore-lift-ride-r13-4'], variants: 4 },
+    // Round 15 (2026-11-23, the builder's defaults, not yet picked by the owner): the dungeon mechanisms (knock_target.gd, ram.gd, ram_cart.gd).
+    'knock-target-hit': { library: ['magnific/world-knock-target-hit-r15-1', 'magnific/world-knock-target-hit-r15-2', 'magnific/world-knock-target-hit-r15-3'], variants: 3 },
+    'knock-target-tap': { library: ['magnific/world-knock-target-tap-r15-1', 'magnific/world-knock-target-tap-r15-2'], variants: 2 },
+    'knock-target-rearm': { library: ['magnific/world-knock-target-rearm-r15-1', 'magnific/world-knock-target-rearm-r15-2'], variants: 2 },
+    'ram-windup': { library: ['magnific/world-ram-windup-r15-1', 'magnific/world-ram-windup-r15-2'], variants: 2 },
+    'ram-swing': { library: ['magnific/world-ram-swing-r15-1', 'magnific/world-ram-swing-r15-2'], variants: 2 },
+    'ram-thud': { library: ['magnific/world-ram-thud-r15-1', 'magnific/world-ram-thud-r15-2', 'magnific/world-ram-thud-r15-3'], variants: 3 },
+    'ram-ratchet': { library: ['magnific/world-ram-ratchet-r15-1', 'magnific/world-ram-ratchet-r15-2', 'magnific/world-ram-ratchet-r15-3'], variants: 3 },
+    'cart-brake': { library: ['magnific/world-cart-brake-r15-1', 'magnific/world-cart-brake-r15-2'], variants: 2 },
+    'cart-roll': { library: ['magnific/world-cart-roll-r15b-1'], variants: 1 },
+    'cart-bump': { library: ['magnific/world-cart-bump-r15-1', 'magnific/world-cart-bump-r15-2'], variants: 2 },
   },
 
   ui: {

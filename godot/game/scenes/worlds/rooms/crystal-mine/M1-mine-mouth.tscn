@@ -106,16 +106,14 @@ texture = ExtResource("11_dtvds")
 position = Vector2(1177.6, 3660.8)
 metadata/instance_id = "crystal-mine-M1-S5-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M1-S5-chest"
-
-[node name="Visual" parent="Objects/M1-S5-chest" index="1"]
-texture = ExtResource("13_4vutk")
-
-[node name="ChestScript" parent="Objects/M1-S5-chest" index="2"]
-instance_id = "crystal-mine-M1-S5-chest"
-initial_contents = {
+chest_id = "crystal-mine-M1-S5-chest"
+contents = {
 "coins": 40,
 "energy-potion": 1
 }
+
+[node name="Visual" parent="Objects/M1-S5-chest" index="1"]
+texture = ExtResource("13_4vutk")
 
 [node name="M1-S5-glint" parent="Objects" unique_id=1710166257 instance=ExtResource("14_rtn6q")]
 position = Vector2(1177.6, 3616)

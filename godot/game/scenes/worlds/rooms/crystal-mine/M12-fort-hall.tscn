@@ -98,15 +98,13 @@ texture = ExtResource("7_2v2c0")
 position = Vector2(4576, 1075.2)
 metadata/instance_id = "crystal-mine-M12-big-key-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M12-big-key-chest"
+chest_id = "crystal-mine-M12-big-key-chest"
+contents = {
+"dungeon-big-key": 1
+}
 
 [node name="Visual" parent="Objects/M12-big-key-chest" index="1"]
 texture = ExtResource("9_kejej")
-
-[node name="ChestScript" parent="Objects/M12-big-key-chest" index="2"]
-instance_id = "crystal-mine-M12-big-key-chest"
-initial_contents = {
-"dungeon-big-key": 1
-}
 
 [node name="M12-big-key-glint" parent="Objects" unique_id=1340023382 instance=ExtResource("10_p646h")]
 position = Vector2(4576, 1017.6)

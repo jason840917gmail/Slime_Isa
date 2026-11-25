@@ -13,8 +13,9 @@
 The shared pieces a dungeon is built from: the dungeon state (no saving, resume at the entrance),
 keys and locked doors, chests, the dungeon map, doors that open one way or for good, shutters and
 room fights, winches and drawbridges, the void with falling slabs and spike pits, refills that grow
-back, the dark rooms' shadow path and glints, and the seal that the Pearl's take sets until the
-boss falls. Each dungeon's own pieces (its boss, its lock looks, its enemies) are built by its own
+back, the dark rooms' shadow path and glints, the seal that the Pearl's take sets until the
+boss falls, and (2026-11-23) the mechanisms a throw lets go: the knock target, the ram and the
+runaway cart ([below](#mechanisms-the-knock-target-the-ram-the-runaway-cart)). Each dungeon's own pieces (its boss, its lock looks, its enemies) are built by its own
 work on top of these.
 
 ## Placing pieces: the rules they share
@@ -100,7 +101,7 @@ for the big key, the map, the compass and the run's first small key; later small
 over the slime for a moment (`item_pop.gd`) with "Small Key!" and a jingle.
 
 - **In a chest:** put `"dungeon-small-key"`, `"dungeon-big-key"`, `"dungeon-map"` or
-  `"dungeon-compass"` (count 1) in a dungeon chest's `initial_contents` (below).
+  `"dungeon-compass"` (count 1) in a dungeon chest's contents (its root's `contents`, below).
 - **On the floor:** `object.dungeon-key` (`dungeon_key_pickup.gd`): `item`, `pickup_id`. The slime
   walks over it. `DungeonKeyPickup.drop(item, at, id)` drops one at run time: an
   enemy that spits out a key it swallowed (the Weaver Hollow's Cocoon Mimic).
@@ -151,18 +152,36 @@ over the slime for a moment (`item_pop.gd`) with "Small Key!" and a jingle.
 
 ## Chests
 
+**Set a chest on its root** (owner, 2026-11-23: "a list of items on a coffer property by default,
+then a list of what is left"): every chest scene (`object.chest-wooden`, `object.dungeon-chest`,
+`object.dungeon-big-chest`) has `game/scripts/chest_root.gd` on its root, and the Inspector shows
+the placed chest's **Contents** ({item_id: count}, what it holds at the start), **Heart Id**,
+**Starts Hidden** (dungeon chests) and, under **Save record**, **Chest Id** and **Map Id** (empty:
+the chest's name and the world's map). The run keeps what is left in the map's chest record
+(RunState `ensure_chest` makes it from Contents the first time the chest is seen; `chest_remaining`
+is what the slime has not taken), so a chest emptied in one visit stays empty. The root hands its
+values to the `ChestScript` child in the game only; overrides on the child itself (the older way,
+still read when the root's are empty) are lost when the chest's Editable Children is turned off,
+which emptied chests until 2026-11-22. All 75 placed chests moved to their roots on 2026-11-23; the
+one-shot builders in `godot/tools/` still write the child (with Editable Children on).
+
 `object.dungeon-chest` (the wooden chest) and `object.dungeon-big-chest` (the big chest, for the big
 key): `game/dungeon/dungeon_chest.gd` on the `ChestScript` child, which is the game's chest
 (`chest.gd`: its record, the "Open chest" prompt, the chest window) plus:
 
-- the dungeon items in `initial_contents` go straight to the dungeon when it opens; any loot beside
-  them ("coins", potions...) opens the chest window as any chest;
-- `hidden`: not there until set off (a room fight's `reward`, a winch target, any signal on
+- the dungeon items in its contents (the root's `contents`, the child's `initial_contents`) go
+  straight to the dungeon when it opens; any loot beside them ("coins", potions...) opens the chest
+  window as any chest;
+- `hidden` (the root's `starts_hidden`): not there until set off (a room fight's `reward`, a winch target, any signal on
   `appear` or `trigger`): it rises with a puff and the secret jingle, and stays;
 - `map_id` and `instance_id` may stay empty: the world's id and the chest root's name.
 
+**No heart quarter inside a dungeon** (owner, 2026-11-23: "no quarter inside the dungeons, they are outside-world secrets"): a dungeon's chests hold keys, the map, the compass,
+coins, potions, manuscripts and belt slots, and its only heart is its boss's full heart. What follows is for
+the chests of the open world, its caves and its house rooms.
+
 **A heart quarter inside** (owner, 2026-10-17: most hearts are hidden in chests; a quarter since 2026-10-26): any chest, the world's
-(`game.chest`, `chest.gd`) or the dungeon's, has `goo_heart_id` on its `ChestScript` (empty: no
+(`game.chest`, `chest.gd`) or the dungeon's, has `heart_id` on its root (`goo_heart_id` on its `ChestScript`; empty: no
 heart; a heart id unique across maps, as an `object.goo-heart`'s `heart_id`). Opening it the first
 time lifts the heart out of the chest (it rises over it, `item_pop.gd`) and grants it exactly as the
 pickup does (`goo_heart.gd` `grant`: the flag `goo-heart.<id>`, one heart quarter; the fourth completes
@@ -489,6 +508,328 @@ opens onto the back yard where C4's heart quarter is):
   The Wilds stay shut until the Feral skin (Pearl 3), as the open map after Release 1 wants
   ([decision 10](../story/07-decisions-archive.md)).
 
+## Mechanisms: the knock target, the ram, the runaway cart
+
+> **Status:** built 2026-11-23 as step 1 of the
+> [dungeons 2 and 3 rework](../design/2026-11-23-dungeons-2-3-rework.md), in a lab world; no dungeon
+> uses them yet. A fix round on 2026-11-24 (the slime shoved across the ram's lane, true blows on
+> enemies, the rope and the haul chain, the cart's front view; the handover:
+> [2026-11-23-dungeons-rework.md](../handover/2026-11-23-dungeons-rework.md)). Filmed
+> (`scripts/godot/film-mechanisms.sh`), not played with a keyboard, and `tests/test_mechanisms.gd`
+> is written but has not been run.
+
+One trigger and two mechanisms it lets go. A mechanism is never a lock that stays open: thrown at,
+it strikes, and winds itself back. What it strikes can be a lock (the bricked arch, the rail gate),
+an enemy, the slime, or a boss that answers a hook.
+
+| Piece | Scene id | Script |
+|---|---|---|
+| Knock target | `object.knock-target` | `game/dungeon/knock_target.gd` (`KnockTarget`) |
+| Ram | `object.ram` | `game/dungeon/ram.gd` (`Ram`) |
+| Bricked arch | `object.bricked-arch` | `game/dungeon/bricked_arch.gd` (`BrickedArch`) |
+| Runaway cart | `object.ram-cart` | `game/crystal_mine/ram_cart.gd` (`RamCart`) |
+| Rail gate | `object.rail-gate` | `game/crystal_mine/rail_gate.gd` (`RailGate`) |
+
+All five scenes are in `game/scenes/objects/dungeon/`. Shared code: `game/dungeon/mechanism_strike.gd`
+(what a moving part does to what it sweeps) and `game/dungeon/mechanism_debris.gd` (the bricks,
+planks and ore that fly).
+
+### The knock target
+
+A round wooden practice target (red and white rings, a straw back) on a short post, about a cell of
+body, a rope from its hook to the mechanism it holds back.
+
+- **What knocks it:** a thrown thing (a hit tagged `thrown`: a pot, a bone, a stunned enemy), the
+  Bow's arrow (`on_arrow_hit`) and a Goo Bomb's blast (`receive_blast`), as the bell takes them. A
+  thrown thing reaches it only from its own elevation level (as every thrown thing does): put the
+  target on the level it is thrown from.
+- **Everything else** (the Spear, a Roll, the slime's body pushing on its post) is refused as
+  `immune` with a wooden knock and, once per visit, its `refusal_text`: "A good knock from afar would
+  trip it." The line comes back once the slime has gone `lineResetPx` away.
+- **Knocked:** it spins and rocks (`spinMs`), emits `knocked` and sets off every node in `targets`
+  (NodePaths) through `DungeonState.fire`, with the payload `{"source": the target, "targetId"}`:
+  each time, never for good, nothing recorded. Then it hangs slack (tilted, the rope sagging) and
+  further hits only rock it, until its mechanism calls `rearm()` (it snaps upright with a clack and
+  emits `rearmed`). A target none of whose `targets` is a mechanism (the group `knock_mechanisms`)
+  rearms by itself after `rearmMs`.
+- **The rope** (drawn by code): a hemp rope of two twisted strands (a light strand with the darker
+  one's slanted twist marks, a dark outline, a shine on its upper edge) with a soft shadow on the
+  floor. It hangs from the disc's hook down the back of the disc to the floor beside the post and
+  just behind it, on the side it runs to (right when it runs straight up or down the screen), so it
+  never crosses the target's face; then it lies along the floor to its end, pinned by small iron eyelets (a riveted plate and a ring it runs through): one where it meets
+  the floor, one at each of `rope_points`, and on a run without corners one or two along it (two or
+  three in all). Armed it is taut and straight; slack, each run between two pins lies in a loose
+  curve, the next one the other way; a knock sends a quick whip along it from the hook to its end,
+  held still at the eyelets, and the snap upright a smaller one.
+- **Properties:** `target_id`; `targets`; `rope_points` (points on the floor the rope passes, from
+  the node, to route it round a pit or along a wall; each is an eyelet); `rope_to` (a Node2D where
+  the rope ends; empty: the first target that has `rope_anchor()`); `refusal_text`.
+- A mechanism let go by anything else calls the target's `go_slack()`, so it never shows armed while
+  its mechanism is away. The target tells each mechanism who holds it (`set_knock_target`) when the
+  world is built.
+
+### The ram
+
+An iron-capped log hung by two chains from a timber gantry.
+
+- **Placing:** the node stands at the lane's start, the middle of its rest end. The lane runs
+  `toward` (north, south, east, west) for `length` cells, `width` wide (128: two cells). The log
+  rests behind the node, under its gantry: that bay (about 220 units deep; 80 wide for a lane across
+  the screen, 160 for one up or down it) is solid. The lane is free floor with worn grooves drawn
+  along it (the tell). Its swing reaches the lane's end: a breakable standing on that line (the
+  bricked arch in the wall there) is struck.
+- **The cycle:** held back → `trigger()` → the shudder `windupMs` (it shakes, the chains rattle,
+  dust falls from the gantry's feet) → the swing out `swingMs` (speeding up) → held at full reach
+  `holdMs` → the swing back `returnMs` (it hangs loose and low) → the winch `rewindMs` (a ratchet
+  click every `ratchetEveryMs`, the log creeping back and up a tooth at a time, the cog turning) →
+  ready: it calls its knock target's `rearm()` and emits `ready_again`. `trigger()` does nothing
+  until then. Signals: `released`, `swung` (with how many things it struck), `ready_again`.
+- **What the swing strikes** (each thing once per swing, only on the ram's own elevation level):
+  a node in the group `ram_breakable` gets `on_ram_hit(ram)`; a node with `on_mechanism_hit` (below)
+  gets that call instead of damage and the log swings on through it; an enemy takes `damage` as a
+  [mechanism's blow](#a-mechanisms-blow-on-an-enemy) and is knocked down the lane through the knock
+  system (walls splat, ledges and hazards apply:
+  [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-ground-2026-11-16)).
+- **The slime is shoved across the lane, never carried down it** (`MechanismStrike.shove_slime`):
+  to the side its feet stand on (down the screen, or right, from the middle line), far enough to
+  stand `slimeClearPx` past the lane's edge, at `slimeKnockSpeed`. It is shoved as soon as the head
+  would reach its near side (`slimeBodyPx` counts as its half width) in the time that takes, so it is
+  out of the lane before the head arrives and the log passes beside it; at the swing's speed that is
+  when the head is about a cell away. It takes `slimeDamage` (true damage). Its invulnerability after
+  a hit and a Roll's i-frames refuse the hit (and the shove): then the log passes over it. A slime that
+  shrugs knockback off (the Heavy form, the improved Slam, on stairs) is hurt but stays where it is.
+- **Looks:** one gantry picture (seen from the front, whichever way the lane runs); the log from the
+  side for east and west, on end for north and south; the chains, the shadow and the grooves are
+  drawn by code. `rope_anchor()` (where a target's rope ends) is the foot of the cog's post.
+
+### The bricked arch
+
+A doorway bricked up with old bricks, with **no crack**: a crack is the Goo Bomb's mark, and this is
+not a bomb lock. Only a mechanism opens it.
+
+- **Placing:** as a door object in an interior wall's doorway
+  ([INTERIOR_WALLS.md](INTERIOR_WALLS.md#the-door-objects-in-the-opening)): paint the plain doorway
+  block, then put the arch on the floor line of the room its face looks into, in the middle of the
+  passage, `wall` that room's wall; `interior_style` names the wall's style (its panel is laid where
+  that style's door leaf lies). Its picture is its own sheet, not a leaf of the interior walls yet.
+- **Until it is burst it blocks.** A weapon, a throw or a slam says "Bricked up, and solid. Only
+  something heavy would break it." (`refusal_text`); a blast says "Not even a crack to work on."
+  (`blast_text`). Its hurtbox reaches past its body toward the room and it names its bricks' body
+  (`get_body`, so they do not hide their own hurtbox from a throw's line test): a thrown thing meets
+  it before it breaks on the bricks as on a wall. A blast counts when its ellipse holds the bricks'
+  middle (`blast_point`): a bomb laid against either face does.
+- **`on_ram_hit` bursts it for good** (its record, `arch_id`): half the bricks at once, the rest a
+  moment later, bricks flying, dust, a shake, the stone break cue and the secret jingle. Rubble lies
+  in the doorway and the way is open. Signal `burst`.
+
+### The runaway cart
+
+A cart heaped with ore, held on a slope by a brake (a lever and a chock) that a knock target's rope
+holds. It is not the mine's travel cart (`mine_cart.gd`), which the slime rides.
+
+- **Placing:** the node is the cart's place while held; `points` is its line from there (world units
+  from the node, the first point (0, 0)). A straight line is what it is made for; a line with a bend
+  is followed leg by leg (the cart turns at the corner at once, its picture swapping between its side
+  and its front view). It draws its own rails along the line (`draw_rails`), its brake beside the
+  start, a buffer stop past the line's end (`buffer_stop`) and, with `returns`, the pulley post and
+  the counterweight behind the start.
+- **The cycle:** held (it rocks against its chock, the ore glints) → `trigger()` → the brake snaps
+  `brakeMs` → it rolls from `startSpeed` up to `maxSpeed` by `accel` (the wheels turn, sparks, the
+  rattle's pitch rises) → the line's end (a bump, a shake, ore jumps out) or a node it stops
+  against. With `returns`: after `restMs` the counterweight's chain hauls it back over `returnMs` (a
+  click every `ratchetEveryMs`; a heavy iron chain from the pulley post, its links drawn big enough to
+  read at game size, with a shadow), the chock drops, its target is rearmed, `ready_again`. Without:
+  it stays where it ended, for good (its record, `cart_id`), which is how a cart opens a shortcut.
+  Signals: `released`, `bumped` (with what it stopped against), `ready_again`.
+- **Through and kicked back** (2026-11-24, the Colossus's plate fight): with `through` the cart is a
+  passing mine cart: it comes out of a tunnel at its line's start, rolls the whole line and goes into
+  the tunnel at its end, and the next cart comes out of the start a moment later. A boss that it hits
+  can hold it and send it home: `hold_for_kick`, `kick_back` (it rolls back fast into its start
+  tunnel and its target rearms), `let_go`. The details:
+  [The plate fight](#the-plate-fight-step-2-of-the-rework).
+- **What it rams** (each thing once per run, only on its own elevation level): a `ram_breakable`
+  (the rail gate) gets `on_ram_hit(cart)` and the cart runs on through; a node with
+  `on_mechanism_hit` is found a little ahead and the cart rolls on until its front touches the near
+  edge of that node's hurtbox (its front: the side picture's bumper, `CONTACT_SIDE` 42 units ahead of
+  its place, or its footprint's front edge seen from the front, `CONTACT_FRONT` 8), and stops there:
+  the call, the bump, the dust and the sparks all come at that touch, and the ore falls back round
+  the cart instead of onto the node; an enemy takes `damage` as a
+  [mechanism's blow](#a-mechanisms-blow-on-an-enemy) and is knocked aside, off the rails; the slime
+  takes `slimeDamage` and is knocked aside too (at contact, `slimeKnockback`). Standing still (held,
+  or at its line's end) the cart is solid; rolling and hauled back it is not.
+- A line across the screen shows the cart from the side with its wheels turning and sparks flying
+  behind. A line up or down the screen shows it from the front (one picture for both ways), cut in
+  two at the rim: as each axle crosses a sleeper's joint the bin jolts up and rocks to one side, then
+  the other on the next sleeper; the ore heap jostles in the bin a moment later and two loose stones
+  on it hop on the harder jolts; sparks fly at both wheels above `sparkSpeed`. Hauled back it rattles
+  the same, gently.
+
+### The rail gate
+
+Timber and iron across the rails, chained. `rails` is the way the track runs through it:
+"north-south" (seen from the front) or "east-west" (the front picture turned and foreshortened, as
+the kit's doors in a side wall). Until it is smashed it blocks ("Chained shut across the rails.",
+for weapons, throws and blasts alike; its hurtbox reaches past its posts and it names its planks'
+body (`get_body`), so a pot thrown along the rails meets it before it breaks on the planks as on a
+wall; from the side its posts stop a throw as a wall does); `on_ram_hit` smashes it open for good (its record, `gate_id`):
+the planks and the chain fly, the wood break cue, the secret jingle. Its two posts stay and still
+block; the way between them is open. Signal `smashed`.
+
+### The hooks
+
+- **`on_ram_hit(source: Node)`** on a node in the group `ram_breakable`: a mechanism's moving part
+  reached it. `ram_rect()` (a global Rect2; else a small box at its position) is what must be
+  reached. The bricked arch and the rail gate have it; a new breakable needs only the group, the
+  method and the rectangle.
+- **`on_mechanism_hit(kind: StringName, source: Node)`** on a hurtbox's receiver, or on a node up to
+  four levels above the hurtbox: called INSTEAD of damage, once per swing or run, with kind `&"ram"`
+  or `&"cart"`. For bosses and mini-bosses (step 2 of the rework): the node decides what the blow
+  does. The cart stops with its front against such a node's hurtbox and calls it at that touch; the
+  ram calls it as its head reaches it and swings on.
+- A mechanism is any node in the group `knock_mechanisms` that has `trigger(payload)` and calls the
+  payload's `source.rearm()` when it is ready again.
+
+### A mechanism's blow on an enemy
+
+The ram's log and the runaway cart hit an enemy as the heaviest blow in the game
+(`mechanism_strike.gd` `_strike_enemy`; the reactions read it in `hit_reaction.gd` and
+`enemy_reactions.gd`):
+
+- **True damage:** the request's `true_damage` makes `EnemyReactions.damage_scale` skip the part's,
+  the phase's and a knockdown's multipliers: `damage` lands whole (a Thorn Guard takes the whole 60).
+  A shut gate's 0 stays (a blow the gate zeroes: a shut part in a phase the blow does not land
+  through).
+- **It lands through a shield** (the hit's `true_blow`, `HitReaction.blow_lands`): a phase's
+  immunities, a shut part and a patterned enemy's `_shields` let it through (a sleeping statue, a
+  charging boar, a walking Squint, a Dung Roller with its ball, a Cocoon Mimic holding still), and so
+  do the wake guard, the break-free armor and a phase's armor (a body another blow has just bowled
+  still takes the ram's). It does not land:
+  - on a boss (the boss answers the hook instead);
+  - in a phase marked `noSleep` (the sleep throw's mark, reused: the phases where the body is out of
+    reach): a Popworm burrowed, surfacing or sinking; a Hopper, a Squint or Big Squint and a Bone
+    Leaper in the air; a Pipe Worm in its pipe; a Pick Mole ducked or lining up behind its crates; a
+    Crystal Mite waiting or dropping. The Worm Bulwark's charge and skid carry the mark too, but
+    nothing shields him there, so a blow lands on him then as at any time;
+  - on an enemy **invulnerable by design** (`EnemyReactions.invulnerable_by_design`: it answers
+    `is_invulnerable()` with true): the Prism Eye with `pattern.invulnerable` (owner, 2026-11-21:
+    "make prism eye invulnerable, you have to go around him") clinks under the ram and the cart as
+    under everything else. Of the other shielded enemies none is invulnerable by an owner's rule but
+    two that a blow cannot hurt anyway: the Gloomling has no hurtbox (only light moves it), and the
+    Carnivore Plant ("only fire kills them") takes no damage from a thrown-class hit, which a blow
+    is: it dozes off as under a thrown pot.
+- **It moves the body at least `hit.resistFloor` of the way** (0.6: the hit's `resist_floor` raises a
+  low `knockbackScale` for its launch, its knock slide and the kill's send-off): a heavy enemy
+  (`knockbackScale` 0.2) on a ram's lane slides 2.25 cells (filmed: a marching Thorn Guard, 147 units).
+  An enemy whose `knockbackScale` is 0 stays unmovable, and so does one rooted while stunned
+  (`_slides_when_stunned` false); they are struck where they stand:
+  - `knockbackScale` 0 (the knock system's unmovable class besides the bosses): Spitcap, Rook Thief,
+    Pipe Worm, Dung Roller, Silk Lurker, Egg Sac, Brood Warden, Gloomling, Glint Bat, Crystal Crawler,
+    Prism Eye, Pick Mole, Bone Marcher, Watcher Eye, Rock Chucker, Spiny Caterpillar, Ledge Raven,
+    Carnivore Plant, Jelly Bouncer;
+  - rooted while stunned, always: Brood Warden, Carnivore Plant, Crystal Crawler, Dung Roller, Egg
+    Sac, Glint Bat, Jelly Bouncer, Ledge Raven, Pick Mole, Pipe Worm, Prism Eye, Rock Chucker, Rook
+    Thief, Silk Lurker, Spiny Caterpillar, Spitcap, Bone Marcher; in some phases: the Thorn Guard
+    asleep or waking (a statue: the ram cracks it for 60 and it does not budge), the Cocoon Mimic held
+    or disguised, the Squint unless open or walking, a skeleton lying as a pile.
+
+### The numbers (`game-constants.json` `dungeon`)
+
+| Key | Value | What |
+|---|---|---|
+| `knockTarget.rearmMs`, `spinMs`, `spinTurns`, `rearmSnapMs` | 3000, 400, 2.5, 180 | a target with no mechanism rearming by itself; the knocked spin and its turns; the snap upright |
+| `knockTarget.slackTiltDeg`, `rockDeg`, `rockMs`, `swayDeg`, `swayPeriodMs` | 34, 16, 420, 3.5, 2600 | how far it hangs over when slack; a hit's rocking; the armed target's slow sway |
+| `knockTarget.lineResetPx`, `lineMs`, `tapEveryMs`, `reachPx` | 480, 2600, 700, 8 | how far the slime goes before the line is said again; how long it shows; the wooden knock at most this often; the push's reach |
+| `ram.windupMs`, `swingMs`, `holdMs`, `returnMs`, `rewindMs` | 350, 420, 150, 600, 8000 | the ram's cycle |
+| `ram.damage`, `slimeDamage`, `slimeKnockback` | 60, 20, 760 | to an enemy (true damage); to the slime (true damage); the slime's knockback (aside) if the head reaches it before the shove does |
+| `ram.slimeKnockSpeed`, `slimeClearPx`, `slimeBodyPx` | 1800, 16, 22 | the shove across the lane: its speed, how far past the lane's edge the slime ends, the slime's half width |
+| `ram.cockPx`, `hangPx`, `loosePx`, `dipPx`, `shudderPx`, `ratchetEveryMs` | 44, 16, 3, 5, 2.5, 500 | how far back it is held; its height held, hanging loose and at the swing's lowest; the shudder; a ratchet click |
+| `ram.shakeMs`, `shakeIntensity` | 220, 0.007 | the thud at the swing's end |
+| `ram.hit` (`hitClass`, `launchSpeed`, `knockbackPx`, `knockbackSpeedScale`, `resistFloor`, `bowlDamage`, `hitStopMs`, `trauma`, `kickPx`, `sparks`) | thrown-heavy, 760, 240, 2, 0.6, 15, 110, 0.6, 9, 16 | the hit an enemy takes: its reaction class, its knock (at least `resistFloor` of it, however heavy), what bowling into others costs, and the feel |
+| `ramCart.brakeMs`, `startSpeed`, `maxSpeed`, `accel` | 120, 140, 560, 520 | the brake's snap; the roll |
+| `ramCart.damage`, `slimeDamage`, `slimeKnockback` | 60, 20, 460 | to an enemy (true damage); to the slime and its knockback aside |
+| `ramCart.restMs`, `returnMs`, `ratchetEveryMs` | 1500, 8000, 400 | the wait at the line's end; the haul back; a click |
+| `ramCart.sparkEveryPx`, `sparkSpeed`, `bumpShakeMs`, `bumpShakeIntensity` | 46, 260, 200, 0.006 | sparks under the wheels above that speed; the bump |
+| `ramCart.hit` | thrown-heavy, 700, 220, 2, 0.6, 15, 100, 0.55, 8, 14 | as the ram's |
+| `burst.shakeMs`, `shakeIntensity`, `jingleDelayMs`, `lineEveryMs` | 260, 0.008, 350, 1500 | the arch's and the gate's break: the shake, the secret jingle after it, a refusal line at most this often (real time, as the kit's doors space their lines: the spacing is presentation only) |
+
+### Art and sound
+
+Art: Magnific GPT 2.5 (`gpt-2-mini`, transparent, the Lili creation as style reference), six sheets,
+243 credits; sources and prompts in `asset/Originals/dungeon-kit/mechanisms/`, packed by
+`python scripts/art/pack-mechanism-art.py` into `godot/asset/MAPS/objects/mechanisms/`. The
+pictures load through `game/runtime/sheet_sprite.gd`, so they show before the editor imports them.
+The chains, ropes, shadows, grooves and glints are drawn by code; the cart's rails are
+`mine_rails.gd`'s.
+
+Sound: ten cues under `Effects` in `global.tscn` (Sound Picker round 15,
+[audio spec §17](specs/audio.md#17-round-15-the-dungeon-mechanisms)): `KnockTargetHit`,
+`KnockTargetTap`, `KnockTargetRearm`, `RamWindup`, `RamSwing`, `RamThud`, `RamRatchet` (the cart's
+haul back clicks with it too), `CartBrake`, `CartRoll` (a loop, its pitch raised with the cart's
+speed; redone 2026-11-24 as option "b": a heavy rumble with the wheels' clatter on the joints,
+played as loud as the one-shots less 2 dB), `CartBump`. They are the builder's defaults: the owner
+has not heard or picked them. Their
+players name packed copies of the takes (`asset/audio/sfx/packed/world/*.res`, written by
+`tools/pack_cue_sounds.gd`), which play without an editor import. The arch plays `BreakStone`, the
+gate `BreakWood`, both `SecretFound`.
+
+### The mechanism lab
+
+`game/dev/mechanisms/mechanism-lab.tscn` (`world.mechanism-lab`; dev only: `game/dev/` is left out
+of the release export). `?map=mechanism-lab` (web) or `-- --map=mechanism-lab` (desktop); F6 on the
+scene lends the Spear, the Roll, the Goo Bomb and the Bow (`dungeon.devPowers.mechanism-lab`).
+Built by `"<Godot console exe>" --headless --path godot -s res://tools/build_mechanism_lab.gd -- --force`
+(it overwrites hand edits). One hall of cave rock (interior walls, `cave-rock`), three screens wide,
+a lane a screen, with a pocket room north of lane A behind the arch (48 x 20 cells); a Dungeon node
+(`resume_saves` off), so its pots and enemies come back when a lane is entered again. The arch, the
+gate and the first cart stay as they end for the session.
+
+| Lane | What it shows |
+|---|---|
+| A | pots; a void pit with a knock target on its far side, its rope routed round the pit; a ram aimed north at the bricked arch; a chest in the pocket behind the arch |
+| B | a ram across a pen of three enemies (a Slime Spider, a Worm Brawler, a Thorn Guard), its target on the pen's edge, pots: bait enemies onto the grooves, or throw a stunned one at the target |
+| C | a cart that stays where it ends (its target, a rail gate on its line, the line running on to a buffer stop); a cart that is hauled back, aimed across a pen of one enemy |
+
+`bash scripts/godot/film-mechanisms.sh <name> --film=<film>` films a lane frame by frame into
+`output/mechanisms/<name>/` (`godot/tools/film_mechanisms.gd`; one game window at a time; what each
+shows is in the tool's head): `ram-arch`, `ram-enemies` (the Thorn Guard put in its march by the
+tool: asleep it is rooted), `ram-slime` (the slime on the middle line, then near the far end),
+`ram-south` and `ram-west` (lane B's ram moved and turned by the tool), `target-refuse`,
+`target-arrow`, `target-blast` (a Goo Bomb spat beside the target), `target-roll`, `arch-refuse`,
+`gate-refuse`, `cart-gate`, `cart-enemy`, `cart-return`, `cart-hook` (a standing dummy that answers
+`on_mechanism_hit`, `tests/lib/mechanism_hook_probe.gd` with the training dummy's picture: the cart
+stops against it, the log swings through it), `look`.
+
+### The Matron lab (a boss that answers the hook)
+
+`game/dev/bosses/matron-lab.tscn` (`world.matron-lab`, 2026-11-24): the Orb-Weaver Matron's ram
+fight, step 2 of the rework, in a 20 x 16 root-rock room with five rams along its north wall (the
+owner's drawing), each ram's target straight below its lane by the south wall (the owner moved them
+there from across the room, 2026-11-24: the ropes were too hard to follow). Her missed webs leave web
+balls (a liftable, `web-ball`) to throw when the pots run out. The rams are both sides' tools: she
+answers `on_mechanism_hit` (a ram flings her out of a dive, knocks her cocoon down), and she trips
+a ram at the slime herself by spitting a glob of web at its target, from the floor too after a dive
+(she lies 4 s), down her own lane as well: a slime that waits in her lane and steps out when she
+spits makes her log fling her. Her full heart rises in the room's middle. The fight, the lab and its films
+(`scripts/godot/film-matron.sh`): [matron spec §9](specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow).
+The Weaver Hollow's Crown keeps the built fight until it is rebuilt with rams (step 3).
+
+### Limits
+
+- A thrown thing hits only on the thrower's level, so a target is knocked only from its own level.
+- The ram's gantry and the cart's front view have one picture each: a ram aimed south uses them too
+  (filmed, `ram-south`); a cart rolling up the screen has not been filmed.
+- The slime is shoved when the head is about a cell away (it must be out of the lane before the head
+  arrives); at 60 frames a second that reads as a hard shove from the swing, not a touch.
+- The cart stops against a hooked node where its front meets the node's hurtbox: a boss whose
+  hurtbox is narrower than its picture is overlapped by that much (the film's dummy has a hurtbox as
+  wide as its arms). Seen from the front (a line up or down the screen) the node is found up to 28
+  units before the touch and the cart rolls on to it; filmed only from the side (`cart-hook`).
+- The rail gate across an east-west track is the front picture turned (not filmed).
+- Enemies never avoid a lane or the rails by themselves; a mechanism strikes whatever is there.
+- The cart's rattle is one global looping player: two carts rolling at once share its pitch.
+- The bricked arch's panel is its own sheet for the cave rock's north doorway; in another style or
+  wall it is the same panel turned and fitted to that style's leaf (not filmed).
+
 ## Refills that grow back
 
 - **Energy flower:** `object.energy-flower` (`energy_flower.gd`): walked into while energy is not
@@ -657,7 +998,7 @@ starts sealed.
 | `drawbridge.lowerMs`, `shakeMs`, `shakeIntensity` | 650, 240, 0.006 | the bridge coming down and its thud |
 | `boltHole.clearPx`, `minOpenMs`, `closeAfterMs`, `shakeMs`, `shakeIntensity` | 72, 350, 2500, 160, 0.004 | the Lair's bolt-hole hatch: how far the slime walks off (and how long the hatch shows open at least) before it slams shut, the longest it stays open, the slam's shake |
 | `void.damage`, `void.fallMs` | 10, 600 | a fall's cost and length |
-| `spikes.damage`, `spikes.fallMs`; `lava.damage`, `lava.fallMs` | 8, 320; 12, 320 | a hit each time the invulnerability ends; the drop into the pit |
+| `spikes.damage`, `spikes.fallMs`; `lava.damage`, `lava.fallMs` | 10, 320; 10, 320 | a hit each time the invulnerability ends; the drop into the pit |
 | `slab.fallDelayMs`, `dropMs`, `returnMs`, `riseMs`, `shakePx` | 300, 380, 10000, 450, 2.5 | the slab's timing (above) |
 | `refill.flowerEnergy`, `flowerRegrowMs`, `flowerReachPx` | 25, 20000, 30 | the energy flower |
 | `refill.heartHp`, `potEnergy`, `potCoins`, `pickupRadiusPx` | 20, 15, 5, 22 | what a pot hides; the pickups' reach (and the floor key's) |
@@ -840,8 +1181,9 @@ reached only up the Den's ledge.
 - **Heavy ore crate** (`heavy-ore-crate.tscn`): `heavy_block.gd` with the iron-banded crate.
 - **Climbable walls** (`object.climb-wall`: `game/scripts/climb_wall.gd`, `climb-wall.tscn`): thick
   living roots and rocky handholds (the Feral skin's lock). With the Feral skin
-  ([SKINS.md](SKINS.md#feral)) a held interact clings to it and the movement keys climb it to `top`
-  and back (since 2026-11-12; the held key alone climbed before), letting go drops the
+  ([SKINS.md](SKINS.md#feral)) an interact press clings to it (a toggle since 2026-11-24: a second
+  press lets go) and the movement keys climb it to `top` and back (since 2026-11-12; the held key
+  alone climbed before), letting go drops the
   slime unhurt, the level is taken at the top. The builder places them in pairs (`_climb_pair`: the
   climb up from the foot and the climb down from the lip, sharing the roots' picture): the Den's
   ledge (one level), M11's two faces and M12's two (two levels), the shaft's north wall (one level,
@@ -878,7 +1220,7 @@ strength the built one).
   `spear`) on the open weak spot from its side (the hit's source within `weakSideDot` 0.45 of that
   side's direction). **His stomp** (the tell: a foot raised for `raiseMs` 650 over a darkening ring
   `stompRx` x `stompRy` 116 x 78; within `stompRangePx` 120 of the slime or every `stompEveryMs`
-  2600): 24 damage in the ring, and it puts out the lit `stomp_puts_out` brazier nearest to him
+  2600): 40 damage in the ring, and it puts out the lit `stomp_puts_out` brazier nearest to him
   (`stompPutsOut` 1; `CandleScript.put_out_near` nearest only), so the weak spot shuts.
 - **On the wall, the Feral skin's exam (2026-10-17):** after `stompsPerClimb` (3) stomps he leaps
   onto the north wall at the climb spot nearest the slime (`climb_spots`: x 51.5, 54.5, 57.5) and
@@ -906,6 +1248,263 @@ strength the built one).
   braziers burn for good (the cavern is lit); his **full heart** (`object.full-heart`,
   `crystal-colossus`, +20 max HP and max energy) rises; the way in stays shut, so the way out is the
   climb up the roots at x 61, to the Lookout (H4).
+
+#### The plate fight (step 2 of the rework)
+
+> **Status:** built 2026-11-24 in the Colossus lab only, from [the plan](../design/2026-11-23-dungeons-2-3-rework.md#the-crystal-colossus)
+> (the owner approved his new look and frames, then "Yes, build the fights"), with the owner's
+> changes of the same day (a bigger room, void dips along its sides, carts out of tunnels that pass
+> through, his kick). The mine keeps the fight above until its arena is rebuilt (step 4). Filmed
+> (`scripts/godot/film-colossus.sh`), not played with a keyboard; no test written.
+
+**The switch:** `plate_fight` on the Colossus (`crystal_colossus.gd`, off by default); the arena that
+makes him passes its own `plate_fight` on (`colossus_arena.gd`), with its braziers and its
+`crash_carts`. Off, every line above holds and none below applies.
+
+- **His look** (`game/bosses/colossus_look.gd`, under the enemy's Visual, which draws nothing and
+  carries the hit flash): his packed frames (`godot/asset/MAPS/enemies/bosses/colossus/`,
+  `frames.json`; `scripts/art/boss_frames.py pack colossus`): the bare body (rose quartz in the plate
+  sockets) with each plate he still wears laid on it, cold (pale cyan) or hot (orange, pulsing); a
+  plate gone shows its socket. He faces four ways, from his walk (a new way wins once it leads by a
+  fifth): the walk toward the viewer, the side walk (mirrored for the left, its near shoulder piece
+  then his left shoulder) and the walk away, a frame every 11 units walked. The stomp's raise, rear
+  and slam, the stagger (the stomp sheet's fourth frame), the leap (crouch, then from behind), the
+  cling (two grips, the second also his throw), the fall (off the wall, the crash in dust, then on his
+  back, dazed). The stomp and the stagger are drawn facing the viewer only, so he turns to the viewer
+  for them. A shadow lies under him. Plates: **L** his right shoulder, **C** his breastplate, **R**
+  his left shoulder.
+- **His health:** 240 = three plates of `plateHp` (60) and a core (60): his health is 60 a plate he
+  still wears plus his core's. Nothing hurts a plate; the boss bar shows the sum.
+- **Brittle:** standing with two plates or more, his feet within a lit brazier's ring (its light:
+  `light_radius` round its flame, the lab's 150), his plates glow hot; **while all four braziers
+  burn, anywhere** (the owner, 2026-11-24: "when all 4 braziers are on make the plater brittler
+  also"). One lit brazier is enough to make him brittle in its ring. The ring is the brazier's pool
+  of light in the dark (the lab's dark room). The braziers are lit by the Lantern (its flame flies a
+  short line from the slime's mouth: stand within about a cell of the brazier, facing it).
+- **Heat cues** (the owner, the same day: so "the player knows something change"): as his plates
+  heat, a burst of embers off each, a flash and `FireIgnite`; while they glow, embers rise off them
+  and the knock target of the cart line his feet stand on (within 90 of its rails, the cart held
+  ready, the target armed) glows warm and pulses over the dark; as they cool, a puff of steam
+  (`_step_heat`).
+- **The clang hint:** the first time in a fight a cart clangs off a cold plate, `clang_hint_text`
+  ("Too cold to crack. Heat it in a brazier's light!") shows over the slime for 6 s, following it,
+  opaque, kept on screen (`GameFeel.hint_text`), and every unlit brazier flashes three times under a
+  bobbing arrow, embers rising off it (`game/feel/hint_cue.gd`; the owner, 2026-11-24: the hint must
+  stay long enough to read, and "the braziers need to flash 2 or 3 times ... many games do that";
+  the rule: [GAME_GUIDELINES.md "Hints"](../GAME_GUIDELINES.md#hints)). The runaway cart has a getter
+  for its target now (`ram_cart.gd` `get_knock_target()`).
+- **His stomps put braziers out only while he douses** (the owner, 2026-11-24: the stomp put them
+  out so often he never had them all lit; "it should only happen after all braziers are on and after
+  colossus had receive damage, or a long period of time to allow time for the player to make
+  mistakes"): hurt while every brazier burns, he douses: each stomp (and a landing from his wall)
+  puts out the lit brazier nearest him, as built, until none burns. Else his stomps leave the
+  braziers alone until `douseAfterMs` (45 s) has passed with no brazier lit or put out: the wait
+  starts again at the fight's start and every time a brazier is lit or goes out (the owner: "that
+  way the player have 45 seconds after lighting a brazier to make his move"); once it is over his
+  next stomp puts one out, which starts the wait again (`_step_douse`, `is_dousing()`,
+  `douse_wait_left()`).
+- **His leap** (the owner, the same day: the fight felt slow, he "does not have a jump or a charge to
+  follow you"): a slime more than `hopFarPx` (300) from him for `hopAfterMs` (1200) while he walks,
+  and he crouches (`hopCrouchMs` 350, the leap's crouch, a ring on the floor where he will land),
+  leaps (`hopAirMs` 650, the stomp's reared frame, an arc of `hopArcPx` 90; nothing reaches him and a
+  cart passes under him) and lands `hopShortPx` (150) short of the slime, at most `hopMaxPx` (520) a
+  leap, kept on his floor: the slam (`hopDamage` 20 to a slime in the ring, `hopKnockback` 300, a
+  shake), no brazier out and no stomp counted, then he recovers as from a stomp. The first leap at
+  the earliest `firstHopMs` (2500) after he wakes, the next `hopCooldownMs` (5000) after a landing.
+- **His quake** (the owner, 2026-11-24: "the queke last 5 secodns and it make damage over time the
+  way to avoid it is by climbing . a warning have to be issue by colossus so is clear that attack is
+  coming"): `quakeFirstMs` (14 s) after he wakes, then `quakeEveryMs` (22 s, a third sooner in his
+  second phase) after each one starts, with the slime on the floor and climb walls up his wall
+  (those within 260 of a climb spot). **The warning** (`quakeWarnMs` 2500): a roar and
+  `GroundCreak`, he rears (the stomp's foot-and-fists-up frame, facing the viewer) and trembles harder
+  and harder, the screen rumbling and dust falling, while glowing cracks run out from his feet over
+  his whole floor and the climb walls light up (a light in the dark room and glowing specks on each:
+  the safe place). **The quake** (`quakeMs` 5000): he pounds the floor every `quakePoundMs` (450;
+  `ColossusStomp`, a shake, dust), the cracks glow and pulse, the floor glows, craters break open
+  over it every `quakeCrackEveryMs` (280; `BreakStone` every other one); a slime on
+  his floor takes `quakeTickDamage` (6) every `quakeTickMs` (600: longer than the slime's 500 ms of
+  hit invulnerability), no knockback, about 50 over the whole quake; a slime climbing (or dropping
+  off) a wall takes nothing. Then he recovers as from a stomp. A cart's blow stops it (he staggers).
+  The look is `game/bosses/colossus_quake.gd`: painted fissures (`effects/colossus-quake-fissures-1x4.webp`)
+  laid end to end along nine wandering rays from his feet, each growing from its near end as the
+  crack spreads, a glowing copy of each pulsing while the floor shakes; painted craters
+  (`effects/colossus-quake-craters-4x1.webp`) that pop in, lie a moment and fade; nothing drawn past
+  his floor's edge (a clip by world position). The art: two Magnific stills (2026-11-24, 80 credits),
+  `scripts/art/pack-quake-art.py`, sources in `asset/Originals/dungeon-kit/bosses/colossus/quake/`.
+- **Falling rocks** (the owner, 2026-11-24: the pots run out; "colossus need to make rocks or
+  cristals on every single attack they fall from the roof in ramdom spots making damage if they fall
+  on you, thy never block the rails"): every stomp drops `debrisPerStomp` (2; a landing from his
+  wall is a stomp), every leap's landing `debrisPerHop` (1), every `debrisEveryPounds`-th (2nd) pound
+  of a quake one. Each falls on a random free spot of his floor: never within `debrisRailClearPx`
+  (72) of a cart's line or in a ram's lane, `debrisClearOfHimPx` (110) of him, nor by a brazier, a
+  knock target or another thing to throw (`debrisClearPx` 56). Its shadow grows there (Fatty's clod
+  shadow) as the rock's picture falls into it from `debrisFallPx` (420) over `debrisFallMs` (750;
+  each next one `debrisStaggerMs` 180 later; `game/bosses/colossus_debris.gd`); landing, a slime
+  within `debrisHitPx` (34) takes `debrisDamage` (10, `debrisKnockback` 160), `DropLand`, dust and
+  chips, and it lies there: a liftable of one of `debris_kinds` (ore rock, crystal cluster, geode)
+  that lands as `debris_weight` (light: any Gulp lifts it, as the mud balls), nothing under it. At
+  most `debrisMax` (8) lie at once; the oldest crumbles away (`get_debris()` lists them).
+- **The cart** (the runaway cart, its hook `on_mechanism_hit(&"cart", cart)`) strikes the side of him
+  that faces it (against the way its line runs, as he faces now): the plate on that side; from behind,
+  or on a side whose plate is gone, his breastplate; that gone too, the shoulder plate left. A
+  brittle plate **bursts** for good: `plateHp` off his health, the eight hot shards of `shards.webp`
+  flying the way the cart pushed, the crystal dust and a flash (`game/bosses/colossus_shards.gd`),
+  his hurt flash, a roar and a shake; he staggers `burstStaggerMs` (1800). A cold plate **clangs**
+  (sparks, the plate flashes white) and he staggers `staggerMs` (1100). A stomp on the way is cut
+  short (no brazier goes out).
+- **His kick** (the owner, 2026-11-24): the cart that struck him waits against him; his feet back,
+  furious (a roar), he turns to it, draws a foot back and kicks it (`kickMs` 760, the side walk's
+  stride in profile, leaning in): it rolls back up its line into the tunnel it came from in
+  `kickBackMs` (1200), fast at first; then the line is ready again. A cart that took his last plate as
+  he lay he kicks as he gets up. If he falls or leaves the fight first, it rolls home slowly.
+- **Bare crystal:** a Spear hit from a side whose plate is gone hurts (the side is where the hitter
+  stands, as he faces); a thrown thing from there (a pot, a stunned Crystal Mite) hurts `thrownShare`
+  (0.5) of `shapes.spear.baseDamage` (6). Both come off his core, which stops at 0 while a plate is
+  left (a hit on a spent core clinks: the plates are the cart's). Every other hit clinks: a plated
+  side, his back, any other weapon, a blast, an arrow. Filmed: the Spear's Lunge (its throw-combat
+  power) does 25.
+- **His last phase: he lives on his wall** (one plate left, then his core alone; the owner,
+  2026-11-24: "the last phase he stay on the vines and only comes down to do the quake them goes up
+  again , he does not wander around confusing the player , so the player knows he have to climb and
+  do something"): whenever he is on his feet (up from a fall, after a kick, a stagger or a quake) he
+  leaps straight up his wall at the climb spot nearest the slime and stays there, no time limit
+  (`_last_phase`). Up there his mites as before, and **every `wallRockEveryMs` (5 s; the first
+  `wallRockFirstMs` 2 s after he is up) a rock at the slime** ("this rock can hit you even in the
+  vines so you are not safe anywhere"): thrown from his hand in an arc over `wallRockFlightMs` (800)
+  to where the slime is, its shadow growing there, `wallRockDamage` (10) to a slime within
+  `wallRockHitPx` (40), on the floor or up the roots; on the floor (off the rails) it lies as a rock to
+  throw (more ammo for the cart's target), on the wall or by the rails it shatters (`_throw_rock`,
+  `ThrowToss`). He comes down only when his quake is due: he leaps to the middle of his floor (the
+  landing a stomp), warns, quakes, and leaps back up. Film `last`: up at once; a rock hits the slime
+  on the floor (10) and lies there; one hits it up the roots (10) and shatters; a quake due: down,
+  quake (the slime on the roots unhurt), back up.
+- **The wall** (two plates gone): he leaps at once once his stagger (and his kick) is over (in his
+  last phase whenever he is on his feet, above); the climb, the mites and the claws are as built. Struck loose, he
+  crashes across the nearest line of the arena's `crash_carts` (his feet on its nearest point; the
+  lab's run down the room right under his two climb spots, so he falls straight onto one) and lies
+  on his back **`plateFallStunMs` (4000)**, not the mine's 2500: the slime must drop from the roots,
+  take a pot and throw at that line's target first. His last plate shows hot there (the fall cracked it; standing, the last plate
+  never glows, so the floor's carts only clang off it and the Feral climb stays needed); the cart
+  takes it. While he lies the Spear and thrown things hurt his core from every side.
+- **The core:** no plate left: the Spear hurts from every side (thrown things for half); a cart only
+  staggers him (and is kicked back). At 0 he falls: a last burst of cold shards, the fall frames, and
+  the arena's small golem as built.
+- **The roots as a refuge** (the owner, 2026-11-24: standing at the wall's foot under a climbing
+  slime he left it no way down): while the slime climbs (engaged or not: a climbing slime is no
+  target) he goes to the middle of his floor, by his leap when he is more than `retreatLeapPx` (140)
+  from it and the leap is ready, else walking; no leap at the slime, no quake, his stomps on their own
+  pace. Climbing to his wall's height when he is due to climb still brings him to the spot nearest
+  the slime. Film `climb`: he stands under the west roots as the slime climbs; he leaps to the
+  middle; Roll presses on the wall do nothing; letting go, the slime lands in front of the wall,
+  unhurt.
+- **Drawn in front of his wall** while he leaps up, clings, leaps down, falls off it or leaps on the
+  floor (`UP_PHASES`, z 3): over the tunnel doorways (z 2, drawn over their carts) and the root
+  climbs (the owner, 2026-11-24: he was "painted behind the doors while jumping and in the vines");
+  on the floor at 0, sorted by his feet.
+- **His hurtbox** follows the art: standing, his footprint and lower body (`plateHurtFront` 150 or
+  `plateHurtSide` 110 wide by `plateHurtHeight` 110, its middle `plateHurtRise` 45 over his feet), so a
+  cart meets him when his feet are about on its rails and stops with its front against him; lying,
+  his length (`lyingHurtW` 180 x `lyingHurtH` 90).
+- **Numbers** (`crystal-colossus.pattern`, new): `plateHp`, `thrownShare`, `staggerMs`,
+  `burstStaggerMs`, `burstShakeMs`/`burstShake`, `clangShakeMs`/`clangShake`, the hurtbox's six,
+  `kickMs`, `kickBackMs`, `kickShakeMs`/`kickShake`, `plateFallStunMs`; the leap's `firstHopMs`,
+  `hopFarPx`, `hopAfterMs`, `hopCooldownMs`, `hopCrouchMs`, `hopAirMs`, `hopArcPx`, `hopShortPx`,
+  `hopMaxPx`, `hopDamage`, `hopKnockback`, `hopShakeMs`/`hopShake`, `afterHopStompMs`; `douseAfterMs`;
+  the quake's `quakeFirstMs`, `quakeEveryMs`, `quakeWarnMs`, `quakeMs`, `quakeFirstTickMs`,
+  `quakeTickMs`, `quakeTickDamage`, `quakePoundMs`, `quakeCrackEveryMs`, `quakeShakeMs`/`quakeShake`,
+  `quakeRumble`, `afterQuakeStompMs`; the falling rocks' `debrisPerStomp`, `debrisPerHop`,
+  `debrisEveryPounds`, `debrisFallMs`, `debrisStaggerMs`, `debrisFallPx`, `debrisHitPx`,
+  `debrisDamage`, `debrisKnockback`, `debrisMax`, `debrisClearPx`, `debrisClearOfHimPx`,
+  `debrisRailClearPx`.
+  His reactions' state `hop` (in the air) is immune, as his other leaps.
+- **Sounds** by name, silent until staged (Sound Picker round 16): `ColossusStomp` (the stomp, the
+  crash, the kick), `ColossusRoar` (the wake, a burst, the leap, the fury before a kick, the grip
+  lost), `ColossusShatter` (a burst, his fall), `ColossusClang`. The raise keeps `ColossusRaise`.
+
+**The runaway cart for this fight** (`ram_cart.gd`, two additions): `through` makes a line run tunnel
+to tunnel (its first and last points inside the walls; each mouth is the mine gate's open
+doorway, `doorways/mine-gate-leaves.webp`, turned and foreshortened as the kit's side-wall doors,
+drawn over the cart; in a north wall, opening down the screen, it stands whole, face on, and is
+sorted with the wall by where it meets the floor, so what stands on the floor before it is drawn over
+it and a cart inside the tunnel behind it (2026-11-24: the Colossus was drawn behind the top tunnels);
+in the south wall it is turned over and foreshortened): held, the cart waits in its start tunnel (its brake is in there, where the
+target's rope runs: no lever, chock, buffer or counterweight); let go it rolls the whole line, over
+the void dips on its rails; meeting nothing it rolls on into the far tunnel and is gone (it fades
+out), and `restMs` later the next comes out of the start tunnel (`APPEAR_MS`), its target rearmed. And
+a kick: a node it stopped against may `hold_for_kick()` it (no haul back) and `kick_back(ms)` it home;
+`let_go()` returns it to its haul back.
+
+#### The Colossus lab
+
+`game/dev/bosses/colossus-lab.tscn` (`world.colossus-lab`; dev only), `?map=colossus-lab` (web) or
+`-- --map=colossus-lab` (desktop); F6 lends `dungeon.devPowers.colossus-lab` (the Spear, the Roll,
+the Lantern, the Bow, the Goo Bomb, the Feral, Silk and Heavy skins). Built by
+`"<Godot console exe>" --headless --path godot -s res://tools/build_colossus_lab.gd -- --force` (it
+overwrites hand edits). Painted as the mine paints (crystal rock at level 3 round a cavern floor at
+-1: the north wall four courses, the wall he climbs), 24 x 20 cells inside:
+
+- **The north wall:** four root climbs beside his two climb spots (`holds_at_top`; three cells
+  either side of the floor's middle, a root climb either side of each).
+- **The void dips:** two cells wide down the west and east sides, from under the wall to the south
+  wall (holes at -3, a `void` hazard over each): a fall costs `dungeon.void.damage` (10) and puts the
+  slime back where it stepped off. They lie in the arena's `arena_rect` (the fight goes on) and out
+  of its new `floor_rect` (his floor: where he walks, lands and drops his mites; empty, the arena).
+- **The two down lines** (2026-11-24; they replaced an upper line across the room under the wall,
+  which the owner never used: "the top ram make no sense ... remove it and put to verticals"): one
+  under each climb spot, rolling south out of a tunnel in the north wall's foot, down the room (over
+  the lower line's rails) into a tunnel in the south wall: his crash lines
+  (`crash_carts`). Each one's target stands beside it, outward, about three cells below the wall,
+  its rope in beside the rails and up along them into the tunnel; pots by it.
+- **The lower line** across the arena's south half, rolling west; its target by the east dip; pots.
+- **Four braziers** (`burn_ms` -1, `stomp_puts_out`, `light_radius` 150): one beside each down line,
+  outward, below its target, and two south of the lower line; the hall is a dark room
+  (`darkness_override` 0.6, no candles to light it for good), so each lit brazier's pool of light is
+  its ring.
+- **The arena** is the whole floor (16 rows; the owner, 2026-11-24: "the fight reset every time i
+  wal to the bottom of the scene": the lobby was the floor's last two rows).
+- **The lobby:** a nook two cells wide and deep cut into the south wall below the floor's middle,
+  outside the arena (clear of the down lines' tunnels): the slime starts there; walking back into it
+  starts the fight over. Four pots stand on the floor by it. The arena's `refights` is on: his fall
+  is not recorded (boss id `colossus-lab`), the braziers are lit but not for good, and the next walk
+  in starts a new fight.
+
+`bash scripts/godot/film-colossus.sh <name> --film=<film>` films it frame by frame into
+`output/boss-rework/colossus-films/<name>/` (`godot/tools/film_colossus.gd`; the mechanisms' lock,
+one game window at a time; what each stages is in the tool's head): `look`, `poses` (every frame,
+three plate states, for checking the plates sit on him), `walks`, `glow` (the Lantern lights a
+brazier, his plates glow in its ring, his stomp leaves it lit), `hop` (his leap at a far slime,
+twice), `heat` (one brazier lit: cold outside its ring, hot inside with the lower target glowing,
+cold again; all four lit: hot far from every ring), `quake` (twice: the slime stays on the floor and is hurt, then climbs the roots in the
+warning and is not), `rocks` (every pot taken away: his stomps drop rocks, none by the rails, one on
+the slime hurts it, a thrown one trips the lower cart and it bursts his plate), `douse` (all four lit, a burst, then his stomps put them out one by one; two relit restart
+the long wait and survive a stomp; the wait staged as over, one goes out and the wait restarts, so
+the next stomp leaves the other), `burst` and `clang` (round 1, with his kick; `clang` shows the
+hint), `pass` (a cart
+that meets nothing), `dip`, `bare` (round 2), `wall` (round 3: the crash on the west down line),
+`core`. The films that stage him somewhere hold his stomps and his leap (`_hold_stomps`).
+
+**Limits of the plate fight:**
+
+- Only in the lab; the mine's M15 still plays the fight as built (step 4 rebuilds it).
+- The stomp and the stagger are drawn facing the viewer only: he turns to the viewer for them, and
+  the plate a cart strikes then follows that facing. In the stagger his raised fist hides most of his
+  left shoulder plate (R): the art's.
+- The kick is the side walk's stride in profile (no kick frame was drawn); a cart up or down the
+  screen gets the stomp's raise and lift (from the front) or the walk away (from behind), not filmed.
+- The tunnel mouths are the mine gate's doorway turned on its side (no tunnel art was made); the
+  rails cross the void dips on their sleepers, with no trestle under them.
+- The down lines cross the lower line's rails: two carts rolling at once pass through each other at
+  the crossing (no cart stops another).
+- His leap's frames face the viewer (the leap's crouch, the stomp's reared frame, its slam) whichever
+  way he leaps.
+- The quake's warning is the stomp's reared frame held and shaken (no pose of its own); its cracks
+  and craters lie under the dark room's darkness, so dimmer than on a lit floor; its sounds are
+  `ColossusRoar`, `GroundCreak`, `ColossusStomp` and `BreakStone`. The climb walls' light is the
+  glow moss's (`glow_moss.gd`).
+- A falling rock's picture is its liftable's own; the rocks' landing sound is the item drop's
+  (`DropLand`).
+- `plateFallStunMs` (4 s) is longer than the plan's 2.5 s, for the carts from the far wall; the
+  owner kept it ("Keep 4 seconds", 2026-11-24).
 
 ### Darkness and fire in the mine
 
@@ -985,7 +1584,7 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
   2026-11-20). S1's chest also holds a belt slot
   (2026-11-20, [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)).
   *As built (2026-11-22): heart quarters exist since 2026-10-26 (a chest holds one through its
-  `goo_heart_id`), but S1's chest has none: 50 coins and the belt slot. The war journal has its
+  `goo_heart_id`), but S1's chest has none: 50 coins and the belt slot. *Since 2026-11-23 (owner) it gets none: no heart quarter inside a dungeon; the Caverns' four lie outside.* The war journal has its
   three pages, none in S5 (quests spec 14.8), whose chest holds 40 coins and an energy potion; its
   marker still asks for a page.*
 - The spire plank (S1) lands across the spire's own wall face; its walk across is untested.
@@ -1144,8 +1743,7 @@ The Nursery's ambush (once: shutters close both doorways; three egg sacs in ring
 orb-weaver; won once nothing lives in the room, the Broodlings the sacs hatched too) brings a chest
 with 30 coins and a health potion. B6 (from B4): a bomb on the first
 blast keg sets off the line along the broken parapet, and the last breaks the pillar's cracked post:
-its bridge drops across the void to the rim, and the far shore's Goo Heart is the heart quarter's
-stand-in. D1 the Old Cellar and D2 the
+its bridge drops across the void to the rim, and the far shore's Goo Heart is the heart quarter's stand-in. *Since 2026-11-23 no heart quarter belongs in a dungeon (owner): this Goo Heart (`weaver-hollow-pillar-heart`) is still placed and goes with the Hollow's rework ([the plan](../design/2026-11-23-dungeons-2-3-rework.md)).* D1 the Old Cellar and D2 the
 Dark Bough are dark (the Lantern): D1's chest (its glint seen from the doorway) is for a page of the
 war journal; D2's three candles, all lit, light the room for good and bring its chest, for the
 Silkspun Stew recipe. D1's holds the war journal's second page since 2026-11-20 (40 coins before;
@@ -1214,12 +1812,12 @@ the doors between the floors go on.
 
 ### Limits
 
-- B6's prize is a heart quarter (roadmap 5.3, built 2026-10-26).
+- B6's prize is a heart quarter (roadmap 5.3, built 2026-10-26), against the owner's rule of 2026-11-23 (none inside a dungeon): it goes with the rework.
 - Side doors now sit in the Hollow's root-rock wall pieces; the room outline hides the world beyond.
 - The Hoard is a small vault in the east of a full-size camera room; the rest of its screen is rock.
 - C4's rows of web walls hide the slime behind them only partly: an "across" web fades to 0.45 while
   the slime stands behind it (`web_wall.gd`); the corridors are three rows deep.
-- A Slime Spider's web shot (`spider-web`, 50 before defence) is the Gloop Forest's, untuned for C4;
+- A Slime Spider's web shot (`spider-web`, 5 since 2026-11-24) is the Gloop Forest's, untuned for C4;
   web walls stop shots (they are solid on the world layer), so the spiders hit the slime while its
   body shows above a row it wades, or through a cut lane. Cut lanes let the spiders roam between the
   corridors.

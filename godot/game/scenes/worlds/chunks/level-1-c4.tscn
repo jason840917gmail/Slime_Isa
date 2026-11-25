@@ -1704,11 +1704,9 @@ dry = true
 
 [node name="burr-yard-chest" parent="BurrYard" unique_id=142727730 instance=ExtResource("burr_yard_chest")]
 position = Vector2(60, 172)
-
-[node name="ChestScript" parent="BurrYard/burr-yard-chest" index="2"]
 map_id = "level-1-c4"
-instance_id = "burr-yard-chest"
-initial_contents = {
+chest_id = "burr-yard-chest"
+contents = {
 "coins": 15
 }
 

@@ -24,8 +24,10 @@ class_name PatternedEnemyScript
 ##   scene's exports and `attributes`, as for every enemy.
 ## - **Shielded phases** (`_shields(request)`): a phase that cannot be hurt (in the air, asleep,
 ##   hidden in its cap, charging) refuses every hit with "immune" (a clink), old-style and rework
-##   hits alike; `_kill_hit(request)` names the hit that finishes it at once (the seed thrown back,
-##   a Heavy Roll).
+##   hits alike, but a sleep throw lands through it while the phase is on the ground (EnemyReactions
+##   `sleeps_through`) and a dungeon mechanism's blow in a phase not marked `noSleep` unless the enemy
+##   is invulnerable by design (`blow_lands`); `_kill_hit(request)` names the hit
+##   that finishes it at once (the seed thrown back, a Heavy Roll).
 ## - **No hurtbox** (`set_hurtbox(false)`): underground or high in the air nothing finds it.
 ## - **Not solid** (`set_solid(false)`): the slime passes over a mound or under a flyer.
 ## - **Airborne** (`set_airborne(true)`, a leap): no body mask, so the slime and the liftable things
@@ -203,7 +205,8 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 		var request: Dictionary = input.get("request", {})
 		if _kill_hit(request):
 			return {"accepted": true, "reason": ""}
-		if _shields(request) and not EnemyReactions.sleeps_through(self, request):
+		if _shields(request) and not EnemyReactions.sleeps_through(self, request) \
+				and not EnemyReactions.blow_lands(self, request):
 			return {"accepted": false, "reason": SHIELD_REASON}
 	return super(input)
 

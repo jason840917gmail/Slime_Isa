@@ -4,7 +4,7 @@ class_name LiftableScript
 ## light thing the slime sucks in with Q and throws (game/player/gulp/mouth.gd); it breaks where it
 ## lands, in a way that fits what it is made of (game/player/gulp/thrown_object.gd).
 ##
-## There are 67 kinds for every kind of place (owner, 2026-10-09: "at least 8 by 8 ... stuff for
+## There are 68 kinds for every kind of place (owner, 2026-10-09: "at least 8 by 8 ... stuff for
 ## dungeons, different terrains, interiors like pots"): home and kitchen, dungeon, forest, cave and
 ## crystal, snow and ice, desert, beach and swamp, garden and lava. game/data/liftables.json lists
 ## each kind's name, material, frames on the liftables sheet and art size (written by

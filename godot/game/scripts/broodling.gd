@@ -106,7 +106,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			body.velocity = (_leap_to - _leap_from) / (leap_ms / 1000.0)
 			set_look(sin(t * PI) * pattern("leapHeightPx", 14.0), Vector2(0.92, 1.1))
 			if engaged:
-				_contact(target, pattern("biteDamage", 6.0), pattern("biteKnockback", 120.0), pattern("biteRangePx", 24.0))
+				_contact(target, pattern("biteDamage", 5.0), pattern("biteKnockback", 120.0), pattern("biteRangePx", 24.0))
 			if t >= 1.0:
 				body.velocity = Vector2.ZERO
 				_transition(PHASE_RECOVER, now)

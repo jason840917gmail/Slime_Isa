@@ -1,0 +1,256 @@
+{
+ "round": "round-15",
+ "title": "Sound picker, round 15: the dungeon mechanisms",
+ "intro": "The knock target, the ram and the runaway cart (2026-11-23). One option each so far: the builder's defaults, not yet heard by the owner.",
+ "takes": "temp/sound-round-15/takes",
+ "groups": [
+  {
+   "id": "mechanisms",
+   "name": "The mechanisms",
+   "note": "A throw at the knock target lets the ram or the cart go."
+  }
+ ],
+ "cues": [
+  {
+   "id": "world.knock-target-hit",
+   "group": "mechanisms",
+   "name": "Knock target: knocked",
+   "where": "A thrown thing (or an arrow, or a blast) knocks the target: it spins and lets its mechanism go",
+   "node": "KnockTargetHit",
+   "ship": "world/knock-target-hit",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Thwack and latch",
+     "note": "A thrown clay pot smacks a round wooden practice target hanging on a post: one solid hollow wooden thwack with a short iron latch clack right after, close mic, dry, no reverb, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/target-hit-a-1.mp3",
+      "temp/sound-round-15/raw/target-hit-a-2.mp3",
+      "temp/sound-round-15/raw/target-hit-a-3.mp3"
+     ],
+     "max": 0.5
+    }
+   ]
+  },
+  {
+   "id": "world.knock-target-tap",
+   "group": "mechanisms",
+   "name": "Knock target: only a tap",
+   "where": "The Spear, a Roll or the slime's body touches the target: it does not trip",
+   "node": "KnockTargetTap",
+   "ship": "world/knock-target-tap",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Dull wooden knock",
+     "note": "One single dull knock on a thick hollow wooden board, a soft blunt wooden tap, nothing breaks, close mic, dry, no reverb",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/target-tap-a-1.mp3",
+      "temp/sound-round-15/raw/target-tap-a-2.mp3"
+     ],
+     "max": 0.3
+    }
+   ]
+  },
+  {
+   "id": "world.knock-target-rearm",
+   "group": "mechanisms",
+   "name": "Knock target: armed again",
+   "where": "Its mechanism is wound back: the target snaps upright",
+   "node": "KnockTargetRearm",
+   "ship": "world/knock-target-rearm",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Wood-and-iron clack",
+     "note": "A wooden board snaps upright and an iron latch clicks shut: one short crisp wood-and-iron clack, mechanical, close mic, dry, no reverb",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/target-rearm-a-1.mp3",
+      "temp/sound-round-15/raw/target-rearm-a-2.mp3"
+     ],
+     "max": 0.3
+    }
+   ]
+  },
+  {
+   "id": "world.ram-windup",
+   "group": "mechanisms",
+   "name": "Ram: the shudder",
+   "where": "The ram is let go: 0.35 s of shudder before the log swings (the tell)",
+   "node": "RamWindup",
+   "ship": "world/ram-windup",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Timber creak and chains",
+     "note": "A heavy timber frame creaks and thick iron chains rattle briefly as a huge hanging log shudders, about to be let go, half a second, close mic, dry",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/ram-windup-a-1.mp3",
+      "temp/sound-round-15/raw/ram-windup-a-2.mp3"
+     ],
+     "max": 0.5
+    }
+   ]
+  },
+  {
+   "id": "world.ram-swing",
+   "group": "mechanisms",
+   "name": "Ram: the swing",
+   "where": "The log swings out along its lane",
+   "node": "RamSwing",
+   "ship": "world/ram-swing",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Deep whoosh",
+     "note": "A huge heavy wooden log swings fast through the air on chains: one deep low whoosh with a faint chain jingle, half a second, no impact, dry",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/ram-swing-a-1.mp3",
+      "temp/sound-round-15/raw/ram-swing-a-2.mp3"
+     ],
+     "max": 0.55
+    }
+   ]
+  },
+  {
+   "id": "world.ram-thud",
+   "group": "mechanisms",
+   "name": "Ram: the blow",
+   "where": "The log reaches the end of its swing, or strikes something on its lane",
+   "node": "RamThud",
+   "ship": "world/ram-thud",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Boom and clank",
+     "note": "An iron-capped battering ram log slams hard to the end of its chains: one deep heavy wooden boom with a short iron clank, punchy, short tail, dry, no reverb",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/ram-thud-a-1.mp3",
+      "temp/sound-round-15/raw/ram-thud-a-2.mp3",
+      "temp/sound-round-15/raw/ram-thud-a-3.mp3"
+     ],
+     "max": 0.6
+    }
+   ]
+  },
+  {
+   "id": "world.ram-ratchet",
+   "group": "mechanisms",
+   "name": "Ram and cart: the ratchet",
+   "where": "The winch pulls the log back (8 s), or the counterweight hauls the cart back: one click each time",
+   "node": "RamRatchet",
+   "ship": "world/ram-ratchet",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Iron tick",
+     "note": "One single click of a heavy iron ratchet pawl dropping onto a cog wheel tooth, a short dry metallic tick, close mic, no reverb",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/ram-ratchet-a-1.mp3",
+      "temp/sound-round-15/raw/ram-ratchet-a-2.mp3",
+      "temp/sound-round-15/raw/ram-ratchet-a-3.mp3"
+     ],
+     "max": 0.16
+    }
+   ]
+  },
+  {
+   "id": "world.cart-brake",
+   "group": "mechanisms",
+   "name": "Cart: the brake snaps",
+   "where": "The cart's brake is knocked off: the lever snaps back and the chock is kicked away",
+   "node": "CartBrake",
+   "ship": "world/cart-brake",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Clack and scrape",
+     "note": "A wooden brake lever snaps back and a wooden wedge is kicked off an iron rail: one sharp wooden clack with a short iron scrape, close mic, dry, no reverb",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/cart-brake-a-1.mp3",
+      "temp/sound-round-15/raw/cart-brake-a-2.mp3"
+     ],
+     "max": 0.45
+    }
+   ]
+  },
+  {
+   "id": "world.cart-roll",
+   "group": "mechanisms",
+   "name": "Cart: rolling (a loop)",
+   "where": "The cart rolls down its line (the game raises its pitch as it speeds up) and is hauled back",
+   "node": "CartRoll",
+   "ship": "world/cart-roll",
+   "inGame": "b",
+   "options": [
+    {
+     "key": "a",
+     "label": "Rattling wheels and ore",
+     "note": "A small loaded iron mine cart rolling fast along iron rails, steady rattling wheels and clattering ore rocks, continuous, close mic, dry, seamless loop",
+     "kind": "loop",
+     "even": false,
+     "takes": [
+      "temp/sound-round-15/raw/cart-roll-a-1.mp3"
+     ]
+    },
+    {
+     "key": "b",
+     "label": "Heavy rumble and joint clatter",
+     "note": "Heavy wooden mine cart loaded with ore rolling fast on iron rails in a stone tunnel: deep low rumble of iron wheels, rhythmic clack of the wheels over the rail joints, rocks jostling in the cart, continuous and steady, close mic, dry, no voice, no music (5 s, loop; cut to a 3.3 s loop)",
+     "kind": "loop",
+     "even": false,
+     "takes": [
+      "temp/sound-round-15/cut/cart-roll-b-1.src.wav"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world.cart-bump",
+   "group": "mechanisms",
+   "name": "Cart: the bump",
+   "where": "The cart reaches its buffer stop, or rams something",
+   "node": "CartBump",
+   "ship": "world/cart-bump",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Clang, thud and ore",
+     "note": "A loaded mine cart crashes to a dead stop against a wooden buffer: one heavy iron clang and wooden thud, then ore rocks rattling and settling, one second, dry",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-15/raw/cart-bump-a-1.mp3",
+      "temp/sound-round-15/raw/cart-bump-a-2.mp3"
+     ],
+     "max": 0.8
+    }
+   ]
+  }
+ ]
+}

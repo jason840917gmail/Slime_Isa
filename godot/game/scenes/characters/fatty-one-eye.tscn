@@ -433,7 +433,7 @@ attributes = {
 "allowedWeaponIds": ["wooden-spear", "stone-spear", "iron-spear", "basic-spear"],
 "attackWindupMs": 250,
 "attackRecoveryMs": 50,
-"contactDamage": 18,
+"contactDamage": 10,
 "knockbackStrength": 180
 }
 damage_rule = {
@@ -457,7 +457,7 @@ small_hop_duration_ms = 260.0
 between_hops_ms = 100.0
 air_time_ms = 1000.0
 recovery_ms = 700.0
-landing_damage = 32.0
+landing_damage = 20.0
 landing_zone = NodePath("../LandingZone")
 landing_knockback_strength = 280.0
 landing_effect_id = "boss-ground-crack"

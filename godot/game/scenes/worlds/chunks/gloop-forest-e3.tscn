@@ -350,26 +350,22 @@ weight_class = "light"
 
 [node name="mere-bell-chest" parent="RiverRoads" unique_id=1741602024 instance=ExtResource("36_rlvjn")]
 position = Vector2(1593.6, 614.4)
-
-[node name="Visual" parent="RiverRoads/mere-bell-chest" index="1"]
-texture = ExtResource("37_kwmag")
-
-[node name="ChestScript" parent="RiverRoads/mere-bell-chest" index="2"]
-hidden = true
+starts_hidden = true
 map_id = "gloop-forest-e3"
-instance_id = "gloop-forest-e3-mere-bell-chest"
-initial_contents = {
+chest_id = "gloop-forest-e3-mere-bell-chest"
+contents = {
 "coins": 40,
 "hp-potion": 1
 }
 
+[node name="Visual" parent="RiverRoads/mere-bell-chest" index="1"]
+texture = ExtResource("37_kwmag")
+
 [node name="tangle-chest" parent="RiverRoads" unique_id=1181675886 instance=ExtResource("30_hlybp")]
 position = Vector2(958, 865)
-
-[node name="ChestScript" parent="RiverRoads/tangle-chest" index="2"]
 map_id = "gloop-forest-e3"
-instance_id = "gloop-forest-e3-tangle-chest"
-initial_contents = {
+chest_id = "gloop-forest-e3-tangle-chest"
+contents = {
 "coins": 10
 }
 

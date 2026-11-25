@@ -98,6 +98,12 @@ y_sort_enabled = true
 y_sort_enabled = true
 position = Vector2(512, 332.8)
 collision_mask = 0
+map_id = "sunscar-butte-cellar"
+chest_id = "sunscar-butte-cellar-chest"
+contents = {
+"coins": 30,
+"energy-potion": 1
+}
 
 [node name="BodyShape" parent="Cave/sunscar-butte-cellar-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -109,15 +115,6 @@ texture = ExtResource("10_d7c8q")
 centered = false
 offset = Vector2(-32, -48)
 hframes = 2
-
-[node name="ChestScript" parent="Cave/sunscar-butte-cellar-chest" index="2"]
-script = ExtResource("11_bkj61")
-map_id = "sunscar-butte-cellar"
-instance_id = "sunscar-butte-cellar-chest"
-initial_contents = {
-"coins": 30,
-"energy-potion": 1
-}
 
 [node name="LockedSfx" parent="Cave/sunscar-butte-cellar-chest" index="3"]
 process_mode = 3

@@ -1,0 +1,229 @@
+{
+ "round": "round-16",
+ "title": "Sound picker, round 16: the two bosses",
+ "intro": "The Orb-Weaver Matron's and the Crystal Colossus's own sounds (2026-11-24), for their reworked fights. Not in the game yet.",
+ "takes": "temp/sound-round-16/takes",
+ "groups": [
+  {
+   "id": "matron",
+   "name": "The Orb-Weaver Matron",
+   "note": "She hangs, spits and dives; the ram flings her to the wall."
+  },
+  {
+   "id": "colossus",
+   "name": "The Crystal Colossus",
+   "note": "Three crystal plates; a cart breaks a hot one and clangs off a cold one."
+  }
+ ],
+ "cues": [
+  {
+   "id": "boss.matron-hiss",
+   "group": "matron",
+   "name": "Matron: the hiss",
+   "where": "Hanging high in round 2, before she spits or dives; her cocoon's threat in rounds 1 and 3",
+   "node": "MatronHiss",
+   "ship": "boss/matron-hiss",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Long raspy hiss",
+     "note": "A giant spider queen hissing a threat from above: a long harsh raspy hiss with wet clicking mandibles, menacing, close mic, dry, no reverb, no human voice, no music",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/matron-hiss-a-1.mp3",
+      "temp/sound-round-16/raw/matron-hiss-a-2.mp3"
+     ],
+     "max": 2.0
+    },
+    {
+     "key": "b",
+     "label": "Chitter into a hiss",
+     "note": "A huge spider rearing up to strike: rapid dry chittering clicks of chitin fangs rising into a sharp sputtering hiss, insect, menacing, close mic, dry, no human voice, no music",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/matron-hiss-b-1.mp3",
+      "temp/sound-round-16/raw/matron-hiss-b-2.mp3"
+     ],
+     "max": 2.0
+    }
+   ]
+  },
+  {
+   "id": "boss.matron-shriek",
+   "group": "matron",
+   "name": "Matron: the shriek",
+   "where": "The ram catches her mid-dive, a blast tears her cocoon, the last blow",
+   "node": "MatronShriek",
+   "ship": "boss/matron-shriek",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Shrill screech",
+     "note": "A giant spider monster struck hard and shrieking in pain: a harsh shrill screeching chitter, insect-like, raw and furious, about one second, close mic, dry, no human voice, no music",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/matron-shriek-a-1.mp3",
+      "temp/sound-round-16/raw/matron-shriek-a-2.mp3"
+     ],
+     "max": 2.0
+    },
+    {
+     "key": "b",
+     "label": "Grating rasp",
+     "note": "A huge beetle-like spider screams: a grating, rasping high screech with clattering chitin, monstrous, short, close mic, dry, no human voice, no music",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/matron-shriek-b-1.mp3",
+      "temp/sound-round-16/raw/matron-shriek-b-2.mp3"
+     ],
+     "max": 2.0
+    }
+   ]
+  },
+  {
+   "id": "boss.matron-impact",
+   "group": "matron",
+   "name": "Matron: she lands",
+   "where": "Her dive lands, or she crashes to the floor on her back after the ram",
+   "node": "MatronImpact",
+   "ship": "boss/matron-impact",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Fleshy thud and chitin",
+     "note": "A huge heavy spider body crashes onto a stone floor from a height: one heavy fleshy thud with a dry crunch of chitin shell and legs clattering on stone, dry, no reverb, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/matron-impact-a-1.mp3",
+      "temp/sound-round-16/raw/matron-impact-a-2.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "boss.colossus-stomp",
+   "group": "colossus",
+   "name": "Colossus: the stomp",
+   "where": "His stomp lands (it puts out the nearest brazier); also his landing from the wall",
+   "node": "ColossusStomp",
+   "ship": "boss/colossus-stomp",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Rock boom and crystal",
+     "note": "A giant stone golem stomps one huge foot on a rocky cave floor: one massive deep low boom of rock on rock with crunching gravel and a few crystal shards tinkling, dry, short tail, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-stomp-a-1.mp3",
+      "temp/sound-round-16/raw/colossus-stomp-a-2.mp3"
+     ],
+     "max": 1.4
+    },
+    {
+     "key": "b",
+     "label": "Earth-shaking thump",
+     "note": "An enormous rock giant slams his foot down: a deep earth-shaking thump with a gravelly crunch and pebbles bouncing, heavy sub bass, dry, no reverb, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-stomp-b-1.mp3",
+      "temp/sound-round-16/raw/colossus-stomp-b-2.mp3"
+     ],
+     "max": 1.4
+    }
+   ]
+  },
+  {
+   "id": "boss.colossus-roar",
+   "group": "colossus",
+   "name": "Colossus: the roar",
+   "where": "He wakes, a plate bursts, he leaps onto the wall",
+   "node": "ColossusRoar",
+   "ship": "boss/colossus-roar",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Grinding boulder roar",
+     "note": "A huge golem made of rock and crystal roars in anger: a deep grinding rumbling roar like boulders scraping together, gravelly and resonant with a faint glassy ring, monstrous, no human voice, no music",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-roar-a-1.mp3",
+      "temp/sound-round-16/raw/colossus-roar-a-2.mp3"
+     ],
+     "max": 2.6
+    }
+   ]
+  },
+  {
+   "id": "boss.colossus-shatter",
+   "group": "colossus",
+   "name": "Colossus: a plate bursts",
+   "where": "The cart hits a brittle (glowing) plate: it shatters for good",
+   "node": "ColossusShatter",
+   "ship": "boss/colossus-shatter",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Glassy crack and shards",
+     "note": "A thick slab of crystal armour shatters from a blow: one bright loud glassy crack bursting into many crystal shards scattering and tinkling on a stone floor, close mic, dry, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-shatter-a-1.mp3",
+      "temp/sound-round-16/raw/colossus-shatter-a-2.mp3"
+     ],
+     "max": 1.6
+    },
+    {
+     "key": "b",
+     "label": "Hot crystal burst",
+     "note": "A big block of hot brittle crystal explodes: a sharp crack and crunch with a glassy burst and a short hiss of heat, shards raining on stone, close mic, dry, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-shatter-b-1.mp3",
+      "temp/sound-round-16/raw/colossus-shatter-b-2.mp3"
+     ],
+     "max": 1.6
+    }
+   ]
+  },
+  {
+   "id": "boss.colossus-clang",
+   "group": "colossus",
+   "name": "Colossus: a cold plate clangs",
+   "where": "The cart hits a cold plate: it holds, and he staggers",
+   "node": "ColossusClang",
+   "ship": "boss/colossus-clang",
+   "inGame": "a",
+   "options": [
+    {
+     "key": "a",
+     "label": "Ringing crystal clang",
+     "note": "A heavy iron mine cart rams a thick crystal armour plate on a stone golem: one deep ringing crystal clang with a heavy iron knock, the crystal ringing briefly, dry, no voice",
+     "kind": "oneshot",
+     "even": true,
+     "takes": [
+      "temp/sound-round-16/raw/colossus-clang-a-1.mp3",
+      "temp/sound-round-16/raw/colossus-clang-a-2.mp3"
+     ],
+     "max": 1.0
+    }
+   ]
+  }
+ ]
+}

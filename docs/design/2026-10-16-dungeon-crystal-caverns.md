@@ -21,6 +21,9 @@ for the Lantern. This design follows the [level design guide](2026-10-16-level-d
 decided docs; where it needs a choice it lists it under [Open points](#open-points), each with a
 proposal.*
 
+> **2026-11-23 (owner):** no heart quarter inside a dungeon; the one this design places is gone, and a rework of
+> the whole dungeon is proposed in [2026-11-23-dungeons-2-3-rework.md](2026-11-23-dungeons-2-3-rework.md).
+
 > **Superseded in part (2026-10-17).** The owner moved each Pearl inside its dungeon, before the
 > boss ([decisions archive](../story/07-decisions-archive.md#decisions-by-date)): Pearl 3 lies in
 > the mine before the Colossus, taking it seals the mine's exits until he falls, the second half

@@ -162,14 +162,12 @@ notes = "Empty slot"
 
 [node name="maze-summit-chest" parent="." unique_id=1684328990 instance=ExtResource("26_15a1d")]
 position = Vector2(448, 360)
-
-[node name="ChestScript" parent="maze-summit-chest" index="2"]
 map_id = "desert-a7"
-instance_id = "maze-summit-chest"
-initial_contents = {
+chest_id = "maze-summit-chest"
+contents = {
 "coins": 50
 }
-goo_heart_id = "desert-maze-summit"
+heart_id = "desert-maze-summit"
 
 [connection signal="body_entered" from="edge-east" to="edge-east/world-exit-script" method="on_body_entered"]
 [connection signal="body_entered" from="edge-south" to="edge-south/world-exit-script" method="on_body_entered"]

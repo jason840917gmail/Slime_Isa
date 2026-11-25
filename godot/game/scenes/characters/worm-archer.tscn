@@ -815,7 +815,7 @@ attributes = {
 "wanderSpeed": 30,
 "attackWindupMs": 600,
 "attackRecoveryMs": 350,
-"contactDamage": 22,
+"contactDamage": 5,
 "knockbackStrength": 180,
 "knockbackResist": 0,
 "fleeRange": 120,
@@ -836,7 +836,7 @@ rewards = {
 projectile = {
 "projectileId": "worm-arrow",
 "assetId": "enemy.projectile.worm-arrow",
-"damage": 22
+"damage": 5
 }
 
 [node name="HurtSfx" type="AudioStreamPlayer2D" parent="."]

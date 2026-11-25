@@ -1,0 +1,647 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="1_2ji0p"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="2_j7ctp"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="3_kc8tu"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="4_4wkh7"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="5_uin3g"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="6_is742"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/ram.tscn" id="7_c54bi"]
+[ext_resource type="Script" uid="uid://bqco7hcd8fyit" path="res://game/dungeon/ram.gd" id="8_81n6a"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/knock-target.tscn" id="9_qjbo0"]
+[ext_resource type="Script" uid="uid://c8xa3n2sdm1wf" path="res://game/dungeon/knock_target.gd" id="10_abvwt"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/weaver-hollow-matron.tscn" id="11_c1gd4"]
+[ext_resource type="Script" uid="uid://e6ur3jah8nmr" path="res://game/scripts/boss_camp.gd" id="12_o0830"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/synth/enemy/spider-hiss.wav" id="13_yrm63"]
+[ext_resource type="Script" uid="uid://co13i4ekaeqoi" path="res://game/runtime/sfx_player_2d.gd" id="14_eh68l"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/256x256-tile_8x1-gulp-props.webp" id="15_eblkn"]
+[ext_resource type="Script" uid="uid://mnbv3kfl8cow" path="res://game/scripts/full_heart.gd" id="16_tpm5t"]
+[ext_resource type="Script" uid="uid://ddux6xjs4jr8p" path="res://game/scripts/matron_thread.gd" id="17_eiurt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="18_6c68c"]
+[ext_resource type="Script" uid="uid://c56nat0qh657e" path="res://game/scripts/liftable_root.gd" id="19_ewty4"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp" id="20_xg1e7"]
+[ext_resource type="Script" uid="uid://b2fhqqwx8ymit" path="res://game/scripts/liftable.gd" id="21_f4odl"]
+[ext_resource type="Script" uid="uid://blg76e2q2hqk1" path="res://game/dungeon/pot_loot.gd" id="22_jpyhe"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="23_iuesl"]
+[ext_resource type="Script" uid="uid://b41hcvlmfk46v" path="res://game/dungeon/dungeon.gd" id="24_s2syf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rwpvk"]
+size = Vector2(1280, 864)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7dwdw"]
+size = Vector2(1280, 1024)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(26, 12)
+
+[node name="matron-lab" type="Node2D" unique_id=1120020442]
+y_sort_enabled = true
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=143217364]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAABAAAAAQABAAAAAAACAAAAAQACAAAAAAADAAAAAQADAAAAAAAEAAAAAQAEAAAAAAAFAAAAAQAFAAAAAAAGAAAAAQAGAAAAAAAHAAAAAQAHAAAAAAAIAAAAAQAIAAAAAAAJAAAAAQAJAAAAAAAKAAAAAQAKAAAAAAALAAAAAQALAAAAAAAMAAAAAQAMAAAAAAANAAAAAQANAAAAAAAOAAAAAQAOAAAAAAAPAAAAAQAPAAAAAAAQAAAAAQAQAAAAAAARAAAAAQARAAAAAAASAAAAAQASAAAAAAATAAAAAQAAAAAAAAAUAAAAAQABAAAAAAAVAAAAAQACAAAAAAAWAAAAAQADAAAAAAAXAAAAAQAEAAAAAAAAAAEAAQAAAAEAAAABAAEAAQABAAEAAAACAAEAAQACAAEAAAADAAEAAQADAAEAAAAEAAEAAQAEAAEAAAAFAAEAAQAFAAEAAAAGAAEAAQAGAAEAAAAHAAEAAQAHAAEAAAAIAAEAAQAIAAEAAAAJAAEAAQAJAAEAAAAKAAEAAQAKAAEAAAALAAEAAQALAAEAAAAMAAEAAQAMAAEAAAANAAEAAQANAAEAAAAOAAEAAQAOAAEAAAAPAAEAAQAPAAEAAAAQAAEAAQAQAAEAAAARAAEAAQARAAEAAAASAAEAAQASAAEAAAATAAEAAQAAAAEAAAAUAAEAAQABAAEAAAAVAAEAAQACAAEAAAAWAAEAAQADAAEAAAAXAAEAAQAEAAEAAAAAAAIAAQAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIAAQAPAAIAAAAQAAIAAQAQAAIAAAARAAIAAQARAAIAAAASAAIAAQASAAIAAAATAAIAAQAAAAIAAAAUAAIAAQABAAIAAAAVAAIAAQACAAIAAAAWAAIAAQADAAIAAAAXAAIAAQAEAAIAAAAAAAMAAQAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMAAQAPAAMAAAAQAAMAAQAQAAMAAAARAAMAAQARAAMAAAASAAMAAQASAAMAAAATAAMAAQAAAAMAAAAUAAMAAQABAAMAAAAVAAMAAQACAAMAAAAWAAMAAQADAAMAAAAXAAMAAQAEAAMAAAAAAAQAAQAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQAAQAPAAQAAAAQAAQAAQAQAAQAAAARAAQAAQARAAQAAAASAAQAAQASAAQAAAATAAQAAQAAAAQAAAAUAAQAAQABAAQAAAAVAAQAAQACAAQAAAAWAAQAAQADAAQAAAAXAAQAAQAEAAQAAAAAAAUAAQAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUAAQAPAAUAAAAQAAUAAQAQAAUAAAARAAUAAQARAAUAAAASAAUAAQASAAUAAAATAAUAAQAAAAUAAAAUAAUAAQABAAUAAAAVAAUAAQACAAUAAAAWAAUAAQADAAUAAAAXAAUAAQAEAAUAAAAAAAYAAQAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYAAQAPAAYAAAAQAAYAAQAQAAYAAAARAAYAAQARAAYAAAASAAYAAQASAAYAAAATAAYAAQAAAAYAAAAUAAYAAQABAAYAAAAVAAYAAQACAAYAAAAWAAYAAQADAAYAAAAXAAYAAQAEAAYAAAAAAAcAAQAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAQANAAcAAAAOAAcAAQAOAAcAAAAPAAcAAQAPAAcAAAAQAAcAAQAQAAcAAAARAAcAAQARAAcAAAASAAcAAQASAAcAAAATAAcAAQAAAAcAAAAUAAcAAQABAAcAAAAVAAcAAQACAAcAAAAWAAcAAQADAAcAAAAXAAcAAQAEAAcAAAAAAAgAAQAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAQANAAgAAAAOAAgAAQAOAAgAAAAPAAgAAQAPAAgAAAAQAAgAAQAQAAgAAAARAAgAAQARAAgAAAASAAgAAQASAAgAAAATAAgAAQAAAAgAAAAUAAgAAQABAAgAAAAVAAgAAQACAAgAAAAWAAgAAQADAAgAAAAXAAgAAQAEAAgAAAAAAAkAAQAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAQANAAkAAAAOAAkAAQAOAAkAAAAPAAkAAQAPAAkAAAAQAAkAAQAQAAkAAAARAAkAAQARAAkAAAASAAkAAQASAAkAAAATAAkAAQAAAAkAAAAUAAkAAQABAAkAAAAVAAkAAQACAAkAAAAWAAkAAQADAAkAAAAXAAkAAQAEAAkAAAAAAAoAAQAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAQANAAoAAAAOAAoAAQAOAAoAAAAPAAoAAQAPAAoAAAAQAAoAAQAQAAoAAAARAAoAAQARAAoAAAASAAoAAQASAAoAAAATAAoAAQAAAAoAAAAUAAoAAQABAAoAAAAVAAoAAQACAAoAAAAWAAoAAQADAAoAAAAXAAoAAQAEAAoAAAAAAAsAAQAAAAsAAAABAAsAAQABAAsAAAACAAsAAQACAAsAAAADAAsAAQADAAsAAAAEAAsAAQAEAAsAAAAFAAsAAQAFAAsAAAAGAAsAAQAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsAAQAJAAsAAAAKAAsAAQAKAAsAAAALAAsAAQALAAsAAAAMAAsAAQAMAAsAAAANAAsAAQANAAsAAAAOAAsAAQAOAAsAAAAPAAsAAQAPAAsAAAAQAAsAAQAQAAsAAAARAAsAAQARAAsAAAASAAsAAQASAAsAAAATAAsAAQAAAAsAAAAUAAsAAQABAAsAAAAVAAsAAQACAAsAAAAWAAsAAQADAAsAAAAXAAsAAQAEAAsAAAAAAAwAAQAAAAwAAAABAAwAAQABAAwAAAACAAwAAQACAAwAAAADAAwAAQADAAwAAAAEAAwAAQAEAAwAAAAFAAwAAQAFAAwAAAAGAAwAAQAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwAAQAJAAwAAAAKAAwAAQAKAAwAAAALAAwAAQALAAwAAAAMAAwAAQAMAAwAAAANAAwAAQANAAwAAAAOAAwAAQAOAAwAAAAPAAwAAQAPAAwAAAAQAAwAAQAQAAwAAAARAAwAAQARAAwAAAASAAwAAQASAAwAAAATAAwAAQAAAAwAAAAUAAwAAQABAAwAAAAVAAwAAQACAAwAAAAWAAwAAQADAAwAAAAXAAwAAQAEAAwAAAAAAA0AAQAAAA0AAAABAA0AAQABAA0AAAACAA0AAQACAA0AAAADAA0AAQADAA0AAAAEAA0AAQAEAA0AAAAFAA0AAQAFAA0AAAAGAA0AAQAGAA0AAAAHAA0AAQAHAA0AAAAIAA0AAQAIAA0AAAAJAA0AAQAJAA0AAAAKAA0AAQAKAA0AAAALAA0AAQALAA0AAAAMAA0AAQAMAA0AAAANAA0AAQANAA0AAAAOAA0AAQAOAA0AAAAPAA0AAQAPAA0AAAAQAA0AAQAQAA0AAAARAA0AAQARAA0AAAASAA0AAQASAA0AAAATAA0AAQAAAA0AAAAUAA0AAQABAA0AAAAVAA0AAQACAA0AAAAWAA0AAQADAA0AAAAXAA0AAQAEAA0AAAAAAA4AAQAAAA4AAAABAA4AAQABAA4AAAACAA4AAQACAA4AAAADAA4AAQADAA4AAAAEAA4AAQAEAA4AAAAFAA4AAQAFAA4AAAAGAA4AAQAGAA4AAAAHAA4AAQAHAA4AAAAIAA4AAQAIAA4AAAAJAA4AAQAJAA4AAAAKAA4AAQAKAA4AAAALAA4AAQALAA4AAAAMAA4AAQAMAA4AAAANAA4AAQANAA4AAAAOAA4AAQAOAA4AAAAPAA4AAQAPAA4AAAAQAA4AAQAQAA4AAAARAA4AAQARAA4AAAASAA4AAQASAA4AAAATAA4AAQAAAA4AAAAUAA4AAQABAA4AAAAVAA4AAQACAA4AAAAWAA4AAQADAA4AAAAXAA4AAQAEAA4AAAAAAA8AAQAAAA8AAAABAA8AAQABAA8AAAACAA8AAQACAA8AAAADAA8AAQADAA8AAAAEAA8AAQAEAA8AAAAFAA8AAQAFAA8AAAAGAA8AAQAGAA8AAAAHAA8AAQAHAA8AAAAIAA8AAQAIAA8AAAAJAA8AAQAJAA8AAAAKAA8AAQAKAA8AAAALAA8AAQALAA8AAAAMAA8AAQAMAA8AAAANAA8AAQANAA8AAAAOAA8AAQAOAA8AAAAPAA8AAQAPAA8AAAAQAA8AAQAQAA8AAAARAA8AAQARAA8AAAASAA8AAQASAA8AAAATAA8AAQAAAA8AAAAUAA8AAQABAA8AAAAVAA8AAQACAA8AAAAWAA8AAQADAA8AAAAXAA8AAQAEAA8AAAAAABAAAQAAABAAAAABABAAAQABABAAAAACABAAAQACABAAAAADABAAAQADABAAAAAEABAAAQAEABAAAAAFABAAAQAFABAAAAAGABAAAQAGABAAAAAHABAAAQAHABAAAAAIABAAAQAIABAAAAAJABAAAQAJABAAAAAKABAAAQAKABAAAAALABAAAQALABAAAAAMABAAAQAMABAAAAANABAAAQANABAAAAAOABAAAQAOABAAAAAPABAAAQAPABAAAAAQABAAAQAQABAAAAARABAAAQARABAAAAASABAAAQASABAAAAATABAAAQAAABAAAAAUABAAAQABABAAAAAVABAAAQACABAAAAAWABAAAQADABAAAAAXABAAAQAEABAAAAAAABEAAQAAABEAAAABABEAAQABABEAAAACABEAAQACABEAAAADABEAAQADABEAAAAEABEAAQAEABEAAAAFABEAAQAFABEAAAAGABEAAQAGABEAAAAHABEAAQAHABEAAAAIABEAAQAIABEAAAAJABEAAQAJABEAAAAKABEAAQAKABEAAAALABEAAQALABEAAAAMABEAAQAMABEAAAANABEAAQANABEAAAAOABEAAQAOABEAAAAPABEAAQAPABEAAAAQABEAAQAQABEAAAARABEAAQARABEAAAASABEAAQASABEAAAATABEAAQAAABEAAAAUABEAAQABABEAAAAVABEAAQACABEAAAAWABEAAQADABEAAAAXABEAAQAEABEAAAAAABIAAQAAABIAAAABABIAAQABABIAAAACABIAAQACABIAAAADABIAAQADABIAAAAEABIAAQAEABIAAAAFABIAAQAFABIAAAAGABIAAQAGABIAAAAHABIAAQAHABIAAAAIABIAAQAIABIAAAAJABIAAQAJABIAAAAKABIAAQAKABIAAAALABIAAQALABIAAAAMABIAAQAMABIAAAANABIAAQANABIAAAAOABIAAQAOABIAAAAPABIAAQAPABIAAAAQABIAAQAQABIAAAARABIAAQARABIAAAASABIAAQASABIAAAATABIAAQAAABIAAAAUABIAAQABABIAAAAVABIAAQACABIAAAAWABIAAQADABIAAAAXABIAAQAEABIAAAAAABMAAQAAAAAAAAABABMAAQABAAAAAAACABMAAQACAAAAAAADABMAAQADAAAAAAAEABMAAQAEAAAAAAAFABMAAQAFAAAAAAAGABMAAQAGAAAAAAAHABMAAQAHAAAAAAAIABMAAQAIAAAAAAAJABMAAQAJAAAAAAAKABMAAQAKAAAAAAALABMAAQALAAAAAAAMABMAAQAMAAAAAAANABMAAQANAAAAAAAOABMAAQAOAAAAAAAPABMAAQAPAAAAAAAQABMAAQAQAAAAAAARABMAAQARAAAAAAASABMAAQASAAAAAAATABMAAQAAAAAAAAAUABMAAQABAAAAAAAVABMAAQACAAAAAAAWABMAAQADAAAAAAAXABMAAQAEAAAAAAA=")
+tile_set = ExtResource("1_2ji0p")
+script = ExtResource("2_j7ctp")
+metadata/source_cell_count = 480
+metadata/columns = 24
+metadata/rows = 20
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1406918225]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAAAAAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAAEAAAAAAACAAAAAAAFAAAAAAACAAAAAAAGAAAAAAACAAAAAAAHAAAAAAACAAAAAAAIAAAAAAACAAAAAAAJAAAAAAACAAAAAAAKAAAAAAACAAAAAAALAAAAAAACAAAAAAAMAAAAAAACAAAAAAANAAAAAAACAAAAAAAOAAAAAAACAAAAAAAPAAAAAAACAAAAAAAQAAAAAAACAAAAAAARAAAAAAACAAAAAAASAAAAAAACAAAAAAATAAAAAAACAAAAAAAUAAAAAAACAAAAAAAVAAAAAAACAAAAAAAWAAAAAAACAAAAAAAXAAAAAAACAAAAAAAAAAEAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAAEAAEAAAACAAAAAAAFAAEAAAACAAAAAAAGAAEAAAACAAAAAAAHAAEAAAACAAAAAAAIAAEAAAACAAAAAAAJAAEAAAACAAAAAAAKAAEAAAACAAAAAAALAAEAAAACAAAAAAAMAAEAAAACAAAAAAANAAEAAAACAAAAAAAOAAEAAAACAAAAAAAPAAEAAAACAAAAAAAQAAEAAAACAAAAAAARAAEAAAACAAAAAAASAAEAAAACAAAAAAATAAEAAAACAAAAAAAUAAEAAAACAAAAAAAVAAEAAAACAAAAAAAWAAEAAAACAAAAAAAXAAEAAAACAAAAAAAAAAIAAAACAAAAAAABAAIAAAACAAAAAAAWAAIAAAACAAAAAAAXAAIAAAACAAAAAAAAAAMAAAACAAAAAAABAAMAAAACAAAAAAAWAAMAAAACAAAAAAAXAAMAAAACAAAAAAAAAAQAAAACAAAAAAABAAQAAAACAAAAAAAWAAQAAAACAAAAAAAXAAQAAAACAAAAAAAAAAUAAAACAAAAAAABAAUAAAACAAAAAAAWAAUAAAACAAAAAAAXAAUAAAACAAAAAAAAAAYAAAACAAAAAAABAAYAAAACAAAAAAAWAAYAAAACAAAAAAAXAAYAAAACAAAAAAAAAAcAAAACAAAAAAABAAcAAAACAAAAAAAWAAcAAAACAAAAAAAXAAcAAAACAAAAAAAAAAgAAAACAAAAAAABAAgAAAACAAAAAAAWAAgAAAACAAAAAAAXAAgAAAACAAAAAAAAAAkAAAACAAAAAAABAAkAAAACAAAAAAAWAAkAAAACAAAAAAAXAAkAAAACAAAAAAAAAAoAAAACAAAAAAABAAoAAAACAAAAAAAWAAoAAAACAAAAAAAXAAoAAAACAAAAAAAAAAsAAAACAAAAAAABAAsAAAACAAAAAAAWAAsAAAACAAAAAAAXAAsAAAACAAAAAAAAAAwAAAACAAAAAAABAAwAAAACAAAAAAAWAAwAAAACAAAAAAAXAAwAAAACAAAAAAAAAA0AAAACAAAAAAABAA0AAAACAAAAAAAWAA0AAAACAAAAAAAXAA0AAAACAAAAAAAAAA4AAAACAAAAAAABAA4AAAACAAAAAAAWAA4AAAACAAAAAAAXAA4AAAACAAAAAAAAAA8AAAACAAAAAAABAA8AAAACAAAAAAAWAA8AAAACAAAAAAAXAA8AAAACAAAAAAAAABAAAAACAAAAAAABABAAAAACAAAAAAAWABAAAAACAAAAAAAXABAAAAACAAAAAAAAABEAAAACAAAAAAABABEAAAACAAAAAAAWABEAAAACAAAAAAAXABEAAAACAAAAAAAAABIAAAACAAAAAAABABIAAAACAAAAAAACABIAAAACAAAAAAADABIAAAACAAAAAAAEABIAAAACAAAAAAAFABIAAAACAAAAAAAGABIAAAACAAAAAAAHABIAAAACAAAAAAAIABIAAAACAAAAAAAJABIAAAACAAAAAAAKABIAAAACAAAAAAALABIAAAACAAAAAAAMABIAAAACAAAAAAANABIAAAACAAAAAAAOABIAAAACAAAAAAAPABIAAAACAAAAAAAQABIAAAACAAAAAAARABIAAAACAAAAAAASABIAAAACAAAAAAATABIAAAACAAAAAAAUABIAAAACAAAAAAAVABIAAAACAAAAAAAWABIAAAACAAAAAAAXABIAAAACAAAAAAAAABMAAAACAAAAAAABABMAAAACAAAAAAACABMAAAACAAAAAAADABMAAAACAAAAAAAEABMAAAACAAAAAAAFABMAAAACAAAAAAAGABMAAAACAAAAAAAHABMAAAACAAAAAAAIABMAAAACAAAAAAAJABMAAAACAAAAAAAKABMAAAACAAAAAAALABMAAAACAAAAAAAMABMAAAACAAAAAAANABMAAAACAAAAAAAOABMAAAACAAAAAAAPABMAAAACAAAAAAAQABMAAAACAAAAAAARABMAAAACAAAAAAASABMAAAACAAAAAAATABMAAAACAAAAAAAUABMAAAACAAAAAAAVABMAAAACAAAAAAAWABMAAAACAAAAAAAXABMAAAACAAAAAAA=")
+tile_set = ExtResource("3_kc8tu")
+script = ExtResource("4_4wkh7")
+
+[node name="world-definition" type="Node" parent="." unique_id=1646678215]
+script = ExtResource("5_uin3g")
+map_id = "matron-lab"
+tile_size = 64
+columns = 24
+rows = 20
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 646,
+"y": 1081
+}
+}
+}
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=430474662]
+
+[node name="Crown" type="Node2D" parent="CameraRooms" unique_id=1933000333]
+script = ExtResource("6_is742")
+outline = PackedVector2Array()
+size = Vector2(1536, 1280)
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/Crown" unique_id=691656411]
+position = Vector2(646.4, 1081.6)
+
+[node name="Objects" type="Node2D" parent="." unique_id=434776027]
+y_sort_enabled = true
+
+[node name="ram-1" type="Node2D" parent="Objects" unique_id=815479505 node_paths=PackedStringArray("body", "attack_area") instance=ExtResource("7_c54bi")]
+y_sort_enabled = true
+position = Vector2(288, 358.4)
+script = ExtResource("8_81n6a")
+toward = "south"
+length = 9
+ram_id = "matron-lab-ram-1"
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="target-1" type="Node2D" parent="Objects" unique_id=631480857 node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back") instance=ExtResource("9_qjbo0")]
+position = Vector2(288, 1075.2)
+script = ExtResource("10_abvwt")
+target_id = "target-1"
+targets = Array[NodePath]([NodePath("../ram-1")])
+rope_points = PackedVector2Array()
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="ram-2" type="Node2D" parent="Objects" unique_id=1711772352 node_paths=PackedStringArray("body", "attack_area") instance=ExtResource("7_c54bi")]
+y_sort_enabled = true
+position = Vector2(524.8, 358.4)
+script = ExtResource("8_81n6a")
+toward = "south"
+length = 9
+ram_id = "matron-lab-ram-2"
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="target-2" type="Node2D" parent="Objects" unique_id=1992268249 node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back") instance=ExtResource("9_qjbo0")]
+position = Vector2(524.8, 1075.2)
+script = ExtResource("10_abvwt")
+target_id = "target-2"
+targets = Array[NodePath]([NodePath("../ram-2")])
+rope_points = PackedVector2Array()
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="ram-3" type="Node2D" parent="Objects" unique_id=558638616 node_paths=PackedStringArray("body", "attack_area") instance=ExtResource("7_c54bi")]
+y_sort_enabled = true
+position = Vector2(768, 358.4)
+script = ExtResource("8_81n6a")
+toward = "south"
+length = 9
+ram_id = "matron-lab-ram-3"
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="target-3" type="Node2D" parent="Objects" unique_id=905254301 node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back") instance=ExtResource("9_qjbo0")]
+position = Vector2(768, 1075.2)
+script = ExtResource("10_abvwt")
+target_id = "target-3"
+targets = Array[NodePath]([NodePath("../ram-3")])
+rope_points = PackedVector2Array()
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="ram-4" type="Node2D" parent="Objects" unique_id=1180223090 node_paths=PackedStringArray("body", "attack_area") instance=ExtResource("7_c54bi")]
+y_sort_enabled = true
+position = Vector2(1011.2, 358.4)
+script = ExtResource("8_81n6a")
+toward = "south"
+length = 9
+ram_id = "matron-lab-ram-4"
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="target-4" type="Node2D" parent="Objects" unique_id=2085603067 node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back") instance=ExtResource("9_qjbo0")]
+position = Vector2(1011.2, 1075.2)
+script = ExtResource("10_abvwt")
+target_id = "target-4"
+targets = Array[NodePath]([NodePath("../ram-4")])
+rope_points = PackedVector2Array()
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="ram-5" type="Node2D" parent="Objects" unique_id=345997094 node_paths=PackedStringArray("body", "attack_area") instance=ExtResource("7_c54bi")]
+y_sort_enabled = true
+position = Vector2(1248, 358.4)
+script = ExtResource("8_81n6a")
+toward = "south"
+length = 9
+ram_id = "matron-lab-ram-5"
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="target-5" type="Node2D" parent="Objects" unique_id=472959023 node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back") instance=ExtResource("9_qjbo0")]
+position = Vector2(1248, 1075.2)
+script = ExtResource("10_abvwt")
+target_id = "target-5"
+targets = Array[NodePath]([NodePath("../ram-5")])
+rope_points = PackedVector2Array()
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="matron-camp" parent="Objects" unique_id=148560010 instance=ExtResource("11_c1gd4")]
+y_sort_enabled = true
+position = Vector2(768, 640)
+
+[node name="ActivationArea" parent="Objects/matron-camp" index="0"]
+y_sort_enabled = true
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ActivationShape" parent="Objects/matron-camp/ActivationArea" index="0"]
+position = Vector2(0, -80)
+shape = SubResource("RectangleShape2D_rwpvk")
+
+[node name="ArenaArea" parent="Objects/matron-camp" index="1"]
+y_sort_enabled = true
+collision_layer = 512
+collision_mask = 4
+monitorable = false
+
+[node name="ArenaShape" parent="Objects/matron-camp/ArenaArea" index="0"]
+shape = SubResource("RectangleShape2D_7dwdw")
+
+[node name="ActiveBosses" parent="Objects/matron-camp" index="2"]
+y_sort_enabled = true
+
+[node name="BossCampScript" parent="Objects/matron-camp" index="3" node_paths=PackedStringArray("activation_area", "arena_area", "active_bosses")]
+script = ExtResource("12_o0830")
+map_id = "matron-lab"
+camp_id = "matron-lab-matron"
+boss_id = "orb-weaver-matron"
+boss_scene = "character.orb-weaver-matron-rework"
+activation_area = NodePath("../ActivationArea")
+arena_area = NodePath("../ArenaArea")
+active_bosses = NodePath("../ActiveBosses")
+respawn_ms = 4000.0
+spawn = Vector2(0, -30)
+boss_overrides = {
+"arena_recovery_ms": 0.0,
+"cocoon_enabled": true
+}
+
+[node name="RoarSfx" parent="Objects/matron-camp" index="4"]
+process_mode = 3
+stream = ExtResource("13_yrm63")
+pitch_scale = 0.4
+max_distance = 1600.0
+max_polyphony = 4
+bus = &"Effects"
+script = ExtResource("14_eh68l")
+
+[node name="FullHeart" parent="Objects/matron-camp" index="5"]
+y_sort_enabled = true
+position = Vector2(0, 0)
+
+[node name="Visual" parent="Objects/matron-camp/FullHeart" index="0"]
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("15_eblkn")
+centered = false
+offset = Vector2(-128, -250)
+hframes = 8
+frame = 5
+
+[node name="FullHeartScript" parent="Objects/matron-camp/FullHeart" index="1" node_paths=PackedStringArray("visual")]
+script = ExtResource("16_tpm5t")
+heart_id = "orb-weaver-matron"
+boss_id = "orb-weaver-matron"
+visual = NodePath("../Visual")
+
+[node name="MatronThread" parent="Objects/matron-camp" index="6"]
+y_sort_enabled = true
+position = Vector2(-588.8, -422.4)
+script = ExtResource("17_eiurt")
+
+[node name="pot-1" parent="Objects" unique_id=1362969144 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(172.8, 512)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-1" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-1" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-1" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-1" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-2" parent="Objects" unique_id=1885808127 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(172.8, 832)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-2" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-2" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-2" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-2" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-3" parent="Objects" unique_id=1662033921 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(403.2, 448)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-3" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-3" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-3" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-3" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-4" parent="Objects" unique_id=1786338342 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(646.4, 544)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-4" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-4" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-4" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-4" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-5" parent="Objects" unique_id=581801842 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(646.4, 896)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-5" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-5" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-5" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-5" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-6" parent="Objects" unique_id=1096905178 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(889.6, 416)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-6" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-6" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-6" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-6" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-7" parent="Objects" unique_id=964238887 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(889.6, 800)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-7" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-7" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-7" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-7" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-8" parent="Objects" unique_id=956029333 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(1126.4, 576)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-8" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-8" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-8" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-8" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-9" parent="Objects" unique_id=2033065716 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(1126.4, 928)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-9" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-9" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-9" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-9" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-10" parent="Objects" unique_id=2023982952 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(406.4, 1100.8)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-10" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-10" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-10" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-10" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-11" parent="Objects" unique_id=1770089214 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(889.6, 1100.8)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-11" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-11" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-11" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-11" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="pot-12" parent="Objects" unique_id=2123533838 instance=ExtResource("18_6c68c")]
+y_sort_enabled = true
+position = Vector2(1129.6, 1100.8)
+collision_mask = 0
+script = ExtResource("19_ewty4")
+
+[node name="BodyShape" parent="Objects/pot-12" index="0"]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" parent="Objects/pot-12" index="1"]
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("20_xg1e7")
+centered = false
+offset = Vector2(-96, -186)
+hframes = 8
+vframes = 9
+frame = 64
+
+[node name="LiftableScript" parent="Objects/pot-12" index="2"]
+script = ExtResource("21_f4odl")
+kind = "clay-pot"
+
+[node name="PotLoot" parent="Objects/pot-12" index="3"]
+script = ExtResource("22_jpyhe")
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="note" type="Label" parent="Objects" unique_id=1815345098]
+modulate = Color(1, 0.96, 0.84, 0.9)
+offset_left = 153.6
+offset_top = 1113.6
+offset_right = 713.6
+offset_bottom = 1173.6
+theme_override_font_sizes/font_size = 13
+text = "Matron lab (her ram fight). Five rams, each target straight below its ram. Her cocoon hangs over one ram's lane, a different one each time: knock it down with that ram, or (round 1) a Goo Bomb on its shadow. Round 2: bait her dive onto a lane's lower end, step off and throw at its target, or stand in her lane while she lies after a dive and step out when she spits: her own ram hits her. She trips rams at you too."
+autowrap_mode = 3
+
+[node name="Dungeon" type="Node2D" parent="." unique_id=35130976 instance=ExtResource("23_iuesl")]
+position = Vector2(646.4, 1132.7999)
+script = ExtResource("24_s2syf")
+dungeon_id = "matron-lab"
+display_name = "Matron Lab"
+resume_saves = false
+
+[node name="dungeon-entrance" type="Node2D" parent="." unique_id=301690497]
+position = Vector2(646.4, 1081.6)
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=67987118]
+position = Vector2(646.4, 1081.6)
+
+
+[editable path="Objects/matron-camp"]
+[editable path="Objects/matron-camp/FullHeart"]
+[editable path="Objects/pot-1"]
+[editable path="Objects/pot-2"]
+[editable path="Objects/pot-3"]
+[editable path="Objects/pot-4"]
+[editable path="Objects/pot-5"]
+[editable path="Objects/pot-6"]
+[editable path="Objects/pot-7"]
+[editable path="Objects/pot-8"]
+[editable path="Objects/pot-9"]
+[editable path="Objects/pot-10"]
+[editable path="Objects/pot-11"]
+[editable path="Objects/pot-12"]

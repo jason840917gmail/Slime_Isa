@@ -51,7 +51,7 @@ const CUE_SLAM := &"StomperSlam"
 @export var hop_px: float = 30.0
 @export var recovery_ms: float = 700.0
 @export var stomp_cooldown_ms: float = 1400.0
-@export var slam_damage: float = 26.0
+@export var slam_damage: float = 20.0
 @export var slam_knockback: float = 300.0
 ## Cracked ground whose root is this close to the stomper's feet breaks under the slam.
 @export var crack_radius: float = 90.0

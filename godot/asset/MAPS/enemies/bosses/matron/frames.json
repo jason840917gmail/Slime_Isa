@@ -1,0 +1,258 @@
+{
+ "px_per_unit": 2.0,
+ "animations": {
+  "hang": {
+   "file": "hang.webp",
+   "cell": [
+    536,
+    577
+   ],
+   "frames": 4,
+   "anchor": [
+    277,
+    2
+   ],
+   "box": [
+    92,
+    2,
+    463,
+    531
+   ],
+   "fps": 6,
+   "order": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "note": "hanging idle, a loop"
+  },
+  "spit": {
+   "file": "spit.webp",
+   "cell": [
+    470,
+    573
+   ],
+   "frames": 4,
+   "anchor": [
+    232,
+    3
+   ],
+   "box": [
+    53,
+    3,
+    411,
+    511
+   ],
+   "fps": 8,
+   "order": [
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3
+   ],
+   "note": "the spit: wind-up, charge, spit, recover"
+  },
+  "dive": {
+   "file": "dive.webp",
+   "cell": [
+    555,
+    540
+   ],
+   "frames": 4,
+   "anchor": [
+    276,
+    269
+   ],
+   "box": [
+    112,
+    50,
+    442,
+    489
+   ],
+   "fps": 8,
+   "order": [
+    0,
+    1,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "note": "the dive: let go, falling, legs flung wide, landed"
+  },
+  "rammed": {
+   "file": "rammed.webp",
+   "cell": [
+    569,
+    498
+   ],
+   "frames": 4,
+   "anchor": [
+    286,
+    250
+   ],
+   "box": [
+    7,
+    27,
+    567,
+    473
+   ],
+   "fps": 8,
+   "order": [
+    0,
+    0,
+    1,
+    2,
+    3,
+    3,
+    3
+   ],
+   "note": "caught by the ram from the left: struck, flung, tumbling, on her back"
+  },
+  "on-back": {
+   "file": "on-back.webp",
+   "cell": [
+    571,
+    532
+   ],
+   "frames": 4,
+   "anchor": [
+    246,
+    267
+   ],
+   "box": [
+    6,
+    9,
+    486,
+    526
+   ],
+   "fps": 7,
+   "order": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "note": "on her back kicking, a loop"
+  },
+  "climb": {
+   "file": "climb.webp",
+   "cell": [
+    292,
+    578
+   ],
+   "frames": 4,
+   "anchor": [
+    144,
+    292
+   ],
+   "box": [
+    9,
+    13,
+    281,
+    572
+   ],
+   "fps": 7,
+   "order": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "note": "climbing her thread from behind, a loop"
+  },
+  "spin": {
+   "file": "spin.webp",
+   "cell": [
+    466,
+    582
+   ],
+   "frames": 4,
+   "anchor": [
+    246,
+    2
+   ],
+   "box": [
+    33,
+    2,
+    459,
+    576
+   ],
+   "fps": 4,
+   "order": [
+    0,
+    1,
+    2,
+    3,
+    3,
+    3
+   ],
+   "note": "spinning her cocoon round herself"
+  },
+  "cocoon": {
+   "file": "cocoon.webp",
+   "cell": [
+    425,
+    416
+   ],
+   "frames": 3,
+   "anchor": [
+    212,
+    286
+   ],
+   "box": [
+    4,
+    163,
+    420,
+    411
+   ],
+   "fps": 3,
+   "order": [
+    0,
+    1,
+    0,
+    1,
+    2,
+    2
+   ],
+   "note": "the cocoon knocked down whole, straining, torn (frame 0 unused)"
+  },
+  "dazed": {
+   "file": "dazed.webp",
+   "cell": [
+    559,
+    550
+   ],
+   "frames": 4,
+   "anchor": [
+    276,
+    274
+   ],
+   "box": [
+    7,
+    76,
+    547,
+    473
+   ],
+   "fps": 6,
+   "order": [
+    0,
+    1,
+    2,
+    1,
+    2,
+    3,
+    3,
+    1
+   ],
+   "note": "dropping out of the torn cocoon, dazed (two), flinching"
+  }
+ }
+}

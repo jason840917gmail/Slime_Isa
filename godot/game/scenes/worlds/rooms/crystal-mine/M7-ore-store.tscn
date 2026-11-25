@@ -79,15 +79,13 @@ y_sort_enabled = true
 position = Vector2(3392, 4257.2)
 metadata/instance_id = "crystal-mine-M7-K2-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M7-K2-chest"
+chest_id = "crystal-mine-M7-K2-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="Visual" parent="Objects/M7-K2-chest" index="1"]
 texture = ExtResource("7_gmnef")
-
-[node name="ChestScript" parent="Objects/M7-K2-chest" index="2"]
-instance_id = "crystal-mine-M7-K2-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="M7-crank" parent="Objects" unique_id=1154512868 instance=ExtResource("8_mh74f")]
 position = Vector2(2240, 3827.2)

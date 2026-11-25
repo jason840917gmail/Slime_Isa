@@ -643,19 +643,17 @@ weight_class = "light"
 
 [node name="level-1-c5-lookout-chest" parent="Chapter1" unique_id=576438823 instance=ExtResource("51_51pjo")]
 position = Vector2(1299.2, 1593.6)
-
-[node name="Visual" parent="Chapter1/level-1-c5-lookout-chest" index="1"]
-texture = ExtResource("52_sip3g")
-
-[node name="ChestScript" parent="Chapter1/level-1-c5-lookout-chest" index="2"]
-hidden = true
+starts_hidden = true
 map_id = "level-1-c5"
-instance_id = "level-1-c5-lookout-chest"
-initial_contents = {
+chest_id = "level-1-c5-lookout-chest"
+contents = {
 "belt-slot": 1,
 "coins": 25,
 "energy-potion": 1
 }
+
+[node name="Visual" parent="Chapter1/level-1-c5-lookout-chest" index="1"]
+texture = ExtResource("52_sip3g")
 
 [node name="decal-flowers-daisy-0" parent="Chapter1" unique_id=985801620 instance=ExtResource("49_e8ykr")]
 position = Vector2(1139.6819, 1486.3215)
@@ -845,11 +843,9 @@ east_west = true
 
 [node name="level-1-c5-islet-chest" parent="Chapter1" unique_id=268242647 instance=ExtResource("65_u3yoe")]
 position = Vector2(322, 1463)
-
-[node name="ChestScript" parent="Chapter1/level-1-c5-islet-chest" index="2"]
 map_id = "level-1-c5"
-instance_id = "level-1-c5-islet-chest"
-initial_contents = {
+chest_id = "level-1-c5-islet-chest"
+contents = {
 "coins": 15,
 "energy-potion": 1
 }
@@ -1019,12 +1015,10 @@ lens_id = "camp-river-east"
 
 [node name="camp-river-lens-chest" parent="CampRiverLenses" unique_id=915473456 instance=ExtResource("51_51pjo")]
 position = Vector2(1190, 700)
-
-[node name="ChestScript" parent="CampRiverLenses/camp-river-lens-chest" index="2"]
-hidden = true
+starts_hidden = true
 map_id = "level-1-c5"
-instance_id = "camp-river-lens-chest"
-initial_contents = {
+chest_id = "camp-river-lens-chest"
+contents = {
 "coins": 20
 }
 

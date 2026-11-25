@@ -145,7 +145,7 @@ signal burr_freed(payload: Dictionary)
 ## A Node2D whose children are the clods' ground points.
 @export var clod_spots: NodePath
 @export var clod_shadow_ms: float = 600.0
-@export var clod_damage: float = 12.0
+@export var clod_damage: float = 10.0
 @export var max_clods: int = 10
 ## How far a clod may fall from its spot (world units, across and down), so the falls look random.
 @export var clod_scatter_px: float = 40.0

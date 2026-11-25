@@ -744,6 +744,18 @@
         180,
         141
       ]
+    },
+    "web-ball": {
+      "name": "Web ball",
+      "material": "soft",
+      "frames": [
+        70,
+        71
+      ],
+      "art": [
+        180,
+        160
+      ]
     }
   }
 }

@@ -159,16 +159,14 @@ texture = ExtResource("15_yx3uf")
 
 [node name="r5-key-chest" parent="Objects" unique_id=343891306 instance=ExtResource("16_l5hks")]
 position = Vector2(192, 816)
+map_id = "fatty-lair"
+chest_id = "r5-key-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="Visual" parent="Objects/r5-key-chest" index="1"]
 texture = ExtResource("19_bf8pv")
-
-[node name="ChestScript" parent="Objects/r5-key-chest" index="2"]
-map_id = "fatty-lair"
-instance_id = "r5-key-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="r5-maze-latch-1" parent="Objects" unique_id=991309323 instance=ExtResource("9_3kmux")]
 position = Vector2(224, 336)

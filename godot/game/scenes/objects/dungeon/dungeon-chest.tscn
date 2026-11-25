@@ -6,11 +6,13 @@
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="open"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="close"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="take"]
+[ext_resource type="Script" path="res://game/scripts/chest_root.gd" id="chest_root"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(84, 39)
 
 [node name="DungeonChest" type="StaticBody2D"]
+script = ExtResource("chest_root")
 y_sort_enabled = true
 collision_mask = 0
 

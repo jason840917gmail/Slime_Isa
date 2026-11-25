@@ -76,16 +76,14 @@ y_sort_enabled = true
 position = Vector2(1830.4, 422.4)
 metadata/instance_id = "weaver-hollow-boughs-hoard-big-chest"
 metadata/persistence_key = "weaver-hollow-boughs.hoard-big-chest"
+map_id = "weaver-hollow-boughs"
+chest_id = "weaver-hollow-boughs-hoard-big-chest"
+contents = {
+"dungeon-big-key": 1
+}
 
 [node name="Visual" parent="Objects/hoard-big-chest" index="1"]
 texture = ExtResource("10_52lsh")
-
-[node name="ChestScript" parent="Objects/hoard-big-chest" index="2"]
-map_id = "weaver-hollow-boughs"
-instance_id = "weaver-hollow-boughs-hoard-big-chest"
-initial_contents = {
-"dungeon-big-key": 1
-}
 
 [node name="pearl-two" parent="Objects" unique_id=1081099250 instance=ExtResource("11_m07qn")]
 position = Vector2(1625.6, 352)

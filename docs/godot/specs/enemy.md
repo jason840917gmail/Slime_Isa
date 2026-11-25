@@ -64,12 +64,12 @@ duplicates the same `ai` values but the runtime only uses it for: the type id �
 | `attackArea` | `attack_area: Area2D` | `AttackArea` (hitbox) |
 | `faction` | `faction: String` | `"hostile"` |
 | `rank` | `rank: String` | `"ordinary"` |
-| `maxHealth` | `max_health: float` | 90 (clamped `max(1, v)`) |
+| `maxHealth` | `max_health: float` | 40 since 2026-11-24 (90 in Phaser; 8 from 2026-10-06) (clamped `max(1, v)`) |
 | `targetingRadius` | `targeting_radius: float` | 220 (= aggro range) |
 | `attackRange` | `attack_range: float` | 38 |
 | `movementSpeed` | `movement_speed: float` | 75 (= chase speed) |
 | `attackCooldownMs` | `attack_cooldown_ms: float` | 1500 |
-| `attributes` | `attributes: Dictionary` (camelCase keys) | `wanderSpeed 28, attackWindupMs 400, attackRecoveryMs 400, contactDamage 37, knockbackStrength 260, knockbackResist 0.45` |
+| `attributes` | `attributes: Dictionary` (camelCase keys) | `wanderSpeed 28, attackWindupMs 400, attackRecoveryMs 400, contactDamage 10 (37 in Phaser), knockbackStrength 260, knockbackResist 0.45` |
 | `damageRule` | `damage_rule: Dictionary` | `{priority:0, damageMultiplier:1}` |
 | `rewards` | `rewards: Dictionary` | `{coins:10, items:[{itemId:"shard",chance:0.2}]}` (unused) |
 Declare also (absent on the worm, defaults): `display_name ""`, `arena_recovery_ms 0`, `projectile {}`, `impact_effect {}`.
@@ -95,7 +95,7 @@ Attribute readers (`EnemyScript.ts:869-927`): a missing/non-finite number → fa
 | territory `searchMs` | 3000 | `Territory.ts:44` |
 | territory `loseSightMultiplier` | 1.5 | `:45` |
 | territory `returnSpeedMultiplier` | 1.3 → worm 97.5 px/s | `:46` |
-| territory `regenPerSecond` | 0.35 × maxHealth → worm 31.5 hp/s | `:47` |
+| territory `regenPerSecond` | 0.35 × maxHealth → worm 14 hp/s (40 health) | `:47` |
 | territory `ARRIVED` | 18 px | `Territory.ts:112` |
 | chase give-up | distance > aggro × 1.5 (330) → wander | `enemies/EnemyAI.ts:279` |
 | attack keep-reach | distance > attackRange × 1.3 (49.4) → chase | `EnemyAI.ts:308` |
@@ -546,7 +546,7 @@ knock = normalized(player − origin) or attack_direction if zero
 route damage request to the player's hurtbox:
   activation_id, source = self, attack_area, target_area = player damage area,
   weapon_id "enemy-contact", weapon_tags ["contact","enemy"] (sorted), damage_types ["physical"],
-  base_damage = attributes.contactDamage (37),
+  base_damage = attributes.contactDamage (10; 37 in Phaser),
   effects = [{effect_id:"knockback", potency: attributes.knockbackStrength (260)}] (omitted if potency <= 0),
   impact = {x: origin.x, y: origin.y, knock_x: knock.x, knock_y: knock.y}
 (if accepted with damage > 0 and impactEffect set → spawn effect; worm has none)
@@ -772,7 +772,7 @@ script properties (`characters/<type>.scene.json`, node `script`; `projectileSpe
 | fleeRange | 120 | — | 120 | 140 |
 | behavior | `liner-up` (`enemy-types.json`, since 2026-10-16; §20) | standard | `slime-spider`, lining up (§20) | `slime-spider`, lining up (§20) |
 | projectileSpeed | 180 | — | 180 | 200 |
-| projectile | `worm-arrow`, damage 22 | — | `spider-web`, damage 50, stickMs 1000 | `spider-web`, damage 30, stickMs 1300 |
+| projectile | `worm-arrow`, damage 5 | — | `spider-web`, damage 5, stickMs 1000 | `spider-web`, damage 10, stickMs 1300 |
 | impactEffect | — | `enemy-worm-brawler-hit`, distance 22 | — | — |
 | depthAnchor | (0, 22) | (0, 22) | (0, 12) | (0, 15) |
 | damageRule | priority 0, ×1 | same | same | same |
@@ -885,13 +885,13 @@ stick): `player.apply_web` does nothing while `player.crosses_webs()` (the Silk 
 SkinState since roadmap 7.8: SKINS.md) holds. A Roll's i-frames still let a spit web
 pass; it is the floor webs a Roll sticks in (matron spec 5.5).
 
-### 12.7 Derived numbers (player defense 3)
-- Archer: an arrow hits for max(1, 22 − 3) = **19**, knockback 180; fired 600 ms after the attack
+### 12.7 Derived numbers (no player defence since 2026-11-24; Phaser's 3 in brackets)
+- Archer: an arrow hits for **5** (19), knockback 180; fired 600 ms after the attack
   starts; the sequence ends at +min(2000, max(950, 375) + 250) = **+1200 ms** (side clip 375 ms, up
   500 ms); the next shot ≥ 2200 ms after the previous start. Speed 180 for 3000 ms = 540 px of flight.
-- Slime spider: a web hits for **47**, knockback 180, web 1000 ms. Orb weaver: **27**, knockback 200,
+- Slime spider: a web hits for **5** (47), knockback 180, web 1000 ms. Orb weaver: **10** (27), knockback 200,
   web 1300 ms, speed 200, windup 650 → finish +1250 ms.
-- Brawler: melee 52 → **49**, knockback 340; impact at +250, finish +min(2000, max(500, clip) + 250).
+- Brawler: melee **10** (52 → 49), knockback 340; impact at +250, finish +min(2000, max(500, clip) + 250).
 
 ## 13. `fleeRange` with the standard AI (`EnemyAI.ts:275-335`, `EnemyScript.ts:439-443`)
 Ported with the trial's AI (dormant for the worm). With `fleeRange` > 0 (archer 120):

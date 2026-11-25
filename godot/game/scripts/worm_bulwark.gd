@@ -282,7 +282,7 @@ func _bowl(target: Dictionary) -> bool:
 	var share := clampf(pattern("bowlSideShare", 0.8), 0.0, 1.0)
 	var knock := (side * share + _dir * (1.0 - share)).normalized()
 	_contact_ready_at = now + pattern("contactCooldownMs", 600.0)
-	return _route_hit_from(centre, target, pattern("chargeDamage", 30.0), pattern("chargeKnockback", 340.0), knock)
+	return _route_hit_from(centre, target, pattern("chargeDamage", 10.0), pattern("chargeKnockback", 340.0), knock)
 
 
 ## While he runs and skids (`on`) the slime's body is out of his mask: he bowls it aside and runs on,

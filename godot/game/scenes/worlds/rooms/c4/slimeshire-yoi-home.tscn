@@ -136,11 +136,9 @@ scale = Vector2(1.2, 1.2)
 
 [node name="yoi-chest" parent="." instance=ExtResource("chest")]
 position = Vector2(840, 606)
-
-[node name="ChestScript" parent="yoi-chest" index="2"]
 map_id = "slimeshire-yoi-home"
-instance_id = "yoi-home-chest"
-initial_contents = {
+chest_id = "yoi-home-chest"
+contents = {
 "roll-fragment": 1
 }
 

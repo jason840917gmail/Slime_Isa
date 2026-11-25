@@ -108,7 +108,7 @@ func _throw(now: float, target: Dictionary) -> void:
 	rock.arc_px = pattern("hopArcPx", 34.0)
 	rock.picture_scale = pattern("rockScale", 0.8)
 	rock.hit_px = pattern("rockHitPx", 26.0)
-	rock.damage = pattern("rockDamage", 14.0)
+	rock.damage = pattern("rockDamage", 20.0)
 	rock.knockback = pattern("rockKnockback", 220.0)
 	rock.thrower = self
 	parent.add_child(rock)

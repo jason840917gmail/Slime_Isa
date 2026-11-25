@@ -544,7 +544,7 @@ attack_cooldown_ms = 1800.0
 attributes = {
 "attackRecoveryMs": 450,
 "attackWindupMs": 550,
-"contactDamage": 10,
+"contactDamage": 5,
 "knockbackResist": 0,
 "knockbackStrength": 160,
 "wanderSpeed": 22

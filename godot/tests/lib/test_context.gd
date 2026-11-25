@@ -26,7 +26,7 @@ const WorldChunks := preload("res://game/world/atlas/world_chunks.gd")
 const STEP_MS := 1000.0 / 60.0
 const WORM_SCENE_ID := "character.worm-swordsman"
 ## The worm swordsman's health in the combat spec (Phaser's 90). The mechanics tests keep it, whatever
-## the scene is tuned to (the owner set the worm to 8 HP on 2026-10-06).
+## the scene is tuned to (40 since 2026-11-24, two light throws; 8 from 2026-10-06 until then).
 const SPEC_WORM_HP := 90.0
 
 var tree: SceneTree

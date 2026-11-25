@@ -95,7 +95,7 @@ rewards = {
 projectile = {
 "projectileId": "spore-seed",
 "assetId": "enemy.projectile.spore-seed",
-"damage": 16
+"damage": 5
 }
 pose = NodePath("../Pose")
 defeated_frame = 0

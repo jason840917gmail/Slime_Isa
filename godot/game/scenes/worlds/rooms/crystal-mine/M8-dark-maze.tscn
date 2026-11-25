@@ -124,16 +124,14 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M8-goal-brazier"
 position = Vector2(544, 678.4)
 metadata/instance_id = "crystal-mine-M8-S4-hoard"
 metadata/persistence_key = "crystal-mine.crystal-mine-M8-S4-hoard"
-
-[node name="Visual" parent="Objects/M8-S4-hoard" index="1"]
-texture = ExtResource("14_71mbq")
-
-[node name="ChestScript" parent="Objects/M8-S4-hoard" index="2"]
-instance_id = "crystal-mine-M8-S4-hoard"
-initial_contents = {
+chest_id = "crystal-mine-M8-S4-hoard"
+contents = {
 "coins": 30,
 "energy-potion": 2
 }
+
+[node name="Visual" parent="Objects/M8-S4-hoard" index="1"]
+texture = ExtResource("14_71mbq")
 
 [node name="M8-S4-glint" parent="Objects" unique_id=1665846620 instance=ExtResource("15_nhytx")]
 position = Vector2(544, 640)

@@ -78,21 +78,17 @@ y_sort_enabled = true
 
 [node name="lake-island-cave-chest-west" parent="Cave" unique_id=293426651 instance=ExtResource("9_yia7f")]
 position = Vector2(224, 313.6)
-
-[node name="ChestScript" parent="Cave/lake-island-cave-chest-west" index="2"]
 map_id = "lake-island-cave"
-instance_id = "lake-island-cave-chest-west"
-initial_contents = {
+chest_id = "lake-island-cave-chest-west"
+contents = {
 "coins": 30
 }
 
 [node name="lake-island-cave-chest-east" parent="Cave" unique_id=1135004505 instance=ExtResource("9_yia7f")]
 position = Vector2(800, 313.6)
-
-[node name="ChestScript" parent="Cave/lake-island-cave-chest-east" index="2"]
 map_id = "lake-island-cave"
-instance_id = "lake-island-cave-chest-east"
-initial_contents = {
+chest_id = "lake-island-cave-chest-east"
+contents = {
 "coins": 10,
 "hp-potion": 1
 }

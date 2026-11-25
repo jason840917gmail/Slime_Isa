@@ -202,7 +202,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var blocked := _asked != Vector2.ZERO and body.velocity.length() < _asked.length() * BLOCKED_SHARE
 			var travelled := body.velocity.length() * get_physics_process_delta_time()
 			_roll_look(travelled)
-			var hit_slime := engaged and _contact(target, pattern("ballDamage", 20.0), pattern("ballKnockback", 300.0),
+			var hit_slime := engaged and _contact(target, pattern("ballDamage", 10.0), pattern("ballKnockback", 300.0),
 				pattern("ballHitPx", 40.0))
 			if blocked and not hit_slime and not _slime_touching(target):
 				# Something else stopped it: back the way it came.
@@ -472,7 +472,7 @@ func _step_without_ball(now: float, delta: float, target: Dictionary, engaged: b
 					_go_home(now)
 		PHASE_CHARGE:
 			var blocked := _asked != Vector2.ZERO and body.velocity.length() < _asked.length() * BLOCKED_SHARE
-			var hit := engaged and _contact(target, pattern("chargeDamage", 15.0), pattern("chargeKnockback", 280.0),
+			var hit := engaged and _contact(target, pattern("chargeDamage", 5.0), pattern("chargeKnockback", 280.0),
 				pattern("chargeHitPx", 34.0))
 			if hit or blocked or feet().distance_to(_dash_from) >= pattern("chargePx", 240.0):
 				if blocked and not hit:

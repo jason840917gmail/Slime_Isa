@@ -9,9 +9,9 @@ extends RefCounted
 ## where it stood, on the forecourt's open ground south of the oak.
 ## Camp `gloop-matron-nest` at (1072, 940): activation circle r 460, arena circle r 320, the Matron
 ## spawned at the camp origin (old Phaser position; feet 30 px lower). The Matron: 300 hp, knockback
-## immune, never staggered; slime-spider AI spitting `spider-web` (18 - 3 = 15, web 900 ms); the
-## first volley 3500 ms after the spawn (or right after the spit then running): 4 marks (the slime
-## and three 170 px away, 120 degrees apart), telegraph 900 ms, landing 20 - 3 = 17 on a hurtbox in
+## immune, never staggered; slime-spider AI spitting `spider-web` (20, web 900 ms; the slime has no
+## defence since 2026-11-24); the first volley 3500 ms after the spawn (or right after the spit then
+## running): 4 marks (the slime and three 170 px away, 120 degrees apart), telegraph 900 ms, landing 40 on a hurtbox in
 ## a mark, a web patch (r 50) on every mark, rest 1300 ms, next volley 6500 ms after the rest.
 ## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in E4 (the silk nook) and
 ## travels into it once more, the camps test in F5 (its two camps are placed enemies since
@@ -71,11 +71,11 @@ const MAX_HP := 300.0
 const INSIDE := Vector2(1072.0, 1100.0)
 ## Open ground outside the arena (r 320) but inside the activation circle (r 460).
 const OUTSIDE_ARENA := Vector2(692.0, 800.0)
-const VOLLEY_HIT := 17
+const VOLLEY_HIT := 40
 const VOLLEY_RADIUS := 56.0
 const VOLLEY_SPREAD := 170.0
 const PATCH_RADIUS := 50.0
-const SPIT_HIT := 15
+const SPIT_HIT := 20
 ## The nook web barrier: root (800, 1280), width 112, depth 56 -> box centre (800, 1252), 56 x 28.
 const NOOK_WEB_KEY := "gloop-forest.gloop-ch2-nook-web"
 const NOOK_ZONE := Vector2(800.0, 1252.0)

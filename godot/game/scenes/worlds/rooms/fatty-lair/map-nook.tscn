@@ -59,16 +59,14 @@ y_sort_enabled = true
 
 [node name="nook-map-chest" parent="Objects" unique_id=1606398361 instance=ExtResource("7_lljif")]
 position = Vector2(832, 448)
+map_id = "fatty-lair"
+chest_id = "nook-map-chest"
+contents = {
+"dungeon-map": 1
+}
 
 [node name="Visual" parent="Objects/nook-map-chest" index="1"]
 texture = ExtResource("8_q117t")
-
-[node name="ChestScript" parent="Objects/nook-map-chest" index="2"]
-map_id = "fatty-lair"
-instance_id = "nook-map-chest"
-initial_contents = {
-"dungeon-map": 1
-}
 
 [node name="world-definition" type="Node" parent="." unique_id=1736828961]
 script = ExtResource("9_rw4883")

@@ -96,6 +96,12 @@ y_sort_enabled = true
 y_sort_enabled = true
 position = Vector2(512, 332.8)
 collision_mask = 0
+map_id = "sunscar-crown-cave"
+chest_id = "sunscar-crown-cave-chest"
+contents = {
+"coins": 20
+}
+heart_id = "desert-sunscar-crown"
 
 [node name="BodyShape" parent="Cave/sunscar-crown-cave-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -107,15 +113,6 @@ texture = ExtResource("10_w1s7q")
 centered = false
 offset = Vector2(-32, -48)
 hframes = 2
-
-[node name="ChestScript" parent="Cave/sunscar-crown-cave-chest" index="2"]
-script = ExtResource("11_x7c52")
-map_id = "sunscar-crown-cave"
-instance_id = "sunscar-crown-cave-chest"
-initial_contents = {
-"coins": 20
-}
-goo_heart_id = "desert-sunscar-crown"
 
 [node name="LockedSfx" parent="Cave/sunscar-crown-cave-chest" index="3"]
 process_mode = 3

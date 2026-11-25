@@ -42,7 +42,11 @@ extends RefCounted
 ## - `can_receive(enemy, input)` from `can_receive_damage` (after its dead check): a clink (an immune
 ##   class or a shut hurtbox gate) answers {"accepted": false, "reason": "immune"}.
 ## - `damage_scale(enemy, input)` from `mitigate_damage`: the gate's 0, the part's, the phase's and a
-##   knockdown's `damageTaken`.
+##   knockdown's `damageTaken`; for a request with `true_damage` (a dungeon mechanism's blow,
+##   game/dungeon/mechanism_strike.gd) only the gate's 0, else 1 (the blow also carries the hit's
+##   `resist_floor`: every knock speed and slide here uses at least that share of the knock unless the
+##   profile's `knockbackScale` is 0). A blow never lands on an enemy that is invulnerable by design
+##   (`invulnerable_by_design`: it answers `is_invulnerable()` true, the Prism Eye).
 ## - `after_move(enemy, delta)` from `_physics_process` after the body moved: while a launch flies,
 ##   the wall splat (the mover's collider is not an enemy or the slime, hit faster than
 ##   `combat.rules.wallSplat.minSpeed` into the wall: a squash, `damageShare` of the launching hit
@@ -219,7 +223,9 @@ static func can_receive(enemy: Node, input: Dictionary) -> Dictionary:
 		return {"accepted": true, "reason": ""}
 	var profile := ReactionProfile.for_enemy(enemy)
 	var state := _prepare(enemy, request, profile)
-	if HitReaction.gate(profile, hit, state) == HitReaction.GATE_CLINK:
+	# a mechanism's blow on an enemy that is invulnerable by design clinks, whatever its gate says
+	var refused := bool(hit.get("true_blow", false)) and invulnerable_by_design(enemy)
+	if refused or HitReaction.gate(profile, hit, state) == HitReaction.GATE_CLINK:
 		var motion := motion_of(enemy)
 		if motion != null:
 			motion.play(EnemyHitMotion.JITTER, Vector2.ZERO, {"px": CLINK_SHAKE_PX, "ms": CLINK_SHAKE_MS})
@@ -237,6 +243,11 @@ static func damage_scale(enemy: Node, input: Dictionary) -> float:
 		return 1.0
 	var profile := ReactionProfile.for_enemy(enemy)
 	var state := _prepare(enemy, request, profile)
+	# A dungeon mechanism's blow is true damage (game/dungeon/mechanism_strike.gd): it skips the part's,
+	# the phase's and a knockdown's multipliers, but a shut gate's 0 stays (a boss without the hook, a
+	# shut part in a phase the blow does not land through).
+	if bool(request.get("true_damage", false)):
+		return 0.0 if HitReaction.gate(profile, hit, state) == HitReaction.GATE_ZERO else 1.0
 	return HitReaction.damage_scale(profile, hit, state, Services.now_ms())
 
 
@@ -356,6 +367,25 @@ static func sleeps_through(enemy: Node, request: Dictionary) -> bool:
 		return false
 	var profile := ReactionProfile.for_enemy(enemy)
 	return HitReaction.sleeps_through(profile, hit, _prepare(enemy, request, profile).phase)
+
+
+## True when the rework hit in `request` is a dungeon mechanism's blow that lands on `enemy` through
+## its shield (`HitReaction.blow_lands`: not in a `noSleep` phase, never a boss, never an enemy
+## invulnerable by design): patterned_enemy.gd lets it past `_shields`.
+static func blow_lands(enemy: Node, request: Dictionary) -> bool:
+	var hit := HitReaction.hit_of(request)
+	if enemy == null or hit.is_empty() or not bool(hit.get("true_blow", false)) or invulnerable_by_design(enemy):
+		return false
+	var profile := ReactionProfile.for_enemy(enemy)
+	return HitReaction.blow_lands(profile, hit, _prepare(enemy, request, profile).phase)
+
+
+## True when `enemy` cannot be hurt by design: it answers `is_invulnerable()` with true (the Prism Eye
+## with `pattern.invulnerable`; owner, 2026-11-21: "make prism eye invulnerable, you have to go around
+## him"). A dungeon mechanism's blow clinks on it as every other hit does (`blow_lands`, `can_receive`).
+static func invulnerable_by_design(enemy: Node) -> bool:
+	return enemy != null and is_instance_valid(enemy) and enemy.has_method(&"is_invulnerable") \
+		and bool(enemy.call(&"is_invulnerable"))
 
 
 ## True while `enemy` lies helpless from a throw and can be gulped as ammo (the enemy-ammo prototype,
@@ -653,7 +683,7 @@ static func _send_off(enemy: Node, profile: Dictionary, state: ReactionState, hi
 	var body := _body_of(enemy)
 	state.sendoff = true
 	state.slide_decay_until_ms = 0.0
-	var resist := _hit_number(profile, "knockbackScale", 1.0)
+	var resist := _resist(profile, hit)
 	var speed := 0.0
 	if resist > 0.0 and knock != Vector2.ZERO and body != null and enemy.has_method(&"set_death_slide"):
 		speed = clampf(_hit_number(hit, "launch_speed", 0.0) * maxf(resist, float(rule.get("minScale", 0.0)))
@@ -1179,8 +1209,15 @@ static func _bowl_into(enemy: Node, body: CharacterBody2D, state: ReactionState,
 ## `launch_speed` x `knockbackScale` x `scale`, capped at `combat.verbs.launch.maxSpeed`.
 static func _launch_speed(hit: Dictionary, profile: Dictionary, scale: float) -> float:
 	var speed := float(hit.get("launch_speed", 0.0)) if (hit.get("launch_speed") is float or hit.get("launch_speed") is int) else 0.0
+	return clampf(speed * _resist(profile, hit) * scale, 0.0, _number("combat.verbs.launch.maxSpeed"))
+
+
+## The share of a knock the body takes: the profile's `knockbackScale`, raised to the hit's
+## `resist_floor` (a dungeon mechanism's blow moves even a heavy body) unless it is 0 (unmovable).
+static func _resist(profile: Dictionary, hit: Dictionary) -> float:
 	var resist := float(profile.get("knockbackScale", 1.0)) if (profile.get("knockbackScale") is float or profile.get("knockbackScale") is int) else 1.0
-	return clampf(speed * resist * scale, 0.0, _number("combat.verbs.launch.maxSpeed"))
+	var floor_share := float(hit.get("resist_floor", 0.0)) if (hit.get("resist_floor") is float or hit.get("resist_floor") is int) else 0.0
+	return maxf(resist, floor_share) if resist > 0.0 else resist
 
 
 ## A damaging hit's knock slide: the start speed that covers the hit's `knock_px` x the profile's
@@ -1191,7 +1228,7 @@ static func _launch_speed(hit: Dictionary, profile: Dictionary, scale: float) ->
 static func _knock_slide(state: ReactionState, hit: Dictionary, profile: Dictionary, damage: float, ms: float,
 		now: float) -> float:
 	var px := float(hit.get("knock_px", 0.0)) if (hit.get("knock_px") is float or hit.get("knock_px") is int) else 0.0
-	var resist := float(profile.get("knockbackScale", 1.0)) if (profile.get("knockbackScale") is float or profile.get("knockbackScale") is int) else 1.0
+	var resist := _resist(profile, hit)
 	var pace := float(hit.get("knock_speed_scale", 1.0)) if (hit.get("knock_speed_scale") is float or hit.get("knock_speed_scale") is int) else 1.0
 	if damage <= 0.0 or ms <= 0.0 or px * resist <= 0.0:
 		return 0.0

@@ -96,6 +96,12 @@ y_sort_enabled = true
 y_sort_enabled = true
 position = Vector2(512, 332.8)
 collision_mask = 0
+map_id = "sunscar-ridge-vault"
+chest_id = "sunscar-ridge-vault-chest"
+contents = {
+"coins": 40
+}
+heart_id = "desert-sunscar-ridge"
 
 [node name="BodyShape" parent="Cave/sunscar-ridge-vault-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -107,15 +113,6 @@ texture = ExtResource("10_c7lvw")
 centered = false
 offset = Vector2(-32, -48)
 hframes = 2
-
-[node name="ChestScript" parent="Cave/sunscar-ridge-vault-chest" index="2"]
-script = ExtResource("11_c2ykn")
-map_id = "sunscar-ridge-vault"
-instance_id = "sunscar-ridge-vault-chest"
-initial_contents = {
-"coins": 40
-}
-goo_heart_id = "desert-sunscar-ridge"
 
 [node name="LockedSfx" parent="Cave/sunscar-ridge-vault-chest" index="3"]
 process_mode = 3

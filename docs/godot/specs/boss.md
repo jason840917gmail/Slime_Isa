@@ -68,7 +68,7 @@ ones (`numberProperty(key, fallback)` in `FattyScript.ts`; every Fatty duration 
 | `attackRange` | `attack_range` | 64 (unused: the contact area decides reach, §3.3) | 0 |
 | `movementSpeed` | `movement_speed` | 42 (chase and walk home) | 0 |
 | `attackCooldownMs` | `attack_cooldown_ms` | 1000 | 0 |
-| `attributes` | `attributes` | `attackWindupMs 250, attackRecoveryMs 50, contactDamage 18, knockbackStrength 180, effectImmunities ["knockback"], allowedWeaponIds [...]` (the last two are informational: the damage rule enforces both) | |
+| `attributes` | `attributes` | `attackWindupMs 250, attackRecoveryMs 50, contactDamage 10 (18 in Phaser), knockbackStrength 180, effectImmunities ["knockback"], allowedWeaponIds [...]` (the last two are informational: the damage rule enforces both) | |
 | `damageRule` | `damage_rule` | `{priority 100, damageMultiplier 1, acceptedSources [{allWeaponTags ["spear"]}], effectResponses {knockback {mode "immune"}}}` | |
 | `rewards` | `rewards` | `{}` | |
 | `arenaRecoveryMs` | `arena_recovery_ms` | 60000 | 0 |
@@ -80,7 +80,7 @@ ones (`numberProperty(key, fallback)` in `FattyScript.ts`; every Fatty duration 
 | `betweenHopsMs` | `between_hops_ms` | 100 | 100 |
 | `airTimeMs` | `air_time_ms` | 1000 | 1000 |
 | `recoveryMs` | `recovery_ms` | 700 | 700 |
-| `landingDamage` | `landing_damage` | 32 | 32 |
+| `landingDamage` | `landing_damage` | 32 | 20 (since 2026-11-24) |
 | `landingKnockbackStrength` | `landing_knockback_strength` | 280 | 280 |
 | `landingEffectId` | `landing_effect_id` | `"boss-ground-crack"` | `""` (none) |
 | `landingShakeMs` | `landing_shake_ms` | 100 | 100 |
@@ -122,12 +122,12 @@ this camp, and the tests that measure the rules above put it back in its clearin
 | `boss-burst` particles | `fx-sparkle`, 36, over, 900 ms, speed 120–320, scale 1.6→0, alpha 1→0, rotate 0–360, tint one of `#ffe89a #86f0c3 #ffffff` | `features/feel/ParticlePresets.ts:35-38`; texture `infrastructure/assets/ProceduralAssetScene.ts:103-111` |
 
 ### 1.4 Derived numbers
-- Contact hop: impact at +250 ms → the player takes max(1, 18 − 3) = **15**, knockback 180;
+- Contact hop: impact at +250 ms → the player takes **10** (Phaser: max(1, 18 − 3) = 15), knockback 180;
   the hop phase ends at +300 ms, the attack sequence at +min(2000, max(250 + 50, 0) + 250) =
   **+550 ms** (Fatty has no `attack-*` clip, so the clip length is 0); next hop ≥ 1000 ms later.
 - Leap: first one 5000 ms after spawn; small hops 3 × (260 + 100) = **1080 ms**; flight 1000 ms;
   landing 360 ms; recovery 700 ms; the next leap 5000 ms after recovery ends (a full cycle is at
-  least 8140 ms). Landing hit: max(1, 32 − 3) = **29**, knockback 280.
+  least 8140 ms). Landing hit: **20** (Phaser: max(1, 32 − 3) = 29), knockback 280.
 - Spear only: the basic sword is rejected `source-blocked` (no flash or number; since 2026-10-06
   the `HitBlocked` clink, [audio.md](audio.md) §10.2). A basic
   spear hit does 30 (combo tiers ×1, ×1.15, ×1.5; crit 5 %), so about five hits.
@@ -355,7 +355,7 @@ Roll bonks off him (`immune`); the Heavy Roll has no part any more.
   first melts the clods lying from the last fall (a short sink and fade, `CLOD_MELT_S` 0.45 s; a
   melted clod leaves nothing, its hidden heart or energy taken away first), then drops the new ones
   at its `clod_spots` picked at random and scattered up to `clod_scatter_px` 40, each after a shadow
-  (`clod_shadow_ms` 600); a clod landing on the slime hurts (`clod_damage` 12); then it lies as a
+  (`clod_shadow_ms` 600); a clod landing on the slime hurts (`clod_damage` 10); then it lies as a
   liftable mud ball, the slime's ammo (a used one still leaves its heart or energy).
 - **Phase one:** a hit that lands shuts his eye for `eye_shut_ms` 3000 (the `closed-eye` clip while he
   chases; `is_eye_open()` false): every hit clinks then, and a throw splats (`thrown_text`, "It splats
@@ -363,7 +363,7 @@ Roll bonks off him (`immune`); the Heavy Roll has no part any more.
 - **Phase two** (once his health falls to `health_share` 0.5 of his max: a camera shake, 260 ms 0.008,
   and `phase_two_started`): a leap cycle leaps twice (the second with `second_air_time_ms` 700 in the
   air). **The first landing** sends a mud ripple from his feet (`ripple_speed` 300 px/s up to
-  `ripple_max_radius` 560, crest `ripple_width` 30) that hits the slime once for `ripple_damage` 18 /
+  `ripple_max_radius` 560, crest `ripple_width` 30) that hits the slime once for `ripple_damage` 10 /
   `ripple_knockback` 220 where the crest meets its feet, unless the Roll's i-frames carry it; **the
   second** brings the dirt down (owner: only the first jump makes the wave). His eye stays shut and
   every hit clinks, but **thrown things count**, whatever lies between them (a leap does not reset

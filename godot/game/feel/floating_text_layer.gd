@@ -12,6 +12,11 @@ class_name FloatingTextLayer
 ## frozen world (a finisher's pop shows at its full size until the freeze ends) and the room clear's
 ## stutter slows them; it stays 1 with the mode off, so the clock is real time as before.
 ##
+## **Hints** (`spawn_hint`, 2026-11-24; the owner: a hint must "stay longer on camara so the user have
+## can read it"): a line that follows a node (the slime) a set height over its centre, wrapped in a
+## wider box, kept inside the screen, no rise, fully opaque until the last HINT_FADE_SHARE of its time,
+## then fading.
+##
 ## Owner: combat builder (the pop: juice).
 
 const POOL_SIZE := 24
@@ -32,10 +37,16 @@ const SMALL_BOX := Vector2(240.0, 34.0)
 const LAYER := 8
 ## floating-text.scene.json Message `fontWeight 700`: approximated by emboldening the default font.
 const BOLD_EMBOLDEN := 0.6
+## A hint's box (it wraps in it), font size and the share of its time it fades over (at its end).
+const HINT_BOX := Vector2(440.0, 64.0)
+const HINT_FONT_SIZE := 19
+const HINT_FADE_SHARE := 0.15
+## A hint is kept this far inside the screen's edges.
+const HINT_MARGIN := 12.0
 
 ## One entry per pooled label: {"label": Label, "world": Vector2, "big": bool,
 ## "started_at": float (real ms), "duration_ms": float, "pop_scale": float, "pop_ms": float
-## (0 = no pop, the old scale curve)}.
+## (0 = no pop, the old scale curve), "follow": Node (a hint's: null otherwise), "lift": float}.
 var _entries: Array[Dictionary] = []
 var _font: Font
 ## The texts' clock: real time minus `_held_ms`, which grows while the picture speed is below 1
@@ -65,7 +76,7 @@ func _ready() -> void:
 		label.visible = false
 		add_child(label)
 		_entries.append({"label": label, "world": Vector2.ZERO, "big": false,
-			"started_at": -INF, "duration_ms": 0.0, "pop_scale": 1.0, "pop_ms": 0.0})
+			"started_at": -INF, "duration_ms": 0.0, "pop_scale": 1.0, "pop_ms": 0.0, "follow": null, "lift": 0.0})
 
 
 ## Reuses the first expired label (pool full -> drop). p = elapsed / duration (real time):
@@ -81,28 +92,38 @@ func spawn_pop(world_position: Vector2, text: String, color: Color, big: bool, p
 	_spawn(world_position, text, color, big, duration_ms, pop_scale, pop_ms)
 
 
+## A hint: `text` `lift` px over `follow`'s centre (its `get_centre()`, else its position), following
+## it for `duration_ms`, wrapped in HINT_BOX, opaque until it fades at its end (see the head).
+func spawn_hint(follow: Node, lift: float, text: String, color: Color, duration_ms: float) -> void:
+	_spawn(_follow_point(follow, lift, Vector2.ZERO), text, color, true, duration_ms, 1.0, 0.0, follow, lift)
+
+
 ## Rework: the texts' clock runs at `speed` (0..1) from now on (GameFeel passes `picture_speed()`).
 func set_picture_speed(speed: float) -> void:
 	_picture_speed = clampf(speed, 0.0, 1.0) if is_finite(speed) else 1.0
 
 
 func _spawn(world_position: Vector2, text: String, color: Color, big: bool, duration_ms: float,
-		pop_scale: float, pop_ms: float) -> void:
+		pop_scale: float, pop_ms: float, follow: Node = null, lift: float = 0.0) -> void:
 	var now := _clock_ms()
 	for entry in _entries:
 		if now < float(entry["started_at"]) + float(entry["duration_ms"]):
 			continue
 		var label: Label = entry["label"]
-		var box := BIG_BOX if big else SMALL_BOX
+		var hint := follow != null
+		var box := HINT_BOX if hint else (BIG_BOX if big else SMALL_BOX)
 		entry["world"] = world_position
 		entry["big"] = big
 		entry["started_at"] = now
 		entry["duration_ms"] = duration_ms if duration_ms >= 0.0 else (BIG_DURATION_MS if big else SMALL_DURATION_MS)
 		entry["pop_scale"] = pop_scale if is_finite(pop_scale) and pop_scale > 0.0 else 1.0
 		entry["pop_ms"] = pop_ms if is_finite(pop_ms) and pop_ms > 0.0 else 0.0
+		entry["follow"] = follow
+		entry["lift"] = lift
 		label.text = text
 		label.add_theme_color_override(&"font_color", color)
-		label.add_theme_font_size_override(&"font_size", BIG_FONT_SIZE if big else SMALL_FONT_SIZE)
+		label.add_theme_font_size_override(&"font_size", HINT_FONT_SIZE if hint else (BIG_FONT_SIZE if big else SMALL_FONT_SIZE))
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if hint else TextServer.AUTOWRAP_OFF
 		label.size = box
 		label.pivot_offset = box / 2.0
 		_update_entry(entry, now)
@@ -138,16 +159,27 @@ func _update_entry(entry: Dictionary, now: float) -> void:
 		return
 	var big: bool = entry["big"]
 	var progress := clampf(elapsed / maxf(1.0, duration), 0.0, 1.0)
+	var follow: Variant = entry.get("follow")
+	var hint := follow != null
+	if hint:
+		entry["world"] = _follow_point(follow, float(entry.get("lift", 0.0)), entry["world"])
 	var world: Vector2 = entry["world"]
-	var rise := BIG_RISE_PX if big else SMALL_RISE_PX
+	var rise := 0.0 if hint else (BIG_RISE_PX if big else SMALL_RISE_PX)
 	var screen := get_viewport().get_canvas_transform() * Vector2(world.x, world.y - rise * progress)
-	var box := BIG_BOX if big else SMALL_BOX
+	var box := HINT_BOX if hint else (BIG_BOX if big else SMALL_BOX)
 	var viewport_size := get_viewport().get_visible_rect().size
+	if hint:
+		# a hint never leaves the screen: kept inside it by HINT_MARGIN
+		screen = screen.clamp(box / 2.0 + Vector2.ONE * HINT_MARGIN, viewport_size - box / 2.0 - Vector2.ONE * HINT_MARGIN)
 	var on_screen := screen.x > -box.x and screen.x < viewport_size.x + box.x 		and screen.y > -box.y and screen.y < viewport_size.y + box.y
 	label.visible = on_screen
 	if not on_screen:
 		return
 	label.position = Vector2(roundf(screen.x - box.x / 2.0), roundf(screen.y - box.y / 2.0))
+	if hint:
+		label.modulate.a = clampf((1.0 - progress) / HINT_FADE_SHARE, 0.0, 1.0)
+		label.scale = Vector2.ONE
+		return
 	label.modulate.a = maxf(0.0, 1.0 - progress)
 	var scale_value := (1.1 + 0.2 * progress) if big else (0.9 + 0.1 * progress)
 	var pop_ms := float(entry.get("pop_ms", 0.0))
@@ -156,3 +188,15 @@ func _update_entry(entry: Dictionary, now: float) -> void:
 		var pop := clampf(elapsed / pop_ms, 0.0, 1.0)
 		scale_value = lerpf(float(entry.get("pop_scale", 1.0)), 1.0, 1.0 - (1.0 - pop) * (1.0 - pop))
 	label.scale = Vector2(scale_value, scale_value)
+
+
+## A hint's point: `lift` px over `follow`'s centre (else its position); `fallback` once it is gone.
+static func _follow_point(follow: Variant, lift: float, fallback: Vector2) -> Vector2:
+	if not is_instance_valid(follow) or not follow is Node:
+		return fallback
+	var node := follow as Node
+	if node.has_method(&"get_centre"):
+		return (node.call(&"get_centre") as Vector2) - Vector2(0.0, lift)
+	if node is Node2D:
+		return (node as Node2D).global_position - Vector2(0.0, lift)
+	return fallback

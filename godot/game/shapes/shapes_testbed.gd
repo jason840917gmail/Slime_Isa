@@ -16,8 +16,8 @@ extends Node
 ##   swordsman (medium) and the Clod Stomper (heavy); no tiny type exists yet, so none stands in for
 ##   the Broodling. Each is spawned as EnemyPopulation spawns (`character.<type>` placed at its old
 ##   centre, `configure_navigation`, here with no camp and no safe zones) with its `enemy-types.json`
-##   `maxHp` when that is higher than the scene's (the level-1 swordsman scene has 8, which a jab
-##   kills before any reaction shows). They fight only while the slime's centre is inside the pen
+##   `maxHp` when that is higher than the scene's (the swordsman scene had 8 until 2026-11-24, which a
+##   jab killed before any reaction showed; both say 40 now). They fight only while the slime's centre is inside the pen
 ##   (their arena, `configure_arena`); while it is outside, each one's arena is its own post, so it
 ##   walks back there and never shoots at the slime by the dummies or at the spawn. Each one comes
 ##   back `pen_respawn_ms` after it dies; PEN_RESPAWN_KEY (F4) brings the whole pen back at once.

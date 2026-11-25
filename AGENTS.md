@@ -21,6 +21,11 @@ its code is in git history.
 - Commit the `*.import` and `*.gd.uid` files Godot creates next to assets and scripts.
 - Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes
   them in the same change.
+- Delete your screenshots when you are done (owner, 2026-11-24). A film's or render's frame
+  pictures (`output/<area>/<name>/f000.png` ..., any screenshot taken to check your work) go once
+  you have looked at them and before you report: a film's frames are 300 to 900 pictures, and
+  11 GB of them had piled up. Keep only what is shown to the owner or tells what the film found:
+  the strip, the GIFs, `film.json`. The same for review sheets and scratch pictures you made.
 
 ## Commands
 
@@ -76,6 +81,19 @@ its code is in git history.
   ([Carnivore Plant](docs/godot/BESTIARY.md#38-carnivore-plant-ambusher)), with
   `--tool=film_jelly_bouncer` the Jelly Bouncer (`zap`, `throw`, `catch`, `spear`, `arrows`)
   ([Jelly Bouncer](docs/godot/BESTIARY.md#39-jelly-bouncer-shocker)).
+- `bash scripts/godot/film-mechanisms.sh <name> --film=<film> [options]` — films the dungeon mechanisms
+  in their lab (`world.mechanism-lab`) into `output/mechanisms/<name>/`: `ram-arch`, `ram-enemies`,
+  `ram-slime`, `ram-south`, `ram-west`, `target-refuse`, `target-arrow`, `target-blast`, `target-roll`,
+  `arch-refuse`, `gate-refuse`, `cart-gate`, `cart-enemy`, `cart-return`, `cart-hook`, `look`
+  ([Mechanisms](docs/godot/DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)).
+- `bash scripts/godot/film-matron.sh <name> --film=<film> [options]` — films the Orb-Weaver Matron's
+  ram fight (the rework) in her lab (`world.matron-lab`, built by `tools/build_matron_lab.gd`) into
+  `output/boss-rework/matron-films/<name>/`: `round1`, `dive`, `ram-catch`, `ring`, `round3`,
+  `ram-call`, `look` ([matron spec §9](docs/godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow)).
+- `bash scripts/godot/film-colossus.sh <name> --film=<film> [options]` — films the Crystal Colossus's
+  plate fight (the rework) in his lab (`world.colossus-lab`, built by `tools/build_colossus_lab.gd`)
+  into `output/boss-rework/colossus-films/<name>/`: `look`, `poses`, `walks`, `glow`, `burst`, `clang`,
+  `pass`, `dip`, `bare`, `wall`, `core` ([The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
@@ -171,7 +189,7 @@ How the game is built: [docs/godot/ARCHITECTURE.md](docs/godot/ARCHITECTURE.md);
   ([docs/godot/FENCES.md](docs/godot/FENCES.md#dungeon-dividers)).
 - Climbable vines (the Feral skin) and balconies (rock ledges that step out of a tall wall, to land
   and stand on: the layer's second tile) are painted on a `vines` VineLayer, on the cells of a cliff's
-  front wall: a held interact clings and the movement keys move the slime over them; a placed
+  front wall: an interact press clings (a second lets go) and the movement keys move the slime over them; a placed
   `climb-wall` only for a climb out of a world or one that ends on the face
   ([docs/godot/SKINS.md](docs/godot/SKINS.md#painting-vines)).
 - A sky floor (islands over clouds) is the sky painted as holes (level -2 or lower) on the

@@ -410,11 +410,9 @@ target_door_id = "playground-sinkhole"
 position = Vector2(1088, 640)
 metadata/instance_id = "playground-cavern-hidden-chest"
 metadata/persistence_key = "playground-cavern.playground-cavern-hidden-chest"
-
-[node name="ChestScript" parent="cave/hidden-chest"]
 map_id = "playground-cavern"
-instance_id = "playground-cavern-hidden-chest"
-initial_contents = {
+chest_id = "playground-cavern-hidden-chest"
+contents = {
 "shard": 3,
 "silk-clump": 2,
 "hp-potion": 1

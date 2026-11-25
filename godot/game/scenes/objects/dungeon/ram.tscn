@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/ram.gd" id="ram"]
+
+[sub_resource type="RectangleShape2D" id="bay_shape"]
+size = Vector2(204, 80)
+
+[node name="ram" type="Node2D" node_paths=PackedStringArray("body", "attack_area")]
+y_sort_enabled = true
+script = ExtResource("ram")
+body = NodePath("Body")
+attack_area = NodePath("AttackArea")
+
+[node name="Body" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(-102, 0)
+shape = SubResource("bay_shape")
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false

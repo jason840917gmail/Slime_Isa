@@ -212,7 +212,7 @@ func _pick_landed(at: Vector2) -> void:
 		return
 	if slime_body.global_position.distance_to(at) > pattern("landRadiusPx", 24.0):
 		return
-	_route_hit_from(at, target, pattern("pickDamage", 14.0), pattern("pickKnockback", 200.0))
+	_route_hit_from(at, target, pattern("pickDamage", 20.0), pattern("pickKnockback", 200.0))
 
 
 func _reload(now: float) -> void:

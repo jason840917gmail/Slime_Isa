@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/crystal_mine/ram_cart.gd" id="cart"]
+
+[node name="ram-cart" type="Node2D" node_paths=PackedStringArray("attack_area")]
+y_sort_enabled = true
+script = ExtResource("cart")
+attack_area = NodePath("AttackArea")
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false

@@ -85,11 +85,9 @@ burn_ms = 60000.0
 
 [node name="nook-chest" parent="Objects" unique_id=327835161 instance=ExtResource("8_i2ft5")]
 position = Vector2(448, 230.4)
-
-[node name="ChestScript" parent="Objects/nook-chest" index="2"]
 map_id = "crystal-caverns-dark-nook"
-instance_id = "crystal-caverns-dark-nook-nook-chest"
-initial_contents = {
+chest_id = "crystal-caverns-dark-nook-nook-chest"
+contents = {
 "coins": 30,
 "energy-potion": 1
 }

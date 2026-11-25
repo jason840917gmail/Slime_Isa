@@ -328,11 +328,9 @@ position = Vector2(1171.6001, 1751.6)
 
 [node name="pinnacle-chest" parent="Spiral" unique_id=1892667623 instance=ExtResource("26_5645x")]
 position = Vector2(1696, 844.8)
-
-[node name="ChestScript" parent="Spiral/pinnacle-chest" index="2"]
 map_id = "crystal-caverns-h4"
-instance_id = "crystal-caverns-h4-pinnacle-chest"
-goo_heart_id = "caverns-pinnacle"
+chest_id = "crystal-caverns-h4-pinnacle-chest"
+heart_id = "caverns-pinnacle"
 
 [node name="tunnel-north" parent="Spiral" unique_id=479036980 instance=ExtResource("24_s4722")]
 position = Vector2(1728, 1856)

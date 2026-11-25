@@ -118,11 +118,9 @@ autoplay_cue = true
 
 [node name="keeper-coffer" parent="." unique_id=1428888084 instance=ExtResource("12_y8m3l")]
 position = Vector2(284, 314)
-
-[node name="ChestScript" parent="keeper-coffer" index="2"]
 map_id = "level-1-c4"
-instance_id = "level-1-c4-watch-post-chest"
-initial_contents = {
+chest_id = "level-1-c4-watch-post-chest"
+contents = {
 "coins": 20,
 "hp-potion": 1
 }

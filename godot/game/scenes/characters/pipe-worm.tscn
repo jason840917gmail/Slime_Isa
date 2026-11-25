@@ -109,7 +109,7 @@ rewards = {
 }
 projectile = {
 "assetId": "enemy.projectile.mud-glob",
-"damage": 14,
+"damage": 5,
 "projectileId": "mud-glob"
 }
 enemy_type = "pipe-worm"

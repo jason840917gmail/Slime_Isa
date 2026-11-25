@@ -137,6 +137,9 @@ power.
   Show the chest, not the heart: at most one heart in plain sight per map, and a heart quarter
   usually waits in a chest. The player finds things by being curious, and some players will miss
   some secrets; that is fine. Hearts in pots and grass (refills) do not count.
+  **And never inside a dungeon** (owner, 2026-11-23: "no quarter inside the dungeons, they are outside-world secrets"): a region's
+  quarters hide in its open world, its caves and its houses; a dungeon's secrets pay in coins,
+  potions, manuscripts and belt slots, and its only heart is its boss's full heart.
 - In a dungeon, show the boss door early, from a balcony or across a pit. The player then reads
   every room as "the way to that door".
 - **Teach a power where it is won.** *Hollow Knight* puts a gap only the dash crosses right after
@@ -450,6 +453,8 @@ or by the build; the [open points](#open-points) keep the record.
 |---|---|---|---|
 | Light things in the way: pots, crates, bricks, stones | Gulp | Small objects that sit loose, each lifted on its own; the Gulp's prompt shows when one is in reach (question 128) | The Heavy Roll's rubble heap and loose rock, which are big, grey and old; the heap over Yoi's hatch is crates (question 128) |
 | Bell | A thrown pot (Gulp) or an arrow (Bow) | A bell on a post, often on an islet or behind a gap; the Spear and the Stretch Lash never ring it (question 115). What it opens stays open for good (question 136) | The Lash's posts (next release), which it pulls on and which never ring |
+| Knock target (a trigger, not a lock: 2026-11-23) | Any thrown thing (a pot, a bone, a stunned enemy), an arrow or a blast; the Spear, a Roll and the slime's body only knock on it | A round wooden practice target, red and white rings on a straw back, on a short post, a rope running from it to the ram or the cart it holds back. It lets its mechanism go each time and the mechanism winds back by itself; nothing stays open ([DUNGEONS.md](../godot/DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)) | A bell (a bell opens for good) or the Bow's lens: never beside either. The bell post's own small target is part of the bell |
+| Bricked arch, rail gate (2026-11-23) | Only their mechanism: the ram's log bursts the arch, the runaway cart smashes the gate | The arch: a doorway filled with old bricks, with no crack. The gate: timber and iron across a mine's rails, chained | A cracked wall (the crack is the Goo Bomb's mark; the arch never carries one); the Heavy Roll's plank barricade and rotten mine timbers (grey, old, no chain, never across rails) |
 | Wooden clapper (an alarm, not a lock) | Anything that hits it: a pot, an arrow, a Spear jab, the slime bumping it | The worm army's alarm, what the 2026-10-11 plan's alarm bells and gongs became (question 127): set off, it calls the nearby camp; a trap to avoid or use (the tenth round) | A bell, which is the lock |
 | Grass tuft | Spear (later the War Axe too) | Cut, it drops energy, health or sometimes coins (questions 24 and the tenth round) | The War Axe's bushes |
 | Lever behind bars | Spear | An old grate, the lever visible just behind the bars, in line with a thrust; bars stop arrows (question 131) | The Lair's drop gate (Roll), which has no bars to see through and no lever behind them (as built, [PROLOGUE.md](../godot/PROLOGUE.md#the-barred-gate)); a Release 1 border post, a striped barrier with a guard (question 130) |
@@ -625,7 +630,7 @@ The rules:
    exam** (rule 6). Taking the Pearl seals the doors to the outside until the boss falls, so the
    way out is beating him.*
 10. **One or two come-back side rooms** for later powers, never on the path. The hardest
-    challenges go on optional prizes.
+    challenges go on optional prizes. None of them holds a heart quarter (owner, 2026-11-23).
 11. **Every room asks a new question.** Difficulty rises along the main path, and no fight or
     puzzle repeats unchanged (Stout).
 12. **Size:** 8 to 14 rooms, a first play of 20 to 35 minutes.
@@ -826,7 +831,7 @@ in Gloop Forest is question 117.
 ### The Weaver Hollow
 
 Chapter 2's dungeon. Its tool is the Goo Bomb; its own enemies are the Broodling and the Cocoon
-Mimic, with the Brood Warden as mini-boss. Its big chest holds a heart quarter (question 113);
+Mimic, with the Brood Warden as mini-boss. Its big chest held a heart quarter (question 113) until the owner took heart quarters out of dungeons (2026-11-23);
 where its big key lies is question 116 (proposal: behind the Brood Warden).
 - **Test the bomb:** cracked walls and cracked floors (a floor blown open drops to the floor
   below: a one-way way down, with a ladder back up as the loop).

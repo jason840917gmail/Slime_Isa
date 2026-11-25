@@ -122,7 +122,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				_puff(DUST, feet() - _dir * 12.0)
 		PHASE_ROLL:
 			if engaged:
-				_contact(target, pattern("rollDamage", 22.0), pattern("rollKnockback", 300.0), pattern("rollHitPx", 40.0))
+				_contact(target, pattern("rollDamage", 20.0), pattern("rollKnockback", 300.0), pattern("rollHitPx", 40.0))
 			if _asked != Vector2.ZERO and (_fresh_hit_normal() != Vector2.ZERO \
 					or body.velocity.length() < _asked.length() * BLOCKED_SHARE):
 				_bounce(now)

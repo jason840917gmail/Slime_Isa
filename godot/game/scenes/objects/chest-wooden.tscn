@@ -7,11 +7,13 @@
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-open.ogg" id="5"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/world/chest-close.ogg" id="6"]
 [ext_resource type="AudioStreamOggVorbis" path="res://asset/audio/sfx/library/pickup/generic.ogg" id="7"]
+[ext_resource type="Script" path="res://game/scripts/chest_root.gd" id="chest_root"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(84, 39)
 
 [node name="WoodenChest" type="StaticBody2D"]
+script = ExtResource("chest_root")
 y_sort_enabled = true
 collision_mask = 0
 
@@ -28,9 +30,6 @@ hframes = 2
 
 [node name="ChestScript" type="Node" parent="."]
 script = ExtResource("2")
-map_id = "level-1"
-instance_id = "chest-template"
-initial_contents = {}
 
 [node name="LockedSfx" type="AudioStreamPlayer2D" parent="."]
 script = ExtResource("3")

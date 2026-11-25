@@ -162,7 +162,7 @@ func _slam(now: float, target: Dictionary, engaged: bool) -> void:
 	var rx := maxf(1.0, pattern("slamRx", 88.0))
 	var ry := maxf(1.0, pattern("slamRy", 60.0))
 	if (offset.x / rx) * (offset.x / rx) + (offset.y / ry) * (offset.y / ry) <= 1.0:
-		_route_hit_from(get_centre(), target, pattern("slamDamage", 26.0), pattern("slamKnockback", 320.0))
+		_route_hit_from(get_centre(), target, pattern("slamDamage", 40.0), pattern("slamKnockback", 320.0))
 
 
 func _brittle_look(now: float) -> void:

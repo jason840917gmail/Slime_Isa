@@ -12,11 +12,11 @@ extends RefCounted
 ##   anywhere in it, the glob born off its wall.
 ## - Worm archer (40 hp, range 220, fleeRange 120, windup 600, cooldown 2200): the arrow leaves
 ##   600 ms after the attack starts, from the archer's centre, along its line, at 180 px/s; it hits
-##   for max(1, 22 - 3) = 19 with knockback 180 along its flight, then frees itself.
+##   for 5 (no defence since 2026-11-24) with knockback 180 along its flight, then frees itself.
 ## - Projectiles live 3000 ms, stop at world-layer bodies, ignore enemy hurtboxes and the world
 ##   bounds, and are used up by a rejected (i-framed) hit too.
-## - Slime spider: spits a web for 50 - 3 = 47 with a 1000 ms `web` effect.
-## - Worm brawler: melee 52 - 3 = 49, knockback 340, `enemy-worm-brawler-hit` 22 px along the swing.
+## - Slime spider: spits a web for 5 with a 1000 ms `web` effect.
+## - Worm brawler: melee 10, knockback 340, `enemy-worm-brawler-hit` 22 px along the swing.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests run in chunk D4
 ## (`level-1-d4`, its origin at level-1's (2048, 0)) on open ground south of the old camp
 ## (outside every camp and safe zone); the camps test also travels to D4 and D5. The world's camps
@@ -57,10 +57,10 @@ const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
 const ARCHER_WINDUP_MS := 600.0
 const ARCHER_ARROW_SPEED := 180.0
-const ARROW_HIT := 19
+const ARROW_HIT := 5
 const ARROW_KNOCKBACK := 180.0
 const PROJECTILE_LIFETIME_MS := 3000.0
-const SPIDER_WEB_HIT := 47
+const SPIDER_WEB_HIT := 5
 const SPIDER_WEB_MS := 1000.0
 const SPIDER_WEB_SPEED := 180.0
 ## The line-up numbers (enemy-types.json `ai`): the run to the line, the back-off, the tolerance.
@@ -73,7 +73,7 @@ const ALIGN_TOLERANCE_PX := 8.0
 ## The turrets' seed and glob speeds (their scenes' `projectileSpeed`).
 const SEED_SPEED := 170.0
 const GLOB_SPEED := 150.0
-const BRAWLER_HIT := 49
+const BRAWLER_HIT := 10
 const BRAWLER_IMPACT_DISTANCE := 22.0
 ## Every enemy type a world spawns (enemy spec 11).
 const WORLD_TYPES: Array[String] = ["worm-swordsman", "worm-archer", "worm-brawler", "slime-spider", "orb-weaver"]

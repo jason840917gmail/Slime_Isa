@@ -254,11 +254,9 @@ sunk = NodePath("sunk-chest")
 
 [node name="sunk-chest" parent="RiverRoads/beaver-dam" unique_id=2095886673 instance=ExtResource("25_6wmo0")]
 position = Vector2(-19.199951, -300.8003)
-
-[node name="ChestScript" parent="RiverRoads/beaver-dam/sunk-chest" index="2"]
 map_id = "gloop-forest-e5"
-instance_id = "gloop-forest-e5-sunk-chest"
-initial_contents = {
+chest_id = "gloop-forest-e5-sunk-chest"
+contents = {
 "coins": 30,
 "energy-potion": 1
 }
@@ -329,21 +327,17 @@ script = ExtResource("26_f4yra")
 
 [node name="glow-grove-chest" parent="RiverRoads" unique_id=1075831754 instance=ExtResource("25_6wmo0")]
 position = Vector2(678.4, 1715.2002)
-
-[node name="ChestScript" parent="RiverRoads/glow-grove-chest" index="2"]
 map_id = "gloop-forest-e5"
-instance_id = "gloop-forest-e5-glow-grove-chest"
-initial_contents = {
+chest_id = "gloop-forest-e5-glow-grove-chest"
+contents = {
 "coins": 30
 }
 
 [node name="knoll-chest" parent="RiverRoads" unique_id=1586610697 instance=ExtResource("25_6wmo0")]
 position = Vector2(1574.4, 1075.2002)
-
-[node name="ChestScript" parent="RiverRoads/knoll-chest" index="2"]
 map_id = "gloop-forest-e5"
-instance_id = "gloop-forest-e5-knoll-chest"
-initial_contents = {
+chest_id = "gloop-forest-e5-knoll-chest"
+contents = {
 "coins": 25
 }
 

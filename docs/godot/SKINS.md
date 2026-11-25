@@ -8,7 +8,8 @@ are the owner's ([Direction "The skins"](../story/01-direction.md#the-skins)):
 
 - **Always on once won.** A skin is never put on, taken off or switched. Every won skin works at
   once and they stack; none has a downside (Heavy does not slow the slime). No keys: the Feral
-  climb is a held interact and the movement keys. Skins cost no energy.
+  climb is an interact press (a toggle: a second press lets go) and the movement keys. Skins cost
+  no energy.
 - **Contextual.** Each skin acts in its own places (its gate) and changes one move.
 - **It shows while it works:** stony on a heavy plate, a grab or a Heavy Roll; silvery in a web,
   a web wall or a cut; furry with claws as it climbs or strikes. Otherwise the slime wears its
@@ -126,7 +127,24 @@ barriers (crossed); the climb; the Spear's fast steps.
 - **The Heavy Roll:** every Roll with the skin on. Its bonk carries `heavy`, its screen shake is
   strong (`skins.heavy.rollBonkShakeMs` 420, `rollBonkShakeIntensity` 0.02, `rollBonkHitStopMs`
   90; a plain bonk keeps `character.player.movement.rollBonkShake*`), and its ground shake reaches
-  `skins.heavy.looseRadiusPx` (200), heavy. It pushes no enemy away (a later upgrade).
+  `skins.heavy.looseRadiusPx` (200), heavy. It pushes no enemy away (a later upgrade). It **crushes
+  tiny enemies** (reaction weight `tiny`: the Matron's Broodlings, the Colossus's Crystal Mites;
+  the owner, 2026-11-24, "crush them"): a tiny one's hurtbox within
+  `character.player.movement.rollHeavyCrushRadiusPx` (30) of the ball's front
+  (`rollHeavyCrushAheadPx` 14 past the bonk's point) takes `rollHeavyCrushDamage` (99, tags `roll`
+  and `heavy`, weapon `roll-crush`) before the ball touches it, pops flat (a tiny enemy's kill),
+  `BreakSoft` and a `rollHeavyCrushHitStopMs` (40) hit-stop, and the ball rolls on: no bonk
+  (`player_roll.gd` `_crush_ahead`). Filmed in the Matron lab (`film-matron.sh <name>
+  --film=crush`: three Broodlings in a row, all popped, no bonk). It **breaks light things to throw**
+  the same way (the owner, the same day: "it make no sence that light throwables make you bounce
+  back on roll, you should be able to breake them with heavy roll, so they break with the same
+  animation as when throw"): a liftable of weight `light` (a pot, a rock, a web ball) whose feet lie
+  within `rollHeavyBreakRadiusPx` (34) of the ball's front bursts into its own picture's shards with
+  its material's particles and sound (a thrown thing's break: `break_burst.gd`, `thrown_object.gd`
+  `BREAK_PARTICLES`, `break_cue`) and goes as if sucked up, so what it hid is left where it stood
+  (`pot_loot.gd`); the ball rolls on (`_break_ahead`). A medium or heavy one (a crate, a keg) still
+  bonks, and a plain Roll bonks on everything as before. Filmed (`film-matron.sh <name>
+  --film=smash`: three clay pots burst, no bonk; then a crate: a bonk, the crate whole).
 - **What it breaks** (the look book: old, grey, dead or built things lying or leaning in the way):
 
 | Object | Script | Notes |
@@ -176,8 +194,12 @@ the Verdant Gate's road and that it takes real weight to move it.
   "with W it sticks to the wall and then you move with the arrows in the direction you want", as the
   push and pull of a heavy block, so that a mountain can carry many climbs): an interact press where
   the slime can take hold of a climbable surface (at its foot facing up, on its lip facing down; or a
-  placed wall's prompt, "Climb (hold)") takes hold, and the slime glides onto it. **While the key
-  stays held the slime clings; the movement keys move it over the surface, any way,** at
+  placed wall's prompt, "Climb"; "Climb (hold)" until 2026-11-24) takes hold, and the slime glides onto it. **The cling is a
+  toggle since 2026-11-24** (the owner: "i cant use e while climbing since W have to be press ... i
+  can't neither use spear while climbing"): the slime clings until the next interact press lets go
+  (player.gd `_step_climb`), so no key has to be held; on the wall the chosen box ability's key
+  strikes with the Spear when the Spear's power is chosen (as the Gulp's press does), and E opens
+  the ability carousel in the throw mode. **The movement keys move it over the surface, any way,** at
   `skins.feral.climbSpeed` (150 px/s), sliding along its edges, except the open sides of vines: moved
   off those it falls ([No limit at the sides](#painting-vines), the owner, 2026-11-13); with no
   movement key it stays where it is. Its body does not collide on the face and is drawn in front of it; claws show; it faces
@@ -186,10 +208,13 @@ the Verdant Gate's road and that it takes real weight to move it.
   over the rim, down at the foot) it gets off there and takes that level (Elevation `track`).
   Letting go, or a hit, drops it to the foot under it over `skins.feral.dropMs` with a landing
   squash: no damage (already standing by its landing, it just lets go). **A catch:** the key
-  pressed again while it drops takes hold right where the slime is, where the surface allows a cling
+  pressed while it drops (a fall starts let go) takes hold right where the slime is, where the surface allows a cling
   (vines under it; a drop past bare rock catches nothing; after a hit's drop the key must be let go
-  and pressed again). Without the skin nothing is
-  offered, and pushing up at the foot says the refusal (at most every `skins.feral.refusalEveryMs`).
+  and pressed again). **No Roll off a wall** (2026-11-24: a roll off the Colossus's roots left the
+  slime inside the rock, behind the wall): while it climbs or drops off a wall a Roll press is
+  dropped (player.gd), so none fires as the climb ends, and `_try_dodge` refuses. Without the skin
+  nothing is offered, and pushing up at the foot says the refusal (at most every
+  `skins.feral.refusalEveryMs`).
 - **Climbable surfaces** (feral_climb.gd `WALL_GROUP`): **painted vines** (a `vines` VineLayer,
   [Painting vines](#painting-vines): the way to make a climb) and the **placed climbable wall**
   (`object.climb-wall`, below: a climb that leads out of a world or ends on the face). Each answers
@@ -451,7 +476,7 @@ Numbers: game-constants.json `skins` (`order`, `defs`, `lookShowMs`, `lookFadeIn
 
 - Vines on side walls, 45° faces and back edges (front walls only), and across a chunk line.
 - Vine art that joins: one picture is repeated, so a wide band shows where each begins.
-- A prompt on painted vines (a placed wall shows "Climb (hold)"; vines show nothing until the press).
+- A prompt on painted vines (a placed wall shows "Climb"; vines show nothing until the press).
 - The Heavy Roll knocking the grey, leaning old tree over the river as a bridge (question 101).
 - The Swim, Polar, Sand, Cloud and Lava skins (later releases); the Swim form stays as it is.
 - Removing the Gulp forms, essences and Swallow (roadmap 7.11).

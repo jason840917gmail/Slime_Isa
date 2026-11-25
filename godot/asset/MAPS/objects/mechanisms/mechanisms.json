@@ -1,0 +1,102 @@
+{
+	"knockTarget": {
+		"discUnits": 56,
+		"discCellPx": 160,
+		"postUnits": [
+			25.0,
+			46.0
+		]
+	},
+	"ram": {
+		"logUnits": [
+			160.0,
+			73.0
+		],
+		"logRingsUnits": 17.5,
+		"logOnEndUnits": [
+			55.5,
+			160.0
+		],
+		"gantryUnits": [
+			161.5,
+			137.0
+		],
+		"gantryGapUnits": [
+			42.0,
+			120.0
+		],
+		"cogCellPx": 89
+	},
+	"brickedArch": {
+		"panelPx": [
+			141,
+			132
+		],
+		"bricks": 8,
+		"brickCellPx": 56,
+		"rubbleUnits": [
+			66.0,
+			45.5
+		]
+	},
+	"ramCart": {
+		"sideUnits": [
+			84.0,
+			89.0
+		],
+		"frontUnits": [
+			60.5,
+			89.5
+		],
+		"wheels": [
+			[
+				-15.13,
+				-15.82
+			],
+			[
+				19.35,
+				-15.82
+			]
+		],
+		"wheelRadiusUnits": 15.21,
+		"wheelCellPx": 72,
+		"ore": 6,
+		"oreCellPx": 48,
+		"leverUnits": [
+			29.5,
+			46.0
+		],
+		"chockUnits": [
+			22.0,
+			21.5
+		],
+		"bufferFrontUnits": [
+			96.0,
+			57.0
+		],
+		"bufferSideUnits": [
+			45.5,
+			57.0
+		],
+		"pulleyUnits": [
+			30.0,
+			60.0
+		],
+		"counterweightUnits": [
+			21.0,
+			46.0
+		]
+	},
+	"railGate": {
+		"cellPx": [
+			232,
+			215
+		],
+		"units": [
+			116.0,
+			107.5
+		],
+		"planks": 7,
+		"plankCellPx": 112
+	}
+}

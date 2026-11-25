@@ -4,7 +4,8 @@ The design is the accepted [bestiary](../design/2026-10-16-bestiary.md) (29 enem
 roadmap 12.7). This page says how the built ones work in Godot, where they are, what their numbers
 are and which hooks the coming powers use. The base enemy (chase AI, attacks, hits, death) is
 [specs/enemy.md](specs/enemy.md); the reactions to the body-shapes hits are
-[BODY_SHAPES.md](BODY_SHAPES.md#the-reaction).
+[BODY_SHAPES.md](BODY_SHAPES.md#the-reaction). What each enemy's hits cost the slime follows its tier (where it is first
+met) since 2026-11-24: [health and damage](../design/2026-11-24-health-and-damage.md).
 
 Built: rows 1 to 3 and 15 to 17 (before 2026-10-16), and rows 4 to 10 (the first batch,
 2026-10-16): the prologue worm, the Popworm, the Spitcap, the Hopper, the Bramble Boar, the Thorn
@@ -52,7 +53,7 @@ The owner sees every enemy in the playground before it goes into its chapter.
 - **The fight:** the pen is each of its enemies' arena (`configure_arena`): an enemy fights only
   while the slime's centre is inside its pen and leaves it alone outside (the base chase AI walks
   back to the pen's middle; the patterned enemies go home or go quiet). Enemies take their
-  `enemy-types.json` `maxHp` when it is higher than their scene's (the worm swordsman 90), as in the
+  `enemy-types.json` `maxHp` when it is higher than their scene's (none is since 2026-11-24, when the worm swordsman's scene went from 8 to 40), as in the
   shapes testbed's pen.
 - **Respawn:** a pen's enemy comes back 3 s after it dies (`respawn_ms`). **F4** brings every pen
   back at once; it is the shapes testbed's pen key and still respawns that pen too (the corner reads
@@ -277,7 +278,7 @@ skin: then its webs no longer stick; stay off its lines": with the Silk skin (`p
 The worm swordsman's chase and swing (the base enemy) with **1 hit point**: anything kills it, a
 thrown pot (20 damage) included. A small, scrawny, mean grunt of Gorge's army (a scarf scrap and a
 twig club; smaller on screen than the swordsman), slower (55 px/s) and weaker
-(10 damage) than the swordsman, with a longer wind-up (550 ms: it leans back, then swings the twig).
+(5 damage against its 10) than the swordsman, with a longer wind-up (550 ms: it leans back, then swings the twig).
 Its clips are keyed on its poses (idle, walk, swing, knocked over; since 2026-10-19 its `walk-*`
 clips play its wriggle cycles, frames 4 to 15) with a code bob in the scene's AnimationPlayer; side
 clips are mirrored for left.
@@ -288,7 +289,7 @@ clips are mirrored for left.
   while the slime is out of the pen), leaving dust. No hurtbox, not solid.
 - **Tell** (`tellMs` 550): within `surfaceRangePx` 44 of the slime (at most every `resurfaceMs`
   1300) it stops and its leafy tail flicks up out of the mound.
-- **Up** (`upMs` 950): it pops out and bites `biteAtMs` 120 later (`biteDamage` 18, `biteKnockback`
+- **Up** (`upMs` 950): it pops out and bites `biteAtMs` 120 later (`biteDamage` 10, `biteKnockback`
   220, the slime within `biteRangePx` 64). Open the whole time: the Spear's moment (40 health: a
   jab and a second jab, or a chain).
 - **Sink** (`sinkMs` 260), then underground again.
@@ -306,7 +307,7 @@ clips are mirrored for left.
   slime is lined up, its hurtbox middle within `alignTolerancePx` 16 of the Spitcap's row or column
   (`game/enemy/four_way_aim.gd`). A slime at a diagonal is never spat at.
 - **Charge** (the tell, `spitWindupMs` 520): it swells and shakes, the aim locked along that line;
-  then it spits one spore seed straight down it (`projectile.spore-seed`: 170 px/s, 16 damage,
+  then it spits one spore seed straight down it (`projectile.spore-seed`: 170 px/s, 5 damage,
   2.6 s; a slime that stepped off the line is missed) and shows its spitting pose (`spitPoseMs`
   260). The slime stepping close cancels the charge (it hides).
 - **Right tool:** the seed is suckable (Q catches it in flight, within the suck's 160 px cone);
@@ -321,7 +322,7 @@ clips are mirrored for left.
   will land: toward the slime, `hopPx` 120 at most (toward home while the slime is out of the pen).
 - **Air** (`airMs` 600, `hopHeightPx` 48): every hit clinks and the slime passes under it; a wall
   ends the hop early.
-- **Landing:** the slime within `landHitRadiusPx` 34 takes 20 (`contactDamage`) with 240 knockback.
+- **Landing:** the slime within `landHitRadiusPx` 34 takes 10 (`contactDamage`) with 240 knockback.
 - **Right tool:** a Spear thrust timed to its landing (40 health).
 
 ### 8. Bramble Boar (charger)
@@ -331,7 +332,7 @@ clips are mirrored for left.
   `scrapeCooldownMs` 900 after its last charge) it lowers its head and scrapes, kicking dust back.
 - **Charge:** the line to the slime's centre is locked at the scrape's end; it runs it at
   `chargeSpeed` 300 (dust trail; its bramble front clinks every hit) until something stops it:
-  - the slime (within `chargeHitPx` 44): 30 damage (`chargeDamage`) with 340 knockback, and it skids
+  - the slime (within `chargeHitPx` 44): 10 damage (`chargeDamage`) with 340 knockback, and it skids
     to a stop (`skidMs` 350);
   - anything else (a wall, the pen's fence, a rock, another enemy): it crashes onto its back,
     **stunned** for `stunMs` 2200, belly up, every hit doubled (`stunnedDamageTaken` 2; the
@@ -348,7 +349,7 @@ clips are mirrored for left.
 - **Wake** (the tell, `wakeMs` 700): glowing eyes, it shakes the moss off (still a clink).
 - **March:** straight lines at 70 px/s, first along the axis the slime is furthest along; when
   something stops it (a wall, the fence, another statue: statues collide with enemies) it turns: a
-  quarter turn toward the slime's side, else the other way, else back. Touching the slime: 24
+  quarter turn toward the slime's side, else the other way, else back. Touching the slime: 10
   damage, 260 knockback (`contactReachPx` 40, `contactCooldownMs` 700). Heavy: Spear hits are armor
   (damage, no stun); 90 health is about six jabs.
 - **Right tool:** a Heavy Roll (the bonk with `roll` + `heavy`) knocks it back to rubble at once,
@@ -390,7 +391,7 @@ two plates. Nothing else in the game is plated like it.
   things (the Gulp's suckables, lying in the world) pass under it, and only the landing slam hurts.
   It never lands on a wall, water or liftable: `landing_point` shortens the leap to the furthest
   free spot before the planned one, and the telegraph shows that spot.
-- **Slam:** the slime in the ring takes `slamDamage` 12 with 220 knockback; the screen shakes. The
+- **Slam:** the slime in the ring takes `slamDamage` 5 with 220 knockback; the screen shakes. The
   Roll's i-frames or a step out of the ring dodge it.
 - **Open** (`openMs` 900): it lies flat, dazed, the visor open. Only a hit tagged `spear` or
   `thrown` gets through (`_shields`; the Axe, the Hammer and the Roll still clink; thrown things
@@ -420,7 +421,7 @@ blocks the slime.
   aim is the slime's hurtbox middle when the charge starts, kept within `aimConeDeg` 160 of the
   pipe's line.
 - **Charge** (the tell, `spitWindupMs` 550): it swells and shakes in its pipe; then a mud glob along
-  the aim (`projectile.mud-glob`: 150 px/s, 14 damage; a slime that moved is missed) and its spitting
+  the aim (`projectile.mud-glob`: 150 px/s, 5 damage; a slime that moved is missed) and its spitting
   pose (`spitPoseMs` 300). Blows still clink. The worm never comes out of its wall (owner,
   2026-10-19, after trying it): the glob is born off the wall instead, 38 px out along the pipe's
   line from its middle and past a deep wall's foot, so it never hits the wall it leaves.
@@ -465,7 +466,7 @@ hurtbox shape that follow it) walks behind the ball, moved round it by the scrip
   `(-150, 0), (150, 0)` through `enemy_properties`, Fatty's Lair's R10 a long one through
   `overrides`). The ball rolls from point to point at `rollSpeed` 120 and back. Anything but the
   slime that stops it (a wall, the fence, a rock) turns it back early.
-- **The ball:** rolling, it hits the slime within `ballHitPx` 40 for `ballDamage` 20 with 300
+- **The ball:** rolling, it hits the slime within `ballHitPx` 40 for `ballDamage` 10 with 300
   knockback (every `contactCooldownMs` 600 at most). A hit from the ball's side clinks.
 - **Turn** (the tell, `turnMs` 900 for a half turn): at each end the ball stops and the beetle walks
   round it (the front side), braces (`braceMs` 350) and pushes off the other way. That is the gap:
@@ -485,7 +486,7 @@ nothing, the ball stays and the beetle forgets about you and goes for it"; `game
 - **Furious:** it stamps for `furyMs` 650 (red, steaming, "!!"), then charges the slime in straight
   dashes: `chargeSpeed` 300 for `chargePx` 240 or until something stops it, a breather of
   `chargeRestMs` 750 between dashes, the last `chargeTellMs` 320 of it leaning back (the tell). A
-  dash that reaches the slime (`chargeHitPx` 34) deals `chargeDamage` 15 with 280 knockback. It
+  dash that reaches the slime (`chargeHitPx` 34) deals `chargeDamage` 5 with 280 knockback. It
   rages while the slime has the ball, or has broken it, and stands inside its reach (its pen, else
   its `targeting_radius` 320).
 - **The ball thrown** is a light soft throwable ([THROW_COMBAT.md](THROW_COMBAT.md)): a blow that
@@ -531,7 +532,7 @@ squish for the ball, a knock and squeak, a squeal and topple.
 
 Fatty's Lair's mini-boss: the Squint's script with its own numbers (`big-squint` in
 `enemy-types.json`) and a bulkier, horned, mossy sheet at 1.5 times the size.
-- The same walk, rear, leap and slam, with a bigger ring (84 x 46), `leapPx` 170, `slamDamage` 18
+- The same walk, rear, leap and slam, with a bigger ring (84 x 46), `leapPx` 170, `slamDamage` 10
   (280 knockback) and a heavier shake.
 - **Two stomps** (`stomps` 2): after the first it settles `betweenMs` 260, visor shut, and rears
   again (`nextRearMs` 420) with a new ring under the slime's feet.
@@ -549,9 +550,9 @@ upward into the "canopy") ride its height; its body is never solid and never sli
 - **Tell** (`tellMs` 450): the slime's feet within `dropRangePx` 50 of its shadow (at most every
   `redropMs` 1400): it shivers, the thread creaks (`GroundCreak`) and the shadow grows dark.
 - **Drop** (`dropMs` 200): down to `hangHeightPx` 8, legs flung open; the slime's feet still within
-  `biteRangePx` 52 take `dropDamage` 18 (220 knockback). Step out of the shadow in the tell.
+  `biteRangePx` 52 take `dropDamage` 20 (220 knockback). Step out of the shadow in the tell.
 - **Hang** (`hangMs` 2600): it dangles low, swinging toward the slime, open; touching it hurts
-  `swayDamage` 8. A hit sets it **spinning** like a pinata (`spinMs` 1400, each hit starts it again):
+  `swayDamage` 10. A hit sets it **spinning** like a pinata (`spinMs` 1400, each hit starts it again):
   dizzy, harmless, open. Then it climbs back up (`climbMs` 800).
 - **Cut down:** the Bow's arrow (`on_arrow_hit`, group `bow_targets`, any height) or a thrown thing
   that hits it low cuts its thread: it falls (`fallMs` 260) and lies on its back for `downMs` 2400
@@ -566,7 +567,7 @@ A grumpy hedgehog that curls into a spiked ball.
   last roll) it curls up, quills out, shivering.
 - **Roll:** a straight line at the slime's centre at `rollSpeed` 320, spinning about its middle. Its
   spikes clink every hit but a Goo Bomb's blast. It bounces off whatever stops it (walls, the pen's
-  fence, the slime, which takes `rollDamage` 22 with 300 knockback within `rollHitPx` 40), as a
+  fence, the slime, which takes `rollDamage` 20 with 300 knockback within `rollHitPx` 40), as a
   ball off a cushion; at the third bounce (`bounces` 3) it slows over `slowMs` 500 and flops on its
   back (`rollMaxMs` 6000 at most).
 - **Dizzy** (`dizzyMs` 2400): belly up, every hit doubled (`dizzyDamageTaken` 2, `states.dizzy`).
@@ -589,7 +590,7 @@ Broodlings are its spawn, with its arena.
 - **A Broodling** (8 health, tiny: every hit pops it, with the pop streak): it hops out
   (`hatchMs` 280), zigzags at the slime (`scuttleSpeed` 115, `zigzagRad` 0.5 every `zigzagMs` 160,
   keeping `spreadPx` 20 from the others), crouches (the tell, `crouchMs` 220) within `leapRangePx` 70
-  and leaps `leapPx` 80 (`leapMs` 240): `biteDamage` 6 within `biteRangePx` 24. Then it recovers
+  and leaps `leapPx` 80 (`leapMs` 240): `biteDamage` 5 within `biteRangePx` 24. Then it recovers
   (`recoverMs` 420, `leapCooldownMs` 700). Away from the slime it goes back to the sac.
 - **Right tool:** a Goo Bomb on the egg sac (the blast is its kill hit): the swarm stops, and the
   Broodlings by it pop too. Pen 20's sac stands by the east fence, so the bomb can be cast outside
@@ -606,7 +607,7 @@ breathe.
   toothy mouth, silk tatters flying. **Lunge** (`lungeMs` 220): up to `lungePx` 90 at where the slime
   stood; reaching its feet (`grabRangePx` 48, the slime not rolling: the Roll dodges it) it grabs.
 - **Hold:** it clamps shut over the slime, which is rooted and hidden inside, and drinks
-  `drainPerSecond` 20 energy (empty: `chewDamage` 6 every `chewMs` 1000). Each new press of a move
+  `drainPerSecond` 20 energy (empty: `chewDamage` 5 every `chewMs` 1000). Each new press of a move
   key (or a turn to another one) shakes it ("Shake it off! (move keys)" the first time):
   `shakeOffPresses` 6 throw it off, **dazed** for `dazedMs` 2200 (every hit doubled:
   `dazedDamageTaken`, `states.dazed`). After `holdMaxMs` 5000 it spits the slime out
@@ -671,7 +672,7 @@ run away when there is light but if there is all dark they attack the slime").
   larger and narrowed, with the GroundCreak cue (a stand-in).
 - **Hunt:** straight at the slime at `huntSpeed` 110 (the slime's 200 outruns it); touching it
   (centres within `contactReachPx` 26, at most every `contactCooldownMs` 900) it bites for
-  `contactDamage` 12 with `contactKnockback` 180 (the HitDull cue, a stand-in), then holds still for
+  `contactDamage` 20 with `contactKnockback` 180 (the HitDull cue, a stand-in), then holds still for
   `biteRestMs` 500. Light on it: it flinches and flees as ever (a light between it and the slime
   stops it each time it tries to cross). Light on the slime, or the slime out of the dark or out of
   its arena: the hunt is off and it creeps home, its eyes lilac again; back in the dark, it rises
@@ -705,7 +706,7 @@ neither solid nor stopped; the art and hurtbox ride its height).
 - **Swoop** (`swoopMs` 1300): a dive through where the slime stood, `swoopOvershootPx` 120 on (kept
   `arenaInsetPx` 32 inside its pen), weaving `waveAmpPx` 36 side to side (`waveCount` 1.5), down to
   `swoopLowPx` 12. Under `lowHeightPx` 36 it can be hit; touching the slime there (within
-  `biteRadiusPx` 26) it bites for `biteDamage` 12 (160 knockback), once a swoop.
+  `biteRadiusPx` 26) it bites for `biteDamage` 20 (160 knockback), once a swoop.
 - **Return** (`returnMs` 1400) to its roost, then asleep again.
 - **Right tool:** a Lantern puff as it dives (a hit tagged `fire` is its kill hit). The Spear as it
   swoops low (20 health: two jabs). A stun holds it in the air and holds the swoop's clock. Beaten,
@@ -722,7 +723,7 @@ A slate centipede with icy crystal spikes on its back, crawling round a crystal 
 - **Crawl:** every hit on its spiked back clinks.
 - **Turn** (the tell, `turnMs` 700, at every corner): it twists round on its side, its pale belly
   up: open. A stun holds the turn's clock.
-- **Spikes:** touching it hurts (14, 220 knockback, within `contactReachPx` 26, every 700 ms).
+- **Spikes:** touching it hurts (20, 220 knockback, within `contactReachPx` 26, every 700 ms).
 - **Right tool:** the Spear on its belly as it turns (24 health: two jabs; wait at a corner beside
   its loop). The Bow from the side (hook). The Feral skin will meet it on the wall later.
 
@@ -739,7 +740,7 @@ blank orb and follows its gaze; a faint wedge on the ground shows where it looks
   aim locks on the slime and follows it at `trackDegPerS` 60.
 - **Fire** (`beamMs` 300): a beam from the orb along the aim to the first solid thing (`beamPx` 360
   at most, cut at its pen's edge); the slime's centre within `beamHalfWidthPx` 12 + `slimeRadiusPx`
-  12 of it takes `beamDamage` 22 (260 knockback along the beam), once.
+  12 of it takes `beamDamage` 10 (260 knockback along the beam), once.
 - **Cool** (`coolMs` 1400): crystal petals shut over the orb, then it watches again.
 - **Invulnerable** (owner, 2026-11-21: "make prism eye invulnerable, you have to go around him";
   `invulnerable` 1 in its `pattern`): every hit clinks, from any side and in every phase, and an
@@ -772,7 +773,7 @@ pickaxes **eight ways** (owner, 2026-10-16: along the slime's row, column or a d
 - **Throw:** `throws` 3, every `throwEveryMs` 520: each pickaxe spins along the line in an arc
   (`flightMs` 700, `arcPx` 80, `game/enemy/lobbed_shot.gd`) to where the slime's row or column
   crosses it (`minThrowPx` 40 to `maxThrowPx` 320), its landing spot darkening on the ground; landing
-  within `landRadiusPx` 24 of the slime's feet it hits for `pickDamage` 14 (200 knockback). A slime
+  within `landRadiusPx` 24 of the slime's feet it hits for `pickDamage` 20 (200 knockback). A slime
   that steps off the line is missed.
 - **Reload** (`reloadMs` 800): arms down, open; then it ducks.
 - **Right tool:** a Goo Bomb over the crates (F casts one, Q sucks it in, Q throws it at the crates:
@@ -789,7 +790,7 @@ of 120 px, out after 20 s).
 - **Rear** (the tell, `rearMs` 800): within `slamRangePx` 76 (every `slamCooldownMs` 1200 at most) it
   rears up, crystals glowing, and a dark red ellipse (`slamRx` 92 x `slamRy` 62) darkens round its
   feet.
-- **Slam** (`slamPoseMs` 450): the slime's feet in the ellipse take `slamDamage` 26 (320 knockback);
+- **Slam** (`slamPoseMs` 450): the slime's feet in the ellipse take `slamDamage` 40 (320 knockback);
   shards and dust, a small shake. **Recover** (`recoverMs` 900). The slam also puts out every lit
   brazier with `stomp_puts_out` in its ellipse grown by `slamPutsOutScale` (1.8; `CandleScript.put_out_near`,
   2026-10-17): the Crystal Mine's Den, the rehearsal for the Colossus's stomps.
@@ -816,7 +817,7 @@ pen's four slots cap them; each comes back `respawn_ms` 1500 after it dies).
   Feral skin, the Colossus's arena; 2026-10-17) gets one dropped straight down the face onto it: its
   spot is the wall's foot right under the slime, and it hits the climber above (within
   `climberHitPx` 30 across), which knocks it off the wall.
-- **Land** (`landedMs` 450), then **run** at the slime at `runSpeed` 115, bumping it for 8 (160
+- **Land** (`landedMs` 450), then **run** at the slime at `runSpeed` 115, bumping it for 10 (160
   knockback, every 700 ms).
 - **Right tool:** any hit (1 health, weight tiny: every hit launches it, the kill pops). Killed, it
   can drop an energy shard (the reactions' `combat.energyShard` roll).
@@ -859,7 +860,7 @@ enemy), adds the bone pile:
   most. A stun in the cast cancels it.
 - **Air** (`airMs` 620, `leapHeightPx` 70): one big leap there, any angle (a pounce, not a shot).
   Every hit clinks and the slime passes under it; a wall or the water ends the leap early.
-- **Landing:** the slime within `landHitRadiusPx` 38 takes `landDamage` 24 with 280 knockback, and
+- **Landing:** the slime within `landHitRadiusPx` 38 takes `landDamage` 10 with 280 knockback, and
   the ground shakes a little.
 - **Stuck** (`stuckMs` 1300): its feet sink in; it is open and takes `stuckDamageTaken` 2 times the
   damage (`states.stuck` for rework hits). Then it pulls free (`recoverMs` 320) and watches again,
@@ -887,7 +888,7 @@ enemy), adds the bone pile:
 - **Out:** the bone (`projectile.bone`, `game/scripts/bone.gd`, a 64 px picture spinning in flight)
   flies `boneRangePx` 220 along the line at `boneSpeed` 230, slowing to `boneTurnShare` 0.3 of it,
   then comes back along the same line to its hand, speeding up again; it hurts the slime on each leg
-  (16, 200 knockback; one hit a leg) and flies on after a hit. A wall stops it on either leg: it
+  (10, 200 knockback; one hit a leg) and flies on after a hit. A wall stops it on either leg: it
   breaks and the Thrower is unarmed. The Thrower stands still where it threw, its hand empty: it is
   **open**.
 - **Catch** (`catchPoseMs` 220): the bone is back (within `boneCatchPx` 16 of its hand); armed again.
@@ -909,7 +910,7 @@ enemy), adds the bone pile:
 - **It never stops:** its body does not collide with the slime's (mask 1025: world and water), so it
   walks on through the slime, and nothing the slime does changes its route. Blocked by something
   solid for `blockedMs` 600 (a pushed block), it turns back along its route.
-- **Touching it hurts:** the slime within `contactReachPx` 34 takes `contactDamage` 20 with 260
+- **Touching it hurts:** the slime within `contactReachPx` 34 takes `contactDamage` 5 with 260
   knockback, at most every `contactCooldownMs` 700.
 - **Any hit drops it:** every hit with damage is its kill hit: it falls into the bone pile at once
   (20 health), which stands up and marches on unless it is finished.
@@ -933,7 +934,7 @@ the same; its own are below. Pen 33 has two armour statues and a stone pedestal 
   is drawn on the blank eyeball; looking up the screen it shows its carved back.
 - **Charge** (`chargeMs` 200): its eye and runes glow; the aim stays where the slime stood
   (`trackDegPerS` 0), so a slime that steps aside is missed. **Fire** (`beamMs` 450): a long beam
-  (`beamPx` 560), `beamDamage` 24 (280 knockback), stopped by the first solid thing. **Cool**
+  (`beamPx` 560), `beamDamage` 10 (280 knockback), stopped by the first solid thing. **Cool**
   (`coolMs` 900).
 - **Right tool:** stay behind a statue as it drifts; when it looks away, the Spear from behind (its
   front clinks; 28 health: two jabs, or two Lunges, never one; owner, 2026-11-01: two Spear
@@ -968,7 +969,7 @@ the high ground at the rim of a front wall: it never leaves its post (a hit does
   to bounces `hopDownPx` 96 apart, each on the other side of a lane `laneHalfPx` 80 each side of
   the Chucker, the first toward the slime's side; each hop takes `hopMs` 380, bulges `hopArcPx` 34
   up and swells as it comes off the wall, and every bounce puffs dust and thuds. At the foot it
-  shatters. The slime within `rockHitPx` 28 of it takes `rockDamage` 14 (`rockKnockback` 220) and
+  shatters. The slime within `rockHitPx` 28 of it takes `rockDamage` 20 (`rockKnockback` 220) and
   the boulder shatters there. A boulder whose thrower is beaten shatters harmless.
 - **Right tool:** get up over the rim beside it and beat it (30 health, anything hurts it).
 
@@ -982,7 +983,7 @@ A fat mustard-and-moss caterpillar with red spikes, seen from above as it crawls
   (`bodyHalfPx` 30) kept on the vines, curls round at each end (`turnMs` 500) and crawls back.
   Off the vines (a climbable wall, bare rock) it crawls `trackPx` 192 along its way and back.
 - **Spikes:** the slime's centre within `contactReachPx` 30 of the line along its body takes
-  `contactDamage` 12 (200 knockback), at most every `contactCooldownMs` 700.
+  `contactDamage` 20 (200 knockback), at most every `contactCooldownMs` 700.
 - **Right tool:** the Spear's strike along the face while clinging (player.gd `_climb_strike`;
   20 health: two jabs). Its body is neither solid nor stopped; a hit does not move it.
 
@@ -995,7 +996,7 @@ A big scruffy raven with amber eyes, perched on a balcony's floor (place it ther
   sweeps out of its perch onto a circle of `loopRadiusPx` 150 round a point `loopRisePx` 40 over
   it, flies round it `loops` 2 times (`clockwise`, the scene's export; first straight up) at
   `loopSpeed` 340 and glides back in to land (`flight_point`), about 5.5 s in all. The path is the
-  same every time. Touching the slime on the way (`contactReachPx` 30) is `contactDamage` 10 with
+  same every time. Touching the slime on the way (`contactReachPx` 30) is `contactDamage` 20 with
   200 knockback, at most every `contactCooldownMs` 700.
 - **Right tool:** hit it on its perch (30 health); in flight every hit clinks. It flies on the
   wall's face as seen from the front: no height, no shadow; neither solid nor stopped.
@@ -1019,7 +1020,7 @@ Boar's charge as its model); pen 37; placeable from the Scenery dock's Enemies c
 - **Charge:** the line from his feet to the slime's is locked at the wind-up's end; he runs it dead
   straight at `chargeSpeed` 280 (the slime walks at 180: step aside, do not outrun him) for up to
   `chargeMaxMs` 1600, about 450 px. The slime in his way (`chargeHitPx` 40) is **bowled aside**:
-  `chargeDamage` 30 with `chargeKnockback` 340, knocked mostly sideways (`bowlSideShare` 0.8) at
+  `chargeDamage` 10 with `chargeKnockback` 340, knocked mostly sideways (`bowlSideShare` 0.8) at
   most every `contactCooldownMs` 600, and he runs on (while he runs and skids the slime's body
   does not stop his). Anything else that stops him (a wall, the
   pen's fence, a rock, another enemy) and his shield slams into it: **dazed** for `dazedMs` 1500,
@@ -1096,11 +1097,12 @@ Scenery dock's Enemies category. She never moves (rooted: `knockbackScale` 0, ev
     **digests**, asleep for good, until the world is built again (the chunk built anew, the room
     entered again). Asleep she bites nothing.
   - **The slime** is dragged into her jaws (its own recoil, `pullMs` 160), hidden and rooted there
-    (`sticky`) while she chews (`holdMs` 1200; `chewDamage` 33 every `chewMs` 550, none in the last
+    (`sticky`) while she chews (`holdMs` 1200; `chewDamage` 20 every `chewMs` 550, none in the last
     `chewMs`), then she **spits** it far back out the way she struck (owner: "far away, not that
-    close"): `spitDamage` 21, then the slime's own recoil `spitPx` 220 in `spitFlyMs` 380. The chew
-    alone costs the slime 30 health (owner, 2026-11-21: "the chew alone makes 30 damage"; 33 less
-    its `character.player.stats.defense` 3), the spit 18 more: 48 a bite.
+    close"): `spitDamage` 20, then the slime's own recoil `spitPx` 220 in `spitFlyMs` 380. A bite
+    costs the slime 40, the chew 20 and the spit 20 (the owner, 2026-11-24: "put plants back to 40
+    damage at least", "Make it 20 + 20"; [health and damage](../design/2026-11-24-health-and-damage.md)); 48 before the
+    rebalance, after his "the chew alone makes 30 damage" of 2026-11-21.
   - Nothing in reach: she misses and rests `missRecoverMs` 500.
 - **A thrown thing** (any liftable, light to heavy, a puffball too) hurts her not at all but puts
   her to sleep (**doze**) for `dozeMs` 5000 (the owner, 2026-11-22: 5 s, down from the first 10);
@@ -1152,7 +1154,7 @@ its wander area).
   while he stands in shallow water), on his level and with no wall between, is **shocked**; jagged
   bolts reach each of them and the ring's edge, and his art flashes white. Then he rests (`afterMs`
   500) and wanders on. Touching him does nothing at any time.
-  - **The slime:** `zapDamage` 20 (17 after its defence), no knock; it is **frozen** for `shockMs`
+  - **The slime:** `zapDamage` 20, no knock; it is **frozen** for `shockMs`
     800 (`suppress_movement`: no walking, no action) while its look flickers, then kicked
     `shockKnockPx` 60 away from him (its own recoil, `shockKnockMs` 220). A Roll that dodges the hit
     (its invulnerability) dodges the shock.
@@ -1172,7 +1174,7 @@ its wander area).
   [THROW_COMBAT.md](THROW_COMBAT.md#off-a-jelly-2026-11-22)): he wobbles and boings, and the thing
   flies back whole from where it touched him toward where the slime stood (not homing) at
   `bounceSpeed` 380 for up to `bounceRangePx` 360, rising `bounceArcPx` 22. It hits the slime it
-  meets for `bounceDamageLight` 12, `-Medium` 18 or `-Heavy` 26 by the throw's weight
+  meets for `bounceDamageLight` 10, `-Medium` 20 or `-Heavy` 20 by the throw's weight
   (`bounceKnockback` 180 along its flight) and breaks there; a wall or the end of its flight breaks
   it as a missed throw (a sturdy stone, metal or bone thing lies there whole instead). **The catch:**
   Q with an empty mouth while it is within the rebound's `catchRangePx` of the slime takes it out of

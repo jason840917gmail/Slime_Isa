@@ -98,11 +98,9 @@ target_door_id = "silk-nook-crack"
 position = Vector2(576, 600)
 metadata/instance_id = "silk-nook-cave-heart-chest"
 metadata/persistence_key = "silk-nook-cave.silk-nook-cave-heart-chest"
-
-[node name="ChestScript" parent="cave/heart-chest" index="2"]
 map_id = "silk-nook-cave"
-instance_id = "silk-nook-cave-heart-chest"
-goo_heart_id = "gloop-silk-nook"
+chest_id = "silk-nook-cave-heart-chest"
+heart_id = "gloop-silk-nook"
 
 [node name="web-ground-01" parent="cave" unique_id=1393968320 instance=ExtResource("14_8bedu")]
 position = Vector2(236, 840)

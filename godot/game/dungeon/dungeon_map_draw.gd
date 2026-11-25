@@ -37,6 +37,8 @@ const MARK_GROUP := &"dungeon_map_mark"
 const CHEST_GROUP := &"chest"
 ## The chest scenes' script node (game/scripts/chest.gd), whose overrides a room scene saves.
 const CHEST_SCRIPT_NODE := &"ChestScript"
+const CHEST_ROOT_SCRIPT := "res://game/scripts/chest_root.gd"
+const WORLD_DEFINITION_NODE := "world-definition"
 const GooHeart := preload("res://game/scripts/goo_heart.gd")
 const FIGHT_GROUP := &"room_fight"
 ## Rooms are drawn this share of a room inset, so neighbours show a gap.
@@ -518,34 +520,82 @@ static func scene_features(path: String) -> Array[Dictionary]:
 
 
 ## The chests of the room scene at `path`, read from its state once a session: [{"at" (in the
-## scene), "map_id", "instance_id", "contents" (as built), "heart" (its goo heart's id)}].
+## scene), "map_id", "instance_id", "contents" (as built), "heart" (its goo heart's id)}]. A chest
+## is read from its root (chest_root.gd: `contents`, `heart_id`, `chest_id`, `map_id`) and from an
+## older override on its ChestScript child; the root's values win where set, and an empty record
+## is the game's: the chest's name and the scene's map (chest.gd).
 static func scene_chests(path: String) -> Array[Dictionary]:
 	if _scene_chests.has(path):
 		return _scene_chests[path]
 	var out: Array[Dictionary] = []
 	_scene_chests[path] = out
+	var scene_map := ""
+	var by_root := {}
 	for node: Dictionary in _scene_nodes(path):
 		var state: SceneState = node["state"]
 		var index: int = node["index"]
-		if state.get_node_name(index) != CHEST_SCRIPT_NODE:
+		var node_name := String(state.get_node_name(index))
+		if node_name == WORLD_DEFINITION_NODE:
+			scene_map = str(_value_or(state, index, &"map_id", ""))
 			continue
-		var chest := {"map_id": "", "instance_id": "", "contents": {}, "heart": ""}
-		for p: int in state.get_node_property_count(index):
-			match str(state.get_node_property_name(index, p)):
-				"map_id":
-					chest["map_id"] = str(state.get_node_property_value(index, p))
-				"instance_id":
-					chest["instance_id"] = str(state.get_node_property_value(index, p))
-				"initial_contents":
-					chest["contents"] = state.get_node_property_value(index, p)
-				"goo_heart_id":
-					chest["heart"] = str(state.get_node_property_value(index, p))
-		if str(chest["instance_id"]).is_empty():
+		if node_name == CHEST_SCRIPT_NODE:
+			var root_path := str(state.get_node_path(index, true)).trim_prefix("./")
+			var chest := _chest_entry(by_root, root_path, root_path.get_file(), node["parent_at"])
+			for p: int in state.get_node_property_count(index):
+				var value: Variant = state.get_node_property_value(index, p)
+				match str(state.get_node_property_name(index, p)):
+					"map_id":
+						chest["script_map"] = str(value)
+					"instance_id":
+						chest["script_id"] = str(value)
+					"initial_contents":
+						chest["script_contents"] = value
+					"goo_heart_id":
+						chest["script_heart"] = str(value)
 			continue
-		# The chest stands at its root (the script's parent).
-		chest["at"] = node["parent_at"]
+		var script := _script_of(state, index)
+		if script == null or script.resource_path != CHEST_ROOT_SCRIPT:
+			continue
+		var root_chest := _chest_entry(by_root, str(state.get_node_path(index)).trim_prefix("./"), node_name, node["at"])
+		root_chest["at"] = node["at"]
+		root_chest["root_map"] = str(_value_or(state, index, &"map_id", ""))
+		root_chest["root_id"] = str(_value_or(state, index, &"chest_id", ""))
+		root_chest["root_contents"] = _value_or(state, index, &"contents", {})
+		root_chest["root_heart"] = str(_value_or(state, index, &"heart_id", ""))
+	for entry: Dictionary in by_root.values():
+		var contents: Variant = entry.get("root_contents", {})
+		if not contents is Dictionary or (contents as Dictionary).is_empty():
+			contents = entry.get("script_contents", {})
+		var chest := {
+			"at": entry["at"],
+			"map_id": _first_set([entry.get("root_map", ""), entry.get("script_map", ""), scene_map]),
+			"instance_id": _first_set([entry.get("root_id", ""), entry.get("script_id", ""), entry["name"]]),
+			"contents": contents if contents is Dictionary else {},
+			"heart": _first_set([entry.get("root_heart", ""), entry.get("script_heart", "")]),
+		}
 		out.append(chest)
 	return out
+
+
+## The entry of the chest whose root is at `root_path` (made the first time: its name and place).
+static func _chest_entry(by_root: Dictionary, root_path: String, chest_name: String, at: Vector2) -> Dictionary:
+	if not by_root.has(root_path):
+		by_root[root_path] = {"name": chest_name, "at": at}
+	return by_root[root_path]
+
+
+## `property` as stored for a node of a scene state (`_stored`), else `fallback`.
+static func _value_or(state: SceneState, index: int, property: StringName, fallback: Variant) -> Variant:
+	var stored: Array = _stored(state, index, property)
+	return stored[0] if not stored.is_empty() and stored[0] != null else fallback
+
+
+## The first value of `values` that is not empty, "" when none is.
+static func _first_set(values: Array) -> String:
+	for value: Variant in values:
+		if not str(value).is_empty():
+			return str(value)
+	return ""
 
 
 ## The nodes of the scene at `path`, read from its state (nothing is built): [{"state", "index",

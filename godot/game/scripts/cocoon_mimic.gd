@@ -237,7 +237,7 @@ func _step_hold(now: float, delta: float, target: Dictionary) -> void:
 		player.call(&"spend_energy", minf(energy, pattern("drainPerSecond", 20.0) * delta))
 	elif now >= _chew_at:
 		_chew_at = now + pattern("chewMs", 1000.0)
-		_route_immediate_attack(target, pattern("chewDamage", 6.0), 0.0)
+		_route_immediate_attack(target, pattern("chewDamage", 5.0), 0.0)
 	# The move keys shake it: each new press, or a turn to another key.
 	var intent: Vector2 = player.call(&"get_move_intent")
 	if intent != Vector2.ZERO and intent.normalized().distance_to(_last_intent.normalized()) > 0.5:

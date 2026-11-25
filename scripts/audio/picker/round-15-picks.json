@@ -1,0 +1,19 @@
+{
+ "round": "round-15",
+ "decidedAt": "2026-11-23",
+ "source": "The builder's defaults (step 1 of the dungeons 2 and 3 rework): every cue its only option, but the cart's roll its option b (the review of 2026-11-24). Not picked by the owner.",
+ "note": "",
+ "picks": {
+  "world.knock-target-hit": "a",
+  "world.knock-target-tap": "a",
+  "world.knock-target-rearm": "a",
+  "world.ram-windup": "a",
+  "world.ram-swing": "a",
+  "world.ram-thud": "a",
+  "world.ram-ratchet": "a",
+  "world.cart-brake": "a",
+  "world.cart-roll": "b",
+  "world.cart-bump": "a"
+ },
+ "dropped": {}
+}

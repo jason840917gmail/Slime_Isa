@@ -70,16 +70,14 @@ metadata/persistence_key = "weaver-hollow-roots.cellar-crack-key"
 position = Vector2(2464, 236.8)
 metadata/instance_id = "weaver-hollow-roots-cellar-key-chest"
 metadata/persistence_key = "weaver-hollow-roots.cellar-key-chest"
+map_id = "weaver-hollow-roots"
+chest_id = "weaver-hollow-roots-cellar-key-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="Visual" parent="Objects/cellar-key-chest" index="1"]
 texture = ExtResource("10_ty0rx")
-
-[node name="ChestScript" parent="Objects/cellar-key-chest" index="2"]
-map_id = "weaver-hollow-roots"
-instance_id = "weaver-hollow-roots-cellar-key-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="Scenery" type="Node2D" parent="." unique_id=816994021]
 y_sort_enabled = true

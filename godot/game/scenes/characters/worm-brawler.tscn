@@ -548,7 +548,7 @@ attributes = {
 "wanderSpeed": 50,
 "attackWindupMs": 250,
 "attackRecoveryMs": 250,
-"contactDamage": 52,
+"contactDamage": 10,
 "knockbackStrength": 340,
 "knockbackResist": 0.1
 }

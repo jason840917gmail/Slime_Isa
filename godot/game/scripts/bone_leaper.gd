@@ -218,7 +218,7 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	_puff(CHIPS, feet())
 	_shake_camera(pattern("landShakeMs", 120.0), pattern("landShakeIntensity", 0.003))
 	if engaged:
-		_route_immediate_attack(target, pattern("landDamage", 24.0), pattern("landKnockback", 280.0),
+		_route_immediate_attack(target, pattern("landDamage", 10.0), pattern("landKnockback", 280.0),
 			pattern("landHitRadiusPx", 38.0))
 
 

@@ -411,7 +411,7 @@ Phaser: `content/scenes/authored/ui/hud.scene.json`, `ui/health-bar.scene.json`,
 
 ### 6.1 Data contract
 
-The HUD reads player state (Phaser `core/GameState.ts:177-258`; owned by the player/combat spec in Godot): `hp`, `max_hp = player.stats.maxHp (100) + gooHearts * player.gooHeart.maxHpBonus (10)` (Godot since 2026-10-26: `RunState.max_hp()`, +20 per four heart quarters and per boss's full heart), `energy`, `max_energy = player.stats.maxEnergy (100)`, `coins` (new run 50, `InitialRun.ts:15`), all from `game-constants.json` → `player.stats`. Signals (Phaser events): `hp_changed({hp, maxHp, delta})`, `energy_changed({energy, maxEnergy, delta})`, `coins_changed`. The HUD subscribes and also reads a snapshot once on ready. If no stats autoload exists yet, the HUD must still render with the new-run defaults (hp 100/100, energy 100/100, coins 50).
+The HUD reads player state (Phaser `core/GameState.ts:177-258`; owned by the player/combat spec in Godot): `hp`, `max_hp = player.stats.maxHp (100; 80 in Godot since 2026-11-24) + gooHearts * player.gooHeart.maxHpBonus (10)` (Godot since 2026-10-26: `RunState.max_hp()`, +20 per four heart quarters and per boss's full heart), `energy`, `max_energy = player.stats.maxEnergy (100)`, `coins` (new run 50, `InitialRun.ts:15`), all from `game-constants.json` → `player.stats`. Signals (Phaser events): `hp_changed({hp, maxHp, delta})`, `energy_changed({energy, maxEnergy, delta})`, `coins_changed`. The HUD subscribes and also reads a snapshot once on ready. If no stats autoload exists yet, the HUD must still render with the new-run defaults (hp 100/100, energy 100/100, coins 50).
 
 ### 6.2 Top-left HUD (`ui.hud`)
 

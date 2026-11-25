@@ -69,16 +69,14 @@ metadata/persistence_key = "weaver-hollow-roots.old-cellar-roots"
 position = Vector2(1888, 1632)
 metadata/instance_id = "weaver-hollow-roots-old-cellar-chest"
 metadata/persistence_key = "weaver-hollow-roots.old-cellar-chest"
+map_id = "weaver-hollow-roots"
+chest_id = "weaver-hollow-roots-old-cellar-chest"
+contents = {
+"war-journal-page-2": 1
+}
 
 [node name="Visual" parent="Objects/old-cellar-chest" index="1"]
 texture = ExtResource("10_d8gy8")
-
-[node name="ChestScript" parent="Objects/old-cellar-chest" index="2"]
-map_id = "weaver-hollow-roots"
-instance_id = "weaver-hollow-roots-old-cellar-chest"
-initial_contents = {
-"war-journal-page-2": 1
-}
 
 [node name="old-cellar-glint" parent="Objects" unique_id=592377347 instance=ExtResource("11_2l8bs")]
 position = Vector2(1888, 1580.8)

@@ -26,6 +26,7 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const GooHeart := preload("res://game/scripts/goo_heart.gd")
 const ItemPop := preload("res://game/dungeon/item_pop.gd")
 const AbilityCeremony := preload("res://game/ui/ceremony/ability_ceremony.gd")
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 const GROUP := &"chest"
 const BOSS_CAMP_GROUP := &"boss_camp"
@@ -39,11 +40,12 @@ const HEART_SIZE_PX := 40.0
 const HEART_RISE_MS := 1500.0
 const HEART_SPARKLE := &"loot-sparkle"
 
-## JSON `mapId`.
+## JSON `mapId` ("": the world's map). Set on the chest's root (chest_root.gd `map_id`).
 @export var map_id: String = ""
-## JSON `instanceId`.
+## JSON `instanceId` ("": the chest's own name). Set on the chest's root (chest_root.gd `chest_id`).
 @export var instance_id: String = ""
-## JSON `initialContents`: {item_id: positive count}.
+## JSON `initialContents`: {item_id: positive count}. Set on the chest's root (chest_root.gd
+## `contents`): overrides here are lost when the chest's Editable Children is turned off.
 @export var initial_contents: Dictionary = {}
 ## A Goo Heart inside: its heart id (unique across maps, as an `object.goo-heart`'s); empty: none.
 @export var goo_heart_id: String = ""
@@ -69,6 +71,12 @@ var _heart: Dictionary = {}
 
 func _enter_tree() -> void:
 	add_to_group(GROUP)
+	# Its record: the world's map and the chest's own name unless set (chest_root.gd sets what the
+	# designer gave the chest before this runs), so no two chests of a world share one record.
+	if map_id.is_empty():
+		map_id = DungeonState.world_map_id(self)
+	if instance_id.is_empty() and get_parent() != null:
+		instance_id = String(get_parent().name)
 	var run := Services.run()
 	if run != null:
 		run.ensure_chest(map_id, instance_id, positive_counts(initial_contents))

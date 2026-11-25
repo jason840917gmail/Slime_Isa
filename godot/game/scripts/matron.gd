@@ -150,8 +150,8 @@ const FLOOR_WEB_VARIANTS := 6
 @export var volley_spread: float = 170.0
 ## JSON `volleyRadius` (56, at least 8).
 @export var volley_radius: float = 56.0
-## JSON `volleyDamage` (20).
-@export var volley_damage: float = 20.0
+## JSON `volleyDamage` (40 since 2026-11-24; 20 in Phaser).
+@export var volley_damage: float = 40.0
 ## JSON `volleyKnockbackStrength` (120).
 @export var volley_knockback_strength: float = 120.0
 ## JSON `patchEffectId` ("matron-web-patch"; "" = no patches).
@@ -971,17 +971,23 @@ static func _enemy_script_of(root: Node) -> EnemyScript:
 func _step_enemy(delta: float) -> bool:
 	if cocoon_enabled and _round == 0 and not is_defeated():
 		_start_cocoon(Services.now_ms())
-	if not _cocoon_on() or _shell == SHELL_COCOONED:
+	if not _cocoon_on() or _runs_ai():
 		return super(delta)
 	_update_hit_flash(Services.now_ms())
 	body.velocity = Vector2.ZERO
 	return true
 
 
+## In the cocoon fight, whether the base step (the slime-spider AI, the spit, the leash) runs: from
+## inside the cocoon. The ram fight (game/bosses/matron_ram.gd) also lets it run while she hangs free.
+func _runs_ai() -> bool:
+	return _shell == SHELL_COCOONED
+
+
 ## The common attack (the web spit) runs only while fighting (MatronScript.ts:116), and in the
 ## cocoon fight only from inside the cocoon.
 func _can_run_common_attack() -> bool:
-	return _phase == PHASE_FIGHT and (not _cocoon_on() or _shell == SHELL_COCOONED)
+	return _phase == PHASE_FIGHT and (not _cocoon_on() or _runs_ai())
 
 
 func _receiver_tags() -> Array[String]:

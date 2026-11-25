@@ -749,7 +749,7 @@ cue had three new options of four takes and "now", what it played before. The sh
 | `SquintRear` | the Squint and the Big Squint rear up | `squint.gd` | `SlamWindup` |
 | `ThornballCurl` | the Thornball curls up (and cowers from a Goo Bomb) | `thornball.gd` | `SlamWindup` |
 | `SlamRise` | the slime springs up for a Slam | `slam_sequence.gd` (it was a placeholder for `SlamWindup`), `classic_slam_sequence.gd` | `SlamWindup` |
-| `GooBombCast` | the slime forms a Goo Bomb | `goo_bomb_sequence.gd` (a placeholder for `SlamWindup`) | `SlamWindup` |
+| `GooBombCast` | the slime forms a Goo Bomb (silent since 2026-11-24: the bomb has no cast, `castMs` 0) | `goo_bomb_sequence.gd` (a placeholder for `SlamWindup`) | `SlamWindup` |
 | `HammerSwing` | the Hammer shape swings | `shape_controller.gd` `SWING_CUES` | `SlamWindup` |
 | `OreLiftRide` | the Crystal Mine's ore lift rides | `ore_lift.gd` | `SlamWindup` |
 
@@ -803,7 +803,7 @@ in `cues.mjs` and `picks.json`; `carnivore_plant.gd` plays them. Her scene's old
 |---|---|---|
 | `PlantOpen` | she rears up, jaws wide (the tell) | `MimicWrap` (a goo inhale) |
 | `PlantSnap` | her jaws snap shut | `MimicGrab` (a goo plop) |
-| `PlantMunch` | each chew: the slime (one, 30 damage) or an enemy (two) | `MimicGrab` |
+| `PlantMunch` | each chew: the slime (one, 20 damage) or an enemy (two) | `MimicGrab` |
 | `PlantSwallow` | she swallows an enemy | `GulpThroat` (a goo inhale) |
 | `PlantBurp` | the burp after the swallow | `GulpBurp` (the slime's burp) |
 | `PlantSpit` | she spits the slime far | `MimicSpit` (a goo ptoo) |
@@ -822,3 +822,87 @@ in `cues.mjs` and `picks.json`; `carnivore_plant.gd` plays them. Her scene's old
 | `PlantSpit` | B Goo blast | its first alone | -1.4 dB |
 | `PlantDoze` | A Woozy yawn | its first, second and fourth | -6.3 dB |
 | `PlantBurn` | A Flame and shriek | all four | -8.3 dB |
+
+## 17. Round 15: the dungeon mechanisms
+
+Opened and applied 2026-11-23 with `round-15-picks.json`, **without the owner**: these are the
+builder's defaults for the knock target, the ram and the runaway cart
+([DUNGEONS.md](../DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)), shipped so the
+mechanisms are not silent. He has not heard or picked them, and no picker page was published.
+Manifest `scripts/audio/picker/round-15.json`, written by `round-15-make.py` (the prompts are in
+it); the Magnific (ElevenLabs) downloads in `temp/sound-round-15/raw/` (ten prompts, 22 takes, one
+second each, the cart's loop two; `urls.json` maps them to the creations; 115 credits), trimmed by
+`prep-takes.py` to their loudest event and each cue's `max` length. Each cue has ONE option, "a".
+To let him pick, add options to the manifest, stage the round without `--picks` and publish the
+picker page, as the earlier rounds did. The shipped takes are `library/world/<cue>[-<n>].wav`,
+kept as `asset/Originals/audio/magnific/world-<cue>-r15-<n>.wav` and registered in `cues.mjs` and
+`picks.json`. `stage-round.py` knows `world.cart-roll` as a loop.
+
+**The players name packed copies, not the WAV files.** The round was applied while an editor held
+the project, and a WAV the editor has not imported yet cannot be loaded by a game run: with one such
+take named in it, `global.tscn` does not load at all and every global cue is silent (seen on
+2026-11-23: `load("res://game/scenes/audio/global.tscn")` returned null in a film run). So
+`tools/pack_cue_sounds.gd -- --cues=world/knock-target-hit,...` saved each take as a native
+`AudioStreamWAV` resource, `godot/asset/audio/sfx/packed/world/<cue>[-<n>].res` (a folder
+`pnpm audio:bake` does not prune), and the ten players under `Effects` in `global.tscn` name those.
+They need no import. The WAV files stay in `library/world/` as the audio tools' record; once a
+later round stages these cues again (`stage-round.py` writes `.wav` paths) the packed copies can go,
+provided the editor imports the new takes before a game runs outside it.
+
+| Cue | Plays when | Where | Takes | Player |
+|---|---|---|---|---|
+| `KnockTargetHit` | a thrown thing, an arrow or a blast knocks the target (6 dB quieter on a slack one) | `knock_target.gd` | 3 | -5.3 dB |
+| `KnockTargetTap` | the Spear, a Roll or the slime's body only knocks on it (700 ms apart at most) | same | 2 | +0.7 dB |
+| `KnockTargetRearm` | its mechanism is ready: the target snaps upright | same | 2 | +0.7 dB |
+| `RamWindup` | the ram is let go: the 0.35 s shudder | `ram.gd` | 2 | +0.1 dB |
+| `RamSwing` | the log swings out | same | 2 | -8.0 dB |
+| `RamThud` | the swing's end | same | 3 | -4.8 dB |
+| `RamRatchet` | each tooth of the ram's winch back (every 500 ms for 8 s) and of the cart's haul back (every 400 ms) | `ram.gd`, `ram_cart.gd` | 3 | +0.7 dB |
+| `CartBrake` | the cart's brake snaps off; again, lower, when the chock drops back | `ram_cart.gd` | 2 | -0.3 dB |
+| `CartRoll` (loop) | the cart rolls (pitch 0.8 to 1.3 with its speed) and is hauled back (0.6) | same | 1 (option b) | -1.0 dB |
+| `CartBump` | the cart reaches its buffer stop or stops against something | same | 2 | -5.1 dB |
+
+The bricked arch plays `BreakStone` and the rail gate `BreakWood`, each followed by `SecretFound`.
+Volumes follow the loudness rule, held at +0.7 dB where it would push the peaks over full scale.
+
+**Redone on 2026-11-24** (the review of step 1, 50 Magnific credits), still without the owner:
+
+- **`CartRoll`, option "b"** (in the game; option "a" stays in the manifest for the picker): the
+  first take was the quietest of the round, half near-silent, with almost no low end. Two new
+  five-second looping takes (`raw/cart-roll-b-1.mp3`, `-b-2.mp3`; the prompt is in
+  `round-15-make.py`'s `EXTRA`); b-2 drops out in its middle and is not used. b-1's steady part
+  (from 1.4 s) was levelled, its last 0.3 s crossfaded into its start (a 3.3 s loop, the seam within
+  0.6 dB) and written as `cut/cart-roll-b-1.src.wav`, the library's `world/cart-roll.wav` and
+  `asset/Originals/audio/magnific/world-cart-roll-r15b-1.wav` (`cues.mjs` names it). It holds
+  between -23.5 and -18.5 dB per 100 ms, a tenth of its energy under 200 Hz, a clatter about every
+  100 ms. Its loudness is `stage-round.py`'s `CUE_TARGET_DB` -19 dB (2 dB under the one-shots'
+  -17, since it is held), not the loops' -26: the player is at -1.0 dB.
+- **The tails of `ram-windup-2`, `ram-ratchet-2` and `-3`** were cut off (a 30 ms straight fade
+  on a sound still ringing): each now dies away in a longer curved fade (60 ms, 40 ms), in the
+  library, the kept originals and the picker's takes alike. Their players' volumes are unchanged.
+- The packed copies were written again (`tools/pack_cue_sounds.gd --
+  --cues=world/cart-roll,world/ram-windup,world/ram-ratchet`).
+
+## 18. Round 16: the two bosses
+
+The reworked Orb-Weaver Matron's and Crystal Colossus's own sounds (step 2 of the
+[dungeons 2 and 3 rework](../../design/2026-11-23-dungeons-2-3-rework.md#the-bosses)), made
+2026-11-24 with their frames, published on the Sound Picker page and **picked by the owner** the
+same day (`round-16-picks.json`: every cue its option "a"; he struck out the second take of the hiss
+and of the shriek). Manifest `scripts/audio/picker/round-16.json`, written by `round-16-make.py` (the
+prompts are in it); the Magnific (ElevenLabs) downloads in `temp/sound-round-16/raw/` (eleven
+prompts, two takes each, two seconds, the roar three; `urls.json`; 230 credits). Applied with
+`stage-round.py --picks`: the takes are `library/boss/<cue>[-<n>].wav`, kept as
+`asset/Originals/audio/magnific/boss-<cue>-r16-<n>.wav`, registered in `cues.mjs` and `picks.json`;
+as round 15's, the players name packed copies (`asset/audio/sfx/packed/boss/*.res`, written by
+`tools/pack_cue_sounds.gd`), so they play before the editor imports the WAV files.
+
+| Cue | Plays when | Where | Takes | Player |
+|---|---|---|---|---|
+| `MatronHiss` | she dives, and when she spits her glob at a knock target (her ram call) | `game/bosses/matron_ram.gd` | 1 | -4.8 dB |
+| `MatronShriek` | a ram catches her, knocks her cocoon down; a blast tears it | same | 1 | -6.8 dB |
+| `MatronImpact` | her dive lands, she crashes on her back, a cocoon hits the floor | same | 2 | -9.1 dB |
+| `ColossusStomp` | his stomp lands (also his landing) | the Colossus's plate fight | 2 | -6.8 dB |
+| `ColossusRoar` | he wakes, a plate bursts, he leaps onto the wall | same | 2 | -9.6 dB |
+| `ColossusShatter` | a cart bursts a hot plate | same | 2 | -3.5 dB |
+| `ColossusClang` | a cart clangs off a cold plate | same | 2 | -6.5 dB |

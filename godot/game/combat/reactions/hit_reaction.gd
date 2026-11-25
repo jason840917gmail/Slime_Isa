@@ -24,7 +24,9 @@ extends RefCounted
 ##   (moves, stuns, attack cancels, motions). `preview` decides on a copy of the memory.
 ## - `gate` and `damage_scale`: the clink and the damage multipliers (part `damageTaken`, the
 ##   phase's `damageTaken`, a knockdown's `damageTaken`) that `can_receive_damage` and
-##   `mitigate_damage` need before the hit is committed.
+##   `mitigate_damage` need before the hit is committed. A mechanism's blow (`true_blow`,
+##   `blow_lands`) passes the clink in a phase not marked `noSleep`, the wake guard, the break-free armor and a phase's
+##   armor; its request's `true_damage` skips the multipliers (EnemyReactions.damage_scale).
 ## - The hit builders every rework sender uses (shapes, the Slam, thrown objects, the Roll):
 ##   `build_hit` fills a `hit` Dictionary from `combat.hits[class]` with the contract's defaults,
 ##   `attach` puts it on a DamageRouter request with the `impact` effect (so a 0-damage hit is still
@@ -129,15 +131,17 @@ static func decide(profile: Dictionary, hit: Dictionary, state: RefCounted, now_
 	# The suck never pulls a live enemy unless its profile says so (owner, 2026-10-11).
 	if hit_class == CLASS_SUCK:
 		return _suck(profile)
-	# 2. The wake guard and the break-free armor: damage and a flash, nothing more.
-	if now_ms < memory.wake_until_ms or now_ms < memory.armor_until_ms:
+	# 2. The wake guard and the break-free armor: damage and a flash, nothing more (a mechanism's
+	# true blow goes through: the ram that hits a body another blow has just bowled still moves it).
+	var true_blow := bool(hit.get("true_blow", false))
+	if (now_ms < memory.wake_until_ms or now_ms < memory.armor_until_ms) and not true_blow:
 		var guarded := _with_slime(reaction(VERB_ARMOR), hit, profile)
 		guarded["guarded"] = true
 		return guarded
 	# 3. The phase's armor, else 4. the class verb.
 	var entry: Dictionary
 	var armor := int(phase.get("armor", 0))
-	var phase_armor := armor > 0 and int(hit.get("tier", 1)) <= armor
+	var phase_armor := armor > 0 and int(hit.get("tier", 1)) <= armor and not true_blow
 	if phase_armor:
 		entry = {"verb": VERB_ARMOR}
 	else:
@@ -227,10 +231,10 @@ static func gate(profile: Dictionary, hit: Dictionary, state: RefCounted) -> Str
 	var hit_class := str(hit.get("class", ""))
 	var phase := phase_entry(profile, phase_name)
 	if (_listed(profile.get("immune", []), hit_class) or _listed(phase.get("immune", []), hit_class)) \
-			and not sleeps_through(profile, hit, phase_name):
+			and not sleeps_through(profile, hit, phase_name) and not blow_lands(profile, hit, phase_name):
 		return GATE_CLINK
 	var part := part_entry(profile, memory.part if memory != null else "")
-	if part.is_empty() or part_open(part, hit, phase_name):
+	if part.is_empty() or part_open(part, hit, phase_name) or blow_lands(profile, hit, phase_name):
 		return GATE_OPEN
 	var verb := str(class_entry(profile, hit, phase).get("verb", ""))
 	return GATE_ZERO if verb == VERB_DAZE or verb == VERB_KNOCKDOWN else GATE_CLINK
@@ -247,6 +251,20 @@ static func sleeps_through(profile: Dictionary, hit: Dictionary, phase_name: Str
 	if bool(phase.get("noSleep", false)):
 		return false
 	return str(class_entry(profile, hit, phase).get("verb", "")) == VERB_SLEEP
+
+
+## True when `hit` is a dungeon mechanism's blow (`true_blow`: the ram's log, the runaway cart;
+## game/dungeon/mechanism_strike.gd) that lands through the immunities and a shut part: the enemy is
+## no boss and the phase is not one marked `noSleep` (the sleep throw's rule, reused: the phases where
+## the body is out of reach: burrowed, in the air, in its pipe, ducked or lining up behind its crates,
+## a mite waiting or dropping; the Worm Bulwark's charge and skid carry the mark too, but nothing
+## shields him there, so a blow lands on him then anyway). A sleeping statue or a charging boar is
+## struck. An enemy that is invulnerable by design is refused before this (EnemyReactions
+## `invulnerable_by_design`).
+static func blow_lands(profile: Dictionary, hit: Dictionary, phase_name: String) -> bool:
+	if not bool(hit.get("true_blow", false)) or str(profile.get("weight", "")) == WEIGHT_BOSS:
+		return false
+	return not bool(phase_entry(profile, phase_name).get("noSleep", false))
 
 
 ## The damage multiplier of `hit` on the enemy now: 0 through a shut gate (GATE_ZERO), times the

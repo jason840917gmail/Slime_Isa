@@ -1398,7 +1398,7 @@ Nothing in the playground teaches jump, slam or teleport; tests teach them throu
 | `gulp.formDurationMs` | removed 2026-10-08 | Forms have no timer since the essence Gulp (§11 banner); the Phaser value was 60000 |
 | `character.player.stats.maxEnergy` | 100 | Energy cap, respawn refill |
 | `character.player.stats.energyRegenPerSecond` | 8 | Regen (§4) |
-| `character.player.stats.maxHp` | 100 | Base max HP (Goo Hearts add) |
+| `character.player.stats.maxHp` | 80 (100 until 2026-11-24) | Base max HP (Goo Hearts add) |
 | `character.player.heartQuarter.perHeart` / `heartMaxHpBonus` | 4 / 20 | Quarters per heart, max HP per whole heart (§13.7, Godot) |
 | `character.player.movement.rollSpinUpMs` / `rollMinMs` / `rollCooldownMs` | 260 / 450 / 1000 | Roll cooldown 1710 (§1; `rollCooldownMs` 250 until 2026-10-31); replaced `dodgeDurationMs` / `dodgeCooldownMs` (500 / 250) on 2026-10-09 |
 | `character.player.movement.rollLaunchSpeed` / `rollSpeed` / `rollInvulnerabilityMs` / `rollEnergyPerSecond` | 460 / 340 / 400 / 12 | The Roll itself (player spec §5); `rollTurnRadPerS` was removed on 2026-10-09 (the Roll goes straight) |

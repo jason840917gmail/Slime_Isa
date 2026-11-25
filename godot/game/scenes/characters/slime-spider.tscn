@@ -548,7 +548,7 @@ attributes = {
 "wanderSpeed": 30,
 "attackWindupMs": 600,
 "attackRecoveryMs": 350,
-"contactDamage": 22,
+"contactDamage": 5,
 "knockbackStrength": 180,
 "knockbackResist": 0,
 "behavior": "slime-spider",
@@ -570,7 +570,7 @@ rewards = {
 projectile = {
 "projectileId": "spider-web",
 "assetId": "enemy.projectile.spider-web",
-"damage": 50,
+"damage": 5,
 "stickMs": 1000
 }
 

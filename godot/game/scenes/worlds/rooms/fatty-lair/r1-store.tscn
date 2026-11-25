@@ -68,11 +68,9 @@ y_sort_enabled = true
 
 [node name="r1-store-chest" parent="Objects" unique_id=1089206223 instance=ExtResource("7_ny2vb")]
 position = Vector2(223, 217)
-
-[node name="ChestScript" parent="Objects/r1-store-chest" index="2"]
 map_id = "fatty-lair"
-instance_id = "r1-store-chest"
-initial_contents = {
+chest_id = "r1-store-chest"
+contents = {
 "coins": 100
 }
 

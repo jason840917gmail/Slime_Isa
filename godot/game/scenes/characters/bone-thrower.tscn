@@ -94,7 +94,7 @@ rewards = {
 projectile = {
 "projectileId": "bone",
 "assetId": "enemy.projectile.bone",
-"damage": 16
+"damage": 10
 }
 pose = NodePath("../Pose")
 defeated_frame = 0

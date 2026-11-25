@@ -22,6 +22,9 @@ of the [2026-10-11 dungeons plan](2026-10-11-release-1-dungeons-plan.md#7-dungeo
 whose War Axe, Swallow forms and Silk Reel are gone. Where this doc needs an answer it says
 **Proposal** and lists it in [Open points](#open-points).*
 
+> **2026-11-23 (owner):** no heart quarter inside a dungeon; the one this design places is gone, and a rework of
+> the whole dungeon is proposed in [2026-11-23-dungeons-2-3-rework.md](2026-11-23-dungeons-2-3-rework.md).
+
 > **Superseded in part (2026-10-17).** The owner moved each Pearl inside its dungeon, before the
 > boss ([decisions archive](../story/07-decisions-archive.md#decisions-by-date)): Pearl 2 lies in
 > the Hollow before the Matron, taking it seals the Hollow's exits until she falls, the second half

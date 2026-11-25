@@ -90,9 +90,9 @@ const HEARTS := {
 	"full heart": ["full-heart", "A whole heart, a beaten boss's prize.\nOn its FullHeartScript: heart_id, a name no other heart uses; boss_id, the boss it waits for."],
 	"roll fragment": ["collectible-roll-fragment", "A Roll fragment on the ground (four teach the Charged Roll; Burr gives the first in Fatty's Lair).
 On its CollectibleScript: map_id, the world's id; instance_id, a name no other pickup in that world uses. Or put \"roll-fragment\": 1 in a chest's contents."],
-	"wooden chest": ["chest-wooden", "A chest for any world.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
-	"dungeon chest": ["dungeon/dungeon-chest", "A dungeon room's chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
-	"dungeon big chest": ["dungeon/dungeon-big-chest", "A dungeon's big chest.\nFor a heart quarter inside, on its ChestScript: goo_heart_id, a name no other heart uses (empty: no heart)."],
+	"wooden chest": ["chest-wooden", "A chest for any world.\nSet it on the chest itself: Contents (what it holds at the start), Heart Id for a heart quarter inside (a name no other heart uses)."],
+	"dungeon chest": ["dungeon/dungeon-chest", "A dungeon room's chest.\nSet it on the chest itself: Contents (what it holds at the start), Heart Id for a heart quarter inside (a name no other heart uses)."],
+	"dungeon big chest": ["dungeon/dungeon-big-chest", "A dungeon's big chest.\nSet it on the chest itself: Contents (what it holds at the start), Heart Id for a heart quarter inside (a name no other heart uses)."],
 }
 ## The towns' villagers and animals (docs/godot/VILLAGERS.md): every scene of the folder by its
 ## picture, placed at its own size under the world's `NPCs` or `Animals` node.

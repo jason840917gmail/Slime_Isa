@@ -47,12 +47,22 @@ FOOTSTEPS_SCRIPT = "res://game/audio/footsteps.gd"
 ## strokes sit well under the one-shots: "make steps softer than the rest, I don't want to get
 ## annoyed by the steps" (owner, round 3).
 TARGET_DB = {"step": -33.0, "stroke": -29.0, "blip": -30.0, "loop": -26.0, "oneshot": -17.0}
+## Loudness per cue where its kind's does not fit: the runaway cart's roll is the one sound while it
+## runs, a heavy rumble that must hold its own beside the one-shots (review of 2026-11-24: "as loud
+## as the other cues"), 2 dB under them since it is held.
+CUE_TARGET_DB = {"world.cart-roll": -19.0}
+
+
+def target_db(cue_id: str, kind: str) -> float:
+    return CUE_TARGET_DB.get(cue_id, TARGET_DB[kind])
 ## Player settings per kind: (pitch randomness, min interval ms, max polyphony).
 PLAYER = {"step": (0.06, 180.0, 2), "stroke": (0.05, 300.0, 2), "blip": (0.08, 80.0, 2), "loop": (0.0, 0.0, 1), "oneshot": (0.06, 60.0, 4)}
 ## Cue -> kind where the take kind is not enough.
 CUE_KIND = {"player.swim-stroke": "stroke", "ui.talk-blip": "blip", "player.sleep-breath": "loop", "world.bath-soak": "loop",
             # it turns every few seconds for as long as the slime is near: as quiet as a swim stroke
-            "enemy.crystal-crawler-turn": "stroke"}
+            "enemy.crystal-crawler-turn": "stroke",
+            # round 15: the runaway cart's rolling loop (game/crystal_mine/ram_cart.gd)
+            "world.cart-roll": "loop"}
 ## Minimum interval (ms) where the kind's does not fit: the struggle repeats while a direction is
 ## held, and a plate on the edge of its radius can flicker; the stairs walk's footsteps
 ## (elevation.stairsFootstepMs) may be set closer than walking ones.
@@ -75,7 +85,7 @@ CUE_PITCH = {"player.throw-kill": 0.0, "player.throw-toss": 0.08,
 PEAK_CEILING_DB = -0.3
 KEPT_MAX_DB = 4.1
 ## Cues whose global players loop.
-LOOPING = {"player.sleep-breath", "world.bath-soak"}
+LOOPING = {"player.sleep-breath", "world.bath-soak", "world.cart-roll"}
 ## Global players a cue drives besides its `node` (the shell menus also close).
 EXTRA_NODES = {"ui.shell-menu": ["MenuClose"]}
 ## Global players that existed before this round: their volume and settings stay as authored.
@@ -283,7 +293,7 @@ def main() -> None:
             continue
         kind = kind_of(cue, option)
         files = ship(cue, option, takes_dir, dropped, round_tag if picks is not None else None)
-        rule = TARGET_DB[kind] - float(np.mean([loudness(f) for f in files]))
+        rule = target_db(cue["id"], kind) - float(np.mean([loudness(f) for f in files]))
         volume = min(rule, KEPT_MAX_DB if option.get("shipped") else PEAK_CEILING_DB - peak_db(files))
         for each in names:
             if each in AUTHORED and scene.node_body(each, parent) is not None:
@@ -309,7 +319,7 @@ def main() -> None:
                     target = folder / f"{each_option['key']}-{i + 1}.mp3"
                     shutil.copyfile(takes_dir / cue["id"] / f"{each_option['key']}-{i + 1}.mp3", target)
                     paths.append(res(target))
-                gain = TARGET_DB[kind_of(cue, each_option)] - float(np.mean([loudness(takes_dir / cue["id"] / f"{each_option['key']}-{i + 1}.mp3") for i in range(len(each_option["takes"]))]))
+                gain = target_db(cue["id"], kind_of(cue, each_option)) - float(np.mean([loudness(takes_dir / cue["id"] / f"{each_option['key']}-{i + 1}.mp3") for i in range(len(each_option["takes"]))]))
                 entry["options"][each_option["key"]] = {"label": each_option["label"], "takes": paths, "volume_db": round(gain, 2)}
             audition["cues"][cue["id"]] = entry
 

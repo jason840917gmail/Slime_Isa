@@ -398,7 +398,7 @@ attributes = {
 "wanderSpeed": 24,
 "attackWindupMs": 700,
 "attackRecoveryMs": 400,
-"contactDamage": 30,
+"contactDamage": 20,
 "knockbackStrength": 220,
 "effectImmunities": ["knockback"],
 "behavior": "slime-spider",
@@ -419,7 +419,7 @@ rewards = {}
 projectile = {
 "projectileId": "spider-web",
 "assetId": "enemy.projectile.spider-web",
-"damage": 18,
+"damage": 20,
 "stickMs": 900
 }
 display_name = "Orb-Weaver Matron"
@@ -430,7 +430,7 @@ volley_rest_ms = 1300.0
 volley_points = 4.0
 volley_spread = 170.0
 volley_radius = 56.0
-volley_damage = 20.0
+volley_damage = 40.0
 volley_knockback_strength = 120.0
 patch_effect_id = "matron-web-patch"
 arena_recovery_ms = 60000.0

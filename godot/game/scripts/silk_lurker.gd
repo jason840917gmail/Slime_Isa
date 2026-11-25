@@ -115,7 +115,7 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 				_tripped = false
 				_puff(DUST, feet())
 				if engaged and feet().distance_to(slime_feet) <= pattern("biteRangePx", 34.0):
-					_route_immediate_attack(target, pattern("dropDamage", 18.0), pattern("dropKnockback", 220.0))
+					_route_immediate_attack(target, pattern("dropDamage", 20.0), pattern("dropKnockback", 220.0))
 		PHASE_HANG:
 			_height = pattern("hangHeightPx", 22.0)
 			# It swings toward the slime on its thread.
@@ -123,7 +123,7 @@ func _step_pattern(now: float, _delta: float, target: Dictionary, engaged: bool)
 			_swing = lerpf(_swing, side * SWING_PX + sin(now / SWING_MS) * SWING_PX * 0.4, 0.12)
 			if engaged:
 				face_x(slime_feet.x - feet().x)
-				_contact(target, pattern("swayDamage", 8.0), pattern("swayKnockback", 140.0), pattern("swayReachPx", 26.0) + _rise())
+				_contact(target, pattern("swayDamage", 10.0), pattern("swayKnockback", 140.0), pattern("swayReachPx", 26.0) + _rise())
 			if elapsed >= pattern("hangMs", 2600.0):
 				_begin_climb(now)
 		PHASE_SPIN:

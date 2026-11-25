@@ -204,7 +204,7 @@ func _try_bite(target: Dictionary) -> void:
 	if slime_body == null or feet().distance_to(slime_body.global_position) > pattern("biteRadiusPx", 26.0):
 		return
 	_bitten = true
-	if _route_immediate_attack(target, pattern("biteDamage", 12.0), pattern("biteKnockback", 160.0)):
+	if _route_immediate_attack(target, pattern("biteDamage", 20.0), pattern("biteKnockback", 160.0)):
 		_cue(CUE_BITE)
 
 

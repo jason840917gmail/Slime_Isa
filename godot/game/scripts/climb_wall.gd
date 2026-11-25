@@ -59,7 +59,7 @@ const HELD_ON_ARRIVAL: Array[StringName] = [&"interact", &"move_up", &"move_down
 @export var climb_ms: float = 0.0
 @export var interact_radius: float = 80.0
 @export var badge_rise: float = 64.0
-@export var prompt: String = "Climb (hold)"
+@export var prompt: String = "Climb"
 @export var refusal_text: String = "Thick roots and handholds... too steep for a slime. Something wilder could climb them."
 ## The grab zone's width across the climb (0: the picture's `art_size`, else DEFAULT_WIDTH).
 @export var grab_width: float = 0.0

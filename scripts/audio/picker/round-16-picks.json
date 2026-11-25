@@ -1,0 +1,27 @@
+{
+ "round": "round-16",
+ "decidedAt": "2026-11-24T19:16:01.712Z",
+ "source": "The Sound Picker's picks/round-16 document, version 10 (final), as saved: every cue its option a, none Neither, no note or wishes. Dropped takes are the ones the owner struck out (indices from 0).",
+ "note": "",
+ "picks": {
+  "boss.colossus-clang": "a",
+  "boss.colossus-roar": "a",
+  "boss.colossus-shatter": "a",
+  "boss.colossus-stomp": "a",
+  "boss.matron-hiss": "a",
+  "boss.matron-impact": "a",
+  "boss.matron-shriek": "a"
+ },
+ "dropped": {
+  "boss.matron-hiss": {
+   "a": [
+    1
+   ]
+  },
+  "boss.matron-shriek": {
+   "a": [
+    1
+   ]
+  }
+ }
+}

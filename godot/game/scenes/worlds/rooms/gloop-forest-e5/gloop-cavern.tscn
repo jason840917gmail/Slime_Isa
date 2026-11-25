@@ -93,11 +93,9 @@ target_door_id = "gloop-sinkhole"
 position = Vector2(1050, 593)
 metadata/instance_id = "gloop-cavern-hidden-chest"
 metadata/persistence_key = "gloop-cavern.gloop-cavern-hidden-chest"
-
-[node name="ChestScript" parent="cave/hidden-chest" index="2"]
 map_id = "gloop-cavern"
-instance_id = "gloop-cavern-hidden-chest"
-initial_contents = {
+chest_id = "gloop-cavern-hidden-chest"
+contents = {
 "roll-fragment": 1,
 "charcoal": 3,
 "hp-potion": 1,

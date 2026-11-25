@@ -77,11 +77,9 @@ y_sort_enabled = true
 
 [node name="heart-chest-meadow-autumn-thicket" parent="Cave" unique_id=683169760 instance=ExtResource("9_c4r35")]
 position = Vector2(512, 332.8)
-
-[node name="ChestScript" parent="Cave/heart-chest-meadow-autumn-thicket" index="2"]
 map_id = "hollow-hill-cave"
-instance_id = "heart-chest-meadow-autumn-thicket"
-goo_heart_id = "meadow-autumn-thicket"
+chest_id = "heart-chest-meadow-autumn-thicket"
+heart_id = "meadow-autumn-thicket"
 
 [node name="cave-pot-a" parent="Cave" unique_id=1565671253 instance=ExtResource("10_e05hw")]
 position = Vector2(153.6, 601.6)

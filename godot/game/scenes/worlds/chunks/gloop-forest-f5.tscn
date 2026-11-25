@@ -179,15 +179,13 @@ gate_id = "gloop-iron-hollow-gate"
 
 [node name="hollow-chest" parent="iron-hollow" unique_id=1907351126 instance=ExtResource("46_beltc")]
 position = Vector2(3040, 2464)
-
-[node name="ChestScript" parent="iron-hollow/hollow-chest" index="2"]
 map_id = "gloop-forest-f5"
-instance_id = "gloop-forest-f5-hollow-chest"
-initial_contents = {
+chest_id = "gloop-forest-f5-hollow-chest"
+contents = {
 "belt-slot": 1,
 "hp-potion": 1
 }
-goo_heart_id = "gloop-iron-hollow"
+heart_id = "gloop-iron-hollow"
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1842296281]
 process_mode = 3
@@ -314,11 +312,9 @@ flag_id = "gloop-forest.secret-glade-log"
 
 [node name="secret-glade-chest" parent="RiverRoads" unique_id=1470846101 instance=ExtResource("46_beltc")]
 position = Vector2(1510.3999, 1804.7998)
-
-[node name="ChestScript" parent="RiverRoads/secret-glade-chest" index="2"]
 map_id = "gloop-forest-f5"
-instance_id = "gloop-forest-f5-secret-glade-chest"
-initial_contents = {
+chest_id = "gloop-forest-f5-secret-glade-chest"
+contents = {
 "coins": 40,
 "energy-potion": 1
 }

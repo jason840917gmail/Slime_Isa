@@ -73,7 +73,7 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
     and a Clod Stomper (heavy) at (1450, 1754). No tiny type exists yet, so none stands in for a
     Broodling. They are spawned as EnemyPopulation spawns (`character.<type>` by its old centre,
     `configure_navigation`, with no camp and no safe zones) and take their `enemy-types.json`
-    `maxHp` when it is higher than the scene's (the swordsman 90, not level-1's 8). They fight only
+    `maxHp` when it is higher than the scene's (none is since 2026-11-24, when the swordsman's scene went from 8 to 40). They fight only
     while the slime's centre is inside the pen (`configure_arena` with the pen); while it is outside,
     each one's arena is a dot at its post, so it walks back there and never shoots at the slime by
     the dummies or at the spawn. Each comes back 3 s after it dies; **F4** brings the whole pen back
@@ -784,7 +784,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 | `gulp.feel` | the Gulp's look in both modes (2026-10-16, `game/player/gulp/gulp_feel.gd`): `suck` (the squash, the motes), `catch` (the bulge, the held thing's settle), `throw` (the stretch, the lean, the whoosh streak), `land` (the ground dust, the heavy materials' camera nudge); [abilities spec](specs/abilities.md) |
 | `abilities.squashSlam` | the improved Slam (body-shapes plan section 4): timeline (`crouchEndMs` 120, `riseEndMs` 320, `hangEndMs` 380, `impactMs` 460, `doneMs` 640), `riseUnits` 96, `airborneFromMs`/`airborneToMs` 140/440, `ignoresKnockback`, `ellipse` 140 x 96 (`innerShare` 0.5), `inner` (slam 40, launch 380, hop 16), `outer` (ring 24, launch 300, `bounceMs` 600), `stoneDamageBonus` 0.25, `feel`, `stoneFeel`, `wobbleRadiusPx`, `energy` 35, `cooldownMs` 2500 |
 | `abilities.lantern` | the Lantern (2026-10-14): `energy` 10, `cooldownMs` 300, `clipMs` 200 (the spit clip sped up to this), `releaseMs` 70 (the flame leaves the mouth), `flame` {`class` tap, `damage` 5, `holdMs` 250, `rangePx` 72, `speed` 900, `lingerMs` 150, `radiusPx` 10, `lightRadiusPx` 90, `feel`}, `glow` {`radiusPx` 160, `flareMs` 260}, `candle` {`lightRadiusPx` 110, `gutterMs` 5000}, `burnable` {`burnMs` 600, `spreadPx` 24}, `darkness` {`alpha` 1.0, `softPx` 40, `maxLights` 16, `litFadeMs` 1500} |
-| `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 600, the cast `castMs` 2000 in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
+| `abilities.gooBomb` | the Goo Bomb (2026-10-14, [Goo Bomb](#the-goo-bomb-2026-10-14)): `energy` 20, `cooldownMs` 1000 (600 until 2026-11-24), the cast `castMs` 0 (2000 until 2026-11-24: no cast now) in `castPulses` 4 swells of `castSwell` 0.1, `spitMs` 320, the hop `hopPx` 64 in `hopMs` 260 with `hopArcPx` 18, `fuseMs` 3000, `pulseStartHz` 2 to `pulseEndHz` 8, `flashMs` 500, `chainDelayMs` 120, `ellipse` 176 x 120, `hit` {`class` slam, `damage` 40, `launchSpeed` 380, `hopPx` 16}, `selfDamage` 18, `mouthDamage` 28, `selfKnockback` 300, `feel` {`hitStopMs` 120, `trauma` 0.9}, `lightRadiusPx` 40, `blastLightRadiusPx` 220, `blastLightMs` 250 |
 | `abilities.bow` | the Bow (2026-11-20, [The Bow](#the-bow-2026-11-20)): `energy` 6 (spent at the shot), `cooldownMs` 300, `drawMs` 140 (the least draw), `recoverMs` 140, `arrow` {`class` arrow, `damage` 20 (10 until 2026-11-22: the owner found it far too low), `holdMs` 220, `speed` 760, `rangePx` 512, `radiusPx` 7, `feel`} |
 | `puzzles.heavyPlate` | the heavy plate (2026-10-14, [Heavy plates](#heavy-plates-and-heavy-blocks-2026-10-14)): `sinkMs` 3000 (up to fully down), `riseMs` 5000 (back up), `sinkPx` 6 (the cap's travel), `playerRadiusPx` 30 (the Stone slime's feet from its middle), `blockRadiusPx` 24 (a block's middle), `ringRadiusPx` 46, `grindIntervalMs` 420 |
 | `puzzles.heavyBlock` | the heavy blocks: `cellPx` 64 (one move), `moveMs` 640 (a cell, 100 px/s), `startDelayMs` 180 (a walk key held this long before a block moves), `grabReachPx` 14, `strainLineMs` 2400, `strainWobble` 0.06, `strainHz` 7 |
@@ -849,7 +849,13 @@ Optional fields, set only by a thrown thing while the throw's reworked feel is o
 before: `big` (the hard flash and the freeze shake when it dealt damage; `HitJuice.is_big` also
 shows the big number), `knock_motion` (the knocked-back motion before the verb's own), `chains` and
 `bowl_damage` (a stun slide may splat and bowl), `kill_sendoff` (a kill flies off and pops; the
-reaction then carries `sendoff: true`).
+reaction then carries `sendoff: true`). Two more, set only by a dungeon mechanism's blow (the ram's
+log, the runaway cart: [DUNGEONS.md](DUNGEONS.md#a-mechanisms-blow-on-an-enemy)): `true_blow` (it
+lands through a phase's immunities, a shut part, a patterned enemy's shield, the wake guard, the
+break-free armor and a phase's armor, never in a phase marked `noSleep`, never on a boss, and never on
+an enemy invulnerable by design: `HitReaction.blow_lands`, EnemyReactions `invulnerable_by_design`)
+and `resist_floor` (the knock's launch, slide and send-off use at least this share of it, unless the
+profile's `knockbackScale` is 0); its request's `true_damage` makes `damage_scale` 1.
 
 Build it with the shared helpers in `res://game/combat/reactions/hit_reaction.gd`:
 
@@ -1631,9 +1637,16 @@ can suck it in and throw it as well. It costs 20 energy" (design:
 ability (socket `goo-bombs`, F; S in keys-only), lent in the rework mode with the other box
 abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
 
+**No cast since 2026-11-24** (the owner: "rework the bomb it not longer need casting and you can
+put many with a 1 second cool down"): `castMs` 0, so the press spits the bomb at once, and the next
+one can follow a second later (`cooldownMs` 1000), as many as the energy pays for (20 each); several
+lie fusing at once (filmed in the Matron lab, `film-matron.sh <name> --film=bombs`: a press half a
+second after a bomb is refused, then three bombs lie together and all blow). The cast below comes
+back with a `castMs` above 0.
+
 - **The press** (`PlayerScript.use_ability(&"goo-bombs")` -> `PlayerAbilities.try_begin`): the usual
-  refusals, "Low energy" below 20, but no energy is taken yet; the cooldown (600 ms) starts.
-- **The cast** (`goo_bomb_sequence.gd`, 2000 ms): the slime stands still (actions locked) and
+  refusals, "Low energy" below 20, but no energy is taken yet; the cooldown (1000 ms) starts.
+- **The cast** (`goo_bomb_sequence.gd`, `castMs`; 2000 ms until 2026-11-24, now 0: none): the slime stands still (actions locked) and
   swells in 4 slow pulses on the effects channel, up to 10 % wider; a glowing bomb grows inside its
   jelly (`BombInside` on the body: the bomb art from 0.04 to 0.3 of its size, see-through, with an
   additive glow, at the belly). Under it the shapes' charge ring (a `GooRing` set up as ShapeVisuals
@@ -1665,9 +1678,9 @@ abilities (`main.start_rework`). Numbers: `abilities.gooBomb` ([Data](#data)).
 - **The blast** (`goo_blast.gd` `detonate`): the ground ellipse 176 x 120 around the bomb's ground
   point (centred 27.56 higher for hurtboxes, as the Slam's), on the level of the ground under it.
   Enemies and dummies: `AbilityWorld.strike_targets` with the rework hit (class slam, 40, launch
-  380, hop 16), knocked away from the bomb. The slime: inside the ellipse (its feet), 18 damage and
+  380, hop 16), knocked away from the bomb. The slime: inside the ellipse (its feet), 10 damage and
   a 300 px/s knock away (an old-style request from the blast, so its i-frames, the Roll and the
-  Slam's air time apply; 15 after defense); in the mouth 28 (25). `blast_targets`: each node whose
+  Slam's air time apply; 18 until 2026-11-24); in the mouth 20 (28 until then). `blast_targets`: each node whose
   `blast_point()` lies in the ellipse gets `receive_blast(hit) -> bool`. Other bombs in it go off
   120 ms later. Feel: `GameFeel.play_hit` once (hit-stop 120 ms, trauma 0.9, the targets' material
   cue), each target's number, sparks and debris, the painted burst (blast-6x1.webp, 70 ms a frame,

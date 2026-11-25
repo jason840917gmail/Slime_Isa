@@ -3,7 +3,11 @@ extends RefCounted
 ## Bomb"; every number in game-constants.json `abilities.gooBomb`). Run by PlayerAbilities for the
 ## `goo-bombs` box ability (rework mode; the classic game has no F action).
 ##
-## - **The cast** (`castMs`, 2000): the slime stands still (the sequence locks actions) and swells
+## **No cast since 2026-11-24** (the owner: "rework the bomb it not longer need casting and you can
+## put many with a 1 second cool down"): `castMs` is 0, so the press spits the bomb at once (no
+## swell, no bomb inside, no ring, no chime) and the next can follow `cooldownMs` (1000) later, as
+## many as the energy pays for. A `castMs` above 0 brings the cast below back:
+## - **The cast** (`castMs`): the slime stands still (the sequence locks actions) and swells
 ##   in `castPulses` slow pulses on the effects channel (`set_effect_scale`, up to `castSwell`
 ##   wider), while a small glowing bomb grows inside its jelly (a sprite on the body, drawn over the
 ##   art see-through, as the mouth shows what it holds). Under the slime the shapes' charge ring
@@ -99,6 +103,10 @@ func begin(player: Node, intent: Dictionary, now_ms: float) -> void:
 	_swell = setting("castSwell")
 	_player.call(&"stop_movement")
 	_player.call(&"reset_effects")
+	# No cast (`castMs` 0, the owner, 2026-11-24): no swell, no bomb growing inside, no ring and no
+	# chime; the first step spits it.
+	if _cast_ms <= 0.0:
+		return
 	_player.call(&"play_animation", CLIP_CAST, true)
 	_make_inside()
 	_make_ring()

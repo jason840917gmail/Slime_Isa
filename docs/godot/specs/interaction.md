@@ -576,6 +576,13 @@ them by interacting, spending the key (§5.3).
 | `instanceId` | string | `''` | `instance_id: String = ""` |
 | `initialContents` | object of positive safe integers (`recordOfPositiveIntegers :32-37`) | `{}` | `initial_contents: Dictionary = {}` |
 
+*Godot, 2026-11-23:* a placed chest is set on its root (`game/scripts/chest_root.gd`: `contents`,
+`heart_id`, `starts_hidden`, `chest_id`, `map_id`), which hands them to this script before it
+reads its record (overrides on the `ChestScript` child are lost when the instance's Editable
+Children is turned off). An empty `map_id` is the world's map (DungeonState.world_map_id) and an
+empty `instance_id` the chest root's name, so no two chests of a world share a record; the wooden
+chest scene no longer carries the template ids `level-1` / `chest-template`.
+
 Signals (`registrations.ts:250-255`) and their only listeners (connections in
 `objects/chest-wooden.scene.json`, converted to `play_cue`):
 

@@ -211,16 +211,14 @@ gate_id = "fatty-lair-r7-gate"
 
 [node name="r7-key-chest" parent="Objects" unique_id=1751348877 instance=ExtResource("15_5y5ef")]
 position = Vector2(256, 208)
+map_id = "fatty-lair"
+chest_id = "r7-key-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="Visual" parent="Objects/r7-key-chest" index="1"]
 texture = ExtResource("20_4yae4")
-
-[node name="ChestScript" parent="Objects/r7-key-chest" index="2"]
-map_id = "fatty-lair"
-instance_id = "r7-key-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="r7-slab-6-5" parent="Objects" unique_id=1216517070 instance=ExtResource("16_s3wdk")]
 position = Vector2(448, 384)

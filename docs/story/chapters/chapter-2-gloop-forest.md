@@ -95,7 +95,8 @@ and [the Matron spec](../../design/2026-10-01-orb-weaver-matron.md).
 > hits tear his web, then the Goo Bomb lesson plays. The cracked rock beside
 > him (`tom-crack`) is the old raft landing: blown, it is a one-way ride to
 > the camp's jetty in E4 (`raft-jetty`), no longer a tunnel to the trail.
-> His maze is not built.*
+> His maze is built: E3's way to him
+> (River Roads, built 2026-11-21, `tools/build_gloop_river_roads.gd`): the Web Glade, the Firefly Tangle under the canopy (its wrong turns lead back to the glade; fireflies over the right turns, lantern posts at its mouth), the Slime Spider's webbed column, the weavers' road and the fallen tree (`tom-rubble`, a Heavy Roll) into his hollow.*
 
 The iron hollow's gate and the cracked clearing both need something heavy, and
 from now on heavy comes from swallowing a stone essence. Swallowing is taught
@@ -330,7 +331,8 @@ The forest has two kinds of web (2026-10-15):
   next release, cuts webs without it (question 135).
 - **Tom's maze** (Planned, owner, 2026-10-16, question 95): its webs slow the
   slime and cannot be cut before the Silk skin (Beat 3). Tom hangs at its end
-  and teaches the Goo Bomb there once freed (question 113).
+  and teaches the Goo Bomb there once freed (question 113). *Built 2026-11-21:
+  E3's way to him (River Roads, built 2026-11-21, `tools/build_gloop_river_roads.gd`): the Web Glade, the Firefly Tangle under the canopy (its wrong turns lead back to the glade; fireflies over the right turns, lantern posts at its mouth), the Slime Spider's webbed column, the weavers' road and the fallen tree (`tom-rubble`, a Heavy Roll) into his hollow.*
 
 ## Beat 9 — The Matron's Nest [`the-matrons-nest`] (Built)
 
@@ -472,7 +474,7 @@ quest's text still tells the old nest fight.*
 | Reinforced Pickaxe | 1, 4 | Built; goes with the crafted tools (2026-10-15) |
 | Swallow (from Tom) | 3 | Built 2026-10-09; marked for deletion; Tom no longer teaches it (2026-11-19) |
 | Chapter key tool: the Goo Bomb (owner, 2026-10-16, question 94; the War Axe waits for the next release, and the Lantern is Chapter 3's) | 3, from Tom (question 95) | Built: Tom's lesson as his web tears, and its first lock, the cracked rock by his clearing (2026-11-19); since 2026-11-21 Tom hangs in E3 by the Mere, behind a fallen tree (a Heavy Roll), and the rock is the old raft landing, a one-way ride to the camp's jetty |
-| Tom's maze (secrets and tests, webs that slow; Tom at its end) | 3 | Planned (questions 95 and 113) |
+| Tom's maze (secrets and tests, webs that slow; Tom at its end) | 3 | Built 2026-11-21 in E3: the Firefly Tangle, the spider's column, the weavers' road, the fallen tree (questions 95 and 113) |
 | The Weaver Hollow's big chest: a heart quarter (a heart or the big key until the seventh round) | 8 | Planned (questions 95 and 113) |
 | Clod Stomper | 3–4 | Built 2026-10-09 (its essence drop marked for deletion); it stays as it is, slam included (question 64) |
 | Forge | 5 today, 9 in the plan | Built (smelting); Planned: Pearl 2 relights it, and it brews the potions (questions 51 and 79); the smelting timer leaves Release 1. *Changed 2026-11-20 (owner): Pearl 3 lights it, in Chapter 3 (built)* |
@@ -488,4 +490,4 @@ quest's text still tells the old nest fight.*
 | The Matron's thread (for the Bow's string) | 9 | Built: it drops in her fight; Pip takes it for the bow rune's string (built 2026-11-20, Burr's lesson until the owner's change the same day; question 106) |
 | Boss heart (Matron) | 9 | Built: a full heart, +20 max HP and +20 max energy (questions 17 and 19) |
 | The Weaver Hollow, the Matron at its top, her cocoon phase | 8, 9 | Built 2026-10-17 ([DUNGEONS.md](../../godot/DUNGEONS.md)); her fight is redone in the boss pass (question 166) |
-| 4 heart quarters | Secrets | Two placed (the Gloop Cavern, the silk nook), and the Hollow's in its Pillar room (B6). *As built (2026-11-22): all four placed (the Mere islet in F3, the iron hollow in F5, the Gloop Cavern, the silk nook's cave in F4), and the Hollow's in B6 as a fifth* |
+| 4 heart quarters | Secrets | Two placed (the Gloop Cavern, the silk nook), and the Hollow's in its Pillar room (B6). *As built (2026-11-22): all four placed (the Mere islet in F3, the iron hollow in F5, the Gloop Cavern, the silk nook's cave in F4), and the Hollow's in B6 as a fifth, which goes (owner, 2026-11-23: no heart quarter inside a dungeon)* |

@@ -169,7 +169,7 @@ func _slam(now: float, target: Dictionary) -> void:
 	var ring := _ring_at(feet())
 	AttackTelegraph.clear_for(self)
 	if not target.is_empty() and bool(target.get("active", false)) and _target_overlaps(ring, target):
-		_route_immediate_attack(target, pattern("slamDamage", 12.0), pattern("slamKnockback", 220.0), -1.0, false)
+		_route_immediate_attack(target, pattern("slamDamage", 5.0), pattern("slamKnockback", 220.0), -1.0, false)
 	_cue(CUE_SLAM)
 	_puff(DUST, feet())
 	var feel := Services.feel()

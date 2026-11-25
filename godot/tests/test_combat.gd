@@ -6,7 +6,8 @@ extends RefCounted
 ##   knocked back at (140 + 120) x 0.55 = 143 px/s along the swing, stunned 370 ms, ~30 px drift.
 ## - 90 HP takes 4 plain hits (24, 48, 72, then 18); the corpse is freed 800 ms (gameplay clock)
 ##   after the killing blow.
-## - A worm swing lands 400 ms after it starts and does max(1, 37 - 3) = 34; the player then has
+## - A worm swing lands 400 ms after it starts and does 10 (the slime has no defence since
+##   2026-11-24: docs/design/2026-11-24-health-and-damage.md), so 8 kill its 80; the player then has
 ##   500 ms of i-frames (a second worm's simultaneous swing is rejected "state-blocked") and is
 ##   knocked back at 260 px/s.
 
@@ -21,7 +22,10 @@ const SWORD_CRIT_HIT := 42
 const WORM_KNOCKBACK_SPEED := 143.0
 const WORM_STUN_MS := 370.0
 const WORM_WINDUP_MS := 400.0
-const WORM_HIT_ON_PLAYER := 34
+const WORM_HIT_ON_PLAYER := 10
+## The slime's max health (`character.player.stats.maxHp`) and the worm hits that empty it.
+const PLAYER_MAX_HP := 80
+const WORM_HITS_TO_KILL := 8
 const PLAYER_IFRAMES_MS := 500.0
 const PLAYER_KNOCKBACK_SPEED := 260.0
 const DISPOSE_AFTER_DEFEAT_MS := 800.0
@@ -178,7 +182,7 @@ func test_worm_attack_hits_player_for_34_after_windup_and_respects_iframes(t: Te
 	t.check(bool(after.get("accepted", false)), "damage 500 ms after a hit was rejected: %s" % [after])
 
 
-func test_three_worm_hits_kill_the_player_then_respawn_at_spawn(t: TestContext) -> void:
+func test_worm_hits_kill_the_player_then_respawn_at_spawn(t: TestContext) -> void:
 	var player := t.player()
 	var damage_taken: Array[int] = []
 	var timeline := {"dead_real": -1.0, "respawn_real": -1.0, "respawn_payload": {}}
@@ -190,10 +194,13 @@ func test_three_worm_hits_kill_the_player_then_respawn_at_spawn(t: TestContext) 
 		timeline["respawn_payload"] = payload)
 	if t.spawn_worm(Vector2(WORM_ATTACK_OFFSET, 0.0)) == null:
 		return
-	if not t.check(await t.until(func() -> bool: return player.is_dead(), 9000.0),
-			"the worm did not kill the player within 9 s (hits %s, HP %d)" % [damage_taken, player.get_hp()]):
+	if not t.check(await t.until(func() -> bool: return player.is_dead(), 20000.0),
+			"the worm did not kill the player within 20 s (hits %s, HP %d)" % [damage_taken, player.get_hp()]):
 		return
-	t.equal(damage_taken, [34, 34, 32] as Array[int], "damage taken until death")
+	var expected: Array[int] = []
+	for i in WORM_HITS_TO_KILL:
+		expected.append(WORM_HIT_ON_PLAYER)
+	t.equal(damage_taken, expected, "damage taken until death")
 	t.equal(player.get_hp(), 0, "HP at death")
 	await t.until(func() -> bool: return timeline["respawn_real"] >= 0.0, 10000.0, 4000.0)
 	if not t.check(timeline["respawn_real"] >= 0.0, "the player did not respawn within 4 s (real time)"):
@@ -201,7 +208,7 @@ func test_three_worm_hits_kill_the_player_then_respawn_at_spawn(t: TestContext) 
 	t.between(float(timeline["respawn_real"]) - float(timeline["dead_real"]), 1398.0, 1500.0, "death -> respawn delay (real ms, 1 ms clock granularity)")
 	t.check(not player.is_dead(), "still dead after respawning")
 	t.equal(player.get_hp(), player.get_max_hp(), "HP after respawn")
-	t.equal(player.get_max_hp(), 100, "max HP")
+	t.equal(player.get_max_hp(), PLAYER_MAX_HP, "max HP")
 	var world := t.world()
 	var spawn := world.find_spawn_point(world.player_spawn_marker())
 	t.near_vec(player.get_centre(), spawn, 0.01, "respawn position (centre)")

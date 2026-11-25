@@ -61,8 +61,8 @@ const STATE_BLOCKED_REASON := "state-blocked"
 @export var air_time_ms: float = 1000.0
 ## JSON `recoveryMs` (700).
 @export var recovery_ms: float = 700.0
-## JSON `landingDamage` (32).
-@export var landing_damage: float = 32.0
+## JSON `landingDamage` (20 since 2026-11-24; 32 in Phaser).
+@export var landing_damage: float = 20.0
 ## JSON `landingKnockbackStrength` (280).
 @export var landing_knockback_strength: float = 280.0
 ## JSON `landingEffectId` ("boss-ground-crack"; "" = none): played on landing and after each hop.
@@ -91,7 +91,7 @@ const STATE_BLOCKED_REASON := "state-blocked"
 @export var phase_two_sway_lean_rad: float = 0.16
 @export var phase_two_sway_ms: float = 700.0
 @export var phase_two_thrown_text: String = "It splats on his shut eye."
-@export var phase_two_ripple_damage: float = 18.0
+@export var phase_two_ripple_damage: float = 10.0
 @export var phase_two_ripple_knockback: float = 220.0
 @export var phase_two_ripple_speed: float = 300.0
 @export var phase_two_ripple_width: float = 30.0
@@ -748,7 +748,7 @@ func _step_ripple(now: float) -> void:
 	if absf(reach - radius) > float(_two.get("ripple_width", 30.0)) * 0.5:
 		return
 	_ripple_done_with_target = true
-	_route_immediate_attack(target, float(_two.get("ripple_damage", 18.0)), float(_two.get("ripple_knockback", 220.0)), -1.0, false)
+	_route_immediate_attack(target, float(_two.get("ripple_damage", 10.0)), float(_two.get("ripple_knockback", 220.0)), -1.0, false)
 
 
 func _end_ripple() -> void:

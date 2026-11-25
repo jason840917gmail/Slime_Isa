@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/dungeon/knock_target.gd" id="target"]
+[ext_resource type="Script" path="res://game/runtime/sheet_sprite.gd" id="sheet"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(22, 14)
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(60, 92)
+
+[node name="knock-target" type="Node2D" node_paths=PackedStringArray("body", "damage_area", "disc", "spinner", "front", "back")]
+script = ExtResource("target")
+body = NodePath("Body")
+damage_area = NodePath("DamageArea")
+disc = NodePath("Disc")
+spinner = NodePath("Disc/Spinner")
+front = NodePath("Disc/Spinner/Front")
+back = NodePath("Disc/Spinner/Back")
+
+[node name="Body" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, -7)
+shape = SubResource("body_shape")
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 16
+monitoring = false
+
+[node name="Shape" type="CollisionShape2D" parent="DamageArea"]
+position = Vector2(0, -46)
+shape = SubResource("hurt_shape")
+
+[node name="Post" type="Sprite2D" parent="."]
+position = Vector2(0, 3)
+scale = Vector2(0.5, 0.5)
+centered = false
+offset = Vector2(-25, -92)
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/mechanisms/knock-target-post.webp"
+
+[node name="Disc" type="Node2D" parent="."]
+position = Vector2(0, -40)
+
+[node name="Spinner" type="Node2D" parent="Disc"]
+position = Vector2(0, -26)
+
+[node name="Back" type="Sprite2D" parent="Disc/Spinner"]
+position = Vector2(-4, -1)
+scale = Vector2(0.5, 0.5)
+hframes = 2
+frame = 1
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/mechanisms/knock-target-disc-2x1.webp"
+
+[node name="Front" type="Sprite2D" parent="Disc/Spinner"]
+scale = Vector2(0.5, 0.5)
+hframes = 2
+script = ExtResource("sheet")
+sheet_path = "res://asset/MAPS/objects/mechanisms/knock-target-disc-2x1.webp"

@@ -6,8 +6,9 @@ extends RefCounted
 ## Camp `level-1-fatty-one-eye-camp` at (480, 1472) (level-1's (2528, 1472)): activation circle
 ## r 440, arena circle r 420, its record under `level-1-d4`; boss spawned at the camp origin (old
 ## Phaser position; feet 42 px lower). Fatty: 140 hp, spear-only, knockback immune; contact hop
-## (impact +250 ms -> 18 - 3 = 15, hop ends +300 ms, cooldown 1000); leap 5000 ms after spawn:
-## small hops 1080 ms, airborne 1000 ms, landing 360 ms (32 - 3 = 29 on a hurtbox in the splash),
+## (impact +250 ms -> 10, hop ends +300 ms, cooldown 1000); leap 5000 ms after spawn:
+## small hops 1080 ms, airborne 1000 ms, landing 360 ms (20 on a hurtbox in the splash; the slime has
+## no defence since 2026-11-24),
 ## recovery 700 ms; state-blocked while hopping or airborne.
 ## Fatty himself lives in his Lair since 2026-10-17 (world.fatty-lair, test_fattys_lair.gd); the camp
 ## these tests measure is put back in D4's clearing for them (tests/lib/fatty_camp_fixture.gd).
@@ -41,8 +42,8 @@ const OUTSIDE_ARENA := Vector2(784.0, 1776.0)
 ## Player centre relative to Fatty: inside the contact ellipse (centre (1, -25), radii
 ## 83.5 x 52) with the hurtbox, clear of Fatty's body box.
 const CONTACT_OFFSET := Vector2(75.0, -40.0)
-const PLAYER_DEFENSE_HIT_CONTACT := 15
-const PLAYER_DEFENSE_HIT_LANDING := 29
+const PLAYER_DEFENSE_HIT_CONTACT := 10
+const PLAYER_DEFENSE_HIT_LANDING := 20
 ## A world without boss camps, reachable from level-1 (test_travel.gd).
 const TRAVEL_MAP := "gloop-forest"
 const STEP := TestContext.STEP_MS

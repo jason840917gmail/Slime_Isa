@@ -416,7 +416,7 @@ func on_throw_bounced(at: Vector2, away: Vector2) -> void:
 ## weight (`bounceDamageLight`, `-Medium`, `-Heavy`). True when it landed.
 func bounced_hit(at: Vector2, direction: Vector2, weight: String) -> bool:
 	var key := "bounceDamage" + (weight.capitalize() if not weight.is_empty() else "Light")
-	var damage := pattern(key, pattern("bounceDamageLight", 12.0))
+	var damage := pattern(key, pattern("bounceDamageLight", 10.0))
 	return _route_hit_from(at, _primary_target(), damage, pattern("bounceKnockback", 180.0), direction)
 
 

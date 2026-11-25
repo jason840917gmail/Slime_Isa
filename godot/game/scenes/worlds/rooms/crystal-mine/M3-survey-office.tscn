@@ -73,15 +73,13 @@ metadata/persistence_key = "crystal-mine.crystal-mine-M3-lamp"
 position = Vector2(512, 2336)
 metadata/instance_id = "crystal-mine-M3-map-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M3-map-chest"
+chest_id = "crystal-mine-M3-map-chest"
+contents = {
+"dungeon-map": 1
+}
 
 [node name="Visual" parent="Objects/M3-map-chest" index="1"]
 texture = ExtResource("12_t1fdy")
-
-[node name="ChestScript" parent="Objects/M3-map-chest" index="2"]
-instance_id = "crystal-mine-M3-map-chest"
-initial_contents = {
-"dungeon-map": 1
-}
 
 [node name="Scenery" type="Node2D" parent="." unique_id=790765031]
 y_sort_enabled = true

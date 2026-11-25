@@ -255,21 +255,17 @@ position = Vector2(1568, 992)
 
 [node name="shoulder-chest" parent="Spiral" unique_id=2143676007 instance=ExtResource("21_cerwq")]
 position = Vector2(1888, 128)
-
-[node name="ChestScript" parent="Spiral/shoulder-chest" index="2"]
 map_id = "crystal-caverns-g5"
-instance_id = "crystal-caverns-g5-shoulder-chest"
-initial_contents = {
+chest_id = "crystal-caverns-g5-shoulder-chest"
+contents = {
 "coins": 40
 }
 
 [node name="south-strip-chest" parent="Spiral" unique_id=1256680755 instance=ExtResource("21_cerwq")]
 position = Vector2(352, 1728)
-
-[node name="ChestScript" parent="Spiral/south-strip-chest" index="2"]
 map_id = "crystal-caverns-g5"
-instance_id = "crystal-caverns-g5-south-strip-chest"
-initial_contents = {
+chest_id = "crystal-caverns-g5-south-strip-chest"
+contents = {
 "coins": 25,
 "energy-potion": 1
 }

@@ -130,17 +130,15 @@ open_while_record = "fatty-lair.r10-plate-held"
 
 [node name="r9-big-chest" parent="Objects" unique_id=672383043 instance=ExtResource("12_84d0c")]
 position = Vector2(735, 1316)
+starts_hidden = true
+map_id = "fatty-lair"
+chest_id = "r9-big-chest"
+contents = {
+"dungeon-big-key": 1
+}
 
 [node name="Visual" parent="Objects/r9-big-chest" index="1"]
 texture = ExtResource("13_6s3xs")
-
-[node name="ChestScript" parent="Objects/r9-big-chest" index="2"]
-hidden = true
-map_id = "fatty-lair"
-instance_id = "r9-big-chest"
-initial_contents = {
-"dungeon-big-key": 1
-}
 
 [node name="r9-plate" parent="Objects" unique_id=1407885796 instance=ExtResource("14_3826e")]
 position = Vector2(608, 800)

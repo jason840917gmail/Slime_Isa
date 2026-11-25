@@ -65,9 +65,9 @@ Inherited `game.enemy` exports (enemy spec 1.1) plus the Matron ones. Runtime fa
 | `attackRange` | `attack_range` | 300 | |
 | `movementSpeed` | `movement_speed` | 58 (orbit, walk home) | |
 | `attackCooldownMs` | `attack_cooldown_ms` | 2200 | |
-| `attributes` | `attributes` | `wanderSpeed 24, attackWindupMs 700, attackRecoveryMs 400, contactDamage 30 (unused), knockbackStrength 220, effectImmunities ["knockback"] (informational), behavior "slime-spider", fleeRange 90, isRanged true, projectileSpeed 240` | |
+| `attributes` | `attributes` | `wanderSpeed 24, attackWindupMs 700, attackRecoveryMs 400, contactDamage 20 (unused), knockbackStrength 220, effectImmunities ["knockback"] (informational), behavior "slime-spider", fleeRange 90, isRanged true, projectileSpeed 240` | |
 | `damageRule` | `damage_rule` | `{priority 100, damageMultiplier 1, effectResponses {knockback {mode immune}}}` | every weapon hurts her |
-| `projectile` | `projectile` | `{projectileId "spider-web", assetId "enemy.projectile.spider-web", damage 18, stickMs 900}` | |
+| `projectile` | `projectile` | `{projectileId "spider-web", assetId "enemy.projectile.spider-web", damage 20, stickMs 900}` | |
 | `rewards` | `rewards` | `{}` | |
 | `arenaRecoveryMs` | `arena_recovery_ms` | 60000 | |
 | `firstVolleyDelayMs` | `first_volley_delay_ms` | 3500 | `max(1, v)`, fallback 3500 |
@@ -77,7 +77,7 @@ Inherited `game.enemy` exports (enemy spec 1.1) plus the Matron ones. Runtime fa
 | `volleyPoints` | `volley_points` | 4 | `max(1, round(v))`, fallback 4 |
 | `volleySpread` | `volley_spread` | 170 | `max(0, v)`, fallback 170 |
 | `volleyRadius` | `volley_radius` | 56 | `max(8, v)`, fallback 56 |
-| `volleyDamage` | `volley_damage` | 20 | fallback 20 |
+| `volleyDamage` | `volley_damage` | 40 (20 in Phaser) | fallback 40 |
 | `volleyKnockbackStrength` | `volley_knockback_strength` | 120 | fallback 120 |
 | `patchEffectId` | `patch_effect_id` | `"matron-web-patch"` | fallback `""` (no patches) |
 
@@ -106,14 +106,14 @@ it at (1072, 940) in F4 for the tests of her own fight (sections 3 to 5).
 | boss damage number | `-N` at position − (0, 8) | `UniversalSceneWorldController.ts:2039-2045` (bosses are not ordinary enemies) |
 | defeat burst / text | boss spec 1.3 | |
 
-### 1.4 Derived numbers (player defense 3)
+### 1.4 Derived numbers (no player defence since 2026-11-24)
 - Spit: the common ranged attack (enemy spec 12) — `spider-web` at 240 px/s, hits for
-  max(1, 18 − 3) = **15**, knockback 220, web 900 ms; fired 700 ms after the attack starts; the
+  **20** (Phaser: max(1, 18 − 3) = 15), knockback 220, web 900 ms; fired 700 ms after the attack starts; the
   sequence ends +min(2000, max(1100, 300) + 250) = **+1350 ms**; next spit ≥ 2200 ms later.
 - Slime-spider AI: `preferred = max(1, 90) = 90`; spits between 90 and 300 px, backs off inside
   64.8 px (0.72 × 90) while holding, approaches spiralling beyond 300 px.
 - Volley: first one 3500 ms after the spawn (when free: not spitting, not walking home, player
-  alive); marks for 900 ms; landing hit max(1, 20 − 3) = **17**, knockback 120 (knock from her
+  alive); marks for 900 ms; landing hit **40** (Phaser: max(1, 20 − 3) = 17), knockback 120 (knock from her
   centre toward the player); 4 web patches; rest 1300 ms; next volley 6500 ms after the rest ends
   (a cycle is at least 8700 ms).
 - 300 hp: a basic sword (24 per hit) needs 13 hits; she takes knockback-free hits and never
@@ -537,3 +537,144 @@ round 3's webbed floor, gone with her), the full heart +20 once (and through a s
 only with the Silk skin. Pearl 2 in the Hoard: `tests/test_weaver_hollow.gd`.
 `tools/render_matron.gd` renders the fight's moments in the Crown for the look (run windowed);
 `tools/film_weaver_hollow.gd` films her three rounds (`--only=matron`).
+
+## 9. The ram fight (the rework, built 2026-11-24 in a lab, not yet in the Hollow)
+
+Step 2 of the [dungeons 2 and 3 rework](../../design/2026-11-23-dungeons-2-3-rework.md#the-orb-weaver-matron),
+with the owner's changes of 2026-11-24 (his drawing of the room: five rams along the north wall,
+their targets roped across the room; "the rams can't be there only to damage the boss, they are
+demolition tools ... now he can use them as well to damage us"; her cocoon over one ram's lane, at
+random; "one of her attacks also activate rams to try to hurt you"; "make matron's projectiles and
+webs bigger to match her size"). Her own scene, `character.orb-weaver-matron-rework`
+(`game/scenes/characters/orb-weaver-matron-rework.tscn`: the Matron's scene with the script
+`game/bosses/matron_ram.gd`, `MatronRamScript extends MatronScript`, the cocoon fight on and her
+volley's radius 84), so the Weaver Hollow keeps section 8's fight until its Crown is rebuilt with
+rams, five as in the lab (step 3). Only `world.matron-lab` places her. matron.gd changed only by the hook
+`_runs_ai()` (the base step runs from inside the cocoon; her subclass adds hanging free).
+
+### 9.1 The fight
+- **The rams are both sides' tools.** The slime trips a ram (a throw at its knock target) at her;
+  she trips one at the slime: **her ram call** (`_step_ram_call`): while she can attack (in her
+  cocoon or hanging free), the slime stands in a ready ram's lane (`lane_margin_px` 8) whose target
+  is armed, and `ram_call_every_ms` (4500) has passed (the first `ram_call_first_ms` 3500 after her
+  fight starts), she spits a glob of web at that target (`game/bosses/web_glob.gd`: an arc of
+  `ram_call_flight_ms` 450, `MatronHiss`; it knocks the target with its `strike()`); never the ram
+  whose lane her own cocoon hangs over. The slime sees the glob fly and the ram shudder (0.35 s) and
+  steps off the lane. **She calls one from the floor too** (round 2, after a dive; the owner,
+  2026-11-24: "she can trigger the tramp even from the ground after jumping at you, that way the
+  player can trick her to make her hit her self"): once per landing, `ground_call_after_ms` (600)
+  after she lands, whenever the slime stands in a ready ram's lane, **her own lane too**, whatever
+  `ram_call_every_ms` says (it restarts from this call). She spits from where she lies (the spit
+  frames on the floor) and then stays down at least `ground_call_stay_ms` (1000) after the glob
+  lands, past the ram's shudder, swing and hold (`dungeon.ram` 350 + 420 + 150), so a log she
+  trips down her own lane always reaches her: a slime that waits in her lane and steps out when she
+  spits makes her fling herself (the ram's catch below).
+- **Every cocoon hangs over one ram's lane**, the middle of it, picked at random (`get_rams`, the
+  mechanisms with a lane in her arena; `_pick_home`), never the lane she just hung over: at her first
+  step she moves there; at each respin, when the new lane's middle is more than a few units away,
+  she climbs to the cocoon's hang (`climb_ms`, less when she is already up) and crawls along her web
+  to it (`relocate_speed` 320, shell "relocating": out of reach like hanging, no attacks), and only
+  then spins it there (the whole respin is the spin): a cocoon always closes over its lane, wherever
+  she lay (from the far west lane to the far east one about 4 s). Up on her web (hanging, climbing,
+  crawling, spinning, in her cocoon, diving) her body collides with nothing, so the slime or a
+  target's post on the floor never holds her; down on the floor (landed, flung, open, her cocoon
+  knocked down) it collides with the world, the slime and water again (`_set_shell`). Each ram's
+  target stands straight below its lane, its rope running up the lane to the ram (the owner,
+  2026-11-24: "they should align vertically with the ram ... player can't even see where the
+  trigger connects since the scene is too big").
+- **Round 1** (above `round_two_below_hp` 200): the low cocoon (`ram_hang_px[0]` 60) breathes and
+  volleys as built; a Goo Bomb on its shadow tears it (8.2), and its lane's ram **knocks it down
+  whole** (below). Open, she lies dazed `open_ms` (4000).
+- **Round 2** (above 25 in the ram fight's scene): no cocoon. At round 1's floor she climbs up (`climb_ms` 1100) and
+  **hangs free** (`ram_hang_px[1]` 200 over her shadow), out of reach (hits clink, `high_text` "Out of
+  reach up there."). She crawls along her web over the slime (`reposition_speed` 150), spits (the
+  base attack, from her mouth up there) and every `dive_every_ms` (3600; the first `first_dive_ms`
+  1800 after she reaches the hang) **dives** where her shadow lies: `dive_ms` 900 (her shadow grows as
+  she falls), `dive_damage` 40 to a slime within `dive_radius_px` 64, `MatronImpact`; she lies
+  `landed_ms` 4000 (the owner, 2026-11-24: "she stay fo 4 secodns so you have time to trigger the
+  tramp"; 900 before), catchable by a ram the whole time but glancing every hit off (each with `landed_text` "Her shell
+  turns it. A ram would crack her.", at most every 1.5 s; diving and flung stay silent), calls a ram
+  from the floor (above), and climbs back. She **rings every knock target in her arena** with web walls
+  (`object.web-wall`, a square of half side `target_ring_radius` 70, spun again every `ring_reweb_ms`
+  5000 where cut, never where the slime stands): a throw from outside stops in the silk; the slime
+  wades in (the Silk skin) or cuts a window (the Spear). **A ram that catches her** (`on_mechanism_hit`
+  kind `ram`, from `dive_catch_from` 0.3 of the dive, or landed) flings her along its lane
+  (`fling_speed` 1100, until a wall or the arena's edge stops her, at most `fling_max_ms` 650,
+  `MatronShriek`): she crashes on her back (`ram_blow_damage` 20, a big number, a shake) and is open
+  `open_ms`; then she climbs back up, or at the round's floor spins a new cocoon.
+- **Round 3: her last hit** (the owner, 2026-11-24: "phase 3 is only when she have a hit left"):
+  the ram fight's scene (`orb-weaver-matron-rework.tscn`) starts it at `round_three_below_hp` **25**
+  (the built fight's 100 stays on matron.gd), and open in it the first hit that lands takes all she
+  has left (`mitigate_damage`), whatever it is. The cocoon hangs high (`ram_hang_px[2]` 170) over a
+  lane: a blast cannot reach it (`blast_reach_px` 100; `high_cocoon_text` "Too high for a blast.
+  Knock it down first."). The floor webbed (the Silk skin) and the two egg sacs, as built (a ram on
+  its lane hits the sacs too). **No volley in round 3** (the owner, the same day: "in phase 3 mattron
+  not longer use if frist grounf web attack , is too many attacks"; `volley_in_round_three` off):
+  she keeps to her spit, her ram call and her brood; each time a volley comes due it is put off a
+  `volley_cadence_ms`.
+- **A cocoon knocked down** (any round, its lane's ram, `_knock_down`): it falls (`downed_fall_ms`
+  260) and is knocked `knock_down_px` 70 along the lane, `MatronShriek`, then lies whole on the floor,
+  straining, solid, for `downed_ms` (9000; a bomb's fuse takes 3 s, with no cast since 2026-11-24); a blast on it (its
+  middle within the blast's ellipse: lay the bomb beside it) tears it and she spills out dazed, open
+  as in round 1. Else she cuts herself free and spins again over another lane; the husk stays where
+  it lay and fades.
+- **Thrown things** hurt her for `thrown_damage_share` 0.5 of a Spear hit (`shapes.spear.baseDamage`)
+  whenever she is open, as Fatty's eye.
+- **Her missed webs are ammo** (the owner, 2026-11-24: "the webs that she miss should be throwables
+  in case we ran out of pot", as Fatty's mud balls): every mark of a volley that missed the slime
+  (`_land_volley`) and every spit that missed it (it ended on a wall or at its range:
+  `ProjectileScript.did_hit_target()`) leaves a **web ball** where it landed: a liftable of kind
+  `web_ball_kind` ("web-ball", `game/data/liftables.json`, material soft, `kindEffects` stick as the
+  mud ball), sucked in and thrown like a pot (a knock target, her when open), leaving nothing where it
+  lay. It pops in, never lands within 48 of the slime, stays inside her arena; at most
+  `max_web_balls` (6) lie at once, the oldest unravelling (flattens and fades, no longer suckable).
+  `get_web_balls()` lists them. A volley's mark that hit the slime leaves only its patch.
+- **Her size** (the owner): her spit's projectile is `spit_scale` 2 times its scene (picture and
+  hitbox), her volley's web patches `patch_scale` 1.6 times (picture and slowing circle, with her
+  volley's marks at radius 84), her glob `glob_scale` 2.
+
+### 9.2 Her look and sounds
+`game/bosses/matron_ram_look.gd` (`MatronRamLook`, made at her first step under her body): her shadow
+(shrinking and paling with her height), her thread from her top to the web, her pose and the fallen
+cocoon, drawn by `game/bosses/boss_sheet_sprite.gd` from her packed frames
+(`res://asset/MAPS/enemies/bosses/matron/`, `frames.json`; `python scripts/art/boss_frames.py pack
+matron`; sources and prompts `asset/Originals/dungeon-kit/bosses/matron/`): hanging (a loop), the
+spit (her ram call shows it too, hanging or from the floor), the dive (let go, falling, legs wide, landed), rammed (struck,
+flung, tumbling, crashed), on her back kicking (a loop), climbing (a loop), spinning her cocoon,
+the cocoon on the floor (knocked down, straining, torn), dazed (dropping out, two dazed, a flinch).
+The hanging whole cocoon is still matron_cocoon_look.gd's (its breath in code). Sounds: Sound Picker
+round 16 ([audio spec](audio.md#18-round-16-the-two-bosses)): `MatronHiss`, `MatronShriek`,
+`MatronImpact`.
+
+### 9.3 The lab and its films
+`game/dev/bosses/matron-lab.tscn` (`world.matron-lab`; `?map=matron-lab`, `-- --map=matron-lab`, or F6
+on it; `dungeon.devPowers.matron-lab` lends the Spear, the Roll, the Heavy and Silk skins and the
+Goo Bomb), built by `tools/build_matron_lab.gd -- --force`: one root-rock room, its floor 20 x 16
+cells; five rams along the north wall swinging south (lanes 9 cells long), each ram's target straight
+below its lane by the south wall (2026-11-24; first built where the owner drew them, spread round the
+room with the ropes crossing, too hard to follow in a room this big), its rope up the lane; her camp
+in the middle (`respawn_ms` 4000 so she comes back for another try), her full heart rising in the
+middle of the floor when she falls (the owner, 2026-11-24; it stood by the south wall before);
+twelve pots between the lanes and between the targets.
+`bash scripts/godot/film-matron.sh <name> --film=<film>` films it frame by frame into
+`output/boss-rework/matron-films/<name>/` (`tools/film_matron.gd`, one game window at a time):
+`bombs` (the Goo Bomb with no cast: a press inside its 1 s cooldown refused, three bombs lying at
+once), `crush` (the Heavy Roll through three Broodlings made by the tool: each popped, no bonk;
+docs/godot/SKINS.md "The Heavy Roll"), `quiet3` (round 3 left to play: no volley), `round1`, `dive` (the slime in a gap between two lanes;
+`landed_for_ms` notes her time down),
+`ram-catch`, `ground-call` (she dives on the slime in the second lane; it steps down the lane and
+waits; she spits at that lane's target from the floor, the slime steps out of the lane and her own
+log flings her: on her back, the Spear and a pot), `ring`, `round3` (with `--lie=south` or `--lie=west` she lies by the
+south wall or on the far west lane and her new cocoon's lane is staged as the farthest; `--lie=slime`
+puts the slime on that lane's middle, `--lie=post` sends her line through a target's post; the notes
+give her x at the close against the lane's middle), `ram-call`, `web-balls` (the pots taken away: her
+volley misses, the slime throws a web ball at her lane's target and the ram knocks the cocoon down;
+then one more ball drops and `web_balls_after_throw` counts the list, the sucked ball being freed),
+`look`. The films stage her health where they start past round 1, keep the slime topped up, and hold
+her attacks (and burst her brood) while the slime casts a bomb or picks up a pot; each notes what it
+staged. They draw the liftables from the sheet's file (`_fresh_sheet`), so a sheet repacked since the
+editor last imported it shows.
+
+### 9.4 Not yet
+Played only by the films, never with a keyboard; no tests written for it (`tests/test_matron.gd`
+covers section 8). The Weaver Hollow's Crown is not rebuilt yet (step 3).

@@ -93,6 +93,8 @@ FIRST = [
     ("rock", "Mossy rock", "stone", ["rock-a", "rock-b"]),
     ("puffball", "Puffball", "soft", ["puffball-a", "puffball-b"]),
     ("pinecone", "Pinecone", "wood", ["pinecone-a", "pinecone-b"]),
+    # The Matron's missed webs (game/bosses/matron_ram.gd; cut by scripts/art/split-web-balls.py).
+    ("web-ball", "Web ball", "soft", ["web-ball-a", "web-ball-b"]),
 ]
 ESSENCES = ["essence-stone-a", "essence-silk-b", "essence-swim-b"]
 

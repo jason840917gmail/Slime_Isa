@@ -92,18 +92,16 @@ texture = ExtResource("11_3s5c2")
 position = Vector2(3584, 1420.8)
 metadata/instance_id = "weaver-hollow-boughs-nursery-chest"
 metadata/persistence_key = "weaver-hollow-boughs.nursery-chest"
-
-[node name="Visual" parent="Objects/nursery-chest" index="1"]
-texture = ExtResource("13_2gn2k")
-
-[node name="ChestScript" parent="Objects/nursery-chest" index="2"]
-hidden = true
+starts_hidden = true
 map_id = "weaver-hollow-boughs"
-instance_id = "weaver-hollow-boughs-nursery-chest"
-initial_contents = {
+chest_id = "weaver-hollow-boughs-nursery-chest"
+contents = {
 "coins": 30,
 "hp-potion": 1
 }
+
+[node name="Visual" parent="Objects/nursery-chest" index="1"]
+texture = ExtResource("13_2gn2k")
 
 [node name="nursery-fight" parent="Objects" unique_id=1532953627 instance=ExtResource("14_q8kp7")]
 position = Vector2(3072, 896)

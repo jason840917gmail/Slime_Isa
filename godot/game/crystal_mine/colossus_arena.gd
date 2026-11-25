@@ -30,6 +30,14 @@ class_name ColossusArena
 ## `boss_disengaged`, `get_live_boss`, `arena_perimeter`, `camp_id`, `boss_id`), and the compass's
 ## boss mark on the dungeon map until he falls (the kit's group `dungeon_map_mark`, `mark` "boss").
 ##
+## **The plate fight** (`plate_fight`, off: the mine keeps the fight as built until its room is
+## rebuilt; on in the Colossus lab, docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap 12.4)"):
+## he is made with crystal_colossus.gd's `plate_fight` on, and given the braziers (their rings make his
+## plates brittle) and `crash_carts`, the runaway carts whose lines he crashes across (the nearest)
+## when his claws are struck loose. `refights` (a lab's arena): his fall is not recorded (no `defeated_boss_ids`, no
+## dungeon mark), the braziers are lit but not for good, and once the slime has left the arena the next
+## walk in starts the fight again.
+##
 ## Owner: dungeons (the Crystal Mine).
 
 const Services := preload("res://game/shared/services.gd")
@@ -66,12 +74,25 @@ signal boss_defeated(payload: Dictionary)
 @export var climb_spots: PackedVector2Array = PackedVector2Array()
 ## The north wall's face (world coordinates): a slime climbing in it is still in the fight.
 @export var wall_rect: Rect2 = Rect2()
+## The plate fight (crystal_colossus.gd `plate_fight`); off: the fight as built.
+@export var plate_fight: bool = false
+## The plate fight: the runaway carts (ram_cart.gd) whose lines he crashes across off his wall (the
+## one nearest where he falls; the Colossus lab's two run down the room from under his climb spots).
+@export var crash_carts: Array[NodePath] = []
+## A lab's arena: his fall is not recorded and the fight can start again (see above).
+@export var refights: bool = false
+## His floor (world coordinates): where he walks, lands and drops his mites, and where the slime must
+## be for him to go after it; empty: `arena_rect`. The Colossus lab's leaves out the void dips along
+## its sides (a slime fallen in one is still in the fight: `arena_rect`).
+@export var floor_rect: Rect2 = Rect2()
 
 var _boss_root: Node2D
 var _boss: Node
 var _seal: Array[Node] = []
 var _wake_at := -1.0
 var _victory_shown := false
+## `refights`: he fell in this fight (nothing recorded).
+var _beaten_here := false
 ## The dungeon map's mark: "boss" until he falls (DungeonMapDraw.boss_points).
 var mark := "boss"
 
@@ -87,6 +108,8 @@ func _ready() -> void:
 
 
 func is_beaten() -> bool:
+	if refights:
+		return _beaten_here
 	var run := Services.run()
 	return run != null and boss_id in (run.world.get("defeated_boss_ids", []) as Array)
 
@@ -129,6 +152,8 @@ func _physics_process(_delta: float) -> void:
 	var centre: Vector2 = player.call(&"get_centre")
 	var inside := is_in_fight(player, centre)
 	if is_beaten():
+		if refights and not inside:
+			_ready_again()
 		return
 	if _boss == null and inside:
 		_start()
@@ -164,15 +189,32 @@ func _start() -> void:
 		_boss_root.free()
 		_boss_root = null
 		return
+	if plate_fight:
+		_boss.set(&"plate_fight", true)
 	parent.add_child(_boss_root)
 	FeetAnchor.place_at_phaser_position(_boss_root, global_position + post)
 	var no_zones: Array[Dictionary] = []
 	_boss.call(&"configure_navigation", {}, no_zones)
-	_boss.call(&"configure_arena", arena_perimeter())
+	var floor := floor_rect if floor_rect.has_area() else arena_rect
+	_boss.call(&"configure_arena", {"shape": "rectangle", "x": floor.position.x, "y": floor.position.y,
+		"w": floor.size.x, "h": floor.size.y})
 	var spots: Array[Vector2] = []
 	for spot in climb_spots:
 		spots.append(spot)
 	_boss.set(&"climb_spots", spots)
+	if plate_fight:
+		var fires: Array[Node] = []
+		for path in braziers:
+			var node := get_node_or_null(path)
+			if node != null:
+				fires.append(node)
+		_boss.set(&"braziers", fires)
+		var carts: Array[Node2D] = []
+		for path in crash_carts:
+			var cart := get_node_or_null(path) as Node2D
+			if cart != null:
+				carts.append(cart)
+		_boss.set(&"crash_carts", carts)
 	_boss.connect(&"defeated", _on_defeated)
 	for path in braziers:
 		var node := get_node_or_null(path)
@@ -201,7 +243,8 @@ func _reset() -> void:
 
 
 func _on_defeated(_payload: Dictionary = {}) -> void:
-	var run := Services.run()
+	var run := Services.run() if not refights else null
+	_beaten_here = refights
 	if run != null:
 		run.record_boss_defeated(boss_id)
 		var dungeon_id := DungeonState.current_id(get_tree())
@@ -245,12 +288,26 @@ func _after_victory(now: bool) -> void:
 	mark = ""
 	for path in braziers:
 		var node := get_node_or_null(path)
-		if node != null and node.has_method(&"keep_lit"):
+		if refights and node != null and node.has_method(&"light"):
+			# a lab's: lit, but a stomp may put them out in the next fight
+			node.call(&"light")
+		elif node != null and node.has_method(&"keep_lit"):
 			node.call(&"keep_lit")
 	if now:
 		var feel := Services.feel()
 		if feel != null:
 			feel.audio_cue(&"Victory")
+
+
+## `refights`: the slime left the arena after his fall; its next walk in starts the fight again (his
+## heap and the golem see to themselves).
+func _ready_again() -> void:
+	_beaten_here = false
+	_victory_shown = false
+	mark = "boss"
+	_boss = null
+	_boss_root = null
+	_wake_at = -1.0
 
 
 func _set_sealed(on: bool) -> void:

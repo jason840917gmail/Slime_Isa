@@ -71,17 +71,17 @@ Value sources used below:
 | player action clip on swing | `attack-1` (all 4 directions) | **weapon.json only** (`directionalAttacks.*.characterActionId`); not in the scene JSON → literal `"attack-1"` in the port, or ask the converter owner to carry it |
 | player attack stat | 12 | `game-constants.json` `character.player.stats.attack` |
 | crit chance / multiplier | 0.05 / 1.75 | `character.player.stats.critChance` / `critMultiplier` |
-| player defense | 3 | `character.player.stats.defense` |
-| player max HP | 100 | `character.player.stats.maxHp` |
+| player defense | 0 since 2026-11-24 (3 in Phaser) | `character.player.stats.defense` |
+| player max HP | 80 since 2026-11-24 (100 in Phaser) | `character.player.stats.maxHp` |
 | player i-frames after a hit | 500 ms | `character.player.hitInvulnerabilityMs` |
 | attributes (strength, vitality, agility, intellect) | 10 each at a new run | `character.player.initialAttributes` |
 | input buffer | 150 ms | `input.bufferMs` |
 | player damage-taken multiplier | 1 | literal in `systems/PlayerStats.ts:50` |
-| worm HP | 90 | worm scene EnemyScript `maxHealth` (= `enemy-types.json` `maxHp`). The owner set the scene to **8** on 2026-10-06 (`enemy-types.json` still says 90); the tests keep 90 (`TestContext.SPEC_WORM_HP`) |
+| worm HP | 90 | worm scene EnemyScript `maxHealth` (= `enemy-types.json` `maxHp`). The scene said **8** from 2026-10-06 (an editor re-save) and both say **40** since 2026-11-24 (two light throws); the tests keep 90 (`TestContext.SPEC_WORM_HP`) |
 | worm attack range / aggro | 38 / 220 | scene `attackRange` / `targetingRadius` |
 | worm attack cooldown | 1500 ms | scene `attackCooldownMs` |
 | worm windup / recovery | 400 / 400 ms | scene `attributes.attackWindupMs` / `attackRecoveryMs` |
-| worm contact damage | 37 | scene `attributes.contactDamage` |
+| worm contact damage | 10 since 2026-11-24 (37 in Phaser) | scene `attributes.contactDamage` |
 | worm knockback strength (on player) | 260 | scene `attributes.knockbackStrength` |
 | worm knockback resist | 0.45 | scene `attributes.knockbackResist` |
 | worm damage rule | priority 0, multiplier 1 | scene `damageRule` |
@@ -509,7 +509,7 @@ if distance(enemyCentre, playerCentre) > attackRange * 1.35 (= 51.3) → miss (r
 knock = normalize(playerCentre - enemyCentre)   (zero length → attackDirection)          # F5
 route { activationId, source: enemy, attackArea, targetArea: player DamageArea,
         weaponId: "enemy-contact", weaponTags: ["enemy","contact"], damageTypes: ["physical"],
-        baseDamage: contactDamage (37),
+        baseDamage: contactDamage (37; 10 in Godot since 2026-11-24),
         effects: knockbackStrength > 0 ? [{knockback, 260}] : [],
         impact: { x, y: enemyCentre, knockX, knockY: knock } }
 if accepted with actualDamage > 0 → spawnImpactEffect(origin): only if the scene has an
@@ -537,7 +537,7 @@ canReceiveDamage:                                                      PlayerScr
    else accepted
 mitigateDamage (PlayerHealthService.ts:18-22):
    scaled == 0 → 0
-   afterDefense = trueDamage ? scaled : max(1, scaled - defense(3))
+   afterDefense = trueDamage ? scaled : max(1, scaled - defense(3; 0 in Godot since 2026-11-24))
    return afterDefense * damageTakenMult(1)                            # worm: max(1, 37-3) = 34
 commitDamage:
    gameState.damage(actual) → hp -= actual; emits player.damage / hp events; hp <= 0 → player.death → markDead
@@ -758,7 +758,7 @@ pooled `CPUParticles2D` (`one_shot`, `explosiveness = 1`, `emitting` restart),
 | hit-stop on a sword hit | 65 ms, no shake |
 | worm attack | windup 400 ms (WindupSfx at start), impact if centre distance ≤ 51.3, attack ends +1050 ms, next attack ≥ 1500 ms after the previous start |
 | damage to the player | 34 (37 − 3); i-frames 500 ms; knockback 260 px/s for 160 ms (≈ 42 px); hurt feel shake 110 ms + hit-stop 70 ms |
-| player deaths | 100 HP → 3 worm hits (34, 34, 32) |
+| player deaths | 80 HP → 8 worm hits of 10 (Phaser: 100 HP → 3 hits, 34, 34, 32) |
 | sword hit interrupts the worm | hit during the 400 ms windup cancels that attack (no damage) |
 
 ---

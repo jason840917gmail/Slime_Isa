@@ -545,19 +545,15 @@ flag_id = "level-1.d4-pen-planks-smashed"
 
 [node name="heart-chest-meadow-lakeside" parent="Chapter1" unique_id=1391589021 instance=ExtResource("49_u37im")]
 position = Vector2(1184, 313.6)
-
-[node name="ChestScript" parent="Chapter1/heart-chest-meadow-lakeside" index="2"]
 map_id = "level-1-d4"
-instance_id = "heart-chest-meadow-lakeside"
-goo_heart_id = "meadow-lakeside"
+chest_id = "heart-chest-meadow-lakeside"
+heart_id = "meadow-lakeside"
 
 [node name="heart-chest-meadow-cliff-secret" parent="Chapter1" unique_id=336644735 instance=ExtResource("49_u37im")]
 position = Vector2(1868.8, 1446.4)
-
-[node name="ChestScript" parent="Chapter1/heart-chest-meadow-cliff-secret" index="2"]
 map_id = "level-1-d4"
-instance_id = "heart-chest-meadow-cliff-secret"
-goo_heart_id = "meadow-cliff-secret"
+chest_id = "heart-chest-meadow-cliff-secret"
+heart_id = "meadow-cliff-secret"
 
 [node name="verdant-tree" parent="Chapter1" unique_id=1355079039 instance=ExtResource("51_4c122")]
 position = Vector2(1728, 752)

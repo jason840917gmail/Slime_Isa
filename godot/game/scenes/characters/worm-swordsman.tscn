@@ -554,7 +554,7 @@ visual = NodePath("../Visual")
 animation = NodePath("../Animation")
 damage_area = NodePath("../DamageArea")
 attack_area = NodePath("../AttackArea")
-max_health = 8.0
+max_health = 40.0
 targeting_radius = 220.0
 attack_range = 38.0
 movement_speed = 75.0
@@ -562,7 +562,7 @@ attack_cooldown_ms = 1500.0
 attributes = {
 "attackRecoveryMs": 400,
 "attackWindupMs": 400,
-"contactDamage": 37,
+"contactDamage": 10,
 "knockbackResist": 0.45,
 "knockbackStrength": 260,
 "wanderSpeed": 28

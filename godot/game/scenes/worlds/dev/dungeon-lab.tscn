@@ -230,6 +230,10 @@ wander_radius = 90.0
 y_sort_enabled = true
 position = Vector2(1280, 3072)
 collision_mask = 0
+chest_id = "b3-key-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="BodyShape" parent="b3-key-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -243,13 +247,6 @@ offset = Vector2(-32, -48)
 hframes = 2
 script = ExtResource("15_7yf6t")
 sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
-
-[node name="ChestScript" parent="b3-key-chest" index="2"]
-script = ExtResource("16_hpo86")
-instance_id = "b3-key-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="OpenSfx" parent="b3-key-chest" index="3"]
 process_mode = 3
@@ -279,6 +276,10 @@ script = ExtResource("18_0206x")
 y_sort_enabled = true
 position = Vector2(1792, 3072)
 collision_mask = 0
+chest_id = "b3-map-chest"
+contents = {
+"dungeon-map": 1
+}
 
 [node name="BodyShape" parent="b3-map-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -292,13 +293,6 @@ offset = Vector2(-32, -48)
 hframes = 2
 script = ExtResource("15_7yf6t")
 sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
-
-[node name="ChestScript" parent="b3-map-chest" index="2"]
-script = ExtResource("16_hpo86")
-instance_id = "b3-map-chest"
-initial_contents = {
-"dungeon-map": 1
-}
 
 [node name="OpenSfx" parent="b3-map-chest" index="3"]
 process_mode = 3
@@ -467,6 +461,11 @@ body = NodePath("Body")
 y_sort_enabled = true
 position = Vector2(2560, 3296)
 collision_mask = 0
+starts_hidden = true
+chest_id = "c3-reward-chest"
+contents = {
+"dungeon-small-key": 1
+}
 
 [node name="BodyShape" parent="c3-reward-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -480,14 +479,6 @@ offset = Vector2(-32, -48)
 hframes = 2
 script = ExtResource("15_7yf6t")
 sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
-
-[node name="ChestScript" parent="c3-reward-chest" index="2"]
-script = ExtResource("16_hpo86")
-hidden = true
-instance_id = "c3-reward-chest"
-initial_contents = {
-"dungeon-small-key": 1
-}
 
 [node name="OpenSfx" parent="c3-reward-chest" index="3"]
 process_mode = 3
@@ -622,6 +613,10 @@ look = NodePath("Look")
 y_sort_enabled = true
 position = Vector2(1280, 1190.4)
 collision_mask = 0
+chest_id = "b1-big-chest"
+contents = {
+"dungeon-big-key": 1
+}
 
 [node name="BodyShape" parent="b1-big-chest" index="0"]
 position = Vector2(0, -4)
@@ -635,13 +630,6 @@ offset = Vector2(-104, -180)
 hframes = 2
 script = ExtResource("15_7yf6t")
 sheet_path = "res://asset/MAPS/objects/dungeon/big-chest-2x1.webp"
-
-[node name="ChestScript" parent="b1-big-chest" index="2"]
-script = ExtResource("16_hpo86")
-instance_id = "b1-big-chest"
-initial_contents = {
-"dungeon-big-key": 1
-}
 
 [node name="OpenSfx" parent="b1-big-chest" index="3"]
 process_mode = 3
@@ -790,6 +778,10 @@ draw_floor = false
 y_sort_enabled = true
 position = Vector2(288, 2176)
 collision_mask = 0
+chest_id = "a2-compass-chest"
+contents = {
+"dungeon-compass": 1
+}
 
 [node name="BodyShape" parent="a2-compass-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -803,13 +795,6 @@ offset = Vector2(-32, -48)
 hframes = 2
 script = ExtResource("15_7yf6t")
 sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
-
-[node name="ChestScript" parent="a2-compass-chest" index="2"]
-script = ExtResource("16_hpo86")
-instance_id = "a2-compass-chest"
-initial_contents = {
-"dungeon-compass": 1
-}
 
 [node name="OpenSfx" parent="a2-compass-chest" index="3"]
 process_mode = 3

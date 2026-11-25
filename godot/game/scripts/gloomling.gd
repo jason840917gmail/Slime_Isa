@@ -176,7 +176,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				var slime: Vector2 = target.get("centre", get_centre())
 				body.velocity = _velocity_toward(slime, pattern("huntSpeed", 110.0), delta)
 				face_x(-body.velocity.x)
-				if _contact(target, pattern("contactDamage", 12.0), pattern("contactKnockback", 180.0),
+				if _contact(target, pattern("contactDamage", 20.0), pattern("contactKnockback", 180.0),
 						pattern("contactReachPx", 26.0)):
 					_rest_until = now + pattern("biteRestMs", 500.0)
 					body.velocity = Vector2.ZERO

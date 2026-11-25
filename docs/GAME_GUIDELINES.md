@@ -63,7 +63,13 @@ through:
 
 - **Crafted gear:** weapon and tool tiers (wood → stone → iron → later
   materials) are the main power curve.
-- **Hearts:** heart quarters hidden in secrets and chests; four make a whole
+- **Health:** the slime starts with 80 health, shown in the health orb (no hearts on the HUD), and has
+  no armour: an attack's number is what it loses. Every hit on the slime is 5, 10, 20 or 40 (60 or 80
+  kept for a rare finishing blow), and enemies hit harder chapter by chapter: 5 and 10 in chapter 1,
+  10 and 20 in chapter 2, 20 and 40 in chapter 3, a boss one step above its dungeon (owner,
+  2026-11-24: [health and damage](design/2026-11-24-health-and-damage.md)).
+- **Hearts:** heart quarters hidden in secrets and chests of the outside world, never inside a
+  dungeon (owner, 2026-11-23); four make a whole
   heart that permanently raises max HP by 20
   (`character.player.heartQuarter`), and a quarter alone adds nothing. Only a
   beaten boss gives a full heart (+20 at once, `fullHeart.maxHpBonus`). Exploration pays off in strength. Each heart has a unique
@@ -510,6 +516,25 @@ The dungeon's second half teaches the skin, and the boss fight is its exam
 - Accessibility from day one: every shake, flash, and strong motion respects
   the reduce-motion setting, and status colors must stay readable for
   colorblind players.
+
+### Hints
+
+The owner's rule (2026-11-24): "whenever possible hints need to flash the item
+or object involved", as many games do.
+
+- **Point at the thing.** A hint that is about an object (a brazier to light, a
+  target to hit, a lever, a weak spot) makes that object flash two or three
+  times and puts a bobbing arrow over it, drawn over a dark room's darkness so
+  it shows in the dark: `game/feel/hint_cue.gd` (put it at the object; it
+  flashes, keeps a soft pulse and its arrow for the hint's time, then fades).
+  When several objects answer the hint, each gets one.
+- **Stay readable.** A hint's line stays on screen long enough to read (6 s by
+  default), fully opaque until it fades at its end, follows the slime and never
+  leaves the screen: `GameFeel.hint_text` (not the rising, fading damage-number
+  text). The line says what to do in a few words.
+- **Once, when it helps.** A hint comes at the moment the player is stuck or
+  just failed (the Crystal Colossus's first clang off a cold plate), once a
+  fight, not on a timer.
 
 ## Art Style
 

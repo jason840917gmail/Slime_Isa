@@ -263,6 +263,10 @@ position = Vector2(2604.8, 2169.6)
 collision_mask = 0
 metadata/instance_id = "crystal-mine-M4-S1-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M4-S1-chest"
+chest_id = "crystal-mine-M4-S1-chest"
+contents = {
+"coins": 50
+}
 
 [node name="BodyShape" parent="Objects/M4-S1-chest" index="0"]
 position = Vector2(0, -1.5)
@@ -276,13 +280,6 @@ offset = Vector2(-32, -48)
 hframes = 2
 script = ExtResource("36_ljtvl")
 sheet_path = "res://asset/MAPS/objects/chest-wooden-2x1.webp"
-
-[node name="ChestScript" parent="Objects/M4-S1-chest" index="2"]
-script = ExtResource("27_bd1r2")
-instance_id = "crystal-mine-M4-S1-chest"
-initial_contents = {
-"coins": 50
-}
 
 [node name="OpenSfx" parent="Objects/M4-S1-chest" index="3"]
 process_mode = 3

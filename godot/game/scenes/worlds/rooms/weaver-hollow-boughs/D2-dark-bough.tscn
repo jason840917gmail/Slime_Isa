@@ -106,17 +106,15 @@ y_sort_enabled = true
 position = Vector2(512, 640)
 metadata/instance_id = "weaver-hollow-boughs-dark-bough-chest"
 metadata/persistence_key = "weaver-hollow-boughs.dark-bough-chest"
-
-[node name="Visual" parent="Objects/dark-bough-chest-variant/dark-bough-chest" index="1"]
-texture = ExtResource("14_mqp6s")
-
-[node name="ChestScript" parent="Objects/dark-bough-chest-variant/dark-bough-chest" index="2"]
 map_id = "weaver-hollow-boughs"
-instance_id = "weaver-hollow-boughs-dark-bough-chest"
-initial_contents = {
+chest_id = "weaver-hollow-boughs-dark-bough-chest"
+contents = {
 "coins": 20,
 "hp-potion": 1
 }
+
+[node name="Visual" parent="Objects/dark-bough-chest-variant/dark-bough-chest" index="1"]
+texture = ExtResource("14_mqp6s")
 
 [node name="StoryVariantScript" type="Node" parent="Objects/dark-bough-chest-variant" unique_id=1855122821 node_paths=PackedStringArray("when_set")]
 script = ExtResource("9_sa3b6")

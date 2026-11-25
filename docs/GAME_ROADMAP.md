@@ -1371,7 +1371,8 @@ two dungeons in 12.8.
   ([Direction](story/01-direction.md#decisions-of-2026-10-02-planned-not-built),
   "Hearts"): heart quarters replace the Goo Hearts. Four quarters make one
   heart, worth +20 max HP. For now each map hides four quarters, and secrets
-  are spread across the whole game.
+  are spread across the whole game. *Since 2026-11-23 (owner): never inside a
+  dungeon, whose only heart is its boss's.*
   - Today: five Goo Hearts of +10 each: the two below in Slimeshire Meadow,
     two in Gloop Forest (8.9) and one in the Matron's nest (8.7).
   - Build: a heart-quarter pickup with the item ceremony (4.13), its values in

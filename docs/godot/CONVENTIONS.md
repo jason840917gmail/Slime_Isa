@@ -11,7 +11,7 @@ behaviour per area is in [specs/](specs).
 |---|---|---|
 | `godot/project.godot` | hand (Godot editor) | settings, input map, physics layer names, autoloads |
 | `godot/asset/` | art tools in `scripts/` (or by hand), committed with their `.import` files | the runtime art and audio, at `res://asset/...` (moved from the repository's `asset/` at the cutover; sources stay in `asset/Originals/`, and so do the art tools' own inputs: everything under `godot/asset/` ships in the web build, which is why the cliff kits moved to `asset/Originals/elevation/cliff-kit/` on 2026-10-17) |
-| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `npc-definitions.json` (with the NPCs' conditional `talks` and tips), `recipes.json`, `quests-main.json` (the main quest) and `quests-chapter-1.json` / `-2.json` (Slime Basics; chapter 2 empty), `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 67 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
+| `godot/game/data/` | hand, from the Phaser content on 2026-10-05 | the game data: `game-constants.json`, `enemy-types.json`, `items.json`, `npc-definitions.json` (with the NPCs' conditional `talks` and tips), `recipes.json`, `quests-main.json` (the main quest) and `quests-chapter-1.json` / `-2.json` (Slime Basics; chapter 2 empty), `weapons.json` (names, icons, stats), `item-icons.json` (texture key → sheet, frame size, grid) and `liftables.json` (the 68 liftable kinds: name, material, frames, art size; written by `scripts/props/pack-gulp-art.py` since 2026-10-09, so edit the kinds there), read through `GameConstants` (`Services.constants()`) |
 | `godot/game/scenes/` | hand (Godot editor), from the converter on 2026-10-05 | every world, object, character, weapon, effect, projectile and encounter scene (`<kind>s/<path>.tscn`, the scene JSON's layout) and `scene_index.json` (scene id → path); see "Scenes Godot owns" |
 | `godot/game/world/terrain_tileset.tres` | hand, from the converter | the terrain TileSet (one atlas source per tile id, `tile_id` custom data) |
 | `godot/game/runtime/` | hand | helper scripts the converted scenes use: `sfx_player(_2d).gd`, `animation_player.gd`, `audio_cue_rules.gd`; and `sheet_sprite.gd`, the bestiary's sheet sprite (the converter's `unported_script.gd`, `modal_root.gd` and `scene_item_list.gd`, which no scene used, were removed in clean-out wave 1, 2026-10-17) |
@@ -114,7 +114,10 @@ starts a new run in the prologue, as New Game does, and skips the title. `?skins
 room of another world: it travels there) set the dungeon up
 (with `map`; [DUNGEONS.md](DUNGEONS.md#dungeon-state-no-saving-resume-at-the-entrance)), and
 `sealed` starts it with its Pearl taken and its seal shut ([DUNGEONS.md](DUNGEONS.md#the-seal));
-the kit's lab is `?map=dungeon-lab`.
+the kit's lab is `?map=dungeon-lab`. The mechanisms' lab (the knock target, the ram, the runaway
+cart) is `?map=mechanism-lab` (`game/dev/mechanisms/mechanism-lab.tscn`, a dev world like the
+plank lab `?map=playground-planks`; F6 on its scene lends the Spear, the Roll, the Goo Bomb and
+the Bow: [DUNGEONS.md](DUNGEONS.md#the-mechanism-lab)).
 
 ### The powers board
 

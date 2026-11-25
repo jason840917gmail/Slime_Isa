@@ -326,7 +326,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   - the liftables into `godot/asset/MAPS/props/192x192-tile_8x9-gulp-liftables.webp` (8 columns × 9 rows of
     192 px). Rows 0-7 are the 64 objects of `grid-1.png` .. `grid-4.png` (4 x 4 grids, two grid rows per sheet
     row): each grid cell is cut out (the see-through haze over grid-4's background is keyed out) and cleared
-    of specks under 40 px. Row 8 is the mossy rock, puffball and pinecone, two variants each (frames 64-69). Every
+    of specks under 40 px. Row 8 is the mossy rock, puffball, pinecone and the Matron's web ball, two variants
+    each (frames 64-71; the web balls cut from one generation by `python scripts/art/split-web-balls.py`,
+    which keys out its haze). Every
     object is trimmed, fitted into its cell (never upscaled) and stood on the cell's bottom centre. It deletes
     the old 6 x 1 sheet;
   - the catalog `godot/game/data/liftables.json` that `game/scripts/liftable.gd` reads: per kind its name,
@@ -338,6 +340,10 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `res://tools/render_gulp_art.gd` (windowed: `--path godot -s res://tools/render_gulp_art.gd -- --out=<dir>`)
   renders the Gulp art with the game's own scenes on one sheet (`<dir>/gulp-art.png`): the slime's suck, spit,
   full and ball clips, the Clod Stomper, Tom and his web, a sample of the liftables and the essences.
+- `python scripts/art/pack-quake-art.py` — packs the Crystal Colossus's quake art (2026-11-24) from
+  `asset/Originals/dungeon-kit/bosses/colossus/quake/` ([its README](../asset/Originals/dungeon-kit/bosses/colossus/README.md#the-quakes-cracks-and-craters-2026-11-24)):
+  four fissures into `godot/asset/MAPS/effects/colossus-quake-fissures-1x4.webp` (rows of 640 x 120) and four
+  craters into `colossus-quake-craters-4x1.webp` (256 px cells), each trimmed and fitted, lossless.
 - `python scripts/effects/pack-stretch-lash.py` — packs the Stretch Lash goo tendril from
   `asset/Originals/effects/stretch-lash/` into `godot/asset/MAPS/effects/384x96-tile_4x2-stretch-lash.webp`.
 - `python scripts/art/pack-bomb-lantern-art.py` — packs the Goo Bomb and Lantern art from
@@ -381,6 +387,22 @@ See [assets/README.md](assets/README.md) for the art workflow.
   rewrites them), the ambient ones as 8-frame loops, the buildings of several homes with a
   `door-N` marker at each door; listed under "houses", "town" and "garden"
   after `tools/build_prop_palettes.gd` ([godot/PROPS.md](godot/PROPS.md), "Town").
+- `python scripts/art/pack-mechanism-art.py [--preview <dir>]` (**numpy**) — the dungeon mechanisms' art
+  (2026-11-23) from `asset/Originals/dungeon-kit/mechanisms/` (Magnific GPT 2.5, six 2 x 2 sheets;
+  prompts in its README): the knock target's disc and post, the ram's log (also turned on end), its
+  gantry, cog and pawl, the bricked arch's panel, bricks and rubble, the runaway cart (side, front,
+  wheel, ore), the rail gate with its planks, the brake, the buffer stop and the pulley, into
+  `godot/asset/MAPS/objects/mechanisms/` with `mechanisms.json` (sizes and anchors)
+  ([godot/DUNGEONS.md "Mechanisms"](godot/DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)).
+- `python scripts/art/boss_frames.py preview|contact|showcase|pack [<boss>]` (**numpy**) — the reworked
+  bosses' frames (2026-11-24, step 2 of the dungeons 2 and 3 rework) from
+  `asset/Originals/dungeon-kit/bosses/{matron,colossus}/frames/` (Magnific GPT 2.5 sheets of four
+  frames; prompts in the READMEs there): it cuts and cleans each sheet, lines the frames up on the
+  part of the body that holds still, at one scale per boss. The Colossus's sheets come twice, with
+  his plates and as a plate-less edit, and become a bare body per frame and a layer per plate.
+  `pack` writes the game's strips, plate atlases and `frames.json` to
+  `godot/asset/MAPS/enemies/bosses/<boss>/` (read by `game/bosses/boss_sheet_sprite.gd`);
+  `preview`, `contact` and `showcase` write GIFs and sheets for judging to `output/boss-rework/frames/`.
 - `python scripts/art/pack-mine-art.py [--only=colossus]` (**numpy**) — the Crystal Mine's art
   (2026-10-17) from `asset/Originals/mine/` (Magnific GPT 2.5, eight 2 x 2 sheets; prompts in its
   README): the Crystal Colossus's nine poses (`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`,
@@ -656,7 +678,8 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
   option into `godot/asset/audio/sfx/library/` and writes the players. Files are named
   `<cue>-<n>.wav`, or `<cue>.wav` for a single take, as the bake names them. It writes
   `game/scenes/audio/footsteps.tscn` whole when the round has steps, and adds or updates the
-  players under `Effects` in `global.tscn`. Volumes come from measured loudness (`TARGET_DB`); a
+  players under `Effects` in `global.tscn`. Volumes come from measured loudness (`TARGET_DB` per
+  kind, `CUE_TARGET_DB` for a cue whose kind's does not fit: the runaway cart's roll); a
   cue whose pitch spread differs from its kind's gets it from `CUE_PITCH` (the throw's kill: none,
   the game pitches it; the cues that ship one take and play often, the toss and round 12's soft,
   crystal and bone: 0.08). A volume the loudness rule would put over full scale is held lower: takes
@@ -707,7 +730,15 @@ and where it ships. These Python tools need `pip install miniaudio lameenc numpy
 
   **Round 14 is applied** (2026-11-22, `scripts/audio/picker/round-14.json`, written by
   `round-14-make.py`, and `round-14-picks.json`): the Carnivore Plant's own sounds
-  ([audio spec §16](godot/specs/audio.md#16-round-14-the-carnivore-plant)). No round is open.
+  ([audio spec §16](godot/specs/audio.md#16-round-14-the-carnivore-plant)).
+
+  **Round 15 is applied** without the owner's picks (the mechanisms' builder defaults,
+  [audio spec §17](godot/specs/audio.md#17-round-15-the-dungeon-mechanisms)). **Round 16 is applied**
+  (2026-11-24, `round-16.json`, written by `round-16-make.py`, and `round-16-picks.json`): the
+  reworked Matron's and Colossus's own sounds, picked by the owner
+  ([audio spec §18](godot/specs/audio.md#18-round-16-the-two-bosses)); its players name packed copies
+  (`tools/pack_cue_sounds.gd`), as round 15's. `prep-takes.py` keeps takes it has already written:
+  delete the round's `takes/` folder before preparing again after a manifest change. No round is open.
   Enemy and projectile scenes play some break files by path (`library/world/break-soft-<n>.wav`,
   `break-stone-<n>.wav`, `break-ice-<n>.wav`, `break-wood-2.wav`, `break-glass-<n>.wav` as hurt and
   death sounds), so a round that replaces or drops a break take must leave those files alone or

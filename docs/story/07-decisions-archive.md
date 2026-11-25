@@ -7,6 +7,12 @@ the proposal it took when an answer says "the proposal". The decisions in effect
 
 ## Decisions by date
 
+- **2026-11-23 (hearts and dungeons):** no heart quarter inside a dungeon (owner: "not quarter inside the dungeons
+  they are outside world secrets"). A region's quarters hide in its open world, its caves and its houses; a dungeon's
+  secrets pay in coins, potions, manuscripts and belt slots, and its only heart is its boss's full heart. This takes
+  the Weaver Hollow's quarter (questions 113 and 116: the Pillar, B6) and the Crystal Mine's planned one (S1) out; the
+  Caverns' four all lie outside. Said while approving step 1 of the dungeons' rework
+  ([the plan](../design/2026-11-23-dungeons-2-3-rework.md)).
 - **2026-11-21 (Fatty's rework, the first of the boss pass):** the Spear still hurts Fatty, his eye is his weak spot,
   and thrown things hurt for half a Spear hit (owner: "Half a Spear hit"). Each jump brings dirt from the roof at
   random; a clod landing on the slime hurts, and the clods of the last fall melt before the new ones fall, leaving

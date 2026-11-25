@@ -99,8 +99,8 @@ Non-looping clips hold their last frame when they end (same in Godot).
 | Roll bonk hit | 10 damage and 300 knockback within 34 px of the impact (damage 0 turns it off) | `movement.rollBonkDamage`, `rollBonkKnockback`, `rollBonkHitRadiusPx` |
 | Roll bounce back | 400 px/s easing out to 0 over 360 ms (72 px, at least a tile), with an 18 px hop | `movement.rollBounceSpeed`, `rollBounceMs`, `rollBounceHopPx` |
 | Hit i-frames | 500 ms | `character.player.hitInvulnerabilityMs` |
-| Max HP | 100 (+20 per four heart quarters and per boss's full heart; Godot 2026-10-26) | `character.player.stats.maxHp`, `heartQuarter`, `fullHeart.maxHpBonus` |
-| Defense | 3 | `stats.defense` |
+| Max HP | 80 since 2026-11-24, 100 before (+20 per four heart quarters and per boss's full heart; Godot 2026-10-26) | `character.player.stats.maxHp`, `heartQuarter`, `fullHeart.maxHpBonus` |
+| Defense | 0 since 2026-11-24 (3 before): no armour, an attack's number is what the slime loses ([health and damage](../../design/2026-11-24-health-and-damage.md)) | `stats.defense` |
 | Damage-taken multiplier | 1 | literal `PlayerStats.ts:71` |
 | Attack stat | 12 (swing damage × 12/10) | `stats.attack` |
 | Crit chance / multiplier | 0.05 / 1.75 | `stats.critChance`, `stats.critMultiplier` |
@@ -316,7 +316,7 @@ scaled = baseDamage * area.damageMultiplier(1) * Π damageTypeMultipliers (none)
 canReceiveDamage:
    if isDodging()                        → rejected 'state-blocked'  (RETRYABLE)
    if sim < iFrameUntil                  → rejected 'state-blocked'  (RETRYABLE)
-mitigated = scaled == 0 ? 0 : (trueDamage ? scaled : max(1, scaled − defense 3)) * damageTakenMult 1
+mitigated = scaled == 0 ? 0 : (trueDamage ? scaled : max(1, scaled − defense (3 in Phaser, 0 since 2026-11-24))) * damageTakenMult 1
 rounded   = max(0, round(mitigated))     # JS Math.round: .5 rounds up
 actual    = min(hp, rounded)
 effects   = request effects (e.g. knockback potency) — player has no effect immunities
@@ -326,7 +326,7 @@ accepted {actualDamage: actual, defeated: actual >= hp, appliedEffects}
 ```
 **Retryable** means the attack activation does not remember the rejection: the same enemy swing can still hit once the dodge/hit i-frames end while its hitbox overlaps (`AttackActivation.ts:79`). Accepted hits are remembered per activation (one hit per swing per receiver).
 
-Example: worm swordsman `contactDamage 37` (if that is the request's base damage — enemy spec) → 37 − 3 = 34 HP.
+Example: worm swordsman `contactDamage` 10 → 10 HP (Phaser: 37 − 3 = 34).
 
 ### 6.3 Commit (`PlayerScript.commitDamage`, `PlayerScript.ts:227-233`; `PlayerHealthService.commitDamage`, `:271-288`)
 ```

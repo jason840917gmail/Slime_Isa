@@ -1,5 +1,7 @@
 # Handover (2026-10-17)
 
+> **In flight since 2026-11-23: [the rework of dungeons 2 and 3](2026-11-23-dungeons-rework.md)** (the plan and sketches, step 1's mechanisms built in a lab world, the fix round still to run, the owner's open calls).
+
 > **Throw combat:** the `exp/throw-combat` branch was merged into `main` on 2026-11-01 and its worktree (`D:/projects/Slime isa-throw`) deleted; [its handover, 2026-10-23](2026-10-23-throw-combat.md) is the record (the owner's rules for throw combat still hold).
 >
 > **Start here instead: [2026-10-19 session summary](2026-10-19-session-summary.md)** (the current state, the owner's rules, what is open). The rest of this file is the 2026-10-17 record.

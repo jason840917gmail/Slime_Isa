@@ -244,6 +244,40 @@
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-3.wav" id="sfx_87819a05"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-burn-4.wav" id="sfx_35a14615"]
 [ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/library/enemy/plant-spit.wav" id="sfx_4bb7ef50"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-hit-1.res" id="sfx_0e73f1a4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-hit-2.res" id="sfx_49d38b74"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-hit-3.res" id="sfx_74b3a2c4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-tap-1.res" id="sfx_632d7f67"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-tap-2.res" id="sfx_248d05b7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-rearm-1.res" id="sfx_cf5bcd49"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/knock-target-rearm-2.res" id="sfx_88fbb799"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-windup-1.res" id="sfx_32e40cab"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-windup-2.res" id="sfx_7544767b"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-swing-1.res" id="sfx_5e08050f"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-swing-2.res" id="sfx_19a87fdf"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-thud-1.res" id="sfx_38d8adb4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-thud-2.res" id="sfx_7f78d764"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-thud-3.res" id="sfx_4218fed4"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-ratchet-1.res" id="sfx_7de408f1"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-ratchet-2.res" id="sfx_3a447221"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/ram-ratchet-3.res" id="sfx_07245b91"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/cart-brake-1.res" id="sfx_1a2d97d7"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/cart-brake-2.res" id="sfx_5d8ded07"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/cart-roll.res" id="sfx_93236a1e"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/cart-bump-1.res" id="sfx_1c79fa92"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/world/cart-bump-2.res" id="sfx_5bd98042"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/matron-hiss.res" id="sfx_aec9734c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/matron-shriek.res" id="sfx_d4921d64"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/matron-impact-1.res" id="sfx_0af049b9"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/matron-impact-2.res" id="sfx_4d503369"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-stomp-1.res" id="sfx_996553dc"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-stomp-2.res" id="sfx_dec5290c"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-roar-1.res" id="sfx_c77f5c98"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-roar-2.res" id="sfx_80df2648"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-shatter-1.res" id="sfx_9a8cb4da"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-shatter-2.res" id="sfx_dd2cce0a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-clang-1.res" id="sfx_e7de283a"]
+[ext_resource type="AudioStreamWAV" path="res://asset/audio/sfx/packed/boss/colossus-clang-2.res" id="sfx_a07e52ea"]
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1"]
 playback_mode = 1
 random_pitch = 1.0
@@ -923,6 +957,138 @@ stream_2/stream = ExtResource("sfx_87819a05")
 stream_2/weight = 1.0
 stream_3/stream = ExtResource("sfx_35a14615")
 stream_3/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_knock_target_hit_KnockTargetHit"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_0e73f1a4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_49d38b74")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_74b3a2c4")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_knock_target_tap_KnockTargetTap"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_632d7f67")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_248d05b7")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_knock_target_rearm_KnockTargetRearm"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_cf5bcd49")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_88fbb799")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_ram_windup_RamWindup"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_32e40cab")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_7544767b")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_ram_swing_RamSwing"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_5e08050f")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_19a87fdf")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_ram_thud_RamThud"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_38d8adb4")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_7f78d764")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_4218fed4")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_ram_ratchet_RamRatchet"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 3
+stream_0/stream = ExtResource("sfx_7de408f1")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_3a447221")
+stream_1/weight = 1.0
+stream_2/stream = ExtResource("sfx_07245b91")
+stream_2/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_cart_brake_CartBrake"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_1a2d97d7")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_5d8ded07")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_world_cart_bump_CartBump"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_1c79fa92")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_5bd98042")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_boss_matron_impact_MatronImpact"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_0af049b9")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_4d503369")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_boss_colossus_stomp_ColossusStomp"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_996553dc")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_dec5290c")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_boss_colossus_roar_ColossusRoar"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_c77f5c98")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_80df2648")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_boss_colossus_shatter_ColossusShatter"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_9a8cb4da")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_dd2cce0a")
+stream_1/weight = 1.0
+
+[sub_resource type="AudioStreamRandomizer" id="Rnd_boss_colossus_clang_ColossusClang"]
+playback_mode = 1
+random_pitch = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("sfx_e7de283a")
+stream_0/weight = 1.0
+stream_1/stream = ExtResource("sfx_a07e52ea")
+stream_1/weight = 1.0
 
 [node name="GlobalAudio" type="Node2D"]
 y_sort_enabled = true
@@ -2236,6 +2402,173 @@ script = ExtResource("1")
 process_mode = 3
 stream = SubResource("Rnd_enemy_plant_burn_PlantBurn")
 volume_db = -8.28
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+[node name="KnockTargetHit" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_knock_target_hit_KnockTargetHit")
+volume_db = -5.34
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="KnockTargetTap" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_knock_target_tap_KnockTargetTap")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="KnockTargetRearm" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_knock_target_rearm_KnockTargetRearm")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RamWindup" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_ram_windup_RamWindup")
+volume_db = 0.07
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RamSwing" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_ram_swing_RamSwing")
+volume_db = -7.97
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RamThud" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_ram_thud_RamThud")
+volume_db = -4.79
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="RamRatchet" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_ram_ratchet_RamRatchet")
+volume_db = 0.70
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="CartBrake" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_cart_brake_CartBrake")
+volume_db = -0.27
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="CartRoll" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_93236a1e")
+volume_db = -1.03
+max_polyphony = 1
+bus = &"Effects"
+loop = true
+
+[node name="CartBump" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_world_cart_bump_CartBump")
+volume_db = -5.13
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+[node name="MatronHiss" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_aec9734c")
+volume_db = -4.83
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MatronShriek" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = ExtResource("sfx_d4921d64")
+volume_db = -6.78
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="MatronImpact" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_boss_matron_impact_MatronImpact")
+volume_db = -9.11
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ColossusStomp" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_boss_colossus_stomp_ColossusStomp")
+volume_db = -6.78
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ColossusRoar" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_boss_colossus_roar_ColossusRoar")
+volume_db = -9.60
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ColossusShatter" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_boss_colossus_shatter_ColossusShatter")
+volume_db = -3.52
+max_polyphony = 4
+bus = &"Effects"
+pitch_randomness = 0.06
+min_interval_ms = 60.0
+
+[node name="ColossusClang" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("1")
+process_mode = 3
+stream = SubResource("Rnd_boss_colossus_clang_ColossusClang")
+volume_db = -6.49
 max_polyphony = 4
 bus = &"Effects"
 pitch_randomness = 0.06

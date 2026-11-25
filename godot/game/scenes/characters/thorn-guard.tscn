@@ -81,7 +81,7 @@ attack_range = 0.0
 movement_speed = 70.0
 attack_cooldown_ms = 0.0
 attributes = {
-"contactDamage": 24,
+"contactDamage": 10,
 "knockbackStrength": 260,
 "knockbackResist": 0.8
 }

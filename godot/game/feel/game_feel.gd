@@ -406,6 +406,16 @@ func floating_text(world_position: Vector2, text: String, color: StringName = &"
 	_floating_text.spawn(world_position, text, tint, big, duration_ms)
 
 
+## A hint the player must read (2026-11-24): `text` `lift` px over `follow` (the slime), following it,
+## opaque for most of `duration_ms` (floating_text_layer.gd `spawn_hint`). Pair it with a pointer at
+## the thing it is about (game/feel/hint_cue.gd; docs/GAME_GUIDELINES.md "Hints").
+func hint_text(follow: Node, lift: float, text: String, color: StringName = &"orange", duration_ms: float = 6000.0) -> void:
+	if _floating_text == null or follow == null:
+		return
+	var tint: Color = TEXT_COLORS.get(color, TEXT_COLORS[&"white"])
+	_floating_text.spawn_hint(follow, lift, text, tint, duration_ms)
+
+
 ## One-shot particle burst (combat spec 13 / player spec 8): presets "hit-spark",
 ## "slime-splash", "dodge-dust", "boss-burst" at a world position.
 func particles(preset: StringName, world_position: Vector2) -> void:

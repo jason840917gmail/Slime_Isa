@@ -124,7 +124,7 @@ metadata = {
 
 [node name="player-spawn" type="Node2D" parent="." unique_id=1966266073]
 y_sort_enabled = true
-position = Vector2(7004, 3749)
+position = Vector2(4774, 5521)
 
 [node name="areas" type="Node2D" parent="." unique_id=826448860]
 y_sort_enabled = true
@@ -340,11 +340,9 @@ y_sort_enabled = true
 position = Vector2(1120, 1440)
 metadata/instance_id = "playground-test-chest"
 metadata/persistence_key = "playground.playground-test-chest"
-
-[node name="ChestScript" parent="spawn-camp/test-chest" index="2"]
 map_id = "playground"
-instance_id = "playground-test-chest"
-initial_contents = {
+chest_id = "playground-test-chest"
+contents = {
 "hp-potion": 5,
 "silk-clump": 10,
 "stone": 20,
@@ -458,11 +456,9 @@ locked_message = "Something heavy must press the plate."
 position = Vector2(1344, 420)
 metadata/instance_id = "playground-reward-chest"
 metadata/persistence_key = "playground.playground-reward-chest"
-
-[node name="ChestScript" parent="heavy-puzzle/reward-chest" index="2"]
 map_id = "playground"
-instance_id = "playground-reward-chest"
-initial_contents = {
+chest_id = "playground-reward-chest"
+contents = {
 "hp-potion": 1,
 "purple-berry-mat": 3
 }
@@ -605,11 +601,9 @@ metadata/persistence_key = "playground.playground-nook-web"
 position = Vector2(384, 1624)
 metadata/instance_id = "playground-nook-chest"
 metadata/persistence_key = "playground.playground-nook-chest"
-
-[node name="ChestScript" parent="web-puzzle/nook-chest" index="2"]
 map_id = "playground"
-instance_id = "playground-nook-chest"
-initial_contents = {
+chest_id = "playground-nook-chest"
+contents = {
 "purple-berry-mat": 4,
 "shard": 2
 }
@@ -721,11 +715,9 @@ locked_message = "Ring the bell across the water: throw a pot at it."
 position = Vector2(1984, 1270)
 metadata/instance_id = "playground-lash-chest"
 metadata/persistence_key = "playground.playground-lash-chest"
-
-[node name="ChestScript" parent="lash-yard/lash-chest" index="2"]
 map_id = "playground"
-instance_id = "playground-lash-chest"
-initial_contents = {
+chest_id = "playground-lash-chest"
+contents = {
 "hp-potion": 1,
 "purple-berry-mat": 2
 }

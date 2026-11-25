@@ -97,11 +97,9 @@ burn_ms = 60000.0
 
 [node name="tunnel-chest" parent="Objects" unique_id=791457308 instance=ExtResource("8_c0nk5")]
 position = Vector2(832, 217.6)
-
-[node name="ChestScript" parent="Objects/tunnel-chest" index="2"]
 map_id = "crystal-caverns-under-line-tunnel"
-instance_id = "crystal-caverns-under-line-tunnel-tunnel-chest"
-initial_contents = {
+chest_id = "crystal-caverns-under-line-tunnel-tunnel-chest"
+contents = {
 "coins": 40
 }
 

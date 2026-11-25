@@ -90,7 +90,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				_bitten = true
 				_cue(CUE_BITE)
 				if engaged:
-					_route_immediate_attack(target, pattern("biteDamage", 18.0), pattern("biteKnockback", 220.0),
+					_route_immediate_attack(target, pattern("biteDamage", 10.0), pattern("biteKnockback", 220.0),
 						pattern("biteRangePx", 64.0))
 			if elapsed >= pattern("upMs", 950.0):
 				_sink(now)

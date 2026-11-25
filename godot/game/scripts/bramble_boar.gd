@@ -102,7 +102,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 		PHASE_CHARGE:
 			# The last move: did something stop it?
 			var blocked := _asked != Vector2.ZERO and body.velocity.length() < _asked.length() * BLOCKED_SHARE
-			if engaged and _contact(target, pattern("chargeDamage", 30.0), pattern("chargeKnockback", 340.0),
+			if engaged and _contact(target, pattern("chargeDamage", 10.0), pattern("chargeKnockback", 340.0),
 					pattern("chargeHitPx", 44.0)):
 				_skid(now)
 				return

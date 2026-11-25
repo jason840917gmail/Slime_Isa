@@ -475,11 +475,9 @@ weights = PackedFloat32Array(1, 1, 1, 1)
 
 [node name="level-1-d5-maze-chest" parent="Chapter1" unique_id=1172036723 instance=ExtResource("45_2a22d")]
 position = Vector2(1216, 1171.2)
-
-[node name="ChestScript" parent="Chapter1/level-1-d5-maze-chest" index="2"]
 map_id = "level-1-d5"
-instance_id = "level-1-d5-maze-chest"
-initial_contents = {
+chest_id = "level-1-d5-maze-chest"
+contents = {
 "coins": 30,
 "hp-potion": 1
 }

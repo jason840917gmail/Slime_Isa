@@ -14,11 +14,11 @@ extends "res://game/scripts/chest.gd"
 ## and stays (its appearance is recorded under `instance_id`).
 ##
 ## `map_id` may stay empty: the world's id is used; `instance_id` too: the chest root's name is used
-## (give every chest of a world its own name).
+## (give every chest of a world its own name; chest.gd). What it holds, its heart, `hidden` and its
+## record are set on the chest's root (game/scripts/chest_root.gd).
 ##
 ## Owner: dungeon kit.
 
-const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const DungeonItems := preload("res://game/dungeon/dungeon_items.gd")
 
 const CUE_APPEAR := &"SecretFound"
@@ -41,11 +41,7 @@ var _rest := Vector2.ZERO
 
 
 func _enter_tree() -> void:
-	if map_id.is_empty():
-		map_id = DungeonState.world_map_id(self)
-	# Its record's id: `instance_id`, else the chest's own name (name every chest of a world apart).
-	if instance_id.is_empty() and get_parent() != null:
-		instance_id = String(get_parent().name)
+	# Its record (chest.gd): `map_id` else the world's, `instance_id` else the chest's own name.
 	super()
 	if hidden and _shown:
 		# Hidden until its record says it rose (read once the Dungeon node is in the tree too).

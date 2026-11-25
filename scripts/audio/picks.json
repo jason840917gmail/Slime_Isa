@@ -11,6 +11,13 @@
     "boss.fatty-leap": "library",
     "boss.fatty-recover": "library",
     "boss.fatty-roar": "library",
+    "boss.matron-hiss": "library",
+    "boss.matron-shriek": "library",
+    "boss.matron-impact": "library",
+    "boss.colossus-stomp": "library",
+    "boss.colossus-roar": "library",
+    "boss.colossus-shatter": "library",
+    "boss.colossus-clang": "library",
     "boss.victory": "synth",
     "enemy.arrow-release": "library",
     "enemy.arrow-thunk": "library",
@@ -60,8 +67,8 @@
     "footstep.sand": "library",
     "footstep.snow": "library",
     "footstep.soft": "library",
-    "footstep.stone": "library",
     "footstep.stairs": "library",
+    "footstep.stone": "library",
     "footstep.water": "library",
     "footstep.wood": "library",
     "pickup.berry": "synth",
@@ -167,9 +174,8 @@
     "world.area-transition": "synth",
     "world.bath-soak": "library",
     "world.bell-ring": "library",
-    "world.secret-found": "library",
-    "world.break-clay": "library",
     "world.break-bone": "library",
+    "world.break-clay": "library",
     "world.break-crystal": "library",
     "world.break-glass": "library",
     "world.break-ice": "library",
@@ -180,6 +186,9 @@
     "world.break-stone-crack": "library",
     "world.break-wood": "library",
     "world.campfire-loop": "synth",
+    "world.cart-brake": "library",
+    "world.cart-bump": "library",
+    "world.cart-roll": "library",
     "world.cauldron-loop": "synth",
     "world.chest-close": "library",
     "world.chest-locked": "library",
@@ -192,13 +201,21 @@
     "world.grindstone-loop": "synth",
     "world.ground-creak": "library",
     "world.interior-ambience": "synth",
+    "world.knock-target-hit": "library",
+    "world.knock-target-rearm": "library",
+    "world.knock-target-tap": "library",
     "world.meadow-ambience": "synth",
     "world.npc-blip": "library",
     "world.ore-lift-ride": "library",
     "world.plate-press": "library",
     "world.plate-release": "library",
+    "world.ram-ratchet": "library",
+    "world.ram-swing": "library",
+    "world.ram-thud": "library",
+    "world.ram-windup": "library",
     "world.restore-building": "library",
-    "world.save": "library"
+    "world.save": "library",
+    "world.secret-found": "library"
   },
   "replaced": {
     "boss.fatty-death": "come with other ideas",
@@ -262,5 +279,9 @@
   "round4": {
     "decidedAt": "2026-10-06T18:36:02.547Z",
     "note": "Sound Picker round 4: option A for each form (the Frog's is round 3's Bubbly pop take 3, as the owner named it); Heavy take 1 dropped. Record: scripts/audio/picker/round-4-picks.json; takes asset/Originals/audio/magnific/player-gulp-transform-<form>-r4-<n>.wav."
+  },
+  "round15": {
+    "decidedAt": "2026-11-23",
+    "note": "Round 15: the dungeon mechanisms (the knock target, the ram, the runaway cart). The builder's defaults, one option per cue: the owner has not heard or picked them. Record: scripts/audio/picker/round-15-picks.json; takes asset/Originals/audio/magnific/world-<cue>-r15-<n>.wav."
   }
 }

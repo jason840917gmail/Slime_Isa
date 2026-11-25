@@ -427,7 +427,7 @@ func _try_burn(target: Dictionary, slime_centre: Vector2) -> void:
 	if closest.distance_to(slime_centre) > pattern("beamHalfWidthPx", 12.0) + pattern("slimeRadiusPx", 12.0):
 		return
 	_burnt = true
-	_route_hit_from(get_centre(), target, pattern("beamDamage", 22.0), pattern("beamKnockback", 260.0),
+	_route_hit_from(get_centre(), target, pattern("beamDamage", 10.0), pattern("beamKnockback", 260.0),
 		Vector2.RIGHT.rotated(_aim))
 
 

@@ -63,15 +63,13 @@ y_sort_enabled = true
 position = Vector2(3417.6, 249.6)
 metadata/instance_id = "crystal-mine-M10-journal-chest"
 metadata/persistence_key = "crystal-mine.crystal-mine-M10-journal-chest"
+chest_id = "crystal-mine-M10-journal-chest"
+contents = {
+"coins": 30
+}
 
 [node name="Visual" parent="Objects/M10-journal-chest" index="1"]
 texture = ExtResource("8_any3s")
-
-[node name="ChestScript" parent="Objects/M10-journal-chest" index="2"]
-instance_id = "crystal-mine-M10-journal-chest"
-initial_contents = {
-"coins": 30
-}
 
 [node name="M11-brazier-north" parent="Objects" unique_id=1303028712 instance=ExtResource("9_iy2bn")]
 position = Vector2(3987.2, 742.4)

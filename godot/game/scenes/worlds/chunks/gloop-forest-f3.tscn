@@ -249,11 +249,9 @@ position = Vector2(550.3999, 1894.4)
 
 [node name="mere-islet-chest" parent="RiverRoads" unique_id=1817898655 instance=ExtResource("25_pvigv")]
 position = Vector2(192, 345.6)
-
-[node name="ChestScript" parent="RiverRoads/mere-islet-chest" index="2"]
 map_id = "gloop-forest-f3"
-instance_id = "gloop-forest-f3-mere-islet-chest"
-goo_heart_id = "gloop-mere-islet"
+chest_id = "gloop-forest-f3-mere-islet-chest"
+heart_id = "gloop-mere-islet"
 
 [node name="mere-pads-water" parent="RiverRoads" unique_id=1455177370 instance=ExtResource("27_rocvl")]
 position = Vector2(320, 320)
@@ -308,11 +306,9 @@ targets = Array[NodePath]([NodePath("../ravine-bridge")])
 
 [node name="ravine-chest" parent="RiverRoads" unique_id=216284753 instance=ExtResource("25_pvigv")]
 position = Vector2(1433.6001, 230.4)
-
-[node name="ChestScript" parent="RiverRoads/ravine-chest" index="2"]
 map_id = "gloop-forest-f3"
-instance_id = "gloop-forest-f3-ravine-chest"
-initial_contents = {
+chest_id = "gloop-forest-f3-ravine-chest"
+contents = {
 "coins": 60,
 "energy-potion": 1
 }

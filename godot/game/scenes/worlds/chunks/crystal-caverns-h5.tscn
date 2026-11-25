@@ -311,11 +311,9 @@ position = Vector2(883.19995, 409.6001)
 
 [node name="islet-chest" parent="Spiral" unique_id=2089268370 instance=ExtResource("20_ju5bu")]
 position = Vector2(544, 294.3999)
-
-[node name="ChestScript" parent="Spiral/islet-chest" index="2"]
 map_id = "crystal-caverns-h5"
-instance_id = "crystal-caverns-h5-islet-chest"
-initial_contents = {
+chest_id = "crystal-caverns-h5-islet-chest"
+contents = {
 "coins": 30
 }
 
@@ -354,11 +352,9 @@ position = Vector2(1696, 896)
 
 [node name="bay-chest" parent="Spiral" unique_id=616236003 instance=ExtResource("20_ju5bu")]
 position = Vector2(1728, 1312)
-
-[node name="ChestScript" parent="Spiral/bay-chest" index="2"]
 map_id = "crystal-caverns-h5"
-instance_id = "crystal-caverns-h5-bay-chest"
-initial_contents = {
+chest_id = "crystal-caverns-h5-bay-chest"
+contents = {
 "coins": 25
 }
 
