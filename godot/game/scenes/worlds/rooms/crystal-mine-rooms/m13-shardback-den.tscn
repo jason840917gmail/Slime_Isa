@@ -1,0 +1,323 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_4faaa"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_fpqwc"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_updav"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="4_cergg"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="5_tpd8w"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="6_a0555"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="7_dtre2"]
+[ext_resource type="TileSet" path="res://game/world/vines/vine_tileset.tres" id="8_813a7"]
+[ext_resource type="Script" uid="uid://x5twe4lvah0o" path="res://game/world/vines/vine_layer.gd" id="9_8ii4x"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="10_267pe"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="11_bvnhw"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="12_tauqp"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/shutter.tscn" id="13_mwm8m"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-fight.tscn" id="14_uy46y"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/ram-cart.tscn" id="15_7ud7t"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/knock-target.tscn" id="16_6fauq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/brazier.tscn" id="17_08jhj"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="18_61sji"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/pearl-three.tscn" id="19_4wtva"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/prize-glint.tscn" id="20_hrvdm"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--03.tscn" id="21_mnij4"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="22_xnf6e"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--11.tscn" id="23_0reyo"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="24_pkunp"]
+[ext_resource type="Script" uid="uid://bagjdby0ohf22" path="res://game/prologue/soft_glow.gd" id="25_lirjg"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/stalagmites.tscn" id="26_5fh8a"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-heap.tscn" id="27_0s7lw"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/broken-crates.tscn" id="28_7r5m6"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--13.tscn" id="29_cqhb0"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--02.tscn" id="30_172u7"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/glow-worm.tscn" id="31_jd53h"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/pill-bug.tscn" id="32_3ohov"]
+[ext_resource type="PackedScene" path="res://game/scenes/encounters/placed-enemy.tscn" id="33_yl1pt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="34_kd4wv"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="35_nduew"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/crystal-mine-dungeon.tscn" id="36_b57id"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="37_eg6wv"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="38_6gayk"]
+[ext_resource type="Script" uid="uid://c11vpo6seqrft" path="res://game/crystal_mine/crystal_mine.gd" id="39_gu1ac"]
+[ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="40_hidla"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_gmar2"]
+blend_mode = 1
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_x11ji"]
+blend_mode = 1
+
+[node name="m13-shardback-den" type="Node2D" unique_id=1546925212]
+y_sort_enabled = true
+script = ExtResource("1_4faaa")
+world_id = "crystal-mine-m13-shardback-den"
+room_id = "m13-shardback-den"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1177923838]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAABAAAAAQABAAAAAAACAAAAAQACAAAAAAADAAAAAQADAAAAAAAEAAAAAQAEAAAAAAAFAAAAAQAFAAAAAAAGAAAAAQAGAAAAAAAHAAAAAQAHAAAAAAAIAAAAAQAIAAAAAAAJAAAAAQAJAAAAAAAKAAAAAQAKAAAAAAALAAAAAQALAAAAAAAMAAAAAQAMAAAAAAANAAAAAQANAAAAAAAOAAAAAQAOAAAAAAAPAAAAAQAPAAAAAAAQAAAAAQAQAAAAAAARAAAAAQARAAAAAAAAAAEAAQAAAAEAAAABAAEAAQABAAEAAAACAAEAAQACAAEAAAADAAEAAQADAAEAAAAEAAEAAQAEAAEAAAAFAAEAAQAFAAEAAAAGAAEAAQAGAAEAAAAHAAEAAQAHAAEAAAAIAAEAAQAIAAEAAAAJAAEAAQAJAAEAAAAKAAEAAQAKAAEAAAALAAEAAQALAAEAAAAMAAEAAQAMAAEAAAANAAEAAQANAAEAAAAOAAEAAQAOAAEAAAAPAAEAAQAPAAEAAAAQAAEAAQAQAAEAAAARAAEAAQARAAEAAAAAAAIAAQAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAAQAMAAIAAAANAAIAAQANAAIAAAAOAAIAAQAOAAIAAAAPAAIAAQAPAAIAAAAQAAIAAQAQAAIAAAARAAIAAQARAAIAAAAAAAMAAQAAAAMAAAABAAMAAQABAAMAAAACAAMAAgACAAMAAAADAAMAAgADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAgAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAAQAMAAMAAAANAAMAAQANAAMAAAAOAAMAAQAOAAMAAAAPAAMAAQAPAAMAAAAQAAMAAQAQAAMAAAARAAMAAQARAAMAAAAAAAQAAQAAAAQAAAABAAQAAQABAAQAAAACAAQAAgACAAQAAAADAAQAAgADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAgAFAAQAAAAGAAQAAgAGAAQAAAAHAAQAAgAHAAQAAAAIAAQAAgAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAAQAMAAQAAAANAAQAAQANAAQAAAAOAAQAAQAOAAQAAAAPAAQAAQAPAAQAAAAQAAQAAQAQAAQAAAARAAQAAQARAAQAAAAAAAUAAQAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAgAGAAUAAAAHAAUAAgAHAAUAAAAIAAUAAgAIAAUAAAAJAAUAAgAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAAQAMAAUAAAANAAUAAQANAAUAAAAOAAUAAQAOAAUAAAAPAAUAAQAPAAUAAAAQAAUAAQAQAAUAAAARAAUAAQARAAUAAAAAAAYAAQAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAAQAMAAYAAAANAAYAAQANAAYAAAAOAAYAAQAOAAYAAAAPAAYAAQAPAAYAAAAQAAYAAQAQAAYAAAARAAYAAQARAAYAAAAAAAcAAQAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAAQAMAAcAAAANAAcAAgANAAcAAAAOAAcAAgAOAAcAAAAPAAcAAgAPAAcAAAAQAAcAAQAQAAcAAAARAAcAAQARAAcAAAAAAAgAAQAAAAgAAAABAAgAAQABAAgAAAACAAgAAQACAAgAAAADAAgAAQADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAAQAMAAgAAAANAAgAAgANAAgAAAAOAAgAAgAOAAgAAAAPAAgAAgAPAAgAAAAQAAgAAQAQAAgAAAARAAgAAQARAAgAAAAAAAkAAQAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAQADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAAQAMAAkAAAANAAkAAgANAAkAAAAOAAkAAgAOAAkAAAAPAAkAAgAPAAkAAAAQAAkAAQAQAAkAAAARAAkAAQARAAkAAAAAAAoAAQAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAAQAMAAoAAAANAAoAAgANAAoAAAAOAAoAAgAOAAoAAAAPAAoAAgAPAAoAAAAQAAoAAQAQAAoAAAARAAoAAQARAAoAAAAAAAsAAQAAAAsAAAABAAsAAQABAAsAAAACAAsAAQACAAsAAAADAAsAAQADAAsAAAAEAAsAAQAEAAsAAAAFAAsAAQAFAAsAAAAGAAsAAQAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsAAQAJAAsAAAAKAAsAAQAKAAsAAAALAAsAAQALAAsAAAAMAAsAAQAMAAsAAAANAAsAAQANAAsAAAAOAAsAAQAOAAsAAAAPAAsAAQAPAAsAAAAQAAsAAQAQAAsAAAARAAsAAQARAAsAAAAAAAwAAQAAAAwAAAABAAwAAQABAAwAAAACAAwAFQACAAwAAAADAAwAFQADAAwAAAAEAAwAFQAEAAwAAAAFAAwAFQAFAAwAAAAGAAwAFQAGAAwAAAAHAAwAFQAHAAwAAAAIAAwAFQAIAAwAAAAJAAwAFQAJAAwAAAAKAAwAFQAKAAwAAAALAAwAFQALAAwAAAAMAAwAFQAMAAwAAAANAAwAFQANAAwAAAAOAAwAFQAOAAwAAAAPAAwAFQAPAAwAAAAQAAwAAQAQAAwAAAARAAwAAQARAAwAAAAAAA0AAQAAAA0AAAABAA0AAQABAA0AAAACAA0AFQACAA0AAAADAA0AFQADAA0AAAAEAA0AFQAEAA0AAAAFAA0AFQAFAA0AAAAGAA0AFQAGAA0AAAAHAA0AFQAHAA0AAAAIAA0AFQAIAA0AAAAJAA0AFQAJAA0AAAAKAA0AFQAKAA0AAAALAA0AFQALAA0AAAAMAA0AFQAMAA0AAAANAA0AFQANAA0AAAAOAA0AFQAOAA0AAAAPAA0AFQAPAA0AAAAQAA0AAQAQAA0AAAARAA0AAQARAA0AAAAAAA4AAQAAAA4AAAABAA4AAQABAA4AAAACAA4AAQACAA4AAAADAA4AAQADAA4AAAAEAA4AAQAEAA4AAAAFAA4AAQAFAA4AAAAGAA4AAQAGAA4AAAAHAA4AAQAHAA4AAAAIAA4AAQAIAA4AAAAJAA4AAQAJAA4AAAAKAA4AAQAKAA4AAAALAA4AAQALAA4AAAAMAA4AAQAMAA4AAAANAA4AAQANAA4AAAAOAA4AAQAOAA4AAAAPAA4AAQAPAA4AAAAQAA4AAQAQAA4AAAARAA4AAQARAA4AAAAAAA8AAQAAAA8AAAABAA8AAQABAA8AAAACAA8AAQACAA8AAAADAA8AAQADAA8AAAAEAA8AAQAEAA8AAAAFAA8AAQAFAA8AAAAGAA8AAQAGAA8AAAAHAA8AAQAHAA8AAAAIAA8AAQAIAA8AAAAJAA8AAQAJAA8AAAAKAA8AAQAKAA8AAAALAA8AAQALAA8AAAAMAA8AAQAMAA8AAAANAA8AAQANAA8AAAAOAA8AAQAOAA8AAAAPAA8AAQAPAA8AAAAQAA8AAQAQAA8AAAARAA8AAQARAA8AAAA=")
+tile_set = ExtResource("2_fpqwc")
+script = ExtResource("3_updav")
+metadata/columns = 18
+metadata/rows = 16
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1715985396]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAAFAAAAAAABAAAAAAAFAAAAAAACAAAAAAAFAAAAAAADAAAAAAAFAAAAAAAEAAAAAAAFAAAAAAAFAAAAAAAFAAAAAAAGAAAAAAAFAAAAAAAHAAAAAAAFAAAAAAAIAAAAAAAFAAAAAAAJAAAAAAAFAAAAAAAKAAAAAAAFAAAAAAALAAAAAAAFAAAAAAAMAAAAAAAFAAAAAAANAAAAAAAFAAkAAAAOAAAAAAAFAAkAAAAPAAAAAAAFAAAAAAAQAAAAAAAFAAAAAAARAAAAAAAFAAAAAAAAAAEAAAAFAAAAAAABAAEAAAAFAAAAAAACAAEAAAAFAAAAAAADAAEAAAAFAAAAAAAEAAEAAAAFAAAAAAAFAAEAAAAFAAAAAAAGAAEAAAAFAAAAAAAHAAEAAAAFAAAAAAAIAAEAAAAFAAAAAAAJAAEAAAAFAAAAAAAKAAEAAAAFAAAAAAALAAEAAAAFAAAAAAAMAAEAAAAFAAAAAAANAAEAAAAFAAkAAAAOAAEAAAAFAAkAAAAPAAEAAAAFAAAAAAAQAAEAAAAFAAAAAAARAAEAAAAFAAAAAAAAAAIAAAAFAAAAAAABAAIAAAAFAAAAAAAQAAIAAAAFAAAAAAARAAIAAAAFAAAAAAAAAAMAAAAFAAAAAAABAAMAAAAFAAAAAAAQAAMAAAAFAAAAAAARAAMAAAAFAAAAAAAAAAQAAAAFAAAAAAABAAQAAAAFAAAAAAAQAAQAAAAFAAAAAAARAAQAAAAFAAAAAAAAAAUAAAAFAAAAAAABAAUAAAAFAAAAAAAQAAUAAAAFAAAAAAARAAUAAAAFAAAAAAAAAAYAAAAFAAAAAAABAAYAAAAFAAAAAAAQAAYAAAAFAAAAAAARAAYAAAAFAAAAAAAAAAcAAAAFAAAAAAABAAcAAAAFAAAAAAAQAAcAAAAFAAAAAAARAAcAAAAFAAAAAAAAAAgAAAAFAAAAAAABAAgAAAAFAAAAAAAQAAgAAAAFAAEAAAARAAgAAAAFAAEAAAAAAAkAAAAFAAAAAAABAAkAAAAFAAAAAAAQAAkAAAAFAAEAAAARAAkAAAAFAAEAAAAAAAoAAAAFAAAAAAABAAoAAAAFAAAAAAAQAAoAAAAFAAAAAAARAAoAAAAFAAAAAAAAAAsAAAAFAAAAAAABAAsAAAAFAAAAAAAQAAsAAAAFAAAAAAARAAsAAAAFAAAAAAAAAAwAAAAFAAAAAAABAAwAAAAFAAAAAAAQAAwAAAAFAAAAAAARAAwAAAAFAAAAAAAAAA0AAAAFAAAAAAABAA0AAAAFAAAAAAAQAA0AAAAFAAAAAAARAA0AAAAFAAAAAAAAAA4AAAAFAAAAAAABAA4AAAAFAAAAAAACAA4AAAAFAAAAAAADAA4AAAAFAAAAAAAEAA4AAAAFAAAAAAAFAA4AAAAFAAAAAAAGAA4AAAAFAAAAAAAHAA4AAAAFAAAAAAAIAA4AAAAFAAAAAAAJAA4AAAAFAAAAAAAKAA4AAAAFAAAAAAALAA4AAAAFAAAAAAAMAA4AAAAFAAkAAAANAA4AAAAFAAkAAAAOAA4AAAAFAAAAAAAPAA4AAAAFAAAAAAAQAA4AAAAFAAAAAAARAA4AAAAFAAAAAAAAAA8AAAAFAAAAAAABAA8AAAAFAAAAAAACAA8AAAAFAAAAAAADAA8AAAAFAAAAAAAEAA8AAAAFAAAAAAAFAA8AAAAFAAAAAAAGAA8AAAAFAAAAAAAHAA8AAAAFAAAAAAAIAA8AAAAFAAAAAAAJAA8AAAAFAAAAAAAKAA8AAAAFAAAAAAALAA8AAAAFAAAAAAAMAA8AAAAFAAkAAAANAA8AAAAFAAkAAAAOAA8AAAAFAAAAAAAPAA8AAAAFAAAAAAAQAA8AAAAFAAAAAAARAA8AAAAFAAAAAAA=")
+tile_set = ExtResource("4_cergg")
+script = ExtResource("5_tpd8w")
+draw_floor = false
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=760802976]
+visible = false
+tile_map_data = PackedByteArray("AAANAAcAAAADAAAAAAAOAAcAAAADAAAAAAAPAAcAAAADAAAAAAAQAAcAAAADAAAAAAARAAcAAAADAAAAAAANAAgAAAADAAAAAAAOAAgAAAADAAAAAAAPAAgAAAADAAAAAAAQAAgAAAADAAAAAAARAAgAAAADAAAAAAANAAkAAAADAAAAAAAOAAkAAAADAAAAAAAPAAkAAAADAAAAAAAQAAkAAAADAAAAAAARAAkAAAADAAAAAAANAAoAAAADAAAAAAAOAAoAAAADAAAAAAAPAAoAAAADAAAAAAAQAAoAAAADAAAAAAARAAoAAAADAAAAAAA=")
+tile_set = ExtResource("6_a0555")
+script = ExtResource("7_dtre2")
+room_back_faces = true
+
+[node name="vines" type="TileMapLayer" parent="." unique_id=779337774]
+z_index = -1
+tile_map_data = PackedByteArray("AAANAAsAAAAAAAAAAAAOAAsAAAAAAAAAAAA=")
+tile_set = ExtResource("8_813a7")
+script = ExtResource("9_8ii4x")
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=2068459193]
+tile_map_data = PackedByteArray("AAACAAIAAAAKAAwAAAADAAIAAAAKAAwAAAAEAAIAAAAKAAwAAAAFAAIAAAAKAAwAAAAGAAIAAAAKAAwAAAAHAAIAAAAKAAwAAAAIAAIAAAAKAAwAAAAJAAIAAAAKAAwAAAAKAAIAAAAKAAwAAAALAAIAAAAKAAwAAAAMAAIAAAAKAAwAAAAPAAIAAAAKAAwAAAACAAMAAAAKAAwAAAADAAMAAAAKAAwAAAAEAAMAAAAKAAwAAAAFAAMAAAAKAAwAAAAGAAMAAAAKAAwAAAAHAAMAAAAKAAwAAAAIAAMAAAAKAAwAAAAJAAMAAAAKAAwAAAAKAAMAAAAKAAwAAAALAAMAAAAKAAwAAAAMAAMAAAAKAAwAAAANAAMAAAAKAAwAAAAOAAMAAAAKAAwAAAAPAAMAAAAKAAwAAAACAAQAAAAKAAwAAAADAAQAAAAKAAwAAAAEAAQAAAAKAAwAAAAFAAQAAAAKAAwAAAAGAAQAAAAKAAwAAAAHAAQAAAAKAAwAAAAIAAQAAAAKAAwAAAAJAAQAAAAKAAwAAAAKAAQAAAAKAAwAAAALAAQAAAAKAAwAAAAMAAQAAAAKAAwAAAANAAQAAAAKAAwAAAAOAAQAAAAKAAwAAAAPAAQAAAAKAAwAAAACAAUAAAAKAAwAAAADAAUAAAAKAAwAAAAEAAUAAAAKAAwAAAAFAAUAAAAKAAwAAAAGAAUAAAAKAAwAAAAHAAUAAAAKAAwAAAAIAAUAAAAKAAwAAAAJAAUAAAAKAAwAAAAKAAUAAAAKAAwAAAALAAUAAAAKAAwAAAAMAAUAAAAKAAwAAAANAAUAAAAKAAwAAAAOAAUAAAAKAAwAAAAPAAUAAAAKAAwAAAACAAYAAAAKAAwAAAADAAYAAAAKAAwAAAAEAAYAAAAKAAwAAAAFAAYAAAAKAAwAAAAGAAYAAAAKAAwAAAAHAAYAAAAKAAwAAAAIAAYAAAAKAAwAAAAJAAYAAAAKAAwAAAAKAAYAAAAKAAwAAAALAAYAAAAKAAwAAAAMAAYAAAAKAAwAAAANAAYAAAAKAAwAAAAOAAYAAAAKAAwAAAAPAAYAAAAKAAwAAAACAAcAAAAKAAwAAAADAAcAAAAKAAwAAAAEAAcAAAAKAAwAAAAFAAcAAAAKAAwAAAAGAAcAAAAKAAwAAAAHAAcAAAAKAAwAAAAIAAcAAAAKAAwAAAAJAAcAAAAKAAwAAAAKAAcAAAAKAAwAAAALAAcAAAAKAAwAAAAMAAcAAAAKAAwAAAANAAcAAAAKAAwAAAAOAAcAAAAKAAwAAAAPAAcAAAAKAAwAAAACAAgAAAAKAAwAAAADAAgAAAAKAAwAAAAEAAgAAAAKAAwAAAAFAAgAAAAKAAwAAAAGAAgAAAAKAAwAAAAHAAgAAAAKAAwAAAAIAAgAAAAKAAwAAAAJAAgAAAAKAAwAAAAKAAgAAAAKAAwAAAALAAgAAAAKAAwAAAAMAAgAAAAKAAwAAAANAAgAAAAKAAwAAAAOAAgAAAAKAAwAAAACAAkAAAAKAAwAAAADAAkAAAAKAAwAAAAEAAkAAAAKAAwAAAAFAAkAAAAKAAwAAAAGAAkAAAAKAAwAAAAHAAkAAAAKAAwAAAAIAAkAAAAKAAwAAAAJAAkAAAAKAAwAAAAKAAkAAAAKAAwAAAALAAkAAAAKAAwAAAAMAAkAAAAKAAwAAAANAAkAAAAKAAwAAAAOAAkAAAAKAAwAAAACAAoAAAAKAAwAAAADAAoAAAAKAAwAAAAEAAoAAAAKAAwAAAAFAAoAAAAKAAwAAAAGAAoAAAAKAAwAAAAHAAoAAAAKAAwAAAAIAAoAAAAKAAwAAAAJAAoAAAAKAAwAAAAKAAoAAAAKAAwAAAALAAoAAAAKAAwAAAAMAAoAAAAKAAwAAAANAAoAAAAKAAwAAAAOAAoAAAAKAAwAAAAPAAoAAAAKAAwAAAACAAsAAAAKAAwAAAADAAsAAAAKAAwAAAAEAAsAAAAKAAwAAAAFAAsAAAAKAAwAAAAGAAsAAAAKAAwAAAAHAAsAAAAKAAwAAAAIAAsAAAAKAAwAAAAJAAsAAAAKAAwAAAAKAAsAAAAKAAwAAAALAAsAAAAKAAwAAAAMAAsAAAAKAAwAAAAPAAsAAAAKAAwAAAACAAwAAAAKAAwAAAADAAwAAAAKAAwAAAAEAAwAAAAKAAwAAAAFAAwAAAAKAAwAAAAGAAwAAAAKAAwAAAAHAAwAAAAKAAwAAAAIAAwAAAAKAAwAAAAJAAwAAAAKAAwAAAAKAAwAAAAKAAwAAAALAAwAAAAKAAwAAAAMAAwAAAAKAAwAAAANAAwAAAAKAAwAAAAOAAwAAAAKAAwAAAAPAAwAAAAKAAwAAAACAA0AAAAKAAwAAAADAA0AAAAKAAwAAAAEAA0AAAAKAAwAAAAFAA0AAAAKAAwAAAAGAA0AAAAKAAwAAAAHAA0AAAAKAAwAAAAIAA0AAAAKAAwAAAAJAA0AAAAKAAwAAAAKAA0AAAAKAAwAAAALAA0AAAAKAAwAAAAOAA0AAAAKAAwAAAAPAA0AAAAKAAwAAAA=")
+tile_set = ExtResource("10_267pe")
+script = ExtResource("11_bvnhw")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=64643083]
+
+[node name="m13-shardback-den" type="Node2D" parent="CameraRooms" unique_id=2083867814]
+script = ExtResource("12_tauqp")
+outline = PackedVector2Array()
+size = Vector2(1152, 1024)
+metadata/wall_bands = false
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/m13-shardback-den" unique_id=605618318]
+position = Vector2(896, 217.6)
+
+[node name="Objects" type="Node2D" parent="." unique_id=695963474]
+y_sort_enabled = true
+
+[node name="M13-den-shutter" parent="Objects" unique_id=1293817189 instance=ExtResource("13_mwm8m")]
+position = Vector2(896, 128)
+fight_id = "shardback-den"
+shutter_id = "den-north"
+frame_drawn_by_wall = true
+interior_style = "crystal-cave"
+metadata/interior_door_block = "13,0"
+metadata/interior_door_kind = "shutter"
+
+[node name="M13-den-ledge" parent="Objects" unique_id=1101181461 instance=ExtResource("13_mwm8m")]
+position = Vector2(832, 896)
+rotation = 3.1415927
+wall = "south"
+shutter_id = "den-ledge"
+starts_shut = true
+frame_drawn_by_wall = true
+interior_style = "crystal-cave"
+metadata/interior_door_block = "12,14"
+metadata/interior_door_kind = "shutter"
+
+[node name="M13-den-fight" parent="Objects" unique_id=439421371 instance=ExtResource("14_uy46y")]
+size = Vector2(1152, 1024)
+fight_id = "shardback-den"
+once = true
+boss_id = "crystal-mine-shardback"
+reward = NodePath("../M13-den-ledge")
+
+[node name="M13-den-cart" parent="Objects" unique_id=1480330372 instance=ExtResource("15_7ud7t")]
+position = Vector2(179.2, 806.4)
+points = PackedVector2Array(0, 0, 678.4, 0)
+returns = true
+cart_id = "crystal-mine-den-cart"
+buffer_stop = false
+
+[node name="M13-den-target" parent="Objects" unique_id=281086294 instance=ExtResource("16_6fauq")]
+position = Vector2(947.2, 806.4)
+target_id = "crystal-mine-den-target"
+targets = Array[NodePath]([NodePath("../M13-den-cart")])
+rope_points = PackedVector2Array()
+
+[node name="M13-brazier-w" parent="Objects" unique_id=321411813 instance=ExtResource("17_08jhj")]
+position = Vector2(384, 704)
+stomp_puts_out = true
+
+[node name="M13-brazier-e" parent="Objects" unique_id=135258920 instance=ExtResource("17_08jhj")]
+position = Vector2(608, 704)
+stomp_puts_out = true
+
+[node name="M13-pot-1" parent="Objects" unique_id=136141211 instance=ExtResource("18_61sji")]
+position = Vector2(768, 864)
+
+[node name="PotLoot" parent="Objects/M13-pot-1" index="3"]
+loot = "none"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="M13-pot-2" parent="Objects" unique_id=1361248 instance=ExtResource("18_61sji")]
+position = Vector2(972.8, 864)
+
+[node name="PotLoot" parent="Objects/M13-pot-2" index="3"]
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="M13-pearl-three" parent="Objects" unique_id=518964681 instance=ExtResource("19_4wtva")]
+position = Vector2(480, 294.4)
+boss_id = "crystal-mine-shardback"
+card_line = "The beast the Pearl woke in the Colossus is yours: you climb walls of thick roots and rocky handholds."
+take_radius = 48.0
+
+[node name="M13-pearl-glint" parent="Objects" unique_id=173407191 instance=ExtResource("20_hrvdm")]
+position = Vector2(480, 249.6)
+tint = Color(1, 0.86, 0.6, 1)
+
+[node name="Scenery" type="Node2D" parent="." unique_id=1602577254]
+y_sort_enabled = true
+
+[node name="crystal-cluster-wall--03" parent="Scenery" unique_id=1433772059 instance=ExtResource("21_mnij4")]
+position = Vector2(390.4, 332.8)
+scale = Vector2(0.8, 0.8)
+
+[node name="crystal-cluster-wall--07" parent="Scenery" unique_id=457814603 instance=ExtResource("22_xnf6e")]
+position = Vector2(569.6, 332.8)
+scale = Vector2(0.8, 0.8)
+
+[node name="crystal-cluster-wall--11" parent="Scenery" unique_id=131808235 instance=ExtResource("23_0reyo")]
+position = Vector2(416, 384)
+scale = Vector2(0.8, 0.8)
+
+[node name="crystal-cluster-wall--05" parent="Scenery" unique_id=1528854525 instance=ExtResource("24_pkunp")]
+position = Vector2(544, 384)
+scale = Vector2(0.8, 0.8)
+
+[node name="crystal-glow" type="Node2D" parent="Scenery" unique_id=1140298106]
+z_index = 3
+material = SubResource("CanvasItemMaterial_gmar2")
+position = Vector2(480, 281.6)
+script = ExtResource("25_lirjg")
+radius = Vector2(90, 60)
+color = Color(1, 0.86, 0.6, 0.35)
+pulse = 0.2
+period_s = 5.0
+
+[node name="stalagmites" parent="Scenery" unique_id=1978356534 instance=ExtResource("26_5fh8a")]
+position = Vector2(179.2, 192)
+
+[node name="stalagmites-2" parent="Scenery" unique_id=1841181428 instance=ExtResource("26_5fh8a")]
+position = Vector2(755.2, 192)
+scale = Vector2(-1, 1)
+
+[node name="ore-heap" parent="Scenery" unique_id=1826311476 instance=ExtResource("27_0s7lw")]
+position = Vector2(972.8, 345.6)
+
+[node name="broken-crates" parent="Scenery" unique_id=1627466809 instance=ExtResource("28_7r5m6")]
+position = Vector2(179.2, 409.6)
+
+[node name="crystal-cluster-wall--13" parent="Scenery" unique_id=1946553057 instance=ExtResource("29_cqhb0")]
+position = Vector2(979.2, 793.6)
+scale = Vector2(-1, 1)
+
+[node name="crystal-cluster-wall--02" parent="Scenery" unique_id=1515162949 instance=ExtResource("30_172u7")]
+position = Vector2(665.6, 204.8)
+
+[node name="crystal-glow-2" type="Node2D" parent="Scenery" unique_id=1264590624]
+z_index = 3
+material = SubResource("CanvasItemMaterial_x11ji")
+position = Vector2(979.2, 780.8)
+script = ExtResource("25_lirjg")
+radius = Vector2(60, 40)
+color = Color(0.55, 0.8, 1, 0.45)
+pulse = 0.2
+period_s = 5.0
+
+[node name="glow-worm" parent="Scenery" unique_id=878878496 instance=ExtResource("31_jd53h")]
+position = Vector2(704, 409.6)
+walk_speed = 5.0
+pause_min_ms = 2500.0
+pause_max_ms = 7000.0
+wander_radius = 40.0
+rest_clips = PackedStringArray()
+
+[node name="pill-bug" parent="Scenery" unique_id=1146900857 instance=ExtResource("32_3ohov")]
+position = Vector2(256, 384)
+walk_speed = 30.0
+pause_min_ms = 500.0
+pause_max_ms = 2200.0
+wander_radius = 96.0
+notice_px = 52.0
+calm_ms = 2200.0
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1595081382]
+y_sort_enabled = true
+
+[node name="M13-shardback" parent="Enemies" unique_id=2038278504 instance=ExtResource("33_yl1pt")]
+position = Vector2(544, 512)
+enemy_type = "shardback"
+wander_radius = 200.0
+
+[node name="RoomDoors" type="Node2D" parent="." unique_id=2085573844]
+
+[node name="m13-north" parent="RoomDoors" unique_id=542938233 instance=ExtResource("34_kd4wv")]
+position = Vector2(896, 0)
+door_id = "m13-north"
+target_room = "m9-the-chasm"
+target_door = "m9-south"
+
+[node name="m13-east-ledge" parent="RoomDoors" unique_id=340197130 instance=ExtResource("34_kd4wv")]
+position = Vector2(1152, 576)
+door_id = "m13-east-ledge"
+target_room = "m11-crystal-veil"
+target_door = "m11-west-landing"
+side = "east"
+
+[node name="m13-south-rim" parent="RoomDoors" unique_id=1560370200 instance=ExtResource("34_kd4wv")]
+position = Vector2(832, 1024)
+door_id = "m13-south-rim"
+target_room = "m14-shaft-floor"
+target_door = "m14-north-rim"
+side = "south"
+
+[node name="world-definition" type="Node" parent="." unique_id=1929354823]
+script = ExtResource("35_nduew")
+map_id = "crystal-mine-m13-shardback-den"
+tile_size = 64
+columns = 18
+rows = 16
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 896,
+"y": 217
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=279700334]
+position = Vector2(896, 217.6)
+
+[node name="Dungeon" parent="." unique_id=1635396092 instance=ExtResource("36_b57id")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1573091219]
+process_mode = 3
+stream = ExtResource("37_eg6wv")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("38_6gayk")
+loop = true
+autoplay_cue = true
+
+[node name="CrystalMine" type="Node" parent="." unique_id=1307850712]
+script = ExtResource("39_gu1ac")
+pearl = NodePath("../Objects/M13-pearl-three")
+pearl_glint = NodePath("../Objects/M13-pearl-glint")
+
+[node name="DarkRooms" type="Node2D" parent="." unique_id=434527892]
+
+[node name="m13-shardback-den" type="Node2D" parent="DarkRooms" unique_id=1241141]
+script = ExtResource("40_hidla")
+size = Vector2(1152, 1024)
+
+[editable path="Objects/M13-pot-1"]
+[editable path="Objects/M13-pot-2"]

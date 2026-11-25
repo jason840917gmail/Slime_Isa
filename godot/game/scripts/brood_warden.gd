@@ -20,8 +20,11 @@ class_name BroodWardenScript
 ##   reaches it on its lane (`on_mechanism_hit(&"ram", ...)`, instead of the ram's damage) flings it
 ##   `ramSlidePx` along the swing over `ramSlideMs`, takes `ramDamage` as it stops (a hit's stun would
 ##   hold its body still: the slide comes first) and leaves it **knocked** `knockedMs` from the blow:
-##   legs splayed, back plates open on their glowing joints, every hit landing as when it is planted.
-##   The sheet has no pose on its back: knocked shows the planted frame, squashed flat.
+##   flat on its back, belly up, every hit landing as when it is planted. Its frames (sheets 5 and 6,
+##   2026-11-25): the two flung frames over the slide (tipped onto its side, tumbling over), then on its
+##   back kicking (a loop of four, `knockedKickFrameMs` a frame), and the two getting-up frames over
+##   the last `knockedRiseMs` (heaving up on its blades, crouched on its feet). Beaten while knocked,
+##   it stays on its back.
 ##
 ## Owner: enemy builder.
 
@@ -36,13 +39,17 @@ const PHASE_RECOVER := "recover"
 const PHASE_KNOCKED := "knocked"
 const RAM_KIND := &"ram"
 const WAYS := {"north": Vector2.UP, "south": Vector2.DOWN, "east": Vector2.RIGHT, "west": Vector2.LEFT}
-## Knocked flat: how much flatter and wider the planted frame is drawn, and how fast it twitches.
-const KNOCKED_SQUASH := Vector2(1.12, 0.82)
-const KNOCKED_TWITCH_MS := 90.0
 const FRAME_GUARD := 0
 const FRAME_WINDUP := 1
 const FRAME_SWEEP := 2
 const FRAME_PLANTED := 3
+## Knocked by the ram (after the walk's frames 4 to 15): on its back kicking, flung, getting up.
+const FRAME_BACK := 16
+const BACK_FRAMES := 4
+const FRAME_FLUNG := 20
+const FLUNG_FRAMES := 2
+const FRAME_RISE := 22
+const RISE_FRAMES := 2
 ## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
 const CUE_WINDUP := &"WardenWindup"
 const CUE_SWEEP := &"Lash"
@@ -143,8 +150,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				if _ram_blow_due:
 					_ram_blow_due = false
 					_ram_blow()
-			var twitch := absf(sin(now / KNOCKED_TWITCH_MS)) * 0.03
-			set_look(0.0, KNOCKED_SQUASH + Vector2(-twitch, twitch))
+			set_frame(_knocked_frame(elapsed, slide_ms))
 			if elapsed >= pattern("knockedMs", 3000.0):
 				_transition(PHASE_RECOVER, now)
 				set_frame(FRAME_GUARD)
@@ -237,13 +243,28 @@ func on_mechanism_hit(kind: StringName, source: Node) -> void:
 	AttackTelegraph.clear_for(self)
 	_knock_dir = WAYS.get(str(source.get(&"toward")), Vector2.RIGHT) if source != null and &"toward" in source else Vector2.RIGHT
 	_transition(PHASE_KNOCKED, now)
-	set_frame(FRAME_PLANTED)
+	# the flung frames tip it over the way the log sends it (drawn tipping to the right)
+	face_x(_knock_dir.x)
+	set_frame(FRAME_FLUNG)
+	set_look(0.0)
 	_cue(CUE_PLANT)
 	_puff(DUST, feet())
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(pattern("plantShakeMs", 120.0) * 2.0, pattern("plantShakeIntensity", 0.003) * 2.0)
 	_ram_blow_due = true
+
+
+## Its frame `elapsed` ms into being knocked: the flung frames over the slide, then the kicking loop
+## on its back, then the getting-up frames over the last `knockedRiseMs`.
+func _knocked_frame(elapsed: float, slide_ms: float) -> int:
+	if elapsed < slide_ms:
+		return FRAME_FLUNG + clampi(int(elapsed / maxf(1.0, slide_ms) * FLUNG_FRAMES), 0, FLUNG_FRAMES - 1)
+	var rise_ms := pattern("knockedRiseMs", 400.0)
+	var rise_from := pattern("knockedMs", 3000.0) - rise_ms
+	if elapsed >= rise_from:
+		return FRAME_RISE + clampi(int((elapsed - rise_from) / maxf(1.0, rise_ms) * RISE_FRAMES), 0, RISE_FRAMES - 1)
+	return FRAME_BACK + int((elapsed - slide_ms) / maxf(1.0, pattern("knockedKickFrameMs", 150.0))) % BACK_FRAMES
 
 
 ## The ram's blow tells as the slide ends: its damage, the hit's numbers and sparks.
@@ -277,4 +298,7 @@ func _defeat() -> void:
 	if is_defeated():
 		return
 	AttackTelegraph.clear_for(self)
+	if _phase == PHASE_KNOCKED:
+		# beaten on its back: it stays there (the scene's defeated frame is the planted one)
+		defeated_frame = FRAME_BACK + BACK_FRAMES - 1
 	super()

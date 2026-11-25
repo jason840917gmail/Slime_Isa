@@ -348,7 +348,7 @@ func _place() -> void:
 		# Its flag (candle-lit.mine-gate-brazier) tells the smith in his cave that the gate is open.
 		brazier.set_meta(&"instance_id", "mine-gate-brazier")
 		_exit("exit-to-crystal-mine", Vector2(4, 20.7), Vector2(128, 48), "crystal-caverns-g4-to-crystal-mine",
-				"crystal-mine", "mine-entrance")
+				"crystal-mine-m1-mine-mouth", "mine-entrance")
 		_arrival("camp-mine-mouth", Vector2(4, 23.7))
 		var cart := _scene(OBJECTS + "mine-cart.tscn", "yard-cart-station", Vector2(6.4, 23.4))
 		# The end of the smith's cart line (game/crystal_mine/smith_cart.gd rides it down from his cave,

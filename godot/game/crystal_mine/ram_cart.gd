@@ -56,6 +56,14 @@ class_name RamCart
 ## against a node with the hook, it waits there to be kicked back (or, let go, rolls home slowly
 ## over `returnMs`).
 ##
+## **Into the next room** (`rolls_out`, `arrives`; the Crystal Mine's rooms, 2026-11-25: M7's cart
+## bursts the rail gate in its west doorway and rolls on into M1): a cart with `rolls_out` has its line
+## end in a doorway's passage; at its end it rolls on out of the room (it fades in its last
+## `TUNNEL_FADE` units, as into a tunnel) and is gone for good (its record), with no buffer stop. The
+## room it rolls into has a cart with `arrives` and the same `cart_id` on a line from that doorway to a
+## buffer stop: no brake and no cart until the record is set, then the cart stands at its line's end.
+## Neither comes back (`returns` and `through` stay off).
+##
 ## Owner: dungeons (the Crystal Mine).
 
 const Services := preload("res://game/shared/services.gd")
@@ -220,6 +228,18 @@ signal ready_again(payload: Dictionary)
 	set(value):
 		through = value
 		_layout()
+## Its line ends in a doorway's passage: at its end it rolls on out of the room and is gone for good
+## (see "Into the next room" above).
+@export var rolls_out: bool = false:
+	set(value):
+		rolls_out = value
+		_layout()
+## The far end of a line that a cart (`rolls_out`, the same `cart_id`) rolls out on from the next room:
+## nothing but its rails and buffer stop until that cart has run, then the cart at its line's end.
+@export var arrives: bool = false:
+	set(value):
+		arrives = value
+		_layout()
 ## The area its hits are sent from (the damage router wants one; it needs no shape).
 @export var attack_area: Area2D
 
@@ -282,6 +302,9 @@ func _ready() -> void:
 	_sway_offset = float(get_instance_id() % 1000)
 	_since_ms = Services.now_ms()
 	_last_ms = _since_ms
+	if arrives:
+		# nothing stands here until the cart in the next room has run (`_restore_in_tree`)
+		_set_solid(false)
 	_restore_in_tree.call_deferred()
 
 
@@ -298,7 +321,7 @@ func trigger(payload: Variant = null) -> void:
 		var source: Node = (payload as Dictionary)["source"]
 		if source.has_method(&"rearm"):
 			_knock_target = source
-	if _state != State.HELD or Engine.is_editor_hint():
+	if _state != State.HELD or arrives or Engine.is_editor_hint():
 		return
 	if _knock_target != null and is_instance_valid(_knock_target) and _knock_target.has_method(&"go_slack"):
 		_knock_target.call(&"go_slack")
@@ -435,6 +458,8 @@ func _physics_process(_delta: float) -> void:
 			if _travelled >= total:
 				if through:
 					_vanish()
+				elif rolls_out:
+					_roll_out()
 				else:
 					_bump(null)
 		State.BUMP:
@@ -497,6 +522,16 @@ func _vanish() -> void:
 	_stop_roll_sound()
 	bumped.emit({"cartId": cart_id, "by": null, "hits": _hits})
 	_enter(State.GONE)
+
+
+## Into the next room (`rolls_out`): it rolled on out through the doorway, gone for good.
+func _roll_out() -> void:
+	_speed = 0.0
+	_stop_roll_sound()
+	_set_solid(false)
+	DungeonState.mark_done(get_tree(), _record_key())
+	bumped.emit({"cartId": cart_id, "by": null, "hits": _hits})
+	_enter(State.SPENT)
 
 
 func _enter(state: State) -> void:
@@ -600,6 +635,10 @@ func _restore_in_tree() -> void:
 	if DungeonState.is_done(get_tree(), _record_key()):
 		_state = State.SPENT
 		_travelled = line_length()
+		# gone on into the next room, it leaves nothing to bump into; arrived, it stands at the stop
+		_set_solid(not rolls_out)
+		if _knock_target != null and is_instance_valid(_knock_target) and _knock_target.has_method(&"go_slack"):
+			_knock_target.call(&"go_slack")
 		_place()
 
 
@@ -836,15 +875,15 @@ func _layout() -> void:
 	_lever.position = _lever_at()
 	_chock.position = _chock_at()
 	# through: the brake is in the tunnel, and nothing stops the cart at the far end
-	_lever.visible = not through
-	_chock.visible = not through
+	_lever.visible = not through and not arrives
+	_chock.visible = not through and not arrives
 	_pulley.visible = returns and not through
 	_pulley.position = _pulley_at()
 	_weight.position = Vector2(WEIGHT_ASIDE, 0.0) / ART_SCALE
 	_weight.scale = Vector2.ONE
 	_lay_mouths()
 	var end := _direction_at(line_length())
-	var stop := buffer_stop and not through
+	var stop := buffer_stop and not through and not rolls_out
 	_buffer.visible = stop
 	var buffer_shape := _buffer_body.get_node(^"Shape") as CollisionShape2D
 	buffer_shape.set_deferred(&"disabled", not stop)
@@ -968,7 +1007,18 @@ func _place() -> void:
 ## How much of the cart shows (0 .. 1): all of it but through a tunnel line, where it fades into the
 ## far tunnel, is gone, and fades in as the next one comes out of the start tunnel.
 func _shown_share(age: float) -> float:
-	if not through or Engine.is_editor_hint():
+	if Engine.is_editor_hint():
+		return 1.0
+	if arrives:
+		return 1.0 if _state == State.SPENT else 0.0
+	if rolls_out:
+		match _state:
+			State.SPENT:
+				return 0.0
+			State.ROLL:
+				return clampf((line_length() - _travelled) / TUNNEL_FADE, 0.0, 1.0)
+		return 1.0
+	if not through:
 		return 1.0
 	match _state:
 		State.GONE:

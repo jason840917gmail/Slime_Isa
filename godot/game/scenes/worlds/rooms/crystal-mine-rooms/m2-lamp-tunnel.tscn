@@ -1,0 +1,286 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://dgow70vklhmwd" path="res://game/dungeon/room_scene.gd" id="1_we8x7"]
+[ext_resource type="TileSet" path="res://game/world/terrain_tileset.tres" id="2_dprrg"]
+[ext_resource type="Script" uid="uid://bdbd5yjoyxfdt" path="res://game/world/world_ground.gd" id="3_1dl1q"]
+[ext_resource type="Script" path="res://game/dungeon/pit_depth.gd" id="4_2gn1v"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_wall_tileset.tres" id="5_6xjh0"]
+[ext_resource type="Script" uid="uid://bwc7flj8rrohs" path="res://game/world/interior/interior_wall_layer.gd" id="6_sm8o0"]
+[ext_resource type="TileSet" path="res://game/world/elevation/elevation_tileset.tres" id="7_owbju"]
+[ext_resource type="Script" uid="uid://cv5o3cimgrjwy" path="res://game/world/elevation/elevation_layer.gd" id="8_c87mh"]
+[ext_resource type="TileSet" path="res://game/world/interior/interior_trim_tileset.tres" id="9_h1ufs"]
+[ext_resource type="Script" uid="uid://x2vki4u55145" path="res://game/world/interior/interior_trim_layer.gd" id="10_y78hb"]
+[ext_resource type="Script" uid="uid://b7lo1uev18b1g" path="res://game/world/camera_room.gd" id="11_n1ore"]
+[ext_resource type="Script" uid="uid://71vyo7j20xgb" path="res://game/crystal_mine/mine_rails.gd" id="12_kjuil"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/hazard.tscn" id="13_j7b51"]
+[ext_resource type="Script" uid="uid://b28llwvsknidl" path="res://game/world/fire/candle.gd" id="14_s7fp8"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-unlit.tscn" id="15_vkjyc"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-sconce-iron-lit.tscn" id="16_hp0da"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-unlit.tscn" id="17_ck5rd"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/decor/interior-decor-candlestick-lit.tscn" id="18_cnmgt"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon-pot.tscn" id="19_fyglf"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-ore-basket.tscn" id="20_5f0bi"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/ore-heap.tscn" id="21_a8g5x"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/interiors/workshop/interior-workshop-lumber-stack.tscn" id="22_wqtaq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/stalagmites.tscn" id="23_tsv6a"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--05.tscn" id="24_rpyhc"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--07.tscn" id="25_cmml5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/crystal-cluster-wall--12.tscn" id="26_phwvy"]
+[ext_resource type="Script" uid="uid://bagjdby0ohf22" path="res://game/prologue/soft_glow.gd" id="27_j267e"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/glow-worm.tscn" id="28_ufigj"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/cave-animals/pill-bug.tscn" id="29_oegme"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/room-door.tscn" id="30_fmuny"]
+[ext_resource type="Script" uid="uid://c6rcrvktldghk" path="res://game/scripts/world_definition.gd" id="31_hr0gw"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/crystal-mine-dungeon.tscn" id="32_ggyna"]
+[ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="33_gchro"]
+[ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="34_3w4hf"]
+[ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="35_48qh6"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bl1uq"]
+blend_mode = 1
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_nyyhy"]
+blend_mode = 1
+
+[node name="m2-lamp-tunnel" type="Node2D" unique_id=749619176]
+y_sort_enabled = true
+script = ExtResource("1_we8x7")
+world_id = "crystal-mine-m2-lamp-tunnel"
+room_id = "m2-lamp-tunnel"
+
+[node name="ground" type="TileMapLayer" parent="." unique_id=1613354220]
+z_index = -2
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAABAAAAAQABAAAAAAACAAAAAQACAAAAAAADAAAAAQADAAAAAAAEAAAAAQAEAAAAAAAFAAAAAQAFAAAAAAAGAAAAAQAGAAAAAAAHAAAAAQAHAAAAAAAIAAAAAQAIAAAAAAAJAAAAAQAJAAAAAAAKAAAAAQAKAAAAAAALAAAAAQALAAAAAAAMAAAAAQAMAAAAAAANAAAAAQANAAAAAAAOAAAAAQAOAAAAAAAPAAAAAQAPAAAAAAAQAAAAAQAQAAAAAAARAAAAAQARAAAAAAAAAAEAAQAAAAEAAAABAAEAAQABAAEAAAACAAEAAQACAAEAAAADAAEAAQADAAEAAAAEAAEAAQAEAAEAAAAFAAEAAQAFAAEAAAAGAAEAAQAGAAEAAAAHAAEAAQAHAAEAAAAIAAEAAQAIAAEAAAAJAAEAAQAJAAEAAAAKAAEAAQAKAAEAAAALAAEAAQALAAEAAAAMAAEAAQAMAAEAAAANAAEAAQANAAEAAAAOAAEAAQAOAAEAAAAPAAEAAQAPAAEAAAAQAAEAAQAQAAEAAAARAAEAAQARAAEAAAAAAAIAAQAAAAIAAAABAAIAAQABAAIAAAACAAIAAQACAAIAAAADAAIAAQADAAIAAAAEAAIAAQAEAAIAAAAFAAIAAQAFAAIAAAAGAAIAAQAGAAIAAAAHAAIAAQAHAAIAAAAIAAIAAQAIAAIAAAAJAAIAAQAJAAIAAAAKAAIAAQAKAAIAAAALAAIAAQALAAIAAAAMAAIAFQAMAAIAAAANAAIAFQANAAIAAAAOAAIAAQAOAAIAAAAPAAIAAQAPAAIAAAAQAAIAAQAQAAIAAAARAAIAAQARAAIAAAAAAAMAAQAAAAMAAAABAAMAAQABAAMAAAACAAMAAQACAAMAAAADAAMAAQADAAMAAAAEAAMAAQAEAAMAAAAFAAMAAQAFAAMAAAAGAAMAAQAGAAMAAAAHAAMAAQAHAAMAAAAIAAMAAQAIAAMAAAAJAAMAAQAJAAMAAAAKAAMAAQAKAAMAAAALAAMAAQALAAMAAAAMAAMAFQAMAAMAAAANAAMAFQANAAMAAAAOAAMAAQAOAAMAAAAPAAMAAQAPAAMAAAAQAAMAAQAQAAMAAAARAAMAAQARAAMAAAAAAAQAAQAAAAQAAAABAAQAAQABAAQAAAACAAQAAQACAAQAAAADAAQAAQADAAQAAAAEAAQAAQAEAAQAAAAFAAQAAQAFAAQAAAAGAAQAAQAGAAQAAAAHAAQAAQAHAAQAAAAIAAQAAQAIAAQAAAAJAAQAAQAJAAQAAAAKAAQAAQAKAAQAAAALAAQAAQALAAQAAAAMAAQAFQAMAAQAAAANAAQAFQANAAQAAAAOAAQAAgAOAAQAAAAPAAQAAgAPAAQAAAAQAAQAAQAQAAQAAAARAAQAAQARAAQAAAAAAAUAAQAAAAUAAAABAAUAAQABAAUAAAACAAUAAQACAAUAAAADAAUAAQADAAUAAAAEAAUAAQAEAAUAAAAFAAUAAQAFAAUAAAAGAAUAAQAGAAUAAAAHAAUAAQAHAAUAAAAIAAUAAQAIAAUAAAAJAAUAAQAJAAUAAAAKAAUAAQAKAAUAAAALAAUAAQALAAUAAAAMAAUAFQAMAAUAAAANAAUAFQANAAUAAAAOAAUAAgAOAAUAAAAPAAUAAgAPAAUAAAAQAAUAAQAQAAUAAAARAAUAAQARAAUAAAAAAAYAAQAAAAYAAAABAAYAAQABAAYAAAACAAYAAQACAAYAAAADAAYAAQADAAYAAAAEAAYAAQAEAAYAAAAFAAYAAQAFAAYAAAAGAAYAAQAGAAYAAAAHAAYAAQAHAAYAAAAIAAYAAQAIAAYAAAAJAAYAAQAJAAYAAAAKAAYAAQAKAAYAAAALAAYAAQALAAYAAAAMAAYAFQAMAAYAAAANAAYAFQANAAYAAAAOAAYAAgAOAAYAAAAPAAYAAgAPAAYAAAAQAAYAAQAQAAYAAAARAAYAAQARAAYAAAAAAAcAAQAAAAcAAAABAAcAAQABAAcAAAACAAcAAQACAAcAAAADAAcAAQADAAcAAAAEAAcAAQAEAAcAAAAFAAcAAQAFAAcAAAAGAAcAAQAGAAcAAAAHAAcAAQAHAAcAAAAIAAcAAQAIAAcAAAAJAAcAAQAJAAcAAAAKAAcAAQAKAAcAAAALAAcAAQALAAcAAAAMAAcAFQAMAAcAAAANAAcAFQANAAcAAAAOAAcAAQAOAAcAAAAPAAcAAQAPAAcAAAAQAAcAAQAQAAcAAAARAAcAAQARAAcAAAAAAAgAAQAAAAgAAAABAAgAAQABAAgAAAACAAgAAgACAAgAAAADAAgAAgADAAgAAAAEAAgAAQAEAAgAAAAFAAgAAQAFAAgAAAAGAAgAAQAGAAgAAAAHAAgAAQAHAAgAAAAIAAgAAQAIAAgAAAAJAAgAAQAJAAgAAAAKAAgAAQAKAAgAAAALAAgAAQALAAgAAAAMAAgAFQAMAAgAAAANAAgAFQANAAgAAAAOAAgAAQAOAAgAAAAPAAgAAQAPAAgAAAAQAAgAAQAQAAgAAAARAAgAAQARAAgAAAAAAAkAAQAAAAkAAAABAAkAAQABAAkAAAACAAkAAQACAAkAAAADAAkAAgADAAkAAAAEAAkAAQAEAAkAAAAFAAkAAQAFAAkAAAAGAAkAAQAGAAkAAAAHAAkAAQAHAAkAAAAIAAkAAQAIAAkAAAAJAAkAAQAJAAkAAAAKAAkAAQAKAAkAAAALAAkAAQALAAkAAAAMAAkAFQAMAAkAAAANAAkAFQANAAkAAAAOAAkAAQAOAAkAAAAPAAkAAQAPAAkAAAAQAAkAAQAQAAkAAAARAAkAAQARAAkAAAAAAAoAAQAAAAoAAAABAAoAAQABAAoAAAACAAoAAQACAAoAAAADAAoAAQADAAoAAAAEAAoAAQAEAAoAAAAFAAoAAQAFAAoAAAAGAAoAAQAGAAoAAAAHAAoAAQAHAAoAAAAIAAoAAQAIAAoAAAAJAAoAAQAJAAoAAAAKAAoAAQAKAAoAAAALAAoAAQALAAoAAAAMAAoAFQAMAAoAAAANAAoAFQANAAoAAAAOAAoAAQAOAAoAAAAPAAoAAQAPAAoAAAAQAAoAAQAQAAoAAAARAAoAAQARAAoAAAAAAAsAAQAAAAsAAAABAAsAAQABAAsAAAACAAsAAQACAAsAAAADAAsAAQADAAsAAAAEAAsAAQAEAAsAAAAFAAsAAQAFAAsAAAAGAAsAAQAGAAsAAAAHAAsAAQAHAAsAAAAIAAsAAQAIAAsAAAAJAAsAAQAJAAsAAAAKAAsAAQAKAAsAAAALAAsAAQALAAsAAAAMAAsAFQAMAAsAAAANAAsAFQANAAsAAAAOAAsAAQAOAAsAAAAPAAsAAQAPAAsAAAAQAAsAAQAQAAsAAAARAAsAAQARAAsAAAAAAAwAAQAAAAwAAAABAAwAAQABAAwAAAACAAwAAQACAAwAAAADAAwAAQADAAwAAAAEAAwAAQAEAAwAAAAFAAwAAQAFAAwAAAAGAAwAAQAGAAwAAAAHAAwAAQAHAAwAAAAIAAwAAQAIAAwAAAAJAAwAAQAJAAwAAAAKAAwAAQAKAAwAAAALAAwAAQALAAwAAAAMAAwAFQAMAAwAAAANAAwAFQANAAwAAAAOAAwAAQAOAAwAAAAPAAwAAQAPAAwAAAAQAAwAAQAQAAwAAAARAAwAAQARAAwAAAAAAA0AAQAAAA0AAAABAA0AAQABAA0AAAACAA0AAQACAA0AAAADAA0AAQADAA0AAAAEAA0AAQAEAA0AAAAFAA0AAQAFAA0AAAAGAA0AAQAGAA0AAAAHAA0AAQAHAA0AAAAIAA0AAQAIAA0AAAAJAA0AAQAJAA0AAAAKAA0AAQAKAA0AAAALAA0AAQALAA0AAAAMAA0AFQAMAA0AAAANAA0AFQANAA0AAAAOAA0AAQAOAA0AAAAPAA0AAQAPAA0AAAAQAA0AAQAQAA0AAAARAA0AAQARAA0AAAAAAA4AAQAAAA4AAAABAA4AAQABAA4AAAACAA4AAQACAA4AAAADAA4AAQADAA4AAAAEAA4AAQAEAA4AAAAFAA4AAQAFAA4AAAAGAA4AAQAGAA4AAAAHAA4AAQAHAA4AAAAIAA4AAQAIAA4AAAAJAA4AAQAJAA4AAAAKAA4AAQAKAA4AAAALAA4AAQALAA4AAAAMAA4AAQAMAA4AAAANAA4AAQANAA4AAAAOAA4AAQAOAA4AAAAPAA4AAQAPAA4AAAAQAA4AAQAQAA4AAAARAA4AAQARAA4AAAAAAA8AAQAAAA8AAAABAA8AAQABAA8AAAACAA8AAQACAA8AAAADAA8AAQADAA8AAAAEAA8AAQAEAA8AAAAFAA8AAQAFAA8AAAAGAA8AAQAGAA8AAAAHAA8AAQAHAA8AAAAIAA8AAQAIAA8AAAAJAA8AAQAJAA8AAAAKAA8AAQAKAA8AAAALAA8AAQALAA8AAAAMAA8AAQAMAA8AAAANAA8AAQANAA8AAAAOAA8AAQAOAA8AAAAPAA8AAQAPAA8AAAAQAA8AAQAQAA8AAAARAA8AAQARAA8AAAA=")
+tile_set = ExtResource("2_dprrg")
+script = ExtResource("3_1dl1q")
+metadata/columns = 18
+metadata/rows = 16
+
+[node name="m2-void-south-depth" type="Node2D" parent="." unique_id=644179314]
+z_index = -2
+position = Vector2(256, 640)
+script = ExtResource("4_2gn1v")
+size = Vector2(384, 192)
+cables = PackedFloat32Array()
+pattern_seed = 2
+
+[node name="m2-void-north-depth" type="Node2D" parent="." unique_id=54063587]
+z_index = -2
+position = Vector2(256, 192)
+script = ExtResource("4_2gn1v")
+size = Vector2(320, 256)
+cables = PackedFloat32Array()
+
+[node name="interior-walls" type="TileMapLayer" parent="." unique_id=1757415358]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAAAFAAAAAAABAAAAAAAFAAAAAAACAAAAAAAFAAAAAAADAAAAAAAFAAAAAAAEAAAAAAAFAAAAAAAFAAAAAAAFAAAAAAAGAAAAAAAFAAAAAAAHAAAAAAAFAAAAAAAIAAAAAAAFAAAAAAAJAAAAAAAFAAAAAAAKAAAAAAAFAAAAAAALAAAAAAAFAAAAAAAMAAAAAAAFAAEAAAANAAAAAAAFAAEAAAAOAAAAAAAFAAAAAAAPAAAAAAAFAAAAAAAQAAAAAAAFAAAAAAARAAAAAAAFAAAAAAAAAAEAAAAFAAAAAAABAAEAAAAFAAAAAAACAAEAAAAFAAAAAAADAAEAAAAFAAAAAAAEAAEAAAAFAAAAAAAFAAEAAAAFAAAAAAAGAAEAAAAFAAAAAAAHAAEAAAAFAAAAAAAIAAEAAAAFAAAAAAAJAAEAAAAFAAAAAAAKAAEAAAAFAAAAAAALAAEAAAAFAAAAAAAMAAEAAAAFAAEAAAANAAEAAAAFAAEAAAAOAAEAAAAFAAAAAAAPAAEAAAAFAAAAAAAQAAEAAAAFAAAAAAARAAEAAAAFAAAAAAAAAAIAAAAFAAAAAAABAAIAAAAFAAAAAAAQAAIAAAAFAAAAAAARAAIAAAAFAAAAAAAAAAMAAAAFAAAAAAABAAMAAAAFAAAAAAAQAAMAAAAFAAAAAAARAAMAAAAFAAAAAAAAAAQAAAAFAAAAAAABAAQAAAAFAAAAAAAQAAQAAAAFAAAAAAARAAQAAAAFAAAAAAAAAAUAAAAFAAAAAAABAAUAAAAFAAAAAAAQAAUAAAAFAAAAAAARAAUAAAAFAAAAAAAAAAYAAAAFAAAAAAABAAYAAAAFAAAAAAAQAAYAAAAFAAAAAAARAAYAAAAFAAAAAAAAAAcAAAAFAAAAAAABAAcAAAAFAAAAAAAQAAcAAAAFAAAAAAARAAcAAAAFAAAAAAAAAAgAAAAFAAEAAAABAAgAAAAFAAEAAAAQAAgAAAAFAAAAAAARAAgAAAAFAAAAAAAAAAkAAAAFAAEAAAABAAkAAAAFAAEAAAAQAAkAAAAFAAAAAAARAAkAAAAFAAAAAAAAAAoAAAAFAAAAAAABAAoAAAAFAAAAAAAQAAoAAAAFAAAAAAARAAoAAAAFAAAAAAAAAAsAAAAFAAAAAAABAAsAAAAFAAAAAAAQAAsAAAAFAAAAAAARAAsAAAAFAAAAAAAAAAwAAAAFAAAAAAABAAwAAAAFAAAAAAAQAAwAAAAFAAAAAAARAAwAAAAFAAAAAAAAAA0AAAAFAAAAAAABAA0AAAAFAAAAAAAQAA0AAAAFAAAAAAARAA0AAAAFAAAAAAAAAA4AAAAFAAAAAAABAA4AAAAFAAAAAAACAA4AAAAFAAAAAAADAA4AAAAFAAAAAAAEAA4AAAAFAAAAAAAFAA4AAAAFAAAAAAAGAA4AAAAFAAAAAAAHAA4AAAAFAAAAAAAIAA4AAAAFAAAAAAAJAA4AAAAFAAAAAAAKAA4AAAAFAAAAAAALAA4AAAAFAAAAAAAMAA4AAAAFAAEAAAANAA4AAAAFAAEAAAAOAA4AAAAFAAAAAAAPAA4AAAAFAAAAAAAQAA4AAAAFAAAAAAARAA4AAAAFAAAAAAAAAA8AAAAFAAAAAAABAA8AAAAFAAAAAAACAA8AAAAFAAAAAAADAA8AAAAFAAAAAAAEAA8AAAAFAAAAAAAFAA8AAAAFAAAAAAAGAA8AAAAFAAAAAAAHAA8AAAAFAAAAAAAIAA8AAAAFAAAAAAAJAA8AAAAFAAAAAAAKAA8AAAAFAAAAAAALAA8AAAAFAAAAAAAMAA8AAAAFAAEAAAANAA8AAAAFAAEAAAAOAA8AAAAFAAAAAAAPAA8AAAAFAAAAAAAQAA8AAAAFAAAAAAARAA8AAAAFAAAAAAA=")
+tile_set = ExtResource("5_6xjh0")
+script = ExtResource("6_sm8o0")
+draw_floor = false
+
+[node name="elevation" type="TileMapLayer" parent="." unique_id=574535220]
+visible = false
+tile_map_data = PackedByteArray("AAAEAAMAAAABAAAAAAAFAAMAAAABAAAAAAAGAAMAAAABAAAAAAAHAAMAAAABAAAAAAAIAAMAAAABAAAAAAAEAAQAAAABAAAAAAAFAAQAAAABAAAAAAAGAAQAAAABAAAAAAAHAAQAAAABAAAAAAAIAAQAAAABAAAAAAAEAAUAAAABAAAAAAAFAAUAAAABAAAAAAAGAAUAAAABAAAAAAAHAAUAAAABAAAAAAAIAAUAAAABAAAAAAAEAAYAAAABAAAAAAAFAAYAAAABAAAAAAAGAAYAAAABAAAAAAAHAAYAAAABAAAAAAAIAAYAAAABAAAAAAAEAAoAAAABAAAAAAAFAAoAAAABAAAAAAAGAAoAAAABAAAAAAAHAAoAAAABAAAAAAAIAAoAAAABAAAAAAAJAAoAAAABAAAAAAAEAAsAAAABAAAAAAAFAAsAAAABAAAAAAAGAAsAAAABAAAAAAAHAAsAAAABAAAAAAAIAAsAAAABAAAAAAAJAAsAAAABAAAAAAAEAAwAAAABAAAAAAAFAAwAAAABAAAAAAAGAAwAAAABAAAAAAAHAAwAAAABAAAAAAAIAAwAAAABAAAAAAAJAAwAAAABAAAAAAA=")
+tile_set = ExtResource("7_owbju")
+script = ExtResource("8_c87mh")
+room_back_faces = true
+
+[node name="floor-trim" type="TileMapLayer" parent="." unique_id=747585329]
+tile_map_data = PackedByteArray("AAACAAIAAAAKAAwAAAADAAIAAAAKAAwAAAAEAAIAAAAKAAwAAAAFAAIAAAAKAAwAAAAGAAIAAAAKAAwAAAAHAAIAAAAKAAwAAAAIAAIAAAAKAAwAAAAJAAIAAAAKAAwAAAAKAAIAAAAKAAwAAAALAAIAAAAKAAwAAAAOAAIAAAAKAAwAAAAPAAIAAAAKAAwAAAACAAMAAAAKAAwAAAADAAMAAAAKAAwAAAAJAAMAAAAKAAwAAAAKAAMAAAAKAAwAAAALAAMAAAAKAAwAAAAMAAMAAAAKAAwAAAANAAMAAAAKAAwAAAAOAAMAAAAKAAwAAAAPAAMAAAAKAAwAAAACAAQAAAAKAAwAAAADAAQAAAAKAAwAAAAJAAQAAAAKAAwAAAAKAAQAAAAKAAwAAAALAAQAAAAKAAwAAAAMAAQAAAAKAAwAAAANAAQAAAAKAAwAAAAOAAQAAAAKAAwAAAAPAAQAAAAKAAwAAAACAAUAAAAKAAwAAAADAAUAAAAKAAwAAAAJAAUAAAAKAAwAAAAKAAUAAAAKAAwAAAALAAUAAAAKAAwAAAAMAAUAAAAKAAwAAAANAAUAAAAKAAwAAAAOAAUAAAAKAAwAAAAPAAUAAAAKAAwAAAACAAYAAAAKAAwAAAADAAYAAAAKAAwAAAAJAAYAAAAKAAwAAAAKAAYAAAAKAAwAAAALAAYAAAAKAAwAAAAMAAYAAAAKAAwAAAANAAYAAAAKAAwAAAAOAAYAAAAKAAwAAAAPAAYAAAAKAAwAAAACAAcAAAAKAAwAAAADAAcAAAAKAAwAAAAEAAcAAAAKAAwAAAAFAAcAAAAKAAwAAAAGAAcAAAAKAAwAAAAHAAcAAAAKAAwAAAAIAAcAAAAKAAwAAAAJAAcAAAAKAAwAAAAKAAcAAAAKAAwAAAALAAcAAAAKAAwAAAAMAAcAAAAKAAwAAAANAAcAAAAKAAwAAAAOAAcAAAAKAAwAAAAPAAcAAAAKAAwAAAADAAgAAAAKAAwAAAAEAAgAAAAKAAwAAAAFAAgAAAAKAAwAAAAGAAgAAAAKAAwAAAAHAAgAAAAKAAwAAAAIAAgAAAAKAAwAAAAJAAgAAAAKAAwAAAAKAAgAAAAKAAwAAAALAAgAAAAKAAwAAAAMAAgAAAAKAAwAAAANAAgAAAAKAAwAAAAOAAgAAAAKAAwAAAAPAAgAAAAKAAwAAAADAAkAAAAKAAwAAAAEAAkAAAAKAAwAAAAFAAkAAAAKAAwAAAAGAAkAAAAKAAwAAAAHAAkAAAAKAAwAAAAIAAkAAAAKAAwAAAAJAAkAAAAKAAwAAAAKAAkAAAAKAAwAAAALAAkAAAAKAAwAAAAMAAkAAAAKAAwAAAANAAkAAAAKAAwAAAAOAAkAAAAKAAwAAAAPAAkAAAAKAAwAAAACAAoAAAAKAAwAAAADAAoAAAAKAAwAAAAKAAoAAAAKAAwAAAALAAoAAAAKAAwAAAAMAAoAAAAKAAwAAAANAAoAAAAKAAwAAAAOAAoAAAAKAAwAAAAPAAoAAAAKAAwAAAACAAsAAAAKAAwAAAADAAsAAAAKAAwAAAAKAAsAAAAKAAwAAAALAAsAAAAKAAwAAAAMAAsAAAAKAAwAAAANAAsAAAAKAAwAAAAOAAsAAAAKAAwAAAAPAAsAAAAKAAwAAAACAAwAAAAKAAwAAAADAAwAAAAKAAwAAAAKAAwAAAAKAAwAAAALAAwAAAAKAAwAAAAMAAwAAAAKAAwAAAANAAwAAAAKAAwAAAAOAAwAAAAKAAwAAAAPAAwAAAAKAAwAAAACAA0AAAAKAAwAAAADAA0AAAAKAAwAAAAEAA0AAAAKAAwAAAAFAA0AAAAKAAwAAAAGAA0AAAAKAAwAAAAHAA0AAAAKAAwAAAAIAA0AAAAKAAwAAAAJAA0AAAAKAAwAAAAKAA0AAAAKAAwAAAALAA0AAAAKAAwAAAAOAA0AAAAKAAwAAAAPAA0AAAAKAAwAAAA=")
+tile_set = ExtResource("9_h1ufs")
+script = ExtResource("10_y78hb")
+
+[node name="CameraRooms" type="Node2D" parent="." unique_id=251023476]
+
+[node name="m2-lamp-tunnel" type="Node2D" parent="CameraRooms" unique_id=133128484]
+script = ExtResource("11_n1ore")
+outline = PackedVector2Array()
+size = Vector2(1152, 1024)
+metadata/wall_bands = false
+
+[node name="RoomEntry" type="Node2D" parent="CameraRooms/m2-lamp-tunnel" unique_id=907739327]
+position = Vector2(832, 800)
+
+[node name="Rails" type="Node2D" parent="." unique_id=321311907]
+
+[node name="rails" type="Node2D" parent="Rails" unique_id=529743112]
+position = Vector2(832, 0)
+script = ExtResource("12_kjuil")
+points = PackedVector2Array(0, 0, 0, 1024)
+
+[node name="Objects" type="Node2D" parent="." unique_id=1955083881]
+y_sort_enabled = true
+
+[node name="m2-void-north" parent="Objects" unique_id=124673046 instance=ExtResource("13_j7b51")]
+position = Vector2(256, 192)
+size = Vector2(320, 256)
+pit_depth = 2
+level = -2
+draw_look = false
+
+[node name="m2-void-south" parent="Objects" unique_id=223977383 instance=ExtResource("13_j7b51")]
+position = Vector2(256, 640)
+size = Vector2(384, 192)
+pit_depth = 2
+level = -2
+draw_look = false
+
+[node name="m2-sconce-1" type="Node2D" parent="Objects" unique_id=1994756543]
+y_sort_enabled = true
+position = Vector2(166.4, 131.2)
+script = ExtResource("14_s7fp8")
+unlit_scene = ExtResource("15_vkjyc")
+lit_scene = ExtResource("16_hp0da")
+flame_offset = Vector2(0, -78)
+
+[node name="m2-sconce-2" type="Node2D" parent="Objects" unique_id=578916121]
+y_sort_enabled = true
+position = Vector2(985.6, 131.2)
+script = ExtResource("14_s7fp8")
+unlit_scene = ExtResource("15_vkjyc")
+lit_scene = ExtResource("16_hp0da")
+flame_offset = Vector2(0, -78)
+
+[node name="m2-lamp-3" type="Node2D" parent="Objects" unique_id=42207377]
+y_sort_enabled = true
+position = Vector2(972.8, 793.6)
+script = ExtResource("14_s7fp8")
+unlit_scene = ExtResource("17_ck5rd")
+lit_scene = ExtResource("18_cnmgt")
+flame_offset = Vector2(0, -60)
+
+[node name="m2-pot" parent="Objects" unique_id=1480057303 instance=ExtResource("19_fyglf")]
+position = Vector2(960, 614.4)
+
+[node name="PotLoot" parent="Objects/m2-pot" index="3"]
+loot = "energy"
+weights = PackedFloat32Array(1, 1, 1, 1)
+
+[node name="Scenery" type="Node2D" parent="." unique_id=262272970]
+y_sort_enabled = true
+
+[node name="workshop-ore-basket" parent="Scenery" unique_id=2047448303 instance=ExtResource("20_5f0bi")]
+position = Vector2(691.2, 825.6)
+
+[node name="ore-heap" parent="Scenery" unique_id=775236015 instance=ExtResource("21_a8g5x")]
+position = Vector2(960, 473.6)
+
+[node name="workshop-lumber-stack" parent="Scenery" unique_id=733333893 instance=ExtResource("22_wqtaq")]
+position = Vector2(678.4, 537.6)
+
+[node name="stalagmites" parent="Scenery" unique_id=1826100955 instance=ExtResource("23_tsv6a")]
+position = Vector2(166.4, 832)
+
+[node name="crystal-cluster-wall--05" parent="Scenery" unique_id=1200927215 instance=ExtResource("24_rpyhc")]
+position = Vector2(614.4, 294.4)
+
+[node name="crystal-cluster-wall--07" parent="Scenery" unique_id=2089273673 instance=ExtResource("25_cmml5")]
+position = Vector2(166.4, 704)
+
+[node name="crystal-cluster-wall--12" parent="Scenery" unique_id=861417370 instance=ExtResource("26_phwvy")]
+position = Vector2(985.6, 281.6)
+scale = Vector2(-1, 1)
+
+[node name="crystal-glow" type="Node2D" parent="Scenery" unique_id=450083067]
+z_index = 3
+material = SubResource("CanvasItemMaterial_bl1uq")
+position = Vector2(614.4, 281.6)
+script = ExtResource("27_j267e")
+radius = Vector2(60, 40)
+color = Color(0.5, 0.75, 1, 0.45)
+pulse = 0.2
+period_s = 5.0
+
+[node name="crystal-glow-2" type="Node2D" parent="Scenery" unique_id=1566009752]
+z_index = 3
+material = SubResource("CanvasItemMaterial_nyyhy")
+position = Vector2(166.4, 691.2)
+script = ExtResource("27_j267e")
+radius = Vector2(60, 40)
+color = Color(0.75, 0.55, 1, 0.45)
+pulse = 0.2
+period_s = 5.0
+
+[node name="glow-worm" parent="Scenery" unique_id=525579490 instance=ExtResource("28_ufigj")]
+position = Vector2(665.6, 704)
+walk_speed = 5.0
+pause_min_ms = 2500.0
+pause_max_ms = 7000.0
+wander_radius = 40.0
+rest_clips = PackedStringArray()
+
+[node name="pill-bug" parent="Scenery" unique_id=618497879 instance=ExtResource("29_oegme")]
+position = Vector2(960, 704)
+walk_speed = 30.0
+pause_min_ms = 500.0
+pause_max_ms = 2200.0
+wander_radius = 96.0
+notice_px = 52.0
+calm_ms = 2200.0
+
+[node name="Enemies" type="Node2D" parent="." unique_id=1218439652]
+y_sort_enabled = true
+
+[node name="RoomDoors" type="Node2D" parent="." unique_id=1570428536]
+
+[node name="m2-south" parent="RoomDoors" unique_id=1198365829 instance=ExtResource("30_fmuny")]
+position = Vector2(832, 1024)
+door_id = "m2-south"
+target_room = "m1-mine-mouth"
+target_door = "m1-north"
+side = "south"
+
+[node name="m2-north" parent="RoomDoors" unique_id=2142060053 instance=ExtResource("30_fmuny")]
+position = Vector2(832, 0)
+door_id = "m2-north"
+target_room = "m4-great-shaft"
+target_door = "m4-south-m2"
+
+[node name="m2-west" parent="RoomDoors" unique_id=2088013953 instance=ExtResource("30_fmuny")]
+position = Vector2(0, 576)
+door_id = "m2-west"
+target_room = "m5-tally-room"
+target_door = "m5-east"
+side = "west"
+
+[node name="world-definition" type="Node" parent="." unique_id=1413135730]
+script = ExtResource("31_hr0gw")
+map_id = "crystal-mine-m2-lamp-tunnel"
+tile_size = 64
+columns = 18
+rows = 16
+metadata = {
+"objects": [],
+"player": {
+"entries": {},
+"spawn": {
+"x": 832,
+"y": 800
+}
+}
+}
+
+[node name="player-spawn" type="Node2D" parent="." unique_id=952355378]
+position = Vector2(832, 800)
+
+[node name="Dungeon" parent="." unique_id=1727101412 instance=ExtResource("32_ggyna")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1792070580]
+process_mode = 3
+stream = ExtResource("33_gchro")
+volume_db = -6.0206
+bus = &"Music"
+script = ExtResource("34_3w4hf")
+loop = true
+autoplay_cue = true
+
+[node name="DarkRooms" type="Node2D" parent="." unique_id=835741521]
+
+[node name="m2-lamp-tunnel" type="Node2D" parent="DarkRooms" unique_id=141226680]
+script = ExtResource("35_48qh6")
+size = Vector2(1152, 1024)
+candles = Array[NodePath]([NodePath("../../Objects/m2-sconce-1"), NodePath("../../Objects/m2-sconce-2"), NodePath("../../Objects/m2-lamp-3")])
+lit_for_good_when_all_lit = true
+lit_flag = "crystal-mine.lamp-tunnel-lit"
+
+[editable path="Objects/m2-pot"]

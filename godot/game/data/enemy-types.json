@@ -150,7 +150,7 @@
     },
     "brood-warden": {
       "id": "brood-warden", "visualSetId": "enemy.brood-warden", "maxHp": 120,
-      "pattern": { "walkSpeed": 45, "homeSpeed": 60, "sweepRangePx": 84, "windupMs": 650, "windup2Ms": 450, "sweepMs": 180, "betweenMs": 250, "sweeps": 2, "sweepArcDeg": 170, "sweepRadiusPx": 104, "sweepDamage": 20, "sweepKnockback": 300, "plantedMs": 1200, "plantedDamageTaken": 1, "recoverMs": 500, "nextSweepMs": 600, "plantShakeMs": 120, "plantShakeIntensity": 0.003, "ramDamage": 20, "ramSlidePx": 110, "ramSlideMs": 260, "knockedMs": 3000, "corpseMs": 2000, "corpseFadeMs": 600 },
+      "pattern": { "walkSpeed": 45, "homeSpeed": 60, "sweepRangePx": 84, "windupMs": 650, "windup2Ms": 450, "sweepMs": 180, "betweenMs": 250, "sweeps": 2, "sweepArcDeg": 170, "sweepRadiusPx": 104, "sweepDamage": 20, "sweepKnockback": 300, "plantedMs": 1200, "plantedDamageTaken": 1, "recoverMs": 500, "nextSweepMs": 600, "plantShakeMs": 120, "plantShakeIntensity": 0.003, "ramDamage": 20, "ramSlidePx": 110, "ramSlideMs": 260, "knockedMs": 3000, "knockedKickFrameMs": 150, "knockedRiseMs": 400, "corpseMs": 2000, "corpseFadeMs": 600 },
       "drop": { "coins": 30 },
       "reactions": { "weight": "heavy", "material": "chitin", "knockbackScale": 0, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 0, "roll": "break", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": { "planted": { "damageTaken": 1 }, "knocked": { "damageTaken": 1 } } }
     },
@@ -186,7 +186,7 @@
     },
     "shardback": {
       "id": "shardback", "visualSetId": "enemy.shardback", "maxHp": 140,
-      "pattern": { "walkSpeed": 38, "homeSpeed": 50, "slamRangePx": 76, "slamCooldownMs": 1200, "rearMs": 800, "slamPoseMs": 450, "recoverMs": 900, "slamRx": 92, "slamRy": 62, "slamDamage": 40, "slamKnockback": 320, "slamShakeMs": 200, "slamShake": 0.006, "shellDamageTaken": 0.3, "brittleDamageTaken": 1.6, "brittleMs": 4000, "brittleLingerMs": 1200, "lightPadPx": 26, "corpseMs": 2000, "corpseFadeMs": 600 },
+      "pattern": { "walkSpeed": 38, "homeSpeed": 50, "slamRangePx": 76, "slamCooldownMs": 1200, "rearMs": 800, "slamPoseMs": 450, "recoverMs": 900, "slamRx": 92, "slamRy": 62, "slamDamage": 40, "slamKnockback": 320, "slamShakeMs": 200, "slamShake": 0.006, "shellDamageTaken": 0.3, "brittleDamageTaken": 1.6, "brittleMs": 4000, "brittleLingerMs": 1200, "lightPadPx": 26, "corpseMs": 2000, "corpseFadeMs": 600, "cartShatterDamage": 9999, "cartShatterShakeMs": 320, "cartShatterShake": 0.012, "cartColdDamage": 10, "cartClangShakeMs": 160, "cartClangShake": 0.005, "cartStaggerMs": 1100, "slamChunksMax": 3, "slamChunkOffsetPx": 110, "slamChunkRailClearPx": 72 },
       "drop": { "coins": 20 },
       "reactions": { "weight": "heavy", "material": "stone", "knockbackScale": 0.2, "hitstunScale": 1, "holdCap": 2, "breakFree": "push", "poise": 4, "breakVerb": { "verb": "stagger", "stunMs": 1100 }, "roll": "bonk", "suck": "none", "classes": {}, "byTag": {}, "immune": [], "states": {} }
     },

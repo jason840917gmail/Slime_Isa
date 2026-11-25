@@ -242,7 +242,7 @@ shape = SubResource("RectangleShape2D_8qy56")
 script = ExtResource("5_48ck5")
 map_id = "crystal-caverns-g4"
 exit_id = "crystal-caverns-g4-to-crystal-mine"
-target_area_id = "crystal-mine"
+target_area_id = "crystal-mine-m1-mine-mouth"
 target_door_id = "mine-entrance"
 area = NodePath("..")
 

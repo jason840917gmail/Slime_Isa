@@ -20,6 +20,16 @@ class_name ShardbackScript
 ##   glows hot and cracks: hits take `brittleDamageTaken` (140 health: a Spear chain or two there).
 ## A stun (its poise broken) in the rear cancels the slam. The slam puts out a brazier marked
 ## `stomp_puts_out` within `slamPutOutScale` times its ellipse (candle.gd `put_out_near`).
+## - **The runaway cart** (the rebuilt Crystal Mine's Den, 2026-11-25; game/crystal_mine/ram_cart.gd,
+##   its hook `on_mechanism_hit(&"cart", cart)`, as the Brood Warden answers the ram): stopped against
+##   it while its shell is brittle, the cart **shatters the shell** in one blow: `cartShatterDamage`
+##   (more than it has: it falls, its defeat frame the shell burst into shards), a burst of crystal, a
+##   hard shake. Against a cold shell it clangs off: `cartColdDamage`, a stagger of `cartStaggerMs`.
+##   The Spear still works (brittle, `brittleDamageTaken`).
+## - **Ammo from its slam:** each slam knocks a crystal chunk off the Den (a light liftable of
+##   `slam_chunk_kind`, thrown like a pot) beside the slam ring, `slamChunkOffsetPx` from it, never on a
+##   cart's rails or the lane from their end to its target (`slamChunkRailClearPx`); at most `slamChunksMax` lie at once (the oldest crumbles):
+##   the knock target's throws never run out while the fight lasts.
 ##
 ## Owner: enemy builder.
 
@@ -30,6 +40,9 @@ const PHASE_WALK := "walk"
 const PHASE_REAR := "rear"
 const PHASE_SLAM := "slam"
 const PHASE_RECOVER := "recover"
+## Staggered by a cart that clanged off its cold shell.
+const PHASE_STAGGER := "stagger"
+const CART_KIND := &"cart"
 const FRAME_WALK := 0
 const FRAME_REAR := 1
 const FRAME_SLAM := 2
@@ -56,6 +69,11 @@ var _slam_ready_at: float = 0.0
 var _slam_at: Vector2 = Vector2.ZERO
 var _zone: GroundShadowLook
 var _was_brittle: bool = false
+## The liftable its slams knock loose (ThrowAmmo kinds: a crystal chunk).
+@export var slam_chunk_kind: String = "crystal-cluster"
+## The crystal chunks its slams knocked loose (liftables), oldest first.
+var _chunks: Array[Node2D] = []
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -113,6 +131,14 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			set_look(0.0)
 			if elapsed >= pattern("recoverMs", 900.0):
 				_transition(PHASE_WALK, now)
+		PHASE_STAGGER:
+			body.velocity = Vector2.ZERO
+			# rocked back on its legs, shaking off the clang
+			var shake := sin(elapsed / 38.0) * (1.0 - clampf(elapsed / maxf(1.0, pattern("cartStaggerMs", 1100.0)), 0.0, 1.0))
+			set_look(0.06 * shake, Vector2(1.0 - 0.03 * absf(shake), 1.0 + 0.03 * absf(shake)))
+			if elapsed >= pattern("cartStaggerMs", 1100.0):
+				_transition(PHASE_WALK, now)
+				_slam_ready_at = now + pattern("slamCooldownMs", 1200.0)
 	_brittle_look(now)
 
 
@@ -155,6 +181,7 @@ func _slam(now: float, target: Dictionary, engaged: bool) -> void:
 	# (the Crystal Mine's Shardback's Den rehearses his fight).
 	var reach := pattern("slamPutOutScale", 1.8)
 	CandleScript.put_out_near(get_tree(), _slam_at, Vector2(pattern("slamRx", 88.0), pattern("slamRy", 60.0)) * reach)
+	_knock_chunk_loose()
 	var slime_body := target.get("body") as Node2D
 	if not engaged or slime_body == null:
 		return
@@ -163,6 +190,96 @@ func _slam(now: float, target: Dictionary, engaged: bool) -> void:
 	var ry := maxf(1.0, pattern("slamRy", 60.0))
 	if (offset.x / rx) * (offset.x / rx) + (offset.y / ry) * (offset.y / ry) <= 1.0:
 		_route_hit_from(get_centre(), target, pattern("slamDamage", 40.0), pattern("slamKnockback", 320.0))
+
+
+## The cart's blow (ram_cart.gd's hook, instead of damage): brittle, the shell shatters and it falls;
+## cold, a clang and a stagger.
+func on_mechanism_hit(kind: StringName, _source: Node) -> void:
+	if kind != CART_KIND or is_defeated() or body == null:
+		return
+	var now := Services.now_ms()
+	_clear_zone()
+	var feel := Services.feel()
+	if is_brittle():
+		_cue(CUE_CRACK)
+		_puff(SHARDS, get_centre())
+		_puff(SHARDS, feet())
+		_puff(DUST, feet())
+		if feel != null:
+			feel.shake(pattern("cartShatterShakeMs", 320.0), pattern("cartShatterShake", 0.012))
+		var dealt := take_reaction_damage(pattern("cartShatterDamage", 9999.0))
+		if feel != null and dealt > 0:
+			feel.play_hit({"hit_stop_ms": 120.0, "trauma": 0.7, "kick_px": 0.0, "sparks": 18, "number": dealt,
+				"number_big": true}, get_centre(), Vector2.UP)
+		return
+	_cue(CUE_CLINK)
+	_puff(SHARDS, get_centre())
+	if feel != null:
+		feel.shake(pattern("cartClangShakeMs", 160.0), pattern("cartClangShake", 0.005))
+	var cold := take_reaction_damage(pattern("cartColdDamage", 10.0))
+	if feel != null and cold > 0:
+		feel.play_hit({"hit_stop_ms": 60.0, "trauma": 0.3, "kick_px": 0.0, "sparks": 8, "number": cold}, get_centre(), Vector2.UP)
+	if not is_defeated():
+		_transition(PHASE_STAGGER, now)
+		set_frame(FRAME_WALK)
+
+
+## True while the cart's clang has it staggered.
+func is_staggered() -> bool:
+	return _phase == PHASE_STAGGER
+
+
+## A slam knocks a crystal chunk loose beside its ring (a light liftable to throw), off every cart's
+## rails; the oldest crumbles once `slamChunksMax` lie.
+func _knock_chunk_loose() -> void:
+	_chunks = _chunks.filter(func(c: Node2D) -> bool: return is_instance_valid(c) and c.is_inside_tree())
+	var most := int(pattern("slamChunksMax", 3.0))
+	if most <= 0:
+		return
+	var world := Services.world()
+	if world == null:
+		return
+	_rng.seed = hash(Services.now_ms())
+	var spot := Vector2.ZERO
+	var found := false
+	for i in 8:
+		var angle := _rng.randf_range(0.0, TAU)
+		spot = _slam_at + Vector2(cos(angle), sin(angle) * 0.7) * pattern("slamChunkOffsetPx", 110.0)
+		if not _on_rails(spot) and world.elevation != null and int(world.elevation.call(&"walkable_level_at", spot)) == 0:
+			found = true
+			break
+	if not found:
+		return
+	var chunk := ThrowAmmo.spawn_liftable(slam_chunk_kind, spot, {"pop": true, "weight": "light"})
+	if chunk == null:
+		return
+	_chunks.append(chunk)
+	while _chunks.size() > most:
+		var old: Node2D = _chunks.pop_front()
+		if is_instance_valid(old):
+			_puff(DUST, old.global_position)
+			old.queue_free()
+
+
+## True within `slamChunkRailClearPx` of a runaway cart's line or of its run on to its knock target (the
+## rails stay clear for the cart, the lane clear for the throw).
+func _on_rails(at: Vector2) -> bool:
+	var clear := pattern("slamChunkRailClearPx", 72.0)
+	for cart: Node in get_tree().get_nodes_in_group(&"knock_mechanisms"):
+		if not (cart is Node2D) or not (&"points" in cart):
+			continue
+		var points: PackedVector2Array = cart.get(&"points")
+		var line: Array[Vector2] = []
+		for p: Vector2 in points:
+			line.append((cart as Node2D).to_global(p))
+		# and on from the line's end to its knock target: the throw's lane
+		var target: Node = cart.call(&"get_knock_target") if cart.has_method(&"get_knock_target") else null
+		if target is Node2D and is_instance_valid(target) and not line.is_empty():
+			line.append((target as Node2D).global_position)
+		for i in range(line.size() - 1):
+			if Geometry2D.get_closest_point_to_segment(at, line[i], line[i + 1]).distance_to(at) < clear:
+				return true
+	return false
 
 
 func _brittle_look(now: float) -> void:

@@ -1,0 +1,133 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://djsxexesn4e5p" path="res://game/dungeon/dungeon_layout.gd" id="1_vener"]
+[ext_resource type="Script" uid="uid://cd84i8eduuwpg" path="res://game/dungeon/layout_room.gd" id="2_2rcro"]
+
+[node name="crystal-mine-layout" type="Node2D" unique_id=982084506]
+script = ExtResource("1_vener")
+
+[node name="m1-mine-mouth" type="Node2D" parent="." unique_id=54994048]
+position = Vector2(1152, 4096)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m1-mine-mouth.tscn"
+world_id = "crystal-mine-m1-mine-mouth"
+room_name = "m1-mine-mouth"
+outline = PackedVector2Array()
+
+[node name="m2-lamp-tunnel" type="Node2D" parent="." unique_id=898258954]
+position = Vector2(1152, 3072)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m2-lamp-tunnel.tscn"
+world_id = "crystal-mine-m2-lamp-tunnel"
+room_name = "m2-lamp-tunnel"
+outline = PackedVector2Array()
+
+[node name="m4-great-shaft" type="Node2D" parent="." unique_id=1188203540]
+position = Vector2(1152, 2048)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m4-great-shaft.tscn"
+world_id = "crystal-mine-m4-great-shaft"
+room_name = "m4-great-shaft"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array()
+
+[node name="m6-bat-gallery" type="Node2D" parent="." unique_id=1943985714]
+position = Vector2(2304, 3072)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m6-bat-gallery.tscn"
+world_id = "crystal-mine-m6-bat-gallery"
+room_name = "m6-bat-gallery"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array()
+
+[node name="m7-ore-store" type="Node2D" parent="." unique_id=322381444]
+position = Vector2(2304, 4096)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m7-ore-store.tscn"
+world_id = "crystal-mine-m7-ore-store"
+room_name = "m7-ore-store"
+size = Vector2(2304, 1024)
+outline = PackedVector2Array()
+
+[node name="m5-tally-room" type="Node2D" parent="." unique_id=492108421]
+position = Vector2(0, 3072)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m5-tally-room.tscn"
+world_id = "crystal-mine-m5-tally-room"
+room_name = "m5-tally-room"
+outline = PackedVector2Array()
+
+[node name="m3-survey-office" type="Node2D" parent="." unique_id=2082796337]
+position = Vector2(0, 2048)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m3-survey-office.tscn"
+world_id = "crystal-mine-m3-survey-office"
+room_name = "m3-survey-office"
+outline = PackedVector2Array()
+
+[node name="m8-dark-maze" type="Node2D" parent="." unique_id=1677448325]
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m8-dark-maze.tscn"
+world_id = "crystal-mine-m8-dark-maze"
+room_name = "m8-dark-maze"
+size = Vector2(2304, 2048)
+outline = PackedVector2Array()
+
+[node name="m9-the-chasm" type="Node2D" parent="." unique_id=284709740]
+position = Vector2(2304, 0)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m9-the-chasm.tscn"
+world_id = "crystal-mine-m9-the-chasm"
+room_name = "m9-the-chasm"
+outline = PackedVector2Array()
+
+[node name="m13-shardback-den" type="Node2D" parent="." unique_id=1841470385]
+position = Vector2(2304, 1024)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m13-shardback-den.tscn"
+world_id = "crystal-mine-m13-shardback-den"
+room_name = "m13-shardback-den"
+outline = PackedVector2Array()
+
+[node name="m11-crystal-veil" type="Node2D" parent="." unique_id=141179700]
+position = Vector2(3456, 1024)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m11-crystal-veil.tscn"
+world_id = "crystal-mine-m11-crystal-veil"
+room_name = "m11-crystal-veil"
+outline = PackedVector2Array()
+
+[node name="m10-prism-gallery" type="Node2D" parent="." unique_id=1920633705]
+position = Vector2(3456, 0)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m10-prism-gallery.tscn"
+world_id = "crystal-mine-m10-prism-gallery"
+room_name = "m10-prism-gallery"
+outline = PackedVector2Array()
+
+[node name="m12-fort-hall" type="Node2D" parent="." unique_id=535249414]
+position = Vector2(4608, 1024)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m12-fort-hall.tscn"
+world_id = "crystal-mine-m12-fort-hall"
+room_name = "m12-fort-hall"
+outline = PackedVector2Array()
+
+[node name="m14-shaft-floor" type="Node2D" parent="." unique_id=1952397676]
+position = Vector2(2304, 2048)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m14-shaft-floor.tscn"
+world_id = "crystal-mine-m14-shaft-floor"
+room_name = "m14-shaft-floor"
+outline = PackedVector2Array()
+floor_level = -1
+
+[node name="m15-colossus-arena" type="Node2D" parent="." unique_id=2144038523]
+position = Vector2(1984, 512)
+script = ExtResource("2_2rcro")
+room_scene = "res://game/scenes/worlds/rooms/crystal-mine-rooms/m15-colossus-arena.tscn"
+world_id = "crystal-mine-m15-colossus-arena"
+room_name = "m15-colossus-arena"
+size = Vector2(1664, 1536)
+outline = PackedVector2Array()
+floor_level = -1

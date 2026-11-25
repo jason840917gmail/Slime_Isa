@@ -228,7 +228,9 @@ clears (`HAZY`: each pose keeps only its main body).
 | `broodling-sheet.png` | scuttling (two steps); leaping to bite; popped into a goo splat | `256x256-tile_4x1-broodling.webp` |
 | `brood-props-sheet.png` | the egg sac; the egg sac hatching (legs poking out); the egg sac burst; the real silk cocoon | `256x256-tile_4x1-brood-props.webp` (the egg sac's frames 0 to 2, the real cocoon's frame 3) |
 | `cocoon-mimic-sheet.png` | disguised (the cocoon with a gold coin); bursting into a toothy mouth; clamped shut over its prey; slumped open, dazed | `256x256-tile_4x1-cocoon-mimic.webp` |
-| `brood-warden-sheet.png` | on guard, blades raised; winding up, blades back to one side; mid-sweep; planted, back plates open on glowing joints | `256x256-tile_4x1-brood-warden.webp` |
+| `brood-warden-sheet.png` | on guard, blades raised; winding up, blades back to one side; mid-sweep; planted, back plates open on glowing joints | `256x256-tile_4x1-brood-warden.webp` (now `256x256-tile_24x1-brood-warden.webp`, with his walk and the sheets below) |
+| `brood-warden-sheet-5.png` (2026-11-25) | knocked over on his back, belly up, legs and blades kicking: a loop of four (left legs up; all flailing out; right legs up; all curled in) | frames 16 to 19 (`STILL_BODY`: the body on one spot) |
+| `brood-warden-sheet-6.png` (2026-11-25) | struck off his feet, tipped onto his side; tumbling over, belly turning up; heaving himself up on his blades; crouched back on his feet | frames 20 to 23 (its faint haze cleared: `FAINT_HAZE_FILES`) |
 
 `python scripts/characters/pack-bestiary-enemies.py silk-lurker thornball broodling brood-props
 cocoon-mimic brood-warden` packs only these.
@@ -306,6 +308,23 @@ Prompts (the same style block first, the same ending):
   slash; bottom right planted and worn out, all its legs dug into the ground, head plate lowered, its
   back armour plates spread open to show soft pale glowing joints underneath." (ending "Each pose
   isolated ...")
+- **Brood Warden, sheets 5 and 6** (2026-11-25, knocked over by B5's ram; references: his first
+  sheet, Lili; first takes, 40 credits each): the style block, then "A sprite sheet of the exact
+  armoured spider in the first reference picture: [his description]. Same design, same colours, same
+  proportions and same painting as the first reference, drawn at the same size." Sheet 5: "a 2 by 2
+  grid of four separate frames of one looping animation ...: the spider has been knocked over and
+  lies helpless flat on its back, belly up ... Its underside faces the camera: dark bronze segmented
+  belly plates ..., a few soft pale glowing joints showing between the plates. Its helmet head plate
+  is at the bottom toward the viewer, tipped back, the two orange eyes narrowed in fury, still mean
+  and dangerous, never scared, never cute. All eight legs and both scythe blades stick up into the air
+  ..., kicking and thrashing as it struggles to roll back over. The body is identical in size and
+  position in all four frames and ONLY the legs and blades move", then each frame's legs. Sheet 6:
+  "struck hard from the side and knocked off its feet, its whole heavy body tipped far over onto its
+  side ...; tumbled further over, nearly on its back ...; rolled onto its side and heaving itself back
+  up, both scythe blades stabbed into the ground to push ...; back on its feet but still crouched low
+  and heavy ..., about to rise back into its guard. Mean and dangerous in every image, never scared,
+  never cute." Both ending "Each image isolated on a transparent background, no ground shadow plate,
+  no scenery, no dust, no motion lines, no labels, no grid lines."
 
 ## Gorge's worm soldiers (rows 1 to 5, repainted 2026-10-16)
 

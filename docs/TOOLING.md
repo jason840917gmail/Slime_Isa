@@ -73,6 +73,15 @@ manifest or generated Phaser scene JSON; those steps are gone. Scenes are edited
 
 See [assets/README.md](assets/README.md) for the art workflow.
 
+- `python scripts/art/strip-credentials.py [--check] [--verify] [<file or folder> ...]` — takes the
+  generator's content-credentials block (the PNG `caBX` chunk) out of source pictures, by default all of
+  `asset/Originals/`. The block is no picture (the record of how the image was made, with the earlier
+  pictures of an edit inside it): 20 to 50 MB on a 1024 px sheet whose image data is 1.5 MB. Every other
+  chunk is copied byte for byte, so the pixels are the same; `--verify` (Pillow) also decodes each
+  picture before and after and refuses a file that would change. `--check` changes nothing, lists the
+  files that carry a block and exits 1 when there is one. **Run it on every source right after
+  downloading it** (owner, 2026-11-25: 1328 sources carried 1.15 GB of it, stripped that day).
+
 - `pnpm grounds:pack [-- --only <sheet>]` (**numpy**) — builds each 19x19 (64x64 tile)
   `godot/asset/MAPS/grounds/64x64-tile_19x19_<ground>.webp` (lossless) from
   `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless for sheet-wrap tiling;
@@ -170,6 +179,11 @@ See [assets/README.md](assets/README.md) for the art workflow.
   palette (`trim-palette.png`, a column per shape, a row per colour, and
   `godot/game/world/interior/interior_trim_tileset.tres`, its uid kept). Then run
   `tools/pack_interior_palette.gd` (above), which saves `trim-palette.res` too.
+- `"<Godot console exe>" --headless --path godot -s res://tools/pack_pit_picture.gd -- --in=<png> --out=<res://...res> [--aspect=<w>x<h>] [--width=<px>]`
+  — a painted hole's picture (M4's shaft: `asset/Originals/dungeon-kit/pits/mine-shaft-a.png` →
+  `godot/asset/MAPS/interiors/mine-shaft.res`, `--aspect=832x448`): cropped about its middle, laid over
+  black, saved as a texture resource the game loads without an import; `PitDepth`'s `picture`
+  ([godot/DUNGEONS.md](godot/DUNGEONS.md#the-wings-polish-the-reviewers-five-points-2026-11-25)).
 - `python scripts/art/build-wall-kit.py [style ...] [--palette]` (**numpy**) — the built walls
   ([godot/WALLS.md](godot/WALLS.md); styles `stone`, `hedge` and `picket`, each with its own measures when it needs them): composes each style's 16 shapes in 4 pattern parities from its three
   Magnific kit pieces (`asset/Originals/walls/<style>/kit/`: a horizontal run, a vertical run, a pillar) into

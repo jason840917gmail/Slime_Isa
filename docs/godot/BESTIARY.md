@@ -650,8 +650,11 @@ forelegs, drawn about twice the slime's size.
   a ram's log that reaches it on its lane (`on_mechanism_hit(&"ram", ...)`) slides it `ramSlidePx`
   110 along the swing over `ramSlideMs` 260, hurts it `ramDamage` 20 as it stops (a hit's stun would
   hold its body still, so the slide comes first) and leaves it **knocked** `knockedMs` 3000 from the
-  blow: plates open, every hit landing as when it is planted (`states.knocked`). The sheet has no
-  pose on its back: knocked is the planted frame squashed flat and twitching.
+  blow: on his back, every hit landing as when it is planted (`states.knocked`). His frames for it
+  (2026-11-25, sheet frames 16 to 23): flung over the slide (tipped onto his side, then tumbling over,
+  mirrored to the log's way), on his back belly up and kicking (a loop of four, `knockedKickFrameMs`
+  150 a frame), and getting up over the last `knockedRiseMs` 400 (heaving up on his blades, crouched
+  on his feet), then `recoverMs` standing guard. Beaten while knocked, he stays on his back.
 
 ### 23. Gloomling (shadow)
 
@@ -808,6 +811,18 @@ of 120 px, out after 20 s).
   (crystal shards, `BreakGlass`).
 - **Right tool:** light a brazier with the Lantern and lead it into the light, or puff it straight
   on; then the Spear (140 health: about two chains while brittle).
+- **The runaway cart** (2026-11-25, the rebuilt Crystal Mine's Den; `shardback.gd` `on_mechanism_hit`,
+  as the Brood Warden answers the ram; [Mechanisms](DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)):
+  a cart stopped against it while its shell is brittle **shatters the shell** in one blow
+  (`cartShatterDamage` 9999: it falls, its defeat frame the shell burst into shards; a crystal burst,
+  `cartShatterShakeMs` 320 / `cartShatterShake` 0.012); against a cold shell it clangs off
+  (`cartColdDamage` 10, a stagger of `cartStaggerMs` 1100, `cartClangShakeMs` 160 / `cartClangShake`
+  0.005). Its stagger is its walk frame rocked and shaken (no frame of its own).
+- **Ammo from its slam** (2026-11-25): each slam knocks a crystal chunk loose (a light liftable of the
+  scene property `slam_chunk_kind`, `crystal-cluster`) `slamChunkOffsetPx` 110 from its ring, never
+  within `slamChunkRailClearPx` 72 of a runaway cart's line or of the lane from its end to its knock
+  target; at most `slamChunksMax` 3 lie at once (the oldest crumbles). Its slams do the same in today's
+  one-scene Mine and in its pen (there the chunks are only things to throw).
 
 ### 29. Crystal Mite (swarm)
 
@@ -1321,6 +1336,13 @@ Boar 0.329, the Thornball 0.244, the Warden 0.514, the Marcher 0.305, the Throwe
 prologue worm 0.269, the Crystal Mite 0.165. The Clod
 Stomper's walk is in its own sheet (`256x256-tile_17x1-clod-stomper.webp`,
 `asset/Originals/enemies/clod-stomper/README.md`).
+
+The Brood Warden knocked over by B5's ram (2026-11-25, 80 credits: two sheets, first takes, his first
+sheet and Lili as references): `brood-warden-sheet-5.png` (on his back, belly up, kicking: a loop of
+four) and `-6.png` (tipped onto his side, tumbling over, heaving up on his blades, crouched on his
+feet; its faint haze cleared, `FAINT_HAZE_FILES`), packed after his walk as frames 16 to 23, so his
+sheet became `256x256-tile_24x1-brood-warden.webp` at the same scale (his other frames unchanged).
+The loop's four poses keep their body on one spot (`STILL_BODY`), so only the legs and blades move.
 
 The Worm Bulwark (row 37, 2026-11-21, 160 credits: two takes of each of his two sheets, the first
 with Lili and the Worm Brawler's sheet as references, the second with his first): `worm-bulwark-sheet.png`

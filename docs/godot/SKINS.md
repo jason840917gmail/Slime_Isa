@@ -243,8 +243,9 @@ the Verdant Gate's road and that it takes real weight to move it.
   holds, the damage and the charged Lunge stay as they are.
 - **Placing a climbable wall** (`object.climb-wall`, game/scenes/objects/climb-wall.tscn, script
   `game/scripts/climb_wall.gd`; for a climb that leads out of a world, `exit_area_id`, or ends on
-  the face, `holds_at_top`: every other climb is painted, below; the Crystal Mine's climbs,
-  `crystal-mine.tscn`, made before vines could be painted, are still placed walls): put its root where the slime's feet
+  the face, `holds_at_top`: every other climb is painted, below; today's one-scene Crystal Mine's
+  climbs, `crystal-mine.tscn`, made before vines could be painted, are still placed walls; the rebuilt
+  Mine's are painted vines but for M15's, its lab's roots and the climb out): put its root where the slime's feet
   stand at the wall's foot, about
   20 px below the face's foot line, and set `top` to where the slime's centre ends (on the ledge,
   about 40 px inside the rim). `art_size` sizes the roots' picture over the face; `grab_width` the

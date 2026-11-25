@@ -113,11 +113,15 @@ STYLES = {
 		# the Gloop Cavern (owner, 2026-11-20): dark blue slate packed with glowing blue and violet
 		# crystals, made from cave-bevel-doorways-b (its layout, measured again) with the cavern's old
 		# crystal-cluster walls as material reference: crystal-bevel-doorways-b (GPT 2.5, transparent;
-		# -a is the other take). No openings or leaves besides the plain doorway yet; the cave's floor.
+		# -a is the other take); the cave's floor. Its cracked and blown frames (2026-11-25, the rebuilt
+		# Crystal Mine) made from the plain frame by scripts/art/make-crystal-openings.py; no stairs.
+		# Its leaves (2026-11-25, the Crystal Mine's rooms, no new render): the cave rock's, cut from
+		# the cave rock's shut frames with this style's measures (the crystal frame was made from the
+		# cave rock's, its doorway boxes and passage the same), each side in this style's light.
 		"column": 5,
 		"frame": "crystal-bevel-doorways-b.png",
-		"openings": {},
-		"leaves": {},
+		"openings": {"cracked": "crystal-bevel-cracked-made.png", "blown": "crystal-bevel-blown-made.png"},
+		"leaves": {k: f"cave-bevel-leaf-{k}.png" for k in LEAVES},
 		"floor": "cave-floor.png",
 
 		"bands": {"n": (15, 224), "s": (800, 1006), "w": (19, 220), "e": (803, 1005)},

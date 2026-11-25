@@ -64,7 +64,7 @@ world root, `loop: true`, `autoplay: true`, `polyphony: 1`:
 |---|---|---|
 | `level-1` | `audio.music.level-1-home-town` (`godot/asset/audio/music/level-1-home-town.ogg`), volume 0.55 | `audio.sfx.world.meadow-ambience.1`, volume 0.35 |
 | `gloop-forest` | `audio.music.gloop-forest` (`gloop-forest.mp3`), volume 0.5 | `audio.music.gloop-forest-ambience` (mp3), volume 0.35 |
-| the dungeons: every room world of Fatty's Lair (`fatty-lair`, `fatty-lair-<room>`: each room scene has its own MusicPlayer, one track), every room world of the Weaver Hollow (`weaver-hollow-<room>`, rebuilt 2026-11-25, each room scene with its own MusicPlayer; today's four floors `weaver-hollow-trunk`, `-roots`, `-boughs`, `-crown` are no longer entered), `crystal-mine` | `dungeon.wav` (72 s loop), volume 0.5 | — |
+| the dungeons: every room world of Fatty's Lair (`fatty-lair`, `fatty-lair-<room>`: each room scene has its own MusicPlayer, one track), every room world of the Weaver Hollow (`weaver-hollow-<room>`, rebuilt 2026-11-25, each room scene with its own MusicPlayer; today's four floors `weaver-hollow-trunk`, `-roots`, `-boughs`, `-crown` are no longer entered), every room world of the Crystal Mine (`crystal-mine-<room>`, rebuilt 2026-11-25, each room scene with its own MusicPlayer; today's one-scene `crystal-mine` is no longer entered) | `dungeon.wav` (72 s loop), volume 0.5 | — |
 | the caves: `gloop-cavern`, `hollow-hill-cave` | `cave-a.wav` ("bass and drops"), volume 0.5 | — |
 | the cave `lake-island-cave` | `cave-b.wav` ("chiptune bass"), volume 0.5 | — |
 | the interiors `slime-home`, `gloop-hut` | `interior-a.wav` ("solo piano"), volume 0.5 | `audio.sfx.world.interior-ambience.1`, volume 0.35 |

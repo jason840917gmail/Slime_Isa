@@ -133,7 +133,9 @@ Hollow's four floors and 14 in the Mine. Open a room to edit its terrain, walls,
 CameraRoom. *As built (2026-11-22): only the Hollow is assembled from its rooms. The game plays
 `crystal-mine.tscn` whole (its shell has no `RoomScenes`, and nothing loads `rooms/crystal-mine/M*.tscn`),
 so edit the Mine in `crystal-mine.tscn`; the M files are leftovers of the 2026-10-17 split
-([DUNGEONS.md](DUNGEONS.md)).* F6 starts that room in the full game with the dungeon's normal direct-run powers.
+([DUNGEONS.md](DUNGEONS.md)).* *Since 2026-11-25 the game enters the Mine rebuilt one world per room
+(`rooms/crystal-mine-rooms/`, [DUNGEONS.md](DUNGEONS.md#the-switch-over-the-mine-2026-11-25)): edit
+those; `crystal-mine.tscn` and its M files are unreached until step 5.* F6 starts that room in the full game with the dungeon's normal direct-run powers.
 
 Their rooms are written in dungeon coordinates (instance offset zero). The parent world is a shell
 holding the world definition, Dungeon node, shared logic and room scene instances.

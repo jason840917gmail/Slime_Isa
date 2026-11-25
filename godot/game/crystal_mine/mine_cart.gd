@@ -11,6 +11,14 @@ class_name MineCartStation
 ## Which station holds the cart is the world's object state `mine-cart:<line_id>` (RunState map
 ## record), so it lasts through a faint, a quit and a load.
 ##
+## **Between two worlds** (`partner_world`; the rebuilt Crystal Mine's rooms, 2026-11-25: M1's station
+## and the Chasm's, each in its own room world): the other station is `partner_station` in the world
+## `partner_world`, and the ride travels there as a door does (main.gd `request_exit`, a fade), the
+## slime coming out at the arrival point `partner_door` beside that station. Which station holds the
+## cart is then kept under the dungeon's record id (DungeonState.record_map_id: `crystal-mine` for
+## every room and for today's one-scene Mine), so both worlds read the same answer. A line whose other
+## world is not in scene_index.json does not ride.
+##
 ## Owner: dungeons (the Crystal Mine).
 
 const Services := preload("res://game/shared/services.gd")
@@ -19,6 +27,8 @@ const MineTravel := preload("res://game/crystal_mine/mine_travel.gd")
 ## interaction_controller.gd USABLE_GROUP.
 const USABLE_GROUP := &"usable"
 const GROUP := &"mine_cart_stations"
+const WORLD_MAIN_GROUP := &"world_main"
+const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 const STATE_PREFIX := "mine-cart:"
 const CUE_RIDE := &"BreakWood"
 const TEXT_RISE := 64.0
@@ -48,6 +58,11 @@ const EMPTY_TELL_EVERY_MS := 4000.0
 ## story flag is set, and the line has no partner here, so it never rides back. Empty: the line's
 ## two stations in one world share the cart as above.
 @export var cart_flag: String = ""
+## The line's other station is in another world (see above): that world, its station's id, and the
+## arrival point (a door without a target) the slime comes out at there. Empty: both stations here.
+@export var partner_world: String = ""
+@export var partner_station: String = ""
+@export var partner_door: String = ""
 
 var _next_tell_ms: float = 0.0
 
@@ -81,13 +96,31 @@ func holder() -> String:
 	for node: Node in get_tree().get_nodes_in_group(GROUP):
 		if str(node.get(&"line_id")) == line_id and bool(node.get(&"starts_with_cart")):
 			fallback = str(node.get(&"station_id"))
+	if fallback.is_empty() and not partner_world.is_empty():
+		# the cart starts at the far end, in the other world
+		fallback = partner_station
 	if run == null or world == null:
 		return fallback
-	return str(run.object_state(world.map_id(), STATE_PREFIX + line_id, fallback))
+	return str(run.object_state(_state_map(), STATE_PREFIX + line_id, fallback))
+
+
+## The record the cart's place is kept under: the world's, or (a line between worlds) the dungeon's.
+func _state_map() -> String:
+	var world := Services.world()
+	if not partner_world.is_empty():
+		return DungeonState.record_map_id(self)
+	return world.map_id() if world != null else ""
 
 
 func can_use() -> bool:
+	if not partner_world.is_empty():
+		return has_cart() and _partner_world_exists()
 	return has_cart() and partner() != null
+
+
+func _partner_world_exists() -> bool:
+	var world := Services.world()
+	return world != null and not world.scene_path("world." + partner_world).is_empty()
 
 
 ## The other station of the line, or null.
@@ -100,6 +133,8 @@ func partner() -> MineCartStation:
 
 ## Rides the cart to the other station. False when the cart is not here.
 func use() -> bool:
+	if not partner_world.is_empty():
+		return _ride_to_other_world()
 	var other := partner()
 	if not has_cart() or other == null:
 		return false
@@ -107,12 +142,36 @@ func use() -> bool:
 	return MineTravel.warp(target, other.arrival_facing, CUE_RIDE, func() -> void: _move_cart_to(other))
 
 
+## The ride to the other world's station (a door's travel, faded). False when it did not ride.
+func _ride_to_other_world() -> bool:
+	var run := Services.run()
+	if not has_cart() or run == null or not _partner_world_exists():
+		return false
+	var main := get_tree().get_first_node_in_group(WORLD_MAIN_GROUP)
+	if main == null or not main.has_method(&"request_exit"):
+		return false
+	var world := Services.world()
+	var result: Dictionary = main.call(&"request_exit", {"map_id": world.map_id() if world != null else "",
+		"exit_id": "mine-cart:" + station_id, "target_area_id": partner_world, "entry": "", "target_door_id": partner_door,
+		"entry_marker": "", "gate": {}, "transition": "fade", "door_side": "", "lead_ms": 0.0})
+	if str(result.get("status", "")) != "queued":
+		return false
+	run.set_object_state(_state_map(), STATE_PREFIX + line_id, partner_station)
+	# the slime is riding off in it: this station says nothing of the cart being gone
+	_next_tell_ms = float(Time.get_ticks_msec()) + EMPTY_TELL_EVERY_MS
+	var feel := Services.feel()
+	if feel != null:
+		feel.audio_cue(CUE_RIDE)
+	_show()
+	return true
+
+
 ## Moves the cart to `other` at once (the ride's arrival; the tests).
 func _move_cart_to(other: MineCartStation) -> void:
 	var run := Services.run()
 	var world := Services.world()
 	if run != null and world != null:
-		run.set_object_state(world.map_id(), STATE_PREFIX + line_id, other.station_id)
+		run.set_object_state(_state_map(), STATE_PREFIX + line_id, other.station_id)
 	for node: Node in get_tree().get_nodes_in_group(GROUP):
 		if node is MineCartStation and (node as MineCartStation).line_id == line_id:
 			(node as MineCartStation)._show()

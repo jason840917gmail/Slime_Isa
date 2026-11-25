@@ -5,7 +5,8 @@ class_name RailGate
 ## cart"; `object.rail-gate`): timber and iron across a mine's rails, chained shut. The runaway
 ## cart's lock (game/crystal_mine/ram_cart.gd): only something that rams it opens it.
 ##
-## - **Until it is smashed it blocks** (its planks' body; its two posts always stand and block). A
+## - **Until it is smashed it blocks** (its planks' body; its two posts always stand and, unless
+##   `posts_solid_when_smashed` is off, block). A
 ##   weapon, a throw, a slam or a blast on it is refused as `immune` with `refusal_text`.
 ## - **A ram smashes it open for good** (`on_ram_hit(source)`, group `ram_breakable`: the runaway
 ##   cart runs on through; the ram's log too): the planks fly, splinters and dust, a shake, the wood
@@ -57,6 +58,10 @@ signal smashed(payload: Dictionary)
 		_refresh()
 ## Its id in the record (unique in its world; the node's name when empty).
 @export var gate_id: String = ""
+## Smashed, its posts still block (the lab's gate on open floor). Off for a gate standing in a side
+## doorway (the rebuilt Mine's M1 and M7): there the doorway's jambs block beside the passage, and the
+## posts, turned into the passage, would narrow it to the gap between them.
+@export var posts_solid_when_smashed: bool = true
 ## Said when anything but a ram hits it.
 @export var refusal_text: String = "Chained shut across the rails."
 ## Its planks' body (gone once smashed); its posts keep their own.
@@ -206,12 +211,18 @@ func _restore_in_tree() -> void:
 		_open()
 
 
-## The way through opens: the planks' body and the hurtbox go, the posts stay.
+## The way through opens: the planks' body and the hurtbox go, the posts stay (their collision too,
+## unless `posts_solid_when_smashed` is off).
 func _open() -> void:
 	if look != null:
 		look.frame = FRAME_SMASHED
 	if body != null:
 		for child: Node in body.get_children():
+			if child is CollisionShape2D:
+				(child as CollisionShape2D).set_deferred(&"disabled", true)
+	var posts := get_node_or_null(^"Posts")
+	if posts != null and not posts_solid_when_smashed:
+		for child: Node in posts.get_children():
 			if child is CollisionShape2D:
 				(child as CollisionShape2D).set_deferred(&"disabled", true)
 	var router := Services.router()

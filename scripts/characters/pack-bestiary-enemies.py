@@ -95,7 +95,11 @@ POSES = {
     "broodling": ["scuttle-a", "scuttle-b", "leap", "popped"] + WALK,
     "brood-props": ["sac", "hatching", "burst", "cocoon"],
     "cocoon-mimic": ["disguised", "burst", "hold", "dazed"] + WALK,
-    "brood-warden": ["guard", "windup", "sweep", "planted"] + WALK,
+    # Knocked over by a ram (2026-11-25, sheets 5 and 6): on his back kicking (a loop of four), flung
+    # off his feet (tipped on his side, tumbling over) and getting back up (heaving up on his blades,
+    # crouched on his feet).
+    "brood-warden": ["guard", "windup", "sweep", "planted"] + WALK
+        + ["back-a", "back-b", "back-c", "back-d", "flung-a", "flung-b", "rise-a", "rise-b"],
     # Chapter 3 (rows 23 to 29).
     "gloomling": ["rest", "flinch", "scuttle", "fade"],
     "glint-bat": ["asleep", "woken", "swoop", "down"],
@@ -262,6 +266,13 @@ MERGE_PX = 15
 # Sheets (by the name before `-sheet`) with a fainter haze (alpha 16 at most, far from the art): it
 # is cleared the same way, but their stray goo drops and sprays are kept (no main-body pass).
 FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs", "climb-props", "jelly-bouncer", "shock-skeleton"}
+# Single source files with that faint haze (alpha 5 at most), cleared the same way, the enemy's other
+# sheets left as they are: the Brood Warden's flung and getting-up sheet.
+FAINT_HAZE_FILES = {"brood-warden-sheet-6.png"}
+# Poses that are one loop of a body lying still while only its legs move (the Brood Warden on his
+# back): placed so the middle of each pose's body (`body_core`) sits on one spot, at x CENTRE_X and as
+# low as lets every pose of the loop stand on or above BOTTOM, so the body never jumps between frames.
+STILL_BODY = {"brood-warden": ["back-a", "back-b", "back-c", "back-d"]}
 
 
 def gap(mask: np.ndarray, axis: int) -> int:
@@ -283,7 +294,8 @@ def cut_poses(path: Path) -> list[Image.Image]:
     """The sheet's four poses in reading order, trimmed."""
     sheet = Image.open(path).convert("RGBA")
     later_hazy = path.name.split("-sheet")[0] in HAZY_LATER and not path.name.endswith("-sheet.png")
-    if path.name.removesuffix("-sheet.png") in HAZY or path.name.split("-sheet")[0] in FAINT_HAZE or later_hazy:
+    if (path.name.removesuffix("-sheet.png") in HAZY or path.name.split("-sheet")[0] in FAINT_HAZE or later_hazy
+            or path.name in FAINT_HAZE_FILES):
         pixels = np.asarray(sheet).copy()
         pixels[pixels[..., 3] < HAZE_ALPHA] = 0
         sheet = Image.fromarray(pixels, "RGBA")
@@ -365,6 +377,15 @@ def pack(enemy: str, names: list[str]) -> None:
     if cores:
         scale = FIT / 2 / max(max(x, still.width - x, y, still.height - y)
             for (x, y), (_, still) in zip(cores.values(), frames))
+    still_body = {}
+    loop = STILL_BODY.get(enemy, [])
+    if loop:
+        by_name = dict(frames)
+        loop_cores = {name: body_core(by_name[name]) for name in loop}
+        # the body's spot: as low as lets the loop's lowest-reaching pose stand on BOTTOM
+        spot_y = bottom - max(round(by_name[name].height * scale) - round(loop_cores[name][1] * scale) for name in loop)
+        still_body = {name: (centre_x - round(loop_cores[name][0] * scale), spot_y - round(loop_cores[name][1] * scale))
+            for name in loop}
     sheet = Image.new("RGBA", (cell * len(frames), cell), (0, 0, 0, 0))
     hung_heights = [round(still.height * scale) for name, still in frames if (enemy, name) in HUNG]
     hung_top = BOTTOM - max(hung_heights) if hung_heights else 0
@@ -388,6 +409,10 @@ def pack(enemy: str, names: list[str]) -> None:
             top -= max(0, top + size[1] - floor)
             if top < 0:
                 raise SystemExit(f"{enemy} {name}: lifted out of its cell")
+        if name in still_body:
+            left, top = still_body[name]
+            if left < 0 or top < 0 or left + size[0] > cell:
+                raise SystemExit(f"{enemy} {name}: its body's spot puts it out of its cell")
         sheet.alpha_composite(art, (column * cell + left, top))
         print(f"  {name:9s} {size[0]} x {size[1]}")
     out = OUTPUT / f"{cell}x{cell}-tile_{len(frames)}x1-{enemy}.webp"

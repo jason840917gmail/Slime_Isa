@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/dungeon.tscn" id="1_dungeon"]
+[ext_resource type="AudioStream" path="res://asset/audio/sfx/library/boss/fatty-roar.ogg" id="2_roar"]
+[ext_resource type="PackedScene" path="res://game/scenes/worlds/rooms/crystal-mine-rooms/layout.tscn" id="3_layout"]
+
+[node name="crystal-mine-dungeon" instance=ExtResource("1_dungeon")]
+dungeon_id = "crystal-mine"
+display_name = "The Crystal Mine"
+entrance_map_id = "crystal-mine-m1-mine-mouth"
+record_map_id = "crystal-mine"
+layout = ExtResource("3_layout")
+boss_id = "crystal-colossus"
+boss_name = "The Crystal Colossus"
+seal_color = Color(0.5411765, 0.40784314, 0.7529412, 1)
+roar_sound = ExtResource("2_roar")
+roar_pitch = 0.6
+dust_color = Color(0.78431374, 0.83137256, 0.9411765, 1)
+dev_pearl_id = "crystal-colossus"
+dev_pearl_guard = "crystal-mine-shardback"
+dev_pearl_skin = "feral"

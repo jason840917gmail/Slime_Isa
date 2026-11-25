@@ -21,6 +21,19 @@ its code is in git history.
 - Commit the `*.import` and `*.gd.uid` files Godot creates next to assets and scripts.
 - Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes
   them in the same change.
+- Never save a generated picture with its credentials block (owner, 2026-11-25). A PNG from Magnific
+  (or any generator) carries a `caBX` metadata chunk that is not picture: 20 to 50 MB on a sheet
+  whose image data is 1.5 MB, and 1.15 GB of it had piled up in `asset/Originals/`. Right after
+  downloading a source, run `python scripts/art/strip-credentials.py <file or folder>` (no pixel
+  changes); `--check` must list nothing. Keep the stripped file only
+  ([docs/TOOLING.md](docs/TOOLING.md#art-pipelines)).
+- Source art and audio stay out of git (owner, 2026-11-25). `asset/Originals/` is on the owner's
+  disk only: its pictures, clips and sounds are git-ignored and were taken out of the repository's
+  history that day (they were 4.5 GB of its 6.3 GB; every commit id from before changed:
+  [the map](docs/archive/2026-11-25-history-rewrite.md)). Only its small text files are tracked
+  (notes, prompts, manifests, packer scripts). Never `git add -f` a source; what the game needs is
+  the packed runtime file in `godot/asset/`. A worktree or a fresh clone has no sources, so run the
+  art tools in the main checkout. No file over 10 MB goes into git without the owner's yes.
 - Delete your screenshots when you are done (owner, 2026-11-24). A film's or render's frame
   pictures (`output/<area>/<name>/f000.png` ..., any screenshot taken to check your work) go once
   you have looked at them and before you report: a film's frames are 300 to 900 pictures, and
@@ -96,7 +109,10 @@ its code is in git history.
 - `bash scripts/godot/film-colossus.sh <name> --film=<film> [options]` — films the Crystal Colossus's
   plate fight (the rework) in his lab (`world.colossus-lab`, built by `tools/build_colossus_lab.gd`)
   into `output/boss-rework/colossus-films/<name>/`: `look`, `poses`, `walks`, `glow`, `burst`, `clang`,
-  `pass`, `dip`, `bare`, `wall`, `core` ([The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab)).
+  `pass`, `dip`, `bare`, `wall`, `core` ([The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab));
+  with `--tool=film_colossus_arena` the same films in the rebuilt Crystal Mine's arena (M15, the lab's
+  world carried into the room) into `output/dungeon-rework/mine/arena-films/<name>/`, burst, clang, wall
+  and core with a PASS or FAIL ([Wing 4](docs/godot/DUNGEONS.md#wing-4-the-shaft-and-the-colossus-2026-11-25)).
 - `"<Godot console exe>" --path godot -s res://tools/film_weaver_hollow_rooms.gd -- --film=<walk|ram|wall-walk|warden-ram|webbed-slab|look> --out=<dir>`
   — plays the rebuilt Weaver Hollow (step 3 of the dungeons rework; the game enters it since the
   switch-over of 2026-11-25, today's four worlds unreached until step 5;
@@ -109,6 +125,21 @@ its code is in git history.
   its rooms' first versions came from `tools/build_weaver_hollow_rooms.gd` (refuses to overwrite a
   hand-edited room without `--force`)
   ([The Weaver Hollow rebuilt](docs/godot/DUNGEONS.md#the-weaver-hollow-rebuilt-the-trunk-and-the-roots-step-3-2026-11-25)).
+- `"<Godot console exe>" --path godot -s res://tools/film_crystal_mine_rooms.gd -- --film=<walk|cart|ride|shardback|look|old-save> --out=<dir>`
+  — plays the Crystal Mine's rebuilt rooms (step 4 of the dungeons rework; the game enters them since
+  the switch-over of 2026-11-25, today's one-scene Mine unreached until step 5;
+  `?map=crystal-mine-m1-mine-mouth`, `&sealed` in any room for the second half), windowed:
+  `walk` plays all four wings (the Mouth and the High Line, the Lantern's half, the Den and the Feral
+  half, the Shaft and the Colossus) from the camp in G4 (the mine's gate lit, in through G4's door) through key 2, key 1, the Dark Maze, the Chasm,
+  the travel cart, the Shardback, Pearl 3, the shaft's floor and the ore lift, the Feral wall-top
+  secret, the rift, the big key, the boss door, his arena (his fight ended by the tool), his full heart
+  and the climb out to the Lookout, round to the camp, in and out by the mouth, the wrong ways refused, PASS or FAIL, a
+  picture a step (`--from=wing2`, `--from=wing3`, `--from=wing4`); `shardback` films the Den's cart blow; `cart` films M7's runaway cart bursting the rail
+  gate into M1 frame by frame; `ride` films the travel cart between worlds; `look --world=<room> --at=<x>,<y> --zoom=<z> [--slime=<x>,<y>] [--lit] [--bright]`
+  a still of a room in the game; `old-save` loads a save half-played in today's Mine (from the tool
+  runs' save folder) and checks it wakes in M1 with its records; the rooms' first versions came from `tools/build_crystal_mine_rooms.gd`
+  (refuses to overwrite a hand-edited room without `--force`)
+  ([The Crystal Mine rebuilt](docs/godot/DUNGEONS.md#the-crystal-mine-rebuilt-wing-1-the-mouth-and-the-high-line-step-4-2026-11-25)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`
   (the "Web (dev)" preset keeps the dev worlds); `.claude/launch.json` "godot-web" serves it on port 3200.
 - World map: `pnpm story:map` sketches the layout (`godot/game/data/world-map.json`) in the browser;
@@ -140,7 +171,8 @@ its code is in git history.
   `world-map.json` (read through `game/world/atlas/world_map_data.gd`).
 - `godot/game/scripts/` — scene scripts (`game.<id>` → `<snake_id>.gd`); the rest of `godot/game/`
   holds gameplay, UI, shell, audio and world systems by area.
-- `godot/asset/` — runtime art and audio (`res://asset/...`); `asset/Originals/` (sources and
+- `godot/asset/` — runtime art and audio (`res://asset/...`); `asset/Originals/` (on disk only,
+  not in git: sources and
   concepts) and `asset/project/` (sprite-sheet projects) stay outside the Godot project.
 - `godot/tools/` — headless tools (scene verifier, clip and theme builders, labs, the region world
   builder);

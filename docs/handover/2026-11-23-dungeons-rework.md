@@ -961,6 +961,564 @@ or where it could be taken for one, or for an enemy. Positions in cells.
 `walk.json` in `output/dungeon-rework/hollow/walk/`, the step pictures deleted). The look film gained
 `--slime=<x>,<y>` (where the slime stands: B2 and B7 have a void in the middle, B3 its Mimic).
 
+## Step 4: the Mine
+
+Step 4 of the plan (2026-11-25, a builder session): the Crystal Mine rebuilt as room worlds with the
+crystal-cave interior walls, **beside** today's Mine (`world.crystal-mine`, one 80 x 70 scene), one
+wing at a time, each stopping for the reviewer. Today's Mine world, its camp door (G4's
+`exit-to-crystal-mine`) and its dead room copies in `rooms/crystal-mine/M*.tscn` stay untouched until
+the switch-over.
+
+**Where the rooms live:** `godot/game/scenes/worlds/rooms/crystal-mine-rooms/<room>.tscn`, world
+`crystal-mine-<room>` (`world.<id>` in `scene_index.json`). Not `rooms/crystal-mine/`, which the brief
+named: that folder holds today's 14 dead copies (`M1-mine-mouth.tscn` ...), and on this case-blind disk
+`m1-mine-mouth.tscn` would be the same file (and its elevation cache the same `.res`). Step 5 deletes
+the old folder. The Dungeon node is an instance of
+`game/scenes/objects/dungeon/crystal-mine-dungeon.tscn`: `dungeon_id` and `record_map_id`
+`crystal-mine` (today's, so the switch-over changes no record), the Colossus's seal settings as today
+(`#8a68c0`, the roar at 0.6, dust `#c8d4f0`), the entrance M1, the layout
+`rooms/crystal-mine-rooms/layout.tscn`.
+
+### The wings
+
+Each wing can be walked and reviewed alone; the doorways of a wing's rooms into a later wing are
+painted with their room doors set, and lead nowhere until that wing is built (a room door whose
+room is not on the layout never travels, as T2's south key door did).
+
+| Wing | Rooms | What it holds | Engine pieces it needs |
+|---|---|---|---|
+| **1. The Mouth and the High Line** | M1 Mine Mouth, M2 Lamp Tunnel, M4 the Great Shaft (its gallery and high ledge), M6 Bat Gallery, M7 Ore Store | the way in (the seal's doorway), the first dark room, the hub with the Foreman's Gate and key 2 in sight, the rotten timbers (Heavy Roll), **the cart's teach** (M7's runaway cart bursts the rail gate into M1: the short way back), **the High Line** (the Pick Mole's crate loft, the upper doorway, the high walk over the bats in the dark, the hub's ledge: **key 2**), S3 (Silk), S5 painted (Feral, a come-back) | crystal-cave door leaves; the cart that rolls on into the next room |
+| **2. The Lantern's half** | M5 Tally Room, M3 Survey Office, M8 the Dark Maze, M9 the Chasm | key 1, the map, the Foreman's Gate opened, the maze's four candles, the Chasm's lens (the Bow), the travel cart M1 - M9 | crystal-cave cracked wall (M5 - M3); the travel cart between worlds |
+| **3. The Den and the Feral half** | M13 Shardback's Den, M11 Crystal Veil (the rift), M10 Prism Gallery, M12 the Fort Hall | Pearl 3 and the seal, the Shardback's cart line, the painted vines and balconies of the second half, the big key; the secret over M3's shelf onto the maze's wall tops (S1's chest) | the Shardback's cart hook; vines and balconies in room worlds |
+| **4. The Shaft and the Colossus** | M14 the Shaft Floor (new: the shaft's floor becomes its own world), M15 the Colossus's arena (the lab's) | the roots down from the Den's broken rim, the lift, the boss door, his plate fight, the climb out to the Lookout; then the switch-over | the ore lift between worlds; the arena as the lab |
+
+### The list of links (the whole Mine, written before any scene)
+
+Cells are the room's own (column, row) from its top-left; every room's rim is two cells deep (floor
+from (2, 2)); a one-screen room is 18 x 16 (floor 14 x 12, today's screen's floor). L0 is the floor,
+L1 the upper level, L-1 a lower floor. Map: one floor (0) on a 1152 x 1024 grid, a room at
+(column x 1152, row x 1024) of today's 5 x 5 grid; M14 and M15 on floor -1.
+
+| Room | World id | Size | Map (floor, place) | Floor | Upper level |
+|---|---|---|---|---|---|
+| M1 Mine Mouth | `crystal-mine-m1-mine-mouth` | 18 x 16 | 0, (1152, 4096) | L0: the way in, the travel cart's station, the rails from the rail gate to a buffer stop | the S5 shelf, cols 2-5 x rows 2-4, vines on its face (row 5, cols 3-4), its chest |
+| M2 Lamp Tunnel | `crystal-mine-m2-lamp-tunnel` | 18 x 16 | 0, (1152, 3072) | L0, dark: rails north-south (col 13), two voids (L-2) west of them, three sconces | - |
+| M5 Tally Room | `crystal-mine-m5-tally-room` | 18 x 16 | 0, (0, 3072) | L0, dark: four crystal pillars, the desk, a Gloomling on K1 | - |
+| M3 Survey Office | `crystal-mine-m3-survey-office` | 18 x 16 | 0, (0, 2048) | L0: the map chest on the surveyor's table, a Crystal Crawler | the shelf along the north wall (rows 2-4), reached only from M4's west shelf (Feral, wing 3) |
+| M4 the Great Shaft | `crystal-mine-m4-great-shaft` | 36 x 16 | 0, (1152, 2048) | L0, the gallery round the shaft (a void, L-2, cols 13-25 x rows 5-11), two braziers lit for good | the high ledge, cols 29-33 x rows 8-13 (key 2's chest); the west shelf, cols 2-4 x rows 2-5, vines on its face (row 6, cols 2-3) |
+| M6 Bat Gallery | `crystal-mine-m6-bat-gallery` | 36 x 16 | 0, (2304, 3072) | L0, dark: rails from the north doorway to the timbers, two Glint Bats over them, two sconces, the S3 nook in the south-west corner (rows 11-13, cols 2-5) walled off by crates, behind a web wall (*built*: its prize a chest, shown only to a save that never freed today's silk parcel) | the high walk: north leg cols 11-33 x rows 2-4, east leg cols 31-33 x rows 5-13; two Glint Bats on it |
+| M7 Ore Store | `crystal-mine-m7-ore-store` | 36 x 16 | 0, (2304, 4096) | L0: the Bone Leaper (west half), **the runaway cart** held at (23, 7) on rails along row 7 to the west doorway, its knock target at (23, 4.4), pots; ore carts and heaps | the crate loft, cols 26-33 x rows 2-5, a front flight down at row 6 (cols 27-28): the Pick Mole behind his crates |
+| M8 the Dark Maze | `crystal-mine-m8-dark-maze` | 36 x 32 | 0, (0, 0) | L0, dark: four corner candles, the void and the shadow path, two Gloomlings, three Glint Bats, the exit gate | the maze's inner walls (L1, crystal tops, two cells thick: *built*: north wall cols 7-21 x rows 9-10, west wall cols 7-8 x rows 11-29 to the south rim, east wall cols 22-33 x rows 17-18, the goal's enclosure), walked after Pearl 3 from M3's shelf to S1's chest on the north wall's east end |
+| M9 the Chasm | `crystal-mine-m9-the-chasm` | 18 x 16 | 0, (2304, 0) | L0: the chasm (L-2, cols 7-12), the raised drawbridge and its lens (the Bow), the Bone Thrower, the travel cart's other station | - |
+| M13 Shardback's Den | `crystal-mine-m13-shardback-den` | 18 x 16 | 0, (2304, 1024) | L0, dark: the Shardback (two braziers), a cart line across the den (its target by the west wall), Pearl 3 on its cradle | the ledge, cols 13-15 x rows 7-10, vines on its face (row 11, cols 13-14): the Feral skin's teach (*built*: the cart line along row 12.6 with its target past its east end and no buffer stop; the rim one doorway, cols 12-13) |
+| M11 Crystal Veil | `crystal-mine-m11-crystal-veil` | 18 x 16 | 0, (3456, 1024) | L0 the two landings (west cols 2-5, east cols 11-15), L-1 the rift between and along the south (vines on both faces: the test); the veil across the north doorway | - (*built*: the landings L1 along the north, the rift L0 between and south of them) |
+| M10 Prism Gallery | `crystal-mine-m10-prism-gallery` | 18 x 16 | 0, (3456, 0) | L0: the Prism Eye, the heavy ore crate, the journal chest, the veil's far brazier | - |
+| M12 the Fort Hall | `crystal-mine-m12-fort-hall` | 18 x 16 | 0, (4608, 1024) | L0, cobble: the Watcher Eye, the Bone Marcher, five armour statues, two watch-fires | the balcony along the north wall (rows 2-4, L1: today's L2 is two levels, a room's face is one), vines up its face at cols 5 and 12 (balconies where a climb rests), the big chest (*built*: fort stone walls, as the plan says) |
+| M14 the Shaft Floor | `crystal-mine-m14-shaft-floor` | 18 x 16 | -1, (2304, 2048) | L0: the calm room (pots, two hearts, an energy flower), the lift's lower landing, the boss door | the Den's broken rim, cols 11-14 x rows 2-4, the roots (vines) down its face (*built*: the ledge cols 11-14, its doorway cols 12-13, vines at row 5; the boss door in the north wall, cols 7-8) |
+| M15 the Colossus's Arena | `crystal-mine-m15-colossus-arena` | the Colossus lab's room | -1, (3456, 2048) | the lab's arena as it is: two down lines and the lower line, four braziers, the void dips, the roots on the north wall | - (*built*: the lab's world itself, 26 x 24, at (1984, 512) on floor -1, north of M14; its way in the lab's south nook) |
+
+Doors and crossings (room doors that scroll unless said; L0 unless said; both ends listed once):
+
+| From (side, cells, level) | To | Lock | Wing |
+|---|---|---|---|
+| M1 south, cols 8-9: `mine-entrance` (door.gd) | Crystal Caverns G4, `camp-mine-mouth` (one way while G4 enters today's Mine); the seal `crystal-mine-M1-mouth-seal` stands in it | the seal (Pearl 3's take until the Colossus falls) | 1 |
+| M1 north, cols 12-13: `m1-north` | M2 south, cols 12-13: `m2-south` | - | 1 |
+| M1 east, rows 6-7: `m1-east` | M7 west, rows 6-7: `m7-west` | the rail gate on both sides (`gate_id` `crystal-mine-ore-gate`, one record): only M7's runaway cart bursts it | 1 |
+| M1's shelf (L1) | - | the vines on its face (Feral) | 1 (painted), played in 3 |
+| M2 north, cols 12-13: `m2-north` | M4 south, cols 12-13: `m4-south-m2` | - | 1 |
+| M2 west, rows 8-9: `m2-west` | M5 east, rows 8-9: `m5-east` | - | 1 / 2 |
+| M4 south, cols 22-23: `m4-south-m6` | M6 north, cols 4-5: `m6-north` | - | 1 |
+| M4 south, cols 30-31, L1 (the ledge): `m4-south-ledge` | M6 north, cols 12-13, L1 (the high walk): `m6-north-walk` | from M4: the ledge is out of reach from the gallery (the High Line is the only way up); a drop off it lands on the gallery | 1 |
+| M4 north, cols 8-9: the Foreman's Gate (`key-door`, two keyholes, `door_id` `foremans-gate`, today's) + `m4-north` | M8 south, cols 26-27: `m8-south` | keys 1 and 2 | 1 / 2 |
+| M4 west, rows 2-3, L1 (the west shelf): `m4-west-shelf` | M3 east, rows 2-3, L1 (its shelf): `m3-east-shelf` | the vines up the west shelf's face (Feral) | 1 / 2-3 |
+| M4's shaft, the lift's upper landing | M14, the lift's lower landing (a crossing as a door is) | the lift worked once from below | 4 (*built*: M4 (22, 4.4) on the north lip, M14 (4, 4.4)) |
+| M6 south, cols 20-21: `m6-south` | M7 north, cols 20-21: `m7-north` | the rotten timbers on both sides (flag `crystal-mine.rotten-timbers`, today's): a Heavy Roll | 1 |
+| M6 south, cols 31-32, L1 (the walk): `m6-south-walk` | M7 north, cols 31-32, L1 (the loft): `m7-north-loft` | from M6's floor the walk is out of reach; the loft's stair is the only way up | 1 |
+| M5 north, cols 4-5 (cracked) | M3 south, cols 4-5 (cracked) | the Goo Bomb (flag `crystal-mine.survey-wall`, today's), a crack on both sides | 2 |
+| M3 north, cols 7-8, L1 (the shelf) | M8 south, cols 7-8, L1 (the west wall's top) | (the secret's way on; Feral at M4's shelf) (*built*: cols 7-8; the list had 4-5, the maze's west wall stands at 7-8) | 2-3 |
+| M8 east, rows 6-7 | M9 west, rows 6-7 | the maze's exit gate (`lantern-gate`, the four candles: today's group `dark-maze`) | 2 |
+| M1's cart station (`mouth`) | M9's cart station | the travel cart, between worlds as a door (wing 2's engine piece); it starts at the Chasm | 2 |
+| M9 south, cols 13-14 (the far rim) | M13 north, cols 13-14 | the Chasm's drawbridge (the lens, the Bow); the Den's fight shutter `crystal-mine-M13-den-shutter` while his fight lasts | 2 / 3 |
+| M13 east, rows 8-9, L1 (the ledge) | M11 west, rows 8-9 (the west landing) | the vines up the ledge's face (Feral: the teach) | 3 |
+| M13 south, cols 11-14 (the broken rim) | M14 north, cols 11-14, L1 (the rim's foot, the roots down) | the two rim shutters (`starts_shut`, sunk for good when he falls) | 3 / 4 (*built*: one doorway, cols 12-13, one shutter, the fight's reward) |
+| M11 north, cols 13-14 | M10 south, cols 13-14 | the crystal veil (its braziers: M11's east landing, M10's side) | 3 (*built*: a veil on each side, each opened by its own room's brazier) |
+| M11 east, rows 8-9 (the east landing) | M12 west, rows 8-9 | the rift (vines down and up: Feral) | 3 |
+| M14 east, rows 8-9: the boss door (`colossus-door`, today's) | M15 west (the lab's lobby) | the big key | 4 (*built*: M14 north, cols 7-8, to M15's south nook, `m15-south`) |
+| M15, the climb out (vines up the north-east wall) | Crystal Caverns H4, `lookout-from-mine` | the seal at its foot until he falls | 4 (*built*: today's root wall at (1344, 340), the seal at its foot) |
+
+**Keys and locks in order:** key 1 (M5's floor key, `tally-k1`, today's) and key 2 (M4's ledge,
+the chest with today's record `crystal-mine-M7-K2-chest`) open the Foreman's Gate (two keyholes);
+the Bow lowers the Chasm's bridge; the Shardback's fall (`crystal-mine-shardback`) gives Pearl 3 and
+the Feral skin, seals the mine and sinks the Den's rim shutters; the big key (M12's balcony, today's
+record) opens M14's boss door. The prizes keep today's records: the map's chest, S1 (moved to a maze
+wall top: 50 coins and the belt slot), S3 (*built*: a chest `crystal-mine-M6-S3-chest`, shown only while
+today's parcel flag `silk-parcel.crystal-mine:Objects/M6-S3-parcel` is unset, so it is never had twice), S4, S5, M10's journal page, the big key; Pearl 3 the
+Shardback's. No heart quarter.
+
+**What each room teaches or holds (wing 1):**
+- **M1:** the way in; the rail gate (shut, rails running under it) is in sight from the first step;
+  the travel cart's empty station ("The cart is at the far end of the line."); the S5 shelf and its
+  chest seen, out of reach (vines: Feral).
+- **M2:** the first dark room: the ember shows the two voids beside the rails; three sconces light it
+  for good.
+- **M4:** the hub, seen from its south doorway: the Foreman's Gate (two locks), key 2's chest on the
+  ledge in the south-east corner (no way up from the gallery), the shaft.
+- **M6:** dark; the floor's way runs along the rails to the rotten timbers (a Heavy Roll); the high
+  walk over it is out of reach. Later, on the walk in the dark, the bats wake under the slime's
+  light. S3: Silk.
+- **M7: the mechanism's teach.** A loaded cart held on its rails, its brake's rope running to a round
+  target; a pot thrown at the target lets it go: it rolls west, bursts the rail gate and rolls on
+  into M1 (seen there at its buffer stop, the gate burst on both sides): the short way back, for good.
+  Nothing on its line can go wrong (the slime is knocked aside, the Bone Leaper struck). The Pick
+  Mole on his crate loft; the loft's stair is the only way up, and the loft's north doorway starts
+  the High Line.
+
+**Checked against the plan's limits:** every target stands on the floor it is thrown from (M7's,
+M13's, M15's on L0); enemies stay on the level they are placed on (the walk's bats and the loft's Mole
+on L1); every face is one level (M12's balcony comes down from today's L2 to L1; M11's rift is L-1
+under L0 landings; M4's shaft is a hole); no ladder inside a world (stairs and painted vines only);
+no door in a face (every upper doorway is in a wall at its level's floor).
+
+### Engine pieces the Mine needs (that do not exist yet)
+
+| Piece | Wing | New art? |
+|---|---|---|
+| The crystal cave's door leaves (key1, key2, boss, shutter, seal, bolt, barricade) | 1 | Built without credits: the cave rock's leaves (the crystal frame was made from the cave rock's, so its doorway boxes are the same pixel for pixel) packed into `crystal-cave.webp`. A crystal set of its own is 7 renders if the owner wants it |
+| The runaway cart that rolls on into the next room (M7's cart leaves by the west doorway; M1 shows it at its buffer stop once it has run) | 1 | No (the cart's own pictures) |
+| Painted vines on a room's face inside a room world (M1's shelf, M4's west shelf) | 1 (checked), 3 | No |
+| The crystal cave's cracked wall, blown hole and stairs openings | 2 (M5 - M3) | The cracked and blown pieces can be made from the plain frame by a script (as `make-root-cracked.py`); a stairs opening needs a render |
+| The travel cart between worlds (`mine_cart.gd` and `mine_travel.gd` travel as a door does) | 2 | No |
+| The Shardback answers the cart (`on_mechanism_hit(&"cart")`: brittle in the fire light, his shell shatters in one blow) | 3 | Maybe: a shattered-shell pose (his sheet has a stun) |
+| Balconies in a room world (M12's climbs) | 3 | No (the balcony pictures by wall style; crystal rock's exists) |
+| The ore lift between worlds | 4 | No (*built*: `ore_lift.gd` `partner_world`) |
+| The Colossus's arena: the lab's room carried into M15 with `plate_fight` on | 4 | No (*built*: the lab's scene saved as the room) |
+
+### Wing 1, the Mouth and the High Line: what is built (2026-11-25)
+
+The five rooms of the list (M1, M2, M4, M6, M7), their layout and their Dungeon scene, beside today's
+Mine; how to run it and what each room holds:
+[DUNGEONS.md, "The Crystal Mine rebuilt"](../godot/DUNGEONS.md#the-crystal-mine-rebuilt-wing-1-the-mouth-and-the-high-line-step-4-2026-11-25).
+
+| Piece | Files |
+|---|---|
+| Rooms (first versions; hand-edited from now on) | `godot/game/scenes/worlds/rooms/crystal-mine-rooms/{m1-mine-mouth,m2-lamp-tunnel,m4-great-shaft,m6-bat-gallery,m7-ore-store}.tscn`, `layout.tscn` (wing 1's five rooms; later wings add theirs); `scene_index.json` (five `world.crystal-mine-*` lines) |
+| Elevation caches (new, to commit) | `godot/game/scenes/worlds/elevation_cache/rooms__crystal-mine-rooms__*.res` (all five) |
+| Their builder | `godot/tools/build_crystal_mine_rooms.gd` (refuses to overwrite a room without `--force`) |
+| Dungeon node | `godot/game/scenes/objects/dungeon/crystal-mine-dungeon.tscn` (`dungeon_id`, `record_map_id` `crystal-mine`; entrance M1; the seal's colour, roar and dust as today's) |
+| Walk and films | `godot/tools/film_crystal_mine_rooms.gd` (`--film=walk|cart|look`) |
+| Shared code changed | `godot/game/crystal_mine/ram_cart.gd`: `rolls_out` (the cart rolls on out through a doorway, gone for good) and `arrives` (the same cart seen at the next room's buffer stop once it has run): the teach needs the cart to cross from M7 into M1, and a cart that ended in the doorway would block it; a spent cart built again leaves its target slack. Both off by default: every placed cart as it was |
+| Art (no credits) | `scripts/art/pack-interior-walls.py`: the crystal cave takes the cave rock's door leaves (the crystal frame has the cave rock's layout); `godot/asset/MAPS/walls/interior/crystal-cave.webp`, `interior-walls.json`, `palette.png` repacked, `game/world/interior/interior_wall_tileset.tres` (seven new tiles in column 5: the leaves' rows), `palette.res` and `trim-palette.res` saved again by `tools/pack_interior_palette.gd` (it writes both; the trims' picture is not changed by this work). The other styles' tables are byte for byte as before; the crystal cave's old pieces sit where they were, within the webp's encoding noise (mean 1.2 levels in 255) |
+
+**Proof.** `--film=walk` passes all 41 of its checks, run after the last scene edit
+(`output/dungeon-rework/mine/walk/`: `strip.png`, its 16 step pictures in one sheet, and `walk.json`;
+the step pictures deleted): M1's rail gate holds; without Feral the shelf's vines are no way up; M2's
+three lamps lit with the Lantern (lit for good); a step into its void costs 10 and puts the slime back;
+the Foreman's Gate holds without keys; the ledge out of reach from the gallery; the west shelf's vines
+no way up; M6's walk out of reach from its floor; the timbers hold, a Heavy Roll smashes them (shown
+smashed on M7's side too); the Spear only knocks on M7's target (the cart stays held) and does nothing
+to the rail gate; a pot at the target: the target knocked, the cart bursts the gate and rolls out,
+spent; west through the burst gate into M1, the cart at M1's buffer stop, M1's gate burst; back east;
+up the loft's stair (level 1), its north doorway onto M6's high walk (level 1), along both legs, its
+north doorway onto M4's ledge (level 1), key 2 from the chest; a drop off the ledge lands on the
+gallery unhurt; key 2 opens one of the Foreman's Gate's two locks and it holds; out through M2 and M1
+to the camp (G4). Staged: enemies calmed, health kept full, the slime put near each step; the pot at
+the target is made by the tool behind the slime (the room's pots stand beside it).
+
+**The cart's teach, filmed** (`output/dungeon-rework/mine/cart-film/`: `strip.png`, `film.gif`,
+`film-slow.gif`, `film.json`, `cart.json`, `m7-after.png`, `m1-after.png`; the frames looked at, then
+deleted): PASS. The Spear's knock first, then the pot; the brake lets go at 0.8 s, the cart rolls from
+0.9 s, bursts the gate at 3.5 s (splinters, dust) and has rolled out by 3.8 s; M1 after: the cart
+against its buffer stop, the gate burst.
+
+**Rooms:** as the editor shows them, `output/dungeon-rework/mine/rooms/<room>.png` (M2 and M6 without
+their darkness), and in the game `rooms/game/look-<room>.png` (M2 and M6 with their lamps lit), every
+one looked at.
+
+**Weakest three.**
+1. **The voids are flat black.** M2's two pits and M4's shaft draw the abyss: their far wall shows
+   for 110 units and fades, their sides are cut straight; M4's shaft is a big black box in the hub's
+   middle that reads as a hole, not as a deep shaft with its roots and the lift going down. The shaft
+   is a void (a fall costs 10) until wing 4 makes its floor a world of its own and the lift joins them.
+2. **The burst rail gate narrows its doorway** to the gap between its posts (about 74 units): a slime
+   walking along the doorway's upper edge snags on a post (the walk had to line it up on the rails, row
+   7.35). It is the gate's built shape (its posts always block), first used in a side doorway here.
+3. **Nothing in it has been played with a keyboard,** and its enemies are calmed in the walk: the
+   bats on M6's three-cell walk in the dark (can they knock a slime off? the walk's edge holds a body
+   until it pushes on), the Pick Mole on his loft, the Bone Leaper on the cart's line. Also: M6's walk
+   runs along the north and east walls, so it has a drop on one side only (the sketch's free-standing
+   leg, drops on both sides, would have cut the floor's east strip off: no way in or out of it).
+
+**Changed from the plan and the list, and why.**
+- **The folder is `rooms/crystal-mine-rooms/`**, not `rooms/crystal-mine/` (today's dead copies live
+  there under the same names, which this case-blind disk would have mixed up).
+- **The cart rolls on into M1** (new: `rolls_out`, `arrives`): the plan's "bursts the rail gate into
+  M1" crosses two worlds; the cart is gone from M7 and stands at M1's buffer stop, one record.
+- **M6's high walk** runs along the north and east walls (above), and **S3's nook** moved from the
+  east wall (where the walk's east leg now runs) to the south-west corner, walled off by crates and
+  its web wall, as the Hollow's B3 nook (a wall stub inside a room would need four cells to show both
+  faces).
+- **M4's shaft is a void**, its floor (today's M14, the calm room and the boss door) a world of its own
+  in wing 4 (a room's face is one level high, the shaft two). **S1's spire and lens** are not in the
+  shaft: S1's chest moves to the Dark Maze's wall top (the plan), its record kept for wing 3.
+- **M4's ore line** runs along the gallery's south side between its two south doorways (the mine's
+  rails pass through); **M1's travel cart** station is placed, its line to the Chasm wing 2's.
+- **The voids draw the abyss** (the Hollow's draw cavern stone): the Mine's floor is cavern stone, so a
+  hole floored with it read as a step down.
+
+**Art found missing:** none for wing 1. The crystal cave's door leaves are the cave rock's (above);
+if the owner wants crystal ones of their own: seven GPT 2.5 renders, about 40 credits each (280 in
+all), each "exactly the first reference image (`cave-bevel-leaf-<kind>.png`) ... the only change is the
+material: the frame is dark blue slate packed with glowing icy-blue and violet crystals (second
+reference `crystal-bevel-doorways-b.png`); the door in every opening stays exactly as it is", transparent.
+For wing 2: the crystal cave's cracked wall and blown hole (made from the plain frame by a script, as
+`make-root-cracked.py`, no credits); no stairs opening is needed (M9 to M13 is a doorway between two
+worlds).
+
+**For the owner, in the editor.** Focus the editor once (the five room scenes, their caches, the
+layout, the Dungeon scene, the two tools import; the tools' `.gd.uid` files are written then, to
+commit; the repacked `crystal-cave.webp` is read from its file until then). Reload before a save-all if
+open: `game/crystal_mine/ram_cart.gd`, `interior_wall_tileset.tres`, and any crystal-cave room
+(the Gloop Cavern, the Caverns' caves, the silk nook's cave: their walls are unchanged). No test run;
+not played with a keyboard.
+
+### The reviewer's read of wing 1 (2026-11-25): accepted, five polish points
+
+The code was accepted (`ram_cart.gd`'s `rolls_out` / `arrives`, the borrowed leaves, the folder, the
+cart in M1, M6's walk, M4's shaft as a void, the two chests' records, all 14 doors paired, the walk
+after the last scene edit). The five points, done (the five rooms rebuilt one at a time with
+`--force`: none had been edited by hand), the rooms rendered and pictured again:
+
+1. **The voids were flat black boxes.** New, presentation only: `game/dungeon/pit_depth.gd`
+   (`PitDepth`), laid over each hole right after the `ground` layer at z -2, so the room's own faces
+   round the hole draw over it: from their foot the dark falls off smoothly to black (two gradient
+   bands, the far wall seen a little deeper), dust drifts down and fades as it sinks, faint crystal
+   glints twinkle deep down. The void hazards keep catching (their own flat abyss off). The Colossus
+   lab's dips and the sky floor were looked at first: the dips are the same flat black, the sky floor
+   is clouds. It can also hang ropes from the far rim (`cables`): tried as the lift's cables in M4's
+   shaft, taken out (they hung from the top of the crystal face with nothing to hang from; the lift
+   brings its own in wing 4). Best without art; a painted look down a shaft would need a picture
+   (below, "Art").
+2. **The tall plain boards** (the village houses' wall planks, `interior-structure-beam-wood*`) are out
+   of every room: the project has no mine timber set (posts and a cap beam) that reads as a pit prop at
+   a two-cell wall, and stretching the house posts would show. Crates, lumber, barrels, an ore heap and a
+   toolbox stand in their places.
+3. **M6's pale strip and bundle** were S3: the web wall (the Silk skin's lock, today's Mine's S3) and
+   the silk parcel behind it. The lock stays a web wall (it is the only Silk lock there is; the Silk
+   skin is Chapter 2's, used here for a first-half secret), across a nook now three rows tall walled
+   off by crates, its strip off the trim's row (a barrel closes the row under it). The prize is a
+   chest in the Mine's look (`crystal-mine-M6-S3-chest`, 30 coins and an energy potion, today's
+   parcel's), inside a StoryVariant shown only while today's parcel flag
+   `silk-parcel.crystal-mine:Objects/M6-S3-parcel` is unset, so a save that freed the parcel never has
+   it twice.
+4. **The burst rail gate.** `game/crystal_mine/rail_gate.gd` `posts_solid_when_smashed` (on by default:
+   the lab's gate, on open floor, keeps its blocking posts) is off on the Mine's two gates: they stand
+   in side doorways whose jambs already block beside the passage, and once burst their posts no longer
+   narrow it (they still stand in the picture). The walk crosses M7 to M1 at row 6.65 and M1 to M7 at
+   row 7.4, off the rails (row 7), near the doorway's two edges; the doorway's own passage is 120 units
+   tall, so a slime placed higher than 6.65 meets the jamb, not a post. The lab's gate: its default is
+   unchanged and nothing else in `_open()` changed (not filmed again).
+5. **Doors into rooms not built yet:** a room door whose room is not on the layout has no target world
+   (`room_door.gd` `target_world()` returns ""), and `door.gd` never travels without one (it is an
+   arrival point only, line 207): the slime walks into the passage and stops there, inside the room.
+   M2 west, M4 north and M4's west shelf led nowhere this way until wing 2 put M5, M8 and M3 on the
+   layout; the Foreman's Gate is a key door (shut until keys 1 and 2). Today the only such door is M9's
+   south doorway (the Den, wing 3): the walk pushes into it for 1.5 s and checks the slime is still in
+   M9, inside its bounds.
+
+### Wing 2, the Lantern's half: what is built (2026-11-25)
+
+M5, M3, M8 and M9 to the list (their changes below), on the layout with wing 1's; how to run them and
+what each holds: [DUNGEONS.md, "Wing 2, the Lantern's half"](../godot/DUNGEONS.md#wing-2-the-lanterns-half-2026-11-25).
+
+| Piece | Files |
+|---|---|
+| Rooms (first versions; hand-edited from now on) | `rooms/crystal-mine-rooms/{m5-tally-room,m3-survey-office,m8-dark-maze,m9-the-chasm}.tscn`; `layout.tscn` rewritten (`--layout --force`, no hand edits: nine rooms); `scene_index.json` (four more lines); M1 rebuilt (its station joined to the Chasm's, its arrival point) |
+| Elevation caches (new) | `rooms__crystal-mine-rooms__{m3-survey-office,m8-dark-maze,m9-the-chasm}.res` (M5 has no levels), the wing 1 rooms' baked again |
+| Builder, films | `tools/build_crystal_mine_rooms.gd` (wing 2's rooms, `_pit`, `_crack`, `_arrival`, `_variant`), `tools/film_crystal_mine_rooms.gd` (the walk through both wings, `--from=wing2`, `--film=ride`) |
+| New code | `game/dungeon/pit_depth.gd` (point 1) |
+| Shared code changed | `game/crystal_mine/mine_cart.gd`: `partner_world`, `partner_station`, `partner_door`: the travel cart rides between the Chasm's world and the Mouth's as a door does (`request_exit`, a fade), its place kept under the dungeon's record; off, as before (today's Mine, the smith's cart: `smith_cart.gd` compiles unchanged); the station it leaves says nothing as the slime rides off. `game/crystal_mine/rail_gate.gd`: `posts_solid_when_smashed` (point 4) |
+| Art (no credits) | new `scripts/art/make-crystal-openings.py` and its two pictures `asset/Originals/dungeon-kit/interior-walls/crystal-bevel-{cracked,blown}-made.png` (both pass `strip-credentials.py --check`); `scripts/art/pack-interior-walls.py` packs them for crystal-cave; `crystal-cave.webp`, `interior-walls.json`, `palette.png`, `interior_wall_tileset.tres`, `palette.res`, `trim-palette.res` written again (the other styles byte for byte as before; the crystal cave's old pieces within the encoding's noise, a mean of 1.4 in 255; four `*_doorway_front` pieces and the leaves moved in the sheet, the table says where) |
+
+**Proof.** `--film=walk` from M1 passes all 82 of its checks, run after the last scene edit
+(`output/dungeon-rework/mine/walk/`: `strip.png`, its 29 step pictures in one sheet, and `walk.json`;
+the step pictures deleted): wing 1's 41 (the burst gate now crossed off the rails, near both edges) and
+wing 2's 41: the Tally Room's crack holds, key 1 where the Gloomling sat, a Goo Bomb blows the crack
+(today's flag), the Survey Office's map, its shelf out of reach from the floor, back to the hub, key 1
+opens the Foreman's Gate's second lock and the slime walks through into the maze; the exit gate holds
+while the candles are cold, the wall tops out of reach from the floor, the four candles lit with the
+Lantern open the gate for good, through it and the enclosure's east doorway into the Chasm; the bridge
+stands raised, a step into the chasm costs health and puts the slime back, the Bow's arrow over the
+chasm strikes the lens, the bridge comes down for good, across it; the Den's doorway (wing 3) stands
+without loading a world, the slime still in M9; the cart rides from the Chasm to the Mouth and back,
+standing at the station it rode to; back through the maze and the gate to the hub; with the Feral skin
+lent (as Pearl 3 gives it), up the vines onto the hub's west shelf (level 1), its doorway onto the
+Survey Office's shelf (level 1), the shelf's doorway onto the maze's west wall (level 1), north along its
+top, east along the north wall's top, S1's chest opened and emptied, a drop off the west wall's side to
+the floor; out through the maze, the hub, the Lamp Tunnel and the mouth to the camp. Staged: enemies
+calmed, health kept full, the slime put near each step; the four candles lit by putting the slime by
+each in turn; S1's two things taken as the chest window's buttons take them. `--from=wing2` plays wing 2
+alone (key 2 given).
+
+**The travel cart, filmed** (`output/dungeon-rework/mine/ride-film/`: `strip.png`, `film.gif`,
+`film-slow.gif`, `film.json`, `ride.json`; the frames looked at, then deleted): PASS: the interact key at
+the Chasm's station, the fade, the Mouth's world fading in with the cart at its station and the slime
+beside it.
+
+**Rooms:** all nine rendered again as the editor shows them (`output/dungeon-rework/mine/rooms/`, the
+dark ones without their darkness) and pictured in the game (`rooms/game/look-<room>.png`, the dark ones
+with their lamps lit; M5 and M8, which stay dark for good, pictured with `--bright`: their darkness
+hidden, so their floors show).
+
+**Weakest three.**
+1. **The Dark Maze is a few walls in the dark**, as today's: three long walls and the goal's
+   enclosure on a 32 x 28 floor. It is a maze only in the dark (the ember's small circle); lit, its way
+   is plain. Its walls are now two cells thick (one-cell raised strips read as narrow walks and would
+   be walked on top in the second half), which takes room from the corridors.
+2. **The four candles in 60 s are staged**: the walk puts the slime by each candle in turn (its game
+   time between the first and the last flame is a few seconds). Walked, the way from the south-east
+   candle round to the south-west one is about 75 cells through the maze; nobody has timed it with a
+   keyboard. The Gloomling on the north-west candle had to be driven off by standing in the Lantern's
+   light for 2.5 s first (its smothered wick refuses the flame meanwhile).
+3. **The voids are deeper but still drawn by code**: the dark falls off over two gradient bands with
+   dust and glints, the hole's sides are the room's one-cell faces. It reads as a hole with walls going
+   down, not as a painted mine shaft with timbering. Also: M9's bridge, crossed over the chasm's depth
+   look, draws as the kit's planks (not filmed close).
+
+**Changed from the list, and why.**
+- **M3's north doorway and M8's south shelf doorway are at cols 7-8** (the list: 4-5): the maze's west
+  wall, whose top the secret walks, stands at cols 7-8 and runs down to the south rim to meet it.
+- **M8's walls** (the list: "inner walls (L1)"): north wall cols 7-21 x rows 9-10, west wall cols 7-8 x
+  rows 11-29, east wall cols 22-33 x rows 17-18, the enclosure (cols 26-27 x rows 2-9; its south wall
+  rows 8-9 with the gate's gap at cols 30-31), all two cells thick, crystal tops; the void cols 12-21 x
+  rows 12-22. Today's maze's walls were one cell thick, its west wall short of the south rim.
+- **M9's lens stands on the far rim's edge** ((13.6, 8.0); today's lay a cell further east): the Bow's
+  arrow carries 512 units, and from the near rim's edge the lens must be within it.
+- **The wall-top secret is built and walked now** (the reviewer's choice offered: build the wall tops and
+  S1 now, leave the climb to the Feral wing): the climb itself is the vines painted on M4's west shelf in
+  wing 1, which only the Feral skin climbs; the walk lends the skin (as Pearl 3 gives it) to prove the
+  way: the vines, M3's shelf, the maze's west and north wall tops, S1's chest, a drop to the floor.
+  Nothing else waits for wing 3.
+- **S1's chest** stands on the north wall's top at its east end ((20.6, 9.4)), its glint over the maze.
+  A drop south off that wall lands in the void (one row of floor lies between them): a fall, 10 health.
+
+**Art.** None missing for wing 2 (the cracked and blown pieces are made, above). For point 1, if the
+owner wants the shaft painted rather than drawn: one GPT 2.5 still, about 40 credits: "top-down view
+straight down a deep square mine shaft, dark blue slate walls with glowing icy-blue and violet crystal
+veins and old timber cribbing receding into black darkness, faint dust in the air, hand-painted game art
+matching the reference (crystal-bevel-doorways-b.png), seamless edges, transparent outside the shaft",
+laid in the hole under the faces as the depth look's floor.
+
+**For the owner, in the editor.** Focus it once (four new room scenes, their caches, the new scripts and
+pictures import; `.gd.uid` files written then). Reload before a save-all if open: any of the nine
+rooms, `layout.tscn`, `mine_cart.gd`, `rail_gate.gd`, `interior_wall_tileset.tres`. No test run; not
+played with a keyboard.
+
+### The reviewer's read of wing 2 (2026-11-25): accepted, four points
+
+The fix round, the travel cart, the rail gate, S3, the doors and wing 2 were accepted in code. The four
+points, done:
+
+1. **M8 is a maze now.** Lines of crystal clusters (the `crystal walls` props, one cell each, at 1.25 so
+   their collision, 60 x 55 in a 64-unit cell, closes each cell to the 30-wide slime) part the floor
+   into branches and dead ends: the north-west candle in a nook behind two lines, the north-east one
+   in a nook off the north corridor, the south-east one in a pocket by the way in, the south-west one
+   at the foot of a zigzag down the west strip; dead ends with something in each (S4's chest and its
+   Gloomling at the end of the strip under the void, pots in the zigzag's bays, an ore heap and pots in
+   the bay by the way in, lumber and a pot behind the north corridor's stub, a Gloomling, an ore heap
+   and a pot in the north-east hall's pocket). Not the Lair's fort-stone dividers: they are the only
+   divider art there is, cream masonry, and would read wrong in the crystal mine; the crystal clusters
+   are the mine's own walls. The raised walls and S1's wall-top route are as built; the void shrank
+   to cols 14-21 x rows 14-22: a raised wall's front face fills the cell south of it, its side and back
+   faces about half the cells beside and north of it, and a hole keeps a rim round it, so the first
+   corridors (row 11 between the north wall and the void, col 11 beside it) were closed (found when the
+   walk first walked them; the maze is laid with those cells counted as blocked).
+2. **The candles' time, worked out.** Measured on the new maze (a grid walk of its free cells, the
+   faces counted as blocked): the best order from the way in is south-east, north-east, north-west,
+   south-west; from the first flame to the last 128 cells = 8192 units = 45.5 s at the slime's 180
+   units a second (`player.movement.baseSpeed`), plus about 2.5 s holding the Lantern on the
+   north-west candle's Gloomling and four flames (about 0.5 s each): **about 50 s**. The limit is
+   **90 s** (`MAZE_CANDLE_MS`, each candle's `burn_ms` in the scene): 40 s for wrong turns and a bat.
+   The walk lights them by walking the route (no placing): **49.8 s** from the first flame to the last,
+   138 cells walked, all four lit at once, the gate open.
+3. **Key 1's record:** `crystal-mine:key:tally-k1` in both: the floor key's record is
+   `DungeonState.object_key(key, "key:" + pickup_id)`, keyed by the dungeon's record id, and the new
+   M5's key has today's `pickup_id` `tally-k1` under the record `crystal-mine`, as today's one-scene
+   world (its map id `crystal-mine`). The same record: an old save that took key 1 never gets it again.
+   Nothing changed.
+4. **The crystal crack toned to the wall:** `make-crystal-openings.py` lays the Goo Bomb's crack decal
+   thinned (its alpha eroded 3 px), filled with the frame's dark blue (`#0e1634`), a pale blue edge
+   (`#96c4f0`, 55 %) one pixel below and right, once and at 90 % (it was the decal's brown laid twice
+   with a shadow). Compared side by side at the sheet's size and at game size with the cave rock's
+   (a crack drawn into its stones' joints, the faintest) and the root rock's (the brown decal): the
+   crystal's now reads as dark lines through the crystals, about as strong as the root rock's. Both
+   pictures pass `strip-credentials.py --check`; the crystal sheet repacked.
+
+### Wing 3, the Den and the Feral half: what is built (2026-11-25)
+
+M13, M11, M10 and M12 to the list (changes below), on the layout; what each holds and how it plays:
+[DUNGEONS.md, "Wing 3"](../godot/DUNGEONS.md#wing-3-the-den-and-the-feral-half-2026-11-25).
+
+| Piece | Files |
+|---|---|
+| Rooms (first versions) | `rooms/crystal-mine-rooms/{m13-shardback-den,m11-crystal-veil,m10-prism-gallery,m12-fort-hall}.tscn`; `layout.tscn` rewritten (13 rooms); `scene_index.json` (four more lines); M8 rebuilt (point 1); M9's south doorway now leads to M13 |
+| Elevation caches (new) | `rooms__crystal-mine-rooms__{m13-shardback-den,m11-crystal-veil,m12-fort-hall}.res` (M10 has no levels); M8's baked again |
+| Builder, films | `tools/build_crystal_mine_rooms.gd` (wing 3's rooms; a room's own wall style and trim, `ROOM_STYLES`: the Fort Hall in fort stone; the maze's partitions, void and candles' time as constants), `tools/film_crystal_mine_rooms.gd` (the walk through all three wings, `--from=wing3`, `--film=shardback`, the candle run walked, a page's window closed as Escape does, energy kept full with health) |
+| Shared code changed | `game/scripts/shardback.gd`: `on_mechanism_hit(&"cart")` (brittle: his shell shatters, he falls; cold: a clang, a stagger: a `stagger` phase, his walk frame rocked), his slam knocks a crystal chunk loose (`slam_chunk_kind`, at most `slamChunksMax`, off a cart's line and the lane to its target): the plan's "the cart shatters his shell" and the rule that a throw fight has ammo that renews. In today's Mine and his pen his slams now leave chunks too (harmless: things to throw); no cart there. `game/data/enemy-types.json`: his ten new numbers (`cartShatterDamage`, `cartShatterShakeMs`, `cartShatterShake`, `cartColdDamage`, `cartClangShakeMs`, `cartClangShake`, `cartStaggerMs`, `slamChunksMax`, `slamChunkOffsetPx`, `slamChunkRailClearPx`) |
+| Docs | DUNGEONS.md (wing 3, the maze, the candles' time, the hooks' list), BESTIARY.md row 28, INTERIOR_WALLS.md (the crack's tone), AGENTS.md (the films), this handover |
+
+**His frames:** none faked. The shattered shell is his own defeat frame (frame 3 of
+`256x256-tile_16x1-shardback.webp`: the shell burst into a heap of crystal), shown as he falls, with the
+crystal burst, the `BreakGlass` cue and a hard shake; the cold clang's stagger is his walk frame rocked
+and shaken (no stagger frame exists). If the owner wants the blow itself drawn: two or three frames
+(the shell cracking open under the blow, shards flying, the tortoise thrown on its side), one GPT 2.5
+sheet, about 40 credits: "the crystal-shelled tortoise from the reference sheet, three frames in a row:
+struck from behind by a mine cart, its crystal shell cracking with orange-hot light in the cracks;
+the shell bursting, shards flying up; lying on its side, the shell in pieces round it; same style,
+same scale, transparent background".
+
+**Proof.** `--film=walk` plays wings 1 to 3 from M1 and passes all 126 of its checks (166 steps),
+run after the last scene edit: the candle run (49.8 s walked, 138 cells), the Den's shutter, the vines
+refused without the skin, the Spear only knocking on the target, the cold clang (140 to 130, a stagger),
+the cart hauled back and the target rearmed, a slam's chunk, the brittle shell, one blow, both shutters
+open, Pearl 3 and the seal, the rift's climbs, the veils with and without their braziers, the Prism Eye
+untouched by a throw, the journal page, the big key, the drop off the balcony, the Den's rim leading
+nowhere yet, the wall-top secret walked with the route's skin, the sealed mouth. `--from=wing3` passes
+alone too. `--film=shardback` films the blow frame by frame (PASS): the strip and two GIFs in
+`output/dungeon-rework/mine/shardback-film/` (`strip.png`, `film.gif`, `film-slow.gif`, `film.json`).
+The walk's strip and `walk.json` in `output/dungeon-rework/mine/walk/`; the rooms drawn whole in
+`output/dungeon-rework/mine/rooms/` (all 13), the game's view of each in `rooms/game/`. Frames and step
+pictures deleted.
+
+**Changed from the list, and why.**
+- **M13's broken rim is one shuttered doorway, cols 12-13** (the list: cols 11-14, two shutters): a room
+  fight's `reward` is one node; its other end in M14 (wing 4) is one doorway too.
+- **M13's target stands past the line's east end, the rope along the rails, no buffer stop** (the
+  list: "its target by the west wall"): the slime baits him along the rails toward it and he stands
+  between the cart and the slime when it strikes (the Hollow's B5, accepted); the buffer stop would
+  stand between the slime and the target and catch the throw (found in the film: the pot broke on it),
+  so the cart halts at the rails' end a cell short of the target.
+- **M11's landings are L1 and the rift L0** (the list: landings L0, the rift L-1): the same one level;
+  vines climb front faces only, so the landings are along the north and the rift south of them; the
+  Den's ledge (L1) carries its level onto the west landing.
+- **M10 has a veil and a brazier on its own side** (the list: "the veil across the north doorway,
+  its braziers on M11's east landing and M10's side"): the two rooms are worlds, a veil opens for the
+  braziers of its own world.
+- **M12's balcony is L1** (as the list said), its walls fort stone (the plan: "fort stone in the Fort
+  Hall"); no balcony pieces are painted: every climb is one level.
+- **The wall-top secret is walked in wing 3**, after Pearl 3, with the skin the route gave (in wing 2 the
+  walk had lent it); wing 2's walk now ends with the cart back at the Chasm.
+
+**The painted shaft (the owner's yes, 2026-11-25): made, 40 credits** (one GPT 2.5 still, 16:9, 1k,
+the first one kept; the style reference a crop of M4's render). Source
+`asset/Originals/dungeon-kit/pits/mine-shaft-a.png` (stripped: 4.7 MB to 2.0 MB; leaves git with the
+folder), packed by the new `tools/pack_pit_picture.gd` into `godot/asset/MAPS/interiors/mine-shaft.res`
+(2.5 MB, a texture resource: no import, as the interior palette). `pit_depth.gd` gains `picture`,
+`picture_margins` (it begins at the faces' inner edge: drawn over the whole hole it covered them) and
+`picture_dark`; M4's scene and the builder set it. Before and after:
+`output/dungeon-rework/mine/shaft/m4-before-after.png`, close: `m4-after-close.png`. M8's void could take
+a square crop of it; M9's chasm (a rift with a bridge) not; no credits spent there.
+
+**For the owner, in the editor.** Focus it once (four new rooms, their caches, the changed scripts
+import). Reload before a save-all if open: any of the 13 rooms, `layout.tscn`, `shardback.gd`,
+`enemy-types.json`, `interior_wall_tileset.tres`. No test run; not played with a keyboard.
+
+### The reviewer's read of wing 3 (2026-11-25): accepted
+
+The four fixes and wing 3 were accepted (`shardback.gd`'s cart hook, stagger and slam chunks, his ten
+numbers; M8's partitions and the candle run; key 1's record; the crack's tone; M13's target past the
+rails' end, its one rim doorway; M11's levels; M10's own veil and brazier; the Fort Hall in fort stone;
+the walk's 126 checks; the painted shaft, 40 credits). His defeat frame as the shattered shell stands
+for now; the three drawn frames are the owner's call, not asked yet. Asked in the read: **M5's and M8's
+dark rooms list no candles**, so nothing ever lifts their dark. Meant: carried over from today's Mine,
+whose `dark-M5-tally-room` and `dark-M8-dark-maze` list none either (only M2, M6 and M15 do); M5 is
+"dark for good" in the list, and M8's four candles open its gate, each lighting its own pool. How dark
+rooms brighten is being settled with the owner; nothing here changed `dark_room.gd`, `candle.gd` or the
+candles' numbers.
+
+### Wing 4, the Shaft and the Colossus: what is built (2026-11-25)
+
+M14 and M15 on the layout's floor -1; the ore lift between M4 and M14; the walk through all four wings
+from the camp in G4; his fight filmed in the room. What each room holds and how it plays:
+[DUNGEONS.md, "Wing 4"](../godot/DUNGEONS.md#wing-4-the-shaft-and-the-colossus-2026-11-25).
+
+| Piece | Files |
+|---|---|
+| Rooms (first versions) | `rooms/crystal-mine-rooms/{m14-shaft-floor,m15-colossus-arena}.tscn`; M4 rebuilt (the lift's upper landing and its arrival point; nothing else changed); `layout.tscn` rewritten (15 rooms; M14 and M15 on floor -1); `scene_index.json` (two more lines) |
+| Elevation caches (new) | `rooms__crystal-mine-rooms__{m14-shaft-floor,m15-colossus-arena}.res` |
+| Builder | `tools/build_crystal_mine_rooms.gd`: `_m14`; `_build_m15` loads the Colossus lab's scene and saves it as the room with the mine's pieces (below); `_lift` |
+| Films | `tools/film_crystal_mine_rooms.gd` (the walk from G4 through all four wings, `--from=wing4`); `tools/film_colossus_arena.gd` (new: `film_colossus.gd`'s films in M15, four with PASS or FAIL); `scripts/godot/film-colossus.sh` (`--tool=film_colossus_arena`); `tools/render_room_scene.gd` (a room without interior walls, M15, rendered at its world's size, not 18 x 16) |
+| Shared code changed | `game/crystal_mine/ore_lift.gd`: `partner_world` and `partner_door` (the lift rides to a landing in another world as a door does, its states under the dungeon's record, as `mine_cart.gd` does since wing 2); empty, every lift as it was (today's Mine's) |
+| Docs | DUNGEONS.md (wing 4, the ore lift's line, the plate fight's status, the M4 row, Not done yet), AGENTS.md (the films), this handover |
+
+**M15 against the lab, to the decimal.** The room is the lab's scene loaded and saved again, so every lab
+node keeps its numbers; a line-by-line diff of the two scenes (resource ids aside) shows only:
+
+| Lab (`colossus-lab.tscn`) | M15 (`m15-colossus-arena.tscn`) |
+|---|---|
+| root `colossus-lab`, no script | root `m15-colossus-arena`, `room_scene.gd` (`world_id`, `room_id`) |
+| `map_id` `colossus-lab` | `crystal-mine-m15-colossus-arena` |
+| camera room `hall` | named as the room (`wall_bands` off, as every mine room) |
+| `Objects/lobby-note` | gone |
+| `ColossusArena`: `camp_id`, `boss_id` `colossus-lab`; `refights` on; `seal_cells` none | today's ids (`crystal-mine-colossus`, `crystal-colossus`: the script's defaults); `refights` off; `seal_cells` (800, 1376), (864, 1376); `climb_wall` `../M15-root-wall` |
+| `Dungeon` (`dungeon.tscn`, `colossus-lab`) at (828, 1330), `dungeon-entrance` | `Dungeon` (`crystal-mine-dungeon.tscn`) at (828, 1330); no entrance marker (M1's) |
+| the nook, cols 12-13, rows 21-22 | cut on through row 23 (ground and elevation), `RoomDoors/m15-south` at (832, 1536) |
+| - | `M15-root-wall` (1344, 340), top (0, -312), art (104, 300), to H4 `lookout-from-mine`; `M15-climb-out-seal` (1344, 324); `M15-full-heart` (832, 640); `MusicPlayer` |
+
+Unchanged, among the rest: the arena at (832, 862), `arena_rect` (64, 320, 1536, 1024), `floor_rect`
+(192, 320, 1280, 1024), `wall_rect` (64, 64, 1536, 296), `post` (0, -40), `climb_spots` (640, 300) and
+(1024, 300), the carts, targets, braziers, roots, the 14 pots (their loot: all 14 `loot` lines and all
+14 `[editable path]` lines kept), the dips at (64, 320) and (1472, 320), `dark-hall` 0.6, the spawn.
+His encounter's values are on the arena node itself (a plain node of the room, no instance), and the
+full heart is the room's own nodes, so no value of the fight hangs on an inner node behind an
+`[editable path]` line.
+
+**Proof.** `--film=walk` plays all four wings from the camp in G4 and passes all 154 of its checks
+(203 steps), run after the last scene edit: wings 1 to 3 as before (the lift refused from M4's gallery
+in wing 1), M14 after Pearl 3 (the rim's ledge, the roots down, the boss door refused without the big
+key, the lift's crank up to the hub, the platform up there and the lift offered both ways), the mouth
+sealed, the wall tops to S1, round to the Den, the rift, the big key, the Prism Gallery; M14 again, the
+boss door opened with the big key, M15 (his camp's ids, the plate fight, once), he wakes, the crystal over
+the nook, the climb out refused while he stands, his fight ended by the tool, Release 1's end card, his
+defeat recorded, the seals sunk, his full heart risen and taken, up the roots to the Lookout (H4), the
+mouth's seal sunk, out to the camp. Its strip and `walk.json` in `output/dungeon-rework/mine/walk/`.
+**His fight in M15** (`scripts/godot/film-colossus.sh <film> --film=<film> --tool=film_colossus_arena`):
+burst PASS (the cart bursts his breastplate in the ring, he kicks it home), clang PASS (cold, it clangs
+off, he kicks it home), wall PASS (three claw strikes from the roots, he crashes across the west line,
+its cart takes his last plate), core PASS (the Spear until he falls); strips, GIFs and `film.json` in
+`output/dungeon-rework/mine/arena-films/<film>/`. The rooms drawn whole in
+`output/dungeon-rework/mine/rooms/` (M4, M14, M15 new), the game's view of M14 and M15 in `rooms/game/`.
+Frames and step pictures deleted.
+
+**Changed from the list, and why.**
+- **M15's way in is the lab's nook, south** (the list: "M15 west (the lab's lobby)"): the lab's lobby is
+  a nook in its south wall, and the room keeps the lab whole; the nook is cut on to the room's edge for
+  the door. So **M14's boss door is in its north wall, cols 7-8** (the list: east, rows 8-9), and **M15
+  sits north of M14 on floor -1, at (1984, 512)** (the list: (3456, 2048)), its nook straight above the
+  boss door. M14 stays at the list's (2304, 2048), its rim's foot under the Den's rim.
+- **M14's rim ledge is cols 11-14, its doorway cols 12-13** (the list: cols 11-14; wing 3 made the Den's
+  rim one doorway).
+- **The ore lift's landings:** M4's upper at (22, 4.4) on the shaft's north lip, M14's lower at (4, 4.4):
+  one place on the map (x 2560), under the painted shaft's right-hand rope.
+- **The walk visits M14 twice**: right after Pearl 3 (the boss door refused without the big key, the
+  lift worked from below up to the hub, then the mouth, the wall tops and round to the Den), and with
+  the big key to his fight. The wall-top secret is walked there now (it was wing 3's end).
+- **The walk starts in G4** but G4's mine door still enters today's Mine until the switch-over: its
+  first step puts the slime through to M1's mouth (a staged door), and its last goes back to M1 the
+  quick way to see the mouth's seal sunk and walk out to G4. It lends the powers a run started in M1
+  gets (`dungeon.devPowers.crystal-mine`), as F6 on M1 does.
+- **Release 1's end card** opens at his fall (`chapter-3-complete`, as today's Mine); the walk checks it
+  opens and closes it (in play "Return to title" saves and the run goes on from the save).
+
+**Art.** None missing for wing 4 (the lift's, the boss door's, the roots' and the full heart's pictures
+exist). M14 shows the lift and the cold light from the shaft above, not the painting's timbers and
+ladder: the project has no timber cribbing that reads as a pit prop (wing 1's finding), and a ladder
+object is a crossing. If the owner wants the shaft's foot drawn (timber cribbing round the lift, a
+ladder broken off above): one GPT 2.5 sheet of three props, about 40 credits (not spent).
+
+**For the owner, in the editor.** Focus it once (two new room scenes and caches, a new tool script).
+Reload before a save-all if open: M4, `layout.tscn`, `ore_lift.gd`, and any room scene. No test run;
+not played with a keyboard.
+
 ## For the owner, in the editor
 
 - Give the editor focus once: it imports the 23 new pictures and 22 new sounds and writes their
@@ -1058,7 +1616,8 @@ on walkable floor, sealed, its small key kept, T1 recorded as the entrance.
 two lines back to `weaver-hollow-trunk` / `trunk-entrance`) is the only way in; with it turned back the
 game plays today's Hollow again, whose Crown still has its own fight (the copy). The rest can stay
 (the new rooms are unreached again, the save move only touches saves that stand in today's floors,
-which then load into the new T1: take `RETIRED_HOLLOW_WORLDS` out too if that matters). A full undo is
+which then load into the new T1: take the Hollow's lines of `RETIRED_WORLDS` (the constant was
+`RETIRED_HOLLOW_WORLDS` until the Mine's switch-over joined it into one table) out too if that matters). A full undo is
 the files in the table above, `git diff` against `850c98eb` (the step 3 files are uncommitted, so
 `git checkout` would take other work with them: undo by hand).
 
@@ -1068,7 +1627,7 @@ the files in the table above, `git diff` against `850c98eb` (the step 3 files ar
 four names in `area_titles.gd`, the tools only they use (`build_weaver_hollow.gd`,
 `weaver_hollow/hollow_*.gd`, `film_weaver_hollow.gd`, `render_weaver_hollow.gd`, their lines in
 `lib/dungeon_room_splitter.gd` and `render_dungeon_room_views.gd`), and the tests below. Keep
-`RETIRED_HOLLOW_WORLDS` (old saves still name them).
+the Hollow's lines of `RETIRED_WORLDS` (old saves still name them).
 
 **Tests that enter or name today's Hollow** (not edited, not run):
 - **fail now:** `tests/test_matron.gd`'s Hollow tests, which build `encounter.weaver-hollow-matron`
@@ -1087,6 +1646,117 @@ four names in `area_titles.gd`, the tools only they use (`build_weaver_hollow.gd
 - **may see the room-fight change:** `tests/test_lair_rooms.gd` marks the Big Squint and Fatty beaten
   by hand before building rooms: their fights now record themselves won on the build (their shutters
   are open then; no `reward` is set), nothing else.
+
+**Step 4's switch-over: the Crystal Mine (2026-11-25).** The reviewer passed wing 4 and the owner had
+said yes in advance ("make the switch when ready i will test and fix after"): the game enters the
+rebuilt Mine. Nothing committed; no tests run.
+
+| File | What and why |
+|---|---|
+| `godot/game/scenes/worlds/chunks/crystal-caverns-g4.tscn` | one link line, by hand: `Spiral/exit-to-crystal-mine`'s `target_area_id` `crystal-mine-m1-mine-mouth` (was `crystal-mine`); `target_door_id` stays `mine-entrance` (M1's way-out door has today's id). No joined area copy under `game/dev/area_edit/areas/` holds G4 (only `area-e4-f5.tscn` exists) |
+| `godot/tools/build_caverns_spiral.gd` | the same target, so a rebuild of the Spiral keeps it |
+| `godot/game/autoload/run_state.gd` | `RETIRED_HOLLOW_WORLDS`, `HOLLOW_ENTRANCE_WORLD` and `HOLLOW_DUNGEON_ID` became **one table**, `RETIRED_WORLDS` (retired world -> the rebuilt dungeon's entrance world): the Hollow's four floors -> `weaver-hollow-t1-root-door`, `crystal-mine` -> `crystal-mine-m1-mine-mouth`; `moved_world` reads it; `install` forgets any dungeon record's entrance that names a retired world (it was the Hollow's record only). One copy of the logic |
+| `godot/game/scenes/objects/dungeon/crystal-mine-dungeon.tscn` | `dev_pearl_id` `crystal-colossus`, `dev_pearl_guard` `crystal-mine-shardback`, `dev_pearl_skin` `feral`: `?sealed` (the second half at once) works in every room, as `?map=crystal-mine&sealed` did in today's world |
+| `godot/game/data/world-map.json` | the Mine marker's notes only (rebuilt, entered since the switch-over); its `map` and the Caverns' `interiors` already name `crystal-mine`, the record id |
+| `godot/tools/film_crystal_mine_rooms.gd` | the walk goes in through G4's real door (the gate holds, the Lantern lights its brazier, up through the door) and, after his fall, from the Lookout round to the camp and in and out by the mouth; `--film=old-save` (below) |
+| docs | DUNGEONS.md ("The switch-over (the Mine)", the lines that said the game still plays today's Mine, the Dev section's `?sealed`, G4's way in, the Hollow's `RETIRED_WORLDS`), DUNGEON_ROOMS.md, SKINS.md, CONVENTIONS.md (dev powers), specs/audio.md (the music line), story/03-world.md (the Mine's row), story/04-characters.md (his row: the plate fight is the game's now), AGENTS.md (the walk line, `?sealed`) |
+
+**His fight:** nothing to copy. Today's Mine and M15 share no camp or encounter scene; each has its own
+`ColossusArena` node (today's `plate_fight` off, M15's on, with today's ids on the node itself), so
+today's world keeps its old fight until step 5.
+
+**Proof.** The walk (`--film=walk`): PASS, 158 checks, none failed, run after the last scene edit:
+from the camp in G4 the gate holds, the Lantern lights its brazier, up through G4's door into M1 (no
+staged entry), the whole Mine as before, his fall, the climb out to the Lookout, round to the camp (the
+open world, put there the quick way), in through G4's door again (the mouth's seal sunk) and out by
+the mouth to the camp; its strip and `walk.json` in `output/dungeon-rework/mine/walk/`, the step
+pictures deleted. `--film=old-save`: PASS, 18 checks: an old save written to the tool runs' save
+folder (`user://tool-saves`, never the owner's) standing in today's world (`crystal-mine`, sealed by
+Pearl 3, the Shardback beaten, the Feral skin, one small key, one of the Foreman's Gate's locks open,
+the lift worked, the travel cart at the mouth, the record's entrance today's mouth), loaded through
+`main.load_run` in a game window: it wakes in M1 28 px from its entrance, the mine sealed and the
+mouth's seal shut, its key kept, the record's entrance now M1's, Feral kept; the Foreman's Gate shows
+its lock open, the lift is offered on M4's gallery, the Den's rim shutter is sunk (`room_fight.gd`'s
+reward for a boss beaten elsewhere), no Shardback, Pearl 3 not risen again, the travel cart not at the
+Chasm (at the mouth, as saved). Its `old-save.json` in `output/dungeon-rework/mine/old-save/`; the
+save file deleted afterwards.
+`tools/check_crossings.gd`: the Mine's only line is M1's way out, `mine-entrance` -> G4
+`camp-mine-mouth`, listed one way: the camp's marker is an arrival point, and G4's way in is the world
+exit `exit-to-crystal-mine` behind the gate (an area, not a door end), which leads to M1's
+`mine-entrance`. As meant; it has stood since wing 1 built M1. Nothing lists today's `crystal-mine`.
+The other lines (Sunscar's five broken cellar doors, the bolt-hole, Tom's raft, E4/E5's openings drawn
+apart, the Sally Port's ladder, today's old Hollow T1 door) are not the Mine's.
+
+**The grep** (`crystal-mine` outside `rooms/crystal-mine-rooms/` and the elevation caches):
+
+| Where | Verdict |
+|---|---|
+| `chunks/crystal-caverns-g4.tscn`: `exit-to-crystal-mine` | **changed** (above); `crystal-mine-gate` (the gate's and its brazier's `gate_id`) is G4's own id, right as it is |
+| `tools/build_caverns_spiral.gd` | **changed** (the exit's target); the gate ids as above |
+| `scene_index.json`: `world.crystal-mine` | right as it is: today's world stays until step 5 (a dev launch opens it; nothing in the game leads there) |
+| `worlds/crystal-mine.tscn`, `rooms/crystal-mine/M*.tscn` | today's world and its dead copies: kept until step 5 |
+| `game-constants.json`: `dungeon.devPowers.crystal-mine` | right as it is: one line for every world of the dungeon (`world_dungeon_id`), the rooms' and today's |
+| `world-map.json`: the Caverns' `interiors`, the dungeon marker's `map` | right as it is: they name the record id, which is also today's world's id (as `weaver-hollow`, `fatty-lair`); notes changed |
+| `game/shell/area_titles.gd` | no hit: the banner of a room world is its record id's, title-cased "Crystal Mine", the same as today's world's; an old save's slot label (map id `crystal-mine`) reads the same |
+| `game/dungeon/doorway_art.gd` (`map_id == "crystal-mine"`) | belongs to today's world (doorway art for its painted cliffs); the rooms have interior walls and are skipped |
+| `crystal-mine-dungeon.tscn` | the rooms' Dungeon (record `crystal-mine`); `dev_pearl_*` added |
+| `colossus_arena.gd` (`camp_id` default `crystal-mine-colossus`), `mine_cart.gd` (`line_id` `crystal-mine-cart`), `ore_lift.gd`, `crystal_mine.gd` (comments, ids) | ids shared by today's world and the rooms (one record): right as they are |
+| `tools/build_crystal_mine.gd`, `tools/lib/dungeon_room_splitter.gd`, `tools/render_dungeon_room_views.gd` | today's world's tools: go at step 5 |
+| `tools/build_crystal_mine_rooms.gd`, `film_crystal_mine_rooms.gd`, `film_colossus_arena.gd` | the rooms' tools |
+| `tests/test_crystal_mine.gd`, `tests/test_mine_camp.gd` | below |
+| the open world otherwise | nothing else leads into the Mine: the smith's cart ends in G4's yard, H4's `lookout-from-mine` is the climb out's landing; no hole, landing, marker or respawn point names it; no quest, story step or dev run names the world (`mine_camp.gd` reads flags only) |
+
+**Saves** (an old save half-played in today's Mine, on paper; the starred lines were loaded for real):
+
+| What | Kept by | Carries over? |
+|---|---|---|
+| Where it stands* | location | today's Mine loads into M1 at its entrance (`moved_world`), inside, as a dungeon's resume save; anywhere else as before |
+| The record's entrance* | the record `crystal-mine` | forgotten when it names today's world; M1 records itself |
+| Small keys held* | the record (the same id) | yes |
+| The Foreman's Gate's locks*, the boss door's | the record's keyholes (`crystal-mine:foremans-gate`, `:colossus-door`: today's door ids) | yes |
+| Key 1, key 2 | key 1's floor pickup (`tally-k1`), key 2's chest (`crystal-mine-M7-K2-chest`): today's records | yes: never had twice |
+| The big key, the map | the record's items; their chests' ids are today's | yes; not had twice |
+| Chests | today's chest ids on the rooms' chests (S1, S4, S5, the map's, the journal page's, the big key's) | yes; S3 is a new chest shown only while today's silk parcel was never freed |
+| Pearl 3, the Feral skin* | the Pearl's flag (`pearl.crystal-colossus`, the same `pearl-three.tscn`), the skins | yes: it does not rise again |
+| The Shardback's fall* | `defeated_boss_ids` | yes: no fight; the Den's rim shutter sunk by `room_fight.gd`'s reward for a boss beaten elsewhere (without it the way to M14 would stay shut: unfinishable) |
+| The seal* | the record | yes: sealed until he falls |
+| The lift* | `ore-lift:great-shaft-lift` under the record (today's lift id, today's world id = the record) | yes |
+| The travel cart* | `mine-cart:crystal-mine-cart` under the record, stations `mouth` and `chasm` (today's) | yes |
+| The maze's gate, the candles' group | `dark-maze-exit`, `dark-maze` (today's ids) | yes |
+| The rotten timbers, the survey wall | today's flags | yes |
+| His defeat, his full heart, the end card | `defeated_boss_ids`, the record, `full-heart.crystal-colossus`, `chapter-3-complete` | yes: no fight, the seals sunk, M15 lit with the nook open, no heart twice, no second card |
+| The lit rooms (M2, M6) | new flags (`crystal-mine.lamp-tunnel-lit`, `.bat-gallery-lit`) | no: lit again with the Lantern (it has it) |
+| The Chasm's lens and bridge | the lens's own key | maybe not: struck again with the Bow (it has it) |
+| The runaway cart and the rail gate (M7, M1), the Den's cart | new pieces | played fresh |
+| Today's M4 spire lens and plank, M7's crank, the Den's second shutter | today's only | gone with the rework (S1's chest keeps its record) |
+| Rooms on the map | the record's visited rooms | no (seen again) |
+
+Nothing found that would make the dungeon unfinishable or give a prize twice beyond what the table
+says; nothing fixed for it in this round (the Den's reward was `room_fight.gd`'s already).
+
+**Turning it back, in one place:** G4's `exit-to-crystal-mine` `target_area_id` back to `crystal-mine`
+(one line in `crystal-caverns-g4.tscn`; and in `build_caverns_spiral.gd` if the Spiral is rebuilt):
+the game enters today's Mine again, with its own old fight. The rest can stay: the rooms are unreached
+again, and `RETIRED_WORLDS`' `crystal-mine` line only moves saves standing in today's Mine (take that
+line out too if they should stay there). A full undo is the files in the table above (uncommitted:
+undo by hand, not with `git checkout`).
+
+**Left for step 5 (the Mine):** retire today's world `crystal-mine` (`worlds/crystal-mine.tscn`, its
+`scene_index.json` line, its elevation cache `crystal-mine.res`, its 14 copies in `rooms/crystal-mine/`),
+its tools (`build_crystal_mine.gd`, its line in `lib/dungeon_room_splitter.gd` and
+`render_dungeon_room_views.gd`), `doorway_art.gd`'s `crystal-mine` case, the Dev section's
+`?map=crystal-mine&sealed`, and the tests below. Keep `RETIRED_WORLDS`' line (old saves still name it).
+The nook's door art in M15 and the dark rooms' brightening are the owner's (open).
+
+**Tests that enter or name today's Mine** (not edited, not run):
+- **fails now:** `tests/test_mine_camp.gd`'s `test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back`
+  (it walks through G4's opened gate and waits to be in `crystal-mine`; the door leads to M1 now).
+- **pass while today's world exists, go at step 5:** `tests/test_crystal_mine.gd` (all 20: it builds
+  `crystal-mine` directly, its rooms, carts, lift, lens, veil, maze, Den, Colossus and climb out),
+  `tests/test_mine_camp.gd`'s `test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_falls`
+  (enters `crystal-mine` directly).
+- **unaffected:** the rest of `test_mine_camp.gd` (the yard, the smith, the cart, the gate: G4 and the
+  smith's cave only).
 
 State on 2026-11-24: step 1 passed review after two fix rounds (the reviewer kept the blow through a
 sleeping statue's shield, and left the shove's lead for a playtest). The owner has seen four films of
@@ -1187,3 +1857,115 @@ until step 5 updates them.
    the forecourt (the owner's scene) still shows wrapped cocoon shapes on its terraces, which
    DUNGEONS.md says the open world no longer has: his call.
 3. Steps 4 and 5 as the plan lists them, each reviewed before the next.
+   **Step 4 started on 2026-11-25:** a builder session cut the Mine into four wings and wrote the list
+   of links for all of it ("Step 4: the Mine" above), then built **wing 1, the Mouth and the High
+   Line** (M1, M2, M4, M6, M7: the cart's teach, key 2 by the High Line) beside today's Mine, which
+   the game still plays. Its walk passes 41 checks; the cart's teach is filmed. **The reviewer's read
+   of wing 1 (2026-11-25): the code accepted, five polish points** (the voids' depth, the bare boards,
+   S3's look, the burst gate's posts, doors into unbuilt rooms), done; then **wing 2, the Lantern's
+   half** (M5, M3, M8, M9: key 1, the map, the Dark Maze and its wall tops with S1's chest, the Chasm,
+   the travel cart between worlds) built the same day: the walk through both wings passes 82 checks,
+   the cart's ride is filmed. It stops for the reviewer before wing 3 (the Den, the rift, the Prism
+   Gallery, the Fort Hall: Pearl 3, the Feral half). Nothing committed; no tests run.
+   **The reviewer's read of wing 2 (2026-11-25): accepted, four points** (M8 a real maze, the
+   candles' time worked out and walked, key 1's record, the crystal crack's tone), done; then **wing 3,
+   the Den and the Feral half** (M13, M11, M10, M12: the Shardback's cart fight, Pearl 3, the rift, the
+   veil, the Prism Gallery, the Fort Hall's big key) built the same day: the walk through wings 1 to 3
+   passes 126 checks, the Shardback's blow is filmed. It stops for the reviewer before wing 4 (the
+   Shaft Floor, the Colossus's arena); the Mine's switch-over follows wing 4's review.
+   **The reviewer's read of wing 3 (2026-11-25): accepted**; then **wing 4, the Shaft and the
+   Colossus** (M14, M15: the shaft's floor, the ore lift between worlds, the boss door, the Colossus
+   lab's world carried into the room as it is, the climb out to the Lookout) built the same day: the
+   walk from the camp in G4 through all four wings to his fall and out passes 154 checks; his fight is
+   filmed in M15 (burst, clang, wall, core: PASS). It stops for the reviewer's read; the switch-over
+   (the owner's yes given) is its own piece after it.
+   **The reviewer's read of wing 4 (2026-11-25): accepted** (the nook's missing door art goes on the
+   owner's list); **the Mine's switch-over** made the same day at the owner's word given in advance:
+   G4's door enters M1, old saves standing in today's Mine wake in M1, one table of retired worlds
+   (above, "Step 4's switch-over"). The walk through G4's real door passes 158 checks; an old save
+   loads for real (PASS). It stops for the reviewer's read. Step 5 (retiring today's worlds) after it.
+   **The reviewer's read of wing 1 (2026-11-25): the code accepted, a polish round before the owner
+   sees the rooms.** Read line by line: `ram_cart.gd`'s `rolls_out` and `arrives` (off by default; a
+   spent cart's target now hangs slack when its room is built again, for every cart that does not
+   return). All 14 doors inside the wing pair both ways; five more lead out (G4's camp) or into rooms
+   not built yet. The two chests carry today's record ids, no heart quarter; the walk's 41 checks have
+   no fail and ran after the last scene edit; the three scripts compile; no frame pictures left. Sent
+   back: the voids are flat black boxes (M4's shaft must read as deep); plain brown boards stand at
+   the walls across the floor trim in four rooms; a pale strip crosses the trim in M6; the burst rail
+   gate's posts catch the slime; what a door into an unbuilt room does. **Wing 2 goes to the same
+   session after those fixes**, to stop again for the reviewer.
+   **The reviewer's read of the fix round and wing 2 (2026-11-25): accepted in code.** Read in
+   full: `pit_depth.gd` (presentation only), `rail_gate.gd`'s `posts_solid_when_smashed`,
+   `mine_cart.gd`'s ride between worlds (the cart's place under the dungeon's record id). 26 of the
+   nine rooms' 31 doors pair both ways, the other five are arrival points, the way out and M9's
+   doorway to the Den (not built); the chests carry today's record ids, no heart quarter; the walk's
+   82 checks have no fail and ran after the last scene edit; the six scripts compile; no frame
+   pictures left. Sent back before wing 3: M8 is not a maze (more partitions as low dividers or a
+   bigger room, dead ends worth a look); the four candles' time limit worked out from the walked
+   path, and walked by the tool; key 1's record id against today's; the crystal cracked wall reads
+   as a black scribble. **Wing 3 (M13, M11, M10, M12) goes to the same session after those**, to
+   stop again for the reviewer.
+   **The reviewer's read of wing 3 and its fixes (2026-11-25): accepted.** Read line by line:
+   `shardback.gd`'s cart hook, stagger and slam chunks, his ten numbers in `enemy-types.json`. The
+   walk's 126 checks have no fail; M8 has its partitions and a walked candle run; the painted shaft
+   (40 credits, the owner's yes) reads well. **Wing 4 (M14, M15, the lift, the way out) went to the
+   same session**, to stop for the reviewer; **the Mine's switch-over follows that read without
+   asking the owner again** (2026-11-25: "make the switch when ready i will test and fix after").
+   **The reviewer's read of wing 4 (2026-11-25): accepted.** `ore_lift.gd`'s ride between worlds
+   read; M15 against the lab (81 of its 86 nodes at the same position, none moved, the five missing
+   the lab's own shell); no fight value behind an `[editable path]`; 38 of the 15 rooms' 45 doors pair
+   both ways, the rest arrivals, locks and the way out; the walk's 154 checks ran after the last scene
+   edit; the four arena films' notes; every script compiles. For the owner's eye: M15's way in is a
+   gap in the rock with no door art; M14 shows none of the painted shaft's timbers. **The Mine's
+   switch-over went to the same session**, to stop for the reviewer.
+   **The reviewer's read of the Mine's switch-over (2026-11-25): accepted.** Read line by line:
+   `run_state.gd`'s `RETIRED_WORLDS` table (the Hollow's four floors and `crystal-mine`, one copy of
+   the logic) and G4's diff (the mine door's one target line). The walk goes in through G4's real
+   door and passes 158 checks, run after the last edit; the old save written to the tools' own
+   folder loads into M1 and passes its 18 checks (key, lock, lift, the Den's shutter, Pearl 3, the
+   cart); the changed scripts compile; no frame pictures left. Today's `crystal-mine` world stays on
+   disk and opens only by `?map=crystal-mine`. `test_mine_camp.gd`'s gate test fails until step 5.
+   **Step 4 is done. Step 5 (tests updated, today's Hollow and Mine worlds and their builders
+   retired) is not started: it deletes the owner's way back, so it waits for his word.**
+   **The Brood Warden's knocked frames (2026-11-25, the boss-art session, 80 credits): accepted.**
+   Eight new frames (flung, on his back kicking, getting up) after his walk on a 24-frame sheet,
+   wired into `PHASE_KNOCKED` (`knockedKickFrameMs`, `knockedRiseMs`); the squash is gone; the
+   warden-ram film passes. Weak: the flung frames barely show under the ram hit's flash.
+   **The owner's calls of 2026-11-25:** credits for the Brood Warden's frames on his back (the boss-art
+   session: frames, his sheet, `PHASE_KNOCKED`, the warden-ram film) and for the painted shaft; the
+   crystal walls keep the cave rock's door leaves; the Hollow's floor look is fine; the forecourt's
+   Cocoon Mimics and Egg Sacs stay (DUNGEONS.md says so now); no file over 10 MB into git without
+   his yes.
+   **Open with the owner: the dark rooms' candles.** He watched the Mine's walk and said lit candles
+   do not light the room. Found: a candle's light is a circle of 110 units (about 3 % of a one-screen
+   room; the Lantern's is 160); a `DarkRoom` lifts `darkness.candleShare` (0.25) of its dark for each
+   burning candle **listed in its `candles`**, and M8 and M5 list none, so their dark never lifts;
+   one of three lamps lit leaves the room at 75 % black, which still reads as dark. Proposed, waiting
+   for his word: a larger candle light, and each candle lifting its share of the room (one over the
+   room's candle count) for every candle standing in the room, listed or not.
+   **Also on 2026-11-25: `asset/Originals/` left git.** Its credentials blocks were stripped (1328
+   sources, 1.15 GB, `scripts/art/strip-credentials.py`), then the folder was taken out of every
+   commit and force-pushed at the owner's word (4.5 GB of the repository's 6.3 GB): it is on his disk
+   only, git-ignored but for its text files. 483 of 491 commit ids changed; every id written in this
+   handover before that day is an old one
+   ([the map](../archive/2026-11-25-history-rewrite.md): `850c98eb` is `65a7954b`, `d620e774` is
+   `6de12ff5`). The old history is whole in `D:/projects/Slime-isa-history-backup-2026-11-25.git`.
+   **The Brood Warden's knocked frames, built (2026-11-25, the boss-art session; 80 of the 160
+   credits the owner gave, two GPT 2.5 sheets, first takes):** the stand-in squash is gone. Sources
+   `brood-warden-sheet-5.png` (on his back, kicking: a loop of four) and `-6.png` (tipped onto his
+   side, tumbling over, heaving up on his blades, crouched on his feet) in
+   `asset/Originals/enemies/bestiary/` (stripped; on disk only), prompts in its README. Packed as
+   frames 16 to 23 after his walk: `256x256-tile_24x1-brood-warden.webp` at the same scale (his 16
+   frames unchanged; the packer's `STILL_BODY` keeps the loop's body on one spot,
+   `FAINT_HAZE_FILES` clears sheet 6's haze); the 16x1 sheet and its `.import` deleted,
+   `brood-warden.tscn` points at the new one (`hframes` 24). The new sheet has no `.import` yet: the
+   editor writes it on its next scan (commit it with the sheet; `sheet_sprite.gd` reads the file
+   until then). `brood_warden.gd`: the flung frames over the slide (mirrored to the log's way), the
+   loop at `knockedKickFrameMs` 150, the getting-up frames over the last `knockedRiseMs` 400 (both
+   new in `enemy-types.json`), and beaten while knocked he stays on his back. Proof: `warden-ram`
+   PASS (5 checks); `output/dungeon-rework/hollow/warden-ram-film/` has `strip.png`, `film.gif`,
+   `film-slow.gif` and the owner's sheet picture `warden-knocked-frames.png` (the stand-in's strip
+   and GIF kept as `*-before-frames`; frame pictures deleted). Weakest: the flung frames barely
+   show in play, as the log passes over him and the ram blow's pink hurt flash covers most of the
+   tumble; the getting-up is quick (two frames in 400 ms). Reload `brood-warden.tscn` in an open
+   editor before a save-all. Nothing committed; no tests run.

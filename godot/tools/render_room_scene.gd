@@ -29,8 +29,12 @@ func _initialize() -> void:
 			hidden.free()
 	var walls := room.get_node_or_null("interior-walls") as TileMapLayer
 	var size := Vector2(1152, 1024)
+	var definition := room.get_node_or_null("world-definition")
 	if walls != null:
 		size = Vector2(walls.get_used_rect().end) * 64.0
+	elif definition != null and int(definition.get(&"columns")) > 0:
+		# a room painted as an outdoor world (no interior walls: the Crystal Mine's M15): its world's size
+		size = Vector2(int(definition.get(&"columns")), int(definition.get(&"rows"))) * float(definition.get(&"tile_size"))
 	var viewport := SubViewport.new()
 	viewport.transparent_bg = false
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS

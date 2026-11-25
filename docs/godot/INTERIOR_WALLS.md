@@ -529,9 +529,20 @@ styles, from one frame: `crystal-bevel-doorways-b` (GPT 2.5, `gpt-2-mini`, trans
 change is the material", and a crop of the cavern's old crystal-cluster walls for the look; `-a` is
 the other take), in `asset/Originals/dungeon-kit/interior-walls/`. Its band edges measured again in
 its own render (`n` 15-224, `s` 800-1006, `w` 19-220, `e` 803-1005); the plain stretches, doorway
-boxes and passage are the cave rock's. It has only the plain doorway (no cracked, blown or stairs
-openings, no leaves yet: generate them from the frame as for the other styles when a crystal room
-needs one) and borrows the cave rock floor (`cave-floor.png`).
+boxes and passage are the cave rock's. Its openings: the plain doorway, and (2026-11-25, the rebuilt
+Crystal Mine's cracked wall, no new render) the **cracked** stretch and the **blown** hole made from
+the plain frame by `scripts/art/make-crystal-openings.py` (`crystal-bevel-cracked-made.png`: the
+doorway box filled with the face's own stone, the joins feathered, the Goo Bomb's crack decal over it;
+`crystal-bevel-blown-made.png`: the doorway as it is, the crack decal round its jambs and lintel, its
+passage clear; the decal toned to the wall, 2026-11-25: its lines thinned, in the frame's dark blue
+with a pale blue edge below, laid once, as strong at game size as the root rock's crack); no stairs opening. It borrows the cave rock floor (`cave-floor.png`). **Its leaves** (2026-11-25, for the rebuilt Crystal
+Mine, no new render): the cave rock's, cut from the cave rock's shut frames (`cave-bevel-leaf-*.png`)
+with this style's measures, each side in this style's light: the crystal frame was made from the cave
+rock's layout, so its doorway boxes and passage are the same and the leaves fit (a wooden key door with
+its padlocks, the gilded boss door, the seal's pearl, grey barricade boards, the thorn-bordered shutter,
+the bolted door). The repack changed no other piece (`crystal-cave.webp` encoded again: every old
+piece within the lossy encoding's noise, a mean of 1.2 levels in 255). A crystal set of its own is the
+same seven renders as another style's, if wanted.
 
 **Its floor trim** (owner, 2026-11-21: "a floor trim for crystal interior walls that matches the
 art"): **crystal studs** (palette column 10), dark blue slate blocks each set with a cluster of
