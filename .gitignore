@@ -6,6 +6,18 @@ __pycache__/
 # The world layout's backup, written on every save (docs/godot/WORLD_ATLAS.md)
 godot/game/data/world-map.json.bak
 
+# Source art and audio stay on the owner's disk, out of git (owner, 2026-11-25: 4 GB of pictures,
+# clips and sounds the game never loads, taken out of the history too:
+# docs/archive/2026-11-25-history-rewrite.md). Only the folder's small text files are tracked: the
+# notes, prompts, manifests and packer scripts the art tools read.
+asset/Originals/**
+!asset/Originals/**/
+!asset/Originals/**/*.md
+!asset/Originals/**/*.json
+!asset/Originals/**/*.py
+!asset/Originals/**/*.gd
+!asset/Originals/**/*.txt
+
 # Body-shapes prototype films and GIFs (about 400 MB of scratch renders), kept local
 asset/Originals/characters/slime-v2/shapes/prototypes/
 

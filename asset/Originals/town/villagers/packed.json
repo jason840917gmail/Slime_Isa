@@ -1,0 +1,856 @@
+{
+	"auntie-suds": {
+		"sheet": "res://asset/characters/villagers/160x160-tile_4x1-auntie-suds.webp",
+		"cell": 160,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 70
+	},
+	"biscuit": {
+		"sheet": "res://asset/characters/villagers/80x80-tile_4x4-biscuit.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 30
+	},
+	"bluebird": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_6x1-bluebird.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 17
+	},
+	"bobbin": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-bobbin.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 72
+	},
+	"bram": {
+		"sheet": "res://asset/characters/villagers/208x208-tile_4x1-bram.webp",
+		"cell": 208,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 88
+	},
+	"burble": {
+		"sheet": "res://asset/characters/villagers/192x192-tile_4x1-burble.webp",
+		"cell": 192,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 76
+	},
+	"butterflies": {
+		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-butterflies.webp",
+		"cell": 48,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 14
+	},
+	"cat": {
+		"sheet": "res://asset/characters/villagers/96x96-tile_4x4-cat.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 30
+	},
+	"cave-newt": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-cave-newt.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 22
+	},
+	"chick": {
+		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-chick.webp",
+		"cell": 48,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 12
+	},
+	"crumb": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-crumb.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 78
+	},
+	"crystal-snail": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-crystal-snail.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 24
+	},
+	"dab": {
+		"sheet": "res://asset/characters/villagers/160x160-tile_4x1-dab.webp",
+		"cell": 160,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 66
+	},
+	"dan": {
+		"sheet": "res://asset/characters/villagers/192x192-tile_4x4-dan.webp",
+		"cell": 192,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 80
+	},
+	"dany": {
+		"sheet": "res://asset/characters/villagers/144x144-tile_4x4-dany.webp",
+		"cell": 144,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 54
+	},
+	"dollop": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-dollop.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 70
+	},
+	"dot": {
+		"sheet": "res://asset/characters/villagers/160x160-tile_4x1-dot.webp",
+		"cell": 160,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 66
+	},
+	"dove": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_6x1-dove.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 20
+	},
+	"duck": {
+		"sheet": "res://asset/characters/villagers/80x80-tile_6x1-duck.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 26
+	},
+	"duckling": {
+		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-duckling.webp",
+		"cell": 48,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 12
+	},
+	"dune": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-dune.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 72
+	},
+	"firefly": {
+		"sheet": "res://asset/characters/cave-animals/64x64-tile_6x1-firefly.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 16
+	},
+	"fizz": {
+		"sheet": "res://asset/characters/villagers/128x128-tile_4x4-fizz.webp",
+		"cell": 128,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 48
+	},
+	"gavy": {
+		"sheet": "res://asset/characters/villagers/112x112-tile_4x4-gavy.webp",
+		"cell": 112,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 44
+	},
+	"glow-worm": {
+		"sheet": "res://asset/characters/cave-animals/96x96-tile_6x1-glow-worm.webp",
+		"cell": 96,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 16
+	},
+	"goldfinch": {
+		"sheet": "res://asset/characters/villagers/48x48-tile_6x1-goldfinch.webp",
+		"cell": 48,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 16
+	},
+	"gramps-reel": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-gramps-reel.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 76
+	},
+	"granny-thistle": {
+		"sheet": "res://asset/characters/villagers/160x160-tile_4x1-granny-thistle.webp",
+		"cell": 160,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 64
+	},
+	"hedgehog": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_4x4-hedgehog.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 20
+	},
+	"hen": {
+		"sheet": "res://asset/characters/villagers/80x80-tile_4x4-hen.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 30
+	},
+	"isa": {
+		"sheet": "res://asset/characters/villagers/144x144-tile_4x4-isa.webp",
+		"cell": 144,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 62
+	},
+	"lantern-moth": {
+		"sheet": "res://asset/characters/cave-animals/80x80-tile_6x1-lantern-moth.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 22
+	},
+	"may": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-may.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 76
+	},
+	"mayor-wobbleton": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-mayor-wobbleton.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 74
+	},
+	"old-sedge": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x4-old-sedge.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 68
+	},
+	"penny": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x4-penny.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 70
+	},
+	"pig": {
+		"sheet": "res://asset/characters/villagers/128x128-tile_4x4-pig.webp",
+		"cell": 128,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 46
+	},
+	"pill-bug": {
+		"sheet": "res://asset/characters/cave-animals/80x80-tile_6x1-pill-bug.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 20
+	},
+	"plum": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-plum.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 70
+	},
+	"robin": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_6x1-robin.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 17
+	},
+	"sheep": {
+		"sheet": "res://asset/characters/villagers/112x112-tile_4x4-sheep.webp",
+		"cell": 112,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 42
+	},
+	"snail": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_6x1-snail.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 12
+	},
+	"sprig": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-sprig.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 72
+	},
+	"squirrel": {
+		"sheet": "res://asset/characters/villagers/80x80-tile_4x4-squirrel.webp",
+		"cell": 80,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 26
+	},
+	"swallow": {
+		"sheet": "res://asset/characters/villagers/64x64-tile_6x1-swallow.webp",
+		"cell": 64,
+		"foot": 4,
+		"columns": 6,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 6
+			}
+		},
+		"height": 15
+	},
+	"tad": {
+		"sheet": "res://asset/characters/villagers/128x128-tile_4x4-tad.webp",
+		"cell": 128,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 46
+	},
+	"tansy": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x4-tansy.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 70
+	},
+	"wick": {
+		"sheet": "res://asset/characters/villagers/192x192-tile_4x4-wick.webp",
+		"cell": 192,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			},
+			"walk-side": {
+				"row": 1,
+				"frames": 4
+			},
+			"walk-down": {
+				"row": 2,
+				"frames": 4
+			},
+			"walk-up": {
+				"row": 3,
+				"frames": 4
+			}
+		},
+		"height": 76
+	},
+	"young-burr": {
+		"sheet": "res://asset/characters/villagers/128x128-tile_4x1-young-burr.webp",
+		"cell": 128,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 50
+	},
+	"zing": {
+		"sheet": "res://asset/characters/villagers/176x176-tile_4x1-zing.webp",
+		"cell": 176,
+		"foot": 4,
+		"columns": 4,
+		"rows": {
+			"poses": {
+				"row": 0,
+				"frames": 4
+			}
+		},
+		"height": 72
+	}
+}

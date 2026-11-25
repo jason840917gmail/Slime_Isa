@@ -1,0 +1,175 @@
+{
+ "note": "Where each tile of the set is cut from: native-<shot>.png (game pixels of the screenshots: a house cliff, b round plateau, c side wall, d top side, e top corner), top-left x, y of a 16x16 cell. Right-side tiles are these mirrored. Screenshots d and e are on the grid that matches the side walls (2026-11-04 correction: the first cut was half a tile off, splitting the top edge). Shot f is not a screenshot: the low ledge's own tiles (N3, K3, Q5, Q6), rebuilt 2026-11-05 from the owner's rain screenshot (native-ledge.png, its grid at x 7, y 1: ledge-tile-map.png was cut half a tile off across) by mapping the rain's darker colours to the top side's day colours (N2, Q3, Q4 seen in both) and taking the majority of every copy; about 85-95% of the pixels as the game draws them, the rest a near twin colour.",
+ "tiles": {
+  "D1": {
+   "shot": "b",
+   "x": 23,
+   "y": 6
+  },
+  "D2": {
+   "shot": "a",
+   "x": 31,
+   "y": 19
+  },
+  "D3": {
+   "shot": "a",
+   "x": 31,
+   "y": 35
+  },
+  "D4": {
+   "shot": "a",
+   "x": 31,
+   "y": 51
+  },
+  "D5": {
+   "shot": "c",
+   "x": 21,
+   "y": 54
+  },
+  "E1": {
+   "shot": "b",
+   "x": 7,
+   "y": 6
+  },
+  "E2": {
+   "shot": "b",
+   "x": 7,
+   "y": 22
+  },
+  "E3": {
+   "shot": "b",
+   "x": 23,
+   "y": 22
+  },
+  "E4": {
+   "shot": "b",
+   "x": 23,
+   "y": 38
+  },
+  "E5": {
+   "shot": "b",
+   "x": 23,
+   "y": 54
+  },
+  "G1": {
+   "shot": "a",
+   "x": 63,
+   "y": 3
+  },
+  "J1": {
+   "shot": "c",
+   "x": 21,
+   "y": 38
+  },
+  "J2": {
+   "shot": "c",
+   "x": 5,
+   "y": 54
+  },
+  "J3": {
+   "shot": "c",
+   "x": 53,
+   "y": 70
+  },
+  "S1": {
+   "shot": "a",
+   "x": 111,
+   "y": 83
+  },
+  "S2": {
+   "shot": "a",
+   "x": 15,
+   "y": 19
+  },
+  "S3": {
+   "shot": "a",
+   "x": 15,
+   "y": 35
+  },
+  "W1": {
+   "shot": "c",
+   "x": 37,
+   "y": 6
+  },
+  "W2": {
+   "shot": "c",
+   "x": 21,
+   "y": 6
+  },
+  "W3": {
+   "shot": "c",
+   "x": 5,
+   "y": 6
+  },
+  "N0": {
+   "shot": "d",
+   "x": 14,
+   "y": 1
+  },
+  "N1": {
+   "shot": "d",
+   "x": 14,
+   "y": 17
+  },
+  "N2": {
+   "shot": "d",
+   "x": 14,
+   "y": 33
+  },
+  "Q0": {
+   "shot": "d",
+   "x": 62,
+   "y": 1
+  },
+  "Q1": {
+   "shot": "d",
+   "x": 62,
+   "y": 17
+  },
+  "Q2": {
+   "shot": "d",
+   "x": 62,
+   "y": 33
+  },
+  "Q3": {
+   "shot": "d",
+   "x": 46,
+   "y": 33
+  },
+  "Q4": {
+   "shot": "d",
+   "x": 46,
+   "y": 49
+  },
+  "K1": {
+   "shot": "d",
+   "x": 46,
+   "y": 17
+  },
+  "K2": {
+   "shot": "d",
+   "x": 94,
+   "y": 65
+  },
+  "N3": {
+   "shot": "f",
+   "x": 0,
+   "y": 0
+  },
+  "K3": {
+   "shot": "f",
+   "x": 16,
+   "y": 0
+  },
+  "Q5": {
+   "shot": "f",
+   "x": 32,
+   "y": 0
+  },
+  "Q6": {
+   "shot": "f",
+   "x": 48,
+   "y": 0
+  }
+ }
+}

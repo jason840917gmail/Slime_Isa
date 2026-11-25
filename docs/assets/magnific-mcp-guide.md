@@ -215,3 +215,9 @@ unless the task names another folder. `asset/Originals/**` is ignored by the
 manifest; only the packed runtime file in `godot/asset/MAPS/` (or `godot/asset/characters/`,
 `godot/asset/UI/`) is imported by the Godot editor (commit its `.import` file). See [Asset Creation And Integration](README.md) for the
 pack scripts.
+
+**Strip every download** (owner, 2026-11-25): a PNG Magnific hands back carries a content-credentials
+block (a `caBX` chunk) that can be thirty times the picture's own size. Right after
+`creations_register_download`, run `python scripts/art/strip-credentials.py <the file or its folder>`:
+it removes the block and leaves every pixel as it was ([TOOLING.md](../TOOLING.md#art-pipelines)).
+Only the stripped file is kept and committed.

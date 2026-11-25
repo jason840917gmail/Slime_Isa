@@ -1,0 +1,168 @@
+{
+ "cell": 256,
+ "columns": 8,
+ "source_fps": 24,
+ "scale": 0.8087,
+ "rows": {
+  "idle-down": {
+   "row": 0,
+   "first_frame": 0,
+   "fps": 2.7,
+   "loop": true,
+   "loop_start": 8,
+   "loop_length": 71,
+   "source_frames": [
+    8,
+    17,
+    26,
+    35,
+    44,
+    52,
+    61,
+    70
+   ],
+   "loop_score": 0.1179,
+   "touches_cell_edge": false
+  },
+  "idle-up": {
+   "row": 1,
+   "first_frame": 8,
+   "fps": 2.7,
+   "loop": true,
+   "loop_start": 15,
+   "loop_length": 71,
+   "source_frames": [
+    15,
+    24,
+    33,
+    42,
+    51,
+    59,
+    68,
+    77
+   ],
+   "loop_score": 0.0458,
+   "touches_cell_edge": false
+  },
+  "idle-side": {
+   "row": 2,
+   "first_frame": 16,
+   "fps": 5.05,
+   "loop": true,
+   "loop_start": 8,
+   "loop_length": 38,
+   "source_frames": [
+    8,
+    13,
+    18,
+    22,
+    27,
+    32,
+    36,
+    41
+   ],
+   "loop_score": 0.1068,
+   "touches_cell_edge": false
+  },
+  "walk-down": {
+   "row": 3,
+   "first_frame": 24,
+   "fps": 14.77,
+   "loop": true,
+   "loop_start": 49,
+   "loop_length": 13,
+   "source_frames": [
+    49,
+    51,
+    52,
+    54,
+    55,
+    57,
+    59,
+    60
+   ],
+   "loop_score": 0.0706,
+   "touches_cell_edge": false
+  },
+  "walk-up": {
+   "row": 4,
+   "first_frame": 32,
+   "fps": 16.0,
+   "loop": true,
+   "loop_start": 47,
+   "loop_length": 12,
+   "source_frames": [
+    47,
+    49,
+    50,
+    51,
+    53,
+    55,
+    56,
+    57
+   ],
+   "loop_score": 0.1183,
+   "touches_cell_edge": false
+  },
+  "walk-side": {
+   "row": 5,
+   "first_frame": 40,
+   "fps": 13.71,
+   "loop": true,
+   "loop_start": 71,
+   "loop_length": 14,
+   "source_frames": [
+    71,
+    73,
+    75,
+    76,
+    78,
+    80,
+    81,
+    83
+   ],
+   "loop_score": 0.3172,
+   "touches_cell_edge": false
+  },
+  "doze-down": {
+   "row": 6,
+   "first_frame": 48,
+   "fps": 8.0,
+   "loop": false,
+   "loop_start": 4,
+   "loop_length": 92,
+   "source_frames": [
+    4,
+    12,
+    34,
+    38,
+    56,
+    70,
+    80,
+    96
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "sleep-down": {
+   "row": 7,
+   "first_frame": 56,
+   "fps": 4.09,
+   "loop": true,
+   "loop_start": 13,
+   "loop_length": 47,
+   "source_frames": [
+    13,
+    19,
+    25,
+    31,
+    37,
+    42,
+    48,
+    54
+   ],
+   "loop_score": 0.1589,
+   "touches_cell_edge": false
+  }
+ }
+}

@@ -1,0 +1,26 @@
+crystal-mine
+  cell (18, 57.5)  level 1 against level 2: a 45° edge ends against the wall
+  cell (21, 57.5)  level 1 against level 2: a 45° edge ends against the wall
+  cell (31, 7)  level 1 against level 2: the wall ends against it and turns 45° only 1.5 cell(s) on (2 needed)
+  cell (31, 8.5)  level 1 against level 2: a 45° edge ends against the wall
+  cell (47, 37.5)  level 0 against level 2: a 45° edge ends against the wall
+  cell (65, 18.5)  level 2 against level 3: a 45° edge ends against the wall
+  cell (79, 18)  level 2 against level 3: the ledge's side meets the wall where it is no straight south face (a 45° face, or it turns there)
+dungeon-lab
+  cell (33, 35)  level 0 against level 2: the wall ends against a taller wall's side that runs on only 2 cell(s) below it (2.5 needed)
+desert-a7
+  cell (14, 13)  level 1 against level 2: the ledge's wall runs only 0.5 cell(s) straight out from the taller wall's side (1 needed)
+  cell (14, 13)  level 1 against level 2: the wall ends against it and turns 45° only 0.5 cell(s) on (2 needed)
+  cell (14, 3)  level 2 against level 3: the ledge's side meets a wall that runs on only 1 cell(s) past it (2 needed)
+  cell (30, 8.5)  level 2 against level 3: a 45° edge ends against the wall
+desert-b7
+  cell (10, 22.5)  level 1 against level 2: the ledge's side meets the wall where it is no straight south face (a 45° face, or it turns there)
+desert-b8
+  cell (8, 11.5)  level 1 against level 2: a 45° edge ends against the wall
+playground
+  cell (22, 89.5)  level 1 against level 2: a 45° edge ends against the wall
+  cell (30, 88.5)  level 2 against level 3: a 45° edge ends against the wall
+south-wilds-a6
+  cell (5, 17.5)  level 1 against level 2: a 45° edge ends against the wall
+  cell (6, 29)  level 2 against level 3: the wall ends against it and turns 45° only 1.5 cell(s) on (2 needed)
+cliff joints: 18 with the plain join, 44 that fold, in 88 worlds

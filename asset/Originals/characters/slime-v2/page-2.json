@@ -1,0 +1,157 @@
+{
+ "cell": 256,
+ "columns": 8,
+ "source_fps": 24,
+ "scale": 0.8087,
+ "rows": {
+  "roll-down": {
+   "row": 0,
+   "first_frame": 0,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 36,
+   "loop_length": 32,
+   "source_frames": [
+    36,
+    33,
+    30,
+    27,
+    22,
+    15,
+    10,
+    4
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "roll-up": {
+   "row": 1,
+   "first_frame": 8,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 8,
+   "loop_length": 26,
+   "source_frames": [
+    8,
+    13,
+    20,
+    22,
+    24,
+    26,
+    28,
+    34
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "roll-side": {
+   "row": 2,
+   "first_frame": 16,
+   "fps": 16.0,
+   "loop": false,
+   "loop_start": 0,
+   "loop_length": 8,
+   "source_frames": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "stretch-down": {
+   "row": 3,
+   "first_frame": 24,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 22,
+   "loop_length": 59,
+   "source_frames": [
+    22,
+    37,
+    43,
+    44,
+    44,
+    43,
+    80,
+    81
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": true,
+   "shift": [
+    0,
+    -37
+   ]
+  },
+  "stretch-up": {
+   "row": 4,
+   "first_frame": 32,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 2,
+   "loop_length": 86,
+   "source_frames": [
+    2,
+    40,
+    44,
+    48,
+    54,
+    58,
+    60,
+    88
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false
+  },
+  "stretch-side": {
+   "row": 5,
+   "first_frame": 40,
+   "fps": 29.63,
+   "loop": false,
+   "loop_start": 4,
+   "loop_length": 92,
+   "source_frames": [
+    4,
+    18,
+    20,
+    22,
+    24,
+    22,
+    18,
+    96
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false,
+   "shift": [
+    -26,
+    -3
+   ]
+  },
+  "die-down": {
+   "row": 6,
+   "first_frame": 48,
+   "fps": 8.0,
+   "loop": false,
+   "loop_start": 56,
+   "loop_length": 40,
+   "source_frames": [
+    56,
+    62,
+    66,
+    68,
+    70,
+    72,
+    76,
+    96
+   ],
+   "loop_score": 0.0,
+   "touches_cell_edge": false,
+   "row_scale": 0.9
+  }
+ }
+}
