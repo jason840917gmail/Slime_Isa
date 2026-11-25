@@ -1,7 +1,7 @@
 extends RefCounted
 ## Separately authored dungeon rooms: Fatty's Lair's rooms are each a world (since 2026-10-18; their
 ## doors and records: test_lair_rooms.gd), their links kept by world and record; the room-edge mask;
-## the Weaver Hollow's floors in one sealed dungeon.
+## every room world of the rebuilt Weaver Hollow and Crystal Mine inside its dungeon.
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
@@ -71,9 +71,30 @@ func test_door_frames_use_wall_stone_and_keep_the_two_cell_collision(t: TestCont
 	t.check(t.world().world_root.get_node_or_null("DoorwayWalls") == null, "the Lair drew old wall bands")
 
 
-func test_shell_keeps_each_hollow_floor_inside_the_sealed_dungeon(t: TestContext) -> void:
-	for floor_name: String in ["trunk", "roots", "boughs", "crown"]:
-		t.equal(DungeonState.world_dungeon_id("weaver-hollow-" + floor_name), "weaver-hollow", "cross-floor dungeon identity " + floor_name)
+## The rebuilt Weaver Hollow and Crystal Mine (2026-11-25, one world per room, as the Lair): every
+## room world in the scene index reads its dungeon's id and record, so one seal, one set of keys and one
+## map hold across all of them; their one-scene and four-floor worlds before are retired (RunState
+## RETIRED_WORLDS), not in the index.
+func test_every_room_world_of_the_rebuilt_dungeons_is_inside_its_dungeon(t: TestContext) -> void:
+	var index: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://game/scenes/scene_index.json"))
+	var folders := {"res://game/scenes/worlds/rooms/weaver-hollow/": "weaver-hollow",
+		"res://game/scenes/worlds/rooms/crystal-mine-rooms/": "crystal-mine"}
+	var counted := {}
+	for key: String in index:
+		var path := str(index[key])
+		for folder: String in folders:
+			if not (key.begins_with("world.") and path.begins_with(folder)):
+				continue
+			var world_id := key.trim_prefix("world.")
+			var dungeon := str(folders[folder])
+			t.equal(DungeonState.world_dungeon_id(world_id), dungeon, "%s's dungeon id" % world_id)
+			t.equal(DungeonState.world_record_id(world_id), dungeon, "%s's record id" % world_id)
+			counted[dungeon] = int(counted.get(dungeon, 0)) + 1
+	t.check(int(counted.get("weaver-hollow", 0)) > 0, "no room world of the Weaver Hollow in the scene index")
+	t.check(int(counted.get("crystal-mine", 0)) > 0, "no room world of the Crystal Mine in the scene index")
+	var retired_worlds: Dictionary = (Services.run().get_script() as Script).get_script_constant_map()["RETIRED_WORLDS"]
+	for retired: String in retired_worlds:
+		t.check(not index.has("world." + retired), "the retired world %s is still in the scene index" % retired)
 
 
 func _travel(t: TestContext, map_id: String) -> bool:

@@ -6,8 +6,10 @@ extends RefCounted
 ## ore cave in the peak's face (`crystal-caverns-smith-cave`): the first talk gives the Lantern and, in
 ## the same visit, the Smith's Crystal (`mine-crystal`, for Pip's bow rune; none when the Bow is
 ## learned already), then his lamp's lesson; the lamp frees his cart, which rides once, one way, down
-## to the yard; he stays in his cave once the Colossus fell (owner, 2026-11-20). The climb out to the
-## Lookout (H4) is in test_crystal_mine.gd.
+## to the yard; he stays in his cave once the Colossus fell (owner, 2026-11-20). Since 2026-11-25 the
+## gate leads into the rebuilt Mine's mouth, M1 (`crystal-mine-m1-mine-mouth`, door `mine-entrance`),
+## whose way out lands at the camp (docs/godot/DUNGEONS.md "The switch-over (the Mine)"). The climb out
+## to the Lookout (H4) is in test_crystal_mine.gd.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -17,7 +19,9 @@ const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
 
 const MAP_ID := "crystal-caverns-g4"
 const CAVE_ID := "crystal-caverns-smith-cave"
-const MINE_ID := "crystal-mine"
+## The Mine's mouth (M1), the world the gate leads into, and the dungeon's record (every room's).
+const MINE_ID := "crystal-mine-m1-mine-mouth"
+const MINE_RECORD := "crystal-mine"
 const CELL := 64.0
 ## The gate in the yard's mountain face (tools/build_caverns_spiral.gd: cell (4, 22)).
 const GATE_FEET := Vector2(4 * CELL, 22.8 * CELL)
@@ -123,13 +127,14 @@ func test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back(t: TestCo
 	t.press(&"move_up")
 	var inside := await t.until(func() -> bool: return t.in_world(MINE_ID) and t.player_body() != null, 6000.0)
 	t.release(&"move_up")
-	if not t.check(inside, "walking into the open gate did not enter the mine"):
+	if not t.check(inside, "walking into the open gate did not enter the mine's mouth, M1 (in %s)" % t.world().map_id()):
 		return
+	await t.until(func() -> bool: return not bool(t.main.call(&"is_transitioning")), 6000.0)
 	await t.steps(8)
-	var arrival := t.world().world_root.get_node("mine-entrance") as Node2D
+	var arrival := t.world().world_root.get_node("Objects/mine-entrance") as Node2D
 	t.check(t.player().get_centre().distance_to(arrival.global_position) < 160.0, "the slime did not arrive at the mine's mouth")
-	# Out by the mine's south doorway: back in front of the gate.
-	_stand(t, Vector2(24 * CELL, 68.6 * CELL))
+	# Out by M1's south doorway: back in front of the gate.
+	_stand(t, arrival.global_position + Vector2(0.0, -0.6 * CELL))
 	await t.steps(4)
 	t.press(&"move_down")
 	var out := await t.until(func() -> bool: return t.in_world(MAP_ID) and t.player_body() != null, 6000.0)
@@ -142,16 +147,17 @@ func test_the_open_gate_leads_into_the_mine_and_its_way_out_comes_back(t: TestCo
 
 
 func test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_falls(t: TestContext) -> void:
-	# Pearl 3 lies inside since 2026-10-17 (the Shardback's Den): its take seals the mine's mouth until
-	# the Colossus falls (docs/godot/DUNGEONS.md "The seal").
+	# Pearl 3 lies inside since 2026-10-17 (the Shardback's Den, M13): its take seals the mine's mouth
+	# (M1's seal) until the Colossus falls (docs/godot/DUNGEONS.md "The seal").
 	if not await _enter(t, MINE_ID):
 		return
 	var run := Services.run()
-	t.check(DungeonState.seal(run, MINE_ID, "crystal-colossus", "crystal-colossus"), "the mine could not be sealed")
+	t.check(DungeonState.seal(run, MINE_RECORD, "crystal-colossus", "crystal-colossus"), "the mine could not be sealed")
 	await t.steps(4)
 	var seal := t.world().world_root.get_node("Objects/M1-mouth-seal")
 	t.check(bool(seal.call(&"is_shut")), "the mouth's seal is not shut while sealed")
-	_stand(t, Vector2(24 * CELL, 68.0 * CELL))
+	var mouth := t.world().world_root.get_node("Objects/mine-entrance") as Node2D
+	_stand(t, mouth.global_position + Vector2(0.0, -0.8 * CELL))
 	await t.steps(4)
 	t.press(&"move_down")
 	await t.sim_wait(1500.0)
@@ -159,7 +165,7 @@ func test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_fal
 	t.check(t.in_world(MINE_ID), "the slime walked out of the sealed mine")
 	# His fall breaks the seal: the mouth leads out to the yard again. It sets chapter-3-complete, and
 	# Release 1's end card opens over the game, pausing it (quests spec 14.6): closed, the mine goes on.
-	DungeonState.mark_boss_beaten(run, MINE_ID, "crystal-colossus")
+	DungeonState.mark_boss_beaten(run, MINE_RECORD, "crystal-colossus")
 	await t.steps(2)
 	var shell := Services.shell()
 	if shell != null and shell.end_card.is_open():
@@ -167,7 +173,7 @@ func test_while_sealed_the_mines_mouth_keeps_the_slime_in_until_the_colossus_fal
 	await t.steps(2)
 	await t.until(func() -> bool: return not bool(seal.call(&"is_shut")), 3000.0)
 	t.check(not bool(seal.call(&"is_shut")), "the mouth's seal did not sink when the Colossus fell")
-	_stand(t, Vector2(24 * CELL, 68.6 * CELL))
+	_stand(t, mouth.global_position + Vector2(0.0, -0.6 * CELL))
 	await t.steps(4)
 	t.press(&"move_down")
 	var out := await t.until(func() -> bool: return t.in_world(MAP_ID) and t.player_body() != null, 6000.0)

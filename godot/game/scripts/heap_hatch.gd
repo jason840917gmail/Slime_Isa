@@ -8,7 +8,7 @@ class_name HeapHatch
 ## - **Shut** while any liftable (group `liftable`: a LiftableScript whose root is not on its way
 ##   out) lies on it, its root inside `cover_rect` (relative to this node): the lid shows shut
 ##   (`visual`'s frame FRAME_SHUT) and its door (`door`, a door.gd of kind `ladder_down`) leads
-##   nowhere (its trigger is off), as LatchedHatch keeps a latched hatch.
+##   nowhere (its trigger is off).
 ## - **Opens** the moment the last one is gulped away (or thrown off: anything that takes it off the
 ##   cover): the lid swings up (FRAME_OPEN) with a puff of dust and the door sound, the secret jingle
 ##   plays (`SecretFound`, as the prologue's cleared path) when something had lain on it since the

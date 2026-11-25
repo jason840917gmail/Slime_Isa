@@ -3,9 +3,9 @@ extends MatronScript
 ## of the dungeons 2 and 3 rework (docs/design/2026-11-23-dungeons-2-3-rework.md "The Orb-Weaver
 ## Matron"; docs/godot/specs/matron.md section 9). It extends the cocoon fight (matron.gd, sections 8):
 ## the cocoon, its tear, the open window, the respin, the rounds' floors, the egg sacs and the Silk
-## skin's webbed floor are that fight's; this script adds the rams and her new frames. Only the
-## Matron lab places her so far (`world.matron-lab`); the Weaver Hollow keeps the built fight until its
-## Crown is rebuilt with rams, five as in the lab (step 3).
+## skin's webbed floor are that fight's; this script adds the rams and her new frames. Her lab
+## (`world.matron-lab`) and the rebuilt Weaver Hollow's Crown (`weaver-hollow-c2-crown`, through
+## `encounter.weaver-hollow-matron`, since 2026-11-25) place her, five rams in each.
 ##
 ## The rams are demolition tools both sides use (owner, 2026-11-24): the slime trips them at her, and
 ## she trips them at the slime (**her ram call**: the slime in a ready ram's lane, she spits a glob of

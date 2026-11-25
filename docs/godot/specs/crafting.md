@@ -1528,8 +1528,8 @@ gone".
   `chunks/level-1-c5.tscn`, raised by the bell on the lookout rock: belt-slot, 25 coins, a Fizzy
   Brew), Gloop Forest's iron hollow behind its plate gate (`gloop-forest-f5-hollow-chest`, a wooden
   chest added in the yard's north-east corner of `chunks/gloop-forest-f5.tscn`: belt-slot, a Slime
-  Tonic), the Crystal Mine's S1 (`crystal-mine-M4-S1-chest` in `crystal-mine.tscn`: belt-slot, 50
-  coins), and Dollop's shop (120 coins, once). A save whose chest record was made before (the chest
+  Tonic), the Crystal Mine's S1 (`crystal-mine-M4-S1-chest`, on the Dark Maze's north wall since the Mine's
+  rebuild of 2026-11-25: belt-slot, 50 coins), and Dollop's shop (120 coins, once). A save whose chest record was made before (the chest
   seen or opened) keeps its old contents: those slots are found again only on a new run.
 - **Which items** (`game/inventory/potion_belt.gd` `is_potion`): a `consumable` whose `use` is not
   an essence's gulp: the Slime Tonic, the Fizzy Brew, the Berry Basket.

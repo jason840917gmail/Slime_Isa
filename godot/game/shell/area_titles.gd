@@ -31,8 +31,9 @@ const AREAS := {
 	# The Weaver Hollow, Chapter 2's dungeon, one world per room since 2026-11-25 (DUNGEONS.md "The
 	# switch-over"): one banner for all its rooms' worlds, as Fatty's Lair.
 	"weaver-hollow": {"name": "Weaver Hollow", "biome": "gloop-forest"},
-	# Today's four floors, no longer entered (a save standing in one wakes in the rebuilt Hollow:
-	# RunState `moved_world`); kept for an old save's slot label until they are retired (step 5).
+	# The Hollow's four floor worlds before the rebuild, retired (their scenes deleted at step 5 of the
+	# dungeons rework, 2026-11-25; a save standing in one wakes in the rebuilt Hollow: RunState
+	# `moved_world`): kept for an old save's slot label.
 	"weaver-hollow-trunk": {"name": "Weaver Hollow", "biome": "gloop-forest"},
 	"weaver-hollow-roots": {"name": "Weaver Hollow: the Roots", "biome": "gloop-forest"},
 	"weaver-hollow-boughs": {"name": "Weaver Hollow: the Boughs", "biome": "gloop-forest"},

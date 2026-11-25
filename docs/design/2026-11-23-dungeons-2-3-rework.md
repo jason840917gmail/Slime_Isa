@@ -5,7 +5,10 @@
 [DUNGEONS.md](../godot/DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)), with one change: no heart quarter inside a dungeon ([call 4](#the-owners-calls)). **On 2026-11-24 he said "Yes, start step 2"
 with the other five calls as proposed:** step 2 (the bosses) is built in two boss labs, filmed and reviewed in
 code on 2026-11-24, with the changes he asked for while it was built (noted under each boss below); not yet
-played with a keyboard. Steps 3 to 5 follow, each reviewed before the next. His request: check dungeon 2,
+played with a keyboard. Steps 3 and 4 (the Hollow and the Mine rebuilt one world per room, and the
+game switched over to them) were built and reviewed on 2026-11-25, and step 5 ("step 5 this is the
+way to go so get rid of the old") retired the old worlds the same day
+([the archive](../archive/2026-11-25-old-hollow-and-mine.md)). His request: check dungeon 2,
 then 3; the maps must make sense, be hard to solve without being boring, and keep the player
 exploring; rooms with several levels where the level is there for a reason (a key or a secret on a
 room's second level, reached only by crossing several rooms up there); the bosses' looks and
@@ -158,7 +161,7 @@ spinning a cocoon (4), the cocoon breathing (4) and swinging when struck (3), he
 hiss, shriek and impact sounds.
 
 **As built (2026-11-24, `world.matron-lab`), with the owner's changes** (the fight in full:
-[matron spec §9](../godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow)):
+[matron spec §9](../godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-the-hollows-since-2026-11-25)):
 five rams along the north wall, not two, their targets roped across the room so that which target
 lets which ram go takes finding; the rams are both sides' tools (a ram that catches her dive also
 hurts her 20, and she spits a glob of web at a target to let a ram go at the slime); every cocoon
@@ -235,7 +238,7 @@ the next. Tests run only when he asks.
 | 2 | The two bosses in a boss lab, art first (a sheet for his yes), then the fight | the sheets; a film of each round |
 | 3 | The Hollow, a floor at a time: the Trunk and the Roots, then the Boughs, then the Crown | each room rendered; the walks filmed |
 | 4 | The Mine, a wing at a time | the same |
-| 5 | Docs, tests updated, the old shells and builders retired | — |
+| 5 | Docs, tests updated, the old shells and builders retired (done 2026-11-25: the Hollow's four floors and the one-scene Mine, their room copies, builders and dead tools deleted; the tests rewritten for the rooms, not run yet) | — |
 
 **Every room's checklist** (so none is a bare box again): its interior walls and a floor trim; two
 floor textures at least; five to twelve props of its theme (silk drapes, the Guard's racks and

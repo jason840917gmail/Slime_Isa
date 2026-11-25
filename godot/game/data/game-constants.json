@@ -553,9 +553,10 @@
       "flame": { "class": "tap", "damage": 5, "holdMs": 250, "rangePx": 72, "speed": 900, "lingerMs": 150, "radiusPx": 10, "lightRadiusPx": 90,
         "feel": { "hitStopMs": 45, "trauma": 0.15, "kickPx": 2, "sparks": 4 } },
       "glow": { "radiusPx": 160, "flareMs": 260 },
-      "candle": { "lightRadiusPx": 110, "gutterMs": 5000 },
+      "candle": { "lightRadiusPx": 300,
+          "brazierLightRadiusPx": 380, "gutterMs": 5000 },
       "burnable": { "burnMs": 600, "spreadPx": 24 },
-      "darkness": { "alpha": 1.0, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShare": 0.25 }
+      "darkness": { "alpha": 1.0, "softPx": 40, "maxLights": 16, "litFadeMs": 1500, "candleShareCurve": 0.5 }
     },
     "bow": {
       "energy": 6,

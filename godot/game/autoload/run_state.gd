@@ -191,8 +191,9 @@ const PEARL_FLAG_PREFIX := "pearl."
 ## (`install`).
 const VERDANT_GATE_ID := "level-1-east-verdant-gate"
 const VERDANT_TREE_FLAG := "level-1.verdant-tree-smashed"
-## Worlds no longer entered, each a dungeon rebuilt one world per room (2026-11-25, docs/godot/
-## DUNGEONS.md "The switch-over"): retired world -> the rebuilt dungeon's entrance world. A save
+## Worlds retired, each a dungeon rebuilt one world per room (2026-11-25, docs/godot/DUNGEONS.md
+## "Old saves"; their scenes deleted at step 5 of the dungeons rework, so `load_slot` checks the
+## moved world): retired world -> the rebuilt dungeon's entrance world. A save
 ## standing in a retired world wakes at that world's player spawn (the rebuilt dungeon's entrance),
 ## inside, as a dungeon's resume save does; a dungeon record's entrance naming a retired world is
 ## forgotten (the entrance room records it again). The records themselves are the same dungeons'

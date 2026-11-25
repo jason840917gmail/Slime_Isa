@@ -16,7 +16,7 @@ class_name MineCartStation
 ## `partner_world`, and the ride travels there as a door does (main.gd `request_exit`, a fade), the
 ## slime coming out at the arrival point `partner_door` beside that station. Which station holds the
 ## cart is then kept under the dungeon's record id (DungeonState.record_map_id: `crystal-mine` for
-## every room and for today's one-scene Mine), so both worlds read the same answer. A line whose other
+## every room, as for the one-scene Mine it replaced), so both worlds read the same answer. A line whose other
 ## world is not in scene_index.json does not ride.
 ##
 ## Owner: dungeons (the Crystal Mine).

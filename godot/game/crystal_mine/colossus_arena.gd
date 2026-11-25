@@ -30,8 +30,9 @@ class_name ColossusArena
 ## `boss_disengaged`, `get_live_boss`, `arena_perimeter`, `camp_id`, `boss_id`), and the compass's
 ## boss mark on the dungeon map until he falls (the kit's group `dungeon_map_mark`, `mark` "boss").
 ##
-## **The plate fight** (`plate_fight`, off: the mine keeps the fight as built until its room is
-## rebuilt; on in the Colossus lab, docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap 12.4)"):
+## **The plate fight** (`plate_fight`, on in both arenas the game has: M15 and the Colossus lab;
+## docs/godot/DUNGEONS.md "The plate fight"; off, the first fight as built on 2026-10-17, the weak
+## spot above, placed nowhere since the one-scene Mine was retired on 2026-11-25):
 ## he is made with crystal_colossus.gd's `plate_fight` on, and given the braziers (their rings make his
 ## plates brittle) and `crash_carts`, the runaway carts whose lines he crashes across (the nearest)
 ## when his claws are struck loose. `refights` (a lab's arena): his fall is not recorded (no `defeated_boss_ids`, no
@@ -74,7 +75,8 @@ signal boss_defeated(payload: Dictionary)
 @export var climb_spots: PackedVector2Array = PackedVector2Array()
 ## The north wall's face (world coordinates): a slime climbing in it is still in the fight.
 @export var wall_rect: Rect2 = Rect2()
-## The plate fight (crystal_colossus.gd `plate_fight`); off: the fight as built.
+## The plate fight (crystal_colossus.gd `plate_fight`); off: the first fight as built (no scene leaves
+## it off since 2026-11-25).
 @export var plate_fight: bool = false
 ## The plate fight: the runaway carts (ram_cart.gd) whose lines he crashes across off his wall (the
 ## one nearest where he falls; the Colossus lab's two run down the room from under his climb spots).

@@ -102,8 +102,7 @@ const HOUSE_FRONT_PX := 1.0
 ## Arriving up a ladder: the share of the climb spent rising out of the hole (the rest steps off).
 const RISE_SHARE := 0.6
 
-## The slime came in through this door (main.gd `_start_arrival` calls `on_arrival`): a hatch latched
-## from below opens when the slime climbs up through it (game/scripts/latched_hatch.gd).
+## The slime came in through this door (main.gd `_start_arrival` calls `on_arrival`).
 signal arrived
 
 ## JSON `mapId`.

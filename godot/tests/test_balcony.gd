@@ -88,8 +88,8 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	SkinState.lend(SkinState.FERAL)
 	# From the foot up the vines under the lower balcony: off them onto its floor.
 	await _stand(t, Vector2(UP_TO_IT_X, FOOT_Y + 30.0), Vector2.UP)
-	t.press(&"interact")
-	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "holding interact at the vines' foot did not take hold"):
+	t.tap(&"interact")
+	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press at the vines' foot did not take hold"):
 		t.release_all()
 		return
 	t.press(&"move_up")
@@ -103,20 +103,22 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	# On up: the vines over the balcony, from its floor to the rim.
 	await _stand(t, Vector2(ON_UP_X, LOWER_BACK + 24.0), Vector2.UP)
 	t.check(player.is_on_balcony(), "the slime put under the upper vines does not stand on the balcony")
-	t.press(&"interact")
-	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "holding interact on the balcony under the vines did not take hold"):
+	t.tap(&"interact")
+	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press on the balcony under the vines did not take hold"):
 		t.release_all()
 		return
 	# Clinging over the balcony it is drawn before the wall (at the depth of the wall's foot), not at
 	# the balcony's own, which is behind the wall's face: the wall hid the slime there (2026-11-13).
 	await t.steps(4)
 	t.check(float(t.world().elevation.flights.get(body, 0.0)) >= FOOT_Y, "the slime clinging over the balcony is drawn behind the wall (depth %s)" % t.world().elevation.flights.get(body, 0.0))
-	# A let-go right away sets it back on the balcony, not at the wall's foot.
+	# A let-go right away (the second press: the climb is a toggle since 2026-11-24) sets it back on
+	# the balcony, not at the wall's foot.
 	t.press(&"move_up")
 	await t.sim_wait(600.0)
 	t.release_all()
+	t.tap(&"interact")
 	t.check(await t.until(func() -> bool: return player.is_on_balcony(), 2000.0), "a let-go over the balcony did not land on it (feet %s)" % body.global_position)
-	t.press(&"interact")
+	t.tap(&"interact")
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
 	var up := await t.until(func() -> bool: return not player.is_climbing() and body.global_position.y < RIM_Y, 8000.0)

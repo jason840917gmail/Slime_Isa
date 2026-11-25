@@ -814,15 +814,21 @@ of 120 px, out after 20 s).
 - **The runaway cart** (2026-11-25, the rebuilt Crystal Mine's Den; `shardback.gd` `on_mechanism_hit`,
   as the Brood Warden answers the ram; [Mechanisms](DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)):
   a cart stopped against it while its shell is brittle **shatters the shell** in one blow
-  (`cartShatterDamage` 9999: it falls, its defeat frame the shell burst into shards; a crystal burst,
-  `cartShatterShakeMs` 320 / `cartShatterShake` 0.012); against a cold shell it clangs off
-  (`cartColdDamage` 10, a stagger of `cartStaggerMs` 1100, `cartClangShakeMs` 160 / `cartClangShake`
-  0.005). Its stagger is its walk frame rocked and shaken (no frame of its own).
+  (`cartShatterDamage` 9999: it falls; a crystal burst, `cartShatterShakeMs` 320 / `cartShatterShake`
+  0.012). Its fall has frames of its own (16 to 18, 2026-11-25), turned away from the cart (struck from
+  behind): the shell cracking with orange-hot light for `cartShatterStruckMs` 300 (its first 120 under
+  the blow's hurt flash), bursting for
+  `cartShatterBurstMs` 240 (a second burst of shards), then on its side among the pieces until the
+  corpse fades (`corpseMs` 2000, `corpseFadeMs` 600); beaten any other way, its defeat frame stays the
+  broken shell (frame 3). Against a cold shell it clangs off (`cartColdDamage` 10, a stagger of
+  `cartStaggerMs` 1100, `cartClangShakeMs` 160 / `cartClangShake` 0.005): turned to the cart, rocked
+  back on its hind legs with the shell whole (frame 19) for `cartClangMs` 550, then standing on its
+  walk frame, shaken, until the stagger ends.
 - **Ammo from its slam** (2026-11-25): each slam knocks a crystal chunk loose (a light liftable of the
   scene property `slam_chunk_kind`, `crystal-cluster`) `slamChunkOffsetPx` 110 from its ring, never
   within `slamChunkRailClearPx` 72 of a runaway cart's line or of the lane from its end to its knock
-  target; at most `slamChunksMax` 3 lie at once (the oldest crumbles). Its slams do the same in today's
-  one-scene Mine and in its pen (there the chunks are only things to throw).
+  target; at most `slamChunksMax` 3 lie at once (the oldest crumbles). Its slams do the same in its
+  pen (there the chunks are only things to throw).
 
 ### 29. Crystal Mite (swarm)
 
@@ -1265,7 +1271,7 @@ hanging, woken hanging, swooping, fallen), `-crystal-crawler` (two crawling step
 turn with its belly up, flipped; its poses are centred in their cells, `CENTRED`, as it turns round
 its middle), `-prism-eye` (watching with a blank orb, blazing, petals shut, shattered),
 `-pick-mole` (ducked, pickaxe raised, throwing, knocked out), `-shardback` (walking, rearing,
-slamming, shell broken), `-crystal-mite` (ready, running, falling curled, shattered) and
+slamming, shell broken; with its walk and the cart's blows now `-tile_20x1-shardback`), `-crystal-mite` (ready, running, falling curled, shattered) and
 `-watcher-eye` (front with a blank eyeball, glowing, its back, broken). A props sheet
 (`caverns-props-sheet.png`, `PROP_SHEETS` in the packer) gives `godot/asset/MAPS/props/caverns/256x256-crystal-pillar.webp`,
 `256x256-tile_2x1-brazier.webp` (unlit, lit) and the pickaxe `godot/asset/MAPS/enemies/64x64-pickaxe.webp`.
@@ -1343,6 +1349,15 @@ four) and `-6.png` (tipped onto his side, tumbling over, heaving up on his blade
 feet; its faint haze cleared, `FAINT_HAZE_FILES`), packed after his walk as frames 16 to 23, so his
 sheet became `256x256-tile_24x1-brood-warden.webp` at the same scale (his other frames unchanged).
 The loop's four poses keep their body on one spot (`STILL_BODY`), so only the legs and blades move.
+
+The Shardback's blows from the Den's runaway cart (2026-11-25, 80 credits: one sheet, two takes, his
+first sheet and Lili as references): `shardback-sheet-5.png` (take A: struck from behind, the shell
+cracking with orange-hot light; the shell bursting, shards blown out; thrown on his side among its
+pieces; the cold clang, the shell whole, rocked back on his hind legs; take B kept beside it as
+`shardback-sheet-5-take-b.png`; its faint haze cleared, `FAINT_HAZE_FILES`), packed after his walk as
+frames 16 to 19, so his sheet became `256x256-tile_20x1-shardback.webp`. Its scale is taken from his
+first 16 poses only (`SCALE_FROM`), so his old frames keep their size; the pose on his side, wider than
+the cell at that scale with its heap of pieces, is drawn 3 % smaller to fit.
 
 The Worm Bulwark (row 37, 2026-11-21, 160 credits: two takes of each of his two sheets, the first
 with Lili and the Worm Brawler's sheet as references, the second with his first): `worm-bulwark-sheet.png`

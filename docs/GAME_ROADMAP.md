@@ -4479,7 +4479,8 @@ materials), 8 (Forge), and 13 (progression pass).
   Open: the three-way Stretch Lash (she keeps the web spit), the owner's
   play and tuning.
 - Placed 2026-10-17 in the Weaver Hollow's Crown (`weaver-hollow-crown`,
-  C2, 8.14): her camp's `boss_engaged` and `boss_defeated` shut and open the
+  C2, 8.14; since 2026-11-25 her ram fight in the rebuilt `weaver-hollow-c2-crown`,
+  the four floors retired): her camp's `boss_engaged` and `boss_defeated` shut and open the
   Crown's shutter behind the slime; the open world's nest camp
   (`encounter.gloop-matron-nest`) left `gloop-forest-f4`, which is the
   Hollow's forecourt now (the scene stays; `test_matron.gd` mounts it where
@@ -4975,7 +4976,10 @@ materials), 8 (Forge), and 13 (progression pass).
   - Build and Done when (changed): the Hollow's rework is 12.8, from its
     [plan](design/2026-10-17-pearl-mid-dungeon.md); until then the built
     Hollow keeps the old order.
-- Today: built 2026-10-17 (not yet played by the owner; tests written, not
+- Today: rebuilt 2026-11-25 one world per room
+  ([the dungeons rework](design/2026-11-23-dungeons-2-3-rework.md)), and the
+  four floor worlds below retired the same day (its step 5). Before that: built
+  2026-10-17 (not yet played by the owner; tests written, not
   run), from [its design](design/2026-10-16-dungeon-weaver-hollow.md), as
   [DUNGEONS.md "The Weaver Hollow (built)"](godot/DUNGEONS.md#the-weaver-hollow-built)
   describes: four floor worlds (`weaver-hollow-trunk`, `-roots`, `-boughs`,
@@ -5771,8 +5775,9 @@ rework.
   Feral exam (12.4). The strike while clinging is built for it (SKINS.md
   "Feral"). New art: his stun and the small golem (100 credits). Tests:
   `test_crystal_mine.gd` (20) and `test_mine_camp.gd` (6), passing. Dev:
-  `?map=crystal-mine&sealed` (with `&room=<camera room>`) plays the second
-  half; `?skins=feral` lends the skin alone.
+  `?map=crystal-mine&sealed` (with `&room=<camera room>`) played the second
+  half (the one-scene world, retired 2026-11-25; `?sealed` works in every room
+  of the rebuilt Mine); `?skins=feral` lends the skin alone.
 - Built 2026-10-17, **Fatty's Lair** (the plan's proposals;
   [DUNGEONS.md "Fatty's Lair (built)"](godot/DUNGEONS.md#fattys-lair-built);
   not yet played by the owner): the first half as built through R8, R11 and

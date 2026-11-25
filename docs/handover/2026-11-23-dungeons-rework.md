@@ -252,7 +252,7 @@ fights until steps 3 and 4 rebuild their rooms.
 - **The Matron: built and filmed.** `character.orb-weaver-matron-rework` (`game/bosses/matron_ram.gd`
   extends matron.gd, whose only change is the `_runs_ai()` hook; `matron_ram_look.gd`, `web_glob.gd`)
   in `world.matron-lab` (`tools/build_matron_lab.gd`); the whole fight in
-  [matron spec §9](../godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow).
+  [matron spec §9](../godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-the-hollows-since-2026-11-25).
   The owner changed the plan while it was built, and the build follows him: **five rams along the
   north wall**, their targets roped across the room so which target trips which ram takes finding
   (his drawing); **the rams are both sides' tools** (a ram catching her dive hurts her 20; she
@@ -1550,6 +1550,147 @@ not played with a keyboard.
 
 ## Next
 
+**Step 5 (2026-11-25): done** (the owner: "step 5 this is the way to go so get rid of the old"), by the
+hollow-floors session, for the reviewer's read before the commit. Today's Weaver Hollow (four floor
+worlds) and today's Crystal Mine (one world) are gone, with their copies, builders and the code only
+they used; the tests that built them are rewritten for the rebuilt dungeons; the docs read as the game
+is. Files deleted with the file system (no `git rm`); all of them are in `09d5ebae`. Nothing
+committed; the suite not run. **Turning back** is no longer one line in a chunk scene (the two switch-overs' notes below
+predate this): the old worlds would have to come back from `09d5ebae` (files, `scene_index.json`
+lines, tools), and the two gates' targets with them.
+
+**Removed (76 files):**
+
+| What | Files |
+|---|---|
+| The Hollow's four floors | `worlds/weaver-hollow-{trunk,roots,boughs,crown}.tscn`, their 22 room copies in `rooms/weaver-hollow-{trunk,roots,boughs,crown}/`, their four elevation caches, their four `scene_index.json` lines |
+| The Mine's one world | `worlds/crystal-mine.tscn`, its 14 unused copies in `rooms/crystal-mine/`, its cache `crystal-mine.res`, its `scene_index.json` line |
+| The old Crown's fight | `encounters/weaver-hollow-matron-old.tscn` (the copy only today's Crown used) |
+| Game scripts only they used | `game/dungeon/doorway_art.gd` (the cliff-wall doorway frames: it acted only in worlds named `crystal-mine` or `weaver-hollow-*` without interior walls, so on no world left; its call in `dungeon.gd` and the room mask's frame cut-outs, `room_mask.gd` and `room_mask.gdshader`, went with it), `game/scripts/room_arenas.gd` (the floors' node), `game/scripts/latched_hatch.gd` (the old hub's hatch; attached to nothing else, a comment in `door.gd` had hidden it from the first count) |
+| Tools only they used | `build_weaver_hollow.gd` with `weaver_hollow/hollow_{canvas,floors,scene}.gd`, `film_weaver_hollow.gd`, `render_weaver_hollow.gd`, `render_matron.gd` (mounted her in today's Crown), `build_crystal_mine.gd`, `split_dungeon_rooms.gd` with `lib/dungeon_room_splitter.gd` (its worlds list held only the five), `render_dungeon_room_views.gd` (the doorway review's stills: two of its five shots were the removed worlds, two more named rooms that left the `fatty-lair` world in 2026-10-18 and were skipped), `scripts/maps/weaver-hollow-contact-sheet.py` (laid out `film_weaver_hollow.gd`'s shots) |
+
+Each `.gd` went with its `.gd.uid`: 14 scripts, 14 uids, 42 scenes, 5 caches, 1 Python script.
+`scene_index.json` holds no path to a missing file (checked).
+
+**Kept that looked removable, and why:**
+
+- **The Colossus's first fight** (`plate_fight` off in `crystal_colossus.gd` and `colossus_arena.gd`:
+  the weak spot under four braziers, the stomp-count climb, every stomp a brazier out). Dead in the
+  game now: only today's Mine left the switch off; M15 and the lab set it on. Not removed: it runs
+  through about 45 branches of the 2,200-line boss script (the plate fight is built on it: the
+  stomp, the wall, the mites and the claws are shared), the mine-wings session was editing that file
+  this same day (`in_fire_ring`), and the two scenes that set the switch (M15, the lab) are other
+  sessions' files. Its comments and DUNGEONS.md say it is placed nowhere; its rules are in the
+  archive. A follow-up of its own, with M15's arena films as the proof.
+- **The cocoon fight** (`game/scripts/matron.gd`, `character.orb-weaver-matron`): the ram fight
+  (`matron_ram.gd`) extends `MatronScript` and keeps `cocoon_enabled` on; the nest camp
+  (`encounter.gloop-matron-nest`) and `test_matron.gd`'s first eight tests mount the base fight. The
+  nest is placed in no world (since the Hollow took the forecourt, 2026-10-17): an older orphan, the
+  owner's call.
+- **The room shell** (`room_scene_shell.gd`): the box-room lab is assembled by it.
+- **The doorway textures** (`asset/MAPS/objects/dungeon/doorways/`, `pack-doorway-art.py`,
+  `pack_doorway_textures.gd`): the latch door and the carts' tunnels use them.
+- **Three props only today's Mine placed** (`props/caverns/256x256-crystal-pillar.webp`,
+  `props/mine/256x256-ore-heap.webp`, `props/mine/256x256-rock-stump.webp`): runtime art, in no palette;
+  kept for the owner's eye rather than deleted with the world.
+- **`RunState.RETIRED_WORLDS`, `moved_world`**, the four old names in `area_titles.gd` (an old save's
+  slot label), both boss labs and the mechanism lab with their film tools, every record id the rooms
+  share with the old worlds (`weaver-hollow-roots`, `weaver-hollow-boughs`, `weaver-hollow-crown-*`
+  door and shutter ids, `crystal-mine`).
+- The `wall_bands` meta the two room builders still set on CameraRooms: nothing reads it now (the
+  room mask did, for the doorway frames); harmless, in the new rooms' scenes, not mine to edit.
+- `.godot/global_script_class_cache.cfg` still lists `LatchedHatch` and `RoomArenas`: the editor
+  rewrites it on its next scan (no headless import run).
+
+**The grep** (every removed world id, scene path, script and tool across `godot/`, `scripts/` and
+`docs/`, after the removal):
+
+| Where | Verdict |
+|---|---|
+| `run_state.gd` `RETIRED_WORLDS` (the five old ids) | kept: old saves still name them |
+| `area_titles.gd` (the four old floor names) | kept: an old save's slot label |
+| `game-constants.json` `devPowers.crystal-mine`, `world-map.json` (`crystal-mine`), `crystal-mine-dungeon.tscn` | the record id, also the old world's: right as it is |
+| `scene_index.json` `world.crystal-mine-m*` | the rebuilt rooms (the id only matches as a prefix) |
+| the rooms' prize records: M1, M3, M4, M6, M8, M10, M12 (`map_id` `crystal-mine`), D1 (`weaver-hollow-roots`), D2 and B4 (`weaver-hollow-boughs`), C2's shutter and T2's Crown Door (`weaver-hollow-crown-*`) | the old worlds' record ids on purpose: an old save never has a prize twice |
+| `build_weaver_hollow_rooms.gd`, `build_crystal_mine_rooms.gd`, `film_crystal_mine_rooms.gd`, `film_colossus_arena.gd`, `scripts/godot/film-colossus.sh` | the same record ids; the M15 world id as a prefix |
+| `room_fight.gd`, `run_state.gd`, `crystal_mine.gd`, `mine_cart.gd`, `ore_lift.gd`, `colossus_arena.gd`, `crystal_colossus.gd`, `matron.gd`, `door.gd`, `heap_hatch.gd`, `build_colossus_lab.gd` | comments: changed to say the old worlds are retired |
+| `dungeon.gd`, `room_mask.gd`, `room_mask.gdshader` | changed: the doorway art's call and frames gone |
+| tests | below |
+| `docs/` | changed (below); what still names the old files: the archive, `docs/handover/` and `docs/reviews/` (history), the 2026-10 design docs (decisions of their day; the two first designs carry a status line), `GAME_ROADMAP.md`'s dated entries (each now says what happened on 2026-11-25), and DUNGEONS.md / DUNGEON_ROOMS.md / matron.md where they say what was retired |
+| open world, dev scenes, `prop_palettes.json`, tilesets, export presets, `.claude/launch.json`, `package.json` | no hit: no door, landing, marker, `?map=` example or palette entry names a removed world |
+
+`tools/check_crossings.gd`: no line names a removed world. The Hollow has none left (the old T1 door's one-way line went with its world); the Mine's only line is M1's way out to G4's `camp-mine-mouth`, one way by design (G4's way in is a world exit). The others (Sunscar's five broken cellar doors, the bolt-hole, Tom's raft, the Sally Port's ladder, E4/E5's openings drawn apart) are not these dungeons'.
+
+
+**Tests** (rewritten, not run: the owner decides when the suite runs; every file touched compiles
+with `--check-only`). They stage what a suite cannot press (private timers, a knock target's
+`strike()` for a thrown pot, a boss's health) as the film tools do; their positions and timings come
+from the walks and films, inferred, not proven:
+
+- `test_weaver_hollow.gd` (24): rewritten for the 23 rooms. Deleted, their subject gone: the gaps
+  between camera rooms inside a floor world, the hub's hatch opened from below. Added: the forecourt's
+  gate held until blown and out again, T4's floor onto R1's ledge, R3's ram and the Guard's stair, key 1
+  and the big key, the Hoard's shutter for a Warden beaten elsewhere (`room_fight.gd`), C3's hole
+  (refused while sealed), the prizes keeping the old floors' records, an old save in the retired
+  Boughs waking in T1. The rest (doors pairing, keys, map and compass, B2's and B7's bridges, the
+  winch, the Crown's shutter, the Warden and Pearl 2, the Loft, the cracks, the Nursery, the Mimic,
+  the seals, the Hoard's stair, C1) rewritten in the rooms.
+- `test_matron.gd` (17): the nest tests untouched; the seven Hollow tests now play the ram fight in C2
+  (`_mount_crown`): cocooned over a ram's lane with every hit clinking, a blast under her low cocoon,
+  three rounds with a ram flinging her and round 3 her last hit, the Silk slime wading her rings and
+  round 3's webbed floor, never back, the full heart once, the thread only with Silk; added: her lane's
+  ram knocking the cocoon down.
+- `test_crystal_mine.gd` (19): rewritten for the 15 rooms. Deleted: the Dark Maze's candles and the
+  braziers' burn (the darkness work's, `test_dark_room_candles.gd`), and the first fight's four tests
+  (the weak spot, the stomp's brazier, the claws' stun, the Spear on his claws: placed nowhere).
+  Added: keys 2 and 1 into the Dark Maze, a cart bursting a hot plate and his kick, a cart clanging off
+  a cold plate, bare crystal and his core, an old save in the retired Mine waking in M1. The rest
+  (rooms and doors, the travel cart, the lift, the lens and bridge, the veils, the timbers, the Feral
+  climbs, the Den and Pearl 3, the boss door, his fall and the climb out) rewritten in the rooms.
+- `test_mine_camp.gd`: its two Mine tests enter M1 (`crystal-mine-m1-mine-mouth`, the record
+  `crystal-mine` for the seal); the rest unchanged.
+- `test_dungeon_rooms.gd`: the Hollow floors' test became every room world of both rebuilt dungeons
+  reading its dungeon and record id, and no retired world left in `scene_index.json`.
+- `test_dungeon_seal.gd`: one line, a room world's dungeon id (`weaver-hollow-c2-crown`).
+- The climb is a toggle (2026-11-24): `test_skins.gd` (its Feral test renamed
+  `test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next`, and the vines test) and
+  `test_balcony.gd` tap interact to cling and again to let go (they had released it to let go).
+- The Goo Bomb without a cast: no test outside the three rewritten waits out a cast (checked).
+- The room-fight reward for a boss beaten elsewhere: `test_lair_rooms.gd` needs no change (its one
+  boss fight, R12's, has no reward; its shutters open either way); the Hollow's test covers it.
+- Weak spots: the Mine's plate-fight burst reads the brazier's ring from `candle.gd`
+  (`light_radius_px`), which the darkness work is changing; the Matron tests set her private fields.
+- Possible game issue the Mine's test writer saw, not checked: M10's veil (`Objects/M10-veil`) lies on
+  the room's last floor row, about 38 units north of the south doorway's mouth, with M11's arrival
+  right at its foot; a slime from M11 may land at it or walk round its ends. M11's veil sits over its
+  doorway's mouth.
+
+
+**Docs:** DUNGEONS.md's two dungeon sections now describe the rebuilt dungeons ("The Crystal Mine
+(built)" and "The Weaver Hollow (built)" keep their headings, which 21 links and 14 code comments
+use; the wings and the Hollow's floors under them); the old worlds' text (their rooms, main paths,
+doors between floors, the Colossus's first fight, their dev notes and limits) moved to
+[docs/archive/2026-11-25-old-hollow-and-mine.md](../archive/2026-11-25-old-hollow-and-mine.md). Also
+DUNGEON_ROOMS.md (one world per room for all three; the shell, the splitter and the doorway pieces as
+history), AGENTS.md (the two walk lines), CONVENTIONS.md (dev powers), INTERIOR_WALLS.md, SKINS.md,
+DARKNESS.md (the one-scene arena's line and the retired worlds' row in the dark rooms' table),
+BESTIARY.md (the Shardback's slam), TOOLING.md, specs/matron.md (8.4, 8.8, section 9's title, 9.4),
+specs/audio.md, specs/crafting.md, story/03-world.md and 04-characters.md (the Hollow's rebuild
+noted), GAME_ROADMAP.md (three entries), the two first dungeon designs (a status line) and the plan's
+step table. Every link into DUNGEONS.md and the archive resolves (checked).
+
+**Proof without the suite:** `film_weaver_hollow_rooms.gd --film=walk`: PASS, 124 checks, none
+failed, no error in its log (forecourt, the gate blown, the whole way to her fall, C3's drop, in and
+out by the gate; `output/dungeon-rework/hollow/walk/strip.png`, `walk.json`). `film_crystal_mine_rooms.gd
+--film=walk`: PASS, 158 checks, none failed (its two warnings: M15's two void dips' hazard settings
+against their painted levels, carried over from the lab; `output/dungeon-rework/mine/walk/`).
+`--film=old-save` (a save standing in the deleted `crystal-mine`, loaded through `main.load_run`):
+PASS, 18 checks, it wakes in M1 with its records. A save standing in the deleted
+`weaver-hollow-boughs` (written to `user://tool-saves/switch-probe`, deleted after) wakes in T1 42 px
+from its entrance, on walkable floor, sealed, its key kept, T1 recorded as the entrance. The step
+pictures are deleted (strips and `walk.json` kept). Every changed script and test compiles
+(`--check-only`).
+
 **Step 3 (2026-11-25):** the Weaver Hollow rebuilt on all four floors (the Trunk, the Roots, the
 Boughs, the Crown), passed by the reviewer, and **switched over** the same day at the owner's word
 ("Switch it over", given before he has played the rebuilt rooms): the game enters the rebuilt Hollow.
@@ -1758,6 +1899,79 @@ The nook's door art in M15 and the dark rooms' brightening are the owner's (open
 - **unaffected:** the rest of `test_mine_camp.gd` (the yard, the smith, the cart, the gate: G4 and the
   smith's cave only).
 
+**Candles light the room (2026-11-25).** The owner on the walk's pictures: "candles dont light up
+the room ... definitly a lot more that what is iluminate today"; he chose both remedies.
+
+| | Before | After |
+|---|---|---|
+| A candle's or sconce's light (`abilities.lantern.candle.lightRadiusPx`) | 110 units | 300 |
+| A brazier's light | 120 (`light_radius` in `brazier.tscn`) | 380 (`candle.brazierLightRadiusPx`; the brazier scene's `light_kind` "brazier") |
+| The Colossus's braziers (his brittle rings) | 150 (their own `light_radius`) | 150, unchanged |
+| Which candles lift a room's dark | only the room's listed `candles` | every candle, sconce or brazier inside its rectangle, and the listed ones |
+| How much each lifts | `darkness.candleShare` 0.25 each, straight (one of three lamps: 0.75 black) | (lit / all) ^ `darkness.candleShareCurve` 0.5: one of three 58 %, one of four 50 %, two of four 71 % |
+| All burning | lit while they burn (listed rooms only) | the same, for every room with candles; lit for good only where it already was |
+| A room with no candle | never lifts | never lifts (M5, D1, the burrow, pens 23, 24, 28) |
+
+The numbers were tuned by pictures (240 and a 0.6 curve first: one lamp still read dim).
+`lifts_by_candles` (new, on by default) is off in M15 and the Colossus lab (his rings) and in Bestiary
+pen 34 (its brazier is the shelter in full dark that the pen shows). Every dark room in the game and
+what changes for it: [DARKNESS.md, "A share of the room per candle"](../godot/DARKNESS.md#a-share-of-the-room-per-candle-2026-11-25)
+(`tools/list_dark_rooms.gd` lists them). **M8:** each candle now lifts its share of the maze's dark
+while it burns (half with the first), so the maze reads once a candle burns; the candle run is
+unchanged (the walk lit the four in 49.8 s of their 90, by the same route) and only gets easier; the
+gate, the Gloomling on the north-west candle and the burn times stay. **The light-shy enemies** read the
+bigger circles: a Gloomling flees from farther, a Glint Bat wakes from farther and sleeps in a lit room
+(M11's while its brazier burns), the Shardback's shell is brittle anywhere in a brazier's 380 (the Den's
+rails under either brazier); no fight broke in the walk, no enemy number changed.
+
+| File | What and why |
+|---|---|
+| `godot/game/world/darkness/dark_room.gd` | `room_candles` (listed plus inside), `lift_share` (the curve), `lifts_by_candles`; lit while all burn, lit for good only as before |
+| `godot/game/world/fire/candle.gd` | `light_kind` and `light_radius_px` (its own radius, else its kind's from the data) |
+| `godot/game/scenes/objects/brazier.tscn` | `light_kind` "brazier" instead of a fixed 120 |
+| `godot/game/scripts/crystal_colossus.gd` | `in_fire_ring` reads `light_radius_px` (his arena's 150 as before) |
+| `godot/game/data/game-constants.json` | `candle.lightRadiusPx` 300, `candle.brazierLightRadiusPx` 380, `darkness.candleShareCurve` 0.5 (replaces `candleShare`) |
+| `godot/game/scenes/worlds/rooms/crystal-mine-rooms/m15-colossus-arena.tscn`, `godot/game/dev/bosses/colossus-lab.tscn`, `tools/build_colossus_lab.gd` | `lifts_by_candles` off on the hall's dark room |
+| `godot/game/dev/corners/bestiary_corner.tscn` | `lifts_by_candles` off on pen 34's dark room (one line) |
+| `godot/tools/list_dark_rooms.gd` (new) | lists a scene's dark rooms with their candles and lights |
+| `godot/tools/film_crystal_mine_rooms.gd` | `--film=candles` (a room's candles lit one by one, a picture at each count; `--before` for the old light) |
+| `godot/tests/test_dark_room_candles.gd` (new) | five tests of the new rule (the share and its curve, all lit, no candle, a listed candle outside, `lifts_by_candles` off, the radii by kind); compiled, not run. No other test covers darkness or candles but `test_crystal_mine.gd`, which builds today's retired Mine (the hollow-floors session's) |
+| docs | DARKNESS.md (the rule, the numbers, every dark room), DUNGEONS.md (the Mine's lessons of light, M8, M11, M13) |
+
+**Pictures, before and after, as the game shows them** (`output/dungeon-rework/mine/candles/`): the Lamp
+Tunnel with none, one, two and three lamps lit (`m2-lamp-tunnel-before-after.png`), the Dark Maze with
+none, one, two and four candles (`m8-dark-maze-before-after.png`), the Hollow's D2 with none, one and
+three (`hollow-d2-dark-bough-before-after.png`). The before row is the committed `dark_room.gd`,
+`candle.gd` and `brazier.tscn` put back for that run only (and restored), with the old 110 set in
+memory.
+
+**The Mine's missing art (the owner: "spend in art if need dont worry about credits").**
+- **M15's way in, done without credits:** the nook ends at a mine tunnel's mouth in the south rock, the
+  carts' tunnels' own timber doorway (`mine-gate-leaves.webp`, as `ram_cart.gd` lays a south wall's
+  mouth), the room door in it: a doorway, not a gap. The cut through row 23 is gone (the lab's nook as
+  it was); the slime comes out 96 units inside the nook. Pictured in `rooms/game/look-m15-colossus-arena-bright.png`.
+- **Not made: the generation was refused** by the builder session's own permission check, as the
+  painted shaft's first try was, so no credit is spent; the owner's yes in that session lets it go on.
+  What waits, each one GPT 2.5 picture of 40 credits (`simulate_cost` checked), references uploaded
+  (crops of the game's own mine props and of the painted shaft):
+  1. **A sheet of eight mine props** (2:1): a timber pit-prop frame against a wall, a ladder's foot
+     with its upper rungs broken off, a lift gantry (A-frame, pulley, two ropes), a stack of spare props,
+     a heap of fallen slate with crystal shards, a lantern post, a tipped ore cart, a pickaxe and shovel
+     by a crate: M14's timbering, ladder foot and lift frame under the painted shaft, and dressing for
+     the rooms whose floors read bare (M1, M5, M10, M11, M14).
+  2. **The Chasm painted** (9:16): a natural rock chasm's inside, crystal veins, ledges going down
+     into the dark, for M9's `PitDepth` (as M4's shaft).
+  3. **A pit painted** (1:1): a natural pit, for M8's void and, cropped, M2's two voids.
+  Looked at with the owner's eye, these are what reads makeshift today: the three code-drawn voids
+  (black boxes with dust and stars beside M4's painted shaft), M14 without the shaft's timbers, and the
+  bare floors. Not the crystal door leaves, not the Shardback.
+
+**Proof.** The walk from G4's camp through the whole Mine and out: PASS, 158 checks, run after the last
+scene edit (M15's tunnel mouth), with the new light (the candle run 49.8 s of its 90, the same route);
+an earlier run with the light alone passed the same. Its strip and `walk.json` in
+`output/dungeon-rework/mine/walk/`, the step pictures deleted. Every changed script and the new test
+compile (`--check-only`); no test run.
+
 State on 2026-11-24: step 1 passed review after two fix rounds (the reviewer kept the blow through a
 sleeping statue's shield, and left the shove's lead for a playtest). The owner has seen four films of
 the fix round (ram-enemies, ram-slime, cart-gate, target-blast).
@@ -1925,8 +2139,29 @@ until step 5 updates them.
    folder loads into M1 and passes its 18 checks (key, lock, lift, the Den's shutter, Pearl 3, the
    cart); the changed scripts compile; no frame pictures left. Today's `crystal-mine` world stays on
    disk and opens only by `?map=crystal-mine`. `test_mine_camp.gd`'s gate test fails until step 5.
-   **Step 4 is done. Step 5 (tests updated, today's Hollow and Mine worlds and their builders
-   retired) is not started: it deletes the owner's way back, so it waits for his word.**
+   **Step 4 is done and committed** (`09d5ebae`, with the switch-over and the Warden's frames).
+   **The owner's word of 2026-11-25 on what was open:** candles "follow your recommendation" (a
+   larger light per candle and a share of the room for every candle standing in it); "step 5 this
+   is the way to go so get rid of the old"; "spend in art if need dont worry about credits"; then
+   commit. Three sessions work at once, each on its own files, each read by the reviewer before the
+   commit: **mine-wings** (the candles in `dark_room.gd` and the data, every dark room listed, the
+   pictures side by side; then the Mine's missing art: M14's timbering, M15's doorway), **boss-art**
+   (the Shardback's shatter and stagger frames, wired in `shardback.gd`), **hollow-floors** (step 5:
+   today's Hollow and Mine worlds, their builders and dead fight code removed, the tests rewritten
+   for the rebuilt dungeons, the docs cut to the game as it is; `RETIRED_WORLDS` and the labs stay).
+   The suite is still not run: the owner decides when.
+   **The reviewer's read of the candles (2026-11-25): accepted.** `dark_room.gd` (`room_candles`,
+   `lift_share`, `lifts_by_candles`), `candle.gd` (`light_kind`, `light_radius_px`) and the numbers
+   read (candle 300, brazier 380, `candleShareCurve` 0.5; the Colossus's rings stay 150 and his
+   rooms keep `lifts_by_candles` off); the side-by-side pictures show the first lamp lifting the
+   whole room. To tidy: the header comments of both scripts still quote the trial numbers (240, 320,
+   0.6). For the owner's eye: one candle now makes the Dark Maze readable, so its lesson softens.
+   **The Shardback's cart frames (boss-art, 80 credits): accepted.** Struck and cracking hot, the
+   shell bursting, on his side among the pieces; a rocked-back frame for the cold clang. Weak: the
+   clang's pose is close to his slam's tell, and he flips to face the cart.
+   **The Mine's paid art:** the Mine's builder session cannot call the image tool (refused there), so
+   the three pictures it specified (a sheet of eight mine props, the Chasm painted, a pit painted)
+   are generated by the boss-art session and placed by the Mine's builder afterwards.
    **The Brood Warden's knocked frames (2026-11-25, the boss-art session, 80 credits): accepted.**
    Eight new frames (flung, on his back kicking, getting up) after his walk on a 24-frame sheet,
    wired into `PHASE_KNOCKED` (`knockedKickFrameMs`, `knockedRiseMs`); the squash is gone; the
@@ -1969,3 +2204,26 @@ until step 5 updates them.
    show in play, as the log passes over him and the ram blow's pink hurt flash covers most of the
    tumble; the getting-up is quick (two frames in 400 ms). Reload `brood-warden.tscn` in an open
    editor before a save-all. Nothing committed; no tests run.
+   **The Shardback's cart frames, built (2026-11-25, the boss-art session; 80 credits, one GPT 2.5
+   sheet in two takes, take A kept):** source `shardback-sheet-5.png` (struck from behind, the shell
+   cracking hot; bursting; thrown on his side among the pieces; the cold clang, rocked back on his
+   hind legs; take B beside it as `-take-b`) in `asset/Originals/enemies/bestiary/` (stripped; on
+   disk only), prompts in its README. Packed as frames 16 to 19 after his walk:
+   `256x256-tile_20x1-shardback.webp` at his old scale (the packer's new `SCALE_FROM` takes the scale
+   from his first 16 poses, so his old frames keep their size; the pose on his side, wider than the
+   cell with its heap, is drawn 3 % smaller); the 16x1 sheet and its `.import` deleted,
+   `shardback.tscn` points at the new one (`hframes` 20; no `.import` yet, the editor writes it on its
+   next scan: commit it with the sheet). `shardback.gd`: brittle, the cart's blow turns him away from
+   the cart and his corpse plays struck (`cartShatterStruckMs` 300, its first 120 under the hurt
+   flash), bursting (`cartShatterBurstMs` 240, a second puff of shards) and on his side among the
+   pieces until the corpse fades; beaten any other way his defeat stays frame 3. Cold, the clang
+   turns him to the cart, rocked back (frame 19) for `cartClangMs` 550, then his walk frame, shaken,
+   to the stagger's end (the three keys new in `enemy-types.json`). Proof: the Mine tool's
+   `shardback` film run through a scratch subclass that also films the first (cold) throw, PASS;
+   `output/dungeon-rework/mine/shardback-film/` has `clang-strip.png`, `clang-film.gif`,
+   `shatter-strip.png`, `shatter-film.gif` (and `-slow` GIFs) and the owner's sheet picture
+   `shardback-cart-frames.png`; the old film's strip and GIF kept as `*-before-frames`; frame
+   pictures deleted. Weakest: the Den's cart strikes him from behind, so the clang flips him round
+   to face it under the hurt flash before he rocks back (the art is a blow on his front); the clang
+   pose, reared up, is close to his slam's tell (frame 1), though cold, lower and with no ground
+   mark. Reload `shardback.tscn` in an open editor before a save-all. Nothing committed; no tests run.

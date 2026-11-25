@@ -11,10 +11,14 @@ extends Node2D
 ##   `abilities.lantern.darkness.maxLights` nearest to the slime (16) that reach the room are drawn.
 ## - **The darkness**: `abilities.lantern.darkness.alpha` (1.0: black) where no light reaches, a soft
 ##   edge of `softPx` inside each light's radius.
-## - **Lit by its candles**: each candle of `candles` that burns lifts `darkness.candleShare` (25 %)
-##   of the dark (owner, 2026-10-19: "turning candles on should bring some light to the room"); while
-##   every one burns, the room fades to lit over `litFadeMs`; when one goes out (candles burn 60 s by
-##   default, candle.gd) it fades darker again.
+## - **Lit by its candles** (owner, 2026-10-19: "turning candles on should bring some light to the
+##   room"; 2026-11-25: "definitly a lot more"): its candles are the ones it lists (`candles`) and every
+##   candle, sconce or brazier (candle.gd) standing inside its rectangle. With `lit` of `n` burning, the
+##   dark lifts by (lit / n) ^ `darkness.candleShareCurve` (0.6: one of three lifts about half of it,
+##   so the first is seen); while every one burns, the room fades to lit over `litFadeMs`; when one
+##   goes out (candles burn 60 s by default, candle.gd) it fades darker again. A room with no candle
+##   never lifts (the Tally Room's lesson). `lifts_by_candles` off: only the listed candles count, and
+##   only all together (the Colossus's arena, whose braziers' circles are his brittle rings).
 ## - **Lit for good** (`lit_for_good_when_all_lit`, off by default): once all its candles burn, it
 ##   stays lit and keeps them lit: the story flag `lit_flag` (default
 ##   `dark-room-lit.<persistence key or path>`).
@@ -29,6 +33,8 @@ const LanternGlow := preload("res://game/player/abilities/lantern_glow.gd")
 const SHADER := preload("res://game/world/darkness/dark_room.gdshader")
 
 const GROUP := &"dark_rooms"
+## candle.gd GROUP: every candle, sconce and brazier.
+const CANDLE_GROUP := &"candles"
 const FLAG_PREFIX := "dark-room-lit."
 const PERSISTENCE_KEY_META := &"persistence_key"
 const INSTANCE_ID_META := &"instance_id"
@@ -46,8 +52,10 @@ const FILL_COLOR := Color(0.05, 0.03, 0.12, 0.25)
 		size = value
 		queue_redraw()
 		_fit_overlay()
-## The candles that light the room for good when they all burn (none: it never lights).
+## Candles that light it besides those standing inside it (a candle outside its rectangle).
 @export var candles: Array[NodePath] = []
+## Every candle inside its rectangle lifts its share of the dark (off: only `candles`, all together).
+@export var lifts_by_candles: bool = true
 ## Once all its candles burn, the room stays lit for good (saved) and keeps them lit.
 @export var lit_for_good_when_all_lit: bool = false
 ## The story flag a room lit for good sets ("" = `dark-room-lit.<key>`).
@@ -149,7 +157,7 @@ func _process(_delta: float) -> void:
 	var step := now - _last_ms if _last_ms >= 0.0 else 0.0
 	_last_ms = now
 	var fade_ms := maxf(1.0, FireTargets.lantern_number("darkness.litFadeMs", 1500.0))
-	var target := 0.0 if _lit else maxf(0.0, 1.0 - FireTargets.lantern_number("darkness.candleShare", 0.25) * float(_candles_lit()))
+	var target := 0.0 if _lit else 1.0 - lift_share()
 	_fade = move_toward(_fade, target, step / fade_ms)
 	if _for_good and _fade <= 0.0:
 		_overlay.queue_free()
@@ -193,22 +201,45 @@ func _push_lights(player: Node) -> void:
 	_material.set_shader_parameter(&"light_count", count)
 
 
-## How many of its candles burn.
-func _candles_lit() -> int:
-	var count := 0
+## Its candles: the listed ones and (`lifts_by_candles`) every candle standing inside its rectangle.
+func room_candles() -> Array[Node]:
+	var found: Array[Node] = []
 	for path in candles:
 		var candle := get_node_or_null(path)
-		if candle != null and candle.has_method(&"is_lit") and bool(candle.call(&"is_lit")):
-			count += 1
-	return count
+		if candle != null and candle.has_method(&"is_lit") and not found.has(candle):
+			found.append(candle)
+	if lifts_by_candles and is_inside_tree():
+		var area := rect()
+		for node: Node in get_tree().get_nodes_in_group(CANDLE_GROUP):
+			if node is Node2D and node.has_method(&"is_lit") and not found.has(node) \
+					and area.has_point((node as Node2D).global_position):
+				found.append(node)
+	return found
+
+
+## How much of its dark its burning candles lift now (0..1; 1 when all burn).
+func lift_share() -> float:
+	var all := room_candles()
+	if all.is_empty():
+		return 0.0
+	var lit := 0
+	for candle: Node in all:
+		if bool(candle.call(&"is_lit")):
+			lit += 1
+	if lit == 0:
+		return 0.0
+	if not lifts_by_candles and lit < all.size():
+		return 0.0
+	var curve := maxf(0.05, FireTargets.lantern_number("darkness.candleShareCurve", 0.6))
+	return pow(float(lit) / float(all.size()), curve)
 
 
 func _all_candles_lit() -> bool:
-	if candles.is_empty():
+	var all := room_candles()
+	if all.is_empty():
 		return false
-	for path in candles:
-		var candle := get_node_or_null(path)
-		if candle == null or not candle.has_method(&"is_lit") or not bool(candle.call(&"is_lit")):
+	for candle: Node in all:
+		if not bool(candle.call(&"is_lit")):
 			return false
 	return true
 
@@ -230,9 +261,8 @@ func _cue_change() -> void:
 
 
 func _light_candles_for_good() -> void:
-	for path in candles:
-		var candle := get_node_or_null(path)
-		if candle != null and candle.has_method(&"keep_lit"):
+	for candle: Node in room_candles():
+		if candle.has_method(&"keep_lit"):
 			candle.call(&"keep_lit")
 
 

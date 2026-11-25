@@ -560,7 +560,9 @@ credits.
 | `crystal-crawler-sheet.png` | crawling (two steps, seen from above, head right), turning belly up, flipped | `256x256-tile_4x1-crystal-crawler.webp` (`CENTRED`) |
 | `prism-eye-sheet.png` | watching (blank orb), blazing, petals shut, shattered | `256x256-tile_4x1-prism-eye.webp` |
 | `pick-mole-sheet.png` | ducked, pickaxe raised, throwing, knocked out | `256x256-tile_4x1-pick-mole.webp` |
-| `shardback-sheet.png` | walking, rearing, slamming, shell broken (all facing right) | `256x256-tile_4x1-shardback.webp` |
+| `shardback-sheet.png` | walking, rearing, slamming, shell broken (all facing right) | `256x256-tile_4x1-shardback.webp` (now `256x256-tile_20x1-shardback.webp`, with his walk and sheet 5) |
+| `shardback-sheet-5.png` (2026-11-25, take A) | the runaway cart's blows: struck from behind, the shell cracking with orange-hot light; the shell bursting, shards blown out; thrown on his side among its pieces; the cold clang, the shell whole, rocked back on his hind legs | frames 16 to 19 (its faint haze cleared: `FAINT_HAZE_FILES`; the scale kept from his first 16 poses: `SCALE_FROM`) |
+| `shardback-sheet-5-take-b.png` | sheet 5's take B, the same four (not packed) | not packed |
 | `crystal-mite-sheet.png` | ready, running, falling curled, shattered | `256x256-tile_4x1-crystal-mite.webp` |
 | `watcher-eye-sheet.png` | front (blank eyeball), glowing, its back, broken | `256x256-tile_4x1-watcher-eye.webp` |
 | `caverns-props-sheet.png` | crystal pillar, pickaxe, brazier unlit, brazier lit | `props/caverns/256x256-crystal-pillar.webp`, `enemies/64x64-pickaxe.webp`, `props/caverns/256x256-tile_2x1-brazier.webp` |
@@ -629,6 +631,31 @@ turns them with the gaze.
   to slam down; bottom left slamming its front feet into the ground, head low, small crystal shards
   bursting out around its feet; bottom right defeated, its crystal shell cracked and broken into
   pieces, the tortoise lying flat and dazed with swirly eyes."
+- **Shardback, sheet 5** (2026-11-25, the Den's runaway cart; references: his first sheet, Lili; two
+  takes, 40 credits each, take A packed): the style block, then "A sprite sheet of the exact armoured
+  tortoise in the first reference picture, the Shardback mini-boss: a big heavy old tortoise with a
+  stony grey-green scaly head and thick clawed legs, small stern amber eyes under a heavy scowling
+  brow, and a tall domed shell of clustered pale icy-blue crystals growing out of dark brown rock
+  plates with green moss between them. Same design, same colours, same proportions and same painting
+  as the first reference, drawn at the same size, mean and heavy, never cute, never scared. All four
+  images face to the right in the same three-quarter top-down view. The sheet is a 2 by 2 grid of four
+  separate images of the exact same tortoise, the same size in every image, evenly spaced with wide
+  empty space between them. Top left: struck hard from behind by a heavy blow on the back of his
+  shell, he lurches forward, front legs buckling, head thrown forward with jaws wide open in a furious
+  roar; his crystal shell is cracking all over, bright orange-hot glowing light shining out of the
+  jagged cracks in the crystals and the rock plates. Top right: the same moment a split second later,
+  his crystal shell bursting apart, big pale blue crystal shards and broken rock plate pieces blown
+  outward a short way around the shell, staying close to his body, orange-hot light flaring from
+  inside the breaking shell, his legs splayed out, his body sagging, eyes squeezed in rage. Bottom
+  left: beaten, thrown over onto his side, lying heavily on the ground with his pale cream belly plates
+  turned toward the viewer and his limp legs sticking out, the shell broken off his back so only bare
+  cracked dark rock plates remain, the broken crystal shards and rock pieces lying in a heap around him
+  on the ground, eyes shut in a grimace, a last faint orange glow in the cracks; no swirly eyes, no
+  tongue. Bottom right: a different moment, his crystal shell whole and unbroken and unlit, cold pale
+  blue: a heavy blow on the front of his shell has knocked him back, rocked back onto his hind legs,
+  his front feet lifted off the ground, head jerked back, jaw clenched, glaring furious, braced and
+  shaking it off. Each image isolated on a transparent background, no ground shadow plate, no
+  scenery, no dust, no motion lines, no labels, no grid lines."
 - **Crystal Mite:** "A sprite sheet of one tiny swarm enemy for a top-down adventure game, the
   Crystal Mite: a tiny chunky golem made of rose-pink quartz crystal, with a blocky faceted pink
   body, two glowing amber-gold eyes, stubby grey rock arms and legs, and a cheeky angry little face.

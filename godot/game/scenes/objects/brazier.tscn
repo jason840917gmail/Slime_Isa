@@ -11,4 +11,4 @@ unlit_scene = ExtResource("unlit")
 lit_scene = ExtResource("lit")
 flame_offset = Vector2(0, -52)
 burn_ms = 20000.0
-light_radius = 120.0
+light_kind = "brazier"

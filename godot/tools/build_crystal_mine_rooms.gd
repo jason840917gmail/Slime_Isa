@@ -118,10 +118,16 @@ const LIFT_ID := "great-shaft-lift"
 const COLOSSUS_LAB := "res://game/dev/bosses/colossus-lab.tscn"
 const COLOSSUS_ID := "crystal-colossus"
 const COLOSSUS_CAMP := "crystal-mine-colossus"
-## The lab's nook (cells): the way in, cut on through the south rock to the room's edge (its last row).
-const M15_NOOK := Rect2i(12, 21, 2, 3)
-## The lab's elevation tile for its floor (level -1) and its ground's cavern floor.
-const LAB_FLOOR_TILE := Vector2i(2, 0)
+## The lab's nook (cells): the way in, a mine tunnel's mouth at its foot in the south rock.
+const M15_NOOK := Rect2i(12, 21, 2, 2)
+## The tunnel mouth (ram_cart.gd's: the mine gate's open doorway, as the carts' tunnels in the arena's
+## walls), laid as a south wall's mouth is: turned to face the room, foreshortened, over everything.
+const TUNNEL_ART := "res://asset/MAPS/objects/dungeon/doorways/mine-gate-leaves.webp"
+const TUNNEL_REGION := Rect2(256.0, 0.0, 256.0, 256.0)
+const TUNNEL_SCALE := 0.5
+const TUNNEL_DEPTH := 0.55
+## The slime comes out of the tunnel this far inside it (room_door.gd `arrival_inset`): in the nook.
+const M15_ARRIVAL_INSET := 96.0
 ## The climb out (today's M15-root-wall's numbers) at the north wall's east end, clear of his four
 ## claw roots and the east dip; the seal at its foot (today's: 16 above the roots' foot).
 const M15_CLIMB_OUT := Vector2(1344.0, 340.0)
@@ -1624,19 +1630,28 @@ func _build_m15(path: String) -> Error:
 	var camera := lab.get_node("CameraRooms/hall") as Node2D
 	camera.name = _name
 	camera.set_meta(&"wall_bands", false)
-	# the way in: the nook cut on through the south rock to the room's edge
-	var ground := lab.get_node("ground") as TileMapLayer
-	var elevation := lab.get_node("elevation") as TileMapLayer
-	for y in range(M15_NOOK.position.y, M15_NOOK.end.y):
-		for x in range(M15_NOOK.position.x, M15_NOOK.end.x):
-			ground.set_cell(Vector2i(x, y), CAVERN, Vector2i(x % SHEET, y % SHEET))
-			elevation.set_cell(Vector2i(x, y), 0, LAB_FLOOR_TILE)
+	# the way in: the lab's nook, a mine tunnel's mouth at its foot (the carts' tunnels' doorway), the
+	# room door in it
+	var foot := Vector2((M15_NOOK.position.x + M15_NOOK.size.x * 0.5) * CELL, M15_NOOK.end.y * CELL)
+	var mouth := Sprite2D.new()
+	mouth.name = "m15-nook-tunnel"
+	mouth.set_script(load(SHEET_SPRITE))
+	mouth.set(&"sheet_path", TUNNEL_ART)
+	mouth.region_enabled = true
+	mouth.region_rect = TUNNEL_REGION
+	mouth.rotation = PI
+	mouth.scale = Vector2(TUNNEL_SCALE, TUNNEL_SCALE * TUNNEL_DEPTH)
+	mouth.offset = Vector2(0.0, -TUNNEL_REGION.size.y * 0.5)
+	mouth.position = foot
+	mouth.z_index = 2
+	_objects.add_child(mouth)
 	_doors = Node2D.new()
 	_doors.name = "RoomDoors"
 	lab.add_child(_doors)
-	var door := _kit("room-door", "m15-south", Vector2(M15_NOOK.end.x * CELL - CELL, M15_NOOK.end.y * CELL), {}, _doors)
+	var door := _kit("room-door", "m15-south", foot, {}, _doors)
 	door.set(&"door_id", "m15-south")
 	door.set(&"side", "south")
+	door.set(&"arrival_inset", M15_ARRIVAL_INSET)
 	door.set(&"target_room", "m14-shaft-floor")
 	door.set(&"target_door", "m14-north-boss")
 	# the Dungeon: the crystal mine's (its record, its seal, its entrance in M1), where the lab's stood

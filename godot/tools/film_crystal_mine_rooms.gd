@@ -41,6 +41,8 @@ extends SceneTree
 ## - `old-save`: a save half-played in today's one-scene Mine (sealed by Pearl 3, a key held, a lock
 ##   open, the lift worked, the cart at the mouth) written to the tool runs' save folder and loaded:
 ##   it wakes in M1 at its entrance; the hub, the Den and the Chasm read today's records. PASS or FAIL.
+## - `candles`: a dark room's candles lit one by one, a picture at each count (`--map`, `--order`,
+##   `--shots`, `--at`, `--zoom`, `--slime`, `--before` for the light before 2026-11-25).
 ## - `look`: a still picture of a room in the game, `look-<room>.png` (`--world=<room name>`,
 ##   `--at=<x>,<y>` cells, `--zoom=<z>`, `--slime=<x>,<y>` where the slime stands, `--lit` lights a dark
 ##   room's lamps, `--bright` hides the darkness of a room that stays dark): its ground edges and lights,
@@ -97,6 +99,11 @@ var _look_slime := Vector2.INF
 var _look_lit := false
 ## `--bright`: a room that stays dark for good pictured without its darkness (its floor seen).
 var _look_bright := false
+## The `candles` film: the world (`--map`), the candles lit in order, the counts pictured, the old light.
+var _candle_map := ""
+var _candle_order: Array[String] = []
+var _candle_shots: Array[int] = [0, 1, 2, 3, 4]
+var _candle_before := false
 ## The `shardback` film: the Den's darkness hidden once the slime is in (so the blow can be seen).
 var _dark_hidden_on_arrival := false
 
@@ -121,6 +128,16 @@ func _initialize() -> void:
 			_look_lit = true
 		elif arg == "--bright":
 			_look_bright = true
+		elif arg.begins_with("--map="):
+			_candle_map = arg.trim_prefix("--map=")
+		elif arg.begins_with("--order="):
+			_candle_order.assign(arg.trim_prefix("--order=").split(",", false))
+		elif arg.begins_with("--shots="):
+			_candle_shots.clear()
+			for n: String in arg.trim_prefix("--shots=").split(",", false):
+				_candle_shots.append(int(n))
+		elif arg == "--before":
+			_candle_before = true
 		elif arg.begins_with("--from="):
 			_from = arg.trim_prefix("--from=")
 		elif arg.begins_with("--every="):
@@ -135,6 +152,8 @@ func _initialize() -> void:
 		else "m1-mine-mouth")
 	if _film == "walk" and _from.is_empty():
 		start = CAMP
+	if _film == "candles":
+		start = _candle_map if not _candle_map.is_empty() else W + _look_world
 	_main = (load(MAIN_SCENE) as PackedScene).instantiate()
 	_main.set(&"map_id", start)
 	_main.set(&"ability_ceremonies", false)
@@ -161,6 +180,8 @@ func _initialize() -> void:
 			await _look()
 		"old-save":
 			await _old_save()
+		"candles":
+			await _candles_film()
 		_:
 			push_error("film_crystal_mine_rooms: no film " + _film)
 	_finish()
@@ -1077,6 +1098,39 @@ func _look() -> void:
 	_still_camera(_look_at * CELL, _look_zoom)
 	await _run(60)
 	await _shoot("look-%s%s.png" % [_look_world, "-bright" if _look_bright else "-lit" if _look_lit else ""])
+
+
+## `candles`: a dark room as the game shows it with its candles lit one by one (pictures for the
+## owner: docs/godot/DARKNESS.md "A share of the room per candle"): `--world=<room>` (any world id: a
+## Mine room's name or a whole id), `--order=<candle node names under Objects, comma-separated>`, the
+## pictures `candles-<world>-<n>.png` after `n` of them burn, for each n in `--shots=0,1,2,...`,
+## `--at=<x>,<y>` cells and `--zoom=<z>` the camera, `--slime=<x>,<y>` where the slime stands.
+## `--before`: the light as it was before 2026-11-25 (a candle's 110 units), set in memory only, for
+## a run with the old darkness scripts in place.
+func _candles_film() -> void:
+	if _candle_before:
+		var table: Dictionary = Services.constants().get(&"_constants")
+		((table["abilities"] as Dictionary)["lantern"] as Dictionary)["candle"]["lightRadiusPx"] = 110
+	if _look_slime != Vector2.INF:
+		_place(_look_slime, Vector2.UP)
+	await _run(30)
+	_still_camera(_look_at * CELL, _look_zoom)
+	await _run(90)
+	var lit := 0
+	var name := _world().trim_prefix(W)
+	if 0 in _candle_shots:
+		await _shoot("candles-%s-0.png" % name)
+	for candle_name: String in _candle_order:
+		var candle := _node("Objects/" + candle_name)
+		if candle == null:
+			_fails.append("no candle " + candle_name)
+			continue
+		candle.call(&"light")
+		lit += 1
+		await _run(150)
+		if lit in _candle_shots:
+			await _shoot("candles-%s-%d.png" % [name, lit])
+	_log.append({"candles": name, "order": _candle_order, "before": _candle_before})
 
 
 # --- acting --------------------------------------------------------------------------------------

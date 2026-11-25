@@ -460,36 +460,17 @@ the hang, the thread and the glow on the scene. Her poses: `384x384-tile_4x1-mat
 dazed B, flinch, climbing), drawn at `pose_scale` with their feet at hers; the hit flash and the
 reactions' hit motion follow it (`visual`).
 
-### 8.4 The Weaver Hollow's camp (today's Crown: `weaver-hollow-matron-old.tscn`)
-Since the switch-over of 2026-11-25 this camp is `game/scenes/encounters/weaver-hollow-matron-old.tscn`,
-a copy of the encounter as it was, instanced only by today's Crown (no longer entered; it goes at step
-5); `encounter.weaver-hollow-matron` itself is the ram fight's camp (section 9). For the Crown room C2
-(world rect (0, 0) to (1024, 896), floor x 64 to 1024, y 192 to 896): its origin goes at the floor
-centre (512, 544).
-- `BossCampScript`: `map_id` "weaver-hollow-crown", `camp_id` "weaver-hollow-matron", `boss_id`
-  "orb-weaver-matron", `boss_scene` `character.orb-weaver-matron`, `spawn` (0, −144) (her shadow at
-  (512, 430), in the web's middle), `respawn_ms` −1 (once beaten she never comes back: no timer is
-  stored, and `is_boss_defeated()` keeps the camp from spawning her again, in a camp built again
-  too), `boss_overrides` {`cocoon_enabled`: true, `arena_recovery_ms`: 0} (no heal after a while
-  outside the arena), no guarded chest.
-- Activation: a rectangle 960 × 608 centred at (32, −48) (the floor from the top wall down to 96 px
-  above the bottom wall: she spawns once the slime is in). Arena: a rectangle 960 × 704 centred at
-  (32, 0) (the whole floor, so she never walks home and her volleys clamp into the room).
-- The shutters' hook (the dungeon kit's): the camp's `boss_engaged {campId, bossId}` on her spawn and
-  `boss_defeated {campId, bossId}` (with `boss_disengaged {campId, defeated: true}`) on her fall; a
-  slime that dies resets the fight (section 4.5), and she spawns again when it comes back in.
-- **Placed** (2026-10-17) in `weaver-hollow-crown` as `Objects/matron-camp` at (512, 544), built by
-  `tools/build_weaver_hollow.gd` (an editable instance): its `boss_engaged` is connected to the
-  `shut` and its `boss_defeated` to the `open` of `Objects/crown-shutter`, the kit's shutter in C2's
-  south doorway (at (512, 832), `wall` south), so the slime cannot leave while she fights. The way
-  out east (C2's east doorway, to C3's drop) holds the Hollow's seal (`Objects/crown-east-seal`,
-  `object.dungeon-seal`, `wall` east, at (960, 512)) from Pearl 2's take until her fall, so her web
-  wall in C3 cannot let a silk-skinned slime out first. A slime that faints resumes at the dungeon's
-  entrance in the Trunk (the kit's Dungeon node).
-- Children: `RoarSfx`, and her rewards (8.6, 8.7), which wait hidden until `orb-weaver-matron` is
-  in RunState `defeated_boss_ids`: `FullHeart` (`object.full-heart`) at (112, −96), `MatronThread`
-  (`object.matron-thread`) at (−256, −296), its spool hanging in her web by the top wall. Move them
-  in the world scene (editable children). Pearl 2 is no longer one of them (8.5).
+### 8.4 The Weaver Hollow's camp (the four floors' Crown, retired)
+From 2026-10-17 the cocoon fight's camp (`encounter.weaver-hollow-matron`, `boss_scene`
+`character.orb-weaver-matron`, `boss_overrides` {`cocoon_enabled`: true, `arena_recovery_ms`: 0},
+`respawn_ms` −1) stood in the four-floor Hollow's Crown (`weaver-hollow-crown`, C2's floor centre),
+its `boss_engaged` and `boss_defeated` shutting and opening C2's shutter, the Hollow's seal in C2's
+east doorway from Pearl 2's take until her fall. At the switch-over of 2026-11-25 that Crown kept it
+through a copy (`weaver-hollow-matron-old.tscn`) while the encounter became the ram fight's (section
+9); step 5 deleted the four floors and the copy the same day
+([the archive](../../archive/2026-11-25-old-hollow-and-mine.md#the-weaver-hollow-on-four-floors-2026-10-17-to-2026-11-25)).
+The cocoon fight (8.1 to 8.3) plays on as the ram fight's base (`matron_ram.gd` extends `matron.gd`,
+`cocoon_enabled` on in its scene); her rewards (8.6, 8.7) are the encounter's children.
 
 ### 8.5 Pearl 2 and the Silk skin (`object.pearl-two`)
 **Since 2026-10-17 it lies in the Weaver Hollow's Hoard** (the boughs' `Objects/pearl-two`, on the
@@ -530,18 +511,20 @@ category "story", icon `items-matron-thread`) in the bag with its ceremony card 
 on the floor ("Your bag is full."). The interact key does nothing to it.
 
 ### 8.8 Tests
-`tests/test_matron.gd` mounts the Hollow's camp where the nest was (the nest's camp freed first):
-the cocoon and its clinks, a blast on her shadow and one that misses it, the 4 s window and the 1.5 s
-respin, the three rounds (one big hit takes 100, round 2's ring, round 3's sacs), no respawn (and the
-brood bursting), her camp holding no Pearl, the Silk skin's exam
-(`test_with_the_silk_skin_round_two_cages_her_and_round_three_webs_the_floor`: the cage's eight
-walls, a bomb stuck against it, the Silk slime wading in, a cut wall spun again without a flag,
-round 3's webbed floor, gone with her), the full heart +20 once (and through a save), the thread
-only with the Silk skin. Pearl 2 in the Hoard: `tests/test_weaver_hollow.gd`.
-`tools/render_matron.gd` renders the fight's moments in the Crown for the look (run windowed);
-`tools/film_weaver_hollow.gd` films her three rounds (`--only=matron`).
+`tests/test_matron.gd`'s first tests mount the nest camp (`encounter.gloop-matron-nest`) for the
+base fight (spit, volleys, patches, leash, defeat, reset, the web barrier). Since step 5 of the
+dungeons rework (2026-11-25) its Hollow tests play her **ram fight** in the rebuilt Crown
+(`weaver-hollow-c2-crown`; section 9), which keeps this section's cocoon: cocooned over a ram's lane
+with every hit clinking, a blast under her low cocoon tearing it for a window and her new cocoon over
+another lane, her lane's ram knocking the cocoon down, the three rounds (a ram flinging her in round
+2, round 3 at the scene's `round_three_below_hp` where her first hit taken is her last), the Silk
+slime wading her rings and round 3's webbed floor, no respawn (her brood bursting), the full heart
+once (and through a save), the thread only with the Silk skin. Pearl 2 in the Hoard:
+`tests/test_weaver_hollow.gd`. Not run since the rewrite (the owner decides when the suite runs).
+Her fight in the room is filmed by `tools/film_crown.gd` (`scripts/godot/film-matron.sh <name>
+--film=<film> --tool=film_crown`).
 
-## 9. The ram fight (the rework, built 2026-11-24 in a lab, not yet in the Hollow)
+## 9. The ram fight (the rework, built 2026-11-24 in a lab, the Hollow's since 2026-11-25)
 
 Step 2 of the [dungeons 2 and 3 rework](../../design/2026-11-23-dungeons-2-3-rework.md#the-orb-weaver-matron),
 with the owner's changes of 2026-11-24 (his drawing of the room: five rams along the north wall,
@@ -685,7 +668,6 @@ staged. They draw the liftables from the sheet's file (`_fresh_sheet`), so a she
 editor last imported it shows.
 
 ### 9.4 Not yet
-Played only by the films, never with a keyboard; no tests written for it (`tests/test_matron.gd`
-covers section 8, and its Hollow tests build `encounter.weaver-hollow-matron`, which is this fight
-since the switch-over: they fail until step 5 rewrites them). The rebuilt Crown (C2) places her, and
-the game enters it since the switch-over (2026-11-25).
+Played by the films and the Hollow's walk, never with a keyboard. `tests/test_matron.gd`'s Hollow
+tests play it in C2 since step 5 (2026-11-25; 8.8), not run yet. The rebuilt Crown (C2) places her,
+and the game enters it since the switch-over (2026-11-25).

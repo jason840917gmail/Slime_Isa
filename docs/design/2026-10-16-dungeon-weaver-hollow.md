@@ -1,5 +1,10 @@
 # The Weaver Hollow: Chapter 2's Dungeon
 
+> **Since 2026-11-25** the Hollow this doc designed is rebuilt one world per room
+> ([the dungeons rework](2026-11-23-dungeons-2-3-rework.md), [DUNGEONS.md](../godot/DUNGEONS.md#the-weaver-hollow-built));
+> its four floor worlds, built from this doc, were retired that day
+> ([the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-weaver-hollow-on-four-floors-2026-10-17-to-2026-11-25)).
+
 *Status: a proposal for the owner, phase 1 of the dungeon work (written 2026-10-17 for his request
 of 2026-10-16: "start redesigning maps so they look more like the type of maps we want with the
 story we have; for sure we need to start working on the 3 dungeons. Apply all we learned in the map

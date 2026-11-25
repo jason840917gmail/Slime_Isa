@@ -390,7 +390,8 @@ See [assets/README.md](assets/README.md) for the art workflow.
   (`MAPS/props/256x256-pearl-silk.webp`), her thread's spool (`MAPS/props/128x128-matron-spool.webp`)
   and its bag icon (`MAPS/items/64x64-matron-thread.webp`); it prints where the cocoon's eyes and bottom
   are for `game/bosses/matron_cocoon_look.gd` ([godot/specs/matron.md](godot/specs/matron.md) section 8).
-  `godot/tools/render_matron.gd` renders the fight's moments in the running game (run windowed).
+  Her fights are filmed by `scripts/godot/film-matron.sh` (the lab; `--tool=film_crown` in the Hollow's
+  C2).
 - `python scripts/art/pack-dungeon-decor-art.py [--scenes]` (**numpy**) — the dungeon decor set
   (2026-10-19) from `asset/Originals/dungeon-kit/decor/` (Magnific GPT 2.5, four 2 x 2 sheets;
   prompts in its README): sixteen props at 2 px per unit in `godot/asset/MAPS/objects/dungeon/decor/`
@@ -847,9 +848,9 @@ see [doorway study](design/2026-10-17-doorways-in-walls.md). No generation credi
 
 Dungeon doorway runtime pack: `python scripts/art/pack-doorway-art.py`, followed by Godot
 `-s res://tools/pack_doorway_textures.gd`, reuses the existing doorway sheets and saves native
-texture resources without an import run. The dungeon builders also split their output
-into editable room scenes; `-s res://tools/split_dungeon_rooms.gd` repartitions existing
-worlds. See [Dungeon room scenes](godot/DUNGEON_ROOMS.md).
+texture resources without an import run (the latch door and the carts' tunnels use them; the
+cliff-wall doorway frames that used the rest went with the old Hollow and Mine on 2026-11-25, and
+with them the room splitter). See [Dungeon room scenes](godot/DUNGEON_ROOMS.md).
 
 
 ## Keeper's storehouse interior

@@ -7,16 +7,19 @@ extends Node2D
 ## are made as children, the hidden one's collision off).
 ##
 ## - A flame lights it (`receive_fire`: true, the flame stops; a lit candle lets the flame fly on).
-## - Lit, it is a light source (`light_circle`: `abilities.lantern.candle.lightRadiusPx`, 110 px,
-##   flickering, at `flame_offset`), with a warm glow on its flame.
+## - Lit, it is a light source (`light_circle`, flickering, at `flame_offset`), with a warm glow on its
+##   flame: `light_radius`, else by `light_kind` a candle's or sconce's
+##   `abilities.lantern.candle.lightRadiusPx` (240) or a brazier's `candle.brazierLightRadiusPx` (320)
+##   (owner, 2026-11-25: a lit candle owns its corner of the room).
 ## - It burns for `burn_ms` of gameplay time (60000 by default; owner, 2026-10-14: candles do not
 ##   stay lit forever) and goes out; in its last `abilities.lantern.candle.gutterMs` it gutters (the
 ##   flame flickers harder and dims, its light shrinks). Nothing is saved. `burn_ms` 0: it stays lit
 ##   for good (the story flag `candle-lit.<key>`).
 ## - `group`: when every candle of the same group burns at once, every gate with `gate_id` opens
 ##   (GateScript.open, as pressure plates do).
-## - A dark room listing it is lit while all its candles burn (dark_room.gd); a room set to light
-##   for good then keeps it lit (`keep_lit`).
+## - A dark room it stands in (or that lists it) lifts a share of its dark while it burns, and is lit
+##   while all its candles burn (dark_room.gd); a room set to light for good then keeps it lit
+##   (`keep_lit`).
 ## - `burn_ms` below 0: it burns until something puts it out (`put_out`), with no timer and nothing
 ##   saved (the Crystal Colossus's four braziers, docs/godot/DARKNESS.md).
 ## - `stomp_puts_out`: a slam or a stomp near it puts it out (`put_out_near`: the Shardback's slam,
@@ -76,8 +79,11 @@ const CUE_PUT_OUT := &"SlamImpact"
 ## Candles of one group open the gates with `gate_id` when they all burn ("" = no group).
 @export var group: String = ""
 @export var gate_id: String = ""
-## The light's radius (0 = `abilities.lantern.candle.lightRadiusPx`).
+## The light's radius (0 = by `light_kind`, from the data file).
 @export var light_radius: float = 0.0
+## Its light when `light_radius` is 0: a candle or sconce (`abilities.lantern.candle.lightRadiusPx`) or
+## a brazier (`candle.brazierLightRadiusPx`).
+@export_enum("candle", "brazier") var light_kind: String = "candle"
 
 var _unlit: Node2D
 var _lit_look: Node2D
@@ -215,11 +221,19 @@ func keep_lit() -> void:
 func light_circle() -> Vector3:
 	if not _lit:
 		return Vector3.ZERO
-	var radius := light_radius if light_radius > 0.0 else FireTargets.lantern_number("candle.lightRadiusPx", 110.0)
+	var radius := light_radius_px()
 	var at := global_position + flame_offset
 	var life := _life()
 	var share := lerpf(GUTTER_FLICKER, FireTargets.FLICKER_SHARE, life)
 	return Vector3(at.x, at.y, FireTargets.flicker(radius * lerpf(GUTTER_LIGHT, 1.0, life), _seed, share))
+
+
+## Its light's full radius (no flicker, no guttering): `light_radius`, else its kind's from the data.
+func light_radius_px() -> float:
+	if light_radius > 0.0:
+		return light_radius
+	var key := "candle.brazierLightRadiusPx" if light_kind == "brazier" else "candle.lightRadiusPx"
+	return FireTargets.lantern_number(key, 240.0)
 
 
 ## 1 while it burns steadily, falling to 0 over its last `candle.gutterMs` (always 1 for good).

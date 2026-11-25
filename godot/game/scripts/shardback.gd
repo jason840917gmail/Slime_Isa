@@ -23,8 +23,12 @@ class_name ShardbackScript
 ## - **The runaway cart** (the rebuilt Crystal Mine's Den, 2026-11-25; game/crystal_mine/ram_cart.gd,
 ##   its hook `on_mechanism_hit(&"cart", cart)`, as the Brood Warden answers the ram): stopped against
 ##   it while its shell is brittle, the cart **shatters the shell** in one blow: `cartShatterDamage`
-##   (more than it has: it falls, its defeat frame the shell burst into shards), a burst of crystal, a
-##   hard shake. Against a cold shell it clangs off: `cartColdDamage`, a stagger of `cartStaggerMs`.
+##   (more than it has: it falls), a burst of crystal, a hard shake; turned away from the cart (struck
+##   from behind) it shows its shell cracking hot for `cartShatterStruckMs`, bursting for
+##   `cartShatterBurstMs` (a second burst of shards), then lies on its side among the pieces until its
+##   corpse goes (beaten any other way, its defeat frame stays the broken shell). Against a cold shell
+##   it clangs off: `cartColdDamage`, a stagger of `cartStaggerMs`, turned to the cart and rocked back
+##   on its hind legs for `cartClangMs`, then standing and shaking it off.
 ##   The Spear still works (brittle, `brittleDamageTaken`).
 ## - **Ammo from its slam:** each slam knocks a crystal chunk off the Den (a light liftable of
 ##   `slam_chunk_kind`, thrown like a pot) beside the slam ring, `slamChunkOffsetPx` from it, never on a
@@ -46,6 +50,10 @@ const CART_KIND := &"cart"
 const FRAME_WALK := 0
 const FRAME_REAR := 1
 const FRAME_SLAM := 2
+## The runaway cart's blows (after the walk's frames 4 to 15): the shell shattering (struck and
+## cracking hot, bursting, on its side among the pieces) and the cold clang (rocked back).
+const FRAME_SHATTER := 16
+const FRAME_CLANG := 19
 const FIRE_TAG := "fire"
 ## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
 const CUE_REAR := &"ShardbackRear"
@@ -74,6 +82,9 @@ var _was_brittle: bool = false
 ## The crystal chunks its slams knocked loose (liftables), oldest first.
 var _chunks: Array[Node2D] = []
 var _rng := RandomNumberGenerator.new()
+## When the cart shattered its shell (simulation ms; -1: it did not), and the shatter frame shown last.
+var _shattered_at: float = -1.0
+var _shatter_shown: int = -1
 
 
 func _ready() -> void:
@@ -90,6 +101,28 @@ func _exit_tree() -> void:
 ## True while fire light has its shell brittle.
 func is_brittle() -> bool:
 	return Services.now_ms() < _brittle_until
+
+
+## Beaten by the cart, its corpse plays the shatter's frames on (the base steps the corpse after).
+func _step_enemy(delta: float) -> bool:
+	if _shattered_at >= 0.0 and is_defeated():
+		var frame := _shatter_frame(Services.now_ms() - _shattered_at)
+		if frame != _shatter_shown:
+			_shatter_shown = frame
+			set_frame(frame)
+			if frame == FRAME_SHATTER + 1:
+				_puff(SHARDS, get_centre())
+	return super(delta)
+
+
+## The shatter's frame `elapsed` ms after the cart's blow: struck, bursting, then on its side.
+func _shatter_frame(elapsed: float) -> int:
+	var struck_ms := pattern("cartShatterStruckMs", 300.0)
+	if elapsed < struck_ms:
+		return FRAME_SHATTER
+	if elapsed < struck_ms + pattern("cartShatterBurstMs", 240.0):
+		return FRAME_SHATTER + 1
+	return FRAME_SHATTER + 2
 
 
 func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) -> void:
@@ -133,7 +166,8 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 				_transition(PHASE_WALK, now)
 		PHASE_STAGGER:
 			body.velocity = Vector2.ZERO
-			# rocked back on its legs, shaking off the clang
+			# rocked back on its hind legs by the clang, then standing, shaking it off
+			set_frame(FRAME_CLANG if elapsed < pattern("cartClangMs", 550.0) else FRAME_WALK)
 			var shake := sin(elapsed / 38.0) * (1.0 - clampf(elapsed / maxf(1.0, pattern("cartStaggerMs", 1100.0)), 0.0, 1.0))
 			set_look(0.06 * shake, Vector2(1.0 - 0.03 * absf(shake), 1.0 + 0.03 * absf(shake)))
 			if elapsed >= pattern("cartStaggerMs", 1100.0):
@@ -194,12 +228,14 @@ func _slam(now: float, target: Dictionary, engaged: bool) -> void:
 
 ## The cart's blow (ram_cart.gd's hook, instead of damage): brittle, the shell shatters and it falls;
 ## cold, a clang and a stagger.
-func on_mechanism_hit(kind: StringName, _source: Node) -> void:
+func on_mechanism_hit(kind: StringName, source: Node) -> void:
 	if kind != CART_KIND or is_defeated() or body == null:
 		return
 	var now := Services.now_ms()
 	_clear_zone()
 	var feel := Services.feel()
+	# the cart's side of it (0: straight above or below)
+	var cart_dx := (source as Node2D).global_position.x - get_centre().x if source is Node2D else 0.0
 	if is_brittle():
 		_cue(CUE_CRACK)
 		_puff(SHARDS, get_centre())
@@ -207,7 +243,16 @@ func on_mechanism_hit(kind: StringName, _source: Node) -> void:
 		_puff(DUST, feet())
 		if feel != null:
 			feel.shake(pattern("cartShatterShakeMs", 320.0), pattern("cartShatterShake", 0.012))
+		# struck from behind: it turns away from the cart, and its fall shows the shatter's frames
+		face_x(-cart_dx)
+		var usual_defeat := defeated_frame
+		_shattered_at = now
+		_shatter_shown = FRAME_SHATTER
+		defeated_frame = FRAME_SHATTER
 		var dealt := take_reaction_damage(pattern("cartShatterDamage", 9999.0))
+		if not is_defeated():
+			_shattered_at = -1.0
+			defeated_frame = usual_defeat
 		if feel != null and dealt > 0:
 			feel.play_hit({"hit_stop_ms": 120.0, "trauma": 0.7, "kick_px": 0.0, "sparks": 18, "number": dealt,
 				"number_big": true}, get_centre(), Vector2.UP)
@@ -221,7 +266,8 @@ func on_mechanism_hit(kind: StringName, _source: Node) -> void:
 		feel.play_hit({"hit_stop_ms": 60.0, "trauma": 0.3, "kick_px": 0.0, "sparks": 8, "number": cold}, get_centre(), Vector2.UP)
 	if not is_defeated():
 		_transition(PHASE_STAGGER, now)
-		set_frame(FRAME_WALK)
+		face_x(cart_dx)
+		set_frame(FRAME_CLANG)
 
 
 ## True while the cart's clang has it staggered.

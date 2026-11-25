@@ -102,7 +102,7 @@ its code is in git history.
 - `bash scripts/godot/film-matron.sh <name> --film=<film> [options]` — films the Orb-Weaver Matron's
   ram fight (the rework) in her lab (`world.matron-lab`, built by `tools/build_matron_lab.gd`) into
   `output/boss-rework/matron-films/<name>/`: `round1`, `dive`, `ram-catch`, `ring`, `round3`,
-  `ram-call`, `look` ([matron spec §9](docs/godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-not-yet-in-the-hollow));
+  `ram-call`, `look` ([matron spec §9](docs/godot/specs/matron.md#9-the-ram-fight-the-rework-built-2026-11-24-in-a-lab-the-hollows-since-2026-11-25));
   with `--tool=film_crown` the same films in the rebuilt Weaver Hollow's Crown (C2, the lab's arena in
   the room) into `output/dungeon-rework/hollow/crown-films/<name>/`, round1, ram-catch and round3 with
   a PASS or FAIL ([The Crown](docs/godot/DUNGEONS.md#the-crown-step-3s-third-piece-2026-11-25)).
@@ -115,7 +115,7 @@ its code is in git history.
   and core with a PASS or FAIL ([Wing 4](docs/godot/DUNGEONS.md#wing-4-the-shaft-and-the-colossus-2026-11-25)).
 - `"<Godot console exe>" --path godot -s res://tools/film_weaver_hollow_rooms.gd -- --film=<walk|ram|wall-walk|warden-ram|webbed-slab|look> --out=<dir>`
   — plays the rebuilt Weaver Hollow (step 3 of the dungeons rework; the game enters it since the
-  switch-over of 2026-11-25, today's four worlds unreached until step 5;
+  switch-over of 2026-11-25, its four floor worlds before retired at step 5;
   `?map=weaver-hollow-t1-root-door`) the designed way, windowed: `walk` checks every step from the
   forecourt (a Goo Bomb on the root gate) through T1, the Trunk, the Roots, the Boughs and the Crown
   (her fight ended by the tool, a faint and the way back up) to C3's drop, in through the gate again
@@ -125,9 +125,9 @@ its code is in git history.
   its rooms' first versions came from `tools/build_weaver_hollow_rooms.gd` (refuses to overwrite a
   hand-edited room without `--force`)
   ([The Weaver Hollow rebuilt](docs/godot/DUNGEONS.md#the-weaver-hollow-rebuilt-the-trunk-and-the-roots-step-3-2026-11-25)).
-- `"<Godot console exe>" --path godot -s res://tools/film_crystal_mine_rooms.gd -- --film=<walk|cart|ride|shardback|look|old-save> --out=<dir>`
+- `"<Godot console exe>" --path godot -s res://tools/film_crystal_mine_rooms.gd -- --film=<walk|cart|ride|shardback|look|old-save|candles> --out=<dir>`
   — plays the Crystal Mine's rebuilt rooms (step 4 of the dungeons rework; the game enters them since
-  the switch-over of 2026-11-25, today's one-scene Mine unreached until step 5;
+  the switch-over of 2026-11-25, its one-scene world before retired at step 5;
   `?map=crystal-mine-m1-mine-mouth`, `&sealed` in any room for the second half), windowed:
   `walk` plays all four wings (the Mouth and the High Line, the Lantern's half, the Den and the Feral
   half, the Shaft and the Colossus) from the camp in G4 (the mine's gate lit, in through G4's door) through key 2, key 1, the Dark Maze, the Chasm,
@@ -136,8 +136,9 @@ its code is in git history.
   and the climb out to the Lookout, round to the camp, in and out by the mouth, the wrong ways refused, PASS or FAIL, a
   picture a step (`--from=wing2`, `--from=wing3`, `--from=wing4`); `shardback` films the Den's cart blow; `cart` films M7's runaway cart bursting the rail
   gate into M1 frame by frame; `ride` films the travel cart between worlds; `look --world=<room> --at=<x>,<y> --zoom=<z> [--slime=<x>,<y>] [--lit] [--bright]`
-  a still of a room in the game; `old-save` loads a save half-played in today's Mine (from the tool
-  runs' save folder) and checks it wakes in M1 with its records; the rooms' first versions came from `tools/build_crystal_mine_rooms.gd`
+  a still of a room in the game; `old-save` loads a save half-played in the retired one-scene Mine (from the tool
+  runs' save folder) and checks it wakes in M1 with its records; `candles --map=<world> --order=<candles> --shots=<n,...>`
+  pictures a dark room as its candles are lit one by one ([DARKNESS.md](docs/godot/DARKNESS.md#a-share-of-the-room-per-candle-2026-11-25)); the rooms' first versions came from `tools/build_crystal_mine_rooms.gd`
   (refuses to overwrite a hand-edited room without `--force`)
   ([The Crystal Mine rebuilt](docs/godot/DUNGEONS.md#the-crystal-mine-rebuilt-wing-1-the-mouth-and-the-high-line-step-4-2026-11-25)).
 - Web build: `"<Godot console exe>" --headless --path godot --export-release "Web" export/web/index.html`

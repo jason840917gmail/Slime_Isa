@@ -106,7 +106,11 @@ POSES = {
     "crystal-crawler": ["crawl-a", "crawl-b", "turn", "flipped"],
     "prism-eye": ["watch", "charge", "shut", "shattered"],
     "pick-mole": ["ducked", "raise", "throw", "out"],
-    "shardback": ["walk", "rear", "slam", "broken"] + WALK,
+    # The runaway cart's blows (2026-11-25, sheet 5): the brittle shell struck from behind and
+    # cracking hot, bursting, him thrown on his side among its pieces; and the cold clang, rocked back
+    # on his hind legs, the shell whole.
+    "shardback": ["walk", "rear", "slam", "broken"] + WALK
+        + ["shatter-struck", "shatter-burst", "shatter-fallen", "clang"],
     "crystal-mite": ["ready", "run", "ball", "shards"] + WALK,
     # Every dungeon (row 33): the eye's front (a blank eyeball: the code draws its iris), charging,
     # its back (looking away), broken.
@@ -267,12 +271,16 @@ MERGE_PX = 15
 # is cleared the same way, but their stray goo drops and sprays are kept (no main-body pass).
 FAINT_HAZE = {"slime-spider", "orb-weaver", "spider-webs", "climb-props", "jelly-bouncer", "shock-skeleton"}
 # Single source files with that faint haze (alpha 5 at most), cleared the same way, the enemy's other
-# sheets left as they are: the Brood Warden's flung and getting-up sheet.
-FAINT_HAZE_FILES = {"brood-warden-sheet-6.png"}
+# sheets left as they are: the Brood Warden's flung and getting-up sheet, the Shardback's cart sheet.
+FAINT_HAZE_FILES = {"brood-warden-sheet-6.png", "shardback-sheet-5.png"}
 # Poses that are one loop of a body lying still while only its legs move (the Brood Warden on his
 # back): placed so the middle of each pose's body (`body_core`) sits on one spot, at x CENTRE_X and as
 # low as lets every pose of the loop stand on or above BOTTOM, so the body never jumps between frames.
 STILL_BODY = {"brood-warden": ["back-a", "back-b", "back-c", "back-d"]}
+# Enemies whose scale is decided by their first N poses only (the frames already in the game), so poses
+# added later never shrink the old ones: a later pose that does not fit the cell at that scale is drawn
+# smaller by just enough to fit it (the Shardback thrown on his side among his shell's pieces, 3 % less).
+SCALE_FROM = {"shardback": 16}
 
 
 def gap(mask: np.ndarray, axis: int) -> int:
@@ -357,7 +365,10 @@ def pack(enemy: str, names: list[str]) -> None:
     bottom = cell - (CELL - BOTTOM)
     centre_x = cell // 2
     fit = cell - (CELL - FIT)
-    scale = min(min(fit / still.width, fit / still.height) for _, still in frames)
+    scale = min(min(fit / still.width, fit / still.height) for _, still in frames[:SCALE_FROM.get(enemy, len(frames))])
+    # a pose past SCALE_FROM's first N: its own scale, no bigger than the sheet's, inside the cell
+    own_scale = {name: min(scale, (cell - 2) / still.width, bottom / still.height)
+        for name, still in frames[SCALE_FROM.get(enemy, len(frames)):]}
     anchors = {}
     if enemy in POT_ANCHORED:
         floor = POT_FLOORS.get(enemy, bottom)
@@ -390,7 +401,7 @@ def pack(enemy: str, names: list[str]) -> None:
     hung_heights = [round(still.height * scale) for name, still in frames if (enemy, name) in HUNG]
     hung_top = BOTTOM - max(hung_heights) if hung_heights else 0
     for column, (name, still) in enumerate(frames):
-        size = (round(still.width * scale), round(still.height * scale))
+        size = (round(still.width * own_scale.get(name, scale)), round(still.height * own_scale.get(name, scale)))
         art = still.resize(size, Image.LANCZOS)
         left = centre_x - size[0] // 2
         if enemy in MASS_CENTRED:

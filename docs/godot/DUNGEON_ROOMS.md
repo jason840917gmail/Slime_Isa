@@ -1,7 +1,8 @@
 # Dungeon room scenes
 
 Built 2026-10-17 after the doorway review: the owner chose separate scenes per room and
-Lair arches with two-cell openings. The Hollow uses root arches; the Mine timber frames.
+Lair arches with two-cell openings. Since 2026-11-25 all three dungeons (Fatty's Lair, the Weaver
+Hollow, the Crystal Mine) are one world per room, drawn by interior walls.
 
 ## Fatty's Lair: one world per room (2026-10-18)
 
@@ -123,47 +124,30 @@ enemies back with their room, a walk from D5's mouth to Fatty's arena and out by
 `tests/test_fattys_lair.gd` (each piece in its room's world).
 
 **Editing by hand.** The room scenes are the source of truth (owner, 2026-10-18): edit them in the
-editor; `tools/build_fattys_lair.gd` and the splitter are retired for the Lair and refuse to write
-(they would bring back the old shell).
+editor; `tools/build_fattys_lair.gd` is retired for the Lair and refuses to write (it would bring
+back the old shell); the room splitter is deleted (2026-11-25).
 
-## The Weaver Hollow and the Crystal Mine: rooms of a shell
+## The Weaver Hollow and the Crystal Mine: one world per room (2026-11-25)
 
-The authored rooms are in `godot/game/scenes/worlds/rooms/<world>/<room>.tscn`: 22 across the
-Hollow's four floors and 14 in the Mine. Open a room to edit its terrain, walls, objects and
-CameraRoom. *As built (2026-11-22): only the Hollow is assembled from its rooms. The game plays
-`crystal-mine.tscn` whole (its shell has no `RoomScenes`, and nothing loads `rooms/crystal-mine/M*.tscn`),
-so edit the Mine in `crystal-mine.tscn`; the M files are leftovers of the 2026-10-17 split
-([DUNGEONS.md](DUNGEONS.md)).* *Since 2026-11-25 the game enters the Mine rebuilt one world per room
-(`rooms/crystal-mine-rooms/`, [DUNGEONS.md](DUNGEONS.md#the-switch-over-the-mine-2026-11-25)): edit
-those; `crystal-mine.tscn` and its M files are unreached until step 5.* F6 starts that room in the full game with the dungeon's normal direct-run powers.
+Both are built as the Lair is (above): the Weaver Hollow's 23 room worlds in
+`godot/game/scenes/worlds/rooms/weaver-hollow/` (step 3 of the dungeons rework) and the Crystal
+Mine's 15 in `rooms/crystal-mine-rooms/` (step 4), each `world.<id>` in `scene_index.json`, with
+their Dungeon nodes instances of `weaver-hollow-dungeon.tscn` and `crystal-mine-dungeon.tscn`, their
+map `layout.tscn`, room doors that scroll and interior walls ([DUNGEONS.md](DUNGEONS.md#the-weaver-hollow-built),
+[the Mine](DUNGEONS.md#the-crystal-mine-built)). `tools/build_weaver_hollow_rooms.gd` and
+`tools/build_crystal_mine_rooms.gd` wrote their first versions and refuse to overwrite a hand-edited
+room without `--force`: **the scenes are edited by hand.**
 
-Their rooms are written in dungeon coordinates (instance offset zero). The parent world is a shell
-holding the world definition, Dungeon node, shared logic and room scene instances.
-`room_scene_shell.gd` assembles those instances before gameplay nodes enter the tree, preserving
-object paths, persistent signal connections, map ids and save keys. A room instance's `position` is
-its offset in the dungeon (zero for these): the shell adds it back to every tile cell and node as it
-assembles the dungeon. Room changes inside a shell use the camera scroll. `tools/verify_scenes.gd`
-checks a shell as saved, its rooms not assembled (`room_scene_shell.gd` `assemble_on_instantiate`).
-
-The Hollow's and the Mine's builders generate their room scenes through
-`tools/lib/dungeon_room_splitter.gd`. Rebuilding overwrites their authored rooms, as the builders
-previously overwrote the whole world. To repartition an assembled dungeon after structural changes,
-run `tools/split_dungeon_rooms.gd`. Reload changed scenes in an open editor before saving. Bake the
-worlds' elevation after changing their paint.
-
-The splitter records the hash of every file it writes in
-`game/scenes/worlds/rooms/<world>/written.json` (commit it with the scenes). A file edited in the
-editor since no longer matches its hash, and the next run **keeps it**: it prints `skipped room
-<name>: edited by hand ...` (or the shell) and writes the others. Options after `--` on the
-builders and `tools/split_dungeon_rooms.gd`:
-
-- `--dry`: writes nothing, prints what it would write and skip;
-- `--only=<room,room,shell>`: writes only those (by room scene name; `shell` for the dungeon scene);
-- `--force`: rewrites hand-edited files too, after a warning (their edits are lost).
-
-A world with no `written.json` yet is unprotected until its first run writes one. A hand-edited room
-keeps its own contents, so a rebuild that changes that room's layout does not reach it: rebuild it
-with `--only=<room> --force` when wanted.
+*Until 2026-11-25 the Hollow was four floor worlds, each a shell assembling its rooms (22 room
+scenes in `rooms/weaver-hollow-{trunk,roots,boughs,crown}/`), and the Mine one world
+(`crystal-mine.tscn`, its 14 `rooms/crystal-mine/M*.tscn` copies unused), written by their builders
+through a room splitter (`tools/lib/dungeon_room_splitter.gd`, `tools/split_dungeon_rooms.gd`, which
+kept a `written.json` of hashes to skip hand-edited rooms). Step 5 of the rework deleted all of them
+([the archive](../archive/2026-11-25-old-hollow-and-mine.md)).* The shell itself
+(`room_scene_shell.gd`: room scene instances under `RoomScenes`, assembled before gameplay nodes
+enter the tree, each instance's `position` its offset in cells) stays for the box-room lab
+(`?map=box-room-lab`); `tools/verify_scenes.gd` checks a shell as saved, its rooms not assembled
+(`assemble_on_instantiate`).
 
 ## Room outlines and visibility
 
@@ -176,47 +160,35 @@ separate outline to conceal its contents.
 `room_mask.gd` draws darkness outside the current outline on CanvasLayer 4, beneath the
 arrival fade and HUD. Its screen-space shader follows window size, camera motion, shake
 and zoom. During a room scroll it shows the destination outline; a scripted seal glimpse
-uses the camera's room. In the Hollow and the Mine (`doorway_art.gd`, which draws a room's wall
-courses and openings around its rectangular bounds) doorway frames close to the room's edge stay
-visible in the mask; a room drawn by interior walls (its CameraRoom's `wall_bands` meta off: every
-Lair room) shows none, its own rim is its edge.
+uses the camera's room. A room drawn by interior walls shows nothing past its outline: its own rim
+is its edge. *Until 2026-11-25 the mask also left the cliff-wall doorway frames of the four-floor
+Hollow and the one-scene Mine (`doorway_art.gd`) visible at a room's edge; that went with them.*
 
-## Wall pieces and leaves (the Weaver Hollow and the Crystal Mine)
+## Doorway pieces (the cliff-wall look, retired)
 
-Fatty's Lair has interior walls ([INTERIOR_WALLS.md](INTERIOR_WALLS.md)); this is the Hollow's and the
-Mine's look until they convert. `doorway_art.gd` (it acts only in those dungeons' worlds) draws
-continuous courses around each room and replaces opening stretches
-with wall-owned arches. The same wall pieces turn onto side and south walls, compressed
-to a one-cell band there. Key/boss/bolt doors move only their leaves; locks and bolts stay
-on them. Shutters and seal blocks sit inside a fixed arch. Cracks and blown holes use
-whole pieces of the wall's own style instead of a decal on its top. Latch doors, plank
-barricades, rotten timbers and mine gates use the same fixed wall frames; their existing
-open/smashed states change only the central slab, boards or leaf.
-
-The shared `object.latch-door` prefab also uses the masonry arch and shutter leaf in the editor.
-In the Lair the only latch door left is R9's, drawn by the room's wall (its slab the wall's shutter
-leaf); the others became dividers (FENCES.md "Dungeon dividers"). The former outdoor C4 instance
-is replaced by a keeper's storehouse and a separate furnished interior; it is no longer a
-freestanding dungeon doorway with a visible coffer behind it.
-
-The collision and lock rules remain on the existing gameplay objects; the two-cell door
-collision is 128 units. The visual integration uses masonry, root rock, cave rock and
-crystal rock, sampled from the world's painted cliff style.
-
-`python scripts/art/pack-doorway-art.py` cuts the existing generated sheets into runtime
-pieces. It uses the game's existing cave-rock art for the cave-rock set. Then run
-`tools/pack_doorway_textures.gd` to save native compressed ImageTexture `.res` resources;
-this does not run an editor import or touch the shared import cache. Keep these resources
-with the WebP source pieces and any `.import`/`.gd.uid` files the editor creates.
-No new image generations or credits were used for this continuation.
+Before interior walls, the four-floor Hollow and the one-scene Mine drew continuous wall courses
+round each room with wall-owned arches in their openings (`doorway_art.gd`: key, boss and bolt
+doors moving only their leaves, shutters and seal blocks inside a fixed arch, cracks as whole pieces
+of the wall's style, in masonry, root rock, cave rock or crystal rock). That script went with those
+worlds at step 5 of the dungeons rework (2026-11-25). Its textures stay in
+`godot/asset/MAPS/objects/dungeon/doorways/`: the shared `object.latch-door` prefab uses the
+masonry arch and shutter leaf (in the Lair the only latch door left is R9's, drawn by the room's
+wall; the others became dividers, FENCES.md "Dungeon dividers"), and the runaway carts' tunnels the
+mine gate's leaves (`ram_cart.gd`). `python scripts/art/pack-doorway-art.py` cuts the generated
+sheets into those pieces and `tools/pack_doorway_textures.gd` saves them as native compressed
+ImageTexture `.res` resources (no editor import). The two-cell door collision is 128 units.
 
 ## Verification
 
 `test_dungeon_rooms.gd` checks that the Lair's rooms are worlds that keep their links (the Inner
-Stair, Burr's director in the hub), Burr's hidden cell and the hub's L-shaped mask, the stone arch/leaf split, two-cell collision, and shared Hollow floor identity. The existing
-Lair, Hollow, Mine, seal, kit and camera tests cover the shared gameplay. Live wide-screen
-review captures are in `output/doorway-review/live-*-wide.png`. To refresh them, run
-`tools/render_dungeon_room_views.gd -- --out=<directory>` windowed.
+Stair, Burr's director in the hub), Burr's hidden cell and the hub's L-shaped mask, the stone
+arch/leaf split, two-cell collision, and that every room world of the rebuilt Hollow and Mine reads
+its dungeon's id and record (and no retired world is left in the scene index). The Lair, Hollow,
+Mine, seal, kit and camera tests cover the shared gameplay. The walks of
+`tools/film_weaver_hollow_rooms.gd` and `tools/film_crystal_mine_rooms.gd` play the two rebuilt
+dungeons room by room (`--film=look` takes a still of a room in the game). *The wide-screen review
+captures of the old doorways (`output/doorway-review/live-*-wide.png`, by the retired
+`tools/render_dungeon_room_views.gd`) are history.*
 
 ## Interior walls
 
@@ -225,9 +197,8 @@ The owner rejected the walls' art and how they are painted (elevation cliffs plu
 InteriorWallLayer ([INTERIOR_WALLS.md](INTERIOR_WALLS.md)), painted in each room scene. **Fatty's Lair
 is converted** (2026-10-18): each room world paints its own rim on its `interior-walls` layer in the
 room's style (first painted by the builder, retired since: the scenes are edited by hand), and the
-Lair never goes through `doorway_art.gd` (its camera rooms have `wall_bands` off, so the room mask
-shows no old frames). `doorway_art.gd` and the doorway textures stay for the Hollow and the Mine until
-they convert.
+Lair never went through `doorway_art.gd`. The Hollow and the Mine converted with their rebuild
+(2026-11-25), and `doorway_art.gd` went with their old worlds.
 
 ## Camera rooms in the editor
 

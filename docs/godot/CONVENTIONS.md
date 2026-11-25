@@ -86,8 +86,8 @@ itself (`game/scenes/worlds/<id>.tscn`; a room you enter from a chunk lives in t
 `rooms/<dungeon>/`; owner, 2026-10-22) works too: run on its own, a world has no player, camera
 or HUD, so its `world_definition.gd` swaps it for `main.tscn` with its map id (the playground keeps
 its testbed kit). The dev worlds (the labs and test worlds) live in `game/scenes/worlds/dev/`, and the playground's two caves in `game/scenes/worlds/rooms/playground/`; the web export leaves out `dev/` and `elevation_cache/dev__*` by glob (`godot/export_presets.cfg`), so a new lab or test world goes in `dev/`, and a new playground cave in `rooms/playground/`. A dungeon's world run this way (listed in `dungeon.devPowers` in
-game-constants.json: Fatty's Lair and its hill outside, `level-1-d5`, the Weaver Hollow's four
-floors, the Crystal Mine (one line, `crystal-mine`, read for every room world of the rebuilt Mine and today's one-scene world), the dungeon lab) plays in the body-shapes mode with the powers the slime has by then: the Spear and the Roll,
+game-constants.json: Fatty's Lair and its hill outside, `level-1-d5`, the Weaver Hollow (one
+line, `weaver-hollow`, read for every room world of the dungeon), the Crystal Mine (one line, `crystal-mine`, the same), the dungeon lab) plays in the body-shapes mode with the powers the slime has by then: the Spear and the Roll,
 then the Heavy skin and the Goo Bomb, then the Silk skin and the Lantern. They are lent for the
 session (abilities through `learn_session_ability`, the `skin.<name>` entries as lent skins:
 `SkinState.lend`, [SKINS.md](SKINS.md)) and
@@ -424,8 +424,12 @@ slow, knockback immunity, every world enemy type and level-1's placed camps, cry
 enemies, icege's legacy spawning), the
 Orb-Weaver Matron (`test_matron.gd`: nest camp and bar, spit, volley marks, landing and web
 patches, no stagger, arena leash, defeat records, reset, the web barrier and its torn flag,
-gloop-forest's placed camps; the Weaver Hollow's cocoon fight: clinks, the blast that tears it, the
-window and the respin, three rounds, no respawn, Pearl 2's Silk skin, the full heart, her thread),
+gloop-forest's placed camps; her ram fight in the rebuilt Hollow's Crown since 2026-11-25: cocooned
+over a ram's lane, the blast that tears it, a ram knocking the cocoon down, three rounds, the Silk
+slime wading her rings, no respawn, the full heart, her thread), the rebuilt Weaver Hollow
+(`test_weaver_hollow.gd`: its rooms and doors, the forecourt's gate, keys, the Warden and Pearl 2,
+the seal, the old saves) and Crystal Mine (`test_crystal_mine.gd`: its rooms, carts, lift, the Den,
+the Colossus's plate fight, the old saves),
 the Weaver Hollow's webs (`test_weaver_webs.gd`: floor webs halve a
 walk and stick a Roll, enemies unslowed, web walls block and let the Silk slime through at half
 speed, cut for good, silk parcels; [WEBS.md](WEBS.md)), the quests (`test_quests.gd`, `test_quests_gloop.gd`: new-run

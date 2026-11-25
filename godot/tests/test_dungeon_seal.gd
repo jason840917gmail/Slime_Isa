@@ -96,7 +96,7 @@ func test_a_sealed_dungeon_refuses_its_ways_out(t: TestContext) -> void:
 	var seal := _node(t, "b3-seal")
 	var dungeon := DungeonState.current(t.tree)
 	t.equal(DungeonState.world_dungeon_id(LAB), LAB, "the lab's dungeon id")
-	t.equal(DungeonState.world_dungeon_id("weaver-hollow-crown"), "weaver-hollow", "a floor's dungeon id, read from its scene")
+	t.equal(DungeonState.world_dungeon_id("weaver-hollow-c2-crown"), "weaver-hollow", "a room world's dungeon id, read from its scene")
 	t.equal(DungeonState.world_dungeon_id("playground"), "", "the playground's dungeon id")
 	t.equal(DungeonState.exit_refusal(t.tree, "playground"), "", "a way out refused before the seal")
 	t.check(bool(dungeon.call(&"seal_now", "test", false)), "the dungeon did not seal")

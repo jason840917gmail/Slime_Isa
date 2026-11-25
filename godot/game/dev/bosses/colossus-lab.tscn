@@ -67,6 +67,7 @@ position = Vector2(831, 1344)
 [node name="dark-hall" type="Node2D" parent="." unique_id=1876270371]
 script = ExtResource("7_46s62")
 size = Vector2(1664, 1536)
+lifts_by_candles = false
 darkness_override = 0.6
 
 [node name="west-dip" parent="." unique_id=297132303 instance=ExtResource("8_lj46l")]

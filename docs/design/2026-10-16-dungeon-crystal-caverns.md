@@ -1,5 +1,10 @@
 # Dungeon 3: the Crystal Mine (the Crystal Caverns), up to the Crystal Colossus
 
+> **Since 2026-11-25** the Mine this doc designed is rebuilt one world per room
+> ([the dungeons rework](2026-11-23-dungeons-2-3-rework.md), [DUNGEONS.md](../godot/DUNGEONS.md#the-crystal-mine-built));
+> its one-scene world `world.crystal-mine`, built from this doc, was retired that day
+> ([the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-crystal-mine-as-one-world-2026-10-17-to-2026-11-25)).
+
 *Status: phase 2, **built 2026-10-17** from this design with the owner's OK (its open points took
 their proposals): `world.crystal-mine`, the camp (G4), the Lookout (H4) and the cave road (G5); what
 was built is in [DUNGEONS.md "The Crystal Mine (built)"](../godot/DUNGEONS.md#the-crystal-mine-built).

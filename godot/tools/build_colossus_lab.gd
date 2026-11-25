@@ -9,7 +9,7 @@ extends SceneTree
 ## edit by hand) unless given --force.
 ##
 ## One big hall (24 x 20 cells, half as big again as his room in the mine each way; the owner,
-## 2026-11-24: "a bigger scene"), painted as the mine paints it (tools/build_crystal_mine.gd): crystal
+## 2026-11-24: "a bigger scene"), painted as the one-scene Mine of the time was painted: crystal
 ## rock at level 3 round a cavern floor at level -1, so the north wall is four courses high, the wall
 ## he climbs. Its floor is 16 rows, all of it his arena; below its middle a nook in the south wall is
 ## outside the fight (the lobby: the slime starts there; walk back into it to start the fight over).
@@ -293,6 +293,8 @@ func _place() -> void:
 	dark.set_script(load(DARK_ROOM))
 	dark.set(&"size", Vector2(COLUMNS * CELL, ROWS * CELL))
 	dark.set(&"darkness_override", DARKNESS)
+	# his braziers' circles are his brittle rings: they light only their own circle (dark_room.gd)
+	dark.set(&"lifts_by_candles", false)
 	_root.add_child(dark)
 	# the void dips (above their decks in the tree, as every hazard: they have none)
 	_dip("west-dip", HALL.position.x)

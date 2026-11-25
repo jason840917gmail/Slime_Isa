@@ -1,7 +1,8 @@
 extends Node
 class_name CrystalMine
-## The Crystal Mine's world (docs/godot/DUNGEONS.md "The Crystal Mine (built)"): the node `CrystalMine`
-## of `world.crystal-mine`. It keeps every placed enemy (game/enemy/placed_enemy.gd, spawned by
+## The Crystal Mine's world node (docs/godot/DUNGEONS.md "The Crystal Mine (built)"): `CrystalMine`,
+## placed in the Shardback's Den (`rooms/crystal-mine-rooms/m13-shardback-den.tscn`; the whole
+## one-scene Mine had one until 2026-11-25). It keeps every placed enemy (game/enemy/placed_enemy.gd, spawned by
 ## EnemyPopulation, again when its room is entered again: the kit's Dungeon node) to its room: each
 ## one's arena (EnemyScript.configure_arena) is the camera room it stands in, so it fights while
 ## the slime is in that room and leaves it alone outside (the Bestiary pens' rule: a Glint Bat's

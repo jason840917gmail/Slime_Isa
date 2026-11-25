@@ -42,7 +42,6 @@ class_name Dungeon
 
 const Services := preload("res://game/shared/services.gd")
 const DungeonState := preload("res://game/dungeon/dungeon_state.gd")
-const DoorwayArt := preload("res://game/dungeon/doorway_art.gd")
 const RoomMask := preload("res://game/dungeon/room_mask.gd")
 const CameraRoom := preload("res://game/world/camera_room.gd")
 const DungeonHud := preload("res://game/dungeon/dungeon_hud.gd")
@@ -202,7 +201,6 @@ func _on_world_registered(_payload: Dictionary) -> void:
 	if world == null or world.world_root == null or not world.world_root.is_ancestor_of(self):
 		return
 	_registered = true
-	DoorwayArt.apply(world.world_root)
 	_room_mask = RoomMask.new()
 	_room_mask.name = "RoomMask"
 	add_child(_room_mask)

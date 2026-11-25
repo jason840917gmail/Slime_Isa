@@ -10,8 +10,8 @@ since 2026-11-20 a sixth, `crystal-cave` (dark blue slate packed with glowing bl
 for the Gloop Cavern: [Crystal cave](#crystal-cave)).
 Since 2026-11-20 every West village house room (27) and Slimeshire's five C4 rooms have them instead
 of their painted back wall ([The village's house rooms](#the-villages-house-rooms)), and the Gloop
-Cavern ([The Gloop Cavern](#the-gloop-cavern)). The box-room lab and all of Fatty's Lair use them; the
-> Hollow and the Mine still have elevation-cliff walls with `doorway_art.gd`'s frames. A painted
+Cavern ([The Gloop Cavern](#the-gloop-cavern)). The box-room lab, all of Fatty's Lair and, since 2026-11-25, the
+> rebuilt Weaver Hollow (root rock) and Crystal Mine (crystal cave) use them. A painted
 > [floor trim](#floor-trim) along the walls' foot since 2026-10-31 (painted in the lab; every room of
 > Fatty's Lair has its empty `floor-trim` layer, for the owner to paint).
 

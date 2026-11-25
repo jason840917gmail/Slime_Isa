@@ -521,6 +521,7 @@ box_ability = &"goo-bombs"
 [node name="dark-room" type="Node2D" parent="pen-34"]
 script = ExtResource("dark_d")
 size = Vector2(512, 448)
+lifts_by_candles = false
 
 [node name="pen-34-brazier" parent="." instance=ExtResource("brazier_b")]
 position = Vector2(5632, 4474)

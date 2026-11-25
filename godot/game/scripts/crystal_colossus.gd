@@ -33,9 +33,10 @@ class_name CrystalColossusScript
 ## - **His second phase** (below `phaseTwoShare` of his health; not the Pearl's rage, EnragedLook):
 ##   faster stomps, more mites, two braziers a landing.
 ##
-## **The plate fight** (`plate_fight`, off by default: the mine keeps the fight above until its room
-## is rebuilt; step 2 of docs/design/2026-11-23-dungeons-2-3-rework.md, "The Crystal Colossus"; on in
-## the Colossus lab, game/dev/bosses/colossus-lab.tscn). His 240 health is three armour plates of
+## **The plate fight** (`plate_fight`, off by default: the fight above, placed nowhere since the
+## one-scene Mine was retired on 2026-11-25; step 2 of docs/design/2026-11-23-dungeons-2-3-rework.md,
+## "The Crystal Colossus"; on in both arenas the game has: the rebuilt Mine's M15 and the Colossus
+## lab, game/dev/bosses/colossus-lab.tscn). His 240 health is three armour plates of
 ## `plateHp` (L his right shoulder, C his breastplate, R his left shoulder) and a core (the rest),
 ## drawn on his bare body (game/bosses/colossus_look.gd): his health bar in sight.
 ## - **Nothing hurts a plate.** Standing within a lit brazier's ring (its light, `light_radius` round
@@ -274,7 +275,8 @@ signal plate_burst(payload: Dictionary)
 ## The plate fight: the cart clanged off a cold plate (or his bare core). Payload {"plate", "by"}.
 signal plate_clanged(payload: Dictionary)
 
-## The plate fight (see above). Off: the fight as built in the Crystal Mine. The arena sets it before
+## The plate fight (see above). Off: the first fight as built (no arena leaves it off since
+## 2026-11-25). The arena sets it before
 ## he enters the tree (colossus_arena.gd `plate_fight`).
 @export var plate_fight: bool = false
 ## The plate fight: the liftable kinds his blows shake loose from the roof (one at random a rock),
@@ -1749,8 +1751,8 @@ func _hint_cold() -> void:
 		FireFx.embers(flame, 5)
 
 
-## True while his feet stand within a lit brazier's ring: its light (`light_radius`, else the
-## Lantern's candle radius) round its flame. The arena's braziers; without them, every candle a stomp
+## True while his feet stand within a lit brazier's ring: its light (candle.gd `light_radius_px`:
+## its `light_radius`, 150 in his arena, else its kind's radius from the data) round its flame. The arena's braziers; without them, every candle a stomp
 ## puts out.
 func in_fire_ring() -> bool:
 	var at := feet()
@@ -1760,9 +1762,10 @@ func in_fire_ring() -> bool:
 	for node: Variant in list:
 		if not is_instance_valid(node) or not (node as Node).has_method(&"is_lit") or not bool((node as Node).call(&"is_lit")):
 			continue
-		var radius := float((node as Node).get(&"light_radius"))
+		var radius := float((node as Node).call(&"light_radius_px")) if (node as Node).has_method(&"light_radius_px") \
+			else float((node as Node).get(&"light_radius"))
 		if radius <= 0.0:
-			radius = FireTargets.lantern_number("candle.lightRadiusPx", 110.0)
+			radius = FireTargets.lantern_number("candle.lightRadiusPx", 240.0)
 		var flame := (node as Node2D).global_position + ((node as Node).get(&"flame_offset") as Vector2)
 		if at.distance_to(flame) <= radius:
 			return true

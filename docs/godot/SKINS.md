@@ -243,8 +243,7 @@ the Verdant Gate's road and that it takes real weight to move it.
   holds, the damage and the charged Lunge stay as they are.
 - **Placing a climbable wall** (`object.climb-wall`, game/scenes/objects/climb-wall.tscn, script
   `game/scripts/climb_wall.gd`; for a climb that leads out of a world, `exit_area_id`, or ends on
-  the face, `holds_at_top`: every other climb is painted, below; today's one-scene Crystal Mine's
-  climbs, `crystal-mine.tscn`, made before vines could be painted, are still placed walls; the rebuilt
+  the face, `holds_at_top`: every other climb is painted, below; the rebuilt
   Mine's are painted vines but for M15's, its lab's roots and the climb out): put its root where the slime's feet
   stand at the wall's foot, about
   20 px below the face's foot line, and set `top` to where the slime's centre ends (on the ledge,
@@ -267,9 +266,9 @@ the Verdant Gate's road and that it takes real weight to move it.
   (player.gd `hold_keys_still_down`: the input is cleared as the slime leaves a world), so a climb
   goes on across a chunk line while W is held, and a let-go drops (no placed climb uses it yet: a
   climb between two chunks is painted, [Across a chunk line](#across-a-chunk-line)). The placed
-  climb out of a world so far: the Colossus arena's way out to the Lookout. Testing one by script: lend the skin, press
-  interact (pushed as an InputEventAction and with `Input.action_press`) and call the wall's
-  `use()`, then hold the way, as `tests/test_crystal_mine.gd` does.
+  climb out of a world so far: the Colossus arena's way out to the Lookout. Testing one by script: lend the skin, tap
+  interact once (the climb is a toggle since 2026-11-24: the next tap lets go), then hold the way, as
+  `tests/test_skins.gd` does with a placed wall and `tests/test_crystal_mine.gd` with painted vines.
 
 ### Painting vines
 

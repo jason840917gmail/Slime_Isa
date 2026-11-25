@@ -87,9 +87,10 @@ func _ready() -> void:
 			_reward_if_beaten_elsewhere.call_deferred()
 
 
-## Its boss fell, but never in this fight (in another world of his dungeon: a save from today's
-## Weaver Hollow, before the rebuilt one took over on 2026-11-25): its reward was never given here
-## (the Hoard's shutter stayed shut). Given now, once, and the fight recorded as won.
+## Its boss fell, but never in this fight (in another world of his dungeon: a save from a dungeon's
+## retired worlds, RunState RETIRED_WORLDS; the Warden beaten in the four-floor Weaver Hollow, the
+## Shardback in the one-scene Mine): its reward was never given here (the Hoard's shutter, the Den's
+## rim shutters stayed shut). Given now, once, and the fight recorded as won.
 func _reward_if_beaten_elsewhere() -> void:
 	if not is_inside_tree() or DungeonState.is_done(get_tree(), _record_key()):
 		return
