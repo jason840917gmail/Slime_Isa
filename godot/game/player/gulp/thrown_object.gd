@@ -249,7 +249,7 @@ func launch(player: Node, held: Dictionary, feet: Vector2, direction: Vector2) -
 	_speed = ThrowFeel.throw_speed() if _feel_on else _constant("gulp.throwSpeed")
 	_range_px = ThrowFeel.throw_range_px() if _feel_on else _constant("gulp.throwRangePx")
 	_level = AbilityWorld.body_level(player.get(&"body") as Node2D) if player != null else AbilityWorld.ANY_LEVEL
-	if ThrowMode.is_on() and GooBomb.from_held(_held) == null:
+	if GooBomb.from_held(_held) == null:
 		_weight = ThrowMode.weight_of_held(_held)
 		_effect = "" if _enemy else ThrowMode.effect_of(str(_held.get("kind", "")), HeldLook.material_of(_held))
 		_speed *= ThrowMode.weight_number(_weight, "speedScale")
@@ -448,21 +448,12 @@ func _break(at: Vector2, cause: Cause = Cause.GROUND) -> void:
 	# The new feel: what the blow did ({"hurt", "impact"}; {} when it struck nothing).
 	var blow: Dictionary = {}
 	if _player != null and is_instance_valid(_player):
-		if ThrowMode.is_on():
-			var targets := _targets(at, _break_radius())
-			# The hurtboxes it flew on to touch are struck even if they stepped out of the break.
-			for area: Area2D in _locked:
-				if is_instance_valid(area) and not targets.has(area) and not _struck.has(area.get_instance_id()):
-					targets.append(area)
-			blow = _strike_rework(at, _damage(), kind, targets)
-		else:
-			var damage := _constant("gulp.throwDamage") * _material_damage(material)
-			var radius := _constant("gulp.throwHitRadiusPx")
-			if ReworkMode.is_on():
-				_strike_rework(at, damage, kind, _targets(at, radius))
-			else:
-				AbilityWorld.strike_area(_player, at, radius, damage, _constant("gulp.throwKnockback"),
-					["thrown", kind], "thrown-" + kind)
+		var targets := _targets(at, _break_radius())
+		# The hurtboxes it flew on to touch are struck even if they stepped out of the break.
+		for area: Area2D in _locked:
+			if is_instance_valid(area) and not targets.has(area) and not _struck.has(area.get_instance_id()):
+				targets.append(area)
+		blow = _strike_rework(at, _damage(), kind, targets)
 	# The enemy-ammo prototype: the carried enemy is put down where the flight ended (its own landing
 	# hit and dust: GulpableEnemy); nothing breaks.
 	if _enemy:
@@ -751,7 +742,7 @@ func _strike_rework(at: Vector2, damage: float, kind: String, targets: Array[Are
 	if router == null or attack_area == null:
 		return {}
 	var outcomes: Array[Dictionary] = []
-	var hit := rework_hit(_direction, ThrowMode.hit_class(_weight, _effect) if ThrowMode.is_on() else "", _weight)
+	var hit := rework_hit(_direction, ThrowMode.hit_class(_weight, _effect), _weight)
 	if _enemy:
 		hit = rework_hit(_direction, GulpableEnemy.throw_hit_class(), _feel_weight())
 	var activation := router.begin_activation(_player, [attack_area])
@@ -921,7 +912,7 @@ static func _area_width(area: Area2D) -> float:
 ## (armor, a kill, a boss: enemy.gd `apply_tempo` refuses) slows it to `slowScale` of its pace for
 ## `slowMs` and coats it as long.
 func _show_effect(receiver: Object, result: Dictionary) -> void:
-	if not ThrowMode.is_on() or _effect.is_empty() or str(result.get("status", "")) != "accepted":
+	if _effect.is_empty() or str(result.get("status", "")) != "accepted":
 		return
 	var reaction: Variant = result.get("reaction")
 	if not reaction is Dictionary:

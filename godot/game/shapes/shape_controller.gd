@@ -22,9 +22,9 @@ extends Node
 ##   `combat.chain.holdCapMs`; its `holdMarginMs` also covers the next tap's own press.
 ## - **Charges.** Attack held `chargeStartMs` arms the goo ring: it fills after the running step (after
 ##   the rest for a finisher) over the charge's `ringMs`; a release when it is full fires the charge
-##   (the Lunge, the Spin, the Quake), which spends its `energy` (PlayerScript.spend_energy) or
-##   fizzles with a small cue when the slime is short; a release before it is full drains the ring
-##   quietly (no attack, no energy). While the ring fills or waits full (`is_charging`) the slime
+##   (the Lunge, the Spin, the Quake). A charge is free: the hold through the ring is its cost (one
+##   combat, 2026-11-25: "charge attacks are free, their cost is the charging time"); a release
+##   before it is full drains the ring quietly (no attack). While the ring fills or waits full (`is_charging`) the slime
 ##   walks at `combat.chain.chargeWalkScale` of its speed (`walk_scale`, player.gd). A charge ends the
 ##   chain.
 ## - **The last step loads** (owner, 2026-10-12): a chain's last step has an `anticipation` block.
@@ -118,14 +118,11 @@ const MOVE_ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left",
 const STAND_IN_CLIP := "attack-1"
 const VISUALS_NAME := "ShapeVisuals"
 ## Cues (audio.global) until the shapes get their own sounds: the swing, the Hammer's impact, the
-## switch (the old EquipBlade / EquipTool), the charge ring's chime when full, the fizzle.
+## switch (the old EquipBlade / EquipTool), the charge ring's chime when full.
 const SWING_CUES := {"spear": &"Lash", "axe": &"Dodge", "hammer": &"HammerSwing"}
 const IMPACT_CUES := {"hammer": &"SlamImpact"}
 const SWITCH_CUES := {"spear": &"EquipBlade", "axe": &"EquipBlade", "hammer": &"EquipTool"}
 const RING_FULL_CUE := &"Heal"
-const FIZZLE_CUE := &"AbilityDenied"
-## The fizzle's small puff at the feet.
-const FIZZLE_PARTICLES := &"dodge-dust"
 ## The shared ring's cancel drain (the mouth's too).
 const RING_CANCEL_PATH := "gulp.rework.ringCancelMs"
 const HAMMER := "hammer"
@@ -344,32 +341,24 @@ func set_current(id: StringName) -> bool:
 	return true
 
 
-## Throw combat (docs/godot/THROW_COMBAT.md; owner, 2026-10-19): shape `id` used as an Ability
-## Box power. Its charge (the Lunge, the Spin, the Quake) fires at once along the strike aim (else
-## the facing), with no ring, paying the charge's energy; the shape becomes the current one. Returns
-## "" when it started, else the refusal PlayerAbilities.notify_rejected knows: "locked" (not learned,
-## no charge), "busy" (a strike runs, the mouth is full, swimming, dead) or "energy".
-func power_strike(id: StringName) -> String:
+## Shape `id`'s charge (the Lunge, the Spin, the Quake) as a full ring's release, at once along the strike
+## aim (else the facing), free as every charge; the shape becomes the current one. For the film tools,
+## which cannot hold the key through the ring (in play the charge is only the hold's release). Returns ""
+## when it started, else "locked" (not learned, no charge) or "busy" (a strike runs, the mouth is full,
+## swimming, dead).
+func fire_charge(id: StringName) -> String:
 	if not _player_valid() or _player.is_dead():
 		return "busy"
-	var charge := ShapeDefs.charge(id)
-	if not learned_shape_ids().has(id) or charge.is_empty():
+	if not learned_shape_ids().has(id) or ShapeDefs.charge(id).is_empty():
 		return "locked"
 	if _phase != Phase.IDLE or _player.is_swimming() or not _player.held().is_empty():
 		return "busy"
-	var energy := ShapeDefs.charge_energy(id)
-	if energy > 0.0 and _player.get_energy() < energy:
-		return "energy"
 	if _current != id:
 		set_current(id)
-	if energy > 0.0 and not _player.spend_energy(energy):
-		return "energy"
-	_cancel_ring(false)
 	_press_ms = -1.0
-	_link_until_ms = -1.0
-	_next_index = 0
-	var aim := _player.get_strike_aim()
-	_begin_unit(Phase.CHARGE, charge, aim if aim != Vector2.ZERO else _player.get_facing())
+	_ring_shape = id
+	_ring_full = true
+	_fire_charge()
 	return ""
 
 
@@ -880,7 +869,7 @@ func _arm_ring(now: float) -> void:
 
 
 ## The armed ring: it fills over `ringMs` from `_ring_from_ms` (a chime when full); a release when
-## full fires the charge, an earlier release drains it quietly (no attack, no energy).
+## full fires the charge, an earlier release drains it quietly (no attack).
 func _update_hold(now: float) -> void:
 	if _ring_from_ms < 0.0:
 		return
@@ -929,8 +918,7 @@ func _retime_ring() -> void:
 		_visuals.show_charge(_ring_shape, -1.0)
 
 
-## The release of a full ring: the charge ends the chain; it spends its energy, or fizzles (a small
-## cue and a puff, the ring drains) when the slime is short.
+## The release of a full ring: the charge fires (free: the hold was its cost) and ends the chain.
 func _fire_charge() -> void:
 	var shape := _ring_shape
 	var charge := ShapeDefs.charge(shape)
@@ -938,14 +926,6 @@ func _fire_charge() -> void:
 	_next_index = 0
 	if shape != _current or charge.is_empty() or _player.is_dead() or _phase != Phase.IDLE:
 		_cancel_ring(true)
-		return
-	var energy := ShapeDefs.charge_energy(shape)
-	if energy > 0.0 and not _player.spend_energy(energy):
-		_cancel_ring(true)
-		_player.action_cue(FIZZLE_CUE)
-		var feel := Services.feel()
-		if feel != null and _player.body != null:
-			feel.particles(FIZZLE_PARTICLES, _player.body.global_position)
 		return
 	_ring_from_ms = -1.0
 	_ring_full = false
@@ -1018,15 +998,16 @@ func _visual_data() -> Dictionary:
 ## `mirrored` for a left side strike, on a copy (GameConstants' dictionary is never changed): a chain step hits
 ## with its strike file's `hit_reach` and `hit_center` in that direction (StrikeLibrary.chain_hit: the Axe's
 ## radius, the Hammer's offset, the Spear's reach, measured from the hit centre, `ShapeStrikes.HIT_CENTER_KEY`;
-## game-constants.json holds none for the chain steps); a `charge` keeps its own numbers. While the strike frames
+## game-constants.json holds none for the chain steps); a `charge` keeps its own numbers (facing up or down a
+## line's `upReach` or `downReach`, ShapeDefs.charge_toward). While the strike frames
 ## of `strike` show ("" for none), also the strike, its direction and its mirror for the drawing, and for a line
 ## (the Spear) where its hit line starts (`ShapeStrikes.LINE_FROM_KEY`: the strike's socket at its contact,
 ## StrikeLibrary.contact_socket, in px from the slime's centre, mirrored for left: where the drawn spear's
 ## visible part starts; a line without that socket keeps the plain line).
 func _with_strike(shape_id: StringName, data: Dictionary, strike: String, direction: String, mirrored: bool,
 		charge: bool) -> Dictionary:
-	var out := data.duplicate() if charge else StrikeLibrary.chain_hit(ShapeDefs.short_name(shape_id), data, direction,
-		mirrored)
+	var out := ShapeDefs.charge_toward(data, direction) if charge else StrikeLibrary.chain_hit(
+		ShapeDefs.short_name(shape_id), data, direction, mirrored)
 	if strike.is_empty():
 		return out
 	var resource := _strike_resource(strike, direction)

@@ -1,12 +1,16 @@
 extends RefCounted
 ## The Gulp in the playground (redesigned 2026-10-08; GAME_GUIDELINES "Signature Mechanic: Gulp";
-## game/player/gulp/). Holding Q sucks in an essence, a rock, a puffball or a pinecone; the slime holds it (no
-## attacks), throws it with Q (it breaks, hitting what it meets) or swallows an essence with
-## Swallow to take its form. A hit pops the form out as a short-lived essence; Swallow with nothing
-## held spits the form out whole. Interact puts an essence in the bag; the bag's Use puts it back in
-## the mouth. The forms' rules: Stone (the old Heavy) walks slower, ignores knockback, holds the
-## heavy plate (1344, 780) that opens `playground-heavy-gate`, and a Squash Slam in it breaks the
-## cracked ground (1600, 1040, reach 52); Silk crosses webs.
+## game/player/gulp/), as the body-shapes mode plays it (on in every world since 2026-10-24; its Q
+## table: BODY_SHAPES.md "Mouth", game/player/gulp/mouth_hold.gd). A Q press with an empty mouth
+## sucks in an essence, a rock, a puffball or a pinecone (a half-second burst that ends on the catch);
+## the slime holds it (no attacks), throws a thing with Q (it breaks, hitting what it meets), spits an
+## essence out whole with a tap of Q, or swallows it with a hold of Q (`gulp.rework.swallowHoldMs`;
+## the Swallow key does nothing in the mode) to take its form. A hit pops the form out as a
+## short-lived essence; Q held with an empty mouth in a form (`spitHoldMs`) spits the form out whole.
+## Interact puts an essence in the bag; the bag's Use puts it back in the mouth. The forms' rules:
+## Stone walks slower and ignores knockback; since roadmap 7.8 the Heavy skin, not the Stone form,
+## holds the heavy plate (1344, 780) that opens `playground-heavy-gate`, and the Squash Slam (a box
+## ability, used with F: `ability_use`) with it breaks the cracked ground (1600, 1040, reach 52).
 ##
 ## Playground places: the old stone spot is a stone essence at (1120, 800); the gulp yard has rocks
 ## at (1000, 1180), (1060, 1230), (960, 1260), puffballs at (1160, 1180) and (1140, 1270), a
@@ -19,6 +23,8 @@ const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 
 const MAP_ID := "playground"
 const STONE_ESSENCE := Vector2(1120.0, 800.0)
@@ -32,6 +38,8 @@ const CRACKED := Vector2(1600.0, 1040.0)
 const CRACK_FLAG := "cracked.playground-sinkhole"
 ## The slime's centre sits this far below a thing to suck it in from the south, facing up.
 const BELOW := Vector2(0.0, 70.0)
+## Open grass at the player spawn (the shapes testbed's ground).
+const OPEN := Vector2(1280.0, 1536.0)
 
 
 func test_suck_an_essence_and_swallow_it(t: TestContext) -> void:
@@ -40,9 +48,17 @@ func test_suck_an_essence_and_swallow_it(t: TestContext) -> void:
 	await _suck_from_below(t, STONE_ESSENCE)
 	t.equal(player.held(), {"kind": "essence", "essence": "stone"}, "the stone essence is in the mouth")
 	t.check(_essence_near(t, STONE_ESSENCE) == null, "the sucked essence left the world")
+	# The Swallow key does nothing in the body-shapes mode: Q held swallows.
 	t.tap(&"swallow")
-	await t.until(func() -> bool: return player.current_form_id() == GulpForms.HEAVY, 300.0)
+	await t.steps(3)
+	t.equal(player.current_form_id(), &"", "the Swallow key swallowed")
+	t.press(&"eat")
+	var pressed := t.now()
+	await t.until(func() -> bool: return player.current_form_id() == GulpForms.HEAVY, _gulp_rework("swallowHoldMs") + 300.0)
+	t.release(&"eat")
 	t.equal(player.current_form_id(), GulpForms.HEAVY, "the Stone form")
+	t.between(t.now() - pressed, _gulp_rework("swallowHoldMs"), _gulp_rework("swallowHoldMs") + 3.0 * TestContext.STEP_MS,
+		"the hold of Q that swallows (ms)")
 	t.equal(player.held(), {}, "the mouth is empty after swallowing")
 	# Since roadmap 7.8 the Heavy skin presses plates, not the Stone form (docs/godot/SKINS.md).
 	t.check(not player.presses_plates(), "the Stone form still presses plates")
@@ -74,10 +90,14 @@ func test_q_spits_an_essence_out_whole_and_a_full_slime_walks_slower(t: TestCont
 	var player := t.player()
 	await _suck_from_below(t, YARD_SILK)
 	t.equal(player.held(), {"kind": "essence", "essence": "silk"}, "holding the silk essence")
+	# The walk on the open grass of the spawn: east of the silk essence the playground's repaint put
+	# a door down (`down-door`, (1400, 1300)), whose travel would hold the slime.
+	t.check(not player.is_movement_suppressed(), "the suck held the slime still")
+	t.teleport_player(OPEN)
+	await t.steps(2)
 	t.press(&"move_right")
 	await t.steps(8)
-	var walk := Services.constants().number("character.player.movement.baseSpeed")
-	t.near(t.player_body().velocity.length(), walk * Services.constants().number("gulp.holdingSpeedMultiplier"), 0.5,
+	t.near(t.player_body().velocity.length(), _walk_speed() * Services.constants().number("gulp.holdingSpeedMultiplier"), 0.5,
 		"the full slime's walking speed")
 	t.release(&"move_right")
 	await t.steps(2)
@@ -132,14 +152,15 @@ func test_a_hit_pops_the_form_and_drops_the_held_thing(t: TestContext) -> void:
 	t.near_vec(t.player_body().velocity, Vector2.ZERO, 0.01, "the pop took the knockback")
 
 
-func test_swallow_with_nothing_held_spits_the_form_out(t: TestContext) -> void:
+func test_q_held_with_nothing_held_spits_the_form_out(t: TestContext) -> void:
 	var player := t.player()
 	Services.run().learn_ability("swallow", true)
 	t.teleport_player(Vector2(1280.0, 1536.0))
 	await t.steps(2)
 	player.get_gulp().swallow("silk-essence")
-	t.tap(&"swallow")
-	await t.until(func() -> bool: return player.current_form_id() == &"", 300.0)
+	t.press(&"eat")
+	await t.until(func() -> bool: return player.current_form_id() == &"", _gulp_rework("spitHoldMs") + 300.0)
+	t.release(&"eat")
 	t.equal(player.current_form_id(), &"", "spat out")
 	var silk := _essence_of(t, "silk")
 	t.check(silk != null and float(silk.get(&"fade_ms")) == 0.0, "the spat essence lies whole and stays")
@@ -186,7 +207,8 @@ func test_stone_walks_slower_and_ignores_knockback(t: TestContext) -> void:
 	t.teleport_player(Vector2(1280.0, 1536.0))
 	t.press(&"move_right")
 	await t.steps(4)
-	t.near(t.player_body().velocity.x, 120.0, 0.01, "Stone walk speed")
+	var stone_walk := _walk_speed() * float(GulpForms.by_id(GulpForms.HEAVY).get("speed", 1.0))
+	t.near(t.player_body().velocity.x, stone_walk, 0.01, "Stone walk speed")
 	t.release_all()
 	await t.steps(2)
 	player.apply_knockback(Vector2.RIGHT, 260.0, 160.0)
@@ -225,23 +247,25 @@ func test_light_slime_does_not_press(t: TestContext) -> void:
 
 func test_a_heavy_slam_breaks_cracked_ground(t: TestContext) -> void:
 	var run := Services.run()
-	run.learn_ability("squash-slam")
+	if not _choose_the_slam(t):
+		return
 	SkinState.lend(SkinState.HEAVY)
 	t.teleport_player(CRACKED + Vector2(0.0, 20.0))
 	await t.steps(3)
 	t.check(not run.has_flag(CRACK_FLAG), "standing with the Heavy skin cracked the ground")
-	t.tap(&"squash_slam")
-	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 1000.0)
+	t.tap(&"ability_use")
+	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 2000.0)
 	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam with the Heavy skin did not crack the ground")
 
 
-func test_slam_without_stone_leaves_cracked_ground(t: TestContext) -> void:
+func test_slam_without_the_heavy_skin_leaves_cracked_ground(t: TestContext) -> void:
 	var run := Services.run()
-	run.learn_ability("squash-slam")
+	if not _choose_the_slam(t):
+		return
 	t.teleport_player(CRACKED + Vector2(0.0, 20.0))
 	await t.steps(3)
-	t.tap(&"squash_slam")
-	await t.sim_wait(700.0)
+	t.tap(&"ability_use")
+	await t.sim_wait(1500.0)
 	t.check(t.player().get_energy() < t.player().get_max_energy(), "the slam did not run")
 	t.check(not run.has_flag(CRACK_FLAG), "a slam without the Heavy skin cracked the ground")
 
@@ -275,7 +299,8 @@ func test_form_skin_follows_the_form(t: TestContext) -> void:
 
 # --- helpers ----------------------------------------------------------------------------------
 
-## Stands the slime south of `at`, facing it, and holds Q until something is in the mouth.
+## Stands the slime south of `at`, facing it, and holds Q until something is in the mouth and the
+## suck burst is over (it roots the slime and takes no Q press while it runs: mouth_hold.gd).
 func _suck_from_below(t: TestContext, at: Vector2) -> void:
 	t.teleport_player(at + BELOW)
 	t.player().face(Vector2.UP)
@@ -283,7 +308,25 @@ func _suck_from_below(t: TestContext, at: Vector2) -> void:
 	t.press(&"eat")
 	await t.until(func() -> bool: return not t.player().held().is_empty(), 1000.0)
 	t.release(&"eat")
+	await t.until(func() -> bool: return not t.player().get_mouth_hold().roots_player(), 1000.0)
 	await t.steps(1)
+
+
+## The Squash Slam learned and chosen in the Ability Box (its key in the mode is `ability_use`).
+func _choose_the_slam(t: TestContext) -> bool:
+	Services.run().learn_session_ability(String(AbilityDefinitions.SQUASH_SLAM))
+	return t.check(AbilityBox.select(t.player(), AbilityDefinitions.SQUASH_SLAM), "could not choose the Squash Slam in the Ability Box")
+
+
+## Player spec 4.3: the walk is `character.player.movement.baseSpeed` under `movementSpeedCap`.
+static func _walk_speed() -> float:
+	var constants := Services.constants()
+	return minf(constants.number("character.player.movement.movementSpeedCap"),
+		constants.number("character.player.movement.baseSpeed"))
+
+
+static func _gulp_rework(name: String) -> float:
+	return Services.constants().number("gulp.rework." + name)
 
 
 ## A router hit of `damage` on the slime (what an enemy's strike commits), with a knockback.

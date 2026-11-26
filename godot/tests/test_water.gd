@@ -3,17 +3,20 @@ extends RefCounted
 ## - The mask has one texel per tile: r = 1 on `water` (shallow), g = 1 on `deep-water`, black
 ##   elsewhere; a world without water gets no surface.
 ## - level-1-c5 (the chunk world of level-1's lake, where the tests start; level-1 is cut into chunk
-##   worlds, docs/godot/WORLD_ATLAS.md): 24 shallow and 394 deep tiles; the WaterSurface quad is the
-##   ground layer's child (drawn right after its tiles, z -2), below the underwater life (z -2,
-##   y-sorted after the ground), the world-sorted decals (z -1: lily pads, bubbles) and the entities
-##   (z 0: reeds).
+##   worlds, docs/godot/WORLD_ATLAS.md): the surface counts as many shallow and deep cells as the
+##   ground has `water` and `deep-water` tiles, and its mask matches every tile; the WaterSurface
+##   quad is the ground layer's child (drawn right after its tiles, z -2), below the underwater life
+##   (z -2, y-sorted after the ground), the world-sorted decals (z -1: lily pads, bubbles) and the
+##   entities (z 0: reeds).
 ## - Travel (Main.travel_to) frees the old world's surface with its ground layer and mounts a new
 ##   one for the next world: gloop-forest's chunk E4 (where its west entry is; gloop-forest is cut into
-##   chunk worlds, docs/godot/WORLD_ATLAS.md) has 106 deep tiles and no shallow ones, so both texture
+##   chunk worlds, docs/godot/WORLD_ATLAS.md) has deep water and no shallow tiles, so both texture
 ##   slots hold the deep-water sheet.
-## - level-1-c5's 69 water-life instances (painted on its prop layers) play their looping
-##   `object.water-life.idle` clip with the authored tint and alpha (fish #b9dcef at 0.72, kelp
-##   #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6, fish shadows 0.75, bubbles 0.9).
+## - level-1-c5's water life (nodes dragged in under `Scenery/Ground details/Water life` and
+##   `Chapter1` since its props became nodes; any water-life prop painted on a prop layer is made into
+##   its instance) plays its looping `object.water-life.idle` clip with the authored
+##   tint and alpha (fish #b9dcef at 0.72, kelp #7ea4bf at 0.5, waterweed #a9d2e3 at 0.6, fish
+##   shadows 0.75, bubbles 0.9).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const WaterSurface := preload("res://game/world/water_surface.gd")
@@ -21,10 +24,7 @@ const WaterSurface := preload("res://game/world/water_surface.gd")
 const TERRAIN_TILESET_PATH := "res://game/world/terrain_tileset.tres"
 const WATER_SHADER_PATH := "res://game/world/water_surface.gdshader"
 const MAP_ID := "level-1-c5"
-const LEVEL1_SHALLOW_TILES := 24
-const LEVEL1_DEEP_TILES := 394
-const LEVEL1_WATER_LIFE := 69
-const GLOOP_FOREST_DEEP_TILES := 106
+const PropLayer := preload("res://game/world/props/prop_layer.gd")
 const IDLE_CLIP := &"object.water-life.idle"
 const WATER_LIFE_SCENE_PREFIX := "water-life--"
 ## Phaser presentation per water-life scene (scene JSON `tint`, `alpha`, depth band):
@@ -91,8 +91,10 @@ func test_level1_surface_covers_the_water_tiles_in_draw_order(t: TestContext) ->
 	var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME)) as WaterSurface
 	if not t.check(surface != null, "level-1-c5's ground layer has no WaterSurface"):
 		return
-	t.equal(surface.shallow_cells, LEVEL1_SHALLOW_TILES, "shallow tiles")
-	t.equal(surface.deep_cells, LEVEL1_DEEP_TILES, "deep tiles")
+	var painted := _water_tiles(ground)
+	t.check(painted.x > 0 and painted.y > 0, "level-1-c5 has no shallow or no deep water: %s" % [painted])
+	t.equal(surface.shallow_cells, painted.x, "shallow tiles (the ground's `water` tiles)")
+	t.equal(surface.deep_cells, painted.y, "deep tiles (the ground's `deep-water` tiles)")
 	t.equal(surface.kind_at(28, 1), WaterSurface.Kind.DEEP, "the river at (28, 1) is deep")
 	t.equal(surface.kind_at(10, 15), WaterSurface.Kind.SHALLOW, "the lake's shallows (10, 15) is shallow")
 	t.equal(surface.kind_at(8, 18), WaterSurface.Kind.DEEP, "the lake centre (8, 18) is deep")
@@ -136,7 +138,23 @@ func test_level1_surface_covers_the_water_tiles_in_draw_order(t: TestContext) ->
 
 func test_level1_water_life_plays_with_phaser_presentation(t: TestContext) -> void:
 	var life := _water_life(t.world().world_root)
-	t.equal(life.size(), LEVEL1_WATER_LIFE, "water-life instances in level-1-c5")
+	t.check(not life.is_empty(), "no water life in level-1-c5")
+	# Every water-life prop painted on the chunk's prop layers stands there as its instance.
+	var painted := 0
+	for layer: Node in t.world().world_root.find_children("*", "TileMapLayer", true, false):
+		if not layer is PropLayer:
+			continue
+		var prop_layer := layer as PropLayer
+		var holder := prop_layer.get_node_or_null(NodePath(PropLayer.HOLDER))
+		for cell: Vector2i in prop_layer.get_used_cells():
+			var scene := str(prop_layer.prop_at(cell).get("scene", ""))
+			if not scene.get_file().begins_with(WATER_LIFE_SCENE_PREFIX):
+				continue
+			painted += 1
+			var node_name := "%s@%d_%d" % [scene.get_file().get_basename(), cell.x, cell.y]
+			var made := holder.get_node_or_null(NodePath(node_name)) as Node2D if holder != null else null
+			t.check(made != null and life.has(made), "%s's painted %s at %s has no water-life instance" % [prop_layer.name, scene.get_file(), cell])
+	t.note("water life: %d instances, %d of them painted" % [life.size(), painted])
 	var before := {}
 	for root: Node2D in life:
 		var player := root.get_node_or_null(^"AmbientAnimation") as AnimationPlayer
@@ -181,8 +199,11 @@ func test_travel_rebuilds_the_surface_for_the_next_world(t: TestContext) -> void
 	var surface := ground.get_node_or_null(NodePath(WaterSurface.NODE_NAME)) as WaterSurface
 	if not t.check(surface != null, "gloop-forest's ground layer has no WaterSurface"):
 		return
-	t.equal(surface.shallow_cells, 0, "gloop-forest shallow tiles")
-	t.equal(surface.deep_cells, GLOOP_FOREST_DEEP_TILES, "gloop-forest deep tiles")
+	var painted := _water_tiles(ground)
+	t.equal(painted.x, 0, "gloop-forest's E4 has no shallow tiles")
+	t.check(painted.y > 0, "gloop-forest's E4 has no deep water")
+	t.equal(surface.shallow_cells, painted.x, "gloop-forest shallow tiles")
+	t.equal(surface.deep_cells, painted.y, "gloop-forest deep tiles (the ground's `deep-water` tiles)")
 	var shader_material := surface.material as ShaderMaterial
 	t.equal(shader_material.get_shader_parameter(&"shallow_texture"), shader_material.get_shader_parameter(&"deep_texture"),
 		"a deep-only world samples the deep sheet in both slots")
@@ -202,6 +223,18 @@ func _check_presentation(t: TestContext, root: Node2D, visual: Sprite2D) -> void
 		t.equal(_absolute_z(visual), int(entry[3]), "%s (%s) z" % [root.name, scene])
 		return
 	t.fail("%s: unknown water-life scene '%s'" % [root.name, scene])
+
+
+## The ground's `water` (x) and `deep-water` (y) tiles.
+static func _water_tiles(ground: TileMapLayer) -> Vector2i:
+	var count := Vector2i.ZERO
+	for cell: Vector2i in ground.get_used_cells():
+		var tile_id: Variant = ground.get_cell_tile_data(cell).get_custom_data("tile_id")
+		if tile_id == "water":
+			count.x += 1
+		elif tile_id == "deep-water":
+			count.y += 1
+	return count
 
 
 ## Instance roots of `object.water-life.*` scenes under `root`, in tree order.

@@ -6,9 +6,17 @@ The rework of 2026-10-11 (plans: [body shapes](../design/2026-10-11-body-shapes-
 [power curve](../design/2026-10-11-world-power-curve.md)) is built here as a prototype that runs
 **beside** the old weapon system. The old game is unchanged while the rework mode is off.
 
-The throw-combat experiment rides on this mode and changes it (unless `?melee` turns it off): the
-attack key does nothing and the shapes are Ability Box powers (each fires its charge at once):
-[THROW_COMBAT.md](THROW_COMBAT.md).
+**One combat (2026-11-25).** The throw rules ([THROW_COMBAT.md](THROW_COMBAT.md)) ride on this mode
+and are always on: the attack key strikes with the current shape, now called the **weapon**, beside
+them ([the plan](../design/2026-11-25-weapons-beside-throws.md)). What was merged: the weapons'
+combos, charges, reach and feel from this page, and every throw rule (weights, effects, the reworked
+feel, enemies as ammo, the Gulp's levels). What changed: every weapon hit is scaled by
+`shapes.weaponDamageScale` (0.5, in `ShapeDefs.damage`: chain steps, ring hits, charges; a throw keeps
+its own damage); a charge is free (no `energy` in the data, no fizzle: the hold through the ring is its
+cost). What went: the `?melee` switch, the shapes as Ability Box powers (`power_strike`, their cards
+and costs), the ability carousel, the keys-only scheme's three stacked layouts (one `LAYOUT` now). E
+switches the weapon, with the HUD's weapon slot (no cost chip any more); the bag's top row is
+**Weapons** again, its Abilities row is where an ability is chosen.
 
 This page is the contract between the prototype's parts: who owns which file, what data passes
 between them, the exact functions each part provides and may call, what is built and what still
@@ -135,11 +143,10 @@ strikes as it is let go; holding never strikes first.
    (`combat.chain.chargeWalkScale`) while it fills or waits full, holding its charge's wind-up frame
    (the Spear: its finisher strike's; the Hammer: hammer-boom's, which the Quake plays; the Axe: its
    drawn `load` pose; standing or walking, turned to its facing). Let go when it is full for the
-   Lunge (Spear, 15 energy), the Spin (Axe, 20 energy: **one** hit per target, a full r72 circle
-   swept round from the aim, one hit-stop, 40 damage) or the Quake (Hammer, 25). Letting go before
-   the ring is full drains it with no attack and no energy spent; a release before 250 ms is a
-   normal tap. Too little energy fizzles (a cue and a puff). Energy refills by itself only 1 a
-   second: pick up energy shards, or press **F5** in the playground.
+   Lunge (Spear), the Spin (Axe: **one** hit per target, a full r72 circle swept round from the aim,
+   one hit-stop, 20 damage at the weapon scale) or the Quake (Hammer). A charge is **free** since
+   2026-11-25 (it cost 15, 20 and 25 energy, and fizzled when short): the hold is its cost. Letting go
+   before the ring is full drains it with no attack; a release before 250 ms is a normal tap.
 3. **Switch shape:** E or the wheel [E]: Spear, War Axe, Hammer. During a strike the switch waits for
    the step's cancel point (during a charge: its end); it never cancels a strike, so a Hammer
    wind-up, a finisher or a paid charge always lands. The bag (B) top band: click a shape (or
@@ -447,11 +454,12 @@ the numbers here describe that first build.
   (down) the part past the neck's fade end draws on StrikeRigFront instead, its twin under the Visual at the over layer's z (over the world), so a target lower on
   screen, which sorts after the slime, never covers the shaft or the tip; the root stays behind the
   body. Where a reach
-  needs more shaft than spear.webp holds past the blob (only the Lunge aimed up, 151 px), the shaft
-  stretches behind the whole arrowhead.
+  needs more shaft than spear.webp holds past the blob (the Lunge aimed up, 151 px, until its up reach
+  was shortened on 2026-11-25), the shaft stretches behind the whole arrowhead.
 - **The hit line** (`ShapeStrike.area_shapes`; the controller's `_with_strike` adds `lineFrom` to a
   copy of the step's numbers): from the full lean's socket (mirrored for left) along the aim to
-  `reach` measured along it from the slime's centre, cut at walls; `sidePx` does not apply. The hit
+  `reach` measured along it from the slime's centre, cut at walls (the tip stops at a wall's face in every
+  direction since 2026-11-25: [The Spear's reach](#the-spears-reach-2026-11-25)); `sidePx` does not apply. The hit
   ends where the drawn tip is at full reach; its near end comes back along the aim to `minReach`
   (24), keeping the socket's offset across the aim, so a target pressed against the slime's front,
   closer than the socket (jab 43 / 46 / 20 px side / down / up, the finisher and the Lunge 64 / 52 /
@@ -473,6 +481,46 @@ the numbers here describe that first build.
   uncompressed, 36 of its 64 cells used; `GRID` 6 in the packer would make it 3072 x 2496 but needs
   hframes and vframes 6 while it shows); it loads when the rework mode builds the strike animations
   (the player scene no longer references it, so the classic game does not load it).
+
+## The Spear's reach (2026-11-25)
+
+The owner, after playing the melee game: "on spear lower the range attack of top ... only the top attack is much
+large than the others", and then "match the spear down reach with the sides". The Spear's line is measured from
+the slime's centre, which sits 27.56 units above its feet, so a strike facing up landed 28 units further from the
+feet than sideways and one facing down 28 units nearer. The Axe's and the Hammer's up strikes had been shortened
+for the perspective on 2026-10-14; the Spear's never was.
+
+| Tip from the feet, along the aim | right / left | down before | down now | up before | up now |
+|---|---|---|---|---|---|
+| Jab (`hit_reach` up 110 to **82.5**, down 110 to **137.5**) | 110 | 82 | **110** | 138 | **110** |
+| Finisher, the lunging jab (`hit_reach` up 132 to **104.5**, down 132 to **159.5**) | 132 | 104 | **132** | 160 | **132** |
+| Lunge, the charge (`upReach` **142.5**, `downReach` **197.5**, its `reach` 170 sideways) | 170 | 142 | **170** | 198 | **170** |
+
+- **The up and down strikes** reach as far from the feet as the side ones: the jab's and the finisher's `up` and
+  `down` `hit_reach` in `game/characters/strikes/spear-jab.tres` and `spear-finisher.tres`, the Lunge's `upReach`
+  and `downReach` in `game-constants.json` (`shapes.spear.charge`; `ShapeDefs.charge_toward` swaps them in for
+  `reach` facing up or down, for any charge that carries them). The drawn spear follows the hit line's reach, so
+  its tip still ends where the hit ends, facing down as well (the down column larger in
+  `spear-reach-down-zoom.png`); the body's strike frames are unchanged (they show the lean, not the spear).
+- **The wall ray** (`ShapeStrike.wall_reach`) is cast along the ground from the feet to where the line's tip
+  lands along the aim and gives back the reach measured from the line's own origin (the centre). Before, it ran
+  `reach` from the feet, so facing up the line poked 28 units through a wall and facing down it stopped 28 short of
+  one. Now the tip stops at the wall's face facing right, left, down and up alike; a wall nearer than the centre
+  facing up leaves no line.
+- **Pictured** by `godot/tools/film_spear_reach.gd` (windowed, in the playground: the jab, the finisher and the
+  Lunge against the testbed's boss dummy in the four directions, then the jab against a wall, each still at the
+  middle of its active window with the queried hit line in yellow and the tip's reach from the feet in cyan) and
+  laid out by `scripts/godot/spear-reach-sheet.py` (one folder, or a before and an after side by side):
+  `output/combat/spear-reach/spear-reach-before-after.png` (before: the game as it was on 2026-11-25; after: up
+  and down matched), the down column larger in `spear-reach-down-zoom.png` (`spear-reach-up-zoom.png` is the up
+  column of the first round).
+
+      "<Godot 4.7.2 console exe>" --path godot --fixed-fps 60 -s res://tools/film_spear_reach.gd -- --out=<dir>
+      python scripts/godot/spear-reach-sheet.py <dir> [<after dir>] --out=<sheet.png>
+
+- **Known limit:** the drawn spear's length is taken when the step starts; the hit recomputes its wall cut every
+  contact frame from where the feet are, so against a wall the drawn tip can sit the step's `stepPx` (4 for the
+  jab, 18 for the finisher, the Lunge's 40 dash) past the wall's face for the active window.
 
 ## The War Axe's and the Hammer's strike frames (2026-10-12)
 
@@ -624,7 +672,8 @@ it.
 **What you can change** (open `side`, `down` or `up`):
 - `hit_reach`: how far the hit reaches in this direction (game px: the Axe's arc radius, the Hammer's circle
   distance ahead, the Spear's line), measured from `hit_center`. This is the only place a chain step's reach is set;
-  the charges (the Lunge, the Spin, the Quake) keep theirs in `game-constants.json`.
+  the charges (the Lunge, the Spin, the Quake) keep theirs in `game-constants.json` (the Lunge's facing up and
+  down are its `upReach` and `downReach`).
 - `hit_center`: where the hit is measured from (game px from the slime's centre; a left strike mirrors it). In this
   top-down view a strike away from the camera starts from the top of the head, so the up hit can sit higher and reach
   less than the down one.
@@ -697,10 +746,10 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
 | Action | Keyboard + mouse | Keys only | Input action |
 |---|---|---|---|
 | Attack with the shape (a tap strikes on its release; hold to charge, let go when full) | Left click | A | `attack` |
-| Next shape | E / wheel | E | `weapon_next` (and `weapon_previous` on the wheel) |
+| Next shape (weapon) | E / wheel | E | `weapon_next` (and `weapon_previous` on the wheel) |
 | Mouth (the Q table, "Mouth" below) | Q | Q | `eat` |
-| Use the chosen box ability | F | S | `ability_use` (new) |
-| Roll (on the release; a hold charges with `roll-charge`) | Space | D | `dodge` |
+| Use the chosen box ability | F | D | `ability_use` (new) |
+| Roll (on the release; a hold charges with `roll-charge`) | Space | S | `dodge` |
 | Interact; held by a heavy block: grab it (walk to push or pull, Stone only) | Right click | W | `interact` |
 | Bag (the Ability Box is its top band) | B | B | `menu` |
 | Drink from a potion belt slot (2026-11-20, [crafting spec 12.4](specs/crafting.md#124-the-potion-belt-step-b3-2026-11-20)) | 1-4 | 1-4 | `potion_1` .. `potion_4` |
@@ -721,10 +770,12 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
   ends player.gd drops a pending Roll press (`_update_modal_pause`, also checked at the top of its
   physics step; `PlayerInputBuffer.drop_press`): a Space press a window did not take never rolls the
   slime as it closes.
-- The keys-only scheme (`game/player/mouse/key_bindings.gd`) adds `REWORK_LAYOUT`
-  (`ability_use` S, `dodge` D) only while the mode is on; its classic layout is unchanged. It is a
-  layer on top of the rework layer: `ReworkInput.apply` takes it off and puts it back around every
-  change, so each layer restores only what it changed, whichever is applied first.
+- The keys-only scheme (`game/player/mouse/key_bindings.gd`, the default for a fresh settings file
+  since 2026-11-25) has one layout: arrows, A attack, S roll, D the chosen ability, Q the Gulp, W
+  interact, E next weapon (the owner's keys of 2026-11-25; until then a rework layout put the ability
+  on S and the Roll on D, and the throw mode's moved them again). It is a layer on top of the rework
+  layer: `ReworkInput.apply` takes it off and puts it back around every change, so each layer
+  restores only what it changed, whichever is applied first.
 - In the rework mode the Swallow press does nothing (Swallow is a Q hold) and the old
   lash/slam/teleport/jump presses are dropped (those abilities are box abilities used with
   `ability_use`).
@@ -772,7 +823,7 @@ Numbers live in `game/data/game-constants.json`, never in code:
 
 | Path | What |
 |---|---|
-| `shapes.spear` / `.axe` / `.hammer` | `id`, `title`, `tags`, `baseDamage` (12 / 15 / 30), `aim` (`snap4` for all three since 2026-10-12, round 2: the nearest of right, down, left, up, an exact diagonal to the side; `exact` and `snap8` are still read), `lineCheck`, `targetModifiers`, `harvest` (Axe `{"wood": 1}`, Hammer `{"stone": 1}`), the Hammer's `harvestStoneForm` (`{"iron": 2}`), `chain[]` steps (`id`, `class`, `windupMs`, `activeMs`, `recoveryMs`, `cancelAtMs` (the last step: its whole length; the rest follows), `damageScale`, `launchSpeed`, `hopPx`, `stepPx` (over `stepFromMs`..`stepToMs`, default the wind-up and the active window), the area (a line's `minReach`/`width` with its `sidePx` (the second jab, 12 px beside the aim; on the Spear's strike frames the line runs from the full lean's socket to the reach and ignores `minReach` and `sidePx`), or an arc's `arcDeg`/`sweep` with `chop` (the Axe's last step: its whole sector at once), or a circle's `radius`; since round 5 (2026-10-14) a chain step's reach, the line's `reach`, the arc's `radius` and the circle's `offset`, is not here but its strike file's `hit_reach` in the strike's direction, measured from that direction's `hit_center`, [Editing the strike animations](#editing-the-strike-animations-2026-10-12)), `knockMode` (`aim` / `sweep` / `radial`), `walkCancel`, `hitStopMs`, `trauma`, `kickPx`, `pitch`, `sparks`, extras such as `impactRing`, `thump`, `debris`, `ringHit`, `flattenX`; the last step's `anticipation` {`pullMs`, `pullPx`, `pushPx`, `squashAlong`, `squashAcross`, `jumpPx`}), and `charge` (`ringMs`, `energy`, `class`, `windupMs`/`activeMs`/`recoveryMs` (grey-box guesses), its hit numbers with their own reach (the Lunge `reach` 170, the Spin `radius` 72, the Quake `radius` 56 and `offset` 68); the Spin hits once (`damageScale` 2.2, no `ticks[]` or `holdMs` since 2026-10-12; the tick code path stays for data that has ticks), the Quake `cracks`) |
+| `shapes.weaponDamageScale` (0.5: every weapon hit, `ShapeDefs.damage`), `shapes.spear` / `.axe` / `.hammer` | `id`, `title`, `tags`, `baseDamage` (12 / 15 / 30), `aim` (`snap4` for all three since 2026-10-12, round 2: the nearest of right, down, left, up, an exact diagonal to the side; `exact` and `snap8` are still read), `lineCheck`, `targetModifiers`, `harvest` (Axe `{"wood": 1}`, Hammer `{"stone": 1}`), the Hammer's `harvestStoneForm` (`{"iron": 2}`), `chain[]` steps (`id`, `class`, `windupMs`, `activeMs`, `recoveryMs`, `cancelAtMs` (the last step: its whole length; the rest follows), `damageScale`, `launchSpeed`, `hopPx`, `stepPx` (over `stepFromMs`..`stepToMs`, default the wind-up and the active window), the area (a line's `minReach`/`width` with its `sidePx` (the second jab, 12 px beside the aim; on the Spear's strike frames the line runs from the full lean's socket to the reach and ignores `minReach` and `sidePx`), or an arc's `arcDeg`/`sweep` with `chop` (the Axe's last step: its whole sector at once), or a circle's `radius`; since round 5 (2026-10-14) a chain step's reach, the line's `reach`, the arc's `radius` and the circle's `offset`, is not here but its strike file's `hit_reach` in the strike's direction, measured from that direction's `hit_center`, [Editing the strike animations](#editing-the-strike-animations-2026-10-12)), `knockMode` (`aim` / `sweep` / `radial`), `walkCancel`, `hitStopMs`, `trauma`, `kickPx`, `pitch`, `sparks`, extras such as `impactRing`, `thump`, `debris`, `ringHit`, `flattenX`; the last step's `anticipation` {`pullMs`, `pullPx`, `pushPx`, `squashAlong`, `squashAcross`, `jumpPx`}), and `charge` (`ringMs`, `class` (no `energy` since 2026-11-25: charges are free), `windupMs`/`activeMs`/`recoveryMs` (grey-box guesses), its hit numbers with their own reach (the Lunge `reach` 170, `upReach` 142.5 facing up and `downReach` 197.5 facing down, the Spin `radius` 72, the Quake `radius` 56 and `offset` 68); the Spin hits once (`damageScale` 2.2, no `ticks[]` or `holdMs` since 2026-10-12; the tick code path stays for data that has ticks), the Quake `cracks`) |
 | `combat.chain` | `linkMs` 150, `holdMarginMs` 140 (it also covers the tap's own press, since a tap fires on its release), `holdCapMs` 900, `chargeStartMs` 250, `chargeWalkScale` 0.5 (the walk while a charge ring fills or waits full), `restMs` {spear 210, axe 195, hammer 200}, `finisherRecoilPx`, `strikeSquash`, `clink` {recoilPx 24, recoilMs, hitStopMs}, `hitStop` {extraTargetMs, extraTargetCapMs, killMs, capMs}. No energy back from hits. (No switch buffer: a switch waits for the strike's cancel point or the charge's end) |
 | `combat.hits` | the impact classes: `tier`, `poise`, `countsAsHold` (`arrow`, the Bow's, since 2026-11-20, with a row in every weight's `classes`) |
 | `combat.verbs`, `combat.weights`, `combat.rules`, `combat.trauma`, `combat.roomClear` | as the combat-feel plan, section 8, with the stuns of 2026-10-12: knockback 500, launch 600, stagger 1050, daze 1550 (knockdown 1200); `combat.rules` `poiseBreakMs` 1150, `wallSplat.dazeMs` 1050, `holdResetFreeMs` 300 (replaces `holdResetMs` 700); `combat.weights` light thrown daze 1550, heavy thrown and ring stagger 650, heavy `breakVerb` stagger 1150. A weight's `classes` entry is a verb or {"verb", "stunMs"?, "damageTaken"?}; `combat.rules.bowling` {speedShare 0.6, damage 4, `minSpeed` 140: a body bowls only a standing enemy it moves into at this speed or more, and one in flight is never bowled again} |
@@ -1129,9 +1180,10 @@ static func request_for(source: Object, shape_id: StringName, hit: Dictionary, a
 
 Plus `hitbox_of(player)` (the slime's layerless ShapeHitbox, body meta `shape_hitbox`),
 `layer_bit(name)`, `wall_reach(player, origin, aim, reach, shift := Vector2.ZERO)` (the ray is cast from
-the slime's feet moved by `shift`, the hit centre, where walls and prop footprints lie, and passes through any
-body that owns a registered hurtbox: a dummy, a tree, a rock; the distance along the aim applies to the line from
-`origin` moved the same way), `hurtbox_point(area)` (the hurtbox's first enabled shape's centre: where a hit, its
+the slime's feet moved by `shift`, the hit centre, where walls and prop footprints lie, to where the line's tip
+lands along the aim, and passes through any body that owns a registered hurtbox: a dummy, a tree, a rock; the
+reach it gives back is measured from `origin` moved the same way, so the tip stops at a wall's face in every
+direction, 2026-11-25), `hurtbox_point(area)` (the hurtbox's first enabled shape's centre: where a hit, its
 knock, sparks, debris and number land), `hit_offset(data)` (the step's `ShapeStrikes.HIT_CENTER_KEY`, else
 zero), `impact_centre(data, origin, aim)` (`offset` ahead of the hit centre),
 `area_shapes(data, origin, aim, reach, sweep_sign, progress := 1.0)` (every kind measured from the hit centre,
@@ -1514,15 +1566,16 @@ static func cooldown_ms(id: StringName) -> float
 ### HUD and bag (Ability Box and HUD)
 
 - **Bag window** (`inventory_screen.gd`): in the mode its top band (y 58-188) holds two rows instead
-  of the belt: Shapes (a click, or Enter / Space on the focused cell, makes it current:
-  ShapeController `set_current`; tagged NOW, with the charge's energy in the corner) and Abilities
-  (only learned sockets; a click or accept chooses it: `AbilityBox.select`; tagged "ON F").
+  of the belt: Weapons (titled Shapes until 2026-11-25; a click, or Enter / Space on the focused cell,
+  makes it current: ShapeController `set_current`; tagged NOW) and Abilities (only learned sockets; a
+  click or accept chooses it: `AbilityBox.choose`, which floats its name over the slime; tagged "ON D"
+  in keys only, "ON F" with the mouse).
   Arrowing onto a cell (from the Close button, the bag or the other row) only shows its card;
   nothing changes until the click or accept. The focused or clicked one's card shows in the details
   panel (`game/ui/body_cards.gd`: `shape_card` / `ability_card`). Public:
   `choose_shape(id)`, `choose_ability(id)`; nodes `content/BodyBand/{ShapesTitle, ShapesHelp,
   Shapes, ShapesEmpty, AbilitiesTitle, AbilitiesHelp, Abilities, AbilitiesEmpty}`.
-- **HUD:** the weapon slot is the Shape slot (the current shape's icon, E badge, the charge's cost chip;
+- **HUD:** the weapon slot is the Shape slot (the current shape's icon, E badge; no cost chip since charges are free;
   hidden below two learned shapes: `WeaponHotbar.slot_shown()`; a click takes the next shape). The
   ability bar (`AbilityBar.rework_slots`) holds `AbilityBar.BOX_SLOT` ("ability-box": the chosen box
   ability, the `ability_use` badge, a cost chip, the cooldown sweep; hidden while the box is empty;
@@ -1540,7 +1593,7 @@ static func cooldown_ms(id: StringName) -> float
   `set_shape(player, id)`, `shape_icon(id)` (loaded on demand, null for an unknown id; the Shape
   slot, its carousel (`WeaponHotbar._entry_icon`: a model entry's `shape_id`) and the bag's Shapes
   row),
-  `ability_icon(id)`, `charge_energy(id)`, `shape_card(id, current)`, `ability_card(id, chosen)`.
+  `ability_icon(id)`, `shape_card(id, current)` (its charge "free"), `ability_card(id, chosen)`.
 
 ### Player hooks (`game/scripts/player.gd`, rework mode only)
 

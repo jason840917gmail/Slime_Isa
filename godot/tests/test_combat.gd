@@ -1,10 +1,16 @@
 extends RefCounted
-## Sword vs worm swordsman and worm vs player (docs/godot/specs/combat.md section 15 "Expected
-## trial numbers", enemy.md 5-7, player.md 6).
-## - A basic-sword hit does 24 (combo x1.0 on a lone hit, owner decision O3); a crit does 42 (5 % chance,
-##   so both are accepted and the crit is noted). The worm (90 HP, knockback resist 0.45) is
-##   knocked back at (140 + 120) x 0.55 = 143 px/s along the swing, stunned 370 ms, ~30 px drift.
-## - 90 HP takes 4 plain hits (24, 48, 72, then 18); the corpse is freed 800 ms (gameplay clock)
+## The slime's melee attack vs the worm swordsman, and worm vs player (docs/godot/specs/combat.md
+## section 15 "Expected trial numbers" for the worm's side, enemy.md 5-7, player.md 6).
+## The body-shapes rework mode is on in every world (docs/godot/BODY_SHAPES.md "Running it"): no
+## crafted weapon is mounted in the hand (main.gd `equip_run_start`), the attack key strikes with the
+## current body shape beside the throw rules (one combat since 2026-11-25: THROW_COMBAT.md "One
+## combat"). These tests lend the Spear (`shapes.spear`):
+## - a tap is the chain's first step, the jab (class tap), doing `baseDamage` x (attack / 10) x its
+##   `damageScale` x `shapes.weaponDamageScale` (12 x 1.2 x 0.97 x 0.5 = 7; a crit, 5 %, x `critMultiplier` 1.75), knocked along the
+##   aim (`knockMode` aim: right here); BODY_SHAPES.md "Data" and "The hit";
+## - the Spear is drawn only while it strikes (the player's StrikeRig draws nothing while no strike
+##   runs);
+## - 90 HP takes strikes until their sum reaches it; the corpse is freed 800 ms (gameplay clock)
 ##   after the killing blow.
 ## - A worm swing lands 400 ms after it starts and does 10 (the slime has no defence since
 ##   2026-11-24: docs/design/2026-11-24-health-and-damage.md), so 8 kill its 80; the player then has
@@ -15,12 +21,11 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const EnemyScript := preload("res://game/scripts/enemy.gd")
 const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const WORM_MAX_HP := 90.0
-const SWORD_HIT := 24
-const SWORD_CRIT_HIT := 42
-const WORM_KNOCKBACK_SPEED := 143.0
-const WORM_STUN_MS := 370.0
+const SPEAR_WEAPON_ID := "shape-spear"
+const CRIT_MULTIPLIER_PATH := "character.player.stats.critMultiplier"
 const WORM_WINDUP_MS := 400.0
 const WORM_HIT_ON_PLAYER := 10
 ## The slime's max health (`character.player.stats.maxHp`) and the worm hits that empty it.
@@ -29,15 +34,18 @@ const WORM_HITS_TO_KILL := 8
 const PLAYER_IFRAMES_MS := 500.0
 const PLAYER_KNOCKBACK_SPEED := 260.0
 const DISPOSE_AFTER_DEFEAT_MS := 800.0
-## Worm centre offset from the player centre: inside the sword's 57 px sector, outside the
+## Worm centre offset from the player centre: inside the Spear's reach to the right, outside the
 ## worm's 38 px attack range.
-const SWORD_TARGET_OFFSET := Vector2(40.0, 0.0)
+const SPEAR_TARGET_OFFSET := Vector2(40.0, 0.0)
 ## Inside the worm's 38 px attack range.
 const WORM_ATTACK_OFFSET := 34.0
 
 
-func test_sword_hit_damages_and_knocks_back_worm(t: TestContext) -> void:
-	var worm := t.spawn_worm(SWORD_TARGET_OFFSET)
+func test_spear_tap_damages_and_pushes_the_worm(t: TestContext) -> void:
+	var shapes: Object = await _lend_spear(t)
+	if shapes == null:
+		return
+	var worm := t.spawn_worm(SPEAR_TARGET_OFFSET, true)
 	if worm == null:
 		return
 	await t.steps(1)
@@ -45,75 +53,89 @@ func test_sword_hit_damages_and_knocks_back_worm(t: TestContext) -> void:
 	var paused_seen := {"value": false}
 	t.player().face(Vector2.RIGHT)
 	t.tap(&"attack")
-	if not t.check(await t.until(func() -> bool: return not hits.is_empty(), 600.0), "the sword never routed a hit to the worm"):
+	if not t.check(await t.until(func() -> bool: return not hits.is_empty(), 600.0), "the Spear never routed a hit to the worm"):
 		return
 	var hit: Dictionary = hits[0]
 	var result: Dictionary = hit["result"]
-	if not t.equal(result.get("status"), "accepted", "sword hit status (reason '%s')" % result.get("reason", "")):
+	if not t.equal(result.get("status"), "accepted", "Spear hit status (reason '%s')" % result.get("reason", "")):
 		return
+	var request: Dictionary = hit["request"]
+	t.equal(str(request.get("weapon_id", "")), SPEAR_WEAPON_ID, "the hit's weapon id")
+	var sent: Dictionary = request.get("hit", {})
+	t.equal(str(sent.get("class", "")), "tap", "a tap's hit class")
+	t.equal(int(sent.get("step", 0)), 1, "a tap is the chain's first step")
+	t.equal(str(sent.get("shape", "")), "spear", "the hit's shape")
+	t.near_vec(sent.get("knock", Vector2.ZERO), Vector2.RIGHT, 0.001, "the knock follows the aim")
 	var damage := int(result.get("actual_damage", 0))
-	t.check(damage == SWORD_HIT or damage == SWORD_CRIT_HIT, "sword damage: got %d, expected %d (or %d on a crit)" % [damage, SWORD_HIT, SWORD_CRIT_HIT])
-	if damage == SWORD_CRIT_HIT:
-		t.note("the swing was a critical hit (%d)" % damage)
-	t.near(float(worm.get_damage_state()["hp"]), WORM_MAX_HP - damage, 0.001, "worm HP after one hit")
-	t.near_vec(hit["velocity"], Vector2.RIGHT * WORM_KNOCKBACK_SPEED, 0.01, "worm knockback velocity")
+	var allowed := _step_damages(0)
+	t.check(allowed.has(damage), "Spear jab damage: got %d, expected one of %s (a crit is the second)" % [damage, allowed])
+	if damage == allowed[1]:
+		t.note("the jab was a critical hit (%d)" % damage)
+	t.near(float(worm.get_damage_state()["hp"]), WORM_MAX_HP - damage, 0.001, "worm HP after one jab")
 	# Hit-stop: the tree pauses (deferred) right after the hit.
 	await t.until(func() -> bool:
 		paused_seen["value"] = paused_seen["value"] or t.tree.paused
-		return t.now() >= float(hit["now"]) + WORM_STUN_MS, 1000.0)
-	t.check(paused_seen["value"], "no hit-stop pause after the sword hit")
+		return not bool(shapes.call(&"is_busy")), 1000.0)
+	t.check(paused_seen["value"], "no hit-stop pause after the Spear hit")
 	var drift: Vector2 = worm.get_centre() - (hit["centre"] as Vector2)
-	t.between(drift.x, 22.0, 36.0, "worm knockback drift over the %d ms stun (px)" % WORM_STUN_MS)
-	t.near(drift.y, 0.0, 1.0, "worm vertical drift during the stun (px)")
-	t.check(hits.size() == 1, "one swing routed %d hits to the worm (expected 1)" % hits.size())
+	t.check(drift.x >= -0.5, "the worm moved toward the slime (%s) after a jab to the right" % [drift])
+	t.near(drift.y, 0.0, 1.0, "worm vertical drift after the jab (px)")
+	t.check(hits.size() == 1, "one jab routed %d hits to the worm (expected 1)" % hits.size())
 
 
-## The sword is drawn only while it swings (owner decision 2026-10-05, `show_when_idle` off):
-## hidden after equipping, visible from the swing start, hidden again when the swing ends.
-func test_sword_shows_only_while_swinging(t: TestContext) -> void:
-	var combat = t.player().get_combat()
-	var weapon = combat.get_weapon()
-	var root := weapon.get_parent() as CanvasItem
+## The Spear is drawn only while it strikes (the StrikeRig under the slime's Visual draws nothing
+## while no strike runs: game/shapes/strike_rig.gd `is_active`).
+func test_spear_shows_only_while_striking(t: TestContext) -> void:
+	var shapes: Object = await _lend_spear(t)
+	if shapes == null:
+		return
+	var rig := t.player().get_strike_rig()
+	if not t.check(rig != null and rig.has_method(&"is_active"), "the slime has no strike rig"):
+		return
 	await t.steps(2)
-	t.equal(root.visible, false, "sword visible after equipping")
+	t.check(not bool(rig.call(&"is_active")), "the Spear is drawn at rest")
 	t.player().face(Vector2.RIGHT)
 	t.tap(&"attack")
-	var started := await t.until(func() -> bool: return combat.is_attacking(), 300.0)
-	if not t.check(started, "the swing did not start"):
+	var started := await t.until(func() -> bool: return bool(shapes.call(&"is_busy")), 300.0)
+	if not t.check(started, "the strike did not start"):
 		return
-	t.equal(root.visible, true, "sword visible during the swing")
-	var finished := await t.until(func() -> bool: return not combat.is_attacking(), 1500.0)
-	if not t.check(finished, "the swing did not finish"):
+	t.check(await t.until(func() -> bool: return bool(rig.call(&"is_active")), 200.0), "the Spear is not drawn during the strike")
+	var finished := await t.until(func() -> bool: return not bool(shapes.call(&"is_busy")), 1500.0)
+	if not t.check(finished, "the strike did not finish"):
 		return
-	await t.steps(1)
-	t.equal(root.visible, false, "sword visible after the swing")
+	await t.steps(2)
+	t.check(not bool(rig.call(&"is_active")), "the Spear is still drawn after the strike")
 
 
-func test_worm_dies_after_four_hits_and_is_freed(t: TestContext) -> void:
-	var worm := t.spawn_worm(SWORD_TARGET_OFFSET, true)
+func test_worm_dies_after_enough_strikes_and_is_freed(t: TestContext) -> void:
+	var shapes: Object = await _lend_spear(t)
+	if shapes == null:
+		return
+	var worm := t.spawn_worm(SPEAR_TARGET_OFFSET, true)
 	if worm == null:
 		return
 	var body := worm.body
 	var freed := {"at": -1.0}
 	body.tree_exited.connect(func() -> void: freed["at"] = t.now())
 	var hits := _record_routes(t, worm.damage_area, body)
-	var combat = t.player().get_combat()
-	var weapon = combat.get_weapon()
+	var allowed: Array[int] = []
+	for index in ShapeDefs.step_count(ShapeDefs.SPEAR):
+		allowed.append_array(_step_damages(index))
 	var damages: Array[int] = []
 	var defeated_at := -1.0
-	for swing in 6:
+	for swing in 12:
 		var ready := await t.until(func() -> bool:
-			return not combat.is_attacking() and weapon.can_begin_attack() and not t.player().is_action_locked(), 2000.0)
-		if not t.check(ready, "the sword was not ready for swing %d" % (swing + 1)):
+			return not bool(shapes.call(&"is_busy")) and not t.player().is_action_locked(), 2000.0)
+		if not t.check(ready, "the Spear was not ready for strike %d" % (swing + 1)):
 			return
-		t.place_worm(worm, t.player().get_centre() + SWORD_TARGET_OFFSET)
+		t.place_worm(worm, t.player().get_centre() + SPEAR_TARGET_OFFSET)
 		t.player().face(Vector2.RIGHT)
 		var before := hits.size()
 		t.tap(&"attack")
-		if not t.check(await t.until(func() -> bool: return hits.size() > before, 600.0), "swing %d did not reach the worm" % (swing + 1)):
+		if not t.check(await t.until(func() -> bool: return hits.size() > before, 900.0), "strike %d did not reach the worm" % (swing + 1)):
 			return
 		var result: Dictionary = hits[hits.size() - 1]["result"]
-		if not t.equal(result.get("status"), "accepted", "swing %d status (reason '%s')" % [swing + 1, result.get("reason", "")]):
+		if not t.equal(result.get("status"), "accepted", "strike %d status (reason '%s')" % [swing + 1, result.get("reason", "")]):
 			return
 		var damage := int(result.get("actual_damage", 0))
 		damages.append(damage)
@@ -125,13 +147,10 @@ func test_worm_dies_after_four_hits_and_is_freed(t: TestContext) -> void:
 			defeated_at = float(hits[hits.size() - 1]["now"])
 			break
 	t.note("hits: %s" % [damages])
-	var expected_hits := _hits_to_kill(damages)
 	t.check(defeated_at >= 0.0, "the worm was not defeated after %d hits %s" % [damages.size(), damages])
-	t.equal(damages.size(), expected_hits, "hits to kill (damages %s)" % [damages])
-	if not damages.has(SWORD_CRIT_HIT):
-		t.equal(damages.size(), 4, "hits to kill with no crit")
+	t.equal(damages.size(), _hits_to_kill(damages), "hits to kill (damages %s)" % [damages])
 	for d in damages.slice(0, damages.size() - 1):
-		t.check(d == SWORD_HIT or d == SWORD_CRIT_HIT, "a sword hit did %d" % d)
+		t.check(allowed.has(d), "a Spear hit did %d (a chain step's damage: %s)" % [d, allowed])
 	if defeated_at < 0.0:
 		return
 	t.check(worm.is_defeated(), "is_defeated() false after the killing blow")
@@ -215,8 +234,8 @@ func test_worm_hits_kill_the_player_then_respawn_at_spawn(t: TestContext) -> voi
 	t.note("respawned at %s (findSpawnPoint of the level-1 marker %s)" % [player.get_centre(), world.player_spawn_marker()])
 
 
-## Records DamageRouter routes that target `area`: [{"result", "now", "velocity" (of `body` right
-## after the commit), "centre" (old Phaser position of `body`)}].
+## Records DamageRouter routes that target `area`: [{"request", "result", "now", "velocity" (of
+## `body` right after the commit), "centre" (old Phaser position of `body`)}].
 func _record_routes(t: TestContext, area: Area2D, body: CharacterBody2D) -> Array:
 	var routes: Array = []
 	var router := Services.router()
@@ -225,6 +244,7 @@ func _record_routes(t: TestContext, area: Area2D, body: CharacterBody2D) -> Arra
 		if request.get("target_area") != area:
 			return
 		routes.append({
+			"request": request,
 			"result": payload.get("result", {}),
 			"now": t.now(),
 			"velocity": body.velocity if is_instance_valid(body) else Vector2.ZERO,
@@ -241,3 +261,23 @@ static func _hits_to_kill(damages: Array[int]) -> int:
 		if total >= WORM_MAX_HP:
 			return i + 1
 	return damages.size() + 1
+
+
+## Lends the Spear for the session (as the playground and `?shapes` do) and makes it the current
+## shape; the player's ShapeController, or null.
+func _lend_spear(t: TestContext) -> Object:
+	Services.run().learn_session_ability(String(ShapeDefs.SPEAR))
+	var shapes: Object = t.player().get_shapes()
+	if not t.check(shapes != null and bool(shapes.call(&"set_current", ShapeDefs.SPEAR)), "the Spear could not be made current"):
+		return null
+	await t.steps(1)
+	return shapes
+
+
+## The damage of the Spear's chain step `index`, plain then critical: `baseDamage` x (attack / 10) x
+## the step's `damageScale` (ShapeDefs.damage), rounded by the resolver.
+static func _step_damages(index: int) -> Array[int]:
+	var plain := ShapeDefs.damage(ShapeDefs.SPEAR, ShapeDefs.num(ShapeDefs.step(ShapeDefs.SPEAR, index), "damageScale", 1.0))
+	var crit := Services.constants().number(CRIT_MULTIPLIER_PATH)
+	var damages: Array[int] = [roundi(plain), roundi(plain * crit)]
+	return damages

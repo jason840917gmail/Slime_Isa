@@ -1,45 +1,49 @@
 extends RefCounted
 ## Player movement and the Roll (docs/godot/specs/player.md section 2 values, 4.3 move, 5 the
-## Roll; roadmap 7.7; the Roll lent for the session in its tests: young Burr teaches it). Walk 200 px/s, sprint 300 px/s, diagonals normalised. The Roll (the `dodge`
-## ability on key 2) spins up in place, launches and eases to its cruising speed over its shortest
-## roll, is safe from hits just after the launch, keeps rolling while held (steered, draining
-## energy) and ends when let go; its values are read from `character.player.movement.roll*`. It
-## sticks in a floor web (owner, 2026-10-16) unless the slime crosses webs (the Silk form).
-## The player starts at level-1's spawn (centre (640, 704), in the village chunk C4); the speed
-## checks walk from 60 px below it (OPEN), where the ground to the right and up-right is open for
-## the distances used here (the village banner at (656, 664) stands up-right of the spawn itself).
+## Roll; roadmap 7.7; docs/godot/BODY_SHAPES.md checklist 10, the Roll in the body-shapes mode, which
+## is on in every world since 2026-10-24). The walk is `character.player.movement.baseSpeed` (180
+## since 2026-11-18), the sprint `boostSpeed`, both under `movementSpeedCap`; diagonals normalised.
+## The Roll (the `dodge` ability, on Space; young Burr teaches it, lent for the session here) fires on
+## the key's release: a tap rolls the **quick roll** (no spin-up, `character.player.rework.
+## quickRollDistancePx` over `quickRollMs`, safe for `quickRollInvulnerabilityMs`); with the
+## `roll-charge` upgrade a hold past `rollTapMs` is the **charged roll**: it spins up in place,
+## launches and eases to its cruising speed over its shortest roll, is safe just after the launch,
+## keeps rolling while held (straight, draining energy) and ends when let go (its values in
+## `character.player.movement.roll*`). A roll sticks in a floor web (owner, 2026-10-16) unless the
+## slime crosses webs (the Silk skin).
+## The speed checks walk from OPEN in level-1's village chunk, where the ground to the right and
+## up-right is open for the distances used here.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const Services := preload("res://game/shared/services.gd")
 const SquashStretch := preload("res://game/player/squash_stretch.gd")
+const PlayerRoll := preload("res://game/player/roll/player_roll.gd")
 
-const WALK_SPEED := 200.0
-const SPRINT_SPEED := 300.0
 const MEASURE_STEPS := 30
-## Where the speed checks start (old Phaser centre).
+## Where the speed and roll checks start (old Phaser centre).
 const OPEN := Vector2(640.0, 764.0)
 
 
-func test_walk_speed_is_200(t: TestContext) -> void:
-	await _check_speed(t, [&"move_right"], Vector2.RIGHT, WALK_SPEED, "walk right")
+func test_walk_speed_is_the_base_speed(t: TestContext) -> void:
+	await _check_speed(t, [&"move_right"], Vector2.RIGHT, _walk_speed(), "walk right")
 
 
 func test_walk_diagonal_is_normalised(t: TestContext) -> void:
-	await _check_speed(t, [&"move_right", &"move_up"], Vector2(1, -1).normalized(), WALK_SPEED, "walk up-right")
+	await _check_speed(t, [&"move_right", &"move_up"], Vector2(1, -1).normalized(), _walk_speed(), "walk up-right")
 
 
 func test_sprint_speed_is_300(t: TestContext) -> void:
-	await _check_speed(t, [&"sprint", &"move_right"], Vector2.RIGHT, SPRINT_SPEED, "sprint right")
+	await _check_speed(t, [&"sprint", &"move_right"], Vector2.RIGHT, _sprint_speed(), "sprint right")
 
 
 func test_sprint_diagonal_is_normalised(t: TestContext) -> void:
-	await _check_speed(t, [&"sprint", &"move_right", &"move_up"], Vector2(1, -1).normalized(), SPRINT_SPEED, "sprint up-right")
+	await _check_speed(t, [&"sprint", &"move_right", &"move_up"], Vector2(1, -1).normalized(), _sprint_speed(), "sprint up-right")
 
 
 ## A diagonal walk into a wall slides along it at the tangential speed, and the blocked velocity
 ## component reads back as zero, as Phaser's Arcade separation does (player spec 5.2). Godot's
-## floating `move_and_slide()` would slide at the full 200 px/s and keep the velocity, which is why
+## floating `move_and_slide()` would slide at the full walk speed and keep the velocity, which is why
 ## every body moves with `ArcadeMover` (res://game/shared/arcade_mover.gd).
 func test_diagonal_walk_slides_along_a_wall_like_arcade(t: TestContext) -> void:
 	var body := t.player_body()
@@ -60,7 +64,7 @@ func test_diagonal_walk_slides_along_a_wall_like_arcade(t: TestContext) -> void:
 	t.press(&"move_right")
 	t.press(&"move_up")
 	await t.steps(12)
-	var tangential := WALK_SPEED * Vector2(1, -1).normalized().x
+	var tangential := _walk_speed() * Vector2(1, -1).normalized().x
 	t.near_vec(body.velocity, Vector2(tangential, 0.0), 0.01, "velocity against the wall")
 	var from := t.player().get_centre()
 	var from_ms := t.now()
@@ -111,34 +115,28 @@ func test_releasing_keys_stops_the_player(t: TestContext) -> void:
 	t.near_vec(t.player().get_centre(), before, 0.001, "position while idle")
 
 
-## A tapped Roll to the right: the spin-up keeps the slime in place for `rollSpinUpMs` (the ball
-## clip, no i-frames), the launch shoots it off at `rollLaunchSpeed` with `rollInvulnerabilityMs`
-## of i-frames, and without the key held it stops `rollMinMs` after the launch. A press right after
-## is refused (the cooldown runs from the press), one after the cooldown rolls.
-func test_a_tapped_roll_spins_up_launches_and_stops(t: TestContext) -> void:
+## A tapped Roll to the right is the quick roll (BODY_SHAPES.md checklist 10): no spin-up, the ball
+## shoots off at once at the speed that covers `quickRollDistancePx` in `quickRollMs` while easing to
+## `quickRollEndSpeedShare` of it, safe for `quickRollInvulnerabilityMs`, and it stops `quickRollMs`
+## after the launch. A press right after is refused (the cooldown runs from the press:
+## `quickRollMs` + `rollCooldownMs`), one after the cooldown rolls.
+func test_a_tapped_roll_is_the_quick_roll(t: TestContext) -> void:
 	_learn_the_roll()
 	var player := t.player()
 	var body := t.player_body()
-	var spin_up := _movement("rollSpinUpMs")
-	var min_ms := _movement("rollMinMs")
-	var iframes := _movement("rollInvulnerabilityMs")
+	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)
+	await t.steps(2)
+	var length := _rework("quickRollMs")
+	var iframes := _rework("quickRollInvulnerabilityMs")
 	var start_centre := player.get_centre()
 	t.tap(&"dodge")
 	if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "the roll press did not start a roll"):
 		return
-	var pressed := t.now()
-	t.check(player.get_roll().is_spinning_up(), "the roll does not start with its spin-up")
-	t.equal(String(player.animation.assigned_animation), "ball-side", "the ball clip")
-	t.check(not player.is_dodging(), "i-frames during the spin-up")
-	await t.sim_wait(spin_up * 0.5)
-	t.near_vec(body.velocity, Vector2.ZERO, 0.001, "velocity during the spin-up")
-	t.near_vec(player.get_centre(), start_centre, 0.001, "the slime moved during the spin-up")
-
-	await t.until(func() -> bool: return not player.get_roll().is_spinning_up(), 1000.0)
 	var launched := t.now()
-	t.between(launched - pressed, spin_up, spin_up + TestContext.STEP_MS, "spin-up (ms)")
-	t.near_vec(body.velocity, Vector2.RIGHT * _movement("rollLaunchSpeed"), 0.01, "launch velocity")
+	t.check(not player.get_roll().is_spinning_up(), "the quick roll spins up")
+	t.equal(String(player.animation.assigned_animation), "ball-side", "the ball clip")
+	t.near_vec(body.velocity, Vector2.RIGHT * _quick_launch_speed(), 0.01, "launch velocity")
 	t.check(player.is_dodging(), "no i-frames right after the launch")
 	var blocked := player.can_receive_damage({"simulation_time": t.now()})
 	t.check(not bool(blocked.get("accepted", true)) and blocked.get("reason", "") == "state-blocked",
@@ -147,44 +145,82 @@ func test_a_tapped_roll_spins_up_launches_and_stops(t: TestContext) -> void:
 	t.between(t.now() - launched, iframes, iframes + TestContext.STEP_MS, "roll i-frames (ms)")
 
 	await t.until(func() -> bool: return not player.is_rolling(), 1500.0)
-	t.between(t.now() - launched, min_ms, min_ms + 2.0 * TestContext.STEP_MS, "a tapped roll's length after the launch (ms)")
+	t.between(t.now() - launched, length, length + 2.0 * TestContext.STEP_MS, "a quick roll's length after the launch (ms)")
 	await t.steps(2)
 	t.near_vec(body.velocity, Vector2.ZERO, 0.001, "velocity after the roll")
 	var travelled := player.get_centre() - start_centre
-	t.check(travelled.x > _movement("rollSpeed") * min_ms / 1000.0, "the roll covered only %.1f px" % travelled.x)
+	var distance := _rework("quickRollDistancePx")
+	t.between(travelled.x, distance * 0.9, distance * 1.1, "the quick roll's distance (px)")
 	t.near(travelled.y, 0.0, 0.001, "roll vertical drift (px)")
 
 	# Inside the cooldown (from the press): refused.
 	t.tap(&"dodge")
 	await t.steps(3)
 	t.check(not player.is_rolling(), "a roll %.0f ms after the last press rolled (cooldown %.0f ms)" % [
-		t.now() - pressed, _cooldown_from_press()])
+		t.now() - launched, _quick_cooldown_from_press()])
 	# After it (and the roll's own pause after its end, which step rounding puts a little later):
 	# rolls.
-	await t.until(func() -> bool: return t.now() >= pressed + _cooldown_from_press() + 4.0 * TestContext.STEP_MS, 1500.0)
+	await t.until(func() -> bool: return t.now() >= launched + _quick_cooldown_from_press() + 4.0 * TestContext.STEP_MS, 2000.0)
 	player.face(Vector2.LEFT)
 	t.tap(&"dodge")
 	t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0),
-		"a roll %.0f ms after the last press was refused" % [t.now() - pressed])
+		"a roll %.0f ms after the last press was refused" % [t.now() - launched])
 
 
-## Holding the key keeps the ball rolling past its shortest roll, straight on: the movement keys
-## do not turn it or slide it sideways (owner, 2026-10-09: like Zelda's Pegasus dash). Energy drains
-## and does not refill, and letting go stops it.
+## Without the `roll-charge` upgrade a held key waits for its release and rolls the quick roll then
+## (player.gd `_due_roll`). With it, a hold past `rollTapMs` is the charged roll: the spin-up keeps
+## the slime in place for `rollSpinUpMs` (the ball clip, no i-frames), the launch shoots it off at
+## `rollLaunchSpeed` with `rollInvulnerabilityMs` of i-frames, and the held key keeps the ball rolling
+## past its shortest roll, straight on: the movement keys do not turn it or slide it sideways (owner,
+## 2026-10-09: like Zelda's Pegasus dash). Energy drains and does not refill, and letting go stops it.
 func test_a_held_roll_goes_straight_and_drains_energy(t: TestContext) -> void:
 	_learn_the_roll()
 	var player := t.player()
 	var body := t.player_body()
+	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)
+	await t.steps(2)
+	# No upgrade: nothing rolls while the key is held.
 	t.press(&"dodge")
-	if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "the roll press did not start a roll"):
+	await t.sim_wait(_rework("rollTapMs") + _movement("rollSpinUpMs"))
+	t.check(not player.is_rolling(), "a held key rolled without the roll-charge upgrade")
+	t.release(&"dodge")
+	t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "the release did not roll the quick roll")
+	t.check(not player.get_roll().is_spinning_up(), "the release's roll spins up")
+	await t.until(func() -> bool: return not player.is_rolling(), 1500.0)
+	await t.sim_wait(_quick_cooldown_from_press() + 100.0)
+
+	# The upgrade: the charged roll.
+	Services.run().learn_session_ability(String(PlayerRoll.CHARGE_UPGRADE_ID))
+	t.teleport_player(OPEN)
+	player.face(Vector2.RIGHT)
+	await t.steps(2)
+	var start_centre := player.get_centre()
+	var spin_up := _movement("rollSpinUpMs")
+	var iframes := _movement("rollInvulnerabilityMs")
+	t.press(&"dodge")
+	var pressed := t.now()
+	if not t.check(await t.until(func() -> bool: return player.is_rolling(), _rework("rollTapMs") + 100.0), "the held roll key did not start a roll"):
 		t.release_all()
 		return
+	var spun := t.now()
+	t.between(spun - pressed, _rework("rollTapMs"), _rework("rollTapMs") + 2.0 * TestContext.STEP_MS, "the hold before the charged roll (ms)")
+	t.check(player.get_roll().is_spinning_up(), "the charged roll does not start with its spin-up")
+	t.equal(String(player.animation.assigned_animation), "ball-side", "the ball clip")
+	t.check(not player.is_dodging(), "i-frames during the spin-up")
+	await t.sim_wait(spin_up * 0.5)
+	t.near_vec(body.velocity, Vector2.ZERO, 0.001, "velocity during the spin-up")
+	t.near_vec(player.get_centre(), start_centre, 0.001, "the slime moved during the spin-up")
 	await t.until(func() -> bool: return not player.get_roll().is_spinning_up(), 1000.0)
 	var launched := t.now()
+	t.between(launched - spun, spin_up, spin_up + TestContext.STEP_MS, "spin-up (ms)")
+	t.near_vec(body.velocity, Vector2.RIGHT * _movement("rollLaunchSpeed"), 0.01, "launch velocity")
+	t.check(player.is_dodging(), "no i-frames right after the launch")
 	await t.sim_wait(80.0)
 	t.press(&"move_up")
 	t.press(&"move_left")
+	await t.until(func() -> bool: return not player.is_dodging(), 1000.0)
+	t.between(t.now() - launched, iframes, iframes + TestContext.STEP_MS, "roll i-frames (ms)")
 	await t.until(func() -> bool: return t.now() >= launched + _movement("rollMinMs"), 1500.0)
 	var energy := player.get_energy()
 	await t.sim_wait(200.0)
@@ -302,24 +338,44 @@ func _movement(name: String) -> float:
 	return Services.constants().number("character.player.movement." + name)
 
 
-func _cooldown_from_press() -> float:
-	return _movement("rollSpinUpMs") + _movement("rollMinMs") + _movement("rollCooldownMs")
+## The body-shapes mode's player numbers (`character.player.rework`).
+func _rework(name: String) -> float:
+	return Services.constants().number("character.player.rework." + name)
 
 
-## The Roll's ball and the keyed swings: a roll plays the ball clip for its direction (one spinning
-## ball, mirrored for left) and a sword swing plays the row for its direction (it has its own
-## `-left` clip because its lunge has a direction), the swing lunges toward its direction, and the
-## art is back at rest after it.
-func test_roll_and_swing_pick_the_facing_row(t: TestContext) -> void:
+## Player spec 4.3: the walk is `baseSpeed` under `movementSpeedCap`; the sprint is `boostSpeed`.
+func _walk_speed() -> float:
+	return minf(_movement("movementSpeedCap"), _movement("baseSpeed"))
+
+
+func _sprint_speed() -> float:
+	return minf(_movement("movementSpeedCap"), _movement("boostSpeed"))
+
+
+## The quick roll's launch speed: it covers `quickRollDistancePx` in `quickRollMs` easing linearly
+## to `quickRollEndSpeedShare` of it (the distance is the mean speed times the time).
+func _quick_launch_speed() -> float:
+	return 2.0 * _rework("quickRollDistancePx") / (_rework("quickRollMs") / 1000.0 * (1.0 + _rework("quickRollEndSpeedShare")))
+
+
+## The quick roll's cooldown from the press (BODY_SHAPES.md: `quickRollMs` + `rollCooldownMs`).
+func _quick_cooldown_from_press() -> float:
+	return _rework("quickRollMs") + _movement("rollCooldownMs")
+
+
+## The Roll's ball picks the row for the direction it rolls (one spinning ball, mirrored for left).
+## (The keyed sword swing this test also drove is gone: the body-shapes mode, on in every world since
+## 2026-10-24, hands out no weapon and strikes with the shapes, BODY_SHAPES.md "Running it".)
+func test_a_roll_picks_the_facing_row(t: TestContext) -> void:
 	_learn_the_roll()
 	var player := t.player()
-	var combat = player.get_combat()
-	var rest_offset: Vector2 = player.visual.offset
+	t.teleport_player(OPEN)
+	await t.steps(2)
 	var cases := [
-		[Vector2.DOWN, "ball-down", "attack-1-down", false],
-		[Vector2.UP, "ball-up", "attack-1-up", false],
-		[Vector2.RIGHT, "ball-side", "attack-1-side", false],
-		[Vector2.LEFT, "ball-side", "attack-1-left", true],
+		[Vector2.DOWN, "ball-down", false],
+		[Vector2.UP, "ball-up", false],
+		[Vector2.RIGHT, "ball-side", false],
+		[Vector2.LEFT, "ball-side", true],
 	]
 	for case: Array in cases:
 		var toward: Vector2 = case[0]
@@ -329,22 +385,13 @@ func test_roll_and_swing_pick_the_facing_row(t: TestContext) -> void:
 		if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "%s: the roll press did not start a roll" % label):
 			return
 		t.equal(String(player.animation.assigned_animation), case[1], "%s roll clip" % label)
-		t.equal(player.visual.flip_h, case[3], "%s roll flip" % label)
-		# The next roll needs the roll's cooldown; this swing needs the last one's weapon cooldown.
-		await t.sim_wait(_cooldown_from_press() + 50.0)
-		await t.until(func() -> bool: return combat.get_weapon().can_begin_attack(), 2000.0)
-		t.tap(&"attack")
-		if not t.check(await t.until(func() -> bool: return combat.is_attacking(), 300.0), "%s: the swing did not start" % label):
-			return
-		t.equal(String(player.animation.assigned_animation), case[2], "%s swing clip" % label)
-		t.equal(player.visual.flip_h, case[3], "%s swing flip" % label)
-		await t.sim_wait(200.0)
-		var reach: Vector2 = player.visual.offset - rest_offset
-		t.check(reach.dot(toward) > 0.0, "%s: the swing does not lunge toward its direction (offset %s)" % [label, reach])
-		await t.until(func() -> bool: return not combat.is_attacking(), 1500.0)
+		t.equal(player.visual.flip_h, case[2], "%s roll flip" % label)
+		# The next roll needs the roll's cooldown (from the press, and its pause after the roll's end,
+		# which a bonk's bounce puts later).
+		await t.until(func() -> bool: return not player.is_rolling(), 2000.0)
+		await t.sim_wait(_quick_cooldown_from_press() + 50.0)
+		t.teleport_player(OPEN)
 		await t.steps(2)
-		t.near_vec(player.visual.offset, rest_offset, 0.001, "%s offset after the swing" % label)
-		t.equal(player.visual.skew, 0.0, "%s skew after the swing" % label)
 
 
 ## Holds `actions`, lets the speed settle, then checks the velocity and the distance covered over

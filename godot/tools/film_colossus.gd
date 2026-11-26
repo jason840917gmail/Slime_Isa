@@ -1434,10 +1434,10 @@ func _restore_slime() -> void:
 		player.call(&"set_energy", 100.0)
 
 
-## The Spear's Ability Box power (its Lunge, as the throw combat uses it) the way the slime faces.
+## The Spear's charge (its Lunge, ShapeController.fire_charge) the way the slime faces.
 func _spear() -> String:
 	var shapes: Node = _main.get(&"shapes")
-	return str(shapes.call(&"power_strike", SPEAR)) if shapes != null else "no shapes"
+	return str(shapes.call(&"fire_charge", SPEAR)) if shapes != null else "no shapes"
 
 
 ## A clay pot put behind the slime, sucked in and thrown along `way`. `as_it_leaves` runs on the step

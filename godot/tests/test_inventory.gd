@@ -3,7 +3,9 @@ extends RefCounted
 ## its refusals, the tab strip, the bag model (cells, tags, details, actions), consumables, the
 ## amount, Destroy, dropping on the ground (placement, records, pickup), the workbench item and the
 ## pause menu's Inventory button. The trial sword (owner decision C3) is set aside where a test
-## needs a given bag.
+## needs a given bag. The body-shapes mode is on in every world (docs/godot/BODY_SHAPES.md "Running
+## it"): the slime fights with its shapes, so no belt weapon is mounted in its hand and the
+## playground hands out no crafted weapons (BODY_SHAPES.md, main.gd `equip_run_start`).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -14,6 +16,7 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 const InventoryScreen := preload("res://game/ui/screens/inventory_screen.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const DIMS := {"tile_size": 64, "columns": 56, "rows": 56}
 ## Player pickup rect centre = old Phaser centre + (0, 14.56) (player_slime.tscn PickupShape).
@@ -41,14 +44,16 @@ func test_menu_key_opens_bag(t: TestContext) -> void:
 	t.check(not menu.tabs.visible, "the tab strip stayed")
 
 
+## The menu key is refused while the slime is action-locked (crafting spec 5.1: the swing, the roll
+## lock, the eat clip...; the eat clip here, the purple berry's: the rework's shape strikes do not
+## lock) and over the pause menu.
 func test_menu_key_refused(t: TestContext) -> void:
 	var menu := _menu(t)
-	t.player().face(Vector2.RIGHT)
-	t.tap(&"attack")
-	var swinging := await t.until(func() -> bool: return t.player().is_action_locked(), 200.0)
-	t.check(swinging, "the sword swing did not start")
+	await t.steps(2)
+	t.player().play_action_clip("eat")
+	t.check(t.player().is_action_locked(), "the eat clip did not lock the slime")
 	t.tap(&"menu")
-	t.check(not menu.bag.is_open(), "the menu key opened the bag mid-swing")
+	t.check(not menu.bag.is_open(), "the menu key opened the bag during the eat clip")
 	await t.until(func() -> bool: return not t.player().is_action_locked(), 2000.0)
 	var shell := Services.shell()
 	t.check(shell.open_pause(), "the pause menu did not open")
@@ -62,7 +67,8 @@ func test_tab_coach(t: TestContext) -> void:
 	var run := Services.run()
 	menu.open_bag()
 	t.check(menu.tabs.coach.visible, "the coach is hidden the first time")
-	t.equal(menu.tabs.coach_label.text, "These tabs switch between your Bag, Journal and Map. Click one!", "coach text")
+	t.equal(menu.tabs.coach_label.text, "These tabs switch between your Bag, Journal and Map. Move up to them and press Space.",
+		"coach text (the keys-only default)")
 	menu.tabs.buttons[&"journal"].pressed.emit()
 	t.check(run.has_flag("hint.menu-tabs"), "a tab click did not learn the coach")
 	t.check(not menu.tabs.coach.visible, "the coach stayed after a tab click")
@@ -114,14 +120,15 @@ func test_bag_model_new_run(t: TestContext) -> void:
 	bag.close()
 
 
-## The runner's start weapon (RunState.start_weapon_id "basic-sword"): bag, belt slot 1, hand.
+## The runner's start weapon (RunState.start_weapon_id "basic-sword"): bag, belt slot 1, hand; the
+## body-shapes mode mounts nothing (main.gd `equip_run_start`; BODY_SHAPES.md).
 func test_start_weapon_goes_to_bag_belt_and_hand(t: TestContext) -> void:
 	var run := Services.run()
 	t.equal(run.slots(), [{"item_id": "basic-sword", "count": 1}], "bag at a new run")
 	t.equal(run.weapon_slots(), ["basic-sword", null, null, null], "belt at a new run")
 	t.equal(run.equipped_weapon_id(), "basic-sword", "hand at a new run")
 	var weapon = t.player().get_combat().get_weapon()
-	t.check(weapon != null and weapon.weapon_id == "basic-sword", "the sword is not mounted")
+	t.check(weapon == null, "the shapes mode mounted %s" % [weapon.weapon_id if weapon != null else ""])
 	t.check(not run.start_kit_pending, "the start kit is still pending")
 	var bag := _open_bag(t)
 	var cell: Dictionary = (bag.model()["items"] as Array)[0]
@@ -401,17 +408,21 @@ func test_new_run_starts_empty_handed(t: TestContext) -> void:
 	t.check(t.player().get_combat().get_weapon() == null, "a weapon is mounted")
 
 
-## The playground hands out every weapon: the sword, stone axe, pickaxe and spear on the belt, the
-## sword in hand, the rest in the bag.
-func test_playground_has_every_weapon(t: TestContext) -> void:
+## The playground in the body-shapes mode hands out no crafted weapons and mounts nothing in the
+## hand; it lends the three shapes for the session (BODY_SHAPES.md "Running it" and "Art": main.gd
+## `equip_run_start`, `start_rework`).
+func test_playground_lends_shapes_and_no_weapons(t: TestContext) -> void:
 	var run := Services.run()
 	run.new_run()
 	run.start_weapon_id = ""
 	await _rebuild(t, "playground")
 	for weapon_id: String in WeaponCatalog.ids():
-		t.check(run.item_count(weapon_id) == 1, "%s is not in the bag" % weapon_id)
-	t.equal(run.weapon_slots(), ["basic-sword", "stone-axe", "stone-pickaxe", "stone-spear"], "the playground belt")
-	t.equal(run.equipped_weapon_id(), "basic-sword", "hand in the playground")
+		t.check(run.item_count(weapon_id) == 0, "%s is in the bag" % weapon_id)
+	t.equal(run.weapon_slots(), [null, null, null, null], "the playground belt")
+	t.equal(run.equipped_weapon_id(), null, "hand in the playground")
+	t.check(t.player().get_combat().get_weapon() == null, "a weapon is mounted in the playground")
+	for id: StringName in ShapeDefs.IDS:
+		t.check(run.has_learned_ability(String(id)) and run.session_ability_ids.has(String(id)), "%s is not lent for the session" % id)
 
 
 ## Rebuilds the world as `map_id` through a travel and waits for the arrival (in `map_id` or, for a

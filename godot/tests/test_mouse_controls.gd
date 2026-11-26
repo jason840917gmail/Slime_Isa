@@ -4,8 +4,11 @@ extends RefCounted
 ## pointer, an attack order walks into weapon reach and swings, a walk order onto the home door
 ## pushes into it and goes through (doors are no use targets since 2026-10-14), the movement keys
 ## cancel an order, and the scheme setting keeps
-## to its three values. The player starts at level-1's spawn (centre (640, 704)); the ground right
-## and up-right of it is open.
+## to its three values. The player starts at level-1's spawn (level-1-c4, feet (732, 203.56), in a
+## pocket between houses and a stone wall since the village's repaints); the walking tests move it to
+## OPEN_BOX first. The body-shapes mode is on in every world (docs/godot/BODY_SHAPES.md; one combat
+## since 2026-11-25, the throw rules beside it): a swing is the current shape's strike, so the
+## tests that swing learn the Spear.
 ## Tests that switch the scheme switch it back to the keyboard one before they wait on anything
 ## (the Shell's settings outlive the test).
 
@@ -17,6 +20,8 @@ const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ClickOrders := preload("res://game/player/mouse/click_orders.gd")
 const PointerTargets := preload("res://game/player/mouse/pointer_targets.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+const ShapeController := preload("res://game/shapes/shape_controller.gd")
 
 ## A point on level-1's home door (origin (270, 856) - 24, in the round mushroom house's door frame
 ## since 2026-11-13), inside the house.
@@ -27,9 +32,15 @@ const HOME_DOOR_ARRIVAL := Vector2(270.0, 880.0)
 ## plain ground (nothing usable, no enemy or resource under it; NPCs wander, the well is usable).
 const CLICK_GOAL_OFFSETS: Array[Vector2] = [Vector2(-160.0, -60.0), Vector2(0.0, -150.0), Vector2(-160.0, 80.0),
 	Vector2(160.0, -60.0), Vector2(0.0, 150.0), Vector2(160.0, 80.0)]
+## Open ground in level-1-c4 (feet positions the body fits everywhere, 24 px apart: checked by
+## `_to_open_ground`), and where the walking tests start in it, its middle row.
+const OPEN_BOX := Rect2(950.0, 800.0, 620.0, 320.0)
+const OPEN_START := Vector2(1100.0, 960.0)
 
 
 func test_walk_order_goes_around_a_wall(t: TestContext) -> void:
+	if not await _to_open_ground(t):
+		return
 	var body := t.player_body()
 	var start := body.global_position
 	# A 20 x 160 wall 100 px to the right, centred on the slime: the straight line is blocked.
@@ -51,6 +62,8 @@ func test_walk_order_goes_around_a_wall(t: TestContext) -> void:
 ## path grid; routes keep half a pixel off walls) between the slime and its goal: the route goes
 ## through the gap, and the slime walks through the wider one.
 func test_route_threads_a_gap_the_body_fits(t: TestContext) -> void:
+	if not await _to_open_ground(t):
+		return
 	var body := t.player_body()
 	var start := body.global_position
 	var orders := t.player().get_click_orders()
@@ -100,6 +113,8 @@ func test_unreachable_goal_stays_within_the_budget(t: TestContext) -> void:
 
 
 func test_click_on_the_ground_walks_there(t: TestContext) -> void:
+	if not await _to_open_ground(t):
+		return
 	var body := t.player_body()
 	# The headless pointer stays wherever the last mouse event left it: put it on open ground near
 	# the slime, as a player would (where it rests otherwise depends on the view size), and put it
@@ -143,11 +158,18 @@ func test_movement_keys_cancel_an_order(t: TestContext) -> void:
 	t.check(not orders.is_active(), "a movement key left the order active")
 
 
+## The rework's attack order: it walks until the current shape's strike would reach the target
+## (`ShapeController.reaches`), faces it and strikes (player.gd `_rework_click_attack`).
 func test_attack_order_walks_into_reach_and_swings(t: TestContext) -> void:
-	var worm := t.spawn_worm(Vector2(180.0, 0.0), true)
+	if not await _to_open_ground(t) or _spear(t) == null:
+		return
+	var shapes := t.player().get_shapes()
+	# Farther than the Spear reaches (its jab reaches about 120 px from the slime's centre).
+	var worm := t.spawn_worm(Vector2(300.0, 0.0), true)
 	if worm == null:
 		return
 	await t.steps(1)
+	t.check(not shapes.reaches(Vector2.RIGHT, worm.damage_area), "the Spear reaches the worm before any walk")
 	var hits: Array = []
 	t.listen(Services.router().routed, func(payload: Dictionary) -> void:
 		var request: Dictionary = payload.get("request", {})
@@ -184,8 +206,10 @@ func test_walk_order_pushes_through_the_home_door(t: TestContext) -> void:
 ## Swinging in place: the moba scheme's left button and the click scheme's Shift + left click. The
 ## click scheme's right button uses things and never swings.
 func test_swing_buttons_swing_in_place(t: TestContext) -> void:
+	var shapes := _spear(t)
+	if shapes == null:
+		return
 	await t.steps(2)
-	var combat := t.player().get_combat()
 	var cases: Array = [
 		[ControlScheme.MOBA, MOUSE_BUTTON_LEFT, false, true, "moba left click"],
 		[ControlScheme.CLICK, MOUSE_BUTTON_LEFT, true, true, "click scheme Shift + left click"],
@@ -195,10 +219,10 @@ func test_swing_buttons_swing_in_place(t: TestContext) -> void:
 		_use_scheme(entry[0])
 		_click_button(t, entry[1], entry[2])
 		_use_scheme(ControlScheme.KEYBOARD)
-		var swung := await t.until(func() -> bool: return combat.is_attacking(), 300.0)
+		var swung := await t.until(func() -> bool: return shapes.is_busy(), 300.0)
 		t.equal(swung, bool(entry[3]), "%s swings" % entry[4])
 		t.check(not t.player().get_click_orders().is_active(), "%s gave an order" % entry[4])
-		await t.until(func() -> bool: return not combat.is_attacking() and not t.player().is_action_locked(), 2000.0)
+		await t.until(func() -> bool: return not shapes.is_busy() and not t.player().is_action_locked(), 2000.0)
 		await t.sim_wait(1300.0)
 
 
@@ -216,8 +240,12 @@ func test_click_scheme_right_click_never_uses_a_door(t: TestContext) -> void:
 
 
 ## The pointer scheme: the slime turns to the pointer, W walks toward it, S does not move it, nor
-## does a click (the left button swings toward the pointer).
+## does a click (the left button swings toward the pointer: the shape's step moves the slime only
+## its own way, ShapeController `step_velocity`).
 func test_pointer_scheme_faces_the_pointer_and_w_walks_there(t: TestContext) -> void:
+	var shapes := _spear(t)
+	if shapes == null:
+		return
 	var player := t.player()
 	var body := t.player_body()
 	_use_scheme(ControlScheme.POINTER)
@@ -238,8 +266,10 @@ func test_pointer_scheme_faces_the_pointer_and_w_walks_there(t: TestContext) -> 
 	await t.steps(2)
 	_click_button(t, MOUSE_BUTTON_LEFT, false)
 	await t.steps(2)
-	t.check(player.get_combat().is_attacking(), "the left button did not swing")
-	t.near_vec(body.velocity, Vector2.ZERO, 0.01, "a click moved the slime")
+	aim = _pointer_aim(t)
+	t.check(shapes.is_busy(), "the left button did not swing")
+	t.check(player.get_facing().dot(aim) > 0.7, "the swing faces %s, not the pointer %s" % [player.get_facing(), aim])
+	t.near_vec(body.velocity, shapes.step_velocity(), 0.01, "a click moved the slime past its step")
 	t.check(not player.get_click_orders().is_active(), "a click gave an order")
 	_use_scheme(ControlScheme.KEYBOARD)
 
@@ -273,9 +303,11 @@ func test_keys_scheme_rebinds_the_keys_and_puts_them_back(t: TestContext) -> voi
 ## Keys only: the arrows walk; A swings the way the slime faces, wherever the pointer is; a mouse
 ## click does nothing.
 func test_keys_scheme_plays_without_the_mouse(t: TestContext) -> void:
+	var shapes := _spear(t)
+	if shapes == null:
+		return
 	var player := t.player()
 	var body := t.player_body()
-	var combat := player.get_combat()
 	_use_scheme(ControlScheme.KEYS)
 	player._unhandled_input(InputEventMouseMotion.new())
 	_key(t, KEY_RIGHT, true)
@@ -285,12 +317,12 @@ func test_keys_scheme_plays_without_the_mouse(t: TestContext) -> void:
 	await t.steps(2)
 	_key(t, KEY_A, true)
 	_key(t, KEY_A, false)
-	var swung := await t.until(func() -> bool: return combat.is_attacking(), 300.0)
-	var direction := combat.get_weapon().get_active_direction() if swung else ""
-	await t.until(func() -> bool: return not combat.is_attacking() and not player.is_action_locked(), 2000.0)
+	var swung := await t.until(func() -> bool: return shapes.is_busy(), 300.0)
+	var direction := Directions.cardinal_name(player.get_facing()) if swung else ""
+	await t.until(func() -> bool: return not shapes.is_busy() and not player.is_action_locked(), 2000.0)
 	await t.sim_wait(1300.0)
 	_click_button(t, MOUSE_BUTTON_LEFT, false)
-	var clicked := await t.until(func() -> bool: return combat.is_attacking(), 300.0)
+	var clicked := await t.until(func() -> bool: return shapes.is_busy(), 300.0)
 	_use_scheme(ControlScheme.KEYBOARD)
 	t.check(velocity.x > 150.0 and absf(velocity.y) < 1.0, "the right arrow walked %s" % velocity)
 	t.check(swung, "A did not swing")
@@ -331,7 +363,8 @@ func test_prompt_verb_follows_the_scheme(t: TestContext) -> void:
 func test_scheme_setting_values(t: TestContext) -> void:
 	t.equal(GameSettings.parse({"control_scheme": "click"})["control_scheme"], "click", "click")
 	t.equal(GameSettings.parse({"control_scheme": "moba"})["control_scheme"], "moba", "moba")
-	t.equal(GameSettings.parse({"control_scheme": "joystick"})["control_scheme"], "keyboard", "unknown -> keyboard")
+	# An unknown scheme falls back on the default, keys only since 2026-11-25 (one combat).
+	t.equal(GameSettings.parse({"control_scheme": "joystick"})["control_scheme"], "keys", "unknown -> keys")
 	t.equal(ControlScheme.next(ControlScheme.KEYBOARD), ControlScheme.CLICK, "keyboard -> click")
 	t.equal(ControlScheme.next(ControlScheme.MOBA), ControlScheme.POINTER, "moba -> pointer")
 	t.equal(ControlScheme.next(ControlScheme.POINTER), ControlScheme.KEYS, "pointer -> keys")
@@ -347,6 +380,49 @@ func test_scheme_setting_values(t: TestContext) -> void:
 
 
 # --- helpers -------------------------------------------------------------------------------------
+
+## Learns the Spear quietly and makes it the current shape (the swing of the body-shapes mode).
+## Null (a failed check) without a ShapeController.
+static func _spear(t: TestContext) -> ShapeController:
+	Services.run().learn_ability(String(ShapeDefs.SPEAR), true)
+	var shapes := t.player().get_shapes()
+	if not t.check(shapes != null, "the player has no ShapeController (the body-shapes mode is off)"):
+		return null
+	t.check(shapes.set_current(ShapeDefs.SPEAR), "the Spear could not be made current")
+	return shapes
+
+
+## Puts the slime's feet on OPEN_START after checking the body fits at every point of OPEN_BOX, 24 px
+## apart (a repaint that fills it fails here, naming the spots). False when it does not.
+static func _to_open_ground(t: TestContext) -> bool:
+	var body := t.player_body()
+	var shape_node: CollisionShape2D = null
+	for child: Node in body.get_children():
+		if child is CollisionShape2D:
+			shape_node = child as CollisionShape2D
+			break
+	if not t.check(shape_node != null, "the slime's body has no collision shape"):
+		return false
+	t.teleport_player(OPEN_START - (body.global_position - t.player().get_centre()))
+	await t.steps(3)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape_node.shape
+	query.collision_mask = body.collision_mask
+	query.exclude = [body.get_rid()]
+	var space := body.get_world_2d().direct_space_state
+	var blocked: Array[Vector2] = []
+	var y := OPEN_BOX.position.y
+	while y <= OPEN_BOX.end.y:
+		var x := OPEN_BOX.position.x
+		while x <= OPEN_BOX.end.x:
+			query.transform = Transform2D(0.0, Vector2(x, y) + shape_node.position)
+			if not space.intersect_shape(query, 1).is_empty():
+				blocked.append(Vector2(x, y))
+			x += 24.0
+		y += 24.0
+	return t.check(blocked.is_empty(), "%s is no longer open ground (blocked feet: %s)" % [OPEN_BOX, blocked]) \
+		and t.check(body.global_position.distance_to(OPEN_START) < 1.0, "the slime's feet are at %s, not %s" % [body.global_position, OPEN_START])
+
 
 ## A press and release of `button` (Shift held when `shift`), handed to the player's input handler
 ## (the headless window's HUD would take a pushed click).
@@ -435,3 +511,4 @@ func _add_wall(t: TestContext, centre: Vector2, size: Vector2) -> Node:
 	wall.position = centre
 	t.world().world_root.add_child(wall)
 	return wall
+

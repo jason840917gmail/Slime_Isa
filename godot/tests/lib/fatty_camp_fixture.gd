@@ -4,8 +4,9 @@ extends RefCounted
 ## `encounter.fatty-lair-boss` in world.fatty-lair, docs/godot/DUNGEONS.md "Fatty's Lair (built)";
 ## the Lair's gate, first by the clearing, moved to level-1-d5's hill the same day),
 ## but the boss camp's rules these tests measure (the activation and arena circles, the leash, the
-## 180 s respawn, the guarded chest, the boss music) are the camp's, and the clearing they were
-## measured in is still there: `ensure` instances `encounter.level-1-fatty-camp` at its old spot,
+## 180 s respawn, the guarded chest, the boss music) are the camp's, so `ensure` puts it back in the
+## clearing they were measured in (D4's forest paint has since grown into it, trunk lines south of
+## the camp: test_boss.gd clears them for its fights): it instances `encounter.level-1-fatty-camp` at its old spot,
 ## (480, 1472) in D4, when the test's world has none, and binds the HUD's boss bar to it at once, as
 ## a camp loaded with its world is bound before any fight (the bar binds new camps only on its next
 ## frame). A test that steps the music director by hand calls `ensure` before its first `advance`.

@@ -12,6 +12,7 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 
 const MAP_ID := "playground"
 const LESSON := Vector2(1904.0, 1520.0)
@@ -20,6 +21,9 @@ const LESSON := Vector2(1904.0, 1520.0)
 const BELL_SHORE := Vector2(2285.0, 1465.0)
 const LASH_GATE := "playground-lash-gate"
 const DUMMY_STAND := Vector2(1480.0, 1440.0)
+## Closer below dummy 1, where the Slam's inner half meets its damage area.
+const SLAM_CLOSE := Vector2(1480.0, 1420.0)
+const USE := &"ability_use"
 ## Open ground west of the dummies (test_gulp.gd's hit spot), where the bell test sets a bell post
 ## up BELL_POST_OFFSET from the slime's centre: its damage area (84 x 104 over the post's foot)
 ## starts 12 px to the slime's right, within a Spear jab and a throw's first step.
@@ -29,27 +33,34 @@ const BOW_TARGETS := &"bow_targets"
 const SAVE_SLOT := 3
 
 
+## The playground lends the Lash for the session (BODY_SHAPES.md "Running it": the playground learns
+## the box abilities quietly, `RunState.session_ability_ids`); the lesson's real teaching keeps it for
+## good (saved from then on) and is announced as any lesson (RunState.learn_ability).
 func test_lesson_teaches_lash_once_in_reach(t: TestContext) -> void:
 	var run := Services.run()
 	var lesson := _script_with(t, &"taught")
 	if not t.check(lesson != null, "no ability lesson"):
 		return
+	t.check(run.session_ability_ids.has("stretch-lash"), "the playground does not lend the Lash for the session")
 	var taught: Array = []
+	var learned: Array = []
 	lesson.taught.connect(func(payload: Dictionary) -> void: taught.append(payload))
+	t.listen(run.ability_learned, func(payload: Dictionary) -> void: learned.append(payload))
 	t.teleport_player(LESSON + Vector2(0.0, 180.0))
 	await t.steps(3)
-	t.check(taught.is_empty() and not run.has_learned_ability("stretch-lash"), "taught from 180 px")
+	t.check(taught.is_empty() and run.session_ability_ids.has("stretch-lash"), "taught from 180 px")
 	t.teleport_player(LESSON + Vector2(0.0, 80.0))
 	await t.steps(3)
 	t.equal(taught, [{"abilityIds": ["stretch-lash"]}], "taught")
 	t.check(run.has_learned_ability("stretch-lash"), "the lash is not learned")
+	t.check(not run.session_ability_ids.has("stretch-lash"), "the taught Lash is still only lent for the session")
+	t.equal(learned, [{"ability_id": "stretch-lash"}], "the lesson's announcement")
 
 
 ## The Lash hooks the bell's post across the water and pulls the slime over, but never rings the
 ## bell; a pot thrown from the shore rings it, and the bell opens its gate as before.
 func test_the_lash_pulls_to_the_bell_post_without_ringing_it_and_a_pot_rings_it(t: TestContext) -> void:
 	var player := t.player()
-	Services.run().learn_ability("stretch-lash")
 	var bell := _script_with(t, &"rung")
 	var gate := _gate(t, LASH_GATE)
 	if not t.check(bell != null and gate != null, "no bell or lash gate"):
@@ -60,7 +71,10 @@ func test_the_lash_pulls_to_the_bell_post_without_ringing_it_and_a_pot_rings_it(
 	player.face(Vector2.RIGHT)
 	await t.steps(2)
 	var start := player.get_centre()
-	t.tap(&"stretch_lash")
+	# The Lash is a box ability (lent by the playground), used with `ability_use` once chosen.
+	if not t.check(AbilityBox.select(player, &"stretch-lash"), "the Lash could not be chosen in the box"):
+		return
+	t.tap(USE)
 	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the lash did not start"):
 		return
 	await t.until(func() -> bool: return not player.is_ability_busy(), 1500.0)
@@ -173,25 +187,51 @@ func test_a_rung_bell_keeps_its_gate_open_for_good(t: TestContext) -> void:
 	run.delete_slot(SAVE_SLOT)
 
 
+## The improved Slam (BODY_SHAPES.md "Slam", `abilities.squashSlam`; the playground lends it): its
+## ground ellipse strikes the dummy whose damage area (78 x 96 over its feet) it meets: from
+## DUMMY_STAND only the ellipse's outer ring reaches dummy 1 (the ring's damage) and dummies 2 and 3
+## (100 and 200 px along) are out of reach; from SLAM_CLOSE, 20 px nearer, its inner half reaches
+## dummy 1 (the slam's damage) and its outer ring the near edge of dummy 2's area (61 px along).
 func test_dummy_takes_slam_in_reach(t: TestContext) -> void:
 	var player := t.player()
-	Services.run().learn_ability("squash-slam")
+	var constants := Services.constants()
+	var ring := constants.number("abilities.squashSlam.outer.damage")
+	var slam := constants.number("abilities.squashSlam.inner.damage")
+	var cooldown := constants.number("abilities.squashSlam.cooldownMs")
 	var dummies := _scripts_with(t, &"hit")
-	if not t.check(dummies.size() >= 3, "%d dummies" % dummies.size()):
-		return
 	var hits := {}
 	for dummy: Node in dummies:
-		var key := str(roundi((dummy.get_parent() as Node2D).global_position.x))
+		var root := dummy.get_parent() as Node2D
+		if not is_equal_approx(root.global_position.y, DUMMY_STAND.y - 40.0):
+			continue
+		var key := str(roundi(root.global_position.x))
 		hits[key] = []
 		dummy.hit.connect(func(payload: Dictionary) -> void: (hits[key] as Array).append(payload))
+	if not t.check(hits.size() >= 3, "%d feel-yard dummies" % hits.size()):
+		return
+	if not t.check(AbilityBox.select(player, &"squash-slam"), "the Slam could not be chosen in the box"):
+		return
 	t.teleport_player(DUMMY_STAND)
 	await t.steps(2)
-	t.tap(&"squash_slam")
-	await t.until(func() -> bool: return not player.is_ability_busy() and t.now() > 400.0, 1500.0)
+	var began := t.now()
+	t.tap(USE)
+	await t.until(func() -> bool: return not player.is_ability_busy() and t.now() > began + 400.0, 1500.0)
 	await t.steps(2)
-	t.equal(hits.get("1480", []), [{"damage": 30.0}], "dummy 1 hit")
-	t.equal(hits.get("1580", []), [{"damage": 30.0}], "dummy 2 hit (72 px)")
-	t.equal(hits.get("1680", []), [], "dummy 3 (161 px) hit")
+	t.equal(hits.get("1480", []), [{"damage": ring}], "dummy 1 hit by the outer ring")
+	t.equal(hits.get("1580", []), [], "dummy 2 (100 px) hit")
+	t.equal(hits.get("1680", []), [], "dummy 3 (200 px) hit")
+	# Closer: the inner half reaches dummy 1.
+	(hits["1480"] as Array).clear()
+	t.teleport_player(SLAM_CLOSE)
+	await t.until(func() -> bool: return t.now() >= began + cooldown + TestContext.STEP_MS, cooldown + 500.0)
+	player.set_energy(float(player.get_max_energy()))
+	began = t.now()
+	t.tap(USE)
+	await t.until(func() -> bool: return not player.is_ability_busy() and t.now() > began + 400.0, 1500.0)
+	await t.steps(2)
+	t.equal(hits.get("1480", []), [{"damage": slam}], "dummy 1 hit by the inner half")
+	t.equal(hits.get("1580", []), [{"damage": ring}], "dummy 2 hit by the outer ring from close")
+	t.equal(hits.get("1680", []), [], "dummy 3 hit from close")
 
 
 func test_goo_heart_in_level_1(t: TestContext) -> void:
@@ -255,8 +295,8 @@ func test_restoration_needs_materials(t: TestContext) -> void:
 
 # --- helpers ----------------------------------------------------------------------------------
 
-## The playground again with the body-shapes mode on (the test runner keeps it off;
-## test_barred_gate.gd does the same).
+## The playground built again (test_barred_gate.gd does the same); the body-shapes mode is on in
+## every world, and the playground lends the shapes for the session.
 func _enter_shapes_mode(t: TestContext) -> void:
 	t.main.call(&"travel_to", MAP_ID)
 	await t.until(func() -> bool: return ReworkMode.is_on() and t.player() != null \

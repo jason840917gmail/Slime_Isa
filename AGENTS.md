@@ -51,11 +51,11 @@ its code is in git history.
   `?recipes`, `?arsenal`, `?audition`, `?shapes` (lends the shapes and box abilities in any world;
   the body-shapes rework mode itself is on in every world on this branch), `?prologue` (a new
   run in the prologue, as New Game starts it), `?skins=heavy,silk,feral` (lends those skins for the
-  session), `?melee` (the throw combat off: the
-  shapes' attack back), `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web;
+  session), `?gulp=<1..3>` (the Gulp's level) and `?aimhelp` on the web (`?melee` went on
+  2026-11-25: one combat, the weapon beside the throw rules, no switch);
   `-- --map=<id> ...`, `-- --shapes`, `-- --prologue`, `-- --skins=<ids>` on desktop
   ([docs/godot/CONVENTIONS.md](docs/godot/CONVENTIONS.md#running-a-world);
-  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the throw-combat experiment:
+  the rework: [docs/godot/BODY_SHAPES.md](docs/godot/BODY_SHAPES.md); the throw rules:
   [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md); the prologue:
   [docs/godot/PROLOGUE.md](docs/godot/PROLOGUE.md); the skins: [docs/godot/SKINS.md](docs/godot/SKINS.md)).
 - Dev powers board: **F10** in any world run from the project lists every shape, ability and skin
@@ -83,6 +83,15 @@ its code is in git history.
   by frame (windowed, one film at a time) and lays it out as a strip and GIFs in
   `output/throw-feel/<name>/`, to judge the throw's feel
   ([Filming a throw](docs/godot/THROW_COMBAT.md#filming-a-throw)).
+- `"<Godot console exe>" --path godot --fixed-fps 60 -s res://tools/film_spear_reach.gd -- --out=<dir>` — pictures
+  the Spear's jab, finisher and Lunge in four directions against a dummy and a wall, with the hit line and the
+  tip's reach from the feet; `python scripts/godot/spear-reach-sheet.py <dir> [<after dir>] --out=<png>` lays
+  them out ([The Spear's reach](docs/godot/BODY_SHAPES.md#the-spears-reach-2026-11-25)).
+- `"<Godot console exe>" --path godot --fixed-fps 60 -s res://tools/film_one_combat.gd -- --out=<dir>` — films
+  the one combat in the playground's pen (a Spear combo, a pot thrown, E to the Axe, a free charge, an
+  ability picked in the bag and used on D: PASS or FAIL each) and pictures the HUD, the bag and the
+  Controls list; `python scripts/godot/one-combat-sheet.py <dir>` makes the strip and the GIF
+  ([One combat](docs/godot/THROW_COMBAT.md#one-combat-2026-11-25)).
 - `bash scripts/godot/film-enemy-ways.sh <name> --film=<film> [options]` — films the Dung Roller's
   stolen ball (`axis`, `steal`, `throw-miss`, `throw-back`, `throw-other`, `leave`, `pen`) or an
   enemy's walk home (`home-wall`, `home-notice`) in the playground into `output/enemy-ways/<name>/`
@@ -166,8 +175,8 @@ its code is in git history.
   with their areas. Reach every autoload through `res://game/shared/services.gd`.
 - `godot/game/scenes/` — every world, object, character, weapon, effect, projectile and encounter
   scene, with `scene_index.json` (scene id → path; add a line for a scene the game loads by id).
-- `godot/game/throw/` — the throw-combat experiment (on in every world, `?melee` turns it off):
-  [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md).
+- `godot/game/throw/` — the throw rules (always on since the one combat of 2026-11-25, with the weapon
+  on the attack key beside them): [docs/godot/THROW_COMBAT.md](docs/godot/THROW_COMBAT.md).
 - `godot/game/world/villagers/` — the towns' villagers (VillagerScript) and animals (Critter), placed
   from the Scenery dock's Villagers and Animals categories: [docs/godot/VILLAGERS.md](docs/godot/VILLAGERS.md).
 - `godot/game/data/` — game constants, items, enemy types, recipes, quests, NPC definitions,

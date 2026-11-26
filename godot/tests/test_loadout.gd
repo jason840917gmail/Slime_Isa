@@ -1,8 +1,13 @@
 extends RefCounted
-## The weapon belt (docs/godot/specs/crafting.md 8, 11.9): cycling, the mouse wheel and its step
-## lock, assigning and swapping, holding a bag weapon on a full belt, the busy refusal, reconcile,
-## the HUD hotbar, the harvest advice, weapon names and icons, and the hand across a travel. The
-## trial sword (owner decision C3) is set aside where a test needs its own belt.
+## The weapon belt (docs/godot/specs/crafting.md 8, 11.9): cycling, the wheel's step lock, assigning
+## and swapping, holding a bag weapon on a full belt, reconcile, the harvest advice, weapon names and
+## icons. The trial sword (owner decision C3) is set aside where a test needs its own belt.
+## The body-shapes mode is on in every world (docs/godot/BODY_SHAPES.md "Running it"; one combat since
+## 2026-11-25, the throw rules beside it): E and the wheel switch the body shapes, the HUD
+## weapon slot is the Shape slot with its carousel, a switch during a strike waits for its cancel
+## point, and the current shape is kept for the session (BODY_SHAPES.md 3, "Ability Box and HUD",
+## "Not wired yet"); those tests play the shapes. No belt weapon is mounted in this mode (main.gd
+## `equip_run_start`).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -12,6 +17,9 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ItemIcons := preload("res://game/inventory/item_icons.gd")
 const ResourceNodeScript := preload("res://game/scripts/resource_node.gd")
 const WeaponHotbar := preload("res://game/ui/weapon_hotbar.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
+const ShapeController := preload("res://game/shapes/shape_controller.gd")
+const BodyCards := preload("res://game/ui/body_cards.gd")
 
 const TREE := "level-1-tree-004"
 const AXE_ADVICE := "Requires an Axe"
@@ -32,24 +40,22 @@ func test_cycle_slot(t: TestContext) -> void:
 	t.equal([WeaponLoadout.cycle_slot(1), WeaponLoadout.cycle_slot(-1)], [-1, -1], "one weapon, in hand")
 
 
+## The wheel (and E) takes the next learned shape (BODY_SHAPES.md 3) without stopping the walk, and
+## plays the shape's switch cue (ShapeController `SWITCH_CUES`: the War Axe's EquipBlade).
 func test_wheel_switches(t: TestContext) -> void:
-	var run := Services.run()
-	_loadout(t, [{"item_id": "stone-axe", "count": 1}, {"item_id": "stone-pickaxe", "count": 1}],
-		["stone-axe", null, "stone-pickaxe", null], "stone-axe")
-	var messages := _messages(t)
+	var shapes := _shapes(t, [ShapeDefs.SPEAR, ShapeDefs.AXE], ShapeDefs.SPEAR)
+	if shapes == null:
+		return
 	t.press(&"move_right")
-	# Past the cue's 60 ms minimum interval (real time) since the setup's own equip.
+	# Past the cue's 60 ms minimum interval (real time) since the setup's own switch.
 	var since := Time.get_ticks_msec()
 	await t.until(func() -> bool: return Time.get_ticks_msec() - since >= 80, 2000.0)
-	var equip := _cue(&"EquipTool")
+	var blade := _cue(&"EquipBlade")
 	t.tap(&"weapon_next")
-	var switched := await t.until(func() -> bool: return run.equipped_weapon_id() == "stone-pickaxe", 40.0)
-	t.check(switched, "the wheel did not switch to the pickaxe")
+	var switched := await t.until(func() -> bool: return shapes.current_shape_id() == ShapeDefs.AXE, 40.0)
+	t.check(switched, "the wheel did not switch to the War Axe")
 	t.check(t.player_body().velocity.x > 0.0, "the switch stopped the slime (velocity %s)" % [t.player_body().velocity])
-	var weapon = t.player().get_combat().get_weapon()
-	t.check(weapon != null and weapon.weapon_id == "stone-pickaxe", "the pickaxe is not mounted")
-	t.equal(messages.map(func(m: Dictionary) -> Array: return [m["text"], m["color"]]), [["Stone Pickaxe equipped", "yellow"]], "messages")
-	t.check(equip != null and TestContext.played(equip), "EquipTool did not play")
+	t.check(blade != null and TestContext.played(blade), "EquipBlade did not play")
 	t.release(&"move_right")
 
 
@@ -103,23 +109,24 @@ func test_hold_from_full_belt(t: TestContext) -> void:
 	t.equal(run.item_count("stone-pickaxe"), 1, "the pickaxe left the bag")
 
 
+## A switch asked for during a strike (a click on the Shape slot takes the next shape, like E) waits
+## for the step's cancel point and never cancels the strike (BODY_SHAPES.md 3).
 func test_busy_refusal(t: TestContext) -> void:
-	var run := Services.run()
-	run.add_item("stone-axe", 1)
-	run.set_weapon_slots(["basic-sword", "stone-axe", null, null])
-	var messages := _messages(t)
+	var shapes := _shapes(t, [ShapeDefs.SPEAR, ShapeDefs.AXE], ShapeDefs.SPEAR)
+	if shapes == null:
+		return
+	var hotbar := _hotbar(t)
 	t.player().face(Vector2.RIGHT)
 	t.tap(&"attack")
-	var swinging := await t.until(func() -> bool: return t.player().get_combat().is_attacking(), 200.0)
-	t.check(swinging, "the sword swing did not start")
-	var hotbar := _hotbar(t)
-	# A click on the weapon slot asks for the next belt weapon, like a scroll.
+	var striking := await t.until(func() -> bool: return shapes.is_busy(), 200.0)
+	t.check(striking, "the Spear's jab did not start")
 	hotbar.slot.pressed.emit()
-	t.equal(run.equipped_weapon_id(), "basic-sword", "hand after a refused switch")
-	if t.check(messages.size() == 1, "messages %s" % [messages]):
-		t.equal([messages[0]["text"], messages[0]["color"], messages[0]["big"]], ["Finish the attack first", "white", false], "refusal")
-		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), t.player().get_centre() - Vector2(0.0, 42.0), 0.5, "refusal position")
-	t.equal(hotbar.model()["selected_index"], 0, "hotbar selection after the refusal")
+	t.equal(shapes.current_shape_id(), ShapeDefs.SPEAR, "the shape right after a switch asked mid-strike")
+	t.check(shapes.is_busy(), "the switch cancelled the strike")
+	var switched := await t.until(func() -> bool: return shapes.current_shape_id() == ShapeDefs.AXE, 1500.0)
+	t.check(switched, "the waiting switch never came")
+	await t.steps(2)
+	t.equal(hotbar.model()["selected_index"], 1, "Shape slot selection after the switch")
 
 
 func test_reconcile(t: TestContext) -> void:
@@ -137,31 +144,44 @@ func test_reconcile(t: TestContext) -> void:
 	t.equal(run.weapon_slots(), ["stone-axe", "iron-spear", null, null], "a slam hammer in the bag stays off the belt (K13 dropped, C5)")
 
 
+## The Shape slot (BODY_SHAPES.md "Ability Box and HUD"): hidden below two learned shapes; then the
+## current shape's icon, the E badge, the learned shapes in the model, no focus, no carousel.
 func test_hotbar_model(t: TestContext) -> void:
-	_loadout(t, [{"item_id": "stone-axe", "count": 1}], ["stone-axe", null, null, null], "stone-axe")
 	var hotbar := _hotbar(t)
+	if _shapes(t, [ShapeDefs.SPEAR], ShapeDefs.SPEAR) == null:
+		return
+	hotbar.refresh()
+	t.check(not hotbar.visible, "the Shape slot shows with one shape learned")
+	Services.run().learn_ability(String(ShapeDefs.AXE), true)
+	hotbar.refresh()
 	var model := hotbar.model()
-	var weapons: Array = model["weapons"]
-	t.equal(weapons.size(), 4, "belt slots in the model")
-	for index in range(1, 4):
-		t.equal([weapons[index]["label"], weapons[index]["disabled"]], ["Empty", true], "belt slot %d" % index)
-	t.equal(model["selected_index"], 0, "selected belt slot")
-	# The console shows only the weapon in hand (roadmap 4.12).
-	t.equal([hotbar.slot.tooltip_text, hotbar.slot.text, hotbar.icon.texture != null], ["Stone Axe", "", true], "the weapon slot")
-	t.equal(hotbar.key_badge.text, "E", "the weapon scroll's key on the slot")
-	t.equal(hotbar.slot.focus_mode, Control.FOCUS_NONE, "the weapon slot takes focus")
+	var entries: Array = model["weapons"]
+	t.equal(entries.map(func(entry: Dictionary) -> Array: return [entry["id"], entry["label"], entry["disabled"]]),
+		[[String(ShapeDefs.SPEAR), ShapeDefs.title(ShapeDefs.SPEAR), false], [String(ShapeDefs.AXE), ShapeDefs.title(ShapeDefs.AXE), false]],
+		"the learned shapes in the model")
+	t.equal(model["selected_index"], 0, "selected shape")
+	t.check(hotbar.visible, "the Shape slot is hidden with two shapes learned")
+	t.check(hotbar.icon.texture != null and hotbar.icon.texture == BodyCards.shape_icon(ShapeDefs.SPEAR), "the slot does not show the Spear's icon")
+	t.check(hotbar.slot.tooltip_text.begins_with(ShapeDefs.title(ShapeDefs.SPEAR)), "the slot's tooltip: %s" % hotbar.slot.tooltip_text)
+	t.equal(hotbar.key_badge.text, "E", "the shape switch's key on the slot")
+	t.equal(hotbar.slot.focus_mode, Control.FOCUS_NONE, "the Shape slot takes focus")
 	t.check(not hotbar.is_carousel_open(), "the carousel opened without a switch")
 
 
-## Switching weapons opens the carousel over the weapon slot; one weapon alone never does.
+## Switching shapes opens the carousel over the Shape slot; learning a second shape alone does not.
 func test_weapon_carousel(t: TestContext) -> void:
-	_loadout(t, [{"item_id": "stone-axe", "count": 1}, {"item_id": "stone-pickaxe", "count": 1}],
-		["stone-axe", "stone-pickaxe", null, null], "stone-axe")
 	var hotbar := _hotbar(t)
-	var actions := t.tree.get_first_node_in_group(&"inventory_actions")
-	t.check(bool(actions.call(&"switch_weapon_slot", 1)), "the switch to the pickaxe was refused")
+	var shapes := _shapes(t, [ShapeDefs.SPEAR], ShapeDefs.SPEAR)
+	if shapes == null:
+		return
+	hotbar.refresh()
+	Services.run().learn_ability(String(ShapeDefs.AXE), true)
+	hotbar.refresh()
+	t.check(not hotbar.is_carousel_open(), "the carousel opened on learning a second shape")
+	shapes.cycle(1)
+	hotbar.refresh()
 	t.check(hotbar.is_carousel_open(), "the carousel did not open on a switch")
-	t.equal(hotbar.slot.tooltip_text, "Stone Pickaxe", "the weapon slot after the switch")
+	t.check(hotbar.slot.tooltip_text.begins_with(ShapeDefs.title(ShapeDefs.AXE)), "the Shape slot after the switch: %s" % hotbar.slot.tooltip_text)
 
 
 func test_harvest_advice(t: TestContext) -> void:
@@ -169,14 +189,14 @@ func test_harvest_advice(t: TestContext) -> void:
 	var actions = t.main.inventory_actions
 	run.add_item("stone-axe", 1)
 	run.set_weapon_slots(["basic-sword", "stone-axe", null, null])
-	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe: switch with the mouse wheel", "axe on the belt")
+	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe: switch with E", "axe on the belt")
 	var tree := _resource(t, TREE)
 	if t.check(tree != null, "no %s" % TREE):
 		var blocked: Array = []
 		tree.harvest_blocked.connect(func(payload: Dictionary) -> void: blocked.append(payload))
 		_hit(t, tree.damage_area, ["weapon"])
 		t.check(blocked.size() == 1 and blocked[0]["message"] == AXE_ADVICE, "the payload keeps the plain message (%s)" % [blocked])
-		t.check(_floating_texts().has("Requires an Axe: switch with the mouse wheel"), "the tree did not show the advice")
+		t.check(_floating_texts().has("Requires an Axe: switch with E"), "the tree did not show the advice")
 	run.set_weapon_slots(["basic-sword", null, null, null])
 	t.equal(actions.harvest_message(BLOCKED_TREE), "Requires an Axe: put yours on the belt (B)", "axe in the bag")
 	run.remove_item("stone-axe", 1)
@@ -197,17 +217,21 @@ func test_weapon_names(t: TestContext) -> void:
 	t.check(ItemIcons.icon("goo-gauntlet") is ImageTexture, "the gauntlet has no placeholder icon")
 
 
+## The current shape is kept for the session across world builds (BODY_SHAPES.md "Not wired yet":
+## `ShapeController._last_shape_id`), and the belt record with it.
 func test_travel_keeps_weapon(t: TestContext) -> void:
 	var run := Services.run()
 	_loadout(t, [{"item_id": "basic-sword", "count": 1}, {"item_id": "stone-axe", "count": 1}],
 		["basic-sword", "stone-axe", null, null], "stone-axe")
+	if _shapes(t, [ShapeDefs.SPEAR, ShapeDefs.AXE], ShapeDefs.AXE) == null:
+		return
 	t.main.travel_to("slime-home", "", "house-door")
 	await t.until(func() -> bool: return t.main.is_transitioning(), 100.0)
 	await t.until(func() -> bool: return not t.main.is_transitioning() and t.player() != null and t.world().map_id() == "slime-home", 3000.0, 6000.0)
 	await t.steps(2)
 	t.equal(t.world().map_id(), "slime-home", "map after the travel")
-	var weapon = t.player().get_combat().get_weapon()
-	t.check(weapon != null and weapon.weapon_id == "stone-axe", "the stone axe is not in hand after the travel")
+	var shapes := t.player().get_shapes()
+	t.check(shapes != null and shapes.current_shape_id() == ShapeDefs.AXE, "the War Axe is not the current shape after the travel")
 	t.equal(run.weapon_slots(), ["basic-sword", "stone-axe", null, null], "belt after the travel")
 
 
@@ -225,6 +249,19 @@ static func _loadout(t: TestContext, bag: Array, belt: Array, hand: Variant) -> 
 		combat.unequip()
 	else:
 		combat.equip(str(hand))
+
+
+## Learns `ids` quietly and makes `current` the current shape. Null (a failed check) without a
+## ShapeController.
+static func _shapes(t: TestContext, ids: Array[StringName], current: StringName) -> ShapeController:
+	var run := Services.run()
+	for id: StringName in ids:
+		run.learn_ability(String(id), true)
+	var shapes := t.player().get_shapes()
+	if not t.check(shapes != null, "the player has no ShapeController (the body-shapes mode is off)"):
+		return null
+	t.check(shapes.set_current(current), "%s could not be made current" % current)
+	return shapes
 
 
 static func _messages(t: TestContext) -> Array:

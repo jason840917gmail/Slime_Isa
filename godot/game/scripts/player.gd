@@ -77,8 +77,8 @@ const ClickMarker := preload("res://game/player/mouse/click_marker.gd")
 ## The body-shapes rework (docs/godot/BODY_SHAPES.md): the mode, the shape controller, the mouth's Q
 ## state machine and the Ability Box.
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): no attack key, shapes as box powers,
-## the mouth's speed by the weight it holds.
+## The throw rules (docs/godot/THROW_COMBAT.md; one combat with the weapon since 2026-11-25): the
+## mouth's speed by the weight it holds.
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ShapeController := preload("res://game/shapes/shape_controller.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
@@ -1307,30 +1307,7 @@ func activate_ability_from_ui(id: StringName) -> bool:
 
 ## The ability bar's model of `id` (PlayerAbilityController.status, camelCase keys).
 func ability_status(id: StringName) -> Dictionary:
-	if ThrowMode.is_shape_power(id):
-		return _shape_power_status(id)
 	return _abilities.status(id)
-
-
-## Throw combat: a shape's power as the HUD and the bag read a box ability (PlayerAbilities.status's
-## keys): learned, never cooling down, short of its charge's energy, busy while a strike runs, the
-## mouth is full or the slime swims (ShapeController.power_strike refuses then).
-func _shape_power_status(id: StringName) -> Dictionary:
-	var learned := is_learned(id)
-	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
-	var cost := AbilityBox.energy_cost(id)
-	var busy := shapes == null or shapes.is_busy() or _mouth.is_holding() or is_swimming()
-	var short := _energy < cost
-	return {
-		"unlocked": learned,
-		"earnedBy": "",
-		"cooldownRemainingMs": 0.0,
-		"insufficientEnergy": short,
-		"busy": busy,
-		"actionLocked": _action_locked,
-		"canActivate": learned and not short and not busy and not _action_locked and not _dead,
-		"energyCost": cost,
-	}
 
 
 func is_ability_busy() -> bool:
@@ -1776,14 +1753,6 @@ func _handle_action_input() -> bool:
 	return false
 
 
-## Throw combat: opens the ability carousel (shell/ability_carousel.gd) once this step is over, so the
-## pause never lands in the middle of the step.
-func _open_ability_carousel() -> void:
-	var shell := Services.shell()
-	if shell != null:
-		shell.call_deferred(&"open_ability_carousel")
-
-
 ## The rework mode's `_handle_action_input` (docs/godot/BODY_SHAPES.md "Controls in the rework
 ## mode"; body-shapes plan section 6): E and the wheel switch shapes (ShapeController.cycle; the
 ## slime keeps walking and an attack can follow in the same step); interact as before (not while
@@ -1800,10 +1769,7 @@ func _handle_rework_action_input(now: float, busy: bool) -> bool:
 	var shapes := _shapes if _shapes != null and is_instance_valid(_shapes) else null
 	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
 		if _input.consume(step[0], now, _buffer_ms):
-			# Throw combat: E (and the wheel) opens the ability carousel over the paused game.
-			if ThrowMode.is_on():
-				_open_ability_carousel()
-			elif shapes != null:
+			if shapes != null:
 				shapes.cycle(int(step[1]))
 	if not busy:
 		if _update_interact_hold(now):
@@ -1843,17 +1809,9 @@ func _handle_rework_action_input(now: float, busy: bool) -> bool:
 		return true
 	if _input.consume(&"ability_use", now, _buffer_ms):
 		_orders.cancel()
-		# Throw combat: a shape power is the shape's own charge (it owns the body from this step on).
-		var power := ThrowMode.is_shape_power(AbilityBox.selected(self))
 		if AbilityBox.use(self) and shapes != null:
-			if power:
-				body.velocity = shapes.step_velocity()
-			else:
-				shapes.reset_chain("ability")
+			shapes.reset_chain("ability")
 		return true
-	if ThrowMode.is_on():
-		# Throw combat: the attack key does nothing (owner, 2026-10-19: "Q todo, A sin uso").
-		_input.consume(&"attack", now, _buffer_ms)
 	if _input.consume(&"attack", now, _buffer_ms):
 		_orders.cancel()
 		# A step that starts owns the body from this physics step on (not one step later).
@@ -1981,9 +1939,8 @@ func get_grabbed_block() -> Node2D:
 ## **The cling is a toggle** (2026-11-24; the owner: "i cant use e while climbing since W have to be
 ## press ... i can't neither use spear while climbing"): the press that took hold clings, the next
 ## interact press lets go; a fall (let go, or a hit) starts let go, so a press while it falls catches
-## the wall again (feral_climb.gd's catch). Nothing has to be held, so on the wall the chosen box
-## ability's key strikes with the Spear (the shape power chosen) as the Gulp's does, and E (the wheel)
-## opens the ability carousel in the throw mode.
+## the wall again (feral_climb.gd's catch). Nothing has to be held, so on the wall the attack key (A)
+## strikes with the current weapon and E (the wheel) switches it (one combat, 2026-11-25).
 func _step_climb(delta: float) -> void:
 	var now := Services.now_ms()
 	if not _climb_was_active:
@@ -1997,18 +1954,13 @@ func _step_climb(delta: float) -> void:
 	_climb_was_falling = _climb.is_falling()
 	if _input.consume(&"interact", now, _buffer_ms):
 		_climb_hold = not _climb_hold
-	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press; in
-	# the throw mode, whose attack has no key, the Gulp's (nothing can be gulped from a wall), and the
-	# chosen box ability's when it is the Spear's power.
-	var strike := _input.consume(&"eat" if ThrowMode.is_on() else &"attack", now, _buffer_ms)
-	if _input.consume(&"ability_use", now, _buffer_ms) and ThrowMode.is_shape_power(AbilityBox.selected(self)):
-		strike = true
-	if strike:
+	# The strike while clinging (the dungeons, 2026-10-17: the Colossus's claws): an attack press (A);
+	# E (and the wheel) switches the weapon on the wall as on the ground.
+	if _input.consume(&"attack", now, _buffer_ms):
 		_climb_strike()
-	if ThrowMode.is_on():
-		for wheel: StringName in [&"weapon_next", &"weapon_previous"]:
-			if _input.consume(wheel, now, _buffer_ms):
-				_open_ability_carousel()
+	for step: Array in [[&"weapon_next", 1], [&"weapon_previous", -1]]:
+		if _input.consume(step[0], now, _buffer_ms) and _shapes != null and is_instance_valid(_shapes):
+			_shapes.cycle(int(step[1]))
 	for action: StringName in [&"attack", &"dodge", &"ability_use", &"eat", &"interact", &"weapon_next",
 			&"weapon_previous", &"swallow"]:
 		_input.consume(action, now, _buffer_ms)
@@ -2029,10 +1981,10 @@ func _step_climb(delta: float) -> void:
 
 
 ## The Feral skin strikes while it clings (docs/godot/SKINS.md "Feral", the plan's proposal; added by
-## the dungeons for the Crystal Colossus's claws, docs/godot/DUNGEONS.md): an attack press (the
-## Gulp's in the throw mode) while climbing (not dropping) gives the current shape (the Spear, at the
-## Feral tempo) a press aimed along the face, left or right (feral_climb.gd `strike_side`); it strikes
-## on the attack's release, as every press (at once for the Gulp's, the attack not being held).
+## the dungeons for the Crystal Colossus's claws, docs/godot/DUNGEONS.md): an attack press while
+## climbing (not dropping) gives the current shape (the Spear, at the Feral tempo) a press aimed along
+## the face, left or right (feral_climb.gd `strike_side`); it strikes on the attack's release, as every
+## press.
 ## The body-shapes mode only (the shapes strike there).
 func _climb_strike() -> void:
 	if _climb.is_falling() or not ReworkMode.is_on() or _shapes == null or not is_instance_valid(_shapes):
@@ -2143,12 +2095,9 @@ func _move(direction: Vector2) -> void:
 	# mouth slows the slime to `gulp.holdingSpeedMultiplier` (owner, 2026-10-09: 70%).
 	var speed: float = _resolve_movement_speed(base, 0.0, _status.speed_multiplier()) * float(_gulp.form.get("speed", 1.0))
 	if _mouth.is_holding():
-		# Throw combat: the weight held sets it (`gulp.throwCombat.weights.<weight>.holdingSpeed`).
-		if ThrowMode.is_on():
-			speed *= ThrowMode.weight_number(ThrowMode.weight_of_held(_mouth.held), "holdingSpeed",
-				_number("gulp.holdingSpeedMultiplier"))
-		else:
-			speed *= _number("gulp.holdingSpeedMultiplier")
+		# The weight held sets it (`gulp.throwCombat.weights.<weight>.holdingSpeed`).
+		speed *= ThrowMode.weight_number(ThrowMode.weight_of_held(_mouth.held), "holdingSpeed",
+			_number("gulp.holdingSpeedMultiplier"))
 	# Rework: while the shape's charge ring fills or waits for the release the slime walks at
 	# ShapeController.walk_scale() (`combat.chain.chargeWalkScale`; owner, 2026-10-12: half speed).
 	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
@@ -2364,8 +2313,6 @@ func _try_dodge(charged: bool = false) -> bool:
 ## Rework mode: the press goes to the ShapeController with the strike aim (`get_strike_aim`, from
 ## the slime's centre; ZERO without one); the controller faces and aims.
 func _attack() -> bool:
-	if ThrowMode.is_on():
-		return false
 	if ReworkMode.is_on() and _shapes != null and is_instance_valid(_shapes):
 		return _shapes.press_attack(get_strike_aim())
 	var aim: Vector2 = _pointer_aim()
@@ -2867,9 +2814,6 @@ func _issue_click_order() -> void:
 	var pointer := body.get_global_mouse_position()
 	var target := _pointer_target(pointer)
 	var kind := str(target.get("kind", PointerTargets.KIND_GROUND))
-	# Throw combat: the slime never strikes, so a click on an enemy only walks there.
-	if kind == PointerTargets.KIND_ATTACK and ThrowMode.is_on():
-		kind = PointerTargets.KIND_GROUND
 	var mark_at := pointer
 	match kind:
 		PointerTargets.KIND_ATTACK:

@@ -43,9 +43,15 @@ const DIVIDER_EAST := Vector2i(7, 3)
 const DIVIDER_WEST := Vector2i(7, 7)
 const EYE_GATE := Vector2i(8, 0)
 const PEN_GATE := Vector2i(9, 0)
+## The palette's styles (`STYLES` in scripts/art/build-fence-paint-tiles.py, docs/godot/FENCES.md's
+## style table: wood ... lair-divider, lair-ledge) and how many of them are edge styles (lair-ledge),
+## which alone carry the four corner tiles.
+const PALETTE_STYLES := 9
+const PALETTE_EDGE_STYLES := 1
 ## The Lair's rooms with divider gates (game/scenes/worlds/rooms/fatty-lair/).
-## (the Old Armoury moved out of the Lair, 2026-10-19: res://game/scenes/worlds/rooms/d4/slimeshire-old-armoury.tscn)
-const GATE_ROOMS: PackedStringArray = ["c2-weigh-house", "../../slimeshire-old-armoury", "r5-eye-hall", "r7-bell-bridge"]
+## (the Old Armoury moved out of the Lair, 2026-10-19, and is a room world of D4's:
+## res://game/scenes/worlds/rooms/d4/slimeshire-old-armoury.tscn)
+const GATE_ROOMS: PackedStringArray = ["c2-weigh-house", "../d4/slimeshire-old-armoury", "r5-eye-hall", "r7-bell-bridge"]
 const ROOMS_DIR := "res://game/scenes/worlds/rooms/fatty-lair/%s.tscn"
 ## How far beside a gate's middle the hole a shut gate used to leave was (between its old 52-unit body
 ## and the post's 14-unit rect, 31 units wide: the 30-wide slime fit through).
@@ -157,7 +163,9 @@ func test_diagonal_link_collides_as_a_rotated_band(t: TestContext) -> void:
 
 func test_painted_material_does_not_change_with_ground(t: TestContext) -> void:
 	var atlas := FENCE_TILESET.get_source(0) as TileSetAtlasSource
-	t.equal(atlas.get_tiles_count(), 74, "the palette is 8 styles x (all neighbours + 8 arrows) + 2 divider gate tiles")
+	t.equal(atlas.get_tiles_count(), PALETTE_STYLES * (1 + 8 + 1) + PALETTE_EDGE_STYLES * 4 + 2,
+			"the palette is %d styles x (all neighbours + 8 arrows + cracked) + %d edge style x 4 corners + 2 divider gate tiles"
+			% [PALETTE_STYLES, PALETTE_EDGE_STYLES])
 	var painted := TileMapLayer.new()
 	painted.tile_set = FENCE_TILESET
 	painted.set_cell(Vector2i(0, 0), 0, Vector2i(0, 0))
@@ -538,7 +546,11 @@ func _check_post_feet_match_collision(t: TestContext) -> void:
 	var pieces := t.world().world_root.get_node(Fences.PIECES_NAME)
 	var posts := 0
 	var raise := Vector2(0.0, -(BAND_ABOVE + BAND_BELOW) * 0.5)
-	for piece: MeshInstance2D in pieces.get_children():
+	for child: Node in pieces.get_children():
+		# (a cracked post is a picture, not a mesh: FENCES.md "Cracked fences")
+		var piece := child as MeshInstance2D
+		if piece == null:
+			continue
 		var arrays := piece.mesh.surface_get_arrays(0)
 		var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
 		if colors[0].b > 0.25:

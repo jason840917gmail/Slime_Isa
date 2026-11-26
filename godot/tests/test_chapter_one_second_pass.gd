@@ -1,27 +1,25 @@
 extends RefCounted
-## Chapter 1's second pass: matched chunk seams, hidden hearts, cave exits and the east-west bridge.
+## Chapter 1's second pass: hidden hearts, the plateau stairs, cave exits and the east-west bridge.
+## (Its matched chunk seams, the two chunks' grounds alike along every line, went with the chunk-line
+## rule of 2026-11-01: each chunk closes its own side; tools/check_chunk_lines.gd checks the lines.)
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const CHUNKS := "res://game/scenes/worlds/chunks/level-1-%s.tscn"
 const MAP_ID := "level-1-c5"
 
-func test_chunk_seams_and_hidden_hearts(t: TestContext) -> void:
-	var worlds := {}
+## Hearts hide (level design, "Hearts are the exception", owner 2026-10-17): at most one heart in
+## plain sight per map, the rest in chests and caves (pots' heart refills do not count). D4's meadow
+## hearts wait in their chests.
+func test_slimeshire_hearts_are_hidden(t: TestContext) -> void:
 	for id: String in ["c4", "c5", "d4", "d5"]:
-		worlds[id] = (load(CHUNKS % id) as PackedScene).instantiate()
-	for seam: Array in [["c4", "d4", true], ["c4", "c5", false], ["c5", "d5", true], ["d4", "d5", false]]:
-		var a := worlds[seam[0]].get_node("ground") as TileMapLayer
-		var b := worlds[seam[1]].get_node("ground") as TileMapLayer
-		for i in 32:
-			var ac := Vector2i(31, i) if seam[2] else Vector2i(i, 31)
-			var bc := Vector2i(0, i) if seam[2] else Vector2i(i, 0)
-			t.equal(a.get_cell_source_id(ac), b.get_cell_source_id(bc), "%s/%s seam %d" % [seam[0], seam[1], i])
-	var d4 := worlds["d4"] as Node
-	for id: String in ["meadow-lakeside", "meadow-cliff-secret"]:
-		t.check(d4.has_node("Chapter1/heart-chest-" + id), "missing heart chest " + id)
-	for node: Node in d4.get_node("Encounters").get_children():
-		t.check(not node.has_node("GooHeartScript"), "an exposed heart remains in D4")
-	for world: Node in worlds.values():
+		var world := (load(CHUNKS % id) as PackedScene).instantiate()
+		var in_sight := PackedStringArray()
+		for heart: Node in world.find_children("GooHeartScript", "", true, false):
+			in_sight.append(str(world.get_path_to(heart.get_parent())))
+		t.check(in_sight.size() <= 1, "level-1-%s has %d hearts in plain sight: %s" % [id, in_sight.size(), ", ".join(in_sight)])
+		if id == "d4":
+			for heart: String in ["meadow-lakeside", "meadow-cliff-secret"]:
+				t.check(world.has_node("Chapter1/heart-chest-" + heart), "missing heart chest " + heart)
 		world.free()
 
 func test_plateau_stairs_reach_the_top(t: TestContext) -> void:
@@ -42,9 +40,15 @@ func test_plateau_stairs_reach_the_top(t: TestContext) -> void:
 	t.release_all()
 	t.check(descended, "south stairs did not reach the lake road")
 
+## The island's falling planks (C5 (10-15, 5-6)) are longer than a quick roll: only the held Roll
+## crosses them, and in the body-shapes mode (on everywhere) a hold rolls on only with the Roll's
+## `roll-charge` upgrade, the Charged Roll (docs/godot/BODY_SHAPES.md, the Roll). The slime walks
+## while the key is down before the roll launches (the 200 ms tap window and the 260 ms spin-up, about
+## 80 units at the walk's 180), so the hold starts two cells east of the planks, on the shore.
 func test_held_roll_crosses_the_island_bridge_east_to_west(t: TestContext) -> void:
 	Services.run().learn_session_ability("dodge")
-	t.teleport_player(Vector2(16.4 * 64.0, 6.0 * 64.0 - 27.56))
+	Services.run().learn_session_ability("roll-charge")
+	t.teleport_player(Vector2(18.0 * 64.0, 6.0 * 64.0 - 27.56))
 	t.player().face(Vector2.LEFT)
 	await t.steps(3)
 	var watch := t.world().world_root.find_child("HazardWatch", true, false)

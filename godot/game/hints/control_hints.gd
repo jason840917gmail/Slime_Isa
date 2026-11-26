@@ -41,10 +41,10 @@ extends CanvasLayer
 ## | id | text | useful while | learned by |
 ## |---|---|---|---|
 ## | attack | "Left-click to attack" | a shape is current | a shape step (or the old swing) |
-## | charge | "Hold left click to charge a strong attack (costs energy)" | `attack` learned, a shape | the attack held `combat.chain.chargeStartMs` (or ShapeController `is_charging`) |
+## | charge | "Hold A to charge a strong attack" (free: the hold is its cost) | `attack` learned, a shape | the attack held `combat.chain.chargeStartMs` (or ShapeController `is_charging`) |
 ## | mouth | "Press Q to suck things in; tap Q to throw or spit them out" | something suckable near, or something in the mouth | a suck |
-## | ability | "Press F to use your ability; choose it in the bag (B)" | the box holds an ability | a box ability started (AbilityBox.use_count) |
-## | weapon-switch | "Use the mouse wheel or E to change shape" | two shapes learned | the shape changing |
+## | ability | "Press D to use your ability; choose it in the bag (B)" | the box holds an ability | a box ability started (AbilityBox.use_count) |
+## | weapon-switch | "Press E to switch weapon" (with the wheel in a mouse scheme) | two shapes learned | the shape changing |
 ## | swallow | "Hold Q until the ring fills to swallow the essence" | an essence in the mouth, Swallow learned | a form taken |
 ## | heavy-grab | "Hold W to push or pull" (the interact key) | the Heavy skin on, and the slime touches a heavy block it faces (HeavyGrab.block_in_reach) or holds one; nothing in its mouth; not in the moba scheme | a block pushed and a block pulled in the slime's grab (story flags `hint.heavy-grab.push` and `.pull` on the way) |
 ## heavy-grab comes right after move, before interact: it is the hint of the block the slime touches.
@@ -68,10 +68,6 @@ const Services := preload("res://game/shared/services.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): no attack key, so no attack hints.
-const ThrowMode := preload("res://game/throw/throw_mode.gd")
-const THROW_SKIPPED_HINTS: Array[StringName] = [&"attack", &"charge"]
-const THROW_THRUST_TEXT := "Thrust through the bars: choose the Spear in the bag, stand at them and press %s"
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
 const PrologueState := preload("res://game/prologue/prologue_state.gd")
@@ -201,8 +197,6 @@ static func hint_text(id: StringName) -> String:
 		&"throw-move":
 			return "Keep moving while you aim: the worms can bite!"
 		&"thrust-bars":
-			if ThrowMode.is_on():
-				return THROW_THRUST_TEXT % ControlLabels.control_label(&"ability_use")
 			return "Thrust through the bars: stand at them and attack (%s)" % ControlLabels.control_label(&"attack")
 	if ReworkMode.is_on():
 		var rework := rework_hint_text(id, scheme)
@@ -254,9 +248,9 @@ static func rework_hint_text(id: StringName, scheme: String) -> String:
 	match id:
 		&"charge":
 			if ControlScheme.uses_orders(scheme):
-				return "%s and hold to charge a strong attack (costs energy)" % ControlScheme.swing_verb(scheme)
+				return "%s and hold to charge a strong attack" % ControlScheme.swing_verb(scheme)
 			var attack := ControlLabels.control_label(&"attack")
-			return "Hold %s to charge a strong attack (costs energy)" % (attack.to_lower() if attack.ends_with(" click") else attack)
+			return "Hold %s to charge a strong attack" % (attack.to_lower() if attack.ends_with(" click") else attack)
 		&"mouth":
 			return "Press %s to suck things in; tap %s to throw or spit them out" % [eat, eat]
 		&"ability":
@@ -269,8 +263,8 @@ static func rework_hint_text(id: StringName, scheme: String) -> String:
 		&"weapon-switch":
 			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
 			if not ControlScheme.uses_mouse(scheme) or labels.size() < 2:
-				return "Press %s to change shape" % ControlLabels.control_label(&"weapon_next")
-			return "Use the %s or %s to change shape" % [labels[0].to_lower(), labels[1]]
+				return "Press %s to switch weapon" % ControlLabels.control_label(&"weapon_next")
+			return "Use the %s or %s to switch weapon" % [labels[0].to_lower(), labels[1]]
 	return ""
 
 
@@ -339,14 +333,10 @@ func _pick(player: Node) -> StringName:
 		if not PrologueState.has_beat(run, PrologueState.BORN):
 			return &""
 		for id in PROLOGUE_HINT_IDS:
-			if ThrowMode.is_on() and THROW_SKIPPED_HINTS.has(id):
-				continue
 			if not is_learned(id) and is_relevant(id, player):
 				return id
 		return &""
 	for id in (REWORK_HINT_IDS if ReworkMode.is_on() else HINT_IDS):
-		if ThrowMode.is_on() and THROW_SKIPPED_HINTS.has(id):
-			continue
 		if not is_learned(id) and is_relevant(id, player):
 			return id
 	return &""

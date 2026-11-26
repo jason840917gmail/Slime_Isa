@@ -18,8 +18,8 @@ const FloorWebsScript := preload("res://game/world/webs/floor_webs.gd")
 const WebWallScript := preload("res://game/scripts/web_wall.gd")
 const SilkParcelScript := preload("res://game/scripts/silk_parcel.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
+const PlayerRoll := preload("res://game/player/roll/player_roll.gd")
 
-const WALK_SPEED := 200.0
 ## Where the checks start (old Phaser centre), as test_player_movement.gd's.
 const OPEN := Vector2(640.0, 764.0)
 ## The old Phaser centre is this far above the feet.
@@ -36,13 +36,13 @@ func test_a_floor_web_halves_a_walk(t: TestContext) -> void:
 	t.check(not layer.has_web_at(t.player_body().global_position), "a web under the slime before the field")
 	t.press(&"move_right")
 	await t.steps(4)
-	t.near(t.player_body().velocity.x, WALK_SPEED, 0.01, "walk speed before the webs")
+	t.near(t.player_body().velocity.x, _walk_speed(), 0.01, "walk speed before the webs")
 	if not t.check(await t.until(func() -> bool: return layer.has_web_at(t.player_body().global_position), 1500.0),
 			"the walk never reached the webs"):
 		t.release_all()
 		return
 	await t.steps(2)
-	t.near(t.player_body().velocity.x, WALK_SPEED * _setting("floorSlowMultiplier"), 0.01, "walk speed in a floor web")
+	t.near(t.player_body().velocity.x, _walk_speed() * _setting("floorSlowMultiplier"), 0.01, "walk speed in a floor web")
 	t.release_all()
 
 
@@ -64,7 +64,8 @@ func test_enemies_are_not_slowed_by_floor_webs(t: TestContext) -> void:
 
 ## A Roll that runs into a floor web sticks there: the roll is over, the slime rooted and still,
 ## where the web caught it (not set back). With the Silk skin the roll crosses the web and the walk
-## keeps its speed.
+## keeps its speed. A held roll rolls on only as the charged roll (the `roll-charge` upgrade, lent
+## here: BODY_SHAPES.md checklist 10); a tap is the quick roll.
 func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext) -> void:
 	# The Roll is young Burr's lesson since 2026-11-19: lent here.
 	Services.run().learn_session_ability("dodge")
@@ -104,14 +105,15 @@ func test_a_roll_sticks_in_a_floor_web_and_the_silk_slime_crosses(t: TestContext
 		t.near(t.player_body().velocity.x, silk_walk, 0.01, "the Silk slime's walk in a floor web")
 	t.release_all()
 	await t.steps(2)
-	# Its Roll (held, so it rolls on) crosses the whole field without sticking.
+	# Its charged Roll (held, so it rolls on) crosses the whole field without sticking.
+	Services.run().learn_session_ability(String(PlayerRoll.CHARGE_UPGRADE_ID))
 	t.teleport_player(OPEN)
 	player.face(Vector2.RIGHT)
 	await t.steps(2)
 	var before := (events["stuck"] as Array).size()
 	var far_edge := layer.to_global(layer.map_to_local(layer.cell_at(OPEN + Vector2(0.0, CENTRE_RISE)) + Vector2i(3, 0))).x + 32.0
 	t.press(&"dodge")
-	if not t.check(await t.until(func() -> bool: return player.is_rolling(), 100.0), "the Silk roll did not start"):
+	if not t.check(await t.until(func() -> bool: return player.is_rolling(), _rework("rollTapMs") + 100.0), "the Silk roll did not start"):
 		t.release_all()
 		return
 	var crossed := await t.until(func() -> bool:
@@ -133,6 +135,9 @@ func test_a_web_wall_blocks_a_walk_and_a_roll(t: TestContext) -> void:
 	if wall == null:
 		return
 	var face := wall.global_position.x - wall.thickness / 2.0
+	# From OPEN, left of the wall (level-1's spawn is elsewhere since its repaint).
+	t.teleport_player(OPEN)
+	await t.steps(2)
 	t.press(&"move_right")
 	await t.sim_wait(900.0)
 	t.release_all()
@@ -334,3 +339,14 @@ static func _global_cue(cue: String) -> Node:
 
 static func _setting(name: String) -> float:
 	return FloorWebsScript.setting(name)
+
+
+## Player spec 4.3: the walk is `character.player.movement.baseSpeed` under `movementSpeedCap`.
+static func _walk_speed() -> float:
+	var constants := Services.constants()
+	return minf(constants.number("character.player.movement.movementSpeedCap"),
+		constants.number("character.player.movement.baseSpeed"))
+
+
+static func _rework(name: String) -> float:
+	return Services.constants().number("character.player.rework." + name)

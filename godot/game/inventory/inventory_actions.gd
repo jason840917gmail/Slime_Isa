@@ -297,7 +297,7 @@ func harvest_message(payload: Dictionary) -> String:
 	var harvests := func(weapon_id: String) -> bool:
 		return float(WeaponCatalog.harvest_capabilities(weapon_id).get(tag, 0.0)) >= tier
 	if WeaponLoadout.belt_weapons().any(harvests):
-		return "%s: switch with the %s" % [message, ControlLabels.control_label(&"weapon_next").to_lower()]
+		return "%s: switch with %s" % [message, ControlLabels.control_in_sentence(&"weapon_next")]
 	if WeaponLoadout.owned_weapons().any(harvests):
 		return "%s: put yours on the belt (%s)" % [message, ControlLabels.control_label(&"menu")]
 	return message

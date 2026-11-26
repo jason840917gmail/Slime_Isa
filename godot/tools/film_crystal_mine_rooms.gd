@@ -1301,7 +1301,7 @@ func _light(at: Vector2, way: Vector2) -> void:
 func _spear() -> void:
 	var shapes: Node = _main.get(&"shapes")
 	if shapes != null:
-		shapes.call(&"power_strike", &"shape-spear")
+		shapes.call(&"fire_charge", &"shape-spear")
 	await _run(30)
 
 

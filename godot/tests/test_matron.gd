@@ -13,9 +13,12 @@ extends RefCounted
 ## defence since 2026-11-24); the first volley 3500 ms after the spawn (or right after the spit then
 ## running): 4 marks (the slime and three 170 px away, 120 degrees apart), telegraph 900 ms, landing 40 on a hurtbox in
 ## a mark, a web patch (r 50) on every mark, rest 1300 ms, next volley 6500 ms after the rest.
-## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in E4 (the silk nook) and
-## travels into it once more, the camps test in F5 (its two camps are placed enemies since
-## 2026-10-16, roadmap 5.25). The tears are the Silk skin's (lent: SkinState, roadmap 7.8).
+## Every test starts in the nest's chunk (MAP_ID); the torn-web test runs in the playground (the web
+## barrier of its web puzzle's nook: since River Roads, 2026-11-21, Gloop Forest has none, its silk
+## nook in F4 being behind a web wall) and travels into it once more, the placed-enemies test in F5
+## (placed enemies since 2026-10-16, roadmap 5.25; since River Roads each wanders its own circle, no
+## enemy-wander area left: docs/design/2026-11-21-gloop-river-roads.md). The tears are the Silk
+## skin's (lent: SkinState, roadmap 7.8).
 ##
 ## The Weaver Hollow's fight, the ram fight (matron spec section 9; game/bosses/matron_ram.gd, which
 ## extends the cocoon fight of section 8): since the switch-over of 2026-11-25
@@ -61,12 +64,13 @@ const MatronThreadScript := preload("res://game/scripts/matron_thread.gd")
 const CocoonLook := preload("res://game/bosses/matron_cocoon_look.gd")
 const WebWallScript := preload("res://game/scripts/web_wall.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
-## F5's camps (their old spawn areas' maxPopulation): their placed enemies by type.
-const AREAS_CAMPS := {"gloop-clod-stompers-hollow": {"clod-stomper": 1}, "gloop-orb-weavers-south": {"orb-weaver": 2}}
+## F5's placed enemies by type (its scene's `Enemies`: two orb weavers, the bridge's slime spider,
+## the yard's Clod Stomper), each wandering its own circle.
+const F5_PLACED := {"orb-weaver": 2, "slime-spider": 1, "clod-stomper": 1}
 
 const MAP := "gloop-forest-f4"
-## The chunks with the silk nook's web and with two camps (a Clod Stompers' and an orb weavers').
-const NOOK_MAP := "gloop-forest-e4"
+## The world with a web barrier (the playground's web puzzle) and the chunk with placed enemies.
+const NOOK_MAP := "playground"
 const AREAS_MAP := "gloop-forest-f5"
 const CAMP_ID := "gloop-matron-nest"
 const BOSS_ID := "orb-weaver-matron"
@@ -77,6 +81,11 @@ const MATRON_DEPTH_ANCHOR := Vector2(0.0, 30.0)
 const MAX_HP := 300.0
 ## Open ground in the nest clearing, inside the arena, 160 px south of the camp.
 const INSIDE := Vector2(1072.0, 1100.0)
+## Open ground for the web patch test, the slime's feet on cell row 17 (y 1088..1152): the row above
+## is painted with the glade's floor webs since River Roads (2026-11-21: a walk there is already
+## halved and a Roll sticks before the patch), and a body set on INSIDE's own row (feet at y 1127.6)
+## is pushed some 30 px north by what stands south of it.
+const PATCH_SPOT := Vector2(1072.0, 1066.0)
 ## Open ground outside the arena (r 320) but inside the activation circle (r 460).
 const OUTSIDE_ARENA := Vector2(692.0, 800.0)
 const VOLLEY_HIT := 40
@@ -84,9 +93,10 @@ const VOLLEY_RADIUS := 56.0
 const VOLLEY_SPREAD := 170.0
 const PATCH_RADIUS := 50.0
 const SPIT_HIT := 20
-## The nook web barrier: root (800, 1280), width 112, depth 56 -> box centre (800, 1252), 56 x 28.
-const NOOK_WEB_KEY := "gloop-forest.gloop-ch2-nook-web"
-const NOOK_ZONE := Vector2(800.0, 1252.0)
+## The playground's nook web barrier (`web-puzzle/nook-web`, matron spec 2.3): root (384, 1760),
+## width 112, depth 56 -> box centre (384, 1732), 56 x 28.
+const NOOK_WEB_KEY := "playground.playground-nook-web"
+const NOOK_ZONE := Vector2(384.0, 1732.0)
 const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
 const SkinState := preload("res://game/player/skins/skin_state.gd")
@@ -181,8 +191,14 @@ func test_spits_then_volley_marks_land_and_patches_catch(t: TestContext) -> void
 		t.equal(web.projectile_id, "spider-web", "spit projectile")
 		t.near(web.body.velocity.length(), 240.0, 0.5, "spit speed (projectileSpeed)")
 		t.equal(web.get_damage_payload().get("effects"), [{"effect_id": "web", "potency": 900.0}], "spit web effect")
-	# The first volley: 3500 ms after the spawn, but never while a spit runs.
-	var volley := await t.until(func() -> bool: return matron.get_phase() == MatronScript.PHASE_VOLLEY_TELEGRAPH, 5200.0)
+	# The first volley: 3500 ms after the spawn, but never while a spit runs. The slime is kept at full
+	# health while it waits (80 health and no defence since 2026-11-24,
+	# docs/design/2026-11-24-health-and-damage.md: two spits and the volley would faint it and reset the
+	# fight); the hits are still recorded.
+	var full_health := func() -> void: t.player().heal(t.player().get_max_hp())
+	var volley := await t.until(func() -> bool:
+		full_health.call()
+		return matron.get_phase() == MatronScript.PHASE_VOLLEY_TELEGRAPH, 5200.0)
 	if not t.check(volley, "no volley within 5.2 s (phases %s)" % [phases]):
 		return
 	var volley_at := matron.get_phase_started_at()
@@ -196,6 +212,7 @@ func test_spits_then_volley_marks_land_and_patches_catch(t: TestContext) -> void
 	if not t.equal(marks.size(), 4, "volley marks"):
 		return
 	t.teleport_player(marks[0])
+	full_health.call()
 	var arena := matron.get_arena()
 	for index in range(1, 4):
 		var angle := fmod(0.0 * 0.9, TAU) + float(index - 1) / 3.0 * TAU
@@ -351,7 +368,7 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 	if not await _travel(t, NOOK_MAP):
 		return
 	var web := _nook_web(t)
-	if not t.check(web != null, "gloop-forest has no nook web"):
+	if not t.check(web != null, "the playground has no nook web"):
 		return
 	t.equal(web.torn_flag(), "web-torn." + NOOK_WEB_KEY, "torn flag name")
 	var zone := web.zone()
@@ -411,9 +428,9 @@ func test_web_barrier_catches_and_remembers_a_torn_web(t: TestContext) -> void:
 ## walking on it walks at `webs.floorSlowMultiplier` of its speed and nothing catches it; a Roll
 ## into it sticks where it is (`caught`, rooted); the slime with the Silk skin walks through and tears it.
 func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: TestContext) -> void:
-	# Open ground right of the spawn for the walk, the roll and the Silk slime (120 px straight
-	# below the spawn a fieldstone wall row stands since the chunk worlds).
-	var at := t.player().get_centre() + Vector2(120.0, 40.0)
+	# Open ground in the nest clearing for the walk, the roll and the Silk slime (east of the spawn
+	# the owner's F4 rework of 2026-11-21 left no room: the walk there got nowhere).
+	var at := PATCH_SPOT
 	# The Roll is young Burr's lesson since 2026-11-19: lent for the roll into the patch.
 	Services.run().learn_session_ability("dodge")
 	var root := t.world().spawn_at_phaser_position("effect.matron-web-patch", at)
@@ -459,31 +476,32 @@ func test_web_patch_slows_a_walk_sticks_a_roll_and_tears_for_the_sticky_one(t: T
 	t.near_vec(t.player().get_centre(), at, 0.5, "the Silk slime was moved")
 
 
-func test_gloop_forest_camps_are_placed_enemies(t: TestContext) -> void:
+func test_gloop_forest_enemies_are_placed_and_wander_their_own_circles(t: TestContext) -> void:
 	if not await _travel(t, AREAS_MAP):
 		return
 	var population := t.main.get("enemy_population") as EnemyPopulation
 	if not t.check(population != null, "main has no enemy_population"):
 		return
-	# Chunk F5: gloop-clod-stompers-hollow (roadmap 8.12) and gloop-orb-weavers-south (the forest's
-	# other three camps are in F4 and E5), wander areas of placed enemies; no spawn area, no table.
+	# Chunk F5: placed enemies only (enemy spec section 3); no spawn area, no table and, since River
+	# Roads, no enemy-wander area: each one's territory is its own circle around its spot.
 	t.equal(t.world().areas("enemy-spawn").size(), 0, "gloop-forest F5 enemy-spawn areas")
 	t.equal(t.world().definition.metadata.get("spawns"), null, "gloop-forest F5's spawns table")
-	var areas := t.world().areas("enemy-wander")
-	t.equal(areas.size(), AREAS_CAMPS.size(), "gloop-forest F5 enemy-wander areas")
-	for area: Dictionary in areas:
-		var camp_id := str(area["id"])
-		var counts := {}
-		for placed: PlacedEnemyScript in population.placed_enemies():
-			if placed.wander_area_id != camp_id or not t.check(placed.is_standing(), "%s does not stand" % placed.name):
-				continue
-			counts[placed.enemy_type] = int(counts.get(placed.enemy_type, 0)) + 1
-			var enemy := placed.get_enemy() as EnemyScript
-			t.equal(str(enemy.get_spawn_area().get("id", "")), camp_id, "%s's territory" % placed.name)
-			t.check(Perimeter.distance_outside(area["perimeter"], enemy.get_centre()) <= 2.0, "%s stands outside '%s'" % [placed.name, camp_id])
-		t.equal(counts, AREAS_CAMPS.get(camp_id, {}), "'%s' placed enemies by type" % camp_id)
-		t.equal(population.alive_placed_count(camp_id), (AREAS_CAMPS.get(camp_id, {}) as Dictionary).values().reduce(func(a: int, b: int) -> int: return a + b, 0),
-			"standing enemies of '%s'" % camp_id)
+	t.equal(t.world().areas("enemy-wander").size(), 0, "gloop-forest F5 enemy-wander areas")
+	var counts := {}
+	for placed: PlacedEnemyScript in population.placed_enemies():
+		if not t.check(placed.is_standing(), "%s does not stand" % placed.name):
+			continue
+		counts[placed.enemy_type] = int(counts.get(placed.enemy_type, 0)) + 1
+		t.equal(placed.wander_area_id, "", "%s's wander area" % placed.name)
+		var enemy := placed.get_enemy() as EnemyScript
+		var territory := enemy.get_spawn_area()
+		t.equal(str(territory.get("id", "")), "", "%s's territory id" % placed.name)
+		var circle: Dictionary = territory.get("perimeter", {})
+		t.near_vec(Perimeter.centre(circle), placed.global_position, 1.0, "%s's territory centre" % placed.name)
+		t.check(Perimeter.distance_outside(circle, enemy.get_body().global_position) <= 2.0, "%s stands outside its own circle" % placed.name)
+	t.equal(counts, F5_PLACED, "F5's placed enemies by type")
+	t.equal(population.alive_placed_count(), (F5_PLACED.values() as Array).reduce(func(a: int, b: int) -> int: return a + b, 0),
+		"F5's standing placed enemies")
 
 
 # --- the Weaver Hollow's fight: the ram fight in the Crown (matron spec section 9) ----------------
@@ -1208,3 +1226,4 @@ static func _strike(t: TestContext, area: Area2D, damage: float, tags: Array) ->
 		"impact": {"position": area.global_position, "knock": Vector2(1.0, 0.0)}})
 	router.end_activation(activation)
 	return result
+

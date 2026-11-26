@@ -123,17 +123,24 @@ materials, each hurt by one weapon only:
 - **Never before its weapon.** A one-weapon enemy stands on a chapter's main way only after that
   weapon is earned; earlier it may guard a secret to come back for. The build checks where each
   weapon is earned before placing any.
-- The rule goes in with piece 4; the enemies come with their chapters. Candidates among today's
-  enemies, for the owner to pick: the Thorn Guard as bark, the Clod Stomper as iron, the Squints as
-  eye (they are Spear or thrown only already). New enemies for the later chapters are designed to it:
+- The rule goes in with piece 4; the enemies come with their chapters. **Among today's enemies**
+  (the owner, 2026-11-26: "one wepon follow your suggestion"): the Thorn Guard is bark (the Axe
+  only), the Clod Stomper iron (the Hammer only), the Squints eye (the Spear only; they are Spear
+  or thrown only today, so a throw stops hurting them and only dazes). Piece 4 checks where each of
+  the three stands against where its weapon is earned, and moves or swaps any that stand on a main
+  way too early. New enemies for the later chapters are designed to it:
   each chapter after a weapon is earned gets at least one enemy that only that weapon hurts.
 
 ### 5. The Spear's upward strike
 
 Its up strikes are shortened so the tip lands as far from the slime's feet as it does sideways (jab
-110 to about 100 units from the centre, finisher 132 to about 122, the Lunge the same way), and the
+110 to 82.5 units from the centre, finisher 132 to 104.5, the Lunge 170 to 142.5: the centre is 27.56 above
+the feet, so the "about 100" first written here would have left the up tip 18 units long), and the
 wall check is measured from where the reach is. Shown to the owner before and after, side by side, in
 all four directions, before it is kept.
+
+**Facing down too** (the owner, 2026-11-26: "match the spear down reach with the sides"): the down
+strikes are lengthened the same way, so the tip lands as far from the feet in all four directions.
 
 ### 6. Keys only
 
@@ -166,8 +173,8 @@ Each ends in a film or a picture for the owner and a code read before the next.
 
 | Piece | What | Shown |
 |---|---|---|
-| 1 | The Spear's up reach and wall check | the four directions before and after |
-| 2 | One combat: the attack on A beside the throw rules, charges free, weapons out of the Ability Box, the new keys, E cycling weapons, the HUD's weapon slot, the carousel gone, `?melee` and the editor's run argument gone, the weapon damage scale | a film of a fight using both |
+| 1 | The Spear's up reach and wall check. **Built 2026-11-25**, awaiting the read: up `hit_reach` jab 82.5, finisher 104.5, Lunge `upReach` 142.5, and (owner: "match the spear down reach with the sides") down jab 137.5, finisher 159.5, Lunge `downReach` 197.5 (tip 110 / 132 / 170 from the feet in every direction); the wall ray measured from the line's origin ([BODY_SHAPES.md](../godot/BODY_SHAPES.md#the-spears-reach-2026-11-25)) | the four directions before and after (`output/combat/spear-reach/`) |
+| 2 | One combat: the attack on A beside the throw rules, charges free, weapons out of the Ability Box, the new keys, E cycling weapons, the HUD's weapon slot, the carousel gone, `?melee` and the editor's run argument gone, the weapon damage scale. **Built 2026-11-25/26**, awaiting the read: `shapes.weaponDamageScale` 0.5 in `ShapeDefs.damage`; charges without `energy`; `power_strike` and the carousel removed (`fire_charge` kept for the film tools); one keys-only `LAYOUT`, the default for a fresh settings file; the bag's top row titled Weapons; texts follow ([THROW_COMBAT.md](../godot/THROW_COMBAT.md#one-combat-2026-11-25)) | `output/combat/one-combat/`: the strip (five checks, all PASS), the GIF, the HUD, the bag and the Controls list |
 | 3 | A combo's daze makes an enemy liftable | a film: combo, suck, throw |
 | 4 | Materials and immunity, the first-clink line | the bestiary pens, one clink each |
 | 5 | The other schemes removed | the Settings screen |

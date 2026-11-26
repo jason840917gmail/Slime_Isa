@@ -141,7 +141,7 @@ func test_settings_window_edits_the_settings(t: TestContext) -> void:
 		keys.append((list.get_child(index) as Label).text)
 	t.check(keys.has("1–4"), "the controls list has no row for the potion belt's keys: %s" % [keys])
 	if list.get_child_count() >= 2:
-		t.equal((list.get_child(0) as Label).text, "WASD", "first control key")
+		t.equal((list.get_child(0) as Label).text, "↑←↓→", "first control key (the keys-only default)")
 		t.equal((list.get_child(1) as Label).text, "Move", "first control action")
 	t.check(shell.handle_escape(), "Escape over Controls was not used")
 	t.check(not shell.controls_menu.is_open() and menu.is_open(), "Escape did not close only Controls")

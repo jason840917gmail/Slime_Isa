@@ -56,8 +56,6 @@ const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): shapes are box powers there.
-const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
@@ -92,14 +90,14 @@ const BAND_TITLE_W := 120.0
 const BAND_CELL_HEIGHT := 56.0
 const BAND_ICON := 26
 const BAND_GAP := 8
-const SHAPES_TITLE := "Shapes"
+const SHAPES_TITLE := "Weapons"
 const ABILITIES_TITLE := "Abilities"
 const SHAPES_HELP := "Click one to take it · %s: next"
 const ABILITIES_HELP := "Click one to put it on %s"
 ## The band's help in the keys-only scheme (no mouse).
 const KEYS_SHAPES_HELP := "Space takes it · %s: next"
 const KEYS_ABILITIES_HELP := "Space puts it on %s"
-const NO_SHAPES := "No shapes yet"
+const NO_SHAPES := "No weapons yet"
 const NO_ABILITIES := "No abilities yet"
 const CURRENT_TAG := "NOW"
 const CHOSEN_TAG := "ON %s"
@@ -266,11 +264,12 @@ func choose_skin(id: StringName) -> void:
 	refresh()
 
 
-## Rework: `choose-ability {id}`: box ability `id` goes on `ability_use` and its card shows.
+## Rework: `choose-ability {id}`: box ability `id` goes on `ability_use` (its name floats over the slime,
+## AbilityBox.choose) and its card shows.
 func choose_ability(id: StringName) -> void:
 	if not is_open() or not ReworkMode.is_on():
 		return
-	AbilityBox.select(BodyCards.world_player(), id)
+	AbilityBox.choose(BodyCards.world_player(), id)
 	_card = {"kind": CARD_ABILITY, "id": id}
 	refresh()
 
@@ -614,7 +613,7 @@ func _layout_band(width: float) -> void:
 		_place(row[1] as Control, _rect(20.0, top + 24.0, left - 10.0, top + row_h - 4.0))
 		_place(row[2] as Control, _rect(left, top + 4.0, w - 20.0, top + 4.0 + BAND_CELL_HEIGHT))
 		_place(row[3] as Control, _rect(left, top + 4.0, w - 20.0, top + 4.0 + BAND_CELL_HEIGHT))
-	var sockets := maxi(1, AbilityBox.socket_ids().size() + (ShapeDefs.IDS.size() if ThrowMode.is_on() else 0))
+	var sockets := maxi(1, AbilityBox.socket_ids().size())
 	var cell_w := maxf(0.0, (w - 20.0 - left - (sockets - 1) * BAND_GAP) / sockets)
 	for cell: Node in ability_list.get_children():
 		(cell as Control).custom_minimum_size = Vector2(cell_w, BAND_CELL_HEIGHT)
@@ -656,12 +655,6 @@ func _refresh_band() -> void:
 	_sync_band_cells(shape_list, _band_shape_ids.size(), CARD_SHAPE)
 	_sync_band_cells(ability_list, _band_ability_ids.size(), CARD_ABILITY)
 	_sync_band_cells(skin_list, _band_skin_ids.size(), CARD_SKIN)
-	# Throw combat: the shapes stand in the abilities row as powers, so their own row hides.
-	if ThrowMode.is_on():
-		_band_shape_ids = []
-		_sync_band_cells(shape_list, 0, CARD_SHAPE)
-	for control: Control in [shapes_title_label, shapes_help_label]:
-		control.visible = not ThrowMode.is_on()
 	# Without a skin won the row waits: only the goo, so it hides.
 	var skins_shown := _band_skin_ids.size() > 1
 	for control: Control in [skins_title_label, skins_help_label, skin_list]:
@@ -676,8 +669,7 @@ func _refresh_band() -> void:
 		var id := _band_shape_ids[index]
 		var cell := shape_list.get_child(index) as ItemCell
 		cell.set_content(ShapeDefs.title(id), BodyCards.shape_icon(id), CURRENT_TAG if id == current else "")
-		var charge := BodyCards.charge_energy(id)
-		cell.corner_label.text = "%dE" % charge if charge > 0 else ""
+		cell.corner_label.text = ""
 		cell.set_selected(id == current)
 	for index in _band_ability_ids.size():
 		var id := _band_ability_ids[index]
@@ -686,7 +678,7 @@ func _refresh_band() -> void:
 		var cost := roundi(AbilityBox.energy_cost(id))
 		cell.corner_label.text = "%dE" % cost if cost > 0 else ""
 		cell.set_selected(id == chosen)
-	shapes_empty_label.visible = _band_shape_ids.is_empty() and not ThrowMode.is_on()
+	shapes_empty_label.visible = _band_shape_ids.is_empty()
 	abilities_empty_label.visible = _band_ability_ids.is_empty()
 	var card := _card_now(current, chosen)
 	if card.is_empty():

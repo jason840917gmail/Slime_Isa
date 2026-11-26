@@ -7,8 +7,10 @@ extends RefCounted
 ## - Gulping plays the form's own transform cue; burping plays the burp.
 ##
 ## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
-## docs/godot/WORLD_ATLAS.md; as tests/test_frog_form.gd): chunk row 15 has shallow water at x = 10..13
-## with a shallow ford at column 5, rows 25..28, reached north from the south shore; (3, 18) is open deep water.
+## docs/godot/WORLD_ATLAS.md; as tests/test_frog_form.gd): chunk row 15 has shallow water at x = 10..13;
+## east of the river road a shallow pool (columns 28-31, rows 13-15) is walked into south from the
+## sand at (29, 12); (3, 18) is open deep water. The walk test steps across the meadow's grass
+## (columns 17-26, rows 12-15), one ground all the way.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -16,7 +18,9 @@ const Services := preload("res://game/shared/services.gd")
 const MAP_ID := "level-1-c5"
 const CELL := 64.0
 const ROW := 15
-const LAND := Vector2i(5, 29)
+const LAND := Vector2i(29, 12)
+## The middle of the meadow's west side: 180 units of grass to the east (a second's walk).
+const MEADOW := Vector2(17.6 * 64.0, 13.5 * 64.0)
 const DEEP := Vector2i(3, 18)
 ## Global players added with rounds 3 and 4 (game/scenes/audio/global.tscn, Effects). A lash miss stays
 ## silent (owner's pick).
@@ -31,17 +35,20 @@ func test_walking_steps_once_per_walk_cycle(t: TestContext) -> void:
 	var footsteps := _footsteps(t)
 	if not t.check(footsteps != null, "the player has Footsteps"):
 		return
+	t.teleport_player(MEADOW)
 	await t.steps(30)
 	var before: int = footsteps.steps_played
 	await t.steps(30)
 	t.equal(footsteps.steps_played, before, "no steps while standing")
+	var ground: StringName = footsteps.surface_at(t.player_body().global_position)
 	t.press(&"move_right")
 	await t.sim_wait(1000.0)
 	t.release_all()
 	# The walk cycle is about 0.55 s and steps on its first frame: 2 or 3 steps in a second.
 	t.between(float(footsteps.steps_played - before), 2.0, 3.0, "steps in one second of walking")
 	var surface: StringName = footsteps.surface_at(t.player_body().global_position)
-	t.check(not String(surface).is_empty(), "the spawn ground has a surface")
+	t.check(not String(surface).is_empty(), "the meadow's ground has a surface")
+	t.equal(surface, ground, "the walk stayed on one ground (the meadow's)")
 	t.equal(footsteps.last_surface, surface, "the step sounds the ground under the feet")
 
 
@@ -53,7 +60,7 @@ func test_walking_into_the_shallows_splashes_then_wades(t: TestContext) -> void:
 	await t.steps(5)
 	var splash := footsteps.get_node(^"WaterEnter")
 	splash.reset_cue()
-	t.press(&"move_up")
+	t.press(&"move_down")
 	var waded := await t.until(func() -> bool: return footsteps.last_surface == &"Shallow", 1500.0)
 	t.release_all()
 	t.check(waded, "a step in the shallows wades")

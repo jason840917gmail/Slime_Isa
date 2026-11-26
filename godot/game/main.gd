@@ -104,12 +104,10 @@ const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 ## The body-shapes rework (docs/godot/BODY_SHAPES.md): its mode, input layer, shapes, testbed and box.
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const ReworkInput := preload("res://game/shapes/rework_input.gd")
-## The keys-only scheme's bindings (the throw mode has its own layout there).
-const KeyBindings := preload("res://game/player/mouse/key_bindings.gd")
 const ShapeController := preload("res://game/shapes/shape_controller.gd")
 const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ShapesTestbed := preload("res://game/shapes/shapes_testbed.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): on with the rework mode unless `melee`.
+## The throw rules (docs/godot/THROW_COMBAT.md): the Gulp's dev level and the aim help per session.
 const ThrowMode := preload("res://game/throw/throw_mode.gd")
 const ThrowTestbed := preload("res://game/throw/throw_testbed.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
@@ -162,10 +160,6 @@ var playground_abilities := true
 ## A learned ability plays its ceremony (game/ui/ceremony/ability_ceremony.gd); the test runner turns
 ## it off (the ceremony waits for a key), and the banner shows instead.
 var ability_ceremonies := true
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md) rides on the rework mode while this is
-## on (the test runner turns it off, so the suite plays the rework game as on main;
-## test_throw_combat.gd turns it on).
-var throw_combat := true
 
 @onready var world_container: Node2D = $World
 @onready var world_camera: WorldCamera = $WorldCamera
@@ -304,7 +298,6 @@ func _ready() -> void:
 ## Leaving the game (Quit to Title, a test's teardown): the rework mode goes off and its input layer
 ## comes off (nothing to do when it was off).
 func _exit_tree() -> void:
-	ThrowMode.set_on(false)
 	ReworkMode.set_on(false)
 	ReworkInput.apply(false)
 
@@ -1008,31 +1001,21 @@ func grant_playground_abilities() -> void:
 ## game is gone from this branch, so F5, F6 and the launch options all start in it. What differs is
 ## the shapes and box abilities lent for the session (`_rework_lending`: the playground and its rooms,
 ## `?shapes`), which a story run does not get (it keeps what it learned, the Spear from the prologue),
-## and a dungeon's F6 powers (`_dev_powers`). Its input layer follows (ReworkInput), and the throw
-## combat rides on it (decide_throw_mode).
+## and a dungeon's F6 powers (`_dev_powers`). Its input layer follows (ReworkInput); the Gulp's
+## session settings follow (`apply_gulp_session`).
 func decide_rework_mode(target: String) -> void:
 	var playground := target == PLAYGROUND_MAP_ID or target.begins_with(PLAYGROUND_MAP_ID + "-")
 	_rework_lending = has_launch_option("shapes") or playground
 	_dev_powers = dev_powers_for(target) if direct_world_run else PackedStringArray()
 	ReworkMode.set_on(true)
 	ReworkInput.apply(true)
-	decide_throw_mode(true, playground)
+	apply_gulp_session(playground)
 
 
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): on with the rework mode while
-## `gulp.throwCombat.enabled` is true, unless the launch option `melee` is given. `gulp=<1..3>` sets
-## the Gulp's dev level for the session (the playground starts at `playgroundLevel`); `aimhelp` turns
-## the aim help on.
-func decide_throw_mode(rework_on: bool, playground: bool) -> void:
-	var on := rework_on and throw_combat and ThrowMode.enabled_in_data() and not has_launch_option("melee")
-	var was := ThrowMode.is_on()
-	ThrowMode.set_on(on)
-	# The keys-only scheme has its own throw layout (Q Gulp, S Roll, A ability): put it on or off.
-	if was != on and KeyBindings.is_applied():
-		KeyBindings.apply(false)
-		KeyBindings.apply(true)
-	if not on:
-		return
+## The throw rules are always on (one combat, 2026-11-25: docs/godot/THROW_COMBAT.md; the `melee`
+## launch option and `gulp.throwCombat.enabled` are gone). `gulp=<1..3>` sets the Gulp's dev level for
+## the session (the playground starts at `playgroundLevel`); `aimhelp` turns the aim help on.
+func apply_gulp_session(playground: bool) -> void:
 	var level := launch_option("gulp").to_int()
 	if level > 0:
 		ThrowMode.set_dev_level(level)
@@ -1095,10 +1078,9 @@ func start_rework() -> void:
 		var testbed := ShapesTestbed.new()
 		testbed.name = "ShapesTestbed"
 		world_root.add_child(testbed)
-		if ThrowMode.is_on():
-			var yard := ThrowTestbed.new()
-			yard.name = "ThrowTestbed"
-			world_root.add_child(yard)
+		var yard := ThrowTestbed.new()
+		yard.name = "ThrowTestbed"
+		world_root.add_child(yard)
 
 ## Dev: `?skins=heavy,silk,feral` (desktop `-- --skins=...`) lends those skins for the session in any
 ## world (SkinState.lend: always on, never saved; docs/godot/SKINS.md); the look stays the goo, a

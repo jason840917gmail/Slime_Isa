@@ -212,7 +212,7 @@ func on_area_entered(area: Area2D) -> void:
 ## wall, the end of its flight) lies where it ended, for the Gulp to throw back
 ## (game/throw/spent_shot.gd; its row's `material` and `picturePx`, `ammo.arrowStays`, `arrowLifeMs`).
 func _leave_spent_shot() -> void:
-	if _hit_target or not ThrowMode.is_on():
+	if _hit_target:
 		return
 	var constants := Services.constants()
 	if constants == null or not bool(constants.value("gulp.throwCombat.ammo.arrowStays", false)):

@@ -398,9 +398,29 @@ func test_world_travel_removes_the_fight(t: TestContext) -> void:
 
 # --- helpers ------------------------------------------------------------------------------------
 
-## The camp (put back in D4 by the fixture; none in another world).
+## The camp (put back in D4 by the fixture; none in another world). D4's forest paint now stands in
+## the camp's old clearing (trunk lines south of the camp, at x 480 from y 1481 down, that hold
+## Fatty in place): these tests measure the camp's rules, not D4's paint, so the painted forest
+## within a cell of the activation circle is cleared for them, the open clearing they were measured in.
 static func _camp(t: TestContext) -> BossCampScript:
-	return FattyCampFixture.ensure(t.tree)
+	var camp := FattyCampFixture.ensure(t.tree)
+	if camp != null:
+		_clear_the_clearing(t)
+	return camp
+
+
+static func _clear_the_clearing(t: TestContext) -> void:
+	var forest := t.world().world_root.get_node_or_null(^"ForestLayer") as TileMapLayer
+	if forest == null:
+		return
+	var cleared := false
+	for cell: Vector2i in forest.get_used_cells():
+		if forest.to_global(forest.map_to_local(cell)).distance_to(CAMP) <= ACTIVATION_RADIUS + 64.0:
+			forest.erase_cell(cell)
+			cleared = true
+	if cleared:
+		# its trees and trunk collision follow its cells (forest_layer.gd `_rebuild`), now
+		forest.call(&"_rebuild")
 
 
 static func _bar(t: TestContext) -> Node:

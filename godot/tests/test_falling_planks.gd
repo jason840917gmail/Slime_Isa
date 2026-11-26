@@ -2,9 +2,10 @@ extends RefCounted
 ## Falling planks over water (docs/godot/DUNGEONS.md "Falling planks over water"), in the plank lab
 ## (game/dev/planks/playground-planks.tscn, built by tools/build_plank_lab.gd): a walk onto the long
 ## bridge sinks the slime and puts it back on the bank it came from with less health; a single Roll
-## falls short of the long bridge (no landing) and only a continuous Roll crosses it (the classic
-## Roll held; in the body-shapes mode the charged Roll, the `roll-charge` upgrade, while the quick
-## Roll and a hold without the upgrade fall in); a fallen plank comes back; a landing never falls.
+## falls short of the long bridge (no landing) and only a continuous Roll crosses it: the charged
+## Roll (the `roll-charge` upgrade) held, while the quick Roll and a hold without the upgrade fall in
+## (the body-shapes mode is on in every world since 2026-10-24, BODY_SHAPES.md "Running it": the
+## classic Roll is gone); a fallen plank comes back; a landing never falls.
 ##
 ## The lab (cells of 64 units): the lake rows 4-11, the long bridge's eight planks at column 5, the
 ## stepped bridge at column 12 (landings at rows 9 and 6), the island north of the lake.
@@ -29,7 +30,7 @@ const ROLL_UPGRADE := "roll-charge"
 
 
 func test_a_walk_falls_in_and_comes_back_on_the_bank_with_less_health(t: TestContext) -> void:
-	var watch := await _enter_lab(t, false)
+	var watch := await _enter_lab(t)
 	if watch == null:
 		return
 	var falls: Array = []
@@ -52,7 +53,7 @@ func test_a_walk_falls_in_and_comes_back_on_the_bank_with_less_health(t: TestCon
 
 
 func test_a_fallen_plank_comes_back_and_a_landing_never_falls(t: TestContext) -> void:
-	var watch := await _enter_lab(t, false)
+	var watch := await _enter_lab(t)
 	if watch == null:
 		return
 	var plank := _node(t, "long-plank-11")
@@ -74,27 +75,8 @@ func test_a_fallen_plank_comes_back_and_a_landing_never_falls(t: TestContext) ->
 	t.check(falls.is_empty(), "the slime fell in from a landing")
 
 
-func test_a_held_roll_crosses_the_long_bridge_and_a_single_roll_falls_short(t: TestContext) -> void:
-	var watch := await _enter_lab(t, false)
-	if watch == null:
-		return
-	var falls: Array = []
-	watch.connect(&"fell", func(payload: Dictionary) -> void: falls.append(payload))
-	# The classic Roll held all the way: it rolls on over the eight planks.
-	await _stand_on_south_bank(t, LONG_X)
-	var crossed := await _hold_roll_across(t)
-	t.check(falls.is_empty(), "a held Roll over the long bridge fell in")
-	t.check(crossed, "a held Roll did not reach the island (feet at %.1f)" % _feet_y(t))
-	# One Roll (a tap) falls short: no landing to stop on.
-	await _wait_for_planks(t)
-	falls.clear()
-	await _stand_on_south_bank(t, LONG_X)
-	t.tap(&"dodge")
-	t.check(await t.until(func() -> bool: return not falls.is_empty(), 3000.0), "a single Roll crossed the long bridge")
-
-
-func test_in_the_shapes_mode_only_the_charged_roll_crosses_the_long_bridge(t: TestContext) -> void:
-	var watch := await _enter_lab(t, true)
+func test_only_the_charged_roll_crosses_the_long_bridge(t: TestContext) -> void:
+	var watch := await _enter_lab(t)
 	if watch == null:
 		return
 	var falls: Array = []
@@ -103,7 +85,7 @@ func test_in_the_shapes_mode_only_the_charged_roll_crosses_the_long_bridge(t: Te
 	# Without the upgrade a held key rolls the quick Roll on its release: it falls in.
 	t.check(not run.has_learned_ability(ROLL_UPGRADE), "the lab lent the charged roll upgrade")
 	await _stand_on_south_bank(t, LONG_X)
-	await _hold_roll_across(t, false)
+	await _hold_roll_across(t)
 	t.check(await t.until(func() -> bool: return not falls.is_empty(), 2500.0), "a quick Roll (no upgrade) crossed the long bridge")
 	# With `roll-charge`: the charged Roll, held, crosses.
 	await t.until(func() -> bool: return not bool(watch.call(&"is_falling")), 2000.0)
@@ -111,16 +93,16 @@ func test_in_the_shapes_mode_only_the_charged_roll_crosses_the_long_bridge(t: Te
 	run.learn_session_ability(ROLL_UPGRADE)
 	falls.clear()
 	await _stand_on_south_bank(t, LONG_X)
-	var crossed := await _hold_roll_across(t, false)
+	var crossed := await _hold_roll_across(t)
 	t.check(falls.is_empty(), "the charged Roll over the long bridge fell in")
 	t.check(crossed, "the charged Roll did not reach the island (feet at %.1f)" % _feet_y(t))
 
 
-## Travels into the lab (`shapes`: in the body-shapes mode) and returns its hazard watch.
-func _enter_lab(t: TestContext, shapes: bool) -> Node:
+## Travels into the lab (in the body-shapes mode, on in every world) and returns its hazard watch.
+func _enter_lab(t: TestContext) -> Node:
 	t.main.call(&"travel_to", LAB)
 	await t.until(func() -> bool: return t.in_world(LAB) and t.player() != null \
-		and not bool(t.main.call(&"is_transitioning")) and ReworkMode.is_on() == shapes, 5000.0)
+		and not bool(t.main.call(&"is_transitioning")) and ReworkMode.is_on(), 5000.0)
 	await t.steps(4)
 	var run := Services.run()
 	if run != null and not run.has_learned_ability("dodge"):
@@ -144,18 +126,15 @@ func _stand_on_south_bank(t: TestContext, x: float) -> void:
 	await t.steps(3)
 
 
-## Holds the Roll key, facing north, until the feet are on the island (true) or the Roll is over.
-## `hold_way`: the way held too (the classic Roll spins up in place; in the body-shapes mode a held
-## way would walk the slime onto the bridge before the charged Roll's launch, so it rolls the facing).
-func _hold_roll_across(t: TestContext, hold_way: bool = true) -> bool:
-	if hold_way:
-		t.press(&"move_up")
+## Holds the Roll key, facing north, until the feet are on the island (true) or the Roll is over. No
+## way is held: it would walk the slime onto the bridge before the charged Roll's launch, so it rolls
+## the facing.
+func _hold_roll_across(t: TestContext) -> bool:
 	t.press(&"dodge")
 	await t.until(func() -> bool: return t.player().is_rolling(), 800.0)
 	var crossed := await t.until(func() -> bool: return _feet_y(t) < NORTH_SHORE - 12.0 or not t.player().is_rolling(), 4000.0) \
 		and _feet_y(t) < NORTH_SHORE - 12.0
 	t.release(&"dodge")
-	t.release(&"move_up")
 	await t.steps(2)
 	await t.until(func() -> bool: return not t.player().is_rolling(), 2000.0)
 	await t.sim_wait(400.0)

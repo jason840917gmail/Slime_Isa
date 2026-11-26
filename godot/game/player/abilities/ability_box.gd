@@ -2,9 +2,10 @@ extends RefCounted
 ## The Ability Box (body-shapes plan section 6 "The box"; BODY_SHAPES.md "Ability Box and HUD"):
 ## Zelda's item screen. Squash Slam and every later gadget sit in sockets in a fixed order
 ## (`abilityBox.sockets` in game-constants.json); the box shows only the learned ones; the chosen one
-## is used with `ability_use` (F; S in keys-only, A in the throw mode's keys-only layout:
-## key_bindings.gd). It lives in the bag window's top band (B; a click on the HUD's Ability slot opens
-## it too), beside the Shapes row; no key of its own.
+## is used with `ability_use` (F; D in keys-only: key_bindings.gd). It lives in the bag window's top
+## band (B; a click on the HUD's Ability slot opens it too), beside the Shapes row, where an ability is
+## chosen (`choose`); no key of its own. It holds box abilities only: the weapons are on the attack key
+## (one combat, 2026-11-25: the shapes' energy powers are gone, their charges are free on the weapon).
 ##
 ## - **The choice** is saved with the run: `RunState.player.loadout.ability_id` (the plan's
 ##   `loadout`, section 10 "Saves"; other loadout keys are left alone). Without a run it lives for
@@ -27,14 +28,10 @@ extends RefCounted
 const Services := preload("res://game/shared/services.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the learned shapes stand in the box as
-## energy powers, before the box abilities.
-const ThrowMode := preload("res://game/throw/throw_mode.gd")
-const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 ## The choice's name over the slime (GulpController.say_over).
 const GulpController := preload("res://game/player/gulp/gulp_controller.gd")
 
-## The input action that uses the chosen box ability (F; S in keys-only, A in the throw mode's).
+## The input action that uses the chosen box ability (F; D in keys-only).
 const USE_ACTION := &"ability_use"
 ## The action that swallows in the rework mode (Q held with an essence in the mouth).
 const SWALLOW_ACTION := &"eat"
@@ -44,7 +41,7 @@ const LOADOUT_KEY := "loadout"
 const ABILITY_KEY := "ability_id"
 ## PlayerAbilities' refusal reason for an ability that is not learned ("Not learned yet").
 const REFUSAL_EMPTY := "locked"
-## Throw combat: the new choice's name floats this high over the slime's centre, in this colour.
+## A pick in the bag floats the new choice's name this high over the slime's centre, in this colour.
 const CHOICE_TEXT_RISE_PX := 40.0
 const CHOICE_TEXT_COLOR := &"cyan"
 
@@ -69,10 +66,6 @@ static func socket_ids() -> Array[StringName]:
 ## the ones AbilityDefinitions knows (a socket without an ability yet stays hidden).
 static func box_ids(player: Node) -> Array[StringName]:
 	var ids: Array[StringName] = []
-	if ThrowMode.is_on():
-		for id: StringName in ShapeDefs.IDS:
-			if _is_learned(player, id):
-				ids.append(id)
 	for id: StringName in socket_ids():
 		if AbilityDefinitions.has(id) and _is_learned(player, id):
 			ids.append(id)
@@ -112,15 +105,14 @@ static func use(player: Node) -> bool:
 	if id.is_empty():
 		_refuse_empty(player)
 		return false
-	var started := _use_shape_power(player, id) if ThrowMode.is_shape_power(id) \
-		else bool(player.call(&"use_ability", id))
+	var started := bool(player.call(&"use_ability", id))
 	if started:
 		_use_count += 1
 	return started
 
 
-## Throw combat: makes `id` the box's choice (the ability carousel's pick, ability_carousel.gd) and
-## floats its name over the slime. False when `id` is not a learned box ability.
+## Makes `id` the box's choice (a pick in the bag's Abilities row, inventory_screen.gd) and floats its
+## name over the slime. False when `id` is not a learned box ability.
 static func choose(player: Node, id: StringName) -> bool:
 	if not select(player, id):
 		return false
@@ -128,26 +120,9 @@ static func choose(player: Node, id: StringName) -> bool:
 	return true
 
 
-## The box entry's name: a shape's (throw combat) or the ability's.
+## The box entry's name.
 static func title(id: StringName) -> String:
-	return ShapeDefs.title(id) if ThrowMode.is_shape_power(id) else AbilityDefinitions.title(id)
-
-
-## Throw combat: a shape power fires its shape's charge at once (ShapeController.power_strike),
-## paying its energy; a refusal plays the abilities' usual feedback.
-static func _use_shape_power(player: Node, id: StringName) -> bool:
-	var shapes: Variant = player.call(&"get_shapes") if player.has_method(&"get_shapes") else null
-	var reason := ""
-	if not is_instance_valid(shapes) or not shapes is Object:
-		reason = REFUSAL_EMPTY
-	else:
-		reason = str((shapes as Object).call(&"power_strike", id))
-	if reason.is_empty():
-		return true
-	var abilities: Variant = player.call(&"get_abilities") if player.has_method(&"get_abilities") else null
-	if abilities is Object and (abilities as Object).has_method(&"notify_rejected"):
-		(abilities as Object).call(&"notify_rejected", id, reason)
-	return false
+	return AbilityDefinitions.title(id)
 
 
 ## How many box abilities `use` has started this session (it only grows).
@@ -168,15 +143,11 @@ static func key_action(id: StringName) -> StringName:
 
 ## The energy `id` spends (what the box card and the HUD chip show).
 static func energy_cost(id: StringName) -> float:
-	if ThrowMode.is_shape_power(id):
-		return ShapeDefs.charge_energy(id)
 	return AbilityDefinitions.energy_cost(id)
 
 
 ## The cooldown of `id` in ms, from the press.
 static func cooldown_ms(id: StringName) -> float:
-	if ThrowMode.is_shape_power(id):
-		return 0.0
 	return AbilityDefinitions.cooldown_ms(id, Services.constants())
 
 

@@ -173,9 +173,11 @@ func test_the_boss_shows_his_rage_and_his_fall_breaks_the_seal(t: TestContext) -
 	var fight := _node(t, "b0-fight")
 	var started := await t.until(func() -> bool: return bool(fight.call(&"is_active")), 3000.0)
 	t.check(started, "the boss fight did not start")
-	var boss: Node = null
-	for member: Node in fight.call(&"members"):
-		boss = member.call(&"get_enemy")
+	# The fight's members are the living enemies in its room, asked live (game/enemy/live_enemies.gd,
+	# since 2026-11-21): his EnemyScript, not his placed node.
+	var placed := _node(t, "b0-boss")
+	var boss: Node = placed.call(&"get_enemy") if placed != null else null
+	t.check(boss != null and (fight.call(&"members") as Array).has(boss), "the boss is not one of his fight's members")
 	if t.check(boss != null, "no boss in the fight"):
 		t.check(EnragedLook.is_on(boss), "the boss does not show his rage while sealed")
 		var state: Dictionary = boss.call(&"get_damage_state")

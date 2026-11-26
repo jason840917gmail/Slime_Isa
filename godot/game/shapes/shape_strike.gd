@@ -6,7 +6,8 @@ extends RefCounted
 ##   (`minReach`..`reach` x `width`, `sidePx` beside the aim line for the second jab; on the Spear's
 ##   strike frames, game/shapes/shape_strikes.gd, from the full-lean frame's socket, where the drawn
 ##   spear leaves the body, to `reach` along the aim, where its tip is at full reach), shortened by a
-##   wall ray (`wall_reach`: cast from the feet, where walls and prop footprints lie; it ignores
+##   wall ray (`wall_reach`: cast from the feet, where walls and prop footprints lie, to the tip's place
+##   along the aim, so the tip stops at a wall's face facing up and down alike; it ignores
 ##   water, enemies, NPCs and any body with a hurtbox, such as a training dummy, a tree or a rock, so
 ##   the line reaches the body it stabs);
 ##   the Axe's arc (`arcDeg`, `radius`), swept so far (`progress`), as wedges of at most 60 deg (its
@@ -144,14 +145,17 @@ static func layer_bit(layer_name: String) -> int:
 	return 0
 
 
-## How far the Spear's line reaches along `aim` before a wall (body-shapes plan section 3 "Walls"): a
-## ray against what blocks the slime's body (its mask: the world and its own height level's cliffs),
-## without enemies, NPCs and water, cast from the slime's feet moved by `shift` (the hit centre,
-## `hit_offset`; walls, cliff outlines and prop footprints lie on the ground plane) and passing through
-## any body that owns a registered hurtbox (a training dummy, a tree, a rock: the line must reach the
-## body it stabs); `reach` when nothing is in the way. The line itself runs from `_origin` (the centre)
-## moved the same way, parallel to the ray, so the distance along the aim is the same.
-static func wall_reach(player: Node, _origin: Vector2, aim: Vector2, reach: float, shift: Vector2 = Vector2.ZERO) -> float:
+## How far the Spear's line reaches along `aim` before a wall (body-shapes plan section 3 "Walls"), measured
+## as the line is, from `origin` (the slime's centre) moved by `shift` (the hit centre, `hit_offset`): a ray
+## against what blocks the slime's body (its mask: the world and its own height level's cliffs), without
+## enemies, NPCs and water, cast along the ground plane from the slime's feet moved by `shift` (walls, cliff
+## outlines and prop footprints lie there) to where the line's tip lands along the aim, and passing through
+## any body that owns a registered hurtbox (a training dummy, a tree, a rock: the line must reach the body it
+## stabs). The centre sits above the feet, so facing up the ray runs that much further than the reach and
+## facing down that much shorter: the tip stops at a wall's face in every direction (2026-11-25; before, the
+## ray ran `reach` from the feet, so facing up the line poked 28 units through a wall and facing down it
+## stopped 28 short). `reach` when nothing is in the way; 0 when the wall is nearer than the centre.
+static func wall_reach(player: Node, origin: Vector2, aim: Vector2, reach: float, shift: Vector2 = Vector2.ZERO) -> float:
 	var slime := player as PlayerScript
 	if slime == null or slime.body == null or not slime.body.is_inside_tree() or aim == Vector2.ZERO or reach <= 0.0:
 		return reach
@@ -159,9 +163,15 @@ static func wall_reach(player: Node, _origin: Vector2, aim: Vector2, reach: floa
 		| layer_bit(LAYER_WATER) | layer_bit(LAYER_PLAYER))
 	if mask == 0:
 		return reach
-	var space := slime.body.get_world_2d().direct_space_state
+	var unit := aim.normalized()
 	var from := slime.body.global_position + shift
-	var to := from + aim.normalized() * reach
+	# How far ahead of the feet the line is measured from, along the aim (the centre's height facing up).
+	var lead := (origin + shift - from).dot(unit)
+	var length := reach + lead
+	if length <= 0.0:
+		return reach
+	var space := slime.body.get_world_2d().direct_space_state
+	var to := from + unit * length
 	var exclude := slime.body_rids()
 	var query := PhysicsRayQueryParameters2D.create(from, to, mask, exclude)
 	query.collide_with_areas = false
@@ -175,7 +185,7 @@ static func wall_reach(player: Node, _origin: Vector2, aim: Vector2, reach: floa
 			# The getter hands out a copy: set the list again.
 			query.exclude = exclude
 			continue
-		return minf(reach, from.distance_to(hit.get("position", to)))
+		return clampf(from.distance_to(hit.get("position", to)) - lead, 0.0, reach)
 	return reach
 
 

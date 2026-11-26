@@ -18,8 +18,9 @@ extends RefCounted
 ## - Slime spider: spits a web for 5 with a 1000 ms `web` effect.
 ## - Worm brawler: melee 10, knockback 340, `enemy-worm-brawler-hit` 22 px along the swing.
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): the tests run in chunk D4
-## (`level-1-d4`, its origin at level-1's (2048, 0)) on open ground south of the old camp
-## (outside every camp and safe zone); the camps test also travels to D4 and D5. The world's camps
+## (`level-1-d4`, its origin at level-1's (2048, 0)) on the open band south of the Webwood camp, north
+## of the hedge maze (the old spot further south is inside the maze since the 2026-11-21 canopy walls,
+## with the maze's own spiders and worm about); the camps test also travels to C5, D4 and D5. The world's camps
 ## are placed enemies since 2026-10-16 (roadmap 5.25: their old spawn areas' maxPopulation, the
 ## types by weight under maxAlive); legacy player-relative spawning is left only in the dev world
 ## icege, and the crystal caverns' old spawn table is placed enemies too (5 a chunk, in two camps).
@@ -39,9 +40,9 @@ const EnemyPopulation := preload("res://game/enemy/enemy_population.gd")
 const PlacedEnemyScript := preload("res://game/enemy/placed_enemy.gd")
 const Perimeter := preload("res://game/shared/perimeter.gd")
 
-## Open ground (a 700 x 260 rectangle free of walls, water and NPCs around it, measured on the
-## chunk), south of the old camp clearing.
-const OPEN := Vector2(480.0, 1408.0)
+## Open ground (a band free of world-layer bodies, x 400..1472, y 448..704, measured on the chunk; the
+## Webwood camp's spiders and the maze's enemies more than 500 px away, no safe zone).
+const OPEN := Vector2(1000.0, 576.0)
 ## level-1's camps: their chunk world and their placed enemies by type.
 const CAMPS := {
 	"level-1-south-meadow": ["level-1-c5", {"worm-brawler": 2, "slime-spider": 1}],
@@ -53,6 +54,9 @@ const CAMPS := {
 ## placed enemies, no camps: the Prism Eye alone on the east side, the Glint Bats over Run 3, a
 ## Crawler at its pillar on the south side and one in the bay.
 const CAVERN_ENEMIES := {"prism-eye": 1, "glint-bat": 1, "crystal-crawler": 2}
+## How far a placed enemy outside its camp may have walked home by the time the test looks (the
+## arrival and two steps, at its walk-home speed).
+const PLACED_DRIFT_PX := 48.0
 const STEP := TestContext.STEP_MS
 const SLACK := TestContext.STEP_MS + 0.01
 const ARCHER_WINDUP_MS := 600.0
@@ -117,7 +121,7 @@ func test_archer_shoots_an_arrow_that_flies_and_hits(t: TestContext) -> void:
 	t.near(float(shot["rotation"]), PI, 0.01, "arrow rotation (pointing left)")
 	var payload := script.get_damage_payload()
 	t.equal(payload.get("weapon_tags"), ["enemy", "projectile"], "payload weapon tags")
-	t.near(float(payload.get("damage", 0.0)), 22.0, 0.01, "payload damage")
+	t.near(float(payload.get("damage", 0.0)), float(ARROW_HIT), 0.01, "payload damage (enemy-types.json projectile.damage)")
 	t.equal(payload.get("effects"), [], "an arrow carries no web")
 	var hit := await t.until(func() -> bool: return not hits.is_empty(), 1500.0)
 	if not t.check(hit, "the arrow never hit the player"):
@@ -519,7 +523,11 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 		await t.sim_wait(600.0)
 		t.player().restore_run_state({"hp": t.player().get_max_hp()})
 		t.teleport_player(OPEN)
-	# Through the camps: each level-1 camp's placed enemies stand in it (each in its chunk world).
+	# Through the camps: each level-1 camp's placed enemies (each in its chunk world) have the camp's
+	# enemy-wander area as their home (enemy spec 3.3 "Spawning": configure_navigation with the wander
+	# record) and stand where they were placed or inside the camp. (Since 2026-11-01 C5's
+	# worm-brawler-2 is placed 450 px west of 'level-1-south-meadow', on the meadow's west side, so
+	# "inside the camp" is no longer true of every member.)
 	for camp_id: String in CAMPS:
 		var map := str(CAMPS[camp_id][0])
 		if not await _travel(t, map):
@@ -540,7 +548,10 @@ func test_every_world_enemy_type_spawns_and_fights(t: TestContext) -> void:
 				continue
 			counts[placed.enemy_type] = int(counts.get(placed.enemy_type, 0)) + 1
 			var enemy := placed.get_enemy() as EnemyScript
-			t.check(Perimeter.distance_outside(wander["perimeter"], enemy.get_centre()) <= 2.0, "%s stands outside '%s'" % [placed.name, camp_id])
+			t.equal(str(enemy.get_spawn_area().get("id", "")), camp_id, "%s's home" % placed.name)
+			var near_node := (enemy.get_parent() as Node2D).global_position.distance_to(placed.global_position) <= PLACED_DRIFT_PX
+			t.check(near_node or Perimeter.distance_outside(wander["perimeter"], enemy.get_centre()) <= 2.0,
+				"%s stands neither where it was placed nor inside '%s'" % [placed.name, camp_id])
 			t.equal(_type_of(enemy.get_parent()), placed.enemy_type, "%s's scene" % placed.name)
 		t.equal(counts, CAMPS[camp_id][1], "'%s' placed enemies by type" % camp_id)
 
@@ -670,10 +681,11 @@ static func _type_of(root: Node) -> String:
 	return path
 
 
-## Fires an arrow from `shooter`'s scene data at `from` along `direction`.
+## Fires an arrow at `from` along `direction` with the worm archer's damage and knockback
+## (enemy-types.json `projectile.damage`, `ai.knockbackStrength`), `shooter` its source.
 static func _fire(t: TestContext, shooter: EnemyScript, from: Vector2, direction: Vector2, speed: float, stick_ms: float) -> Node2D:
 	var root := EnemyProjectiles.fire({"source": shooter, "position": from, "direction": direction, "speed": speed,
-		"damage": 22.0, "knockback_strength": 180.0, "projectile_id": "worm-arrow", "asset_id": "", "stick_ms": stick_ms})
+		"damage": float(ARROW_HIT), "knockback_strength": ARROW_KNOCKBACK, "projectile_id": "worm-arrow", "asset_id": "", "stick_ms": stick_ms})
 	if root == null:
 		t.fail("the arrow did not spawn")
 	return root

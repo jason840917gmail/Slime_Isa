@@ -154,15 +154,24 @@ func test_collision_outlines_close_at_every_corner(t: TestContext) -> void:
 	var elevation := t.world().elevation
 	if not t.check(elevation != null, "no elevation in the playground"):
 		return
+	# The grid traces no line along the map's own edge (collision_segments cuts only inside it), so an
+	# outline that runs off the map ends there: the sky corner's level -2 reaches the playground's east
+	# edge (cells 100-123, the map 124 wide: docs/godot/SKY_FLOOR.md). Only ends inside the map count.
+	var grid := elevation.grid
 	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
-		var open := _open_ends(elevation.grid.collision_segments(level), 8.0)
-		t.check(open.is_empty(), "level %d's terrain outline is open at %s (cells x 8)" % [level, open.slice(0, 6)])
+		var open: Array = []
+		for point: Vector2 in _open_ends(grid.collision_segments(level), 8.0):
+			if point.x > 0.0 and point.y > 0.0 and point.x < float(grid.columns) and point.y < float(grid.rows):
+				open.append(point)
+		t.check(open.is_empty(), "level %d's terrain outline is open at %s (cells)" % [level, open.slice(0, 6)])
 	# The real collision, stairs and drawn walls merged in (world units): it follows the walls as
 	# drawn (docs/godot/ELEVATION.md "Side walls"), traced piece by piece, so pieces of different
 	# outlines may end a few units apart; but no gap is as wide as a body (the player's 26 units), so
 	# nothing walks through one. A loose end (one meeting the middle of another segment closes too)
 	# must lie within BODY_GAP of another segment; a speck (a short segment loose at both ends, inside
-	# ground no level walks) is no gap.
+	# ground no level walks) is no gap; nor is an end on the world's edge, where the world bounds'
+	# walls hold every body (game/world/world_bounds.gd).
+	var edge: Rect2 = t.world().world_rect()
 	for level in range(ElevationGrid.MIN_LEVEL, ElevationGrid.MAX_LEVEL + 1):
 		var body := elevation.get_node_or_null("Collision/Level%d" % level) as StaticBody2D
 		if body == null:
@@ -175,7 +184,7 @@ func test_collision_outlines_close_at_every_corner(t: TestContext) -> void:
 		var gaps: Array = []
 		for i in segments.size():
 			var end := segments[i]
-			if not loose.has(Vector2i(roundi(end.x), roundi(end.y))):
+			if not loose.has(Vector2i(roundi(end.x), roundi(end.y))) or _on_rect_edge(body.to_global(end), edge):
 				continue
 			var own := i - i % 2
 			var other := segments[own + 1 - i % 2]
@@ -201,6 +210,12 @@ static func _open_ends(segments: PackedVector2Array, scale: float) -> Array:
 		if int(ends[key]) % 2 == 1:
 			open.append(Vector2(key) / scale)
 	return open
+
+
+## True when `point` (world) lies on `rect`'s edge (within a unit).
+static func _on_rect_edge(point: Vector2, rect: Rect2) -> bool:
+	return absf(point.x - rect.position.x) < 1.0 or absf(point.x - rect.end.x) < 1.0 \
+			or absf(point.y - rect.position.y) < 1.0 or absf(point.y - rect.end.y) < 1.0
 
 
 ## True when `point` lies within 2 units of the inside of a segment (not at its ends).

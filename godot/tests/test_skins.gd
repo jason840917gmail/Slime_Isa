@@ -14,7 +14,10 @@ extends RefCounted
 ## - the bag's Skins row.
 ## The Silk skin's webs are tests/test_weaver_webs.gd's and tests/test_matron.gd's (they lend it),
 ## the heavy plate test_gulp.gd's. Every test runs in the playground east of the Bestiary corner,
-## where the Skins corner is (its pieces only in the body-shapes mode; the plateau is painted).
+## where the Skins corner is (its pieces only in the body-shapes mode). Its Feral lane's level-2
+## plateau went on 2026-11-13 for the tall wall of the climbing vines and balconies: level 10, cells
+## 108-123 x 28-29, its face rows 30-39; the climb tests use its west columns (109, 110), the only
+## ones with no vines or balcony painted, and take out the wall's climb monsters first.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
@@ -27,13 +30,24 @@ const MAP_ID := "playground"
 ## Open ground east of the Bestiary corner (old Phaser centre), with room to roll right.
 const OPEN := Vector2(6880.0, 1060.0)
 const CENTRE_RISE := 27.56
-## The Feral plateau (level 2, cells 110-117 x 30-33): its south rim and a climb's foot (feet).
-const RIM_Y := 2176.0
-const FACE_FOOT_Y := 2304.0
-const CLIMB_X := 7136.0
-## The column of the plateau's face the vines test paints (cells; east of the corner's own vines).
-const VINES_CELL := Vector2i(116, 34)
-const FOOT_FEET := Vector2(CLIMB_X, 2330.0)
+## The tall wall (level 10, cells 108-123 x 28-29): its south rim and the foot of its face (rows
+## 30-39), a placed climb's column (cell 109) and where it starts (feet).
+const PLATEAU_LEVEL := 10
+const RIM_Y := 30.0 * 64.0
+const FACE_FOOT_Y := 40.0 * 64.0
+const CLIMB_X := 109.5 * 64.0
+## Where the slime stands at a climb's foot and on the lip over it (feet), off the face's foot line
+## and in from the rim.
+const FOOT_STAND := 26.0
+const LIP_STAND := 26.0
+const FOOT_FEET := Vector2(CLIMB_X, FACE_FOOT_Y + FOOT_STAND)
+## The vines test's painting (cells): a column from the rim to the foot, and beside it (east) only
+## its lower half, from SHORT_TOP_ROW down.
+const VINES_CELL := Vector2i(110, 30)
+const VINES_ROWS := 10
+const SHORT_TOP_ROW := 35
+## How long a climb of the whole face may take: its height at `skins.feral.climbSpeed`, and a margin.
+const CLIMB_MARGIN_MS := 1500.0
 
 
 func test_skins_are_won_lent_and_saved(t: TestContext) -> void:
@@ -171,21 +185,24 @@ func test_a_heavy_shake_knocks_a_loose_prize_down(t: TestContext) -> void:
 
 func test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next(t: TestContext) -> void:
 	var player := t.player()
+	_clear_enemies(t)
+	var face := FACE_FOOT_Y - RIM_Y
 	var up := _spawn(t, "object.climb-wall", Vector2(CLIMB_X, FACE_FOOT_Y))
-	var down := _spawn(t, "object.climb-wall", Vector2(CLIMB_X, 2150.0))
+	var down := _spawn(t, "object.climb-wall", Vector2(CLIMB_X, RIM_Y - LIP_STAND))
 	if up == null or down == null:
 		return
-	up.set(&"top", Vector2(0.0, -170.0))
-	down.set(&"top", Vector2(0.0, 165.0))
+	# (as on the old plateau: past the rim by 42 going up, past the foot by 11 going down)
+	up.set(&"top", Vector2(0.0, -(face + 42.0)))
+	down.set(&"top", Vector2(0.0, face + LIP_STAND + 11.0))
 	down.set(&"show_art", false)
 	await _stand(t, FOOT_FEET, Vector2.UP)
 	# Without the skin nothing climbs.
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.steps(4)
 	t.check(not player.is_climbing(), "the slime climbed without the Feral skin")
 	SkinState.lend(SkinState.FERAL)
 	await t.steps(2)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press at the roots did not take hold")
 	await t.steps(4)
 	t.check(t.player_body().collision_mask == 0, "the climbing slime still collides with the rock")
@@ -194,18 +211,18 @@ func test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next(t: TestContex
 	await t.sim_wait(200.0)
 	t.near_vec(t.player_body().global_position, clung, 1.0, "the slime moved on the wall with no movement key held")
 	t.press(&"move_up")
-	t.check(await t.until(func() -> bool: return not player.is_climbing(), 4000.0), "the climb never ended")
+	t.check(await t.until(func() -> bool: return not player.is_climbing(), _climb_ms(face)), "the climb never ended")
 	t.release(&"move_up")
 	await t.steps(3)
 	t.check(t.player_body().global_position.y < RIM_Y, "the climb did not end on the plateau (feet %s)" % t.player_body().global_position)
-	t.equal(t.world().elevation.level_of(t.player_body()), 2, "the slime's level on the plateau")
+	t.equal(t.world().elevation.level_of(t.player_body()), PLATEAU_LEVEL, "the slime's level on the plateau")
 	t.check(t.player_body().collision_mask != 0, "the slime's collision did not come back")
 	# Back down from the lip.
-	await _stand(t, Vector2(CLIMB_X, 2150.0), Vector2.DOWN)
-	t.tap(&"interact")
+	await _stand(t, Vector2(CLIMB_X, RIM_Y - LIP_STAND), Vector2.DOWN)
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press at the lip did not take hold")
 	t.press(&"move_down")
-	await t.until(func() -> bool: return not player.is_climbing(), 4000.0)
+	await t.until(func() -> bool: return not player.is_climbing(), _climb_ms(face))
 	t.release(&"move_down")
 	await t.steps(3)
 	t.check(t.player_body().global_position.y > FACE_FOOT_Y, "the climb down did not end below the face")
@@ -215,7 +232,7 @@ func test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next(t: TestContex
 	await _stand(t, FOOT_FEET, Vector2.UP)
 	# Where the climb starts: the body settles a few px below FOOT_FEET, clear of the face's foot.
 	var start := t.player_body().global_position
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
 	await t.sim_wait(350.0)
@@ -224,7 +241,7 @@ func test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next(t: TestContex
 	t.check(high < start.y - 20.0, "the slime did not climb before letting go")
 	await t.sim_wait(200.0)
 	t.check(player.is_climbing(), "the slime let go with no second press")
-	t.tap(&"interact")
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return not player.is_climbing(), 1500.0), "a second press midway did not drop the slime")
 	await t.steps(3)
 	t.near_vec(t.player_body().global_position, start, 1.0, "the drop's landing (where the climb started)")
@@ -236,19 +253,23 @@ func test_the_feral_skin_clings_on_a_press_and_lets_go_on_the_next(t: TestContex
 func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void:
 	var player := t.player()
 	var body := t.player_body()
-	# Vines on the plateau's face: one column from rim to foot, and beside it only the lower row.
+	_clear_enemies(t)
+	# Vines on the tall wall's face: one column from rim to foot, and beside it only its lower half.
 	var layer := VineLayerScript.new()
 	layer.name = "test-vines"
 	layer.tile_set = load(VineLayerScript.TILESET)
 	t.world().world_root.add_child(layer)
-	for cell: Vector2i in [VINES_CELL, VINES_CELL + Vector2i.DOWN, VINES_CELL + Vector2i(1, 1)]:
-		layer.set_cell(cell, 0, Vector2i.ZERO)
+	for row in VINES_ROWS:
+		layer.set_cell(VINES_CELL + Vector2i(0, row), 0, Vector2i.ZERO)
+		if VINES_CELL.y + row >= SHORT_TOP_ROW:
+			layer.set_cell(VINES_CELL + Vector2i(1, row), 0, Vector2i.ZERO)
 	await t.steps(2)
 	var column_x := (VINES_CELL.x + 0.5) * 64.0
-	var foot := Vector2(column_x, 2330.0)
+	var foot := Vector2(column_x, FACE_FOOT_Y + FOOT_STAND)
+	var face := FACE_FOOT_Y - RIM_Y
 	SkinState.lend(SkinState.FERAL)
 	await _stand(t, foot, Vector2.UP)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press at the vines' foot did not take hold"):
 		t.release_all()
 		layer.queue_free()
@@ -264,15 +285,15 @@ func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void
 	var column_end := (VINES_CELL.x + 2) * 64.0
 	t.check(body.global_position.x > column_end - 64.0, "the slime did not cross onto the next column of vines (feet %s)" % body.global_position)
 	t.check(player.is_climbing() and not player.get_climb().is_falling(), "the slime let go on the vines' second column")
-	# That column stops short of the rim: no way up it.
+	# That column stops short of the rim: no way up it (climbed on for longer than its height takes).
 	t.press(&"move_up")
-	await t.sim_wait(700.0)
+	await t.sim_wait(_climb_ms(FACE_FOOT_Y - SHORT_TOP_ROW * 64.0))
 	t.release(&"move_up")
 	t.check(player.is_climbing(), "the slime got off vines that stop short of the rim")
-	t.check(body.global_position.y > RIM_Y + 64.0, "the slime climbed past the vines' top (feet %s)" % body.global_position)
+	t.check(body.global_position.y > SHORT_TOP_ROW * 64.0, "the slime climbed past the vines' top (feet %s)" % body.global_position)
 	# A second press lets go: it drops before the wall's foot, unhurt.
 	var hp := player.get_hp()
-	t.tap(&"interact")
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return not player.is_climbing(), 1500.0), "the second press did not drop the slime")
 	await t.steps(3)
 	t.check(body.global_position.y > FACE_FOOT_Y, "the drop landed on the face (feet %s)" % body.global_position)
@@ -280,23 +301,23 @@ func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void
 	t.equal(player.get_hp(), hp, "the fall cost health")
 	# A catch: the key pressed again as the slime drops takes hold right there (a fall starts let go).
 	await _stand(t, foot, Vector2.UP)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
 	await t.sim_wait(500.0)
 	t.release(&"move_up")
-	t.tap(&"interact")
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return player.get_climb().is_falling(), 300.0), "the second press did not start a drop")
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.steps(3)
 	t.check(player.is_climbing() and not player.get_climb().is_falling(), "the key pressed again did not catch the vines mid-drop")
 	t.check(body.global_position.y < FACE_FOOT_Y, "the catch was not on the face (feet %s)" % body.global_position)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return not player.is_climbing(), 1500.0)
 	await t.steps(3)
 	# No limit at the vines' side (the owner, 2026-11-13): moved off it, the slime falls, unhurt.
 	await _stand(t, foot, Vector2.UP)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
 	await t.sim_wait(300.0)
@@ -314,20 +335,20 @@ func test_painted_vines_are_clung_to_and_crossed_any_way(t: TestContext) -> void
 	t.equal(player.get_hp(), hp, "the fall off the side cost health")
 	# Up the whole column: pushing on at the rim gets the slime onto the plateau.
 	await _stand(t, foot, Vector2.UP)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
-	t.check(await t.until(func() -> bool: return not player.is_climbing(), 4000.0), "the climb up the vines never ended")
+	t.check(await t.until(func() -> bool: return not player.is_climbing(), _climb_ms(face)), "the climb up the vines never ended")
 	t.release_all()
 	await t.steps(3)
 	t.check(body.global_position.y < RIM_Y, "the climb did not end on the plateau (feet %s)" % body.global_position)
-	t.equal(t.world().elevation.level_of(body), 2, "the slime's level on the plateau")
+	t.equal(t.world().elevation.level_of(body), PLATEAU_LEVEL, "the slime's level on the plateau")
 	# From the lip, facing down, and off at the foot.
-	await _stand(t, Vector2(column_x, 2150.0), Vector2.DOWN)
-	t.tap(&"interact")
+	await _stand(t, Vector2(column_x, RIM_Y - LIP_STAND), Vector2.DOWN)
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press on the lip over the vines did not take hold")
 	t.press(&"move_down")
-	t.check(await t.until(func() -> bool: return not player.is_climbing(), 4000.0), "the climb down the vines never ended")
+	t.check(await t.until(func() -> bool: return not player.is_climbing(), _climb_ms(face)), "the climb down the vines never ended")
 	t.release_all()
 	await t.steps(3)
 	t.check(body.global_position.y > FACE_FOOT_Y, "the climb down did not end below the face (feet %s)" % body.global_position)
@@ -384,6 +405,30 @@ func _spawn(t: TestContext, scene_id: String, at: Vector2) -> Node2D:
 	node.position = at
 	t.world().world_root.add_child(node)
 	return node
+
+
+## An interact press as a key gives it (held a few frames, then let up): the climb is a toggle
+## since 2026-11-24, one press clings and the next lets go; a press let up in the frame it was
+## pushed reaches the placed wall but not always the painted vines.
+func _tap_interact(t: TestContext) -> void:
+	t.press(&"interact")
+	await t.steps(3)
+	t.release(&"interact")
+	await t.steps(1)
+
+
+## How long (gameplay ms) a climb of `height` may take: at `skins.feral.climbSpeed`, with a margin.
+static func _climb_ms(height: float) -> float:
+	return height / SkinState.setting("feral.climbSpeed", 150.0) * 1000.0 + CLIMB_MARGIN_MS
+
+
+## Takes out every enemy (the tall wall's climb monsters: the Rock Chucker on its top, the Spiny
+## Caterpillars on its vines and the Ledge Raven by its balcony hit and knock the slime off).
+func _clear_enemies(t: TestContext) -> void:
+	for enemy: Node in t.tree.get_nodes_in_group(&"enemy"):
+		var holder := enemy.get_parent()
+		if holder != null:
+			holder.queue_free()
 
 
 ## The slime's feet at `feet`, facing `facing`, its level where it stands.

@@ -108,7 +108,9 @@ lets F8 and F7 switch the open Sound Picker round's options in the game
 [BODY_SHAPES.md](BODY_SHAPES.md)) runs **in every world and every run** (2026-10-24; the classic
 game is gone from this branch), and `?shapes` / `-- --shapes` lends its shapes in any world (it and
 the playground skip the title). `?prologue` / `-- --prologue`
-starts a new run in the prologue, as New Game does, and skips the title. `?skins=heavy,silk,feral`
+starts a new run in the prologue, as New Game does, and skips the title. The throw rules have no
+switch since 2026-11-25 (`?melee` / `-- --melee` are gone: [THROW_COMBAT.md](THROW_COMBAT.md#one-combat-2026-11-25));
+`?gulp=<1..3>` sets the Gulp's level and `?aimhelp` turns the aim help on. `?skins=heavy,silk,feral`
 / `-- --skins=...` lends those skins for the session in any world ([SKINS.md](SKINS.md)). In a dungeon world,
 `keys=<n>`, `bigkey`, `dmap` (the map and the compass) and `room=<camera room>` (in Fatty's Lair a
 room of another world: it travels there) set the dungeon up

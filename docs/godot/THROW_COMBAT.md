@@ -5,16 +5,47 @@ challenge, because every throw counts. The Gulp (suck and throw) becomes the who
 shapes become energy powers for special moments; what the slime can lift grows with the Gulp's
 level. It is built on top of the body-shapes rework mode. It was tried on the `exp/throw-combat`
 branch from 2026-10-20 and merged into `main` on 2026-11-01 (the branch and its worktree deleted);
-it is on in every world unless `?melee` turns it off.
+it was on in every world unless `?melee` turned it off.
 
-The owner's decisions (2026-10-19/20):
+## One combat (2026-11-25)
 
-- **No ammo = flee.** There is no fallback attack. Changing chunk rebuilds the screen (its liftables
-  come back with it), which is a fair way out. Enemies make ammo with their attacks.
-- **Q does everything as before** (suck, throw, swallow, spit); **the attack key (A) does nothing**.
-  In the keys-only scheme (owner, 2026-10-22, changed 2026-10-23) the keys are **Q** the Gulp,
-  **S** the Roll and **A** the chosen box ability, with **E** opening the ability carousel
+The owner, after playing `?melee` against the throw game: "losing a source of damage at all times like
+we use to have with the spear axe and hammer is huge ... we are going to move spear axe and hammer to be
+weapon but with less damages, they will keep the combos". The plan, with his answers:
+[weapons beside throws](../design/2026-11-25-weapons-beside-throws.md). Since its piece 2 there is **one
+combat and no switch**:
+
+- **Every throw rule is always on**: the weights and the Gulp's levels, the effects, the reworked feel,
+  enemies as ammo, the ammo enemies make, the weight cue, the aim help (off unless switched on). The
+  `?melee` / `-- --melee` launch option, `gulp.throwCombat.enabled`, `ThrowMode.is_on` / `set_on`,
+  main.gd's `throw_combat` (the test runner's switch) and the editor's `-- --melee` run argument are gone.
+- **The attack key strikes with the current weapon** beside them (the Spear, the War Axe, the Hammer:
+  a tap for the combo, a hold for the charge), as in the body-shapes game ([BODY_SHAPES.md](BODY_SHAPES.md)).
+  Weapon hits are scaled by `shapes.weaponDamageScale` (0.5: a Spear jab 7, the Lunge 13, the Axe's Spin
+  20, the Quake 36); a throw keeps its damage (a light pot 40).
+- **Charges are free**: the hold through the ring is the cost; no energy, no fizzle.
+- **What went**: the shape powers (the shapes in the Ability Box, `ShapeController.power_strike`, their
+  cards and costs), the ability carousel (`game/shell/ability_carousel.gd` and the Shell's hooks), "no
+  attack" (the attack hints are back; a click on an enemy attacks again in the mouse schemes), the
+  climb strike on Q (it is on A again), the three stacked keys-only layouts. E switches the weapon (the
+  HUD's weapon slot shows it); an ability is chosen in the bag's Abilities row (its name floats over the
+  slime) and used on D.
+- **The keys** (keys only, the default for a fresh settings file): arrows move, **A** attack, **S** roll,
+  **D** the chosen ability, **Q** the Gulp, **W** interact, **E** next weapon, **B** the bag
   ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md#the-keys-only-scheme)).
+- **Pictured**: `tools/film_one_combat.gd` films a Spear combo on a worm, a pot thrown at another, E
+  to the Axe, a charge with no energy and an ability picked in the bag and used on D, each with a PASS
+  or FAIL, and pictures the HUD, the bag and the Controls list (`scripts/godot/one-combat-sheet.py`
+  makes the strip and the GIF): `output/combat/one-combat/`.
+- Not yet (the plan's next pieces): a combo's daze making an enemy liftable (3), materials and immunity
+  (4), the other control schemes removed (5), the bosses re-tuned (6).
+
+The owner's decisions of 2026-10-19/20 (the experiment; the first two replaced by the one combat):
+
+- **No ammo = flee** (gone 2026-11-25: the weapon is the hit that is always there). Changing chunk
+  rebuilds the screen (its liftables come back with it). Enemies make ammo with their attacks.
+- **Q does everything as before** (suck, throw, swallow, spit); the attack key did nothing until the
+  one combat put the weapon back on it.
 - **The Gulp's levels are their own upgrades** (Zelda's Power Bracelet): 1 lifts light things, 2
   medium, 3 heavy. The Heavy skin keeps its plates and heavy blocks.
 - **One thing in the mouth at a time.**
@@ -26,14 +57,13 @@ lands on invulnerable enemies too, so they can be slipped past; owner, 2026-11-0
 
 ## Running it
 
-The mode rides on the body-shapes rework mode, which since 2026-10-24 (commit 9507c9e6) is on in
-every world and every run ([BODY_SHAPES.md](BODY_SHAPES.md#running-it)): so the throw mode is on
-everywhere too (F5 from the title, F6 in the editor, any `?map=`, a story run), while
-`gulp.throwCombat.enabled` is true (main.gd `decide_throw_mode`). Launch options:
+The throw rules ride on the body-shapes rework mode, which since 2026-10-24 (commit 9507c9e6) is on in
+every world and every run ([BODY_SHAPES.md](BODY_SHAPES.md#running-it)), and since 2026-11-25 they
+have no switch of their own (F5 from the title, F6 in the editor, any `?map=`, a story run; main.gd
+`apply_gulp_session` sets the session's Gulp level and aim help). Launch options:
 
 | Option (web / desktop) | What it does |
 |---|---|
-| `?melee` / `-- --melee` | the throw mode off: the rework game with its attack (the attack key strikes with the current shape, E and the wheel switch shapes, the box holds only box abilities, the keys-only scheme's layout is the rework's) |
 | `?gulp=2` / `-- --gulp=2` | the Gulp's level for the session (1 to 3) |
 | `?aimhelp` / `-- --aimhelp` | the aim help on |
 
@@ -43,7 +73,7 @@ it for the session.
 In the playground (F6 on `game/dev/playground.tscn`) the **throw yard** stands in the shapes
 testbed's enemy pen, south of the spawn:
 
-- the pen holds the slime spider, the worm swordsman, the Clod Stomper, and in this mode also the
+- the pen holds the slime spider, the worm swordsman, the Clod Stomper, the
   **Worm Archer** (its missed arrows stay on the ground) and the **Worm Brawler** (its blows knock
   rocks loose);
 - the left column holds light things: a pot, a honey jar (stick), a puffball (sleep), a snowball
@@ -148,21 +178,10 @@ switched off; the rules (weights, effects, what a throw reaches) hold either way
   look: the enemy's own picture coated in honey (a copy of its sprite, frame for frame, under a
   shader: a thick glossy amber coat over the top of the art with drips running down, a thin glaze
   below; `COAT_THICKNESS`, `COAT_EDGE`), and honey drops falling from it.
-- **Shape powers.** The learned shapes stand first in the Ability Box (the bag's Shapes row hides).
-  Choosing one and pressing the ability key (F; A in keys-only) fires that shape's charge at once
-  (the Spear's Lunge, the Axe's Spin, the Hammer's Quake) along the facing or the pointer, for its
-  energy (15, 20, 25), with no ring. E (or the wheel) opens the ability carousel
-  (`game/shell/ability_carousel.gd`): a quick menu. The game pauses, every learned ability sits as a
-  big card (icon and name) in a matrix, the arrows move the lit card, Space or Enter makes it the
-  box's choice (named over the slime), and Escape closes it with no change. The arrows are read in
-  the window's `_input`, before the player's movement takes them. The HUD's Ability slot shows the shape's icon and cost; the Shape slot is hidden.
-  A shape power is busy (the slot dimmed) while a strike runs, the mouth is full or the slime swims.
-- **No attack.** The attack key does nothing, and a click on an enemy (the click scheme's order
-  button) only walks there, as a click on the ground does.
-- **Climbing** (the Feral skin): while it clings to a wall the **Gulp key (Q)** strikes from the face
-  (`_climb_strike`: a press of the current shape, the Spear unless another shape's power was used
-  last), as the attack key does outside this mode; nothing can be gulped from a wall. So the
-  Crystal Colossus's claws can still be struck.
+- **The weapon beside the throw** (one combat, 2026-11-25; until then the shapes were energy powers
+  in the Ability Box, E opened an ability carousel, the attack key did nothing and the climb strike
+  was on Q). The attack key strikes with the current weapon, at `shapes.weaponDamageScale` of its old
+  damage, its charges free; E switches it. The Ability Box holds box abilities only.
 - **Ammo from enemies.** A worm arrow that misses (a wall, the end of its flight) lies where it ended
   for `arrowLifeMs` (12 s, fading at the end) and can be sucked in and thrown back (it pierces); the
   shots that stay, their material and picture size are `ammo.spentShots`. A Worm Brawler's blow
@@ -177,8 +196,8 @@ switched off; the rules (weights, effects, what a throw reaches) hold either way
   of a live enemy within `rangePx` (320) of the slime's feet, on the slime's height level with no
   wall between, flies straight at the feet of the one closest to the aim (the throw's ground track
   runs from the slime's feet, so it meets the enemy's).
-- **Hints.** The attack and charge hints never show; the barred gate's hint names the ability key
-  and the Spear.
+- **Hints.** The attack and charge hints show again (the charge's says nothing of energy); the barred
+  gate's hint names the attack key.
 
 ## The throw's feel (2026-11-16)
 
@@ -428,7 +447,7 @@ Its numbers are `weightCue` below. Pictures: `godot/tools/render_yoi_home.gd --s
 
 ## Data (`gulp.throwCombat` in game-constants.json)
 
-`enabled`, `throwDamage`, `playgroundLevel`, `weights.<light|medium|heavy>`
+`throwDamage`, `playgroundLevel` (`enabled`, the switch, went on 2026-11-25), `weights.<light|medium|heavy>`
 (`damageScale`, `rangeScale`, `speedScale`, `radiusScale`, `holdingSpeed`, `hitClass`; the
 weight's level is its place in that order), `kindWeights`, `materialEffects`, `kindEffects`,
 `effects.<id>` (`hitClass`, `lookMs`, `damageScale`, `radiusScale`, `pierceTargets`, `slowMs`,
@@ -467,7 +486,7 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 
 | File | What it does |
 |---|---|
-| `game/throw/throw_mode.gd` | the mode, the Gulp's level, weights, effects (`weight_in`, `effect_in` for the editor too), the aim help, shape-power ids |
+| `game/throw/throw_mode.gd` | the throw rules (always on): the Gulp's level, weights, effects (`weight_in`, `effect_in` for the editor too), the aim help |
 | `game/throw/throw_feel.gd` | the reworked feel's switch and numbers (`is_on`, `toggle`, `hit_block(weight)`, `look_px`, `cue`) |
 | `game/throw/throw_impact.gd` | the star burst and ring at the contact point, the puff at the mouth (code-drawn, real time) |
 | `game/player/gulp/break_burst.gd`, `gulp_feel.gd` | the shards by cause (`burst(..., options)`); the thrower's strong stretch, lunge and recoil |
@@ -484,22 +503,20 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 | `game/enemy/dung_ball.gd` | the Dung Roller's ball: suckable on the beetle and lying on the ground; `lay` and `broke` are called by the throw's end (thrown_object.gd `_finish`, `_lay_ball`) and the mouth's `drop` |
 | `game/throw/throw_ammo.gd` | the Brawler's rocks (where a body fits); `spawn_liftable` for any liftable at run time |
 | `game/throw/throw_testbed.gd` | the playground's throw yard and its keys |
-| `game/main.gd` | `decide_throw_mode` (with the rework mode), the yard, `throw_combat` (the test runner's switch) |
+| `game/main.gd` | `apply_gulp_session` (the session's Gulp level and aim help), the yard |
 | `game/scripts/liftable.gd`, `liftable_root.gd` | `can_take` by weight (`ThrowMode.can_lift`), `weight`, `is_too_heavy`; the root's `weight` in the Inspector |
 | `game/player/gulp/mouth.gd`, `mouth_hold.gd` | the "Too heavy" line, the aim help on the throw; mouth_hold.gd makes the weight cue and asks for its strain |
 | `game/throw/weight_cue.gd` | the weight cue: the ring and pips over the thing in reach, the "too heavy" pip, the strain |
 | `game/player/gulp/thrown_object.gd` | weight and effect on the flight and the break, pierce, the looks, only what it reaches (`_targets`), the knockback distance on the hit (`knock_px`) |
 | `game/combat/reactions/enemy_reactions.gd` | the knockback slide of a throw that hurts (`_knock_slide`, `slide_decay_of`) |
 | `game/player/abilities/ability_world.gd` | `hurtboxes_in_reach` (its level, no wall between), `clear_line`, `body_level` |
-| `game/scripts/player.gd` | no attack (a click on an enemy walks there), the climb strike on Q, holding speed by weight, E opens the ability carousel, a shape power's status |
-| `game/shell/ability_carousel.gd` | the carousel window (E): the learned box abilities in a row, picked with Space or Enter |
-| `game/shapes/shape_controller.gd` | `power_strike(id)`: a shape's charge at once, for its energy |
-| `game/player/abilities/ability_box.gd` | shapes in the box, `choose` (the carousel's pick), `title`, their cost and use |
-| `game/ui/body_cards.gd`, `screens/inventory_screen.gd`, `ability_bar.gd`, `weapon_hotbar.gd` | the bag and HUD for shape powers |
-| `game/hints/control_hints.gd` | no attack hints; the bars hint names the ability key |
+| `game/scripts/player.gd` | holding speed by weight (the attack, E and the climb strike are the body-shapes game's) |
+| `game/shapes/shape_controller.gd` | `fire_charge(id)`: a shape's charge at once, for the film tools (in play only the ring's release) |
+| `game/player/abilities/ability_box.gd` | `choose` (the bag's pick, named over the slime) |
 | `game/scripts/projectile.gd`, `game/scripts/enemy.gd` | the spent arrow; the Brawler's rock |
 | `game/shapes/shapes_testbed.gd` | the Archer and the Brawler in the pen |
-| `tests/test_throw_combat.gd` | the mode's tests (the runner keeps the mode off for every other test) |
+| `tests/test_throw_combat.gd` | the throw rules' tests, the attack beside them, a free charge, the bag's pick, the weapon scale |
+| `tools/film_one_combat.gd`, `scripts/godot/one-combat-sheet.py` | the one combat's film (five checks) and its strip and GIF |
 
 ## Status and open points
 
@@ -526,11 +543,10 @@ make ammo) is a first guess to tune by playing.
 
 Open points for the owner:
 
-- **Bosses.** Fatty One Eye's eye takes only Spear hits, so in this mode only the Spear's power
-  (15 energy) hurts it; his falling rocks are the ammo for the dazes. The Crystal Colossus also
-  takes only Spear hits: the Spear's power on his weak spot and his back, and the Feral skin's climb
-  strike (Q here) on his claws while he clings. The bosses need throw-first patterns (throwing
-  their own things back, Zelda style).
+- **Bosses** (2026-11-25: one combat): their Spear hits are weapon hits again, on A, at half damage
+  and free; a thrown thing on Fatty's eye, the Matron's cocoon and the Colossus's bare crystal stays
+  half of `shapes.spear.baseDamage` (6), now close to a jab (7). Each is re-filmed and tuned in the
+  plan's piece 6.
 - **The prologue.** Yoi's lesson still talks about attacking; the barred gate's lever needs a hit
   tagged `spear`, which the Lunge should carry (not checked by playing).
 - **Gulp upgrades in the story**: where `gulp-lift-medium` and `gulp-lift-heavy` are found.

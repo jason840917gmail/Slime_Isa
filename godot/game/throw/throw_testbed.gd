@@ -1,9 +1,8 @@
 extends Node
-## The throw yard (throw-combat experiment, docs/godot/THROW_COMBAT.md): in the playground, while
-## the throw mode is on, main.gd adds it under the world root beside the ShapesTestbed. It lays two
-## columns of liftables inside the shapes testbed's enemy pen (its top stays open to walk in), so
-## there is always something to throw at its enemies (the pen gets the Worm Archer and the Worm
-## Brawler too in this mode):
+## The throw yard (docs/godot/THROW_COMBAT.md): in the playground main.gd adds it under the world root
+## beside the ShapesTestbed. It lays two columns of liftables inside the shapes testbed's enemy pen (its
+## top stays open to walk in), so there is always something to throw at its enemies (the pen has the
+## Worm Archer and the Worm Brawler too):
 ## - **the left column**, light things (Gulp 1): a pot, a jar of honey (stick), a puffball (sleep),
 ##   a snowball (freeze), a glass float (shatter), a rock (sturdy: with the rebound prototype it
 ##   bounces off and can be caught; it stood in for the toadstool, a second sleep thing, on
@@ -75,7 +74,7 @@ func _ready() -> void:
 
 
 func _spawn_yard() -> void:
-	if not ThrowMode.is_on() or not slots.is_empty():
+	if not slots.is_empty():
 		return
 	var world := Services.world()
 	var parent: Node = world.entities_root() if world != null else null
@@ -98,7 +97,7 @@ func _spawn_yard() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if slots.is_empty() or not ThrowMode.is_on():
+	if slots.is_empty():
 		return
 	var now := Services.now_ms()
 	for slot: Dictionary in slots:
@@ -114,8 +113,7 @@ func _physics_process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo or not ThrowMode.is_on() \
-			or (key.keycode != LEVEL_KEY and key.keycode != FEEL_KEY):
+	if key == null or not key.pressed or key.echo or (key.keycode != LEVEL_KEY and key.keycode != FEEL_KEY):
 		return
 	get_viewport().set_input_as_handled()
 	if key.keycode == FEEL_KEY and key.ctrl_pressed:

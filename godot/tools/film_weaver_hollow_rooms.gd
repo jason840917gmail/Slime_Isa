@@ -779,7 +779,7 @@ func _warden_ram() -> void:
 		_push(&"move_right", false)
 		await _run(2)
 		var shapes: Node = _main.get(&"shapes")
-		var struck := str(shapes.call(&"power_strike", &"shape-spear")) if shapes != null else "no shapes"
+		var struck := str(shapes.call(&"fire_charge", &"shape-spear")) if shapes != null else "no shapes"
 		print("warden: the Spear's strike: ", struck, "; the Warden ", warden.call(&"get_damage_state"), " knocked ", warden.call(&"is_knocked"),
 			"; the slime at ", _feet(), " he at ", (warden.get(&"body") as Node2D).global_position)
 		await _run(60)

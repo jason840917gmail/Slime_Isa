@@ -200,8 +200,7 @@ func step(now_ms: float, held: bool) -> void:
 	if not _can_act():
 		return
 	# The weight cue follows the slime on its own once made (one per world).
-	if ThrowMode.is_on():
-		WeightCue.ensure()
+	WeightCue.ensure()
 	_mouth.update(now_ms, held, _aim())
 	if _burst_on:
 		_end_empty_burst(now_ms)
@@ -430,9 +429,8 @@ func _judge_essence() -> void:
 ## Throws the liftable held, or spits the essence held out whole, along the aim.
 func _throw() -> void:
 	var aim := _aim()
-	# Throw combat: the aim help (off unless switched on) bends the throw onto a near enemy.
-	if ThrowMode.is_on():
-		aim = ThrowMode.assist(aim, _body())
+	# The aim help (off unless switched on) bends the throw onto a near enemy.
+	aim = ThrowMode.assist(aim, _body())
 	_player.call(&"face", aim)
 	# The new throw feel: a liftable's throw locks the slime for `thrower.lockMs` only.
 	var lock_ms := -1.0
@@ -469,8 +467,6 @@ func _puff() -> void:
 ## Throw combat: an empty burst with a liftable in reach that the Gulp's level cannot lift says so
 ## (and the refusal cue plays), and the thing strains (the weight cue's `strain`).
 func _say_too_heavy() -> void:
-	if not ThrowMode.is_on():
-		return
 	var heavy := _mouth.find_too_heavy(_aim())
 	if heavy == null:
 		return

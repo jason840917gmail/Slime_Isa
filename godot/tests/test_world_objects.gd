@@ -1,9 +1,11 @@
 extends RefCounted
 ## Resource nodes, drops, collectibles and the inventory (docs/godot/specs/world-objects.md 12.9).
-## level-1 objects: `level-1-tree-004` (grove tree, 40 HP, base (527.25, 1254.95)),
-## `level-1-stone-node-01` (80 HP, (1069.39, 184)), `level-1-loose-wood-04` (wood pile of 10 at
-## (455.25, 1187.9)), `level-1-purple-berry-03` ((550.4, 1363.2)). Router-level hits use a stand-in
-## activation (one per hit) so the damage is exact: a stone axe does 14 (base 12 x 1.2).
+## level-1 objects: `level-1-tree-004` (grove tree, 40 HP, base (1685, 1481) since the village chunk
+## was repainted) and `level-1-purple-berry-03` ((227, 1234)). The repaint left no wood pile or stone
+## node in the chunk, so the tests that need one place their own at run time (`_place_wood_pile`,
+## `_place_stone_node`: the game's `collectible-wood-pile` and `resource-stone-node` scenes, a pile of
+## 10 and a node of 80 HP): their rules do not depend on the painting. Router-level hits use a
+## stand-in activation (one per hit) so the damage is exact: a stone axe does 14 (base 12 x 1.2).
 ## level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md "Chunk worlds"): all of these are in
 ## the village chunk C4 (`level-1-c4`, its origin at level-1's (0, 0)), and their records are keyed
 ## by it.
@@ -17,14 +19,20 @@ const ResourceRespawn := preload("res://game/world_objects/resource_respawn.gd")
 const ResourceDrops := preload("res://game/world_objects/resource_drops.gd")
 const ResourceNodeScript := preload("res://game/scripts/resource_node.gd")
 const CollectibleScript := preload("res://game/scripts/collectible.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const TREE := "level-1-tree-004"
-const TREE_BASE := Vector2(527.25, 1254.95)
-const STONE := "level-1-stone-node-01"
-const WOOD_PILE := "level-1-loose-wood-04"
-const WOOD_PILE_AT := Vector2(455.25, 1187.9)
+const TREE_BASE := Vector2(1685.0, 1481.0)
+## The stone node and the wood pile the tests place (ids of their own, keyed by the chunk).
+const STONE := "test-stone-node"
+const STONE_SCENE := "object.resource-stone-node"
+const WOOD_PILE := "test-wood-pile"
+const WOOD_PILE_OBJECT := "collectible.wood-pile"
+const WOOD_PILE_AMOUNT := 10
+## Where they go, from the player's centre at the start (open village ground east of it).
+const PLACE_OFFSET := Vector2(160.0, 0.0)
 const BERRY := "level-1-purple-berry-03"
-const BERRY_AT := Vector2(550.4, 1363.2)
+const BERRY_AT := Vector2(227.0, 1234.0)
 ## Player pickup rect centre = old Phaser centre + (0, 14.56) (player_slime.tscn PickupShape).
 const PICKUP_OFFSET := Vector2(0.0, 14.56)
 const AXE_TAGS := ["harvest:wood:1", "weapon"]
@@ -158,8 +166,8 @@ func test_axe_fells_tree_and_drops_wood(t: TestContext) -> void:
 
 func test_stone_needs_pickaxe_and_forgets_damage(t: TestContext) -> void:
 	var run := Services.run()
-	var stone := _resource(t, STONE)
-	if not t.check(stone != null, "no %s" % STONE):
+	var stone := _place_stone_node(t)
+	if not t.check(stone != null, "could not place %s" % STONE):
 		return
 	var blocked: Array = []
 	stone.harvest_blocked.connect(func(payload: Dictionary) -> void: blocked.append(payload))
@@ -182,13 +190,13 @@ func test_stone_needs_pickaxe_and_forgets_damage(t: TestContext) -> void:
 func test_walk_over_pickup(t: TestContext) -> void:
 	var run := Services.run()
 	_fill(run, 0, {})
-	var pile := _collectible(t, WOOD_PILE)
-	if not t.check(pile != null, "no %s" % WOOD_PILE):
+	var pile := _place_wood_pile(t)
+	if not t.check(pile != null, "could not place %s" % WOOD_PILE):
 		return
 	var results: Array = []
 	pile.pickup_resolved.connect(func(payload: Dictionary) -> void: results.append(payload))
 	var pile_root := pile.get_parent()
-	t.teleport_player(WOOD_PILE_AT - PICKUP_OFFSET)
+	t.teleport_player((pile_root as Node2D).global_position - PICKUP_OFFSET)
 	await t.until(func() -> bool: return not results.is_empty(), 300.0)
 	if not t.check(results.size() == 1, "%d pickup results" % results.size()):
 		return
@@ -201,12 +209,12 @@ func test_walk_over_pickup(t: TestContext) -> void:
 func test_inventory_full_keeps_pile(t: TestContext) -> void:
 	var run := Services.run()
 	_fill(run, 20, {})
-	var pile := _collectible(t, WOOD_PILE)
-	if not t.check(pile != null, "no %s" % WOOD_PILE):
+	var pile := _place_wood_pile(t)
+	if not t.check(pile != null, "could not place %s" % WOOD_PILE):
 		return
 	var results: Array = []
 	pile.pickup_resolved.connect(func(payload: Dictionary) -> void: results.append(payload))
-	t.teleport_player(WOOD_PILE_AT - PICKUP_OFFSET)
+	t.teleport_player((pile.get_parent() as Node2D).global_position - PICKUP_OFFSET)
 	await t.until(func() -> bool: return not results.is_empty(), 300.0)
 	if not t.check(results.size() == 1, "%d pickup results" % results.size()):
 		return
@@ -270,19 +278,29 @@ func test_records_restore_on_reload(t: TestContext) -> void:
 	ResourceRespawn.epoch_override_ms = -1.0
 
 
-## A real stone-axe swing on the tree (weapon, sector, router): 14 per hit, no hit-stop.
-func test_stone_axe_swing_end_to_end(t: TestContext) -> void:
+## A real War Axe sweep on the tree (the body-shapes mode is on in every world, so the attack key
+## swings the current shape, not a weapon: docs/godot/BODY_SHAPES.md "War Axe", "Trees: the Axe chops
+## (harvest wood 1)"): one accepted hit of the sweep's damage (the shape's base x the attack stat, x its
+## `wood` target modifier; x the crit multiplier on a crit), and no hit-stop (resources show their own
+## hit: ShapeStrike.feel_swing).
+func test_war_axe_sweep_end_to_end(t: TestContext) -> void:
 	var tree := _resource(t, TREE)
 	if not t.check(tree != null, "no %s" % TREE):
 		return
-	var combat = t.player().get_combat()
-	if not t.check(combat.equip("stone-axe"), "could not equip the stone axe"):
+	var run := Services.run()
+	run.learn_ability(String(ShapeDefs.AXE), true)
+	var shapes := t.player().get_shapes()
+	if not t.check(shapes != null, "the player has no ShapeController"):
+		return
+	shapes.sync_learned()
+	if not t.check(shapes.set_current(ShapeDefs.AXE), "could not make the War Axe current"):
 		return
 	await t.steps(2)
 	var routes: Array = []
 	t.listen(Services.router().routed, func(payload: Dictionary) -> void:
-		if (payload.get("request", {}) as Dictionary).get("target_area") == tree.damage_area:
-			routes.append(payload.get("result", {})))
+		var request: Dictionary = payload.get("request", {})
+		if request.get("target_area") == tree.damage_area:
+			routes.append({"request": request, "result": payload.get("result", {})}))
 	var paused := {"seen": false}
 	t.teleport_player(TREE_BASE + Vector2(-60.0, -30.0))
 	t.player().face(Vector2.RIGHT)
@@ -290,14 +308,20 @@ func test_stone_axe_swing_end_to_end(t: TestContext) -> void:
 	await t.until(func() -> bool:
 		paused["seen"] = paused["seen"] or t.tree.paused
 		return not routes.is_empty(), 1000.0)
-	if not t.check(not routes.is_empty(), "the axe swing never reached the tree"):
+	if not t.check(not routes.is_empty(), "the War Axe sweep never reached the tree"):
 		return
-	var damage := int(routes[0].get("actual_damage", 0))
-	t.check(damage == 14 or damage == 25, "axe damage %d (expected 14, or 25 on a crit)" % damage)
-	# A crit (critChance 5 %) plays the critical-hit feel, hit-stop included, as the swing starts
-	# (player_combat.gd try_attack), whatever it hits: only a plain swing shows the tree adds none.
-	if damage == 14:
-		t.check(not paused["seen"], "a tree hit paused the game (hit-stop)")
+	var request: Dictionary = routes[0]["request"]
+	var result: Dictionary = routes[0]["result"]
+	t.equal(request.get("weapon_id"), String(ShapeDefs.AXE), "the hit's weapon")
+	t.check((request.get("weapon_tags", []) as Array).has("harvest:wood:1"), "the sweep carries no harvest:wood:1 (%s)" % [request.get("weapon_tags")])
+	t.equal(result.get("status"), "accepted", "the sweep's hit on the tree")
+	var plain := roundi(ShapeDefs.damage(ShapeDefs.AXE, 1.0) * ShapeDefs.target_modifier(ShapeDefs.AXE, tree.tags))
+	var crit := roundi(ShapeDefs.damage(ShapeDefs.AXE, 1.0) * ShapeDefs.crit_multiplier() * ShapeDefs.target_modifier(ShapeDefs.AXE, tree.tags))
+	var damage := int(result.get("actual_damage", 0))
+	t.check(plain > 0 and (damage == plain or damage == crit), "axe damage %d (expected %d, or %d on a crit)" % [damage, plain, crit])
+	t.equal(tree.get_damage_state()["hp"], tree.max_health - float(damage), "tree HP after the sweep")
+	await t.steps(2)
+	t.check(not paused["seen"], "a tree hit paused the game (hit-stop)")
 
 
 func test_purple_berry_coins(t: TestContext) -> void:
@@ -314,9 +338,9 @@ func test_purple_berry_coins(t: TestContext) -> void:
 ## The pickup bounce (owner decision 2026-10-05): a walk-over pile hops about 6 world px now and then
 ## and settles back where it was; a resource node never moves.
 func test_pickups_bounce_and_resource_nodes_stay_still(t: TestContext) -> void:
-	var pile := _collectible(t, WOOD_PILE)
-	var stone := _resource(t, STONE)
-	if not t.check(pile != null and stone != null, "no %s or %s" % [WOOD_PILE, STONE]):
+	var pile := _place_wood_pile(t)
+	var stone := _place_stone_node(t, Vector2(0.0, 160.0))
+	if not t.check(pile != null and stone != null, "could not place %s or %s" % [WOOD_PILE, STONE]):
 		return
 	var visual := pile.get_parent().get_node(^"Visual") as Sprite2D
 	var stone_visual := stone.get_parent().get_node(^"Visual") as Sprite2D
@@ -351,6 +375,33 @@ func _collectible(t: TestContext, instance_id: String) -> CollectibleScript:
 				and not script.get_parent().is_queued_for_deletion():
 			return script
 	return null
+
+
+## Places an authored-like wood pile of 10 (no source node) at the player's centre + `offset`, the
+## way the game spawns a pile (ResourceDrops.spawn_pile), already landed.
+func _place_wood_pile(t: TestContext, offset: Vector2 = PLACE_OFFSET) -> CollectibleScript:
+	var at := t.player().get_centre() + offset
+	var root := ResourceDrops.spawn_pile(WOOD_PILE_OBJECT, WOOD_PILE, MAP_ID, WOOD_PILE_AMOUNT, "", at, null, 0)
+	return _collectible(t, WOOD_PILE) if root != null else null
+
+
+## Places a stone node (80 HP) at the player's centre + `offset` in the world's entities root.
+func _place_stone_node(t: TestContext, offset: Vector2 = PLACE_OFFSET) -> ResourceNodeScript:
+	var world := Services.world()
+	var parent := world.entities_root()
+	var root := world.instantiate_scene(STONE_SCENE) as Node2D
+	if root == null or parent == null:
+		return null
+	var script := root.get_node_or_null(^"ResourceNodeScript") as ResourceNodeScript
+	if script == null:
+		root.free()
+		return null
+	script.map_id = MAP_ID
+	script.instance_id = STONE
+	root.position = parent.to_local(t.player().get_centre() + offset)
+	parent.add_child(root)
+	root.reset_physics_interpolation()
+	return script
 
 
 ## One weapon hit through the router with its own activation.

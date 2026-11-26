@@ -1,9 +1,11 @@
 extends RefCounted
 ## Tom in the web (docs/godot/specs/quests.md 14.3 "Tom's Goo Bomb", 14.6): the web holding Tom
-## (`object.tom-web`, in his clearing in gloop-forest E5 at (736, 1440)) tears under weapon hits only,
+## (`object.tom-web`, `RiverRoads/tom-web` in his hollow under a rock ledge in gloop-forest E3 at
+## (416, 396.8), since River Roads, 2026-11-21: docs/design/2026-11-21-gloop-river-roads.md) tears
+## under weapon hits only,
 ## with no quest to wait for; torn, it frees Tom (`tom-freed`) and his lesson plays right there
 ## (game/scripts/tom_lesson.gd: the slime held, his lines, the Goo Bomb learned, `tom.goo-bomb-taught`),
-## and he waits at Mossy's camp (E4). A run that tore the web without the lesson learns it from Tom
+## and he waits at Mossy's camp (E4, south over the creek). A run that tore the web without the lesson learns it from Tom
 ## at the camp (his `goo-bomb-lesson` talk).
 ## Rewritten 2026-11-20: Mossy's quest "Tom in the Web" and Tom's Swallow lesson are retired (the
 ## old tests of the quest gate and of Swallow are gone).
@@ -12,19 +14,19 @@ const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
 const QuestNpcTalk := preload("res://game/quests/quest_npc_talk.gd")
 
-const MAP_ID := "gloop-forest-e5"
+const MAP_ID := "gloop-forest-e3"
 ## The camp's chunk, where Tom shows once freed.
 const CAMP_MAP := "gloop-forest-e4"
 const FLAG := "tom-freed"
 const TAUGHT := "tom.goo-bomb-taught"
 const GOO_BOMBS := "goo-bombs"
-const WEB := Vector2(736.0, 1440.0)
+const WEB := Vector2(416.0, 396.8)
 
 
 func test_the_web_tears_only_under_weapon_hits(t: TestContext) -> void:
 	var run := Services.run()
 	var web := _web(t)
-	if not t.check(web != null, "no Tom's web in gloop-forest E5"):
+	if not t.check(web != null, "no Tom's web in gloop-forest E3"):
 		return
 	t.teleport_player(WEB + Vector2(0.0, 80.0))
 	await t.steps(2)
@@ -44,7 +46,7 @@ func test_tearing_the_web_teaches_the_goo_bomb_and_tom_goes_to_the_camp(t: TestC
 	var quests: Node = t.main.quests
 	t.check(not run.has_learned_ability(GOO_BOMBS), "the Goo Bomb is known before Tom's lesson")
 	var web := _web(t)
-	if not t.check(web != null, "no Tom's web in gloop-forest E5"):
+	if not t.check(web != null, "no Tom's web in gloop-forest E3"):
 		return
 	var lesson := web.get_parent().get_node("TomLesson")
 	t.teleport_player(WEB + Vector2(0.0, 80.0))

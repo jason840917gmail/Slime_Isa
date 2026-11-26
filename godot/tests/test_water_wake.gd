@@ -2,14 +2,14 @@ extends RefCounted
 ## Water at the feet (docs/godot/specs/water.md "Wading", game/world/water_wake.gd).
 ## - The player in shallow water shows the wading splash; on land, nothing.
 ## - The splash animates: its frame changes while the slime walks through the water.
-## - A body in the air (the jump) shows nothing until it lands in the water again.
 ## - Enemies splash too.
+## (A body in the air shows nothing either; the player's jump that test drove is gone: hidden since
+## 2026-10-08, nothing teaches it and no key runs it, player.gd `record_landing`.)
 ##
 ## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
 ## docs/godot/WORLD_ATLAS.md), chunk row 15: shallow water at x = 10..13, land at x = 16..19.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
-const Services := preload("res://game/shared/services.gd")
 const WaterWake := preload("res://game/world/water_wake.gd")
 
 const MAP_ID := "level-1-c5"
@@ -25,7 +25,21 @@ func test_the_player_splashes_in_shallow_water_only(t: TestContext) -> void:
 		return
 	var body := t.player_body()
 	t.check(body.has_node(^"WaterWakeBack") and body.has_node(^"WaterWakeFront"), "the player has its wake sprites")
-	t.equal(body.get_child(0).name, &"WaterWakeBack", "the ring's back half is drawn first, behind the art")
+	# The back half is drawn before the slime's art (behind it), the front half after it. (The
+	# body-shapes mode's charge ring, ShapeChargeRing, is the body's first child since 2026-10-24:
+	# BODY_SHAPES.md "shape_visuals.gd"; both lie behind the art.)
+	var art: Node = t.player().visual
+	while art != null and art.get_parent() != body:
+		art = art.get_parent()
+	if not t.check(art != null, "the slime's art is not under its body"):
+		return
+	var visual_index := art.get_index()
+	t.check(body.get_node(^"WaterWakeBack").get_index() < visual_index,
+		"the ring's back half is not drawn behind the art (index %d, the Visual's %d)" % [
+			body.get_node(^"WaterWakeBack").get_index(), visual_index])
+	t.check(body.get_node(^"WaterWakeFront").get_index() > visual_index,
+		"the ring's front half is not drawn in front of the art (index %d, the Visual's %d)" % [
+			body.get_node(^"WaterWakeFront").get_index(), visual_index])
 	t.teleport_player(_centre(SHALLOW))
 	await t.steps(3)
 	t.equal(wake.row_of(body), WaterWake.WADE_ROW, "wading splash in shallow water")
@@ -48,27 +62,6 @@ func test_the_splash_animates_while_walking(t: TestContext) -> void:
 			columns[int(front.region_rect.position.x / WaterWake.CELL.x)] = true
 	t.release_all()
 	t.check(columns.size() >= 3, "the splash showed %d of its 4 frames in half a second of wading" % columns.size())
-
-
-func test_no_splash_while_jumping(t: TestContext) -> void:
-	var wake := _wake(t)
-	var player := t.player()
-	var body := t.player_body()
-	Services.run().learn_ability("jump", true)
-	t.teleport_player(_centre(SHALLOW))
-	await t.steps(3)
-	t.press(&"move_right")
-	await t.steps(1)
-	t.tap(&"jump")
-	if not t.check(await t.until(func() -> bool: return player.is_airborne(), 200.0), "the jump did not start"):
-		t.release_all()
-		return
-	t.release_all()
-	await t.steps(2)
-	t.equal(wake.row_of(body), WaterWake.NO_ROW, "no splash in the air")
-	await t.until(func() -> bool: return not player.is_airborne(), 1500.0)
-	await t.steps(2)
-	t.equal(wake.row_of(body), WaterWake.WADE_ROW, "the splash is back on landing in the water")
 
 
 func test_enemies_splash_too(t: TestContext) -> void:

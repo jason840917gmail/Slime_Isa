@@ -361,7 +361,7 @@ func _film_target_refuse() -> void:
 	_still_camera(target.global_position + Vector2(60.0, -110.0))
 	await _run(20)
 	var shapes: Node = _main.get(&"shapes")
-	_notes["spear"] = str(shapes.call(&"power_strike", &"shape-spear")) if shapes != null else "no shapes"
+	_notes["spear"] = str(shapes.call(&"fire_charge", &"shape-spear")) if shapes != null else "no shapes"
 	await _run(70)
 	_notes["after_spear"] = str(target.call(&"state_name"))
 	# its body: a walk into the post
@@ -735,7 +735,7 @@ func _probe_calls(probe: Node) -> Array:
 ## The Spear's strike the way the slime faces. Returns the shapes' answer.
 func _spear() -> String:
 	var shapes: Node = _main.get(&"shapes")
-	return str(shapes.call(&"power_strike", &"shape-spear")) if shapes != null else "no shapes"
+	return str(shapes.call(&"fire_charge", &"shape-spear")) if shapes != null else "no shapes"
 
 
 ## The Goo Bomb chosen in the Ability Box and cast facing `way`: the cast, then the spit. Returns

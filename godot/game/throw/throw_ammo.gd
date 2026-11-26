@@ -35,8 +35,6 @@ const USES_META := &"throw_uses"
 ## popped.
 static func knock_loose(enemy_type: String, feet: Vector2, direction: Vector2,
 		level: int = AbilityWorld.ANY_LEVEL) -> bool:
-	if not ThrowMode.is_on():
-		return false
 	var constants := Services.constants()
 	if constants == null:
 		return false

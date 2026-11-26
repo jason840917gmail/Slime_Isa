@@ -3,8 +3,9 @@ extends RefCounted
 ## built" -> The Goo Bomb's locks; roadmap 7.10), in the playground (classic: its Bomb corner takes
 ## itself out, so the pieces are spawned by hand on open ground):
 ## - a blast breaks cracked ground (game/scripts/cracked_ground.gd), and the playground's sinkhole
-##   leads down to `playground-cavern`; the Stone form's Squash Slam still breaks it; the creak hint
-##   names a blast once the bomb is learned;
+##   leads down to `playground-cavern`; the Squash Slam with the Heavy skin still breaks it; the
+##   creak hint names a blast once the bomb is learned (BODY_SHAPES.md "Input": with the Goo Bomb
+##   chosen in the Ability Box it names F, with another box ability it says to choose the bomb);
 ## - a cracked floor (`object.cracked-floor`, cracked_floor.gd) blown by a bomb is a one-way fall
 ##   into another world, landing on its landing there, or with none named on its spawn (door.gd
 ##   `target_door_id`);
@@ -26,6 +27,9 @@ const GooBlast := preload("res://game/player/abilities/goo_blast.gd")
 const CrackedGround := preload("res://game/scripts/cracked_ground.gd")
 const DoorScriptType := preload("res://game/scripts/door.gd")
 const AreaTravel := preload("res://game/world/area_travel.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
+const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
 
 const MAP_ID := "playground"
 const OPEN := Vector2(1280.0, 1536.0)
@@ -71,7 +75,7 @@ func test_a_blast_breaks_cracked_ground_and_its_sinkhole_leads_down(t: TestConte
 	var door := AreaTravel.find_door(t.world().world_root, "playground-sinkhole")
 	if not t.check(door != null, "no sinkhole door after the break"):
 		return
-	await _walk_into(t, door)
+	await _walk_down_onto(t, door)
 	var travelled := await t.until(func() -> bool: return t.in_world(CAVERN) and t.player() != null, 5000.0, 12000.0)
 	t.release_all()
 	t.check(travelled, "the sinkhole did not lead down to %s" % CAVERN)
@@ -87,16 +91,19 @@ func test_a_blast_out_of_reach_leaves_it(t: TestContext) -> void:
 	t.check(not run.has_flag(CRACK_FLAG), "a blast whose ellipse missed it broke the cracked ground")
 
 
-## The Heavy skin's slam (presses_plates since roadmap 7.8, the Stone form's before).
+## The Heavy skin's slam (presses_plates since roadmap 7.8, the Stone form's before): the Squash
+## Slam is a box ability, used with `ability_use` (F) in the body-shapes mode.
 func test_the_heavy_slam_still_breaks_cracked_ground(t: TestContext) -> void:
 	var run := Services.run()
-	run.learn_ability("squash-slam")
+	run.learn_session_ability(String(AbilityDefinitions.SQUASH_SLAM))
+	if not t.check(AbilityBox.select(t.player(), AbilityDefinitions.SQUASH_SLAM), "could not choose the Squash Slam in the Ability Box"):
+		return
 	SkinState.lend(SkinState.HEAVY)
 	t.teleport_player(CRACKED + Vector2(0.0, 20.0))
 	await t.steps(3)
 	t.check(not run.has_flag(CRACK_FLAG), "standing with the Heavy skin cracked the ground")
-	t.tap(&"squash_slam")
-	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 1000.0)
+	t.tap(&"ability_use")
+	await t.until(func() -> bool: return run.has_flag(CRACK_FLAG), 2000.0)
 	t.check(run.has_flag(CRACK_FLAG), "a Squash Slam with the Heavy skin no longer cracks the ground")
 
 
@@ -104,8 +111,20 @@ func test_the_creak_names_a_blast_once_the_bomb_is_learned(t: TestContext) -> vo
 	var player := t.player()
 	t.equal(CrackedGround.creak_text(false, player, false), CrackedGround.CREAK_TEXT,
 		"the creak with nothing learned")
-	var blast := CrackedGround.creak_text(true, player, true)
-	t.check(blast.contains("blast") and not blast.contains("slam"), "the creak with the bomb learned: '%s'" % blast)
+	var run := Services.run()
+	run.learn_session_ability(String(AbilityDefinitions.SQUASH_SLAM))
+	run.learn_session_ability(String(AbilityDefinitions.GOO_BOMBS))
+	var use_key := ControlLabels.control_label(AbilityBox.key_action(AbilityDefinitions.GOO_BOMBS))
+	# The Goo Bomb chosen: the creak names a blast and its key.
+	if t.check(AbilityBox.select(player, AbilityDefinitions.GOO_BOMBS), "could not choose the Goo Bomb in the Ability Box"):
+		var blast := CrackedGround.creak_text(true, player, true)
+		t.equal(blast, CrackedGround.CREAK_BLAST_TEXT % use_key, "the creak with the bomb chosen")
+		t.check(blast.contains("blast") and not blast.contains("slam"), "the creak with the bomb chosen: '%s'" % blast)
+	# Another box ability chosen: it says to choose the bomb in the bag, then the use key.
+	if t.check(AbilityBox.select(player, AbilityDefinitions.SQUASH_SLAM), "could not choose the Squash Slam in the Ability Box"):
+		t.equal(CrackedGround.creak_text(true, player, true),
+			CrackedGround.CREAK_CHOOSE_BOMB_TEXT % [ControlLabels.control_label(&"menu"), use_key],
+			"the creak with the bomb learned and the Slam chosen")
 
 
 func test_a_cracked_floor_drops_one_way_into_another_world(t: TestContext) -> void:
@@ -321,6 +340,21 @@ func _cracked_ground_near(t: TestContext, at: Vector2) -> Node:
 		if root != null and root.global_position.distance_to(at) < 8.0:
 			return node
 	return null
+
+
+## Stands the slime's body just north of `door`'s solid rim (its `trigger_shape`, the hole's wall: a
+## hole is walked into from outside, door.gd `is_pushing`) and walks it down against it.
+func _walk_down_onto(t: TestContext, door: Node) -> void:
+	var shape := door.get(&"trigger_shape") as CollisionShape2D
+	if shape == null or shape.shape == null:
+		await _walk_into(t, door)
+		return
+	var top := shape.global_position.y - shape.shape.get_rect().size.y * 0.5
+	var rect := DoorScriptType._body_rect(t.player_body())
+	var bottom_offset := rect.end.y - t.player().get_centre().y
+	t.teleport_player(Vector2(shape.global_position.x, top - 24.0 - bottom_offset))
+	await t.steps(1)
+	t.press(&"move_down")
 
 
 ## Puts the slime's body centre just above the middle of `door`'s doorway and walks it down through.

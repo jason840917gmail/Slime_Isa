@@ -8,6 +8,7 @@ extends RefCounted
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const SLOT := 3
 const SPOT := Vector2(768.0, 832.0)
@@ -107,16 +108,12 @@ func test_respawn_at_bed_in_another_world(t: TestContext) -> void:
 	t.check(t.player().get_centre().distance_to(HOME_BED_WAKE) < 40.0, "not at the bed: %s" % [t.player().get_centre()])
 
 
-## A load in a running game refreshes the views main keeps across worlds: the HUD weapon belt and
-## the quest tracker show the loaded run, not the one before it.
+## A load in a running game refreshes the views main keeps across worlds: the HUD's Shape slot (the
+## weapon belt's place in the body-shapes mode, on in every world: it lists the learned shapes,
+## docs/godot/BODY_SHAPES.md "Ability Box and HUD") and the quest tracker show the loaded run, not
+## the one before it.
 func test_load_in_game_refreshes_the_hud_views(t: TestContext) -> void:
 	var run := Services.run()
-	await t.steps(2)
-	t.check(run.save_slot(SLOT), "save_slot failed")
-	run.add_item("stone-axe", 1)
-	run.set_weapon_slots(["basic-sword", "stone-axe", null, null])
-	# The main quest's second stage (the tracker shows its step; the loaded run is at the first).
-	t.main.quests.debug_activate("win-back-the-pearls", "pearl-2")
 	await t.steps(2)
 	var hotbar: Node = null
 	var tracker: Node = null
@@ -128,12 +125,33 @@ func test_load_in_game_refreshes_the_hud_views(t: TestContext) -> void:
 			tracker = child
 	if not t.check(hotbar != null and tracker != null, "no hotbar or tracker on the HUD"):
 		return
-	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "stone-axe", "belt slot 2 before the load")
+	var saved := _slot_shapes(hotbar)
+	t.check(run.save_slot(SLOT), "save_slot failed")
+	# Shapes learned after the save (the loaded run has not learned them).
+	var learned: Array[String] = []
+	for id: StringName in ShapeDefs.IDS:
+		if run.learn_ability(String(id), true):
+			learned.append(String(id))
+	if not t.check(not learned.is_empty(), "every shape was learned before the save"):
+		return
+	# The main quest's second stage (the tracker shows its step; the loaded run is at the first).
+	t.main.quests.debug_activate("win-back-the-pearls", "pearl-2")
+	await t.steps(2)
+	for id: String in learned:
+		t.check(_slot_shapes(hotbar).has(id), "the Shape slot does not list %s before the load" % id)
 	var before := str(tracker.call(&"model").get("step", ""))
 	t.check(t.main.load_run(SLOT), "load_run failed")
 	await t.steps(3)
-	t.equal(str(hotbar.call(&"model")["weapons"][1]["item_id"]), "", "belt slot 2 after the load")
+	t.equal(_slot_shapes(hotbar), saved, "the Shape slot's shapes after the load (the saved run's)")
 	t.check(str(tracker.call(&"model").get("step", "")) != before, "the tracker still shows the run before the load")
+
+
+## The shape ids the HUD's Shape slot lists (its model's entries).
+static func _slot_shapes(hotbar: Node) -> Array[String]:
+	var ids: Array[String] = []
+	for entry: Dictionary in hotbar.call(&"model").get("weapons", []):
+		ids.append(str(entry.get("shape_id", "")))
+	return ids
 
 
 ## A slot file without the run's sections is unreadable, not loadable (it would crash the load).

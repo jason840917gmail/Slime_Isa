@@ -63,7 +63,7 @@ head_angle = 90.0
 
 [sub_resource type="Resource" id="Resource_83sm1"]
 script = ExtResource("2_4j0gf")
-hit_reach = 110.0
+hit_reach = 137.5
 spear_inside = 10.509
 spear_fade = 5.006
 keys = Array[ExtResource("1_q3l26")]([SubResource("Resource_s7xqo"), SubResource("Resource_a3p0o"), SubResource("Resource_s6pfj"), SubResource("Resource_05phc"), SubResource("Resource_etvi6"), SubResource("Resource_2qkuu")])
@@ -167,7 +167,7 @@ head_angle = -90.0
 
 [sub_resource type="Resource" id="Resource_4c5oe"]
 script = ExtResource("2_4j0gf")
-hit_reach = 110.0
+hit_reach = 82.5
 spear_inside = 10.509
 spear_fade = 5.006
 keys = Array[ExtResource("1_q3l26")]([SubResource("Resource_0l6vr"), SubResource("Resource_pakjk"), SubResource("Resource_yxokg"), SubResource("Resource_x1e5h"), SubResource("Resource_smjay"), SubResource("Resource_vh5cq")])

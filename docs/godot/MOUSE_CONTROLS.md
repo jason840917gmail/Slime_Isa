@@ -2,19 +2,21 @@
 
 Branch `exp/mouse-controls`, started 2026-10-06. The owner wants the mouse to matter more on PC, the
 way it does in Diablo or Dota, or not at all. Five control schemes can be switched while playing,
-so they can be compared side by side. The keyboard scheme is the original game and stays the
-default.
+so they can be compared side by side. The keyboard scheme is the original game.
 
-**The winner so far: keys only** (owner, 2026-10-19: "the winner so far is keys only"). He plays
-with the `keys` scheme; the others stay switchable for now. Not yet made the default.
+**The winner: keys only** (owner, 2026-10-19: "the winner so far is keys only"; 2026-11-25: "keys
+only stays, the other schemes go"). It is the **default for a fresh settings file** since 2026-11-25
+(`GameSettings.DEFAULTS`, and so every test run); a saved choice stays. The other four schemes are
+still switchable until they are removed (piece 5 of
+[the one-combat plan](../design/2026-11-25-weapons-beside-throws.md)).
 
 | Scheme | Walk | Left click | Right click |
 |---|---|---|---|
-| `keyboard` (default) | WASD | swing toward the pointer | use the target in reach |
+| `keyboard` | WASD | swing toward the pointer | use the target in reach |
 | `click` — Diablo | click the ground; hold to follow the pointer | **order** | **use**: what's under the pointer (walking there), else the target in reach |
 | `moba` — Dota / LoL | right-click the ground; hold to follow | swing in place toward the pointer | **order** |
 | `pointer` — face the pointer | **W** (or ↑) walks toward the pointer; A, S, D and clicks never move | swing toward the pointer | use the target in reach |
-| `keys` — keys only | the **arrows**; **A** attacks, **W** interacts, **E** switches weapons | nothing | nothing |
+| `keys` — keys only (default) | the **arrows**; **A** attacks, **S** rolls, **D** the ability, **Q** the Gulp, **W** interacts, **E** switches weapons | nothing | nothing |
 
 **Switching:** press **F2** in game (`control_scheme_next`; the new scheme's name floats over the
 slime), or use the **Mouse** button in Settings. The choice is saved with the other settings in
@@ -90,28 +92,30 @@ Asked by the owner on 2026-10-06: no mouse at all. While it is on, the InputMap 
 bindings back exactly. The Controls list, the hints and the prompts read the InputMap, so they
 show the new keys by themselves ("Press W: Open chest").
 
+One layout since 2026-11-25 (the one combat, owner: "S will stay as roll and D will be ability. Q suck
+and W interact"; `KeyBindings.LAYOUT`):
+
 | Action | Key | Was |
 |---|---|---|
 | Walk | ↑ ← ↓ → | WASD or the arrows |
-| Attack | A | left click |
+| Attack with the weapon (tap for the combo, hold for the charge; on a wall too) | A | left click |
+| Roll (the `dodge` action) | S | Space |
+| The ability chosen in the bag (`ability_use`) | D | F |
+| The Gulp (suck, throw, swallow, spit: `eat`) | Q | Q |
 | Interact (hold to pick up furniture) | W | right click |
 | Next weapon (the weapon scroll; no key goes back) | E | the mouse wheel, and E |
-| Swallow, roll (the `dodge` action), lash, slam, teleport, suck and throw (eat), bag, journal, map, zoom, pause | unchanged: 1, 2, 3, 4, 5, Q, B, J, M, = / -, Esc (sprint and jump have no key since 2026-10-08) | |
+| Bag (weapons, abilities and skins are chosen there), journal, map, zoom, pause | unchanged: B, J, M, = / -, Esc | |
 
 Owner, 2026-10-08: every action of the planned HUD console has a letter in every scheme
 ([HUD console mockup](../design/2026-10-07-hud-console-mockup.md#keys), roadmap 4.12): B opens the
 bag (it was E), J the journal, and E is the weapon scroll (next to the mouse wheel in the other
-schemes). In this scheme only E cycles the belt, so S and D do nothing.
+schemes).
 
-In the body-shapes rework mode ([BODY_SHAPES.md](BODY_SHAPES.md)) the scheme also puts the chosen
-box ability (`ability_use`) on S and the Roll (`dodge`) on D (`KeyBindings.REWORK_LAYOUT`); the
-rework's own input layer (`game/shapes/rework_input.gd`: no number keys, the Roll on Space, the box
-ability on F) lies under this one, and each puts back only what it changed.
-
-In the throw-combat experiment ([THROW_COMBAT.md](THROW_COMBAT.md);
-owner, 2026-10-22, changed 2026-10-23) the scheme goes one step further (`KeyBindings.THROW_LAYOUT`):
-**Q** is the Gulp (`eat`: suck, throw, swallow), **S** the Roll, **A** the chosen box ability, and the
-attack has no key. main.gd puts the layout on or off when the throw mode changes.
+Before 2026-11-25 three layouts were stacked: this one, the rework's (`REWORK_LAYOUT`: the ability on
+S, the Roll on D) and the throw mode's (`THROW_LAYOUT`: Q the Gulp, S the Roll, A the ability, E the
+ability carousel, the attack with no key). The rework's own input layer (`game/shapes/rework_input.gd`:
+no number keys, the Roll on Space, the box ability on F) lies under this one, and each puts back only
+what it changed.
 
 What needed the mouse, and what it does without it:
 

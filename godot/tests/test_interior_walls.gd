@@ -220,8 +220,9 @@ func test_the_lair_rooms_are_local_and_laid_out_in_place(t: TestContext) -> void
 					"target_room": str(door.get(&"target_room")), "target_door": str(door.get(&"target_door")),
 					"iris": str(door.get(&"transition")) == "iris"}
 		room.free()
-	# R5's eye hall, lower hall and key alcove are one world (2026-10-19)
-	t.equal(count, 22, "the Lair's room scenes")
+	# R5's eye hall, lower hall and key alcove are one world (2026-10-19); 19 since b4ca2a64
+	# (2026-10-20): the Old Armoury, the Glow-Moss Burrow and the Sally Port moved out into Slimeshire
+	t.equal(count, 19, "the Lair's room scenes")
 	# each world's place on the map: a map room of it, less where its CameraRoom lies in the scene
 	var layout := (load(dir + "layout.tscn") as PackedScene).instantiate() as Node2D
 	var world_at := {}

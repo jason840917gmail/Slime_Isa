@@ -5,6 +5,8 @@ extends RefCounted
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
+const ControlLabels := preload("res://game/shell/control_labels.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 
 func _hints(t: TestContext) -> Node:
@@ -15,7 +17,7 @@ func test_move_first_then_learned_by_moving(t: TestContext) -> void:
 	var hints := _hints(t)
 	await _frames(t)
 	t.equal(hints.get(&"current"), &"move", "the first hint")
-	t.equal(hints.call(&"text"), "Move with WASD", "the move hint's text")
+	t.equal(hints.call(&"text"), "Move with %s" % ControlLabels.movement_label(), "the move hint's text")
 	t.press(&"move_right")
 	await t.steps(3)
 	await _frames(t)
@@ -42,20 +44,29 @@ func test_hidden_under_a_window_and_menus_learn(t: TestContext) -> void:
 	t.check(Services.run().has_flag("hint.inventory"), "opening the bag did not learn the bag hint")
 
 
-func test_attack_hint_needs_a_weapon(t: TestContext) -> void:
+## The rework mode (on in every world; control_hints.gd "Body-shapes rework mode"): the attack hint
+## is useful while a shape is current, and a shape step learns it (one combat: the attack key strikes
+## with the weapon beside the throw rules).
+func test_attack_hint_needs_a_shape(t: TestContext) -> void:
 	var hints := _hints(t)
 	var run := Services.run()
 	run.set_flag("hint.move")
 	await _frames(t)
 	var player := t.player()
-	t.check(bool(hints.call(&"is_relevant", &"attack", player)) == (run.equipped_weapon_id() != null), "attack relevance follows the hand")
-	if run.equipped_weapon_id() == null:
+	t.check(not bool(hints.call(&"is_relevant", &"attack", player)), "the attack hint is useful without a shape")
+	run.learn_session_ability(String(ShapeDefs.SPEAR))
+	var shapes: Object = player.get_shapes()
+	if not t.check(shapes != null and bool(shapes.call(&"set_current", ShapeDefs.SPEAR)), "the Spear could not be made current"):
 		return
-	t.equal(hints.call(&"hint_text", &"attack"), "Left-click to attack", "the attack hint's text")
-	t.tap(&"attack")
-	await t.steps(3)
 	await _frames(t)
-	t.check(run.has_flag("hint.attack"), "a swing did not learn the attack hint")
+	t.check(bool(hints.call(&"is_relevant", &"attack", player)), "the attack hint is not useful with the Spear current")
+	t.equal(hints.call(&"hint_text", &"attack"), "%s to attack" % ControlLabels.control_verb(&"attack"),
+		"the attack hint's text")
+	t.equal(ControlLabels.control_verb(&"attack"), "Press A", "the attack's key in the keys-only default")
+	t.tap(&"attack")
+	await t.until(func() -> bool: return bool(shapes.call(&"is_busy")), 300.0)
+	await _frames(t)
+	t.check(run.has_flag("hint.attack"), "a Spear strike did not learn the attack hint")
 
 
 ## Two frames: `process_frame` fires before the nodes' `_process` of that frame.

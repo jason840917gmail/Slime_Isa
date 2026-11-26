@@ -1063,7 +1063,7 @@ Boar's charge as its model); pen 37; placeable from the Scenery dock's Enemies c
   half, a heavy all of it (`light` 3, `medium` 2, `heavy` 1; 120 health: 40, 60, 120), whatever the
   thing is made of (a hot throw, a metal kettle, a snowball are one hit of their weight). A thrown
   thing's weight is its hit (the hit carries it: `thrown_object.gd` `rework_hit`, the `weight`
-  field), a thrown enemy is a medium hit; the shape powers and the Goo Bomb by their tags
+  field), a thrown enemy is a medium hit; the weapons' hits and the Goo Bomb by their tags
   (`byTag`: the Axe's `cut` light, the Hammer's `crush` and the bomb's `blast` medium). The bomb's
   blast goes round the shield (`roundShield`). The Spear, arrows, the Lantern's flame and the Roll
   (`clinkTags`: `spear`, `arrow`, `fire`, `roll`) clink from every side. The blows a knock brings

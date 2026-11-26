@@ -479,6 +479,11 @@ func test_fatty_rework_the_eye_the_throws_and_the_fall(t: TestContext) -> void:
 		return bool(boss.call(&"is_in_phase_two")) or _hp(boss) <= max_hp * 0.5, 60000.0)
 	if not t.check(two, "below half his health Fatty is not in phase two"):
 		return
+	# The hit that took him under half lands at once; he turns to phase two on his next step
+	# (fatty.gd `_check_phase_two` runs in `_after_enemy_step`), so wait for it before the next hit.
+	await t.until(func() -> bool:
+		var boss: Node = camp.call(&"get_live_boss")
+		return boss == null or bool(boss.call(&"is_in_phase_two")), 1000.0)
 	var chasing := await t.until(func() -> bool: return _hittable(t, camp, false), 8000.0)
 	if not t.check(chasing, "Fatty does not stand again in phase two"):
 		return
@@ -992,17 +997,32 @@ func test_the_bell_bridges_slabs_and_spikes_go_by_level(t: TestContext) -> void:
 			if int(slab.get(&"state")) != 0:
 				return false
 		return true
-	# the channel under the north slabs, at the pit's level
+	# the room's watcher eye waits (its shots are not the spikes' hurt)
+	var enemies := t.world().world_root.get_node_or_null("Enemies")
+	if enemies != null:
+		enemies.process_mode = Node.PROCESS_MODE_DISABLED
+	# the channel under the north slabs, at the pit's level; the slime is healed after each hurt (80
+	# health and no defence since 2026-11-24, docs/design/2026-11-24-health-and-damage.md: the walk
+	# through the spikes would faint it), the hurt noted
+	var hurt := {"pit": false}
+	var heal_noting := func() -> void:
+		if t.player().get_hp() < t.player().get_max_hp():
+			hurt["pit"] = true
+			t.player().restore_run_state({"hp": t.player().get_max_hp()})
 	_stand(t, _at("r7", Vector2(11.5, 6.0)))
 	await t.steps(10)
 	t.check(t.world().elevation.level_of(t.player_body()) == -1, "the channel is not the pit's level")
 	t.press(&"move_left")
-	await t.until(func() -> bool: return t.player().get_centre().x < _at("r7", Vector2(5.0, 0.0)).x, 4000.0)
+	await t.until(func() -> bool:
+		heal_noting.call()
+		return t.player().get_centre().x < _at("r7", Vector2(5.0, 0.0)).x, 4000.0)
 	t.release_all()
-	await t.steps(10)
+	for _i in 10:
+		await t.steps(1)
+		heal_noting.call()
 	t.check(t.player().get_centre().x < _at("r7", Vector2(6.5, 0.0)).x, "the slime did not walk under the slabs (at %s)" % t.player().get_centre())
 	t.check(all_standing.call(), "walking under the bridge cracked a slab")
-	t.check(t.player().get_hp() < t.player().get_max_hp(), "the spikes did not hurt the slime in the pit")
+	t.check(bool(hurt["pit"]), "the spikes did not hurt the slime in the pit")
 	# level 0 inside the hazard's rectangle: never hurt
 	t.player().restore_run_state({"hp": t.player().get_max_hp()})
 	_stand(t, _at("r7", Vector2(2.0, 3.0)))
@@ -1041,6 +1061,11 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 			return t.in_world(WORLDS["r7"]) and not bool(t.main.call(&"is_transitioning")), 10000.0), "could not come into R7"):
 		return
 	await t.steps(10)
+	# the room's Watcher Eye waits (in R7 since 2026-10-20: its beam's knockback, 280, would throw the
+	# walk off its line; the walk is the room's way across, not a fight with it)
+	var enemies := t.world().world_root.get_node_or_null("Enemies")
+	if enemies != null:
+		enemies.process_mode = Node.PROCESS_MODE_DISABLED
 	var elevation: Node = t.world().elevation
 	var paint := LevelCollisionLayer.find_beside(t.world().ground_layer)
 	if not painted and paint != null:
@@ -1079,6 +1104,7 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	# the quick Roll (a tap: the body-shapes mode, on everywhere, fires the Roll on the release; held, the
 	# slime walks on and a slab cracks under it)
 	t.tap(&"dodge")
+	var rolled_at := t.now()
 	var landed := await t.until(func() -> bool: return float((feet.call() as Vector2).y) > 524.0, 2000.0)
 	t.release_all()
 	await t.sim_wait(500.0)
@@ -1088,6 +1114,11 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	# from the landing's west edge (clear of the slabs: a touch cracks them) a Roll west across the
 	# west slabs, holding the way on after it
 	await _walk_to(t, Vector2(472.0, 576.0), 3000.0)
+	# the next Roll waits for the last one's end and its cooldown (quick roll + `rollCooldownMs`, 330 +
+	# 1000 ms since 2026-11-01: docs/godot/specs/abilities.md section 1); a press before is refused
+	var constants := Services.constants()
+	var between := constants.number("character.player.rework.quickRollMs") + constants.number("character.player.movement.rollCooldownMs")
+	await t.until(func() -> bool: return t.now() - rolled_at >= between + TestContext.STEP_MS, between + 500.0)
 	t.player().face(Vector2.LEFT)
 	t.press(&"move_left")
 	t.tap(&"dodge")
@@ -1100,8 +1131,11 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 	# the bell, then north through the gate to the key and out by the west door
 	_objects(t).get_node("r7-bell").find_children("*", "", true, false).filter(func(n: Node) -> bool: return n.has_method(&"ring"))[0].call(&"ring")
 	await t.sim_wait(800.0)
-	await _walk_to(t, Vector2(224.0, 560.0), 3000.0)
-	# straight north through the gate's opening (its node at x 224)
+	# lined up on the gate (its node at x 224) within a few units: its eye block's gap between the
+	# divider's posts is about 45 wide for the slime's 30, so the walk's usual 10 units of slack would
+	# put the body on a post
+	await _walk_to(t, Vector2(224.0, 560.0), 3000.0, Callable(), 3.0)
+	# straight north through the gate's opening
 	await _walk_to(t, Vector2(224.0, 360.0), 4000.0)
 	t.check(float((feet.call() as Vector2).y) < 420.0, "the slime did not go through the gate (at %s)" % feet.call())
 	t.press(&"move_left")
@@ -1111,12 +1145,12 @@ func _play_the_bell_bridge(t: TestContext, painted: bool) -> void:
 
 
 ## Walks the slime toward `target` (feet) with the arrow keys, one axis then the other, until it is
-## within 10 units or `ms` pass; `each` runs every step (keep it healthy).
-func _walk_to(t: TestContext, target: Vector2, ms: float, each: Callable = Callable()) -> void:
+## within `slack` units (10) or `ms` pass; `each` runs every step (keep it healthy).
+func _walk_to(t: TestContext, target: Vector2, ms: float, each: Callable = Callable(), slack: float = 10.0) -> void:
 	for axis in [0, 1]:
 		var action: StringName
 		var delta := target[axis] - t.player_body().global_position[axis]
-		if absf(delta) < 10.0:
+		if absf(delta) < slack:
 			continue
 		if axis == 0:
 			action = &"move_right" if delta > 0.0 else &"move_left"
@@ -1127,7 +1161,7 @@ func _walk_to(t: TestContext, target: Vector2, ms: float, each: Callable = Calla
 		await t.until(func() -> bool:
 			if each.is_valid():
 				each.call()
-			return (target[axis] - t.player_body().global_position[axis]) * sign_of < 10.0, ms)
+			return (target[axis] - t.player_body().global_position[axis]) * sign_of < slack, ms)
 		t.release_all()
 		await t.steps(3)
 

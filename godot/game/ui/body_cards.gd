@@ -10,7 +10,8 @@ extends RefCounted
 ##   (`AbilityDefinitions.icon`);
 ## - **cards**: what the bag window's details panel shows for a clicked shape or box ability
 ##   (`shape_card`, `ability_card`): {"name", "status", "status_color", "details"}: a status line,
-##   one line of what it does, its energy cost, its cooldown and its keys, read from the InputMap.
+##   one line of what it does, its charge (free: the hold is its cost), its cooldown and its keys,
+##   read from the InputMap.
 ##   Numbers come from game-constants.json (`shapes.<name>.charge`) and AbilityBox (what the
 ##   ability spends).
 ##
@@ -26,8 +27,6 @@ const InventoryModel := preload("res://game/ui/screens/inventory_model.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
 const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): shapes are box powers there.
-const ThrowMode := preload("res://game/throw/throw_mode.gd")
 
 ## The bag's Skins row: each skin's icon (scripts/art/pack-skin-art.py) and the goo's name.
 const SKIN_ICON := "res://asset/UI/skins/%s-icon.webp"
@@ -111,14 +110,7 @@ static func shape_icon(id: StringName) -> Texture2D:
 
 ## The box ability's icon (the HUD console's), or null.
 static func ability_icon(id: StringName) -> Texture2D:
-	if ThrowMode.is_shape_power(id):
-		return shape_icon(id)
 	return AbilityDefinitions.icon(id) if not id.is_empty() else null
-
-
-## The energy the shape's charge costs, rounded for a card or a chip (ShapeDefs.charge_energy).
-static func charge_energy(id: StringName) -> int:
-	return roundi(ShapeDefs.charge_energy(id))
 
 
 ## A Skins cell's name: the skin's, or "Goo" for &"".
@@ -158,13 +150,13 @@ static func shape_card(id: StringName, current: bool) -> Dictionary:
 	lines.append("Attack (%s): tap for %s" % [_key_or_none(attack), str(SHAPE_CHAINS.get(id, ""))])
 	var charge := ShapeDefs.charge(id)
 	if not charge.is_empty():
-		lines.append("Hold to charge: %s · %d energy · ring %s" % [str(CHARGE_NAMES.get(id, "Charge")),
-			charge_energy(id), _seconds(float(charge.get("ringMs", 0.0)))])
+		lines.append("Hold to charge: %s · free · ring %s" % [str(CHARGE_NAMES.get(id, "Charge")),
+			_seconds(float(charge.get("ringMs", 0.0)))])
 	lines.append("Cooldown: none")
-	lines.append("Next shape: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
+	lines.append("Next weapon: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
 	return {
 		"name": ShapeDefs.title(id),
-		"status": "Your shape now" if current else _confirm() + " to take this shape",
+		"status": "Your weapon now" if current else _confirm() + " to take this weapon",
 		"status_color": CURRENT_COLOR if current else OTHER_COLOR,
 		"details": "\n".join(lines),
 	}
@@ -172,8 +164,6 @@ static func shape_card(id: StringName, current: bool) -> Dictionary:
 
 ## The bag card of box ability `id` ({} for an unknown id).
 static func ability_card(id: StringName, chosen: bool) -> Dictionary:
-	if ThrowMode.is_shape_power(id):
-		return shape_power_card(id, chosen)
 	if not AbilityDefinitions.has(id):
 		return {}
 	var key := _key_or_none(ControlLabels.control_label(AbilityBox.USE_ACTION))
@@ -185,23 +175,6 @@ static func ability_card(id: StringName, chosen: bool) -> Dictionary:
 	lines.append("Use: %s" % key)
 	return {
 		"name": AbilityDefinitions.title(id),
-		"status": ("Chosen: press %s to use it" % key) if chosen else (_confirm() + " to put it on %s" % key),
-		"status_color": CURRENT_COLOR if chosen else OTHER_COLOR,
-		"details": "\n".join(lines),
-	}
-
-
-## Throw combat: the bag card of shape `id` as a box power: what it is, its one move (the shape's
-## charge, fired at once) and its energy.
-static func shape_power_card(id: StringName, chosen: bool) -> Dictionary:
-	var key := _key_or_none(ControlLabels.control_label(AbilityBox.USE_ACTION))
-	var lines := PackedStringArray([str(SHAPE_LINES.get(id, "")), ""])
-	lines.append("Power: %s, at once along your facing" % str(CHARGE_NAMES.get(id, "Charge")))
-	lines.append("Energy: %d" % charge_energy(id))
-	lines.append("Use: %s" % key)
-	lines.append("Pick it in the ability carousel: %s" % _key_or_none(ControlLabels.control_labels(&"weapon_next")))
-	return {
-		"name": ShapeDefs.title(id),
 		"status": ("Chosen: press %s to use it" % key) if chosen else (_confirm() + " to put it on %s" % key),
 		"status_color": CURRENT_COLOR if chosen else OTHER_COLOR,
 		"details": "\n".join(lines),

@@ -202,7 +202,8 @@ func test_enemies_come_back_with_their_room_but_won_fights_stay_won(t: TestConte
 	run.set_flag(LairDirector.FLAG_CALLED)
 	if not await _enter(t, "r4-squint-den"):
 		return
-	var squint: Node = t.world().world_root.get_node("Enemies/r4-squint-a").call(&"get_enemy")
+	# R4's two Squints are `r4-squint-b` and `PlacedEnemy` since the owner's room (2026-11-21, DUNGEONS.md R4)
+	var squint: Node = t.world().world_root.get_node("Enemies/r4-squint-b").call(&"get_enemy")
 	if not t.check(squint != null, "no squint in R4"):
 		return
 	squint.call(&"take_reaction_damage", 9999.0)
@@ -212,7 +213,7 @@ func test_enemies_come_back_with_their_room_but_won_fights_stay_won(t: TestConte
 	if not await _enter(t, "r4-squint-den"):
 		return
 	await t.steps(6)
-	var again: Node = t.world().world_root.get_node("Enemies/r4-squint-a").call(&"get_enemy")
+	var again: Node = t.world().world_root.get_node("Enemies/r4-squint-b").call(&"get_enemy")
 	t.check(again != null and not bool(again.call(&"is_defeated")), "R4's squint did not come back with its room")
 	# The Larder's ambush: won once, its Big Squint never stands again and its shutter stays open.
 	if not await _enter(t, "r12-larder"):

@@ -35,7 +35,6 @@ const PauseMenu := preload("res://game/shell/pause_menu.gd")
 const SettingsMenu := preload("res://game/shell/settings_menu.gd")
 const ControlsMenu := preload("res://game/shell/controls_menu.gd")
 const CreditsMenu := preload("res://game/shell/credits_menu.gd")
-const AbilityCarousel := preload("res://game/shell/ability_carousel.gd")
 const GameOver := preload("res://game/shell/game_over.gd")
 const EndCard := preload("res://game/shell/end_card.gd")
 const AreaTitleCard := preload("res://game/shell/area_title_card.gd")
@@ -96,7 +95,6 @@ var pause_menu: PauseMenu
 var settings_menu: SettingsMenu
 var controls_menu: ControlsMenu
 var credits_menu: CreditsMenu
-var ability_carousel: AbilityCarousel
 var game_over: GameOver
 var end_card: EndCard
 var fade: ColorRect
@@ -222,15 +220,6 @@ func open_credits() -> void:
 	_open(credits_menu)
 
 
-## Throw combat: E opens the ability carousel over the paused game (ability_carousel.gd). False when
-## no window may open now (can_open_pause).
-func open_ability_carousel() -> bool:
-	if not can_open_pause():
-		return false
-	_open(ability_carousel)
-	return ability_carousel.is_open()
-
-
 ## The area banner (also for "ability learned" lines): `title` in `color`.
 func show_area_title(title: String, color: Color = AreaTitleCard.DEFAULT_COLOR) -> void:
 	area_title.show_title(title, color)
@@ -327,8 +316,6 @@ func _build() -> void:
 	settings_menu.settings = settings
 	settings_menu.action_requested.connect(func(_action_id: StringName) -> void: open_controls())
 	credits_menu = _add_menu(CREDITS_MENU_SCENE) as CreditsMenu
-	ability_carousel = AbilityCarousel.new()
-	_attach_menu(ability_carousel)
 	controls_menu = _add_menu(CONTROLS_MENU_SCENE) as ControlsMenu
 	end_card = _add_menu(END_CARD_SCENE) as EndCard
 	end_card.action_requested.connect(func(_action_id: StringName) -> void: quit_to_title())

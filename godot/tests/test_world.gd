@@ -2,11 +2,14 @@ extends RefCounted
 ## level-1 world, camera and a long smoke run (docs/godot/specs/world.md sections 1-4,
 ## runtime.md 6.9).
 ## - level-1 is cut into chunk worlds (docs/godot/WORLD_ATLAS.md); the tests start in its chunk C4
-##   (`level-1-c4`, the village), 32 x 32 tiles of 64 px (2048 px square) whose ground layer is
-##   full: 1024 cells.
-## - The player spawns with its centre on the `player-spawn` marker (640, 704), feet at +27.56.
-## - The camera centres on the player at start and then follows it, keeping it inside the
-##   deadzone (clamp(vp.x * 0.18, 128, 224) x clamp(vp.y * 0.14, 96, 160) screen px).
+##   (`level-1-c4`, the village), 32 x 32 tiles of 64 px (2048 px square) whose ground layer
+##   covers every cell of that square.
+## - The player spawns with its centre on the world's `player-spawn` marker (world spec 2.2; C4's
+##   stands by the village's north edge since its repaint), feet at +27.56.
+## - The camera centres on the player at start (clamped to the world's bounds over the play area,
+##   the view above the HUD console's `bottom_inset`) and then follows it, keeping it inside the
+##   deadzone (clamp(vp.x * 0.18, 128, 224) x clamp(vp.y * 0.14, 96, 160) screen px). The follow
+##   is walked along the village square's open lane east of (640, 704).
 ## - 600 physics frames of play log no engine or script error (the runner fails any test that
 ##   logs one; this test just plays long enough, walking around, to give them a chance).
 
@@ -16,7 +19,8 @@ const FeetAnchor := preload("res://game/shared/feet_anchor.gd")
 const TILE_SIZE := 64
 const COLUMNS := 32
 const ROWS := 32
-const SPAWN_CENTRE := Vector2(640.0, 704.0)
+## A spot of C4's village square with open ground to the east (the follow test's 1.5 s walk).
+const OPEN_LANE := Vector2(640.0, 704.0)
 const PLAYER_DEPTH_ANCHOR := Vector2(0.0, 27.56)
 
 
@@ -31,13 +35,20 @@ func test_level1_dimensions_tiles_and_spawn(t: TestContext) -> void:
 	t.equal(world.world_rect(), Rect2(0, 0, TILE_SIZE * COLUMNS, TILE_SIZE * ROWS), "world rect")
 	if not t.check(world.ground_layer != null, "no ground TileMapLayer"):
 		return
-	var cells := world.ground_layer.get_used_cells()
-	t.equal(cells.size(), COLUMNS * ROWS, "ground cells")
-	var used := world.ground_layer.get_used_rect()
-	t.equal(used, Rect2i(0, 0, COLUMNS, ROWS), "ground used rect")
-	t.equal(world.player_spawn_marker(), SPAWN_CENTRE, "spawn marker")
-	t.near_vec(t.player().get_centre(), SPAWN_CENTRE, 0.01, "player centre at start")
-	t.near_vec(t.player_body().global_position, SPAWN_CENTRE + PLAYER_DEPTH_ANCHOR, 0.01, "player feet at start")
+	var missing: Array[Vector2i] = []
+	for y in ROWS:
+		for x in COLUMNS:
+			if world.ground_layer.get_cell_source_id(Vector2i(x, y)) < 0:
+				missing.append(Vector2i(x, y))
+	t.check(missing.is_empty(), "ground cells left unpainted inside the chunk: %s" % [missing])
+	var marker := world.world_root.get_node_or_null(^"player-spawn") as Node2D
+	if not t.check(marker != null, "level-1-c4 has no player-spawn marker"):
+		return
+	var spawn := marker.position
+	t.equal(world.player_spawn_marker(), spawn, "spawn marker")
+	t.check(world.world_rect().has_point(spawn), "the spawn marker %s lies outside the chunk" % [spawn])
+	t.near_vec(t.player().get_centre(), spawn, 0.01, "player centre at start")
+	t.near_vec(t.player_body().global_position, spawn + PLAYER_DEPTH_ANCHOR, 0.01, "player feet at start")
 	t.equal(world.camera_mode(), "follow", "camera mode")
 
 
@@ -61,7 +72,12 @@ func test_camera_follows_player(t: TestContext) -> void:
 	var view: Vector2 = camera.get_viewport().get_visible_rect().size
 	t.note("headless viewport %s, deadzone %s" % [view, camera.get_deadzone_size()])
 	t.near_vec(start, _clamped(camera, t.player().get_centre()), 1.0, "camera centre at start")
-	# Walk right for 1.5 s (300 px), then let the damping settle.
+	# The follow: from the open lane, the camera centred on the slime there (as at a start), walk
+	# right for 1.5 s (270 px at player.movement.baseSpeed 180), then let the damping settle.
+	t.teleport_player(OPEN_LANE)
+	await t.steps(2)
+	camera.center_on(t.player().get_centre())
+	start = camera.center
 	t.press(&"move_right")
 	await t.sim_wait(1500.0)
 	t.release(&"move_right")
@@ -76,7 +92,7 @@ func test_camera_follows_player(t: TestContext) -> void:
 	t.check(absf(gap.x) <= half.x + stall and absf(gap.y) <= half.y + stall,
 		"player centre %s left the deadzone (camera %s, half deadzone %s, stall allowance %.1f)" % [target, camera.center, half, stall])
 	t.check(camera.center.x - start.x > 150.0, "the camera moved only %.1f px while the player walked %.1f px" % [
-		camera.center.x - start.x, target.x - SPAWN_CENTRE.x])
+		camera.center.x - start.x, target.x - OPEN_LANE.x])
 	t.near(camera.global_position.x, camera.center.x, 0.001, "camera node x = centre x")
 
 
@@ -95,9 +111,12 @@ func test_no_errors_during_600_frames(t: TestContext) -> void:
 	t.check(not t.player().is_dead(), "the player died during the smoke run")
 
 
-## Phaser centerOn + bounds clamp for `point` (world spec 4.5), at the camera's current zoom.
+## Phaser centerOn + bounds clamp for `point` (world spec 4.5), at the camera's current zoom, over
+## the play area (the view above the HUD console's `bottom_inset`, world_camera.gd `center_on`).
 static func _clamped(camera: Object, point: Vector2) -> Vector2:
-	var view: Vector2 = camera.get_viewport().get_visible_rect().size / maxf(camera.target_zoom, 0.000001)
+	var screen: Vector2 = camera.get_viewport().get_visible_rect().size
+	var play := Vector2(screen.x, maxf(1.0, screen.y - float(camera.bottom_inset)))
+	var view: Vector2 = play / maxf(camera.target_zoom, 0.000001)
 	var bounds: Rect2 = camera.bounds
 	var min_c := bounds.position + view * 0.5
 	var max_c := Vector2(maxf(min_c.x, bounds.end.x - view.x * 0.5), maxf(min_c.y, bounds.end.y - view.y * 0.5))

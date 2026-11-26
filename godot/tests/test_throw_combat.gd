@@ -1,12 +1,12 @@
 extends RefCounted
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md): the playground
-## with the rework mode and the throw mode on. What the Gulp lifts follows its level, a thing's
-## weight and material set its damage and effect, the attack key does nothing, the shapes are box
-## powers, and missed arrows and a Brawler's blows make ammo.
+## The throw rules in the one combat (docs/godot/THROW_COMBAT.md; since 2026-11-25 always on, with the
+## weapon on the attack key beside them): the playground. What the Gulp lifts follows its level, a
+## thing's weight and material set its damage and effect, the attack key strikes with the weapon (its
+## charges free), the Ability Box holds box abilities only, and missed arrows and a Brawler's blows make
+## ammo.
 ##
-## run_tests.gd starts every test of this file in the playground (the rework mode on, as in every
-## world, and the throw mode off: main.gd `throw_combat`); each test travels there again with the
-## throw mode on.
+## run_tests.gd starts every test of this file in the playground; each test travels there again with
+## the Gulp at level 1 and the aim help off.
 ##
 ## The new throw feel (game/throw/throw_feel.gd, `gulp.throwFeel`) changes a throw's damage, so the
 ## damage expectations are read from the constants (`_throw_damage`), whichever feel is on.
@@ -18,6 +18,7 @@ const ThrowFeel := preload("res://game/throw/throw_feel.gd")
 const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
+const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 
 const MAP_ID := "playground"
 ## A clear stretch of grass north of the playground's spawn, for the throws.
@@ -27,10 +28,9 @@ const WORM_AHEAD_PX := 150.0
 const PLENTY_HP := 1000.0
 
 
-func test_the_yard_the_box_and_no_attack(t: TestContext) -> void:
+func test_the_yard_the_box_and_the_attack(t: TestContext) -> void:
 	await _enter(t)
 	var player := t.player()
-	t.check(ThrowMode.is_on(), "the throw mode is off")
 	t.equal(ThrowMode.gulp_level(), 1, "the Gulp's level")
 	var yard: Node = t.main.get(&"world_root").get_node_or_null("ThrowTestbed")
 	if not t.check(yard != null, "no throw yard"):
@@ -42,10 +42,10 @@ func test_the_yard_the_box_and_no_attack(t: TestContext) -> void:
 			filled += 1
 	t.equal(filled, 12, "things in the yard")
 	var box := AbilityBox.box_ids(player)
-	t.check(box.has(&"shape-spear") and box.has(&"shape-hammer"), "the shapes are not in the box: %s" % str(box))
+	t.check(not box.has(&"shape-spear") and not box.has(&"shape-hammer"), "a weapon is in the Ability Box: %s" % str(box))
 	t.tap(&"attack")
 	await t.steps(4)
-	t.check(not player.get_shapes().is_busy(), "the attack key started a strike")
+	t.check(player.get_shapes().is_busy(), "the attack key did not strike with the weapon")
 
 
 func test_weight_follows_the_gulp_level(t: TestContext) -> void:
@@ -107,22 +107,47 @@ func test_effects_freeze_sleep_and_pierce(t: TestContext) -> void:
 		"a kettle did not pierce both (%s -> %s, %s -> %s)" % [hp1, worm.get(&"_hp"), hp2, other.get(&"_hp")])
 
 
-func test_a_shape_is_a_box_power(t: TestContext) -> void:
+func test_a_charge_is_free_and_an_ability_is_picked_in_the_bag(t: TestContext) -> void:
 	await _enter(t)
 	var player := t.player()
-	player.set_energy(player.get_max_energy())
-	t.check(AbilityBox.select(player, &"shape-spear"), "could not choose the Spear")
-	var energy := player.get_energy()
-	t.tap(&"ability_use")
+	var shapes := player.get_shapes()
+	shapes.set_current(ShapeDefs.SPEAR)
+	player.set_energy(0.0)
+	t.press(&"attack")
+	var hold_ms := ShapeDefs.chain_number("chargeStartMs") + ShapeDefs.num(ShapeDefs.charge(ShapeDefs.SPEAR), "ringMs")
+	await t.sim_wait(hold_ms + 150.0)
+	t.check(shapes.charge_progress() >= 1.0, "the ring did not fill (%.2f)" % shapes.charge_progress())
+	# Energy refills slowly on its own: the charge spends none of it (it was 15 before 2026-11-25).
+	var before := player.get_energy()
+	t.check(before < 15.0, "the slime had enough energy for the old cost (%.1f)" % before)
+	t.release(&"attack")
 	await t.steps(3)
-	t.check(player.get_shapes().is_busy(), "A (ability_use) did not fire the Spear's power")
-	t.near(energy - player.get_energy(), 15.0, 0.5, "the power's energy")
+	t.check(shapes.is_busy(), "the Lunge did not fire short of the old energy cost")
+	t.check(player.get_energy() >= before - 0.01, "the charge spent energy (%.2f -> %.2f)" % [before, player.get_energy()])
 	await t.sim_wait(1200.0)
-	t.check(Services.shell().open_ability_carousel(), "E did not open the ability carousel")
-	t.tap(&"ui_right")
-	t.tap(&"ui_accept")
-	await t.steps(3)
-	t.equal(AbilityBox.selected(player), &"shape-axe", "the carousel's pick")
+	var box := AbilityBox.box_ids(player)
+	if not t.check(box.size() >= 2, "the playground lends fewer than two box abilities: %s" % str(box)):
+		return
+	var pick: StringName = box[1] if AbilityBox.selected(player) == box[0] else box[0]
+	t.check(AbilityBox.choose(player, pick), "the bag's pick was refused")
+	t.equal(AbilityBox.selected(player), pick, "the ability on D")
+	t.check(not AbilityBox.choose(player, ShapeDefs.AXE), "a weapon was put in the Ability Box")
+
+
+func test_weapon_hits_are_scaled_and_throws_are_not(t: TestContext) -> void:
+	await _enter(t)
+	var scale := ShapeDefs.weapon_damage_scale()
+	t.near(scale, 0.5, 0.001, "shapes.weaponDamageScale")
+	var constants := Services.constants()
+	var attack := constants.number(ShapeDefs.STAT_ATTACK) / 10.0
+	var lunge := ShapeDefs.num(ShapeDefs.charge(ShapeDefs.SPEAR), "damageScale")
+	t.near(ShapeDefs.damage(ShapeDefs.SPEAR, lunge), ShapeDefs.base_damage(ShapeDefs.SPEAR) * attack * lunge * scale, 0.01,
+		"the Lunge's damage")
+	var worm := t.spawn_worm(Vector2(WORM_AHEAD_PX, 0.0), true)
+	t.set_enemy_health(worm, PLENTY_HP)
+	await t.steps(2)
+	await _catch(t, "clay-pot")
+	t.near(await _throw_at(t, worm), _throw_damage(ThrowMode.LIGHT), 0.5, "a light pot's damage, unscaled")
 
 
 func test_enemies_make_ammo(t: TestContext) -> void:
@@ -148,14 +173,13 @@ func test_enemies_make_ammo(t: TestContext) -> void:
 	t.check(rocks > 0 and rocks < 20, "a brawler's blows knocked %d rocks of 20 loose" % rocks)
 
 
-## The playground again with the rework mode and the throw mode on, the Gulp at level 1 and the aim
-## help off, the slime on open grass north of the spawn.
+## The playground again, the Gulp at level 1 and the aim help off, the slime on open grass north of the
+## spawn.
 func _enter(t: TestContext) -> void:
 	ThrowMode.set_dev_level(1)
 	ThrowMode.set_assist(false)
-	t.main.set(&"throw_combat", true)
 	t.main.call(&"travel_to", MAP_ID)
-	await t.until(func() -> bool: return ReworkMode.is_on() and ThrowMode.is_on() and t.player() != null \
+	await t.until(func() -> bool: return ReworkMode.is_on() and t.player() != null \
 		and not bool(t.main.call(&"is_transitioning")), 3000.0)
 	await t.steps(3)
 	var world := Services.world()

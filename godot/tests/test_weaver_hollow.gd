@@ -778,6 +778,10 @@ func test_the_spinning_loft_is_parted_by_rows_of_web_walls_and_frees_small_key_3
 	if not t.check(parcel != null, "the Spinning Loft has no silk parcel"):
 		return
 	t.check(parcel.global_position.y < north_row, "the parcel is not beyond the rows")
+	# Back between the rows first: the Silk slime waded up in the parcel's own column, where its key
+	# drops (in front of it), and would pick the key up the moment it fell.
+	_stand(t, B6_BETWEEN_ROWS * CELL)
+	await t.steps(2)
 	var keys := DungeonState.small_keys(run, DUNGEON_ID)
 	_cut(t, parcel.get_node_or_null(^"DamageArea") as Area2D)
 	await t.steps(4)

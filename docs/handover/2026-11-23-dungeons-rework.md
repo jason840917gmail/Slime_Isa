@@ -1550,6 +1550,17 @@ not played with a keyboard.
 
 ## Next
 
+**One combat (2026-11-25/26, pieces 1 and 2 of [weapons beside throws](../design/2026-11-25-weapons-beside-throws.md)):**
+the throw rules are always on and the attack key strikes with the weapon beside them, at half damage
+(`shapes.weaponDamageScale`), its charges free; `?melee` is gone, so every dungeon now plays both.
+For the dungeons: their Spear hits (the Colossus's crystals, Fatty's eye, the Matron's cocoon, the
+Warden, the barred gates, the knock targets) are A presses again at half damage, and a thrown hit
+on those bosses stays 6, now close to a jab (7); the bosses are re-tuned in the plan's piece 6. The
+film tools that struck with the Spear's box power (`power_strike`) call `ShapeController.fire_charge`
+(the same Lunge, free) and were not re-run. The Spear's up strike is shorter and its down strike longer
+(piece 1: its tip lands 110 / 132 / 170 from the feet in every direction), so a room placed for the long
+up jab or the short down jab may need a look.
+
 **Step 5 (2026-11-25): done** (the owner: "step 5 this is the way to go so get rid of the old"), by the
 hollow-floors session, for the reviewer's read before the commit. Today's Weaver Hollow (four floor
 worlds) and today's Crystal Mine (one world) are gone, with their copies, builders and the code only

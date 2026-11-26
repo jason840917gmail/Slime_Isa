@@ -812,7 +812,7 @@ func _spear_and_pot(way: Vector2, spears: int = 3) -> Array:
 
 func _spear() -> String:
 	var shapes: Node = _main.get(&"shapes")
-	return str(shapes.call(&"power_strike", &"shape-spear")) if shapes != null else "no shapes"
+	return str(shapes.call(&"fire_charge", &"shape-spear")) if shapes != null else "no shapes"
 
 
 ## Her volleys and spit wait while the slime casts (a hit breaks the cast; in play the slime casts

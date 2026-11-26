@@ -1,15 +1,10 @@
 extends RefCounted
-## The throw-combat experiment (docs/godot/THROW_COMBAT.md; owner,
-## 2026-10-19): the Gulp is the whole fight. Enemies fall to what the slime throws, the attack key
-## does nothing, and the body shapes are energy powers in the Ability Box. What the mouth can lift
-## follows the Gulp's level: 1 light things, 2 medium, 3 heavy. A thing's weight sets its damage,
-## reach and the hit's class; its material (or its kind) adds an effect: freeze, sleep, stick,
+## The throw rules (docs/godot/THROW_COMBAT.md; owner, 2026-10-19, the experiment that made them; one
+## combat since 2026-11-25: always on, beside the weapon on the attack key, with no switch). What the
+## mouth can lift follows the Gulp's level: 1 light things, 2 medium, 3 heavy. A thing's weight sets its
+## damage, reach and the hit's class; its material (or its kind) adds an effect: freeze, sleep, stick,
 ## shatter or pierce. All numbers are in game-constants.json `gulp.throwCombat`.
 ##
-## - **The mode** rides on the body-shapes rework mode: main.gd decides it at every world build
-##   (`set_on`): on when the rework mode is on, `gulp.throwCombat.enabled` is true and the launch
-##   option `melee` (desktop `-- --melee`) is not given. While it is off every hook does nothing, so
-##   the rework game plays exactly as on main.
 ## - **The Gulp's level** (`gulp_level`): 1, 2 once the run learned `gulp-lift-medium`, 3 once it
 ##   learned `gulp-lift-heavy` (RunState abilities: saved with the run). A dev level (`set_dev_level`:
 ##   the playground's F6, the launch option `gulp=<1..3>`) overrides it for the session.
@@ -22,12 +17,10 @@ extends RefCounted
 ## - **Aim help** (`assist`): off unless `aimAssist.enabled` or the dev toggle (Shift+F6, launch option
 ##   `aimhelp`); then a throw within half of `coneDeg` either side of a live enemy within `rangePx`
 ##   (on the thrower's height level, no wall between their feet) flies straight at the enemy's feet.
-## - **Shape powers** (`is_shape_power`): the shapes' ids in the Ability Box (ability_box.gd).
 ##
 ## Owner: throw combat (experiment).
 
 const Services := preload("res://game/shared/services.gd")
-const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const AbilityWorld := preload("res://game/player/abilities/ability_world.gd")
 
 const ROOT := "gulp.throwCombat"
@@ -48,27 +41,10 @@ const PIERCE := "pierce"
 ## Enemies the aim help looks at.
 const ENEMY_GROUP := &"enemy"
 
-static var _on: bool = false
 ## The session's dev level (0 = the run's).
 static var _dev_level: int = 0
 ## The session's aim-help toggle: -1 = the constants', 0 off, 1 on.
 static var _dev_assist: int = -1
-
-
-## True while the experiment runs (the rework mode on, the constants' switch on, no `melee`).
-static func is_on() -> bool:
-	return _on
-
-
-## main.gd only, once per world build.
-static func set_on(on: bool) -> void:
-	_on = on
-
-
-## The constants' switch (`gulp.throwCombat.enabled`).
-static func enabled_in_data() -> bool:
-	var constants := Services.constants()
-	return constants != null and bool(constants.value(ROOT + ".enabled", false))
 
 
 # --- the Gulp's level ----------------------------------------------------------------------------
@@ -256,13 +232,6 @@ static func _enemy_body(node: Node) -> Node2D:
 		if is_instance_valid(body) and body is Node2D:
 			return body as Node2D
 	return node as Node2D
-
-
-# --- shape powers ---------------------------------------------------------------------------------
-
-## True when `id` is a body shape standing in the Ability Box as a power (the mode on).
-static func is_shape_power(id: StringName) -> bool:
-	return _on and ShapeDefs.is_shape(id)
 
 
 ## `gulp.throwCombat.<path>` ({} when missing); the whole `gulp.throwCombat` for "".

@@ -3,7 +3,7 @@ extends "res://game/ui/screens/game_window.gd"
 ## window that lists every power the slime can have and switches each on or off for the session:
 ## the three shapes, the moves (the Roll, its Charged Roll upgrade, Swallow, the Goo Trail), the
 ## Ability Box abilities the game has (AbilityBox.socket_ids that AbilityDefinitions knows), the
-## skins (SkinState.order) and, in the throw combat, the Gulp's level (ThrowMode's dev level).
+## skins (SkinState.order) and the Gulp's level (ThrowMode's dev level).
 ##
 ## - **On** lends the power for the session (RunState.learn_session_ability, SkinState.lend): no save
 ##   carries it.
@@ -184,11 +184,8 @@ func refresh() -> void:
 		var button := row["button"] as Button
 		button.text = ROW_TEXT % [str(row["title"]), state]
 		_mark(button, on)
-	var throwing := ThrowMode.is_on()
-	gulp_header.visible = throwing
 	var chosen := ThrowMode.gulp_level() if ThrowMode.has_dev_level() else 0
 	for index in gulp_buttons.size():
-		gulp_buttons[index].visible = throwing
 		_mark(gulp_buttons[index], index == chosen)
 	# The run's own level (what the first button gives back), read with the dev level set aside.
 	ThrowMode.set_dev_level(0)
@@ -223,8 +220,6 @@ func _build() -> void:
 	_header(2, "Skins")
 	for id: StringName in SkinState.order():
 		_row(2, KIND_SKIN, String(id), SkinState.display_name(id))
-	# Built always (the throw mode is decided per world build, after this window is made) and shown
-	# only while the throw combat is on (`refresh`).
 	_cursor[2] += SECTION_GAP
 	gulp_header = _header(2, "Gulp level")
 	var parts := ThrowMode.MAX_LEVEL + 1

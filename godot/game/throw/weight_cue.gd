@@ -105,7 +105,7 @@ func _process(delta: float) -> void:
 
 ## {"thing", "too_heavy", "weight"} for the target now ({} for none).
 func _pick() -> Dictionary:
-	if not bool(_numbers.get("enabled", true)) or not ThrowMode.is_on() or get_tree().paused:
+	if not bool(_numbers.get("enabled", true)) or get_tree().paused:
 		return {}
 	var world := Services.world()
 	var player: Node = world.player if world != null else null

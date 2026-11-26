@@ -152,9 +152,8 @@ func _spawn_testbed() -> void:
 	_draw_pen(parent)
 	var types: Array[String] = PEN_TYPES.duplicate()
 	var posts: Array[Vector2] = pen_posts.duplicate()
-	if ThrowMode.is_on():
-		types.append_array(THROW_PEN_TYPES)
-		posts.append_array(throw_pen_posts)
+	types.append_array(THROW_PEN_TYPES)
+	posts.append_array(throw_pen_posts)
 	for index: int in types.size():
 		var post: Vector2 = _pen_rect.position + (posts[index] if index < posts.size() else _pen_rect.size * 0.5)
 		pen.append({"type": types[index], "post": post, "root": null, "enemy": null, "respawn_at": -1.0})

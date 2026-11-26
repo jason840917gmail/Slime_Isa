@@ -9,7 +9,7 @@ extends RefCounted
 ## knockMode, walkCancel, hitStopMs, trauma, kickPx, pitch, sparks, the last step's `anticipation`,
 ## ...) and `charge` (ringMs, energy, class, its hit numbers; `ticks` for a charge that hits in
 ## ticks (none since the Spin hits once, owner 2026-10-12), the Quake's `cracks`).
-## Damage of a step = baseDamage x (character.player.stats.attack / 10) x damageScale.
+## Damage of a step = baseDamage x (character.player.stats.attack / 10) x damageScale x shapes.weaponDamageScale.
 ##
 ## Typed reads of the step and charge numbers the shape controller, ShapeStrike and ShapeVisuals
 ## share: the area kind of a step, its contact frames, the hold formula (combat-feel plan section 4),
@@ -32,6 +32,9 @@ const NAMES := {SPEAR: "spear", AXE: "axe", HAMMER: "hammer"}
 const CHAIN_PATH := "combat.chain"
 ## The attack stat that scales every shape's damage (attack 10 is neutral, as PlayerCombat).
 const STAT_ATTACK := "character.player.stats.attack"
+## One number scales every weapon hit (chain steps, ring hits, charges): one combat, 2026-11-25 (the
+## owner: "move spear axe and hammer to be weapon but with less damages"); thrown things keep theirs.
+const WEAPON_DAMAGE_SCALE := "shapes.weaponDamageScale"
 const ATTACK_STAT_BASELINE := 10.0
 ## The crit roll, once per swing (combat-feel plan section 4).
 const STAT_CRIT_CHANCE := "character.player.stats.critChance"
@@ -134,10 +137,16 @@ static func charge(id: StringName) -> Dictionary:
 	return raw if raw is Dictionary else {}
 
 
-## The energy the charge of shape `id` spends (0 without a charge): the ring's release, the throw
-## mode's shape power, and every card, chip and slot that shows its cost.
-static func charge_energy(id: StringName) -> float:
-	return num(charge(id), "energy")
+## A charge's numbers toward `direction` ("side", "down", "up"), on a copy: facing up a line's `upReach` and
+## facing down its `downReach` (the Lunge) replace its `reach`, so its tip lands as far from the slime's feet
+## as it does sideways (the line is measured from the slime's centre, which sits above the feet; 2026-11-25,
+## as the chain steps' up and down strikes).
+static func charge_toward(charge_data: Dictionary, direction: String) -> Dictionary:
+	var out := charge_data.duplicate()
+	var key := "upReach" if direction == "up" else "downReach" if direction == "down" else ""
+	if not key.is_empty() and charge_data.has(key):
+		out["reach"] = num(charge_data, key)
+	return out
 
 
 ## The Spin's ticks (`charge.ticks`: atMs, damageScale, last, launchSpeed, hitStopMs); [] for a charge
@@ -161,11 +170,18 @@ static func chain_number(key: String) -> float:
 	return constants.number("%s.%s" % [CHAIN_PATH, key]) if constants != null else 0.0
 
 
-## A step's damage before crits and target modifiers: baseDamage x attack / 10 x `scale`.
+## A step's damage before crits and target modifiers: baseDamage x attack / 10 x `scale` x
+## `shapes.weaponDamageScale` (every weapon hit: chain steps, ring hits, charges).
 static func damage(id: StringName, scale: float) -> float:
 	var constants := Services.constants()
 	var attack := constants.number(STAT_ATTACK) if constants != null else ATTACK_STAT_BASELINE
-	return base_damage(id) * (attack / ATTACK_STAT_BASELINE) * scale
+	return base_damage(id) * (attack / ATTACK_STAT_BASELINE) * scale * weapon_damage_scale()
+
+
+## `shapes.weaponDamageScale` (1 when the data has none).
+static func weapon_damage_scale() -> float:
+	var constants := Services.constants()
+	return float(constants.value(WEAPON_DAMAGE_SCALE, 1.0)) if constants != null else 1.0
 
 
 # --- typed step numbers ----------------------------------------------------------------------------

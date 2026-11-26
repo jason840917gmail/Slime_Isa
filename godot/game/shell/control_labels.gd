@@ -105,39 +105,40 @@ static func potion_keys_label() -> String:
 
 
 ## The body-shapes rework mode's rows (docs/godot/BODY_SHAPES.md "Controls in the rework mode";
-## body-shapes plan sections 5 and 6): the attack is the current shape's (tap to chain, hold to
-## charge), E the next shape, Q the whole mouth, `ability_use` the box ability chosen in the bag;
+## body-shapes plan sections 5 and 6; one combat, 2026-11-25): the attack is the current weapon's (tap
+## to chain, hold to charge, free), E the next weapon, Q the whole mouth with the throw rules,
+## `ability_use` the box ability chosen in the bag;
 ## no Swallow, Lash, Slam or Teleport keys. The scheme's own buttons come first, as in
 ## `control_rows`.
 static func rework_rows(scheme: String) -> Array[PackedStringArray]:
 	var rows: Array[PackedStringArray] = []
-	var charge := "taps in rhythm chain a combo (each strikes as you let go); hold until the ring fills, then let go to charge (costs energy)"
+	var charge := "taps in rhythm chain a combo (each strikes as you let go); hold until the ring fills, then let go to charge"
 	if ControlScheme.uses_orders(scheme):
 		var order := str(MOUSE_NAMES[ControlScheme.order_button(scheme)])
-		rows.append(PackedStringArray([order, "Walk there (hold to follow the pointer); attack what is under it with your shape; talk to, open or use it"]))
+		rows.append(PackedStringArray([order, "Walk there (hold to follow the pointer); attack what is under it with your weapon; talk to, open or use it"]))
 		if scheme == ControlScheme.CLICK:
 			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.use_button(scheme)]), "Talk, open or use what is under the pointer (walking there), else what is in reach; hold to pick up placed furniture"]))
-			rows.append(PackedStringArray(["Shift + " + order.to_lower(), "Attack in place toward the pointer; hold to charge (costs energy)"]))
+			rows.append(PackedStringArray(["Shift + " + order.to_lower(), "Attack in place toward the pointer; hold to charge"]))
 		else:
-			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.swing_button(scheme)]), "Attack in place toward the pointer; hold to charge (costs energy)"]))
+			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.swing_button(scheme)]), "Attack in place toward the pointer; hold to charge"]))
 		rows.append(PackedStringArray([movement_label(), "Move (stops a click order)"]))
 	elif ControlScheme.faces_pointer(scheme):
 		rows.append(PackedStringArray([control_label(&"move_up"), "Walk toward the pointer (the slime always faces it)"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your shape toward the pointer; %s" % charge]))
+		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your weapon toward the pointer; %s" % charge]))
 		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
 	else:
 		rows.append(PackedStringArray([movement_label(), "Move"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your shape; %s" % charge]))
+		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your weapon; %s" % charge]))
 		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
 	var keys_only := not ControlScheme.uses_mouse(scheme)
 	var toward := "the way the slime faces" if keys_only else "toward the pointer"
 	rows.append_array([
-		PackedStringArray([control_labels(&"weapon_next"), "Next shape (Spear, War Axe, Hammer: the ones you have)"]),
-		PackedStringArray([control_label(&"eat"), "Mouth: press to suck for a second; tap to throw what you hold or spit an essence out; hold until the ring fills to swallow an essence, or with an empty mouth to spit your form out"]),
-		PackedStringArray([control_label(&"ability_use"), "Use the ability chosen in the bag's Ability Box (%s)" % toward]),
 		PackedStringArray([control_label(&"dodge"), "Roll %s as you let go: a tap rolls a short way; with the charged-roll upgrade, hold to spin up, then dash straight on while held; bonk into walls (learned in the story)" % toward]),
+		PackedStringArray([control_label(&"ability_use"), "Use the ability chosen in the bag (%s)" % toward]),
+		PackedStringArray([control_label(&"eat"), "Gulp: press to suck for a second; tap to throw what you hold (its weight sets the blow) or spit an essence out; hold until the ring fills to swallow an essence, or with an empty mouth to spit your form out"]),
+		PackedStringArray([control_labels(&"weapon_next"), "Next weapon (Spear, War Axe, Hammer: the ones you have)"]),
 		PackedStringArray([potion_keys_label(), POTION_KEYS_TEXT]),
-		PackedStringArray([control_label(&"menu"), "Bag: your shapes and the Ability Box on top; crafting, journal and map"]),
+		PackedStringArray([control_label(&"menu"), "Bag: your weapons, abilities and skins on top (choose here); crafting, journal and map"]),
 		PackedStringArray([control_label(&"journal"), "Journal"]),
 		PackedStringArray([control_label(&"map"), "World map"]),
 		PackedStringArray(["%s / %s" % [control_label(&"zoom_in"), control_label(&"zoom_out")], "Zoom in / out"]),
@@ -177,10 +178,20 @@ static func movement_label() -> String:
 	return label
 
 
-## "Right click" -> "Right-click", for prompts that read as a verb.
+## "Right click" -> "Right-click", for prompts that read as a verb; a key reads "Press A" (the keys-only
+## scheme, the default since 2026-11-25: "A to attack" did not read).
 static func control_verb(action: StringName) -> String:
 	var label := control_label(action)
-	return label.trim_suffix(" click") + "-click" if label.ends_with(" click") else label
+	if label.ends_with(" click"):
+		return label.trim_suffix(" click") + "-click"
+	return "Press %s" % label if not label.is_empty() else label
+
+
+## How a text names `action`'s main binding inside a sentence: "the mouse wheel" for a mouse binding (in
+## lower case), the key itself ("E") for a key.
+static func control_in_sentence(action: StringName) -> String:
+	var label := control_label(action)
+	return "the " + label.to_lower() if label.contains(" ") else label
 
 
 ## `text` with each `{<action>}` replaced by that action's main key, so a text kept as data follows

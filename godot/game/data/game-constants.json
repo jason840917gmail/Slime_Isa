@@ -178,7 +178,6 @@
       }
     },
     "throwCombat": {
-      "enabled": true,
       "throwDamage": 25,
       "playgroundLevel": 1,
       "weights": {
@@ -430,6 +429,7 @@
     }
   },
   "shapes": {
+    "weaponDamageScale": 0.5,
     "spear": {
       "id": "shape-spear",
       "title": "Spear",
@@ -445,10 +445,10 @@
           "anticipation": { "pullMs": 160, "pullPx": 6, "pushPx": 4, "squashAlong": 0.84, "squashAcross": 1.12, "jumpPx": 0 } }
       ],
       "charge": {
-        "id": "lunge", "class": "charge", "ringMs": 600, "energy": 15,
+        "id": "lunge", "class": "charge", "ringMs": 600,
         "windupMs": 60, "activeMs": 120, "recoveryMs": 260,
         "damageScale": 1.74, "launchSpeed": 460, "hopPx": 0, "knockMode": "aim",
-        "minReach": 24, "reach": 170, "width": 18, "pierce": true, "dashPx": 40, "dashMs": 120,
+        "minReach": 24, "reach": 170, "upReach": 142.5, "downReach": 197.5, "width": 18, "pierce": true, "dashPx": 40, "dashMs": 120,
         "hitStopMs": 90, "trauma": 0.45, "kickPx": 6, "pitch": 1.26, "sparks": 14
       }
     },
@@ -468,7 +468,7 @@
           "anticipation": { "pullMs": 90, "pullPx": 4, "pushPx": 3, "squashAlong": 0.86, "squashAcross": 1.12, "jumpPx": 28 } }
       ],
       "charge": {
-        "id": "spin", "class": "charge", "ringMs": 900, "energy": 20,
+        "id": "spin", "class": "charge", "ringMs": 900,
         "windupMs": 0, "activeMs": 360, "recoveryMs": 300,
         "arcDeg": 360, "radius": 72, "damageScale": 2.2, "launchSpeed": 380, "hopPx": 0, "knockMode": "radial",
         "hitStopMs": 85, "trauma": 0.5, "kickPx": 0, "pitch": 1.0, "sparks": 12
@@ -491,7 +491,7 @@
           "ringHit": { "class": "ring", "radius": 72, "damageScale": 0.5, "bounceMs": 500 } }
       ],
       "charge": {
-        "id": "quake", "class": "charge", "ringMs": 1000, "energy": 25,
+        "id": "quake", "class": "charge", "ringMs": 1000,
         "windupMs": 320, "activeMs": 100, "recoveryMs": 450,
         "radius": 56, "offset": 68, "damageScale": 2.0, "launchSpeed": 420, "hopPx": 20, "knockMode": "radial",
         "hitStopMs": 150, "trauma": 0.75, "kickPx": 5, "pitch": 1.0, "sparks": 16,

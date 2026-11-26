@@ -346,10 +346,15 @@ func test_a_winch_lowers_the_drawbridge_for_good(t: TestContext) -> void:
 	var watch := _node(t, "HazardWatch")
 	var falls: Array = []
 	watch.connect(&"fell", func(payload: Dictionary) -> void: falls.append(payload))
-	t.teleport_player(Vector2(1536, 1500))
-	await _walk(t, &"move_up", 1300.0)
+	# From south of the void to past its north rim (feet above y 1290), at the walk speed
+	# (`character.player.movement.baseSpeed`) and a quarter of a second more.
+	var start_y := 1500.0
+	var past_y := 1290.0
+	var walk_speed := Services.constants().number("character.player.movement.baseSpeed")
+	t.teleport_player(Vector2(1536, start_y))
+	await _walk(t, &"move_up", (start_y + FEET - past_y) / walk_speed * 1000.0 + 250.0)
 	t.check(falls.is_empty(), "the slime fell off the lowered drawbridge")
-	t.check(t.player().get_centre().y + FEET < 1290.0, "the drawbridge did not carry the slime across")
+	t.check(t.player().get_centre().y + FEET < past_y, "the drawbridge did not carry the slime across")
 	await _enter_lab(t)
 	await t.steps(3)
 	t.check(bool(_node(t, "b1-drawbridge").call(&"holds")), "the drawbridge is up again after the world was built again")

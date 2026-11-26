@@ -6,8 +6,10 @@ extends RefCounted
 ## - No baked water bodies are left under ground/TileCollision.
 ##
 ## level-1's lake, in chunk world level-1-c5 (level-1 is cut into chunk worlds,
-## docs/godot/WORLD_ATLAS.md), chunk row 15: deep water at x = 0..9, shallow water at x = 10..13, deep water again at x = 14..15. The ford at column 5, rows 25..28,
-## joins the south shore at row 29; the entry test walks north into it.
+## docs/godot/WORLD_ATLAS.md), chunk row 15: deep water at x = 0..9, shallow water at x = 10..13,
+## deep water again at x = 14..15. East of the river road a shallow pool (columns 28-31, rows 13-15)
+## lies in the sand bank: the entry test walks south into it from the sand at (29, 12). (The lake's
+## ford at column 5, rows 25..28, is deep water since commit 1094d04d of 2026-11-23.)
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 
@@ -19,6 +21,8 @@ const DEEP_CELL := Vector2i(8, ROW)
 ## Physics layer "water" (project.godot layer_names/2d_physics/layer_11).
 const WATER_LAYER_BIT := 1 << 10
 const WALK_MS := 2500.0
+## Sand on the shallow pool's north shore; the pool's first shallow row is the one below.
+const POOL_SHORE := Vector2i(29, 12)
 
 
 func test_shallow_water_is_walkable_and_deep_water_is_solid(t: TestContext) -> void:
@@ -37,12 +41,16 @@ func test_shallow_water_is_walkable_and_deep_water_is_solid(t: TestContext) -> v
 
 func test_the_slime_walks_from_land_into_shallow_water(t: TestContext) -> void:
 	var body := t.player_body()
-	t.teleport_player(_centre(Vector2i(5, 29)))
+	var world := t.world()
+	var pool := POOL_SHORE + Vector2i.DOWN
+	t.check(not world.is_solid_tile(POOL_SHORE.x, POOL_SHORE.y), "the pool's shore is not open ground")
+	t.check(not world.is_solid_tile(pool.x, pool.y) and _tile_id(t, pool) == "water", "the pool's first row is not shallow water")
+	t.teleport_player(_centre(POOL_SHORE))
 	await t.steps(2)
-	t.press(&"move_up")
-	var entered := await t.until(func() -> bool: return body.global_position.y < 28.5 * CELL, 1500.0)
+	t.press(&"move_down")
+	var entered := await t.until(func() -> bool: return body.global_position.y > (pool.y + 0.5) * CELL, 1500.0)
 	t.release_all()
-	t.check(entered, "the slime did not walk into the ford (y = %.1f)" % body.global_position.y)
+	t.check(entered, "the slime did not walk into the shallow pool (feet y = %.1f)" % body.global_position.y)
 
 
 func test_the_slime_stops_at_deep_water(t: TestContext) -> void:
@@ -61,6 +69,11 @@ func test_the_slime_stops_at_deep_water(t: TestContext) -> void:
 
 func _centre(cell: Vector2i) -> Vector2:
 	return (Vector2(cell) + Vector2(0.5, 0.5)) * CELL
+
+
+func _tile_id(t: TestContext, cell: Vector2i) -> String:
+	var data := t.world().ground_layer.get_cell_tile_data(cell)
+	return str(data.get_custom_data("tile_id")) if data != null else ""
 
 
 func _water_at(t: TestContext, point: Vector2) -> bool:

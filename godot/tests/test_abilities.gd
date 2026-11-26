@@ -1,15 +1,26 @@
 extends RefCounted
-## Jump, Squash Slam, Teleport, Stretch Lash rules and energy (docs/godot/specs/abilities.md 19.5).
-## level-1 spawn: centre (640, 704). Times are simulation ms from the step that took the press.
+## Jump, Squash Slam, Teleport, Stretch Lash rules and energy (docs/godot/specs/abilities.md 19.5),
+## in the body-shapes rework mode that is on in every world (docs/godot/BODY_SHAPES.md "Running it",
+## "Controls in the rework mode"): the Slam, the Lash and the Teleport are Ability Box abilities, used
+## with `ability_use` once chosen in the box (their old number keys are dropped); the Slam is the
+## improved one (BODY_SHAPES.md "Slam", `abilities.squashSlam`); energy refills
+## `character.player.rework.energyRegenPerSecond` a second. The jump is hidden (abilities spec "Port
+## status": no key, no box socket, no lesson) but its logic stays and is run here through
+## `PlayerScript.use_ability`, the call every ability press ends in.
+## A new run starts in level-1's chunk C4 (`level-1-c4`, the slime's centre (732, 176)); the tests that
+## move stand on the open grass at centre (640, 704) first. Times are simulation ms from the step that
+## took the press.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const Services := preload("res://game/shared/services.gd")
+const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 
 const JUMP_MS := 420.0
 const JUMP_COOLDOWN_MS := 700.0
-const SLAM_IMPACT_MS := 320.0
 const WORM_HP := 90.0
-const SLAM_DAMAGE := 30.0
+const USE := &"ability_use"
+const SLAM := "abilities.squashSlam"
+const REWORK_REGEN := "character.player.rework.energyRegenPerSecond"
 const STEP := TestContext.STEP_MS
 
 
@@ -19,7 +30,7 @@ func test_unlearned_jump_is_refused(t: TestContext) -> void:
 	t.equal(status.get("unlocked"), false, "jump unlocked at a new run")
 	t.equal(status.get("earnedBy"), "Quest", "jump earnedBy")
 	t.equal(status.get("canActivate"), false, "jump canActivate")
-	t.tap(&"jump")
+	t.check(not player.use_ability(&"jump"), "an unlearned jump was accepted")
 	await t.steps(3)
 	t.check(not player.is_ability_busy(), "an unlearned jump started")
 
@@ -30,10 +41,9 @@ func test_jump_in_place_and_cooldown(t: TestContext) -> void:
 	var landings: Array = []
 	t.listen(player.jump_landed, func(payload: Dictionary) -> void: landings.append([t.now(), payload]))
 	var start := player.get_centre()
-	t.tap(&"jump")
-	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the jump did not start"):
-		return
 	var began := t.now()
+	if not t.check(player.use_ability(&"jump") and player.is_ability_busy(), "the jump did not start"):
+		return
 	t.check(player.is_action_locked(), "not action-locked during the jump")
 	t.near(player.ability_status(&"jump")["cooldownRemainingMs"], JUMP_COOLDOWN_MS, STEP + 0.5, "cooldown at the press")
 	await t.until(func() -> bool: return not landings.is_empty(), 1000.0)
@@ -46,26 +56,24 @@ func test_jump_in_place_and_cooldown(t: TestContext) -> void:
 	t.check(not player.is_action_locked(), "still locked after landing")
 	# Second jump inside the cooldown is refused; after it, accepted.
 	await t.until(func() -> bool: return t.now() >= began + 500.0, 1000.0)
-	t.tap(&"jump")
-	await t.steps(3)
-	t.check(not player.is_ability_busy(), "a jump %d ms after the first started (cooldown 700)" % roundi(t.now() - began))
+	t.check(not player.use_ability(&"jump"), "a jump %d ms after the first started (cooldown 700)" % roundi(t.now() - began))
 	await t.until(func() -> bool: return t.now() >= began + JUMP_COOLDOWN_MS + STEP, 1000.0)
-	t.tap(&"jump")
-	t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "a jump after the cooldown was refused")
+	t.check(player.use_ability(&"jump"), "a jump after the cooldown was refused")
 
 
 func test_jump_right_carries_the_body_through_the_air(t: TestContext) -> void:
 	var player := t.player()
 	Services.run().learn_ability("jump")
-	var start := player.get_centre()
+	# Open level ground for 168 px to the right (the spawn's row is not: a hop stops before it).
+	t.teleport_player(Vector2(640.0, 704.0))
+	await t.steps(2)
+	# The jump goes where the movement keys point (abilities spec 3.2).
 	t.press(&"move_right")
 	await t.steps(1)
-	start = player.get_centre()
-	t.tap(&"jump")
-	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the jump did not start"):
+	var start := player.get_centre()
+	if not t.check(player.use_ability(&"jump") and player.is_ability_busy(), "the jump did not start"):
 		return
 	t.release_all()
-	start = player.get_centre()
 	await t.sim_wait(JUMP_MS / 2.0)
 	# The body travels evenly (the camera follows it); the art arcs over it.
 	t.between(player.get_centre().x - start.x, 168.0 * 0.5 - 16.0, 168.0 * 0.5 + 16.0, "body x mid-jump")
@@ -73,25 +81,40 @@ func test_jump_right_carries_the_body_through_the_air(t: TestContext) -> void:
 	t.near(player.get_centre().x - start.x, 168.0, 0.5, "jump distance right")
 
 
+## The improved Slam (BODY_SHAPES.md "Slam"): at its impact (`impactMs`) the ground ellipse
+## (`ellipse` width x height around the slime) strikes; the worm 60 px to the right is outside the
+## inner half (`innerShare`) and inside the ellipse, so it takes the outer ring's damage with the
+## ring class; the worm 200 px away is out of reach. The Slam spends its `energy`.
 func test_slam_hits_worm_in_reach_only(t: TestContext) -> void:
 	var player := t.player()
+	var constants := Services.constants()
+	var impact_ms := constants.number(SLAM + ".impactMs")
+	var ring_damage := constants.number(SLAM + ".outer.damage")
+	var energy := constants.number(SLAM + ".energy")
 	Services.run().learn_ability("squash-slam")
 	var near := t.spawn_worm(Vector2(60.0, 0.0), true)
 	var far := t.spawn_worm(Vector2(200.0, 0.0), true)
 	if not t.check(near != null and far != null, "no worms"):
 		return
+	var classes: Array = []
+	t.listen(Services.router().routed, func(payload: Dictionary) -> void:
+		var request: Dictionary = payload.get("request", {})
+		if request.get("target_area") == near.damage_area:
+			classes.append(str((request.get("hit", {}) as Dictionary).get("class", ""))))
 	await t.steps(1)
-	t.tap(&"squash_slam")
+	if not t.check(_choose(t, &"squash-slam"), "the Slam could not be chosen in the box"):
+		return
+	t.tap(USE)
 	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the slam did not start"):
 		return
 	var began := t.now()
-	await t.until(func() -> bool: return t.now() >= began + SLAM_IMPACT_MS - 2.0 * STEP, 1000.0)
+	await t.until(func() -> bool: return t.now() >= began + impact_ms - 2.0 * STEP, 1000.0)
 	t.equal(float(near.get_damage_state()["hp"]), WORM_HP, "near worm HP before the impact")
 	await t.until(func() -> bool: return float(near.get_damage_state()["hp"]) < WORM_HP, 300.0)
-	t.equal(float(near.get_damage_state()["hp"]), WORM_HP - SLAM_DAMAGE, "near worm HP after the slam")
-	t.check(near.body.velocity.x > 200.0, "near worm knockback %s (expected about 242 right)" % [near.body.velocity])
+	t.equal(float(near.get_damage_state()["hp"]), WORM_HP - ring_damage, "near worm HP after the slam (the outer ring)")
+	t.equal(classes, ["ring"], "the near worm's hit classes")
 	t.equal(float(far.get_damage_state()["hp"]), WORM_HP, "far worm HP")
-	t.between(player.get_energy(), 70.0, 75.0, "energy after the slam (100 - 30, plus regen)")
+	t.between(player.get_energy(), 100.0 - energy, 100.0 - energy + 1.0, "energy after the slam (100 - %d, plus regen)" % roundi(energy))
 
 
 func test_teleport_lands_ahead_and_blocked_is_refused(t: TestContext) -> void:
@@ -103,14 +126,16 @@ func test_teleport_lands_ahead_and_blocked_is_refused(t: TestContext) -> void:
 	await t.steps(2)
 	start = player.get_centre()
 	var expected: Vector2 = player.get_abilities().AbilityTerrain.safe_landing(start, Vector2.RIGHT, 240.0, player.body_rids())
-	t.tap(&"teleport")
+	if not t.check(_choose(t, &"teleport"), "the Teleport could not be chosen in the box"):
+		return
+	t.tap(USE)
 	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the teleport did not start"):
 		return
 	var began := t.now()
 	t.near_vec(player.get_centre(), start, 0.5, "still at the start before 120 ms")
 	await t.until(func() -> bool: return t.now() >= began + 130.0, 500.0)
 	t.near_vec(player.get_centre(), expected, 0.5, "landing")
-	t.between(player.get_energy(), 65.0, 67.0, "energy after the teleport (100 - 35, plus regen)")
+	t.between(player.get_energy(), 65.0, 66.0, "energy after the teleport (100 - 35, plus regen)")
 	await t.until(func() -> bool: return not player.is_ability_busy(), 1000.0)
 	t.between(t.now() - began, 300.0 - STEP, 300.0 + STEP, "teleport length (ms)")
 
@@ -119,13 +144,16 @@ func test_low_energy_refuses_and_regen(t: TestContext) -> void:
 	var player := t.player()
 	Services.run().learn_ability("stretch-lash")
 	player.set_energy(10.0)
-	t.tap(&"stretch_lash")
+	if not t.check(_choose(t, &"stretch-lash"), "the Lash could not be chosen in the box"):
+		return
+	t.tap(USE)
 	await t.steps(3)
 	t.check(not player.is_ability_busy(), "a lash started with 10 energy (costs 20)")
+	var regen := Services.constants().number(REWORK_REGEN)
 	var before := player.get_energy()
 	var from := t.now()
 	await t.sim_wait(1000.0)
-	t.near(player.get_energy() - before, 8.0 * (t.now() - from) / 1000.0, 0.2, "regen 8 per second")
+	t.near(player.get_energy() - before, regen * (t.now() - from) / 1000.0, 0.2, "regen %s per second (rework mode)" % regen)
 
 
 func test_lash_faces_its_direction(t: TestContext) -> void:
@@ -153,7 +181,9 @@ func test_lash_into_nothing_retracts(t: TestContext) -> void:
 	player.face(Vector2.DOWN)
 	await t.steps(2)
 	start = player.get_centre()
-	t.tap(&"stretch_lash")
+	if not t.check(_choose(t, &"stretch-lash"), "the Lash could not be chosen in the box"):
+		return
+	t.tap(USE)
 	if not t.check(await t.until(func() -> bool: return player.is_ability_busy(), 100.0), "the lash did not start"):
 		return
 	var began := t.now()
@@ -167,3 +197,12 @@ func test_lash_into_nothing_retracts(t: TestContext) -> void:
 	t.check(length <= 300.0 + STEP, "the lash lasted %d ms (expected 270 into nothing, 280 heavy without pull)" % roundi(length))
 	t.near_vec(player.get_centre(), start, 1.0, "the slime did not move")
 	t.near(player.ability_status(&"stretch-lash")["cooldownRemainingMs"], 2000.0 - length, STEP + 1.0, "lash cooldown left")
+
+
+# --- helpers ----------------------------------------------------------------------------------
+
+## Chooses the learned box ability `id` (the bag's Abilities row: AbilityBox.select), so the next
+## `ability_use` press uses it.
+func _choose(t: TestContext, id: StringName) -> bool:
+	return AbilityBox.select(t.player(), id) and AbilityBox.selected(t.player()) == id
+

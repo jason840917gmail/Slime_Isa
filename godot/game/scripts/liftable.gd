@@ -17,8 +17,7 @@ class_name LiftableScript
 ## `-pinecone` are the same scene with the kind preset.
 ##
 ## It is part of its world scene, so it is back whenever the map is entered again. A `heavy` one
-## needs a lift upgrade and cannot be sucked in. In the throw-combat experiment (THROW_COMBAT.md)
-## every kind has a weight and the Gulp's level decides (`can_take`, `weight`, `is_too_heavy`). The root is a StaticBody2D (the
+## needs the Gulp's level 3. Every kind has a weight and the Gulp's level decides (THROW_COMBAT.md) (`can_take`, `weight`, `is_too_heavy`). The root is a StaticBody2D (the
 ## slime walks around it); its ground point is the root.
 ##
 ## Owner: abilities.
@@ -132,10 +131,8 @@ func suck_info() -> Dictionary:
 func can_take() -> bool:
 	if not is_inside_tree() or get_parent().is_queued_for_deletion():
 		return false
-	# Throw combat: the Gulp's level against the thing's weight (a `heavy` one is heavy).
-	if ThrowMode.is_on():
-		return ThrowMode.can_lift(weight())
-	return not heavy
+	# The Gulp's level against the thing's weight (a `heavy` one is heavy).
+	return ThrowMode.can_lift(weight())
 
 
 ## Throw combat: "light", "medium" or "heavy": `weight_class` when set, else the kind's usual weight
@@ -148,8 +145,7 @@ func weight() -> String:
 
 ## Throw combat: it lies here but the Gulp's level is too low to lift it (the mouth says so).
 func is_too_heavy() -> bool:
-	return ThrowMode.is_on() and is_inside_tree() and not get_parent().is_queued_for_deletion() \
-		and not ThrowMode.can_lift(weight())
+	return is_inside_tree() and not get_parent().is_queued_for_deletion() and not ThrowMode.can_lift(weight())
 
 
 ## Sucked in: the thing leaves the world.

@@ -6,9 +6,11 @@ extends RefCounted
 ## - a drop off the rim over a balcony lands on it, not at the wall's foot;
 ## - on it the slime walks and stays on its floor; a push off its edge drops it to the foot, unhurt;
 ## - vines lead from the foot onto a balcony and from it on up to the rim (the Feral skin).
+## The lab's climb monsters are taken out first (they knock the slime off).
 
 const TestContext := preload("res://tests/lib/test_context.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
+const Services := preload("res://game/shared/services.gd")
 
 const MAP_ID := "climb-lab"
 const CENTRE_RISE := 27.56
@@ -33,7 +35,27 @@ func _enter(t: TestContext) -> bool:
 		t.main.call(&"travel_to", MAP_ID)
 	var arrived := await t.until(func() -> bool: return t.in_world(MAP_ID) and t.player_body() != null, 10000.0)
 	await t.steps(8)
-	return t.check(arrived, "could not travel to " + MAP_ID)
+	if not t.check(arrived, "could not travel to " + MAP_ID):
+		return false
+	# The lab's climb monsters (placed 2026-11-16: the Rock Chucker on the rim, a Spiny Caterpillar on
+	# the vines from the lower balcony up, the Ledge Raven round the upper balcony) hit and knock the
+	# slime off what these tests stand it on: they go first.
+	for enemy: Node in t.tree.get_nodes_in_group(&"enemy"):
+		var holder := enemy.get_parent()
+		if holder != null:
+			holder.queue_free()
+	await t.steps(2)
+	return t.check(t.tree.get_nodes_in_group(&"enemy").is_empty(), "the climb lab's enemies are still there")
+
+
+## An interact press as a key gives it (held a few frames, then let up): the climb is a toggle
+## since 2026-11-24, one press clings and the next lets go; a press let up in the frame it was
+## pushed reaches the placed wall but not always the painted vines.
+func _tap_interact(t: TestContext) -> void:
+	t.press(&"interact")
+	await t.steps(3)
+	t.release(&"interact")
+	await t.steps(1)
 
 
 func _stand(t: TestContext, feet: Vector2, facing: Vector2) -> void:
@@ -60,9 +82,11 @@ func test_a_drop_off_the_rim_lands_on_the_balcony_under_it(t: TestContext) -> vo
 	var feet := body.global_position
 	t.check(feet.y > UPPER_BACK and feet.y < UPPER_BACK + UPPER_WIDTH * 0.2 + 1.0, "the slime is not on the balcony's floor (feet %s)" % feet)
 	t.equal(player.get_hp(), hp, "the drop onto the balcony cost health")
-	# It walks on the floor and stays on it.
+	# It walks on the floor and stays on it: a walk four fifths of the way to the floor's side edge (a
+	# longer one pushes on against the edge for `elevation.dropPushMs` and drops off, as built).
+	var speed := Services.constants().number("character.player.movement.baseSpeed")
 	t.press(&"move_right")
-	await t.sim_wait(900.0)
+	await t.sim_wait(UPPER_WIDTH * 0.34 * 0.8 / speed * 1000.0)
 	t.release(&"move_right")
 	t.check(player.is_on_balcony(), "walking sideways took the slime off the balcony")
 	t.check(body.global_position.x > UPPER_X + 10.0, "the slime did not walk on the balcony (feet %s)" % body.global_position)
@@ -88,7 +112,7 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	SkinState.lend(SkinState.FERAL)
 	# From the foot up the vines under the lower balcony: off them onto its floor.
 	await _stand(t, Vector2(UP_TO_IT_X, FOOT_Y + 30.0), Vector2.UP)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press at the vines' foot did not take hold"):
 		t.release_all()
 		return
@@ -103,7 +127,7 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	# On up: the vines over the balcony, from its floor to the rim.
 	await _stand(t, Vector2(ON_UP_X, LOWER_BACK + 24.0), Vector2.UP)
 	t.check(player.is_on_balcony(), "the slime put under the upper vines does not stand on the balcony")
-	t.tap(&"interact")
+	await _tap_interact(t)
 	if not t.check(await t.until(func() -> bool: return player.is_climbing(), 300.0), "an interact press on the balcony under the vines did not take hold"):
 		t.release_all()
 		return
@@ -116,9 +140,9 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	t.press(&"move_up")
 	await t.sim_wait(600.0)
 	t.release_all()
-	t.tap(&"interact")
+	await _tap_interact(t)
 	t.check(await t.until(func() -> bool: return player.is_on_balcony(), 2000.0), "a let-go over the balcony did not land on it (feet %s)" % body.global_position)
-	t.tap(&"interact")
+	await _tap_interact(t)
 	await t.until(func() -> bool: return player.is_climbing(), 300.0)
 	t.press(&"move_up")
 	var up := await t.until(func() -> bool: return not player.is_climbing() and body.global_position.y < RIM_Y, 8000.0)
@@ -126,3 +150,4 @@ func test_vines_lead_onto_a_balcony_and_on_up_from_it(t: TestContext) -> void:
 	await t.steps(4)
 	t.check(up, "the vines over the balcony did not lead up to the rim (feet %s)" % body.global_position)
 	t.equal(t.world().elevation.level_of(body), 12, "the slime's level on the top")
+

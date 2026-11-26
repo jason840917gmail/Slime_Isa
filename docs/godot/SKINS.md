@@ -197,9 +197,9 @@ the Verdant Gate's road and that it takes real weight to move it.
   placed wall's prompt, "Climb"; "Climb (hold)" until 2026-11-24) takes hold, and the slime glides onto it. **The cling is a
   toggle since 2026-11-24** (the owner: "i cant use e while climbing since W have to be press ... i
   can't neither use spear while climbing"): the slime clings until the next interact press lets go
-  (player.gd `_step_climb`), so no key has to be held; on the wall the chosen box ability's key
-  strikes with the Spear when the Spear's power is chosen (as the Gulp's press does), and E opens
-  the ability carousel in the throw mode. **The movement keys move it over the surface, any way,** at
+  (player.gd `_step_climb`), so no key has to be held; on the wall the attack key (A) strikes with
+  the current weapon and E switches it (one combat, 2026-11-25; before, the Gulp's key and the Spear's
+  box power struck there and E opened the ability carousel). **The movement keys move it over the surface, any way,** at
   `skins.feral.climbSpeed` (150 px/s), sliding along its edges, except the open sides of vines: moved
   off those it falls ([No limit at the sides](#painting-vines), the owner, 2026-11-13); with no
   movement key it stays where it is. Its body does not collide on the face and is drawn in front of it; claws show; it faces

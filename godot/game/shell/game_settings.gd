@@ -41,7 +41,7 @@ const DEFAULTS := {
 	"screen_shake": 1.0,
 	"reduce_motion": false,
 	"attack_aim": "pointer",
-	"control_scheme": "keyboard",
+	"control_scheme": "keys",
 	"damage_numbers": true,
 }
 ## How the mouse drives the slime (game/player/mouse/control_scheme.gd): the keyboard scheme (WASD

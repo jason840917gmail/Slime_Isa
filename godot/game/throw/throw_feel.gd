@@ -7,8 +7,8 @@ extends RefCounted
 ## (thrown_object.gd `rework_hit`). While it is off every reader gets the old numbers (`gulp`,
 ## `gulp.throwHit`, `gulp.throwCombat`, `gulp.feel`), so the throw plays exactly as before.
 ##
-## - **The switch** (`is_on`): the throw mode on (ThrowMode) and `gulp.throwFeel.enabled`, unless the
-##   session's dev switch says otherwise (`set_session`, `toggle`: the throw yard's F1).
+## - **The switch** (`is_on`): `gulp.throwFeel.enabled`, unless the session's dev switch says otherwise
+##   (`set_session`, `toggle`: the throw yard's F1, to compare with the old feel).
 ## - **Numbers**: `base_damage`, `throw_speed`, `throw_range_px`, `look_px(weight)`, `hit_block(weight)`
 ##   (the weight's `hit` row: hit-stop, trauma, kick, sparks, knockback, launch speed), `streak`, and
 ##   the plain readers `number`, `flag`, `block`, `cue` for every other key.
@@ -33,9 +33,9 @@ static var _session: int = -1
 static var _rebound_session: int = -1
 
 
-## True while the new feel plays: the throw mode on, and the constants' switch or the session's.
+## True while the new feel plays: the constants' switch or the session's.
 static func is_on() -> bool:
-	if not ThrowMode.is_on() or _session == 0:
+	if _session == 0:
 		return false
 	return _session == 1 or enabled_in_data()
 
@@ -56,14 +56,14 @@ static func clear_session() -> void:
 	_session = -1
 
 
-## Flips the feel for the session; returns whether it is on now (false too while the throw mode is
-## off, where it cannot play).
+## Flips the feel for the session; returns whether it is on now.
 static func toggle() -> bool:
 	set_session(not is_on())
 	return is_on()
 
 
-## A throw's base damage: `gulp.throwFeel.throwDamage`, or the throw mode's while the feel is off.
+## A throw's base damage: `gulp.throwFeel.throwDamage`, or `gulp.throwCombat.throwDamage` while the feel
+## is off (the yard's F1).
 static func base_damage() -> float:
 	return number("throwDamage", ThrowMode.base_damage()) if is_on() else ThrowMode.base_damage()
 

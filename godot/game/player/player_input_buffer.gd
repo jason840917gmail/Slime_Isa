@@ -15,7 +15,7 @@ const ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"mo
 	&"attack", &"sprint", &"dodge", &"interact", &"jump", &"stretch_lash", &"squash_slam",
 	&"teleport", &"eat", &"swallow", &"potion_1", &"potion_2", &"potion_3", &"potion_4"]
 ## Actions captured only in the body-shapes rework mode (game/shapes/rework_mode.gd): the chosen
-## Ability Box ability (F; S in keys-only, A in the throw mode's keys-only layout). With the mode off
+## Ability Box ability (F; D in keys-only). With the mode off
 ## they pass through untouched.
 const REWORK_ACTIONS: Array[StringName] = [&"ability_use"]
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
