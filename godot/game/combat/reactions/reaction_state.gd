@@ -66,6 +66,10 @@ var sendoff_pitch: float = 1.0
 ## is over) the slime can gulp it as ammo (EnemyReactions `is_helpless`; game/throw/gulpable_enemy.gd).
 var throw_helpless: bool = false
 var helpless_from_ms: float = 0.0
+## A weapon's finisher or charge landed (one combat, 2026-11-25: a combo sets up the throw): once the
+## knock it gave is over, the enemy stands dazed and helpless for `weapon_daze_ms` (0: none pending;
+## EnemyReactions `_note_weapon_daze`, `_start_weapon_daze`).
+var weapon_daze_ms: float = 0.0
 ## A blow moves the body until then (a knock slide, a launch, a bowl, a sliding corpse, while it is
 ## fast): the ground's hazards take it (enemy_hazards.gd: a ledge, a hole, deep water, a danger
 ## zone). The spikes or lava Hazard a blow put it in (its instance id; 0 = none) and when it hurts
@@ -119,6 +123,7 @@ func copy() -> RefCounted:
 	twin.set(&"sendoff_pitch", sendoff_pitch)
 	twin.set(&"throw_helpless", throw_helpless)
 	twin.set(&"helpless_from_ms", helpless_from_ms)
+	twin.set(&"weapon_daze_ms", weapon_daze_ms)
 	twin.set(&"blown_until_ms", blown_until_ms)
 	twin.set(&"zone_hazard", zone_hazard)
 	twin.set(&"zone_next_ms", zone_next_ms)
@@ -156,6 +161,7 @@ func reset() -> void:
 	sendoff_pitch = 1.0
 	throw_helpless = false
 	helpless_from_ms = 0.0
+	weapon_daze_ms = 0.0
 	blown_until_ms = 0.0
 	zone_hazard = 0
 	zone_next_ms = 0.0

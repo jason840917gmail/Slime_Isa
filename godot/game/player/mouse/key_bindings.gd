@@ -1,20 +1,20 @@
 extends RefCounted
-## The keys-only control scheme's bindings (game/player/mouse/control_scheme.gd, `keys`): while it is
-## on, the InputMap is rebound so every action, prompt, hint and the Controls list follow at once
-## (they read the InputMap). One layout (one combat, owner, 2026-11-25: "S will stay as roll and D will
+## The keys-only control scheme's bindings, the game's one scheme since the one combat (piece 5,
+## 2026-11-25: the four mouse schemes and the F2 switch are gone): the InputMap is rebound so every
+## action, prompt, hint and the Controls list follow at once (they read the InputMap). One layout (one combat, owner, 2026-11-25: "S will stay as roll and D will
 ## be ability. Q suck and W interact"): the arrows walk, A attacks with the current weapon (a tap for
 ## its combo, a hold for its charge), S rolls, D uses the ability chosen in the bag, Q is the Gulp
 ## (suck, throw, swallow, spit), W interacts, E alone switches the weapon (no key goes back: owner,
 ## 2026-10-08), and no mouse button or wheel does anything in play. The other keys are project.godot's
-## (B the bag, J the journal, M the map). Switching to another scheme puts every action's events back
-## exactly as project.godot has them.
+## (B the bag, J the journal, M the map). `apply(false)` puts every action's events back exactly as
+## project.godot has them (the rework layer does that around its own changes, then applies it again).
 ## GameSettings applies it (`apply_to_input`) at start-up and on every change. It sits on top of the
 ## rework's own input layer (game/shapes/rework_input.gd), which takes this one off and puts it back
 ## around every change of its own, so each restores only what it changed.
 ##
 ## Owner: player builder.
 
-## Action -> the physical keys it has in the keys-only scheme (nothing else).
+## Action -> the physical keys it has (nothing else).
 const LAYOUT := {
 	&"move_up": [KEY_UP],
 	&"move_down": [KEY_DOWN],

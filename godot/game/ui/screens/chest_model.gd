@@ -10,12 +10,10 @@ const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ItemIcons := preload("res://game/inventory/item_icons.gd")
 ## The coins' picture: the coins cell of the dungeon pickups sheet (dungeon_pickup.gd).
 const DungeonPickup := preload("res://game/dungeon/dungeon_pickup.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 const TITLE := "Chest"
 const TAKE_TEXT := "Take Stack"
 const CLOSE_TEXT := "Close"
-const INITIAL_STATUS := "Select a stack to inspect. Right-click or press Take Stack to collect it."
 ## The opening status in the keys-only control scheme (no mouse: owner, 2026-10-20).
 const KEYS_STATUS := "Arrows or WASD choose a stack. Space takes it."
 const NO_ROOM_STATUS := "No inventory space for that item."
@@ -27,9 +25,9 @@ const MOVED_FORMAT := "Moved %d × %s"
 const COINS := "coins"
 
 
-## The opening status: the keys-only scheme names its keys, every other scheme the right click.
+## The opening status: it names the keys (keys only, the one scheme since 2026-11-25).
 static func initial_status() -> String:
-	return KEYS_STATUS if ControlScheme.current() == ControlScheme.KEYS else INITIAL_STATUS
+	return KEYS_STATUS
 
 
 ## The stacks still inside: [[item_id, count]] with count > 0, in record order.

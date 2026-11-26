@@ -38,7 +38,7 @@ nothing in the dungeons needs a form.
 | `SkinState.look()` / `set_look(id)` | The everyday look (`&""` = the goo) |
 | `SkinState.show(player, id)` | A lock tells the slime its skin works now (player.gd `show_skin`) |
 | `SkinState.definition(id)`, `display_name`, `look_index`, `color`, `setting(path, fallback)` | `skins.defs.<id>` and the skins' numbers |
-| `SkinState.text(id, "line" / "how")` | The skin's texts with their keys named from the bindings: a `{<action>}` in the data reads as that action's key (`ControlLabels.with_keys`: "holding {interact}" is "holding W" in the keys-only scheme, "holding right click" with the mouse). The bag card and the ceremony line read them so |
+| `SkinState.text(id, "line" / "how")` | The skin's texts with their keys named from the bindings: a `{<action>}` in the data reads as that action's key (`ControlLabels.with_keys`: "holding {interact}" is "holding W" with the keys-only layout, "holding right click" with project.godot's own bindings). The bag card and the ceremony line read them so |
 
 player.gd keeps the old hooks, now on the skins: `presses_plates()` is the Heavy skin (heavy
 plates, pressure plates, heavy blocks, a slam's Heavy impact on cracked ground), `crosses_webs()`
@@ -98,7 +98,7 @@ barriers (crossed); the climb; the Spear's fast steps.
   holding W pushes or pulls heavy blocks and statues."; Pearl 1's card (pearl.gd `card_line`, also
   through `ControlLabels.with_keys`) "Fatty's weight is yours: you sink heavy plates, and holding W
   you push or pull heavy statues and blocks." The data keeps the key as `{interact}`, so the words
-  follow the control scheme.
+  follow the bindings.
 - **The touch hint:** while the Heavy slime faces and touches a heavy block (heavy_grab.gd
   `block_in_reach`, the grab's own test) or holds one, the control hints' pill shows "Hold W to push
   or pull" (game/hints/control_hints.gd `heavy-grab`, the interact key's label), ahead of the other
@@ -106,9 +106,7 @@ barriers (crossed); the climb; the Spear's fast steps.
   has both pushed and pulled a block (story flags `hint.heavy-grab.push` and `.pull`, then
   `hint.heavy-grab`; owner, 2026-10-19: learned on the first move it flashed away before it could be
   read); then it never shows again in that run. Without the skin it never shows (the strain line says
-  "Too heavy to move."), nor while the mouth holds something (the grab does not start then), nor in
-  the moba scheme (its right button walks, so nothing holds the grab there; the click scheme's held
-  right button does). Rework mode only, as the grab.
+  "Too heavy to move."), nor while the mouth holds something (the grab does not start then). Rework mode only, as the grab.
 - **Yoi's statue maze** (owner, 2026-11-20: reaching Yoi's chest needs pulling statues with the
   Heavy skin, so his Roll Fragment always comes after Burr's): in Yoi's home
   (`slimeshire-yoi-home`, 16 x 12 cells with cottage walls since 2026-11-20), stone dividers on

@@ -26,16 +26,16 @@ combat and no switch**:
 - **Charges are free**: the hold through the ring is the cost; no energy, no fizzle.
 - **What went**: the shape powers (the shapes in the Ability Box, `ShapeController.power_strike`, their
   cards and costs), the ability carousel (`game/shell/ability_carousel.gd` and the Shell's hooks), "no
-  attack" (the attack hints are back; a click on an enemy attacks again in the mouse schemes), the
+  attack" (the attack hints are back), the
   climb strike on Q (it is on A again), the three stacked keys-only layouts. E switches the weapon (the
   HUD's weapon slot shows it); an ability is chosen in the bag's Abilities row (its name floats over the
   slime) and used on D.
-- **The keys** (keys only, the default for a fresh settings file): arrows move, **A** attack, **S** roll,
+- **The keys** (keys only, the one scheme since piece 5: the four mouse schemes and F2 are gone): arrows move, **A** attack, **S** roll,
   **D** the chosen ability, **Q** the Gulp, **W** interact, **E** next weapon, **B** the bag
   ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md#the-keys-only-scheme)).
 - **Pictured**: `tools/film_one_combat.gd` films a Spear combo on a worm, a pot thrown at another, E
   to the Axe, a charge with no energy and an ability picked in the bag and used on D, each with a PASS
-  or FAIL, and pictures the HUD, the bag and the Controls list (`scripts/godot/one-combat-sheet.py`
+  or FAIL, and pictures the HUD, the bag, the Controls list and the Settings window (`scripts/godot/one-combat-sheet.py`
   makes the strip and the GIF): `output/combat/one-combat/`.
 - Not yet (the plan's next pieces): a combo's daze making an enemy liftable (3), materials and immunity
   (4), the other control schemes removed (5), the bosses re-tuned (6).
@@ -316,6 +316,23 @@ Super Mario Bros. 2: the enemy you just stunned is the next thing you throw.
   (`EnemyReactions.is_helpless`). A body bowled into in a chain ends its tumble dazed
   (`combat.rules.bowling.chainDazeMs`), so it counts too. So the weak throwables have a job: a
   snowball or a puffball sets an enemy up.
+- **The second way in: a combo sets up the throw** (one combat, 2026-11-25; the plan's piece 3, the
+  owner approved the 1.5 s). The last step of a weapon's combo or its charge that lands (a weapon hit,
+  one with a `shape` and no `thrown` tag, marked `last`: the Spear's lunging jab, the Axe's chop, the
+  Hammer's BOOM and its ring, any charge; the Hammer's thud and the other taps never) leaves the enemy dazed
+  and helpless for `combat.rules.weaponDaze.windowMs` (1500), on the same path as a throw's daze: the
+  blow's own knock plays out first (the light enemy's launch, the medium one's knockback), then it
+  stands dazed with the daze's stars (EnemyReactions `_note_weapon_daze` at the hit, `_start_weapon_daze`
+  in `after_move` once the stun and the launch are over: no wake guard over it, its attack cancelled).
+  The Gulp takes it if its level lifts the weight; one too heavy is dazed all the same and the suck
+  says "Too heavy! (Gulp N needed)". A heavy enemy only when the blow broke its poise (the Clod Stomper:
+  jab, jab, then the finisher breaks its 4; its crouch and hop are all armor and leave the pool alone,
+  so it is struck while it walks). Plain taps never, a boss never, and the patterned enemies' phases
+  marked `noSleep` and their shields still refuse. Enough weapon hits still kill. **The first time in
+  a run** (story flag `hint.weapon-daze`) the line "Dazed! Press Q to suck it up, then Q to throw it"
+  shows over the slime and a pointer flashes the enemy (`game/throw/weapon_daze_hint.gd`,
+  `game/feel/hint_cue.gd`). Filmed by `tools/film_combo_daze.gd` (seven checks, all PASS, the Hammer's among them:
+  `output/combat/combo-daze/film/strip.png`, `combo-daze.gif`); tested in `tests/test_weapon_daze.gd`.
 - **Shown**: within `hintRangePx` of the slime a gulpable enemy pulses a goo-green ring at its feet
   and a green outline (`enemyAmmo.hint`).
 - **Carried**: the suck takes it into the mouth as any suckable (`game/throw/gulpable_enemy.gd`);
@@ -495,6 +512,8 @@ The Gulp's level in a run: 2 once the run learned `gulp-lift-medium`, 3 once it 
 | `game/throw/throw_rebound.gd`, `throw_glow.gd` | a sturdy thing's rebound, landing and catch; the hot glow |
 | `game/throw/bounced_throw.gd` | a thing bounced back off a Jelly Bouncer: its flight at the slime, its hit, the catch |
 | `game/throw/gulpable_enemy.gd`, `gulped_enemy_look.gd` | a helpless enemy as a suckable, carried and thrown; its picture in the mouth |
+| `game/combat/reactions/enemy_reactions.gd`, `reaction_state.gd`, `game/throw/weapon_daze_hint.gd` | the weapon's daze (`_note_weapon_daze`, `_start_weapon_daze`, `weapon_daze_ms`) and its first-time hint |
+| `tools/film_combo_daze.gd`, `tests/test_weapon_daze.gd` | the combo that sets up the throw, filmed (seven checks) and tested |
 | `game/combat/reactions/enemy_hazards.gd` | knocked enemies at ledges, holes, deep water and danger zones |
 | `game/throw/throw_status_look.gd` | the freeze, sleep and honey looks (the honey coat's shader, `_art_rect`) |
 | `game/combat/reactions/hit_reaction.gd`, `enemy_reactions.gd`, `reaction_state.gd` | the `sleep` verb, `sleeps_through`, `keep_asleep`, `wake` |
@@ -543,10 +562,20 @@ make ammo) is a first guess to tune by playing.
 
 Open points for the owner:
 
+- **Materials** (2026-11-26, piece 4; [BESTIARY.md](BESTIARY.md#materials-2026-11-25-one-combat-piece-4)):
+  only the weapons are ever refused. A thrown thing hurts every material, the three one-weapon ones
+  (bark, iron, eye) too, with its knock, wall splat and bowl, and so do the abilities (the owner,
+  2026-11-26: "the rule is only for weapons, spear axe and hammer", then of the abilities "Yes, they
+  hurt", "until i decide otherwise"; it replaced "throws only daze them"). On bark, iron and eye one weapon of the three hurts and
+  the two others clink. The Squints are eye: open, a throw or an ability hurts them.
 - **Bosses** (2026-11-25: one combat): their Spear hits are weapon hits again, on A, at half damage
   and free; a thrown thing on Fatty's eye, the Matron's cocoon and the Colossus's bare crystal stays
-  half of `shapes.spear.baseDamage` (6), now close to a jab (7). Each is re-filmed and tuned in the
-  plan's piece 6.
+  half of `shapes.spear.baseDamage` (6), now close to a jab (7). Piece 6 (2026-11-26) measured each
+  fight against the old 25-damage Lunge and moved five by one data value each so their openings hold
+  what they held: Fatty's eye x2, the Big Squint open x1.3, the Matron open x1.35, the Brood Warden
+  planted and knocked x1.6, the brittle Shardback x2.5 (from 1.6); the Colossus's crystals and the
+  Bulwark are as they were ([the table](../design/2026-11-24-health-and-damage.md#the-bosses-and-mini-bosses-one-combats-piece-6);
+  `tests/test_boss_spear.gd`).
 - **The prologue.** Yoi's lesson still talks about attacking; the barred gate's lever needs a hit
   tagged `spear`, which the Lunge should carry (not checked by playing).
 - **Gulp upgrades in the story**: where `gulp-lift-medium` and `gulp-lift-heavy` are found.

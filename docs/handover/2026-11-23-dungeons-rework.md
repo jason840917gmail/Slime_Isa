@@ -1559,7 +1559,107 @@ on those bosses stays 6, now close to a jab (7); the bosses are re-tuned in the 
 film tools that struck with the Spear's box power (`power_strike`) call `ShapeController.fire_charge`
 (the same Lunge, free) and were not re-run. The Spear's up strike is shorter and its down strike longer
 (piece 1: its tip lands 110 / 132 / 170 from the feet in every direction), so a room placed for the long
-up jab or the short down jab may need a look.
+up jab or the short down jab may need a look. Since piece 3 (2026-11-26) a weapon's finisher or charge
+leaves a non-boss enemy dazed and liftable for 1.5 s (`combat.rules.weaponDaze`): the dungeons' light and
+medium enemies are ammo after a combo too, so a room meant to be short of throwables is less so. A number
+to tune when the owner plays: a light enemy is helpless about 2 s after one combo (its launch, about 0.5 s,
+then the 1.5 s daze: `combat.rules.weaponDaze.windowMs`). Since piece 4 (2026-11-26) the enemies have hit
+materials: in Release 1 only the Spear is earned, so the shell, bone, plant and untouchable enemies take
+only throws, bombs, fire and arrows there (the Bone Leaper, Thrower and Marcher in the dungeons, the
+Spitcaps, the Thornballs, the Bulwark); the Shardback's brittle shell still takes the Spear (its Den
+fight keeps its Lantern-then-Spear way, but the patient 0.3 per jab on its cold shell is gone: a clink
+now); the Squints still take the Spear when open but a throw only dazes them (Fatty's Lair R4, R5, R12).
+Since the one-weapon fix (2026-11-26) bark, iron and eye take only their weapon (abilities clink too): a
+Clod Stomper can then be killed in Release 1 only by a hole, deep water or a mechanism (the Hammer is not
+earned there); part of the owner's open decision on the Release 1 table.
+Since piece 5 (2026-11-26) keys only is the one control scheme: the four mouse schemes, F2, the
+Settings window's Mouse button, the click routes and their tests are gone (the experiment's doc is in
+`docs/archive/2026-11-25-mouse-control-schemes.md`). A saved `control_scheme` is read no more, so a
+player who had the keyboard scheme saved plays keys only; nothing in the dungeons needed the mouse
+(doors are walked into, every aim goes the way the slime faces).
+Since piece 6 (2026-11-26) the bosses were measured against the old 25-damage Lunge and five moved by
+one data value each (`enemy-types.json`): Fatty's eye takes a Spear hit x2 (a Lunge is 25 again; one
+hit an opening, so three openings a phase), the Big Squint open x1.3 (a combo 33, three openings), the
+Matron open x1.35 (round 1 in one open window of three combos, round 2 still two ram catches), the
+Brood Warden planted and knocked x1.6 (a combo a plant, three plants; the ram and one knock), the
+brittle Shardback x2.5 (seven jabs in a Lantern's window). Throws on the Warden and the brittle
+Shardback grow with it (a light throw 64 and 100); thrown things on Fatty, the Matron and the Colossus
+stay 6. The Colossus's crystal (60) and the Bulwark did not move: a crystal takes eight jabs, five in
+the burst's stagger and the rest on the bare crystal as he fights. `film_colossus.gd` struck his claws
+with Q (the climb strike's key before the one combat): it presses A now, and its phase 3 passes again.
+Nothing played by hand; the films and `tests/test_boss_spear.gd` are what checks it.
+
+**The reviewer's read of pieces 3 and 4 (2026-11-26).** Both pass (the gate and react code read, the
+data checked type by type, both films' checks, the scripts compiled; nothing played by hand, nothing
+committed). One fix went back on piece 4: bark, iron and eye refused only the two other weapons, so
+arrows, the Goo Bomb, the flame, the Roll and slams still hurt them (and an open Squint, which refused
+those before piece 4); a one-weapon material is to refuse everything but its weapon (a throw dazes, a
+mechanism's blow, a hole and deep water still take it). **Waiting for the owner:** (1) the three Clod
+Stompers (`gloop-forest-f3` two, `gloop-forest-f5` one, both off the main way) are iron and Release 1 has
+no Hammer, so nothing kills them there; (2) the bone enemies standing in rooms with nothing to throw
+(the Hollow's R2: two Bone Throwers; the Mine's M7, M9, M12: one each; none is a locked room fight; the
+builder's count read placed nodes only and may miss painted pots); (3) six looks that do not show their
+material (Shardback, Rock Chucker, Silk Lurker, Thorn Guard, Clod Stomper, Carnivore Plant). Nobody
+touches those enemies, their materials or those rooms until he answers.
+
+**The reviewer's read of the one-weapon fix and pieces 5 and 6 (2026-11-26).** All three pass; nothing
+played by hand, the whole suite not run, nothing committed. *The fix:* a one-weapon row names its
+weapon (`only`) and `HitMaterials.refused_tag` refuses every other damaging hit (read; its test added).
+*Piece 5:* the diffs read, no reference to the removed schemes left, the edited scripts compile; the
+`[audio]` lines in `godot/project.godot` are the editor's own and stay out of the commit (the removal
+of `control_scheme_next` goes in). *Piece 6:* the five values are the only data that moved
+(`enemy-types.json` diffed line by line; `shardback.gd`'s fallback follows its data), no film check was
+loosened (`film_colossus.gd`'s only change is the claw strike's key, Q to A, which is the game's since
+piece 2: feral_climb.gd), the Matron's "Lunge of 17" is 13 x 1.35, the Colossus's 22s are critical
+hits, a pot on the Matron is still 6, no frame pictures are left. What the owner should know when he
+plays: (1) the Warden's and the brittle Shardback's multipliers lift throws too (a light throw 64 and
+100; a medium one, 180, ends a brittle Shardback at once); a weapons-only multiplier would need a new
+key in `HitReaction.damage_scale`, not built; (2) a Colossus crystal (60) takes eight jabs, five in
+the burst's stagger and the rest while he fights (the approved plan counted two and a half combos); if
+it drags, the builder's suggestion is a 40 crystal; (3) Fatty and the Big Squint were measured by
+`test_boss_spear.gd`, never filmed. The Hammer question, as answered to the owner: the Hammer is built
+(playground, F10, `?shapes`) but no quest, NPC or chest teaches `shape-hammer` or `shape-axe`; the
+story teaches only the Spear (prologue_director.gd).
+
+**The owner's answer on the one-weapon enemies (2026-11-26).** Two decisions, in his words: "Keep them
+Hammer-only" (the three Clod Stompers stay iron) and "when i said only ona weapon hurt them that does
+not include throws, the rule is only for weapons, spear axe and hammer" (before it: "they should take
+damage from throws"). So the one-weapon rule decides only among the Spear, the Axe and the Hammer, and a
+thrown thing hurts bark, iron and eye as it hurts any enemy; his "throws only daze them" of 2026-11-25
+is replaced. This answers question (1) above: a Clod Stomper dies to throws in Release 1. Briefed to the
+weapons-and-throws builder the same day (`combat.materials` `thrown` "hurts" on the three rows, the
+knock rule following, tests, the materials film, the docs). **Built and read the same day; passes,
+uncommitted.** The builder removed the whole "dazes" path, since no row used it any more: the `thrown`
+key and the `lines.thrown` texts are gone from `combat.materials`, `hit_materials.gd` lost
+`throw_only_dazes` and the knock rule, `HitReaction.material_gate` only clinks or lets through,
+`enemy_reactions.gd` lost `_knock_damage` (a wall splat and a bowl deal their amount again), and
+`squint.gd` `_shields` only asks whether the visor is shut. Read: the diffs, no reference to the removed
+names left, the seven scripts compile, the film `output/combat/materials/one-weapon-throws/` (bark: Axe
+90 to 81, pot 81 to 41; iron: Hammer 90 to 72, pot 72 to 32; eye: Spear 32 to 25, the pot kills; the
+two other weapons clink with their lines), no frame pictures left. Run by the builder by filter:
+`test_materials` 7, `test_boss_spear` 5, `test_lair_rooms` 16, `test_fattys_lair` 29, all pass. What it
+changes in play: an open Squint (32) dies to any one throw; the Big Squint's open 1.3 lifts throws too
+(light 52, medium 94, heavy 156 on its 96 health; a light throw was 40 before piece 4); a Clod Stomper
+or a Thorn Guard (90) takes 40, 72 or 120 and can be lifted after the pot. **Abilities, answered the
+same day:** asked "Should arrows, the Goo Bomb and the other abilities hurt one-weapon enemies too?" he
+said "Yes, they hurt", then "until i decide otherwise". So for now the one-weapon rule is only this: of
+the Spear, the Axe and the Hammer, one hurts and the two others clink; throws and abilities hurt as on
+any enemy. It undoes the reviewer's fix on piece 4 (abilities clinking), and an open Squint takes arrows
+and bombs, which it refused since 2026-10-22 (he was told). He may change it again: keep it a data
+rule. **Built and read the same day; passes, uncommitted.** Bark, iron and eye are plain `refuses`
+rows (bark: spear, crush, the same row as plant; iron: spear, cut; eye: cut, crush); the `only` key,
+`lines.ability` and the one-weapon branch of `HitMaterials.refused_tag` are gone (no reference left;
+the six scripts compile); the film was not rerun (its checks fire no ability). Run by the builder by
+filter: `test_materials` 8, `test_boss_spear` 5, `test_clod_stomper` 4, `test_weapon_daze` 7,
+`test_lair_rooms` 16, all pass; `test_fattys_lair` 28 of 29. What it changes in play: an open Squint
+(32) dies to two arrows or one Goo Bomb; the Thorn Guard's Heavy Roll kill stands again; the Clod
+Stomper takes abilities in every phase (its crouch and hop armour only take the stun away). **Two
+things for the owner:** (a) a Goo Bomb on an open Big Squint deals 52 and knocks it down 1.5 s with
+its next hits doubled, so a bomb and one combo (about 120) end its 96 health in one opening instead of
+three; nothing was changed for it. (b) `test_fattys_lair`'s room-walk test ("r11-slab-3-6 did not crack
+under the slime walking onto it") fails and passes on the same code (three passes, five fails in the
+builder's session); r11 holds no enemy of these materials, so it is not this change, but it is flaky
+and wants its own look. **Still open with him:** the bone rooms (2) and the six looks (3).
 
 **Step 5 (2026-11-25): done** (the owner: "step 5 this is the way to go so get rid of the old"), by the
 hollow-floors session, for the reviewer's read before the commit. Today's Weaver Hollow (four floor

@@ -217,22 +217,7 @@
   },
   "input": {
     "bufferMs": 150,
-    "weaponWheelStepLockMs": 150,
-    "mouse": {
-      "pathCellPx": 24,
-      "pathMaxExpansions": 3000,
-      "pathMaxMs": 30,
-      "arrivePx": 6,
-      "repathMs": 250,
-      "followRepathMs": 120,
-      "followMaxMs": 8,
-      "stuckMs": 400,
-      "stillPx": 14,
-      "leanMs": 450,
-      "pickRadiusPx": 18,
-      "meleeFallbackPx": 52,
-      "ledgePushExtraMs": 200
-    }
+    "weaponWheelStepLockMs": 150
   },
   "character": {
     "player": {
@@ -303,6 +288,18 @@
     }
   },
   "combat": {
+    "materials": {
+      "flesh": { "refuses": [], "lines": {} },
+      "shell": { "refuses": ["spear"], "lines": { "spear": "The shell turns the point aside: cut it or crush it." } },
+      "bone": { "refuses": ["spear"], "lines": { "spear": "The point slips between the bones: cut them or crush them." } },
+      "crystal": { "refuses": ["cut"], "lines": { "cut": "The blade skates off the crystal: pierce it or break it." } },
+      "silk": { "refuses": ["crush"], "lines": { "crush": "The silk soaks up the blow: cut it or pierce it." } },
+      "plant": { "refuses": ["spear", "crush"], "lines": { "spear": "The point slides through the leaves: only a blade cuts them.", "crush": "The stems bend under the blow: only a blade cuts them." } },
+      "untouchable": { "refuses": ["spear", "cut", "crush"], "lines": { "spear": "No weapon gets through: throw something at it.", "cut": "No weapon gets through: throw something at it.", "crush": "No weapon gets through: throw something at it." } },
+      "bark": { "refuses": ["spear", "crush"], "lines": { "spear": "The point sticks in the bark: only a blade cuts it.", "crush": "The bark shrugs off the blow: only a blade cuts it." } },
+      "iron": { "refuses": ["spear", "cut"], "lines": { "spear": "The point glances off the iron: only a crushing blow dents it.", "cut": "The blade rings off the iron: only a crushing blow dents it." } },
+      "eye": { "refuses": ["cut", "crush"], "lines": { "cut": "It blinks the blade away: only a point reaches the eye.", "crush": "It blinks the blow away: only a point reaches the eye." } }
+    },
     "chain": {
       "linkMs": 150,
       "holdMarginMs": 140,
@@ -370,6 +367,7 @@
       }
     },
     "rules": {
+      "weaponDaze": { "windowMs": 1500 },
       "holdCap": 2,
       "holdResetFreeMs": 300,
       "wakeGuardMs": 400,

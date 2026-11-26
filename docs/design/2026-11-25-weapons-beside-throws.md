@@ -2,7 +2,8 @@
 
 **Status: approved by the owner on 2026-11-25** ("yes throws only daze them, approve and start"): the
 weapon scale of 0.5, the material table with its three one-weapon materials, the 1.5 s liftable
-window, and a thrown thing only dazing a one-weapon enemy. Being built piece by piece (the table at
+window, and a thrown thing only dazing a one-weapon enemy (replaced on 2026-11-26: throws hurt all
+three, section 4). Being built piece by piece (the table at
 the end), each piece read by the reviewer. Written 2026-11-25 from his decision of that day, after he
 played `?melee` against the game as it is.
 
@@ -113,20 +114,35 @@ materials, each hurt by one weapon only:
 
 | Material | Spear | Axe | Hammer | Thrown | Reads as |
 |---|---|---|---|---|---|
-| bark | clinks | **hurts** | clinks | dazes, no harm | wood and thorn: only a blade cuts it |
-| iron | clinks | clinks | **hurts** | dazes, no harm | plate and stone: only a crushing blow dents it |
-| eye | **hurts** | clinks | clinks | dazes, no harm | a small weak point: only a point reaches it |
+| bark | clinks | **hurts** | clinks | hurts (owner, 2026-11-26) | wood and thorn: only a blade cuts it |
+| iron | clinks | clinks | **hurts** | hurts (owner, 2026-11-26) | plate and stone: only a crushing blow dents it |
+| eye | **hurts** | clinks | clinks | hurts (owner, 2026-11-26) | a small weak point: only a point reaches it |
 
-- A thrown thing dazes such an enemy but does not hurt it (proposed), so the throw opens it and the
-  weapon is truly needed: the reverse of a combo setting up a throw. If throws hurt them too, the
-  weapon would only be the slower way.
+- ~~A thrown thing dazes such an enemy but does not hurt it (approved)~~: replaced on 2026-11-26.
+  **Throws hurt them** (the owner, of the Clod Stompers: "Keep them Hammer-only", then "but why throw
+  dont hurt them? they should take damage from throws"; then of all three: "when i said only ona
+  weapon hurt them that does not include throws, the rule is only for weapons, spear axe and hammer"):
+  the one-weapon rule decides only among the Spear, the Axe and the Hammer, and a thrown thing hurts
+  bark, iron and eye as it hurts flesh (the hit's damage, its knock, a wall splat, a bowl). The table's
+  `thrown` column, its lines and the "dazes" path in the code went with it.
+- ~~Only its weapon (2026-11-26): the abilities clink too (arrows, the Goo Bomb, the Lantern's flame,
+  the Roll, slams)~~: the reviewer's reading, not the owner's words; replaced the same day. **The
+  abilities hurt them** (asked "Should arrows, the Goo Bomb and the other abilities hurt one-weapon
+  enemies too?", the owner, 2026-11-26: "Yes, they hurt", then "until i decide otherwise"). It is his
+  decision for now: going back means a per-material rule refusing the abilities again (what the
+  removed `only` key did). So the rule is only this: of the Spear, the
+  Axe and the Hammer, one hurts and the two others clink; everything else hurts as on a flesh enemy. The
+  rows are plain `refuses` rows (bark: spear, crush; iron: spear, cut; eye: cut, crush); the `only`
+  key, `lines.ability` and the code's one-weapon branch went. The Thorn Guard's Heavy Roll kill stands
+  again, and an open Squint takes arrows, a blast, the flame, the Roll and slams (new against 2026-10-22,
+  the owner told and agreeing).
 - **Never before its weapon.** A one-weapon enemy stands on a chapter's main way only after that
   weapon is earned; earlier it may guard a secret to come back for. The build checks where each
   weapon is earned before placing any.
 - The rule goes in with piece 4; the enemies come with their chapters. **Among today's enemies**
   (the owner, 2026-11-26: "one wepon follow your suggestion"): the Thorn Guard is bark (the Axe
-  only), the Clod Stomper iron (the Hammer only), the Squints eye (the Spear only; they are Spear
-  or thrown only today, so a throw stops hurting them and only dazes). Piece 4 checks where each of
+  only), the Clod Stomper iron (the Hammer only), the Squints eye (the Spear only among the weapons;
+  open, a throw hurts them as before). Piece 4 checks where each of
   the three stands against where its weapon is earned, and moves or swaps any that stand on a main
   way too early. New enemies for the later chapters are designed to it:
   each chapter after a weapon is earned gets at least one enemy that only that weapon hurts.
@@ -155,6 +171,11 @@ close to today's (the Colossus's crystal: 60 health, two and a half Spear combos
 per opening), but each is re-filmed and tuned: Fatty One Eye, the Matron, the Colossus, the Brood
 Warden, the Shardback, the Bulwark, the Big Squint. A thrown thing on a boss stays 6.
 
+**Measured (piece 6, 2026-11-26).** Fatty's eye shuts after any hit that lands, so it takes one hit an
+opening, not a combo: at half damage each phase needed six Lunges instead of three. Five fights left
+their openings and moved by one data value each; the Colossus and the Bulwark did not
+([the table](2026-11-24-health-and-damage.md#the-bosses-and-mini-bosses-one-combats-piece-6)).
+
 ## What is lost, and what it costs
 
 - The rule "no ammo = flee" and the tension that every throw counts.
@@ -175,14 +196,14 @@ Each ends in a film or a picture for the owner and a code read before the next.
 |---|---|---|
 | 1 | The Spear's up reach and wall check. **Built 2026-11-25**, awaiting the read: up `hit_reach` jab 82.5, finisher 104.5, Lunge `upReach` 142.5, and (owner: "match the spear down reach with the sides") down jab 137.5, finisher 159.5, Lunge `downReach` 197.5 (tip 110 / 132 / 170 from the feet in every direction); the wall ray measured from the line's origin ([BODY_SHAPES.md](../godot/BODY_SHAPES.md#the-spears-reach-2026-11-25)) | the four directions before and after (`output/combat/spear-reach/`) |
 | 2 | One combat: the attack on A beside the throw rules, charges free, weapons out of the Ability Box, the new keys, E cycling weapons, the HUD's weapon slot, the carousel gone, `?melee` and the editor's run argument gone, the weapon damage scale. **Built 2026-11-25/26**, awaiting the read: `shapes.weaponDamageScale` 0.5 in `ShapeDefs.damage`; charges without `energy`; `power_strike` and the carousel removed (`fire_charge` kept for the film tools); one keys-only `LAYOUT`, the default for a fresh settings file; the bag's top row titled Weapons; texts follow ([THROW_COMBAT.md](../godot/THROW_COMBAT.md#one-combat-2026-11-25)) | `output/combat/one-combat/`: the strip (five checks, all PASS), the GIF, the HUD, the bag and the Controls list |
-| 3 | A combo's daze makes an enemy liftable | a film: combo, suck, throw |
-| 4 | Materials and immunity, the first-clink line | the bestiary pens, one clink each |
-| 5 | The other schemes removed | the Settings screen |
-| 6 | Bosses re-filmed and tuned, the damage grid doc, the tests, the docs | each boss's film |
+| 3 | A combo's daze makes an enemy liftable. **Built 2026-11-26**, awaiting the read: `combat.rules.weaponDaze.windowMs` 1500 for a combo's last step (the hit's `last`: the Spear's lunging jab, the Axe's chop, the Hammer's BOOM) or a charge, on the throw's helpless path (EnemyReactions `_note_weapon_daze`, `_start_weapon_daze`); a heavy enemy on a poise break, a boss never, taps never; the first daze of a run shows the Gulp's hint and flashes the enemy (`weapon_daze_hint.gd`) | `output/combat/combo-daze/film/`: the strip (seven checks, all PASS, the Hammer's BOOM among them) and the GIF |
+| 4 | Materials and immunity, the first-clink line. **Built 2026-11-26**, awaiting the read: `reactions.hitMaterial` for every non-boss type and `combat.materials` (refuses, thrown, lines), applied in `HitReaction.gate` (`material_gate`); the Squints' tag rule and the Bulwark's `spear` clink folded in; the Shardback brittle is flesh (its fight keeps the Spear); a throw on bark, iron or eye dazes, no harm, not liftable, and the abilities clink on them (both replaced 2026-11-26: throws and abilities hurt all three, section 4) ([BESTIARY.md](../godot/BESTIARY.md#materials-2026-11-25-one-combat-piece-4)) | `output/combat/materials/film/`: the strip (ten materials, all PASS) and the GIF |
+| 5 | The other schemes removed. **Built 2026-11-26**, awaiting the read: the four mouse schemes' code (`game/player/mouse/` but `key_bindings.gd`, `pointer_aim.gd`: about 1,540 lines), the player's orders, pointer facing and pointer aim (about 480 lines), F2 (`control_scheme_next`), the `control_scheme` setting and the Settings window's Mouse button, `input.mouse` in the data, the scheme branches in the Controls list, hints, prompts and windows, the click orders' `reaches` checks, and `test_mouse_controls.gd` / `test_mouse_paths.gd` (615 lines; `test_keys_only.gd` keeps what the keys-only scheme itself needs); `?aimhelp` stays (the throw rules'); the experiment's doc archived ([MOUSE_CONTROLS.md](../godot/MOUSE_CONTROLS.md)) | `output/combat/keys-only/`: the Controls list and the HUD |
+| 6 | Bosses re-filmed and tuned, the damage grid doc, the tests, the docs. **Built 2026-11-26**, awaiting the read: each fight measured against the old 25-damage Lunge; five moved by one data value each in `enemy-types.json` (Fatty's `parts.eye.damageTaken` 2, the Big Squint's `states.open.damageTaken` 1.3, the Matron's `states.fight` / `volley-telegraph` / `volley-rest` 1.35, the Brood Warden's `states.planted` / `knocked` 1 to 1.6, the Shardback's `pattern.brittleDamageTaken` 1.6 to 2.5); the Colossus and the Bulwark untouched; `tests/test_boss_spear.gd`; `film_colossus.gd`'s claw strikes on A (they still pressed Q); the damage grid re-read ([its last section](2026-11-24-health-and-damage.md#with-weapons-the-one-combat-2026-11-26)) | the Crown's round1, ram-catch, round3 (`output/dungeon-rework/hollow/crown-films/p6-*`), the arena's phases (`output/dungeon-rework/mine/arena-films/p6-phase1`, `-phase2`, `-phase3b`), `output/combat/bosses/warden-ram`, `.../shardback`, `output/enemy-ways/p6-bulwark-wall`; Fatty and the Big Squint have no film tool |
 
 ## For the owner's yes
 
 1. The weapon scale of 0.5.
 2. The material table, and the three one-weapon materials.
 3. The 1.5 s liftable window after a finisher or a charge.
-4. Whether a thrown thing hurts a one-weapon enemy or only dazes it.
+4. Whether a thrown thing hurts a one-weapon enemy or only dazes it (answered 2026-11-26: it hurts).

@@ -9,11 +9,11 @@ extends SceneTree
 ##   switch  E: the weapon goes from the Spear to the War Axe, and the HUD's weapon slot shows the Axe
 ##   charge  A held through the ring with no energy at all, then let go: the Spin fires, energy stays 0
 ##   ability B, a pick in the bag's Abilities row (its name floats over the slime), B, then D: it is used
-## Then three stills for the owner: the HUD, the bag (the Weapons and Abilities rows with their keys) and
-## the Controls list. Run windowed (it renders), one game window at a time:
+## Then four stills for the owner: the HUD, the bag (the Weapons and Abilities rows with their keys), the
+## Controls list and the Settings window (no scheme row since piece 5). Run windowed (it renders), one game window at a time:
 ##     "<Godot 4.7.2 console exe>" --path godot --fixed-fps 60 -s res://tools/film_one_combat.gd -- \
 ##         --out=<dir> [--every=<n>] [--zoom=<z>]
-## Writes <dir>/f<nnn>.png (frames), <dir>/hud.png, bag.png, controls.png and <dir>/film.json (the checks,
+## Writes <dir>/f<nnn>.png (frames), <dir>/hud.png, bag.png, controls.png, settings.png and <dir>/film.json (the checks,
 ## their notes, and per frame the check running). `scripts/godot/one-combat-sheet.py` makes the strip and
 ## the GIFs.
 
@@ -324,7 +324,7 @@ func _film_ability() -> void:
 			"used": AbilityBox.use_count() - uses_before})
 
 
-## The HUD (cut from the window) and the Controls list.
+## The HUD (cut from the window), the Controls list and the Settings window.
 func _stills() -> void:
 	_check = ""
 	_caption.text = ""
@@ -338,6 +338,13 @@ func _stills() -> void:
 		for i in 30:
 			await _frame()
 		await _save_still("controls.png")
+		shell.call(&"close_all_menus")
+		for i in 10:
+			await _frame()
+		shell.call(&"open_settings")
+		for i in 30:
+			await _frame()
+		await _save_still("settings.png")
 		shell.call(&"close_all_menus")
 		for i in 10:
 			await _frame()

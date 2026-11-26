@@ -16,7 +16,14 @@ its own damage); a charge is free (no `energy` in the data, no fizzle: the hold 
 cost). What went: the `?melee` switch, the shapes as Ability Box powers (`power_strike`, their cards
 and costs), the ability carousel, the keys-only scheme's three stacked layouts (one `LAYOUT` now). E
 switches the weapon, with the HUD's weapon slot (no cost chip any more); the bag's top row is
-**Weapons** again, its Abilities row is where an ability is chosen.
+**Weapons** again, its Abilities row is where an ability is chosen. Since piece 3 (2026-11-26) a
+combo's last step (the lunging jab, the chop, the BOOM) or a charge that lands leaves the enemy dazed and
+liftable for 1.5 s once its knock is over (`combat.rules.weaponDaze`; a heavy one only on a poise break, a
+boss never; the steps before the last never):
+[THROW_COMBAT.md](THROW_COMBAT.md#stunned-enemies-as-ammo-prototype). Since piece 4 (2026-11-26) each enemy's hit
+material decides which weapons hurt it (shell and bone refuse the Spear, crystal the Axe, silk the Hammer,
+plant the Spear and the Hammer, untouchable all three; bark, iron and eye take only the Axe, the Hammer and
+the Spear): a refused weapon clinks, with a line the first time ([BESTIARY.md](BESTIARY.md#materials-2026-11-25-one-combat-piece-4)).
 
 This page is the contract between the prototype's parts: who owns which file, what data passes
 between them, the exact functions each part provides and may call, what is built and what still
@@ -108,7 +115,8 @@ and a respawn bring back more); the juice panel's number keys **play** each effe
 
 ## Trying it in the playground (checklist)
 
-Keyboard + mouse scheme (F2 switches schemes; keys-only in brackets).
+The classic bindings first, the keys-only keys in brackets (keys only is the one scheme since 2026-11-25:
+[MOUSE_CONTROLS.md](MOUSE_CONTROLS.md); the brackets are what plays).
 
 Every attack and the Roll fire on the **release** of their key (owner, 2026-10-12): a quick tap
 strikes as it is let go; holding never strikes first.
@@ -229,8 +237,7 @@ strikes as it is let go; holding never strikes first.
     4-way since the owner's round 2: a diagonal key press or pointer strikes to the side, left or
     right, and movement stays 8-way): the slime's drawn pose follows the aim,
     a left strike mirrors the side pose and its weapon, an up strike draws the weapon behind the
-    slime; in the pointer scheme (F2) moving the pointer across the slime mid-strike does not flip
-    it. The Spear's jabs and finisher show its strike frames in every direction: the spear comes out
+    slime. The Spear's jabs and finisher show its strike frames in every direction: the spear comes out
     of the jelly neck behind the body (down the screen in front views, up behind the sprout in back
     views), and the slime does not grow or shrink at contact. The Axe's and the Hammer's chains and the Quake show their strike frames
     the same way: the weapon stays on the knob as the body frames change, the code neck covers the
@@ -368,8 +375,7 @@ A strike's direction is its hit's aim by the player's 3-way rule (a mostly verti
 down or up, any other side; with the 4-way aims of 2026-10-12, round 2, every strike is right, down,
 left or up). A side frame faces
 right and the player's flip mirrors it for left, following the facing the strike set (a hold as its
-strike's `-side`); in the pointer scheme the slime does not turn to the pointer while a step runs, so
-the frame stays mirrored like its weapon. Each pose clip is one frame held 0.1 s and played once, so
+strike's `-side`), so the frame stays mirrored like its weapon. Each pose clip is one frame held 0.1 s and played once, so
 the frame stays until the next pose. Once a strike ends or is cancelled the player plays idle or walk
 again (or the clip that cancelled it: the Roll's, the knockback's).
 
@@ -770,8 +776,8 @@ shortest roll + pause, 1710 ms); a charged roll is held back by its own end (`Pl
   ends player.gd drops a pending Roll press (`_update_modal_pause`, also checked at the top of its
   physics step; `PlayerInputBuffer.drop_press`): a Space press a window did not take never rolls the
   slime as it closes.
-- The keys-only scheme (`game/player/mouse/key_bindings.gd`, the default for a fresh settings file
-  since 2026-11-25) has one layout: arrows, A attack, S roll, D the chosen ability, Q the Gulp, W
+- The keys-only scheme (`game/player/mouse/key_bindings.gd`, the game's one scheme since 2026-11-25:
+  the four mouse schemes and F2 went in piece 5 of the one combat) has one layout: arrows, A attack, S roll, D the chosen ability, Q the Gulp, W
   interact, E next weapon (the owner's keys of 2026-11-25; until then a rework layout put the ability
   on S and the Roll on D, and the throw mode's moved them again). It is a layer on top of the rework
   layer: `ReworkInput.apply` takes it off and puts it back around every change, so each layer
@@ -1149,10 +1155,9 @@ func reaches(aim: Vector2, area: Area2D) -> bool   # the next step's whole area 
   with `player.is_action_held(&"attack")`, and recoils (clink 24 px, reaction recoils) through
   `player.recoil` (the knockback's movement and shrug-offs, without the hurt clip).
 - Aims come from the slime's centre, where every area, the wall ray and the drawing start: a press
-  and a charge's release use `player.get_strike_aim()` (the pointer from `get_centre()`, the pointer
-  aim's dead zone; the old `_pointer_aim` rises `aim_rise_px` 28 first), the click and moba attack
-  order aims from `get_centre()` at the target's hurtbox. A charge aims where the pointer is at the
-  release (else the facing); the slime may walk while the ring fills, at `walk_scale()`; a Hammer
+  and a charge's release go the way the slime faces (`player.get_facing()`; keys only since
+  2026-11-25: the pointer aim, `get_strike_aim` and the click orders' aim went with the mouse
+  schemes). A charge aims the way the slime faces at the release; the slime may walk while the ring fills, at `walk_scale()`; a Hammer
   impact with the Heavy skin calls `player.record_slam`. With the Feral skin every Spear chain step
   runs at `skins.feral.spearTempo` (twice as fast: [SKINS.md](SKINS.md#feral)).
 
@@ -1582,7 +1587,7 @@ static func cooldown_ms(id: StringName) -> float
   a click opens the bag) and the Roll once learned. `HudConsole.layout(viewport, count,
   weapon_shown := true)` and `signal layout_changed`, which `hud.gd` connects to its `_layout`.
   Every part polls the mode and goes back to classic when a world build turns it off.
-- **Controls window:** `ControlLabels.rework_rows(scheme)` (`control_rows()` returns it in the mode).
+- **Controls window:** `ControlLabels.rework_rows()` (`control_rows()` returns it in the mode).
 - **Hints:** `ControlHints.REWORK_HINT_IDS` adds charge, mouth, ability, swallow and heavy-grab
   (story flags `hint.<id>`) and a rework text for weapon-switch; the charge hint learns from
   `ShapeController.is_charging()`; heavy-grab ("Hold W to push or pull", right after move in the order)
@@ -1603,9 +1608,8 @@ static func cooldown_ms(id: StringName) -> float
   `get_strike_rig()` (`Visual/StrikeRig`); const `STRIKE_LIBRARY` "strikes". The `strikes` library itself is
   installed by the shape controller (`StrikeLibrary.install`, from `ShapeController.setup`), not by the scene.
 
-- `set_shapes(shapes)`, `get_shapes()`, `get_mouth_hold()`, `get_gulp_aim()`, `get_strike_aim()`
-  (the pointer's aim from `get_centre()`, where the shapes strike from; ZERO without a pointer aim
-  or in keys-only), `recoil(direction, strength, duration_ms)` (the knockback's movement, its
+- `set_shapes(shapes)`, `get_shapes()`, `get_mouth_hold()`, `get_gulp_aim()` (the facing),
+  `recoil(direction, strength, duration_ms)` (the knockback's movement, its
   shrug-offs (the improved Slam, the Heavy form) and the Roll cancel, without the hurt clip or its
   priority window).
 - Each physics step: `ShapeController.update(now, delta)` after the abilities advance; then
@@ -1637,9 +1641,6 @@ static func cooldown_ms(id: StringName) -> float
   press (`_drop_roll_press`).
 - `can_receive_damage`: "state-blocked" while `is_invulnerable()`; `apply_knockback` returns while
   `ignores_knockback()`.
-- The click and moba schemes' attack order uses `reaches` and `press_attack`, aimed from
-  `get_centre()` at the target's hurtbox centre; in the pointer scheme `_face_pointer` waits while a
-  step runs (`ShapeController.is_busy()`), so a side pose stays mirrored like its weapon.
 - `_flip_for` reads a strike hold `strikes/<strike>-<direction>-hold` as its `strikes/<strike>-<direction>`
   (`STRIKE_HOLD_SUFFIX`), so a `-side` hold mirrors for a left facing and a `-down` or `-up` one never
   does; no classic clip ends in `-hold`.
@@ -1947,8 +1948,7 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   still falls to the lower right. In the Scenery dock's Dungeon objects beside the statue (the dock
   shows a flipped sprite's picture flipped). A movable block is not mirrored by a negative Scale, as
   props are (PROPS.md): it is a body that moves; the fixed armor statue is (Scale x -1).
-- **The grab** (`game/player/heavy_grab.gd`, owned by player.gd): an interact press (W in keys-only,
-  right click in the keyboard + mouse and pointer schemes) while the slime faces a block and touches
+- **The grab** (`game/player/heavy_grab.gd`, owned by player.gd): an interact press (W) while the slime faces a block and touches
   it (within 14 of its footprint) grabs it instead of interacting; anything else in reach is used
   as before. While the key is held the grab owns the step (`_rework_owns_step`; the other presses
   are dropped): the slime latches on with its mouth and squares up on its side, showing its grab,
@@ -1960,11 +1960,8 @@ path. Numbers: `puzzles.heavyPlate`, `puzzles.heavyBlock` ([Data](#data)).
   hole or stairs: `Elevation.is_walkable`) with no body in it (walls, props, gates, other blocks,
   enemies, NPCs, deep water); else it knocks once (`HeavyBlockBump` = `HitBlocked`). A pull also
   needs room behind the slime. Letting go of the key releases it (a move under way finishes first);
-  a knock, a hit, death or a teleport release it too. In the click scheme the held right button
-  (its use button) grabs and holds, as it holds the Feral climb (player.gd `_step_grab`); the moba
-  scheme's right button is its order button, so it grabs only with an `interact` key binding (none
-  by default). With the Heavy skin on, touching a block with nothing in the mouth shows the hint
-  "Hold W to push or pull" (the interact key's label; not in the moba scheme) until the slime has
+  a knock, a hit, death or a teleport release it too. With the Heavy skin on, touching a block with nothing in the mouth shows the hint
+  "Hold W to push or pull" (the interact key's label) until the slime has
   pushed and pulled a block ([SKINS.md](SKINS.md#heavy)).
 - **Not built:** a block pushed into a hole does not fill it (the elevation grid has no run-time
   level change; blocks stop at holes); the plates and blocks are not saved.
@@ -2037,7 +2034,7 @@ Later on 2026-10-12 the prototype's first art ([Art](#art-2026-10-12)) was wired
 (the slime's poses, the weapons and effects, the icons) and integrated the same day: page 6's 36
 pose clips in the player scene (built with `build_player_clips.gd -- --only=shape-`; no other clip
 changed), the poses on every step and charge and the ring's held `load` pose (`_locomotion_clip`),
-the facing kept through a strike in the pointer scheme, the painted weapons in the form's skin, the
+the facing kept through a strike in the pointer scheme (gone with the mouse schemes, 2026-11-25), the painted weapons in the form's skin, the
 swoosh, the glints, the goo splat flipbook, the painted shard and the shape icons; the axe's and
 the hammer's `head_start` are in `shapes.json`, and the seven new textures' imports ask for
 mipmaps. One new script, `game/shapes/shape_poses.gd`, waits for the lead's import (its `.uid`),

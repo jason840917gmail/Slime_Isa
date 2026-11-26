@@ -1,101 +1,27 @@
-# Mouse control schemes (experiment)
+# Controls: keys only
 
-Branch `exp/mouse-controls`, started 2026-10-06. The owner wants the mouse to matter more on PC, the
-way it does in Diablo or Dota, or not at all. Five control schemes can be switched while playing,
-so they can be compared side by side. The keyboard scheme is the original game.
+The game has one control scheme: **keys only**, no mouse in play. From 2026-10-06 to 2026-11-25 five
+schemes could be switched with F2 to compare them (the keyboard scheme with the mouse, click to move
+as in Diablo, right-click to move as in Dota, facing the pointer, and keys only). The owner picked keys
+only (2026-10-19: "the winner so far is keys only"; 2026-11-25: "keys only stays, the other schemes
+go"), and piece 5 of [the one-combat plan](../design/2026-11-25-weapons-beside-throws.md) removed the
+other four, the F2 switch, the Settings window's **Mouse** button, the click routes and their tests.
+The experiment's doc is archived in
+[docs/archive/2026-11-25-mouse-control-schemes.md](../archive/2026-11-25-mouse-control-schemes.md).
 
-**The winner: keys only** (owner, 2026-10-19: "the winner so far is keys only"; 2026-11-25: "keys
-only stays, the other schemes go"). It is the **default for a fresh settings file** since 2026-11-25
-(`GameSettings.DEFAULTS`, and so every test run); a saved choice stays. The other four schemes are
-still switchable until they are removed (piece 5 of
-[the one-combat plan](../design/2026-11-25-weapons-beside-throws.md)).
-
-| Scheme | Walk | Left click | Right click |
-|---|---|---|---|
-| `keyboard` | WASD | swing toward the pointer | use the target in reach |
-| `click` — Diablo | click the ground; hold to follow the pointer | **order** | **use**: what's under the pointer (walking there), else the target in reach |
-| `moba` — Dota / LoL | right-click the ground; hold to follow | swing in place toward the pointer | **order** |
-| `pointer` — face the pointer | **W** (or ↑) walks toward the pointer; A, S, D and clicks never move | swing toward the pointer | use the target in reach |
-| `keys` — keys only (default) | the **arrows**; **A** attacks, **S** rolls, **D** the ability, **Q** the Gulp, **W** interacts, **E** switches weapons | nothing | nothing |
-
-**Switching:** press **F2** in game (`control_scheme_next`; the new scheme's name floats over the
-slime), or use the **Mouse** button in Settings. The choice is saved with the other settings in
-`user://settings.cfg` (`control_scheme`).
-
-## What an order does
-
-What the order button is pressed on decides what happens
-([pointer_targets.gd](../../godot/game/player/mouse/pointer_targets.gd)), checked in this order:
-
-1. **An enemy or a resource** (a tree, a rock: anything with a hurtbox in the `enemy` /
-   `resource_node` groups, within `input.mouse.pickRadiusPx` of the pointer): the slime walks
-   until a swing toward that side would reach the target's hurtbox
-   (`WeaponScript.reaches`, a physics query with the weapon's own attack shapes), or until it is
-   within `meleeFallbackPx`. Then it faces that side and swings. While the button is held it keeps
-   swinging as fast as the weapon allows; once the button is up, the order ends after that swing.
-   The cursor shows a cross and a red ring lies under the target.
-2. **Something usable** (a chest, an NPC, a bed, a bench, a restoration site or an
-   essence on the ground, picked like the keyboard scheme's pointer pick but anywhere on screen,
-   `InteractionController.target_at`): the slime walks there. The interaction controller keeps
-   that target chosen (`set_preferred`) and uses it as soon as it is in reach. If the button is
-   still held, a target with a hold action ("Hold: Pick up") does its hold action. The cursor
-   shows a hand and a gold ring lies under the target.
-3. **The ground:** the slime walks to the point. Holding the button keeps walking toward the
-   pointer, re-planning the route every `followRepathMs`. A green ring marks the point. Where the
-   route ends short of the point (a wall, a house), the slime leans straight at it: for
-   `input.mouse.leanMs` (450) after a click, for as long as the button is held. Doors, ladders and
-   holes are not usable targets (no keys for transitions, 2026-10-14): a click on a door walks the
-   slime up to it and the lean pushes it in, which takes it through
-   ([CONVENTIONS.md "Doors"](CONVENTIONS.md#doors)). Gates are pushed the same way (2026-10-15):
-   the lean against a gate opens it with the key.
-
-Also:
-
-- **Right click in the click scheme (owner, 2026-10-06):** it interacts, it never swings. On
-  something usable under the pointer it walks there and uses it, like a left click. Otherwise it
-  uses the target in reach, as the keyboard scheme's right click does, and holding it runs the
-  target's hold action ("Hold: Pick up"). Shift + left click is the click scheme's swing in place.
-- **Keys still work:** WASD, 1–4, Q, the wheel and the rest do what they do in the keyboard
-  scheme. A movement key ends the order.
-- **Actions end the order:** the roll, lash, slam, teleport, eat, interact and a swing in place
-  end the order. A jump does not: without movement keys it goes the way the slime is walking,
-  and the walk goes on from where it lands (the jump is hidden since 2026-10-08; the code
-  stays).
-- **Placing furniture** keeps the keyboard scheme's buttons: left click places, right click
-  cancels.
-- **Prompts and hints follow the scheme:** prompts read "Click: Open chest" in the click scheme
-  and "Right-click: ..." in the moba scheme. The first-time hints and the Controls list follow the
-  scheme too.
-
-## The pointer scheme
-
-Asked by the owner on 2026-10-06. The slime always faces the pointer, and only **W** (`move_up`,
-so ↑ too) walks: forward, toward the pointer. A, S and D don't move it, nor does any click. The
-left button swings toward the pointer and the right button uses the target in reach, as in the
-keyboard scheme.
-
-- **Facing:** every physics step the slime turns to the pointer (`player.gd` `_face_pointer`,
-  from the aim origin), except while it rolls, is knocked back, swings or is busy with an
-  ability: those set their own facing. Idle and walk clips follow it (down, up or side).
-- **Walking:** W walks along the pointer's direction (`_movement_input`) at the normal speed
-  The slime stops when the pointer is within the aim's dead zone (16 px), so it
-  stands under the pointer instead of turning around over it. Before the pointer has ever been
-  seen, W walks the way the slime faces.
-- **Jump** (hidden since 2026-10-08): with W held, the jump goes toward the pointer. The roll,
-  lash and teleport aim at the pointer as in every scheme.
+A saved `control_scheme` in `user://settings.cfg` is read no more: every settings file plays keys only.
 
 ## The keys-only scheme
 
-Asked by the owner on 2026-10-06: no mouse at all. While it is on, the InputMap is rebound
+Asked by the owner on 2026-10-06: no mouse at all. The InputMap is rebound
 ([key_bindings.gd](../../godot/game/player/mouse/key_bindings.gd), applied by GameSettings
-`apply_to_input` at start-up and on every change). Every other scheme puts project.godot's
-bindings back exactly. The Controls list, the hints and the prompts read the InputMap, so they
-show the new keys by themselves ("Press W: Open chest").
+`apply_to_input` at start-up and on every settings change). The Controls list, the hints and the
+prompts read the InputMap, so they show these keys by themselves ("Press W: Open chest").
 
 One layout since 2026-11-25 (the one combat, owner: "S will stay as roll and D will be ability. Q suck
 and W interact"; `KeyBindings.LAYOUT`):
 
-| Action | Key | Was |
+| Action | Key | project.godot's binding (under the layout) |
 |---|---|---|
 | Walk | ↑ ← ↓ → | WASD or the arrows |
 | Attack with the weapon (tap for the combo, hold for the charge; on a wall too) | A | left click |
@@ -106,128 +32,57 @@ and W interact"; `KeyBindings.LAYOUT`):
 | Next weapon (the weapon scroll; no key goes back) | E | the mouse wheel, and E |
 | Bag (weapons, abilities and skins are chosen there), journal, map, zoom, pause | unchanged: B, J, M, = / -, Esc | |
 
-Owner, 2026-10-08: every action of the planned HUD console has a letter in every scheme
+Owner, 2026-10-08: every action of the planned HUD console has a letter
 ([HUD console mockup](../design/2026-10-07-hud-console-mockup.md#keys), roadmap 4.12): B opens the
-bag (it was E), J the journal, and E is the weapon scroll (next to the mouse wheel in the other
-schemes).
+bag (it was E), J the journal, and E is the weapon scroll.
 
 Before 2026-11-25 three layouts were stacked: this one, the rework's (`REWORK_LAYOUT`: the ability on
 S, the Roll on D) and the throw mode's (`THROW_LAYOUT`: Q the Gulp, S the Roll, A the ability, E the
 ability carousel, the attack with no key). The rework's own input layer (`game/shapes/rework_input.gd`:
 no number keys, the Roll on Space, the box ability on F) lies under this one, and each puts back only
-what it changed.
+what it changed (`KeyBindings.apply(false)` restores project.godot's bindings; the rework layer does
+that around its own changes and applies the layout again).
 
-What needed the mouse, and what it does without it:
+What the mouse did, and what does it without it:
 
-- **Aiming:** the swing and the Stretch Lash go the way the slime faces, which is the last
-  direction it walked: 8 ways, with the swing snapped to 4. The Roll (2026-10-09) goes the way the
-  held arrows point, else the way the slime faces, not snapped. The pointer aims nothing in this
-  scheme (`player.gd` `_pointer_aim`).
-- **Teleport:** it always goes its full range the way the slime faces. With a mouse it stops at
-  the pointer.
-- **Choosing what to interact with:** the pointer no longer picks among several targets in
-  reach. The nearest wins, the one the slime faces helped, as with no mouse (the interaction
-  controller; the highest priority won until 2026-11-21).
+- **Aiming:** the weapon's strike, the charge and every aimed ability go the way the slime faces,
+  which is the last direction it walked (8 ways; the weapons snap to their own directions). The Roll
+  goes the way the held arrows point, else the way the slime faces. The Gulp sucks and throws where
+  the slime faces (`player.gd` `get_gulp_aim`). The web aim help (`?aimhelp`) belongs to the throw
+  rules, not to a scheme ([THROW_COMBAT.md](THROW_COMBAT.md)).
+- **Teleport:** it always goes its full range the way the slime faces.
+- **Choosing what to interact with:** the nearest target in reach wins, the one the slime faces
+  helped (the interaction controller; the highest priority won until 2026-11-21). No pointer picks.
 - **Placing furniture:** the bench's ghost stands 80 px in front of the slime, and walking moves
   it (`furniture_placement.gd` `_aim_point`). A places, E switches the variant, W or Esc cancels.
-- **The Gulp** (2026-10-09): Q sucks and throws where the slime faces, and 1 swallows, as in the
-  other schemes.
 - **The interact badge** over the chosen target shows the interact key's letter (**W**) instead of
   the mouse glyph whenever `interact`'s first binding is a key (owner, 2026-10-20: "on coffers and
-  interact remove the mouse icon"; `interaction_badge.gd`). The prompt already read "Press W: ...".
+  interact remove the mouse icon"; `interaction_badge.gd`). The prompt reads "Press W: ...".
 - **Windows** (bag, crafting, chest, journal, map, dialogue; owner, 2026-10-20: "I really
   shouldn't have to use the mouse"): the arrows **or W, A, S, D** move a selection cursor (a mint
   ring inside the cell, apart from the gold border of the selected one) between cells and
-  buttons, Space or Enter presses, and Esc closes (B closes the bag). WASD works in every scheme
-  (`game_window.gd` `_input` turns them into the `ui_*` arrows while the focus is in the window
-  or the menu's tab strip, never in a text field). Dialogue also advances on W.
+  buttons, Space or Enter presses, and Esc closes (B closes the bag). `game_window.gd` `_input`
+  turns WASD into the `ui_*` arrows while the focus is in the window or the menu's tab strip, never
+  in a text field. Dialogue also advances on W.
   - **Chest:** the first stack is selected and focused on open; moving selects; **Space takes the
-    selected stack** (as the right click does) and the selection moves to the stack now in its
-    place. The opening status names the keys.
+    selected stack** and the selection moves to the stack now in its place. The opening status
+    names the keys.
   - **Bag:** the selected item (the first at open) has the cursor; moving onto a bag cell selects
     it; **Space uses or holds it** (Use / Hold in hand / Place, the Primary button). Space on a
     belt slot holds that weapon; the belt is filled from a weapon's assignment buttons (move
     right to the details), so drag and drop isn't needed. In the rework mode, Space on a Shapes,
     Abilities or Skins cell chooses it (moving only shows its card). The titles, the band's help,
-    the cards and the tabs' bubble name Space instead of the click in this scheme.
+    the cards and the tabs' bubble name Space.
   - **Tabs:** move up past the window's top row to the tab strip and press Space (or B, J, M).
-- **Mouse buttons and the wheel** do nothing in play. Windows still take clicks.
-
-## Walking: routes
-
-[click_path.gd](../../godot/game/player/mouse/click_path.gd) finds the shortest way the slime can
-walk. It searches with Lazy Theta*, an any-angle A*, over every ground level at once. The owner's
-second round of feedback (2026-10-06) asked for three things, and this version does all three:
-shortest routes, routes through any gap the slime fits, and routes that use stairs.
-
-- **Cells:** the grid has `pathCellPx` (24) world px cells. A node is a cell on a level, standing
-  at its spot: where the slime's body fits in that cell, using that level's collision. Collision
-  is the body's own mask with the level's bit, so walls, props, deep water, NPCs, fences and that
-  level's cliffs all block. Enemies are left out, because they move and an attack walks up to one
-  anyway.
-- **Narrow gaps:** when the body doesn't fit at a cell's centre, the centre is pushed out of what
-  it overlaps, as long as it stays in the cell. So a gap as wide as the body is found wherever it
-  lies against the grid. The planner uses the body grown by 0.5 px on every side, so a gap needs
-  1 px of slack, and routes keep the real body clear of the walls and corners they pass.
-- **Steps:** a step between two neighbouring centres is free, because the body's own size covers
-  the move. Any other step is checked the way the follower walks it: straight at the next spot,
-  sliding along whatever it hits and aiming again. That is how a gap's corners funnel the body in.
-- **Straight lines:** each node also tries to reach its parent's parent in a straight line, when
-  the body can sweep that line exactly, on one level, without stepping onto stairs of another
-  level. So routes are straight lines that bend only at corners. The click itself is reached in a
-  straight line when nothing is in the way.
-- **Stairs:** stepping onto stairs gives the node the level of that stretch of stairs, just as a
-  walking body changes level. Below the goal's level, the search's estimate goes through the
-  nearest flight that climbs from that level. That points the search at the stairs without making
-  routes any longer.
-- **Drops:** from a rim the slime can drop over (`Elevation.ledge_below` and `drop_target`), a
-  drop is a one-way step to its landing. Its cost is the distance the slime would walk in the time
-  the push and the fall take. So a drop is taken when it's shorter than the stairs. The follower
-  leans over the rim for the drop push time (the normal ledge drop) and walks on from the landing.
-  Drops are only worked out near the rim and facing the goal, at most `MAX_DROP_CHECKS` per search,
-  and cached.
-- **Which level a click means:** the slime's own level where it can walk there (for example the
-  strip behind a hill, seen from the north), else the ground seen at that point. An attack aims at
-  the level its target walks on.
-- **Budget:** a search stops after `pathMaxExpansions` nodes or `pathMaxMs` (30 ms). Re-plans while
-  the button is held get `followMaxMs` (8 ms). A route that stops short walks to the explored node
-  nearest the goal. If the budget ran out first, it plans the rest from there.
-- **Walking it:** the follower ([click_orders.gd](../../godot/game/player/mouse/click_orders.gd))
-  looks up to two waypoints ahead each step and goes straight there when it can. No progress for
-  `stuckMs` re-plans around the waypoint it couldn't reach. Three fruitless re-plans in one place
-  end the order, unless the button is held.
-
-Measured in the tests: a gap 1.4 px wider than the slime takes about 1 ms to plan, a climb up the
-park's stairs about 13 ms, and a drop off its rim about 3 ms.
-
-Tuning is in `game-constants.json` under `input.mouse`.
+- **Mouse buttons and the wheel** do nothing in play (`player.gd` `_unhandled_input` drops every
+  mouse event). Windows and menus still take clicks.
 
 ## Files
 
-- [game/player/mouse/](../../godot/game/player/mouse/): `control_scheme.gd` (the schemes and
-  their buttons), `key_bindings.gd` (the keys-only scheme's InputMap), `click_orders.gd` (one
-  order and its walking), `click_path.gd` (routes),
-  `pointer_targets.gd` (what is under the pointer), `click_marker.gd` (the ground rings; a
-  ground decal in the world's y-sorted root, like the Goo Trail).
-- `game/scripts/player.gd`: `_capture_order_buttons`, `_issue_click_order` / `_issue_use`,
-  `_run_click_order`, `_steer_click_order`, `_update_pointer_hover`, the pointer scheme's
-  `_face_pointer` and `_movement_input`, and F2 (`_cycle_control_scheme`).
-- `game/interaction/interaction_controller.gd`: `target_at`, `key_of`, `set_preferred`,
-  `is_current`.
-- `game/scripts/weapon.gd` / `game/combat/player_combat.gd`: `reaches(direction, area)`.
-- Tests: [tests/test_mouse_controls.gd](../../godot/tests/test_mouse_controls.gd) (level-1:
-  orders, gaps, the budget) and [tests/test_mouse_paths.gd](../../godot/tests/test_mouse_paths.gd)
-  (the playground's Elevation Park: stairs and drops).
-
-## Open questions for the playtest
-
-- **Default:** should a mouse scheme become the default on PC? Keyboard stays the default for now,
-  and the tests run in it.
-- **Jump:** answered 2026-10-08: the jump is removed from the game, and Space is free.
-- **Dodge:** should dodge move to the right button or Space, ARPG style? (2026-10-08: the owner
-  turns Dodge into a Roll that keeps rolling while held. Built 2026-10-09 on key 2, the dodge's
-  key; whether it moves is still open.)
-- **Abilities:** should the four abilities move from 1–4 to Q/W/E/R in the moba scheme? Q is eat
-  and E is the bag today.
-- **Attack-move:** is an "A + click" attack-move (walk, and fight whatever comes in reach) worth
-  adding?
+- [game/player/mouse/key_bindings.gd](../../godot/game/player/mouse/key_bindings.gd): the layout
+  and the rebinding.
+- `game/shell/game_settings.gd` `apply_to_input`; `game/shell/control_labels.gd` (the Controls list,
+  `control_rows` / `rework_rows`); `game/hints/control_hints.gd` (the first-time hints).
+- Tests: [tests/test_keys_only.gd](../../godot/tests/test_keys_only.gd) (the layout from the start,
+  no F2 action or saved scheme, the arrows walk, A swings the way the slime faces and a click does
+  nothing, W never uses a door).

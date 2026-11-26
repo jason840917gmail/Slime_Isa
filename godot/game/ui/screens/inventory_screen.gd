@@ -59,7 +59,6 @@ const ShapeDefs := preload("res://game/shapes/shape_defs.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const ConsoleStyle := preload("res://game/ui/console/console_style.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const PotionBelt := preload("res://game/inventory/potion_belt.gd")
 
 const SURFACE_ID := &"inventory"
@@ -92,8 +91,6 @@ const BAND_ICON := 26
 const BAND_GAP := 8
 const SHAPES_TITLE := "Weapons"
 const ABILITIES_TITLE := "Abilities"
-const SHAPES_HELP := "Click one to take it · %s: next"
-const ABILITIES_HELP := "Click one to put it on %s"
 ## The band's help in the keys-only scheme (no mouse).
 const KEYS_SHAPES_HELP := "Space takes it · %s: next"
 const KEYS_ABILITIES_HELP := "Space puts it on %s"
@@ -407,9 +404,8 @@ func refresh() -> void:
 	if content == null:
 		return
 	_model = InventoryModel.snapshot(state)
-	var keys_only := ControlScheme.current() == ControlScheme.KEYS
-	belt_help_label.text = KEYS_BELT_HELP % ControlLabels.control_label(&"weapon_next") if keys_only else BELT_HELP
-	items_title_label.text = KEYS_ITEMS_TITLE if keys_only else ITEMS_TITLE
+	belt_help_label.text = KEYS_BELT_HELP % ControlLabels.control_label(&"weapon_next")
+	items_title_label.text = KEYS_ITEMS_TITLE
 	var belt: Array = _model["belt"]
 	for index in belt.size():
 		var entry: Dictionary = belt[index]
@@ -645,9 +641,8 @@ func _refresh_band() -> void:
 	var current := BodyCards.current_shape(player)
 	var chosen := AbilityBox.selected(player)
 	var key := ControlLabels.control_label(AbilityBox.USE_ACTION)
-	var keys_only := ControlScheme.current() == ControlScheme.KEYS
-	shapes_help_label.text = (KEYS_SHAPES_HELP if keys_only else SHAPES_HELP) % ConsoleStyle.key_of(&"weapon_next")
-	abilities_help_label.text = (KEYS_ABILITIES_HELP if keys_only else ABILITIES_HELP) % key
+	shapes_help_label.text = KEYS_SHAPES_HELP % ConsoleStyle.key_of(&"weapon_next")
+	abilities_help_label.text = KEYS_ABILITIES_HELP % key
 	_band_shape_ids = BodyCards.learned_shapes()
 	_band_ability_ids = AbilityBox.box_ids(player)
 	_band_skin_ids = _skin_choices()

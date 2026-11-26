@@ -19,10 +19,6 @@ class_name InteractionController
 ## a key badge over it. The player's interact press (right click, buffered 150 ms) runs
 ## `handle_interact`.
 ##
-## The mouse control schemes (game/player/mouse/control_scheme.gd) click a target anywhere on
-## screen: `target_at` finds it around the pointer, and while the slime walks there the player keeps
-## it `set_preferred`, so it is chosen over everything else once it is in reach (`is_current`).
-##
 ## A chest opens the chest window (chest.gd hands itself to game/ui/screens/chest_window.gd). An
 ## NPC opens its conversation (the quest service: dialogue box, offer and turn-in window). A
 ## workbench opens the crafting window for its site (game/ui/screens/menu_windows.gd).
@@ -34,7 +30,6 @@ class_name InteractionController
 ## Owner: interaction.
 
 const Services := preload("res://game/shared/services.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const InteractionPrompt := preload("res://game/interaction/interaction_prompt.gd")
 const InteractionBadge := preload("res://game/interaction/interaction_badge.gd")
@@ -96,10 +91,7 @@ var _prompt: InteractionPrompt
 var _badge: InteractionBadge
 var _current: Dictionary = {}
 var _suppressed: bool = false
-var _pointer_seen: bool = false
 var _npc_names: Dictionary = {}
-## The click order's target (`key_of`): chosen first whenever it is in reach; null when none.
-var _preferred: Variant = null
 
 
 func _ready() -> void:
@@ -114,21 +106,14 @@ func _ready() -> void:
 	_load_npc_definitions()
 
 
-## Phaser `pointerSeen`: picking by pointer starts once the mouse moved or clicked.
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouse:
-		_pointer_seen = true
-
-
 func _physics_process(_delta: float) -> void:
 	var player := _player()
 	# Sleeping, bathing or placing furniture offers nothing (WorldScene.ts:820).
 	var furniture := get_tree().get_first_node_in_group(FURNITURE_GROUP)
 	var placing := furniture != null and bool(furniture.call(&"is_active"))
 	set_suppressed((player != null and bool(player.call(&"is_resting"))) or placing)
-	# The keys-only control scheme picks without the pointer (by priority, as with no mouse).
-	var pointing := _pointer_seen and ControlScheme.uses_mouse(ControlScheme.current())
-	refresh(get_global_mouse_position() if pointing else null)
+	# Keys only: the nearest target the slime faces wins (no pointer picks).
+	refresh(null)
 
 
 ## InteractionRouter.update: gathers the targets, chooses one, updates the prompt and the badge.
@@ -153,12 +138,9 @@ func refresh(pointer: Variant = null) -> void:
 		candidate_changed.emit({"id": id, "prompt": str(chosen.get("prompt", ""))})
 
 
-## InteractionRouter.choose (spec 2.4). A preferred target (a click order's) in reach wins first.
+## InteractionRouter.choose (spec 2.4). A `pointer` (a world point; tests) within POINTER_PICK_PX of a
+## target's pick point picks it; otherwise the nearest target the slime faces wins.
 func choose(candidates: Array[Dictionary], pointer: Variant) -> Dictionary:
-	if _preferred != null:
-		for candidate in candidates:
-			if matches(candidate, _preferred):
-				return candidate
 	var best := {}
 	if pointer is Vector2:
 		var best_distance := POINTER_PICK_PX
@@ -241,25 +223,6 @@ func current() -> Dictionary:
 	return _current
 
 
-## The usable thing under the pointer wherever the slime stands (the mouse schemes walk there):
-## the targets around `pointer` as if the slime stood on it, the nearest pick point within
-## POINTER_PICK_PX. {} when none, or while suppressed.
-func target_at(pointer: Vector2) -> Dictionary:
-	if _suppressed:
-		return {}
-	var best := {}
-	var best_distance := POINTER_PICK_PX
-	for candidate in _gather_at(pointer):
-		var at: Variant = _pick_point(candidate)
-		if at == null:
-			continue
-		var distance := (at as Vector2).distance_to(pointer)
-		if distance <= best_distance:
-			best = candidate
-			best_distance = distance
-	return best
-
-
 ## What identifies `candidate` across polls: its node when it has one (an NPC keeps it while its
 ## quest kind changes), else its id.
 static func key_of(candidate: Dictionary) -> Variant:
@@ -277,16 +240,6 @@ static func matches(candidate: Dictionary, key: Variant) -> bool:
 		var node: Variant = candidate.get("node")
 		return is_instance_valid(key) and node is Node and node == key
 	return str(candidate.get("id", "")) == str(key)
-
-
-## Keeps a click order's target chosen whenever it is in reach (null: none).
-func set_preferred(key: Variant) -> void:
-	_preferred = key
-
-
-## True when the chosen target is the one `key` names (the click order arrived).
-func is_current(key: Variant) -> bool:
-	return not _suppressed and matches(_current, key)
 
 
 ## Sleeping hides the prompt and the badge and offers nothing.
@@ -332,7 +285,7 @@ func _gather() -> Array[Dictionary]:
 	return _gather_at(player.call(&"get_centre"))
 
 
-## The targets in reach of `at` (the slime's centre, or the pointer for `target_at`).
+## The targets in reach of `at` (the slime's centre).
 func _gather_at(at: Vector2) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if _player() == null:

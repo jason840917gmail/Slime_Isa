@@ -46,7 +46,8 @@ def main():
     film = json.loads((folder / "film.json").read_text(encoding="utf-8"))
     cell = int(opts.get("cell", "420"))
     gif_width = int(opts.get("gif-width", "640"))
-    frames = sorted(folder.glob("f*.png"))
+    # By number: past f999 the names no longer sort as the frames ran (f1000 before f101).
+    frames = sorted(folder.glob("f[0-9]*.png"), key=lambda path: int(path.stem[1:]))
     share = float(opts.get("crop", "0.5"))
 
     def load(path):

@@ -30,6 +30,8 @@ const NEUTRAL := {
 	"type": "",
 	"weight": DEFAULT_WEIGHT,
 	"material": "",
+	## What a hit meets (game/combat/reactions/hit_materials.gd, `combat.materials`): flesh takes everything.
+	"hitMaterial": "flesh",
 	"knockbackScale": 1.0,
 	"hitstunScale": 1.0,
 	"holdCap": 2,

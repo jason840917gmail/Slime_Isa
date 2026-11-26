@@ -916,10 +916,11 @@ func _film_wall() -> void:
 	var strikes := 0
 	for i in 3:
 		_push(&"move_right", true)
-		_push(&"eat", true)
+		# the climb strike is the attack (A) since the one combat (2026-11-25; Q before it)
+		_push(&"attack", true)
 		await _tick()
 		await _tick()
-		_push(&"eat", false)
+		_push(&"attack", false)
 		for k in 40:
 			await _tick()
 			if int(_boss.call(&"claw_hits")) > strikes or str(_boss.call(&"get_phase")) == "fall":
@@ -1162,10 +1163,11 @@ func _strike_claws() -> bool:
 	var toward := &"move_right" if spot_x > roots.global_position.x else &"move_left"
 	for i in 4:
 		_push(toward, true)
-		_push(&"eat", true)
+		# the climb strike is the attack (A) since the one combat (2026-11-25; Q before it)
+		_push(&"attack", true)
 		await _tick()
 		await _tick()
-		_push(&"eat", false)
+		_push(&"attack", false)
 		for k in 40:
 			await _tick()
 			if str(_boss.call(&"get_phase")) == "fall":

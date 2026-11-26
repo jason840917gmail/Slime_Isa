@@ -26,7 +26,6 @@ const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const InventoryModel := preload("res://game/ui/screens/inventory_model.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const SheetSprite := preload("res://game/runtime/sheet_sprite.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 ## The bag's Skins row: each skin's icon (scripts/art/pack-skin-art.py) and the goo's name.
 const SKIN_ICON := "res://asset/UI/skins/%s-icon.webp"
@@ -191,7 +190,6 @@ static func _key_or_none(label: String) -> String:
 	return label if not label.is_empty() else "no key"
 
 
-## How a card's cell is confirmed: "Space" in the keys-only control scheme (no mouse: owner,
-## 2026-10-20), else "Click".
+## How a card's cell is confirmed: "Space" (keys only, owner, 2026-10-20; the one scheme since 2026-11-25).
 static func _confirm() -> String:
-	return "Space" if ControlScheme.current() == ControlScheme.KEYS else "Click"
+	return "Space"

@@ -11,14 +11,12 @@ extends Control
 
 const UiTokens := preload("res://game/ui/theme/ui_tokens.gd")
 const Services := preload("res://game/shared/services.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 
 ## A tab was clicked (its tab id).
 signal tab_pressed(tab: StringName)
 
 const TABS: Array[StringName] = [&"inventory", &"journal", &"map"]
 const LABELS := {&"inventory": "Bag", &"journal": "Journal", &"map": "Map"}
-const COACH_TEXT := "These tabs switch between your Bag, Journal and Map. Click one!"
 ## The bubble in the keys-only control scheme (no mouse: owner, 2026-10-20).
 const KEYS_COACH_TEXT := "These tabs switch between your Bag, Journal and Map. Move up to them and press Space."
 ## menu-tabs.scene.json had the strip `(-180, 4)-(180, 40)` from `(0.5, 0)` for four tabs; three take
@@ -88,7 +86,7 @@ func _ready() -> void:
 	coach_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	coach_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	coach_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	coach_label.text = COACH_TEXT
+	coach_label.text = KEYS_COACH_TEXT
 	coach.add_child(coach_label)
 
 
@@ -108,7 +106,7 @@ func refresh(current: StringName, available: Array[StringName], coach_visible: b
 		else:
 			button.remove_theme_stylebox_override(&"disabled")
 			button.remove_theme_color_override(&"font_disabled_color")
-	coach_label.text = KEYS_COACH_TEXT if ControlScheme.current() == ControlScheme.KEYS else COACH_TEXT
+	coach_label.text = KEYS_COACH_TEXT
 	_set_coach(visible and coach_visible)
 
 

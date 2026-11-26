@@ -47,7 +47,12 @@ extends RefCounted
 ##   `resist_floor`: every knock speed and slide here uses at least that share of the knock unless the
 ##   profile's `knockbackScale` is 0). A blow never lands on an enemy that is invulnerable by design
 ##   (`invulnerable_by_design`: it answers `is_invulnerable()` true, the Prism Eye).
-## - `after_move(enemy, delta)` from `_physics_process` after the body moved: while a launch flies,
+## - The weapon's daze (one combat, 2026-11-25): the last step of a weapon's combo (the Spear's lunging jab,
+##   the Axe's chop, the Hammer's BOOM and its ring) or a charge that lands on an enemy that is no boss (a heavy one only on a poise break) leaves `weapon_daze_ms` pending (`_note_weapon_daze`);
+##   `after_move` starts it once the blow's stun and launch are over (`_start_weapon_daze`): dazed with
+##   stars and helpless for `combat.rules.weaponDaze.windowMs`, as a throw's daze (`is_helpless`).
+## - `after_move(enemy, delta)` from `_physics_process` after the body moved: the weapon's daze when it is
+##   due; while a launch flies,
 ##   the wall splat (the mover's collider is not an enemy or the slime, hit faster than
 ##   `combat.rules.wallSplat.minSpeed` into the wall: a squash, `damageShare` of the launching hit
 ##   again, `hitStopMs` and `trauma`, a bounce back `bouncePx`, a daze `dazeMs` that cancels its
@@ -145,6 +150,15 @@ const SLIDE_WHOLE_MS := 10000.0
 const HELPLESS_VERBS: Array[String] = [HitReaction.VERB_DAZE, HitReaction.VERB_KNOCKDOWN, HitReaction.VERB_STAGGER,
 	HitReaction.VERB_SLEEP]
 const THROWN_TAG := "thrown"
+## The weapon's daze (one combat, 2026-11-25; docs/godot/THROW_COMBAT.md "Enemies as ammo"):
+## `combat.rules.weaponDaze.windowMs`; the last step of a weapon's combo or its charge; a heavy enemy only on a
+## poise break, a boss never.
+const WEAPON_DAZE_PATH := "combat.rules.weaponDaze"
+const WEIGHT_HEAVY := "heavy"
+## The first weapon daze of a run says so and points at the enemy (game/throw/weapon_daze_hint.gd).
+const WeaponDazeHint := preload("res://game/throw/weapon_daze_hint.gd")
+## The shared material rule's lookups and its first-refusal line (game/combat/reactions/hit_materials.gd).
+const HitMaterials := preload("res://game/combat/reactions/hit_materials.gd")
 ## A blown body counts as blown this long past the moment it slows under the hazards' `minSpeed`
 ## (the step it is stopped on comes a step after the speed that stopped it).
 const BLOWN_GRACE_MS := 50.0
@@ -186,6 +200,7 @@ static func react(enemy: Node, commit: Dictionary, is_dead: bool) -> void:
 	else:
 		_apply(enemy, profile, state, hit, answer, knock, _origin_of(enemy, request), damage, now)
 		_note_helpless(enemy, state, hit, answer, now)
+		_note_weapon_daze(enemy, profile, state, hit, answer)
 	if damage > 0.0:
 		_shake_in_freeze(enemy, hit)
 	(result as Dictionary)["reaction"] = answer
@@ -229,8 +244,49 @@ static func can_receive(enemy: Node, input: Dictionary) -> Dictionary:
 		var motion := motion_of(enemy)
 		if motion != null:
 			motion.play(EnemyHitMotion.JITTER, Vector2.ZERO, {"px": CLINK_SHAKE_PX, "ms": CLINK_SHAKE_MS})
+		# The material refused the weapon: the first time in the run, its line and a pointer at the enemy.
+		var material := HitMaterials.of(profile, state.phase)
+		var tag := HitMaterials.refused_tag(material, hit)
+		if not refused and not tag.is_empty() and HitReaction.material_gate(profile, hit, state.phase) == HitReaction.GATE_CLINK:
+			HitMaterials.on_refused(enemy, material, tag)
 		return {"accepted": false, "reason": REASON_IMMUNE}
 	return {"accepted": true, "reason": ""}
+
+
+## True when `enemy`'s hit material refuses `request` (HitReaction.material_gate: a weapon its material
+## clinks; nothing else is ever refused). An old-style request (no `hit`) is judged by its `weapon_tags`
+## (the Roll's bonk and the Heavy Roll carry none of the weapons' tags: they get through). The patterned enemies ask
+## it before their own shields and kill hit, so the shared rule's clink and its line come first
+## (patterned_enemy.gd `can_receive_damage`); enemy.gd asks it for the old-style requests (`refuse_old`).
+static func material_refuses(enemy: Node, request: Dictionary) -> bool:
+	if enemy == null:
+		return false
+	var profile := ReactionProfile.for_enemy(enemy)
+	var state := _prepare(enemy, request, profile)
+	return HitReaction.material_gate(profile, _material_hit(request), state.phase) == HitReaction.GATE_CLINK
+
+
+## An old-style request (no `hit`) that `enemy`'s material refuses: its line the first time, and true (the
+## caller answers "immune": the sender clinks). False when it gets through.
+static func refuse_old(enemy: Node, request: Dictionary) -> bool:
+	if enemy == null or not HitReaction.hit_of(request).is_empty() or not material_refuses(enemy, request):
+		return false
+	var profile := ReactionProfile.for_enemy(enemy)
+	var material := HitMaterials.of(profile, _prepare(enemy, request, profile).phase)
+	var motion := motion_of(enemy)
+	if motion != null:
+		motion.play(EnemyHitMotion.JITTER, Vector2.ZERO, {"px": CLINK_SHAKE_PX, "ms": CLINK_SHAKE_MS})
+	HitMaterials.on_refused(enemy, material, HitMaterials.refused_tag(material, _material_hit(request)))
+	return true
+
+
+## The hit the material rule judges for `request`: its `hit`, or for an old-style request its weapon tags.
+static func _material_hit(request: Dictionary) -> Dictionary:
+	var hit := HitReaction.hit_of(request)
+	if not hit.is_empty():
+		return hit
+	var tags: Variant = request.get("weapon_tags", [])
+	return {"class": "", "tags": (tags as Array).duplicate() if tags is Array else []}
 
 
 ## The damage multiplier of the rework hit in `input` on `enemy` (`mitigate_damage`): 0 through a
@@ -267,6 +323,8 @@ static func after_move(enemy: Node, _delta: float) -> void:
 		return
 	var state := state_of(enemy)
 	var now := Services.now_ms()
+	if state.weapon_daze_ms > 0.0 and now >= state.stun_until_ms and now >= state.launch_until_ms:
+		_start_weapon_daze(enemy, state, now)
 	var launched := now < state.launch_until_ms
 	# A body a blow moves meets the ground's hazards (enemy_hazards.gd), launch or plain knock slide.
 	var blown := now < state.blown_until_ms and EnemyHazards.is_on()
@@ -610,6 +668,58 @@ static func _note_helpless(enemy: Node, state: ReactionState, hit: Dictionary, a
 	var body := _body_of(enemy)
 	var slides := body != null and body.velocity != Vector2.ZERO
 	state.helpless_from_ms = now + (_knock_number("flightMs", EnemyHitMotion.KNOCK_MS) + EnemyHitMotion.LANDING_MS if slides else 0.0)
+
+
+## A weapon's blow that sets up the throw (one combat, 2026-11-25; the plan's piece 3): a weapon's hit (the
+## hit's `shape`, not tagged `thrown`) marked `last` (the last step of its combo, whatever its class: the
+## Spear's lunging jab and the Axe's chop are `finisher`, the Hammer's BOOM is `smash`; a charge's hit)
+## that landed (not armor or a clink), on an enemy that is no boss, a heavy one only when the blow broke
+## its poise. The steps before the last never do (their hits are not `last`), nor any plain tap. It is not a stun of its own: the knock the blow
+## gave plays out first (`after_move` starts the daze once its stun and launch are over).
+static func _note_weapon_daze(enemy: Node, profile: Dictionary, state: ReactionState, hit: Dictionary,
+		answer: Dictionary) -> void:
+	if _defeated(enemy) or str(hit.get("shape", "")).is_empty():
+		return
+	var tags: Variant = hit.get("tags", [])
+	if tags is Array and (tags as Array).has(THROWN_TAG):
+		return
+	if not bool(hit.get("last", false)):
+		return
+	var rules := _dict(WEAPON_DAZE_PATH)
+	var weight := str(profile.get("weight", ""))
+	var verb := str(answer.get("verb", ""))
+	if weight == WEIGHT_BOSS or verb == HitReaction.VERB_ARMOR or verb.is_empty():
+		return
+	if weight == WEIGHT_HEAVY and not bool(answer.get("poise_broken", false)):
+		return
+	state.weapon_daze_ms = float(rules.get("windowMs", 0.0))
+
+
+## The weapon's daze begins (its knock is over: the enemy has landed): dazed with stars for
+## `weapon_daze_ms`, helpless at once (no wake guard over it), its attack cancelled, as a throw's daze
+## leaves it (`is_helpless`: the enemy-ammo prototype then lets the Gulp lift it, if its level lifts the
+## weight; a phase marked `noSleep` still refuses). The first one of a run shows the Gulp's hint.
+static func _start_weapon_daze(enemy: Node, state: ReactionState, now: float) -> void:
+	var window := state.weapon_daze_ms
+	state.weapon_daze_ms = 0.0
+	if _defeated(enemy) or window <= 0.0:
+		return
+	state.verb = HitReaction.VERB_DAZE
+	state.stun_until_ms = now + window
+	state.damage_taken = 1.0
+	state.throw_helpless = true
+	state.helpless_from_ms = now
+	state.wake_until_ms = minf(state.wake_until_ms, now)
+	_call(enemy, &"cancel_attack")
+	_stun(enemy, now + window, true)
+	var body := _body_of(enemy)
+	if body != null:
+		body.velocity = Vector2.ZERO
+	var motion := motion_of(enemy)
+	if motion != null:
+		motion.play(EnemyHitMotion.DAZE, Vector2.ZERO, {"ms": window})
+		motion.show_stars(state.stun_until_ms)
+	WeaponDazeHint.on_daze(enemy)
 
 
 ## The killing blow: a tiny enemy pops (the pop streak's pitch goes to the sender's feel); a
@@ -1080,8 +1190,8 @@ static func _try_splat(enemy: Node, body: CharacterBody2D, state: ReactionState,
 		motion.play(EnemyHitMotion.SPLAT, normal, params)
 		motion.show_stars(state.stun_until_ms, _knock_number("starScale", 1.0) if state.chains else 1.0)
 	_puff_at(enemy, PUFF_DUST)
-	var dealt := _chain_hurt(enemy, state, state.chains, roundi(state.launch_damage * float(splat.get("damageShare", 0.0))),
-		Vector2.ZERO, now)
+	var dealt := _chain_hurt(enemy, state, state.chains,
+		roundi(state.launch_damage * float(splat.get("damageShare", 0.0))), Vector2.ZERO, now)
 	_play_feel({"hit_stop_ms": float(splat.get("hitStopMs", 0.0)), "trauma": float(splat.get("trauma", 0.0)),
 		"number": dealt, "number_big": false}, _centre_of(enemy), normal)
 
@@ -1190,8 +1300,8 @@ static func _bowl_into(enemy: Node, body: CharacterBody2D, state: ReactionState,
 	var between := (_centre_of(enemy) + _centre_of(other)) * 0.5
 	# A boss bowled into takes the plain `bowling.damage`, chain or not (its fight's rules stay its own).
 	var boss := str(profile.get("weight", "")) == WEIGHT_BOSS
-	var dealt_other := _chain_hurt(other, other_state, state.chains, roundi(float(bowling.get("damage", 0.0))) if boss else damage,
-		shoved, now)
+	var dealt_other := _chain_hurt(other, other_state, state.chains,
+		roundi(float(bowling.get("damage", 0.0))) if boss else damage, shoved, now)
 	var dealt_self := _chain_hurt(enemy, state, state.chains, damage, body.velocity, now)
 	var chain_feel: Variant = bowling.get("chainFeel") if state.chains else null
 	if chain_feel is Dictionary:
@@ -1472,6 +1582,11 @@ static func _dictionary(path: String) -> Dictionary:
 	var constants := Services.constants()
 	var found: Variant = constants.value(path, {}) if constants != null else {}
 	return found if found is Dictionary else {}
+
+
+static func _dict(path: String) -> Dictionary:
+	var constants := Services.constants()
+	return constants.dictionary(path) if constants != null else {}
 
 
 static func _number(path: String) -> float:

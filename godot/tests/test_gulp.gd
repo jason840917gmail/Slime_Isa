@@ -23,6 +23,8 @@ const Services := preload("res://game/shared/services.gd")
 const GulpForms := preload("res://game/player/gulp/gulp_forms.gd")
 const SkinState := preload("res://game/player/skins/skin_state.gd")
 const LiftableScript := preload("res://game/scripts/liftable.gd")
+const ThrowMode := preload("res://game/throw/throw_mode.gd")
+const ThrowFeel := preload("res://game/throw/throw_feel.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const AbilityDefinitions := preload("res://game/player/abilities/ability_definitions.gd")
 
@@ -85,7 +87,8 @@ func test_holding_blocks_attacks_and_q_throws(t: TestContext) -> void:
 
 
 ## Q with an essence held spits it out whole in front, where it stays (owner, 2026-10-09: essences
-## are never thrown); the full slime walks at `gulp.holdingSpeedMultiplier` of its speed.
+## are never thrown); the full slime walks at the held weight's `holdingSpeed` (an essence is light:
+## `gulp.throwCombat.weights.light.holdingSpeed`; the throw rules are always on since 2026-11-25).
 func test_q_spits_an_essence_out_whole_and_a_full_slime_walks_slower(t: TestContext) -> void:
 	var player := t.player()
 	await _suck_from_below(t, YARD_SILK)
@@ -97,7 +100,9 @@ func test_q_spits_an_essence_out_whole_and_a_full_slime_walks_slower(t: TestCont
 	await t.steps(2)
 	t.press(&"move_right")
 	await t.steps(8)
-	t.near(t.player_body().velocity.length(), _walk_speed() * Services.constants().number("gulp.holdingSpeedMultiplier"), 0.5,
+	var holding := ThrowMode.weight_number(ThrowMode.weight_of_held(player.held()), "holdingSpeed",
+		Services.constants().number("gulp.holdingSpeedMultiplier"))
+	t.near(t.player_body().velocity.length(), _walk_speed() * holding, 0.5,
 		"the full slime's walking speed")
 	t.release(&"move_right")
 	await t.steps(2)
@@ -111,6 +116,8 @@ func test_q_spits_an_essence_out_whole_and_a_full_slime_walks_slower(t: TestCont
 		t.equal(float(spat.get(&"fade_ms")), 0.0, "a spat essence stays")
 
 
+## A puffball is a sleep throw (the throw rules, always on since 2026-11-25): it strikes the dummy once
+## for no damage (`gulp.throwCombat.effects.sleep.damageScale` 0).
 func test_a_thrown_puffball_hits_a_dummy(t: TestContext) -> void:
 	var player := t.player()
 	await _suck_from_below(t, YARD_PUFFBALL)
@@ -127,10 +134,14 @@ func test_a_thrown_puffball_hits_a_dummy(t: TestContext) -> void:
 	await t.until(func() -> bool: return not hits.is_empty(), 1500.0)
 	t.equal(hits.size(), 1, "the dummy took one hit")
 	if not hits.is_empty():
-		# gulp.throwDamage times the thrown thing's material (a puffball is soft: x 0.6).
+		# The throw's base damage x its material x its weight x its effect (sleep: x 0).
 		var material := LiftableScript.material_of("puffball")
 		var by_material := float(Services.constants().dictionary("gulp.throwDamageByMaterial").get(material, 1.0))
-		t.near(float(hits[0]["damage"]), Services.constants().number("gulp.throwDamage") * by_material, 0.01, "the throw's damage")
+		var effect := ThrowMode.effect_of("puffball", material)
+		t.equal(effect, ThrowMode.SLEEP, "a puffball's effect")
+		var expected := ThrowFeel.base_damage() * by_material * ThrowMode.weight_number(ThrowMode.weight_of("puffball"), "damageScale") \
+			* float(ThrowMode.effect_row(effect).get("damageScale", 1.0))
+		t.near(float(hits[0]["damage"]), expected, 0.01, "the throw's damage")
 
 
 func test_a_hit_pops_the_form_and_drops_the_held_thing(t: TestContext) -> void:

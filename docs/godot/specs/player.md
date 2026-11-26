@@ -411,7 +411,7 @@ Bed respawn / other-area respawn [OUT].
 
 Mouse buttons and the wheel count only when pressed over the game canvas, not over HUD/windows; a release always counts (`InputEvent.ts:52-55`). Godot: handle in `_unhandled_input` (GUI controls with `mouse_filter = STOP` already swallow clicks).
 
-Godot addition (experiment, branch `exp/mouse-controls`): the mouse control schemes ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). In the `click` and `moba` schemes the mouse buttons are read before the action capture: one button gives click orders (walk, attack, use); the other is the click scheme's use (an `interact` press, or a use order on what is under the pointer) or the moba scheme's `attack` press. In the `pointer` scheme the slime faces the pointer and only `move_up` walks, toward it. The `keys` scheme rebinds the InputMap (arrows walk, A attacks, W interacts, only E cycles the weapons) and aims nothing with the pointer: what aims goes where the slime faces. In every scheme E is also `weapon_next` (the weapon scroll, owner 2026-10-08), B opens the bag and J the journal. F2 (`control_scheme_next`) cycles the scheme. The keyboard scheme (the default) is unchanged.
+Godot: keys only ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)), the one control scheme since 2026-11-25 (the experiment's four mouse schemes and F2 were removed in piece 5 of the one combat; [archived](../../archive/2026-11-25-mouse-control-schemes.md)). The InputMap is rebound (arrows walk, A attacks, S rolls, D the ability, Q the Gulp, W interacts, only E cycles the weapons) and `_unhandled_input` drops every mouse event: what aims goes where the slime faces. B opens the bag and J the journal.
 
 ### 7.2 Capture (`PlayerScript._unhandled_input`, `PlayerScript.ts:97-111`)
 ```

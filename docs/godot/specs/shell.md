@@ -152,9 +152,10 @@ Phaser (`GameSettingsStore.ts`, `GameSettingsService.ts`, `SettingsSurfacePort.t
 
 Godot:
 - **[IN]** `GameSettings` keeps the same keys in snake_case (`master`, `effects`, `music`, `muted`,
-  `screen_shake`, `reduce_motion`, `attack_aim`), plus the Godot-only `control_scheme`
-  (`keyboard` default, `click`, `moba`, `pointer`, `keys`; the keys-only scheme also rebinds the InputMap, `apply_to_input`; [../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)), shown as
-  a "Mouse: ..." button under the toggles. Defaults, ranges and parsing are kept, in
+  `screen_shake`, `reduce_motion`, `attack_aim`). Keys only is the one control scheme since
+  2026-11-25: `apply_to_input` always rebinds the InputMap to its layout, and a saved
+  `control_scheme` (the experiment's setting and its "Mouse: ..." button are gone) is read no more
+  ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). Defaults, ranges and parsing are kept, in
   `user://settings.cfg` (ConfigFile: `[meta] version=1`, `[settings]`). `update()` clamps, saves,
   applies and emits `changed`; `reset()` is Defaults.
 - Test runs (`-s res://tests/run_tests.gd`) neither read nor depend on the player's file: the
@@ -166,7 +167,7 @@ Godot:
   hit-stop under reduce motion).
 - Body-shapes rework ([../BODY_SHAPES.md](../BODY_SHAPES.md)): the Godot-only `damage_numbers`
   (on by default; off only when stored exactly `false`) goes to `GameFeel.show_damage_numbers`;
-  the window shows its "Damage numbers: On/Off" row under the scheme row only while the rework
+  the window shows its "Damage numbers: On/Off" row under the toggles only while the rework
   mode is on (the panel grows by that row), so the classic window is unchanged.
 - **[OUT]** The softer squash under reduce motion: `game/player/squash_stretch.gd` does not read a
   setting yet (it can read `Services.shell().get_settings().reduce_motion()`). `attack_aim` is
@@ -210,9 +211,8 @@ Godot:
 - Controls (`ControlsSurfacePort.ts:9-27`): fifteen rows, key label then action, from the binding
   table. Key labels (`ControlLabels.ts:4-70`): named keys (Space, Shift, Esc, arrows, "+", "−",
   Left / Right / Middle click, Mouse wheel), letters and digits as printed by the keyboard layout,
-  movement as one label ("WASD"). Godot adds a last row, F2 "Switch the control scheme", and a
-  mouse control scheme lists its two buttons in place of move / attack / interact
-  ([../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). **[IN]** from Godot's InputMap (`ControlLabels.control_rows()`,
+  movement as one label ("WASD"). Godot lists the keys-only layout's keys (the F2 scheme row and the
+  mouse schemes' buttons went on 2026-11-25: [../MOUSE_CONTROLS.md](../MOUSE_CONTROLS.md)). **[IN]** from Godot's InputMap (`ControlLabels.control_rows()`,
   the layout label through `DisplayServer.keyboard_get_label_from_physical`). **[DIFF]** One grid
   row per control in 13 px, so a wrapped description keeps its key on its row.
 - Credits (`CreditsSurfacePort.ts:22-27`): per section the heading in capitals, then

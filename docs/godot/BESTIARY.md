@@ -183,9 +183,9 @@ energy shard stay the base enemy's.
   so does a thing that is no projectile: the skull on a skeleton's bone pile
   (`game/enemy/bone_skull.gd`, a sprite under the pile's body, in the group only while it lies
   there). Both break as material `bone` (`thrown_object.gd`: dust, `BreakWood`).
-- **Spear-only openings:** the Spear's hits carry the tag `spear` (its shape's tags; the old spear
-  weapons too). The Squints' `_shields` let only those through, and thrown things (tag `thrown`,
-  owner 2026-10-22), and only while the visor is open.
+- **The open visor:** the Squints' `_shields` refuse every hit while the visor is shut. Open, their
+  material decides (eye, 2026-11-25/26): the Spear hurts, the Axe and the Hammer clink, and thrown
+  things, arrows, a Goo Bomb's blast, the flame, the Roll and a slam all hurt.
 - **The Bow:** the Rook Thief is in the group `bow_targets` with `on_arrow_hit(hit) -> bool` (it is
   knocked down from any height); the Bow (12.6) calls it. The Silk Lurker is in it too (an arrow
   cuts its thread at any height). So are the Glint Bat (brought down from any height), the Crystal
@@ -208,6 +208,74 @@ energy shard stay the base enemy's.
   refreshed while held, `spend_energy` for the drain, `get_move_intent` for the shakes,
   `set_effect_alpha` to hide it inside and `recoil` to break it out; nothing in the player changed.
 
+## Materials (2026-11-25: one combat, piece 4)
+
+What a hit meets, one shared rule in the data (the owner's table of 2026-11-25; the plan:
+[weapons beside throws](../design/2026-11-25-weapons-beside-throws.md) section 4). Every non-boss type
+has a **hit material**, `reactions.hitMaterial` in enemy-types.json (a phase may carry its own in
+`reactions.states.<phase>.hitMaterial`: the Shardback's brittle shell is flesh). `combat.materials` in
+game-constants.json says which weapons it refuses, by the weapon tags every weapon hit carries (`spear`
+the Spear, `cut` the War Axe, `crush` the Hammer). A refused weapon **clinks** (`HitReaction.gate`
+through `material_gate`: the clink's sparks and tick, the slime's recoil, the combo broken). **Only the
+weapons are ever refused** (the owner, 2026-11-26: "when i said only ona weapon hurt them that does not
+include throws, the rule is only for weapons, spear axe and hammer"; of the abilities: "Yes, they
+hurt", then "until i decide otherwise"): a thrown thing (its knock, wall splat and bowl too), an arrow, the Goo Bomb's blast,
+the Lantern's flame, the Roll and the Heavy Roll, a slam, a sleep, a mechanism's blow and the ground's
+hazards hurt every material as they hurt flesh. That replaced, the same day, his "throws only daze them"
+of 2026-11-25 and the reviewer's reading that the abilities clinked on the one-weapon materials; the
+table's `thrown` column, its `only` key and their lines went with them. **The three one-weapon
+materials** (bark, iron, eye) are plain rows: of the Spear, the Axe and the Hammer one hurts, the two
+others clink (2026-11-26, the owner: "enemies that only one weapon hurt them"). The abilities hurting
+the one-weapon enemies is the owner's choice of 2026-11-26 "until i decide otherwise": going back means a
+per-material rule refusing the abilities again (what the removed `only` key did). The enemies' own rules
+may still refuse more (below). The old `material` (worm, chitin, stone...) stays the puffs, sparks and sounds.
+
+| Material | Spear | Axe | Hammer | Thrown | Enemies |
+|---|---|---|---|---|---|
+| flesh | hurts | hurts | hurts | hurts | the worms (swordsman, archer, brawler, prologue, Pipe Worm, Popworm), the spiders (Slime Spider, Orb-weaver, Broodling, Brood Warden), Bramble Boar, Hopper, Rook Thief, Pick Mole, Glint Bat, Ledge Raven, Spiny Caterpillar, Dung Roller, Gloomling, Prism Eye, Watcher Eye |
+| shell | **clinks** | hurts | hurts | hurts | Worm Bulwark, Shardback (its brittle shell: flesh) |
+| bone | **clinks** | hurts | hurts | hurts | Bone Leaper, Bone Thrower, Bone Marcher |
+| crystal | hurts | **clinks** | hurts | hurts | Crystal Crawler, Crystal Mite, Rock Chucker |
+| silk | hurts | hurts | **clinks** | hurts | Egg Sac, Cocoon Mimic, Silk Lurker |
+| plant | **clinks** | hurts | **clinks** | hurts | Spitcap, Thornball |
+| untouchable | **clinks** | **clinks** | **clinks** | its own rule | Jelly Bouncer, Carnivore Plant |
+| bark | clinks | **hurts** | clinks | hurts | Thorn Guard Statue (owner, 2026-11-25; its Heavy Roll kill stands again since 2026-11-26) |
+| iron | clinks | clinks | **hurts** | hurts | Clod Stomper (owner, 2026-11-25) |
+| eye | **hurts** | clinks | clinks | hurts | Squint, Big Squint (owner, 2026-11-25) |
+
+- **It reads.** The first refusal of a material by a weapon in a
+  run floats that material's line over the slime ("The shell turns the point aside: cut it or crush it.",
+  "The blade skates off the crystal: pierce it or break it."; `combat.materials.<material>.lines.<spear|
+  cut|crush>`) and a pointer flashes the enemy (`game/combat/reactions/hit_materials.gd`
+  `on_refused`, story flag `hint.material.<material>.<weapon>`, `game/feel/hint_cue.gd`).
+- **Their own rules stay** where they say more than a material can, and a patterned enemy asks the
+  material first, before its own shields and its kill hit (`patterned_enemy.gd`
+  `can_receive_damage`, `EnemyReactions.material_refuses`), so the shared clink and its line come first:
+  the Squints' visor (shut, every hit clinks; open, the eye decides), the Worm Bulwark's front shield and
+  counted hits, the Dung Roller's back, the Gloomling, the Prism Eye, the phases that hide or fly
+  (Popworm, Hopper, Boar, Raven, Mite, Crawler, Spitcap, Thornball, Bone Leaper, Bone Thrower, Pick Mole,
+  Cocoon Mimic), the Carnivore Plant (everything but a throw clinks, a throw dozes her, only fire kills
+  her) and the Jelly Bouncer (a weapon is conducted back into the slime, a throw bounces off, only arrows
+  and the Goo Bomb reach him: his `can_receive_damage` runs before the material), and every boss.
+  **Folded into the shared rule:** the Squints' tag rule (open, only the Spear or a throw got through;
+  now the eye: the Spear hurts, the Axe and the Hammer clink, and a throw hurts it as 2026-10-22's
+  "throwables hurt the Squints" said; since 2026-11-26 the abilities hurt it open too, which is new) and
+  the Worm Bulwark's `spear` in
+  `hits.clinkTags` (now the shell's).
+- **What the look tells, before the first hit.** Reads: the skeletons (bone), the crystal creatures
+  (crystal), the Egg Sac and the Cocoon Mimic (silk), the Spitcap and the Thornball (plant), the
+  Squints' plated eye (eye), the Bulwark's shield (shell). Does not read, for the owner: the
+  **Shardback** (a crystal shell that refuses the Spear like a shell, not the Axe like crystal), the
+  **Rock Chucker** (a worm on a rim, crystal), the **Silk Lurker** (a spider, silk), the **Thorn Guard
+  Statue** (a stone statue, bark), the **Clod Stomper** (mud and pebbles, iron) and the **Carnivore
+  Plant** (a plant, untouchable).
+- Filmed by `tools/film_materials.gd` in the Bestiary pens (each material's clinks with their lines, one
+  weapon that hurts, and for bark, iron and eye a pot hurting too and the right weapon killing what is
+  left: `output/combat/materials/film/`, and with throws hurting, `--only=bark,iron,eye`:
+  `output/combat/materials/one-weapon-throws/`; the film fires no ability); tested in
+  `tests/test_materials.gd` (the abilities on bark, iron and eye, the Heavy Roll on a sleeping Thorn
+  Guard).
+
 ## The enemies
 
 Three flags in a type's `reactions` (enemy-types.json) say how the ground treats it when a blow
@@ -216,41 +284,41 @@ moves it (2026-11-16: [THROW_COMBAT.md](THROW_COMBAT.md#knocked-enemies-and-the-
 `aquatic` (deep water does not drown it; none yet) and `hazardProof` (a list of "fall", "void",
 "water", "spikes", "lava"; none yet). A new water or lava creature needs its flag.
 
-| # | Enemy | Scene (`character.<id>`), script | Weight, material |
+| # | Enemy | Scene (`character.<id>`), script | Weight, material (puffs and sounds); hit material ([Materials](#materials-2026-11-25-one-combat-piece-4)) |
 |---|---|---|---|
-| 4 | Prologue worm | `prologue-worm.tscn`, the base `enemy.gd` | light, worm |
-| 5 | Popworm | `popworm.tscn`, `game/scripts/popworm.gd` | light, worm |
-| 6 | Spitcap | `spitcap.tscn`, `spitcap.gd`; its seed `projectile.spore-seed` (`spore_seed.gd`) | light, wood |
-| 7 | Hopper | `hopper.tscn`, `hopper.gd` | light, chitin |
-| 8 | Bramble Boar | `bramble-boar.tscn`, `bramble_boar.gd` | medium, straw |
-| 9 | Thorn Guard Statue | `thorn-guard.tscn`, `thorn_guard.gd` | heavy (poise 4), stone |
-| 10 | Rook Thief | `rook-thief.tscn`, `rook_thief.gd` | light, silk |
-| 11 | Squint | `squint.tscn`, `squint.gd` | medium, stone |
-| 12 | Pipe Worm | `pipe-worm.tscn`, `pipe_worm.gd`; its glob `projectile.mud-glob` (`mud_glob.gd`) | light, worm |
-| 13 | Dung Roller | `dung-roller.tscn`, `dung_roller.gd`; its ball for the Gulp `game/enemy/dung_ball.gd` | medium, chitin |
-| 14 | Big Squint | `big-squint.tscn`, the Squint's `squint.gd` with its own numbers | heavy, stone |
-| 18 | Silk Lurker | `silk-lurker.tscn`, `silk_lurker.gd` | light, chitin |
-| 19 | Thornball | `thornball.tscn`, `thornball.gd` | light, straw |
-| 20 | Broodling | `broodling.tscn`, `broodling.gd`; its nest `egg-sac.tscn` (`egg_sac.gd`), the pen's enemy | tiny, goo; the sac heavy, silk |
-| 21 | Cocoon Mimic | `cocoon-mimic.tscn`, `cocoon_mimic.gd`; the real cocoon `object.cocoon-prize` (`objects/cocoon-prize.tscn`, a picture) | medium, silk |
-| 22 | Brood Warden | `brood-warden.tscn`, `brood_warden.gd` | heavy, chitin |
-| 23 | Gloomling | `gloomling.tscn`, `gloomling.gd` (pens 23 and 34) | light, silk (nothing reaches it) |
-| 24 | Glint Bat | `glint-bat.tscn`, `glint_bat.gd` | light, silk |
-| 25 | Crystal Crawler | `crystal-crawler.tscn`, `crystal_crawler.gd`; its pillar `object.crystal-pillar` | light, chitin |
-| 26 | Prism Eye | `prism-eye.tscn`, `prism_eye.gd` (with `game/enemy/prism_look.gd`) | medium, stone |
-| 27 | Pick Mole | `pick-mole.tscn`, `pick_mole.gd`; its pickaxe `game/enemy/lobbed_shot.gd` | light, mud |
-| 28 | Shardback | `shardback.tscn`, `shardback.gd`; the braziers `object.brazier` | heavy (poise 4), stone |
-| 29 | Crystal Mite | `crystal-mite.tscn`, `crystal_mite.gd` | tiny, stone |
-| 30 | Bone Leaper | `bone-leaper.tscn`, `bone_leaper.gd` (on `game/enemy/skeleton_enemy.gd`) | light, stone |
-| 31 | Bone Thrower | `bone-thrower.tscn`, `bone_thrower.gd`; its bone `projectile.bone` (`bone.gd`) | light, stone |
-| 32 | Bone Marcher | `bone-marcher.tscn`, `bone_marcher.gd` | medium, stone |
-| 33 | Watcher Eye | `watcher-eye.tscn`, `watcher_eye.gd` (on `prism_eye.gd`) | medium, stone |
-| 34 | Rock Chucker | `rock-chucker.tscn`, `rock_chucker.gd`; its boulder `game/enemy/wall_rock.gd` | medium, worm |
-| 35 | Spiny Caterpillar | `spiny-caterpillar.tscn`, `spiny_caterpillar.gd` | light, chitin |
-| 36 | Ledge Raven | `ledge-raven.tscn`, `ledge_raven.gd` | light, silk |
-| 37 | Worm Bulwark | `worm-bulwark.tscn`, `worm_bulwark.gd` | heavy (poise 4), worm |
-| 38 | Carnivore Plant | `carnivore-plant.tscn`, `carnivore_plant.gd` | heavy (rooted), wood |
-| 39 | Jelly Bouncer | `jelly-bouncer.tscn`, `jelly_bouncer.gd`; his ring and bolts `game/enemy/zap_look.gd`, the shock `game/feel/shock_look.gd`, a bounce `game/throw/bounced_throw.gd` | medium, goo |
+| 4 | Prologue worm | `prologue-worm.tscn`, the base `enemy.gd` | light, worm; flesh |
+| 5 | Popworm | `popworm.tscn`, `game/scripts/popworm.gd` | light, worm; flesh |
+| 6 | Spitcap | `spitcap.tscn`, `spitcap.gd`; its seed `projectile.spore-seed` (`spore_seed.gd`) | light, wood; plant |
+| 7 | Hopper | `hopper.tscn`, `hopper.gd` | light, chitin; flesh |
+| 8 | Bramble Boar | `bramble-boar.tscn`, `bramble_boar.gd` | medium, straw; flesh |
+| 9 | Thorn Guard Statue | `thorn-guard.tscn`, `thorn_guard.gd` | heavy (poise 4), stone; bark |
+| 10 | Rook Thief | `rook-thief.tscn`, `rook_thief.gd` | light, silk; flesh |
+| 11 | Squint | `squint.tscn`, `squint.gd` | medium, stone; eye |
+| 12 | Pipe Worm | `pipe-worm.tscn`, `pipe_worm.gd`; its glob `projectile.mud-glob` (`mud_glob.gd`) | light, worm; flesh |
+| 13 | Dung Roller | `dung-roller.tscn`, `dung_roller.gd`; its ball for the Gulp `game/enemy/dung_ball.gd` | medium, chitin; flesh |
+| 14 | Big Squint | `big-squint.tscn`, the Squint's `squint.gd` with its own numbers | heavy, stone; eye |
+| 18 | Silk Lurker | `silk-lurker.tscn`, `silk_lurker.gd` | light, chitin; silk |
+| 19 | Thornball | `thornball.tscn`, `thornball.gd` | light, straw; plant |
+| 20 | Broodling | `broodling.tscn`, `broodling.gd`; its nest `egg-sac.tscn` (`egg_sac.gd`), the pen's enemy | tiny, goo; flesh; the sac heavy, silk; silk |
+| 21 | Cocoon Mimic | `cocoon-mimic.tscn`, `cocoon_mimic.gd`; the real cocoon `object.cocoon-prize` (`objects/cocoon-prize.tscn`, a picture) | medium, silk; silk |
+| 22 | Brood Warden | `brood-warden.tscn`, `brood_warden.gd` | heavy, chitin; flesh |
+| 23 | Gloomling | `gloomling.tscn`, `gloomling.gd` (pens 23 and 34) | light, silk (nothing reaches it); flesh |
+| 24 | Glint Bat | `glint-bat.tscn`, `glint_bat.gd` | light, silk; flesh |
+| 25 | Crystal Crawler | `crystal-crawler.tscn`, `crystal_crawler.gd`; its pillar `object.crystal-pillar` | light, chitin; crystal |
+| 26 | Prism Eye | `prism-eye.tscn`, `prism_eye.gd` (with `game/enemy/prism_look.gd`) | medium, stone; flesh |
+| 27 | Pick Mole | `pick-mole.tscn`, `pick_mole.gd`; its pickaxe `game/enemy/lobbed_shot.gd` | light, mud; flesh |
+| 28 | Shardback | `shardback.tscn`, `shardback.gd`; the braziers `object.brazier` | heavy (poise 4), stone; shell (brittle: flesh) |
+| 29 | Crystal Mite | `crystal-mite.tscn`, `crystal_mite.gd` | tiny, stone; crystal |
+| 30 | Bone Leaper | `bone-leaper.tscn`, `bone_leaper.gd` (on `game/enemy/skeleton_enemy.gd`) | light, stone; bone |
+| 31 | Bone Thrower | `bone-thrower.tscn`, `bone_thrower.gd`; its bone `projectile.bone` (`bone.gd`) | light, stone; bone |
+| 32 | Bone Marcher | `bone-marcher.tscn`, `bone_marcher.gd` | medium, stone; bone |
+| 33 | Watcher Eye | `watcher-eye.tscn`, `watcher_eye.gd` (on `prism_eye.gd`) | medium, stone; flesh |
+| 34 | Rock Chucker | `rock-chucker.tscn`, `rock_chucker.gd`; its boulder `game/enemy/wall_rock.gd` | medium, worm; crystal |
+| 35 | Spiny Caterpillar | `spiny-caterpillar.tscn`, `spiny_caterpillar.gd` | light, chitin; flesh |
+| 36 | Ledge Raven | `ledge-raven.tscn`, `ledge_raven.gd` | light, silk; flesh |
+| 37 | Worm Bulwark | `worm-bulwark.tscn`, `worm_bulwark.gd` | heavy (poise 4), worm; shell |
+| 38 | Carnivore Plant | `carnivore-plant.tscn`, `carnivore_plant.gd` | heavy (rooted), wood; untouchable |
+| 39 | Jelly Bouncer | `jelly-bouncer.tscn`, `jelly_bouncer.gd`; his ring and bolts `game/enemy/zap_look.gd`, the shock `game/feel/shock_look.gd`, a bounce `game/throw/bounced_throw.gd` | medium, goo; untouchable |
 
 Scenes in `godot/game/scenes/characters/` (the seed, the glob and the bone in `projectiles/`), all
 in `scene_index.json`.
@@ -350,10 +418,12 @@ clips are mirrored for left.
 - **March:** straight lines at 70 px/s, first along the axis the slime is furthest along; when
   something stops it (a wall, the fence, another statue: statues collide with enemies) it turns: a
   quarter turn toward the slime's side, else the other way, else back. Touching the slime: 10
-  damage, 260 knockback (`contactReachPx` 40, `contactCooldownMs` 700). Heavy: Spear hits are armor
-  (damage, no stun); 90 health is about six jabs.
+  damage, 260 knockback (`contactReachPx` 40, `contactCooldownMs` 700). Bark: of the weapons only the
+  Axe hurts it (the Spear and the Hammer clink); thrown things and the abilities hurt it (2026-11-26).
+  Heavy: light hits are armor (damage, no stun); 90 health.
 - **Right tool:** a Heavy Roll (the bonk with `roll` + `heavy`) knocks it back to rubble at once,
-  awake or asleep; the bonk's 34 px reaches a statue standing beside it too.
+  awake or asleep (refused by its bark from piece 4 until the owner's word of 2026-11-26 that abilities
+  hurt; it stands again by itself); the bonk's 34 px reaches a statue standing beside it too.
 - **Back to sleep:** the slime out of its pen for `sleepAfterMs` 1500, it marches home and sleeps
   there again, whole (`returnMaxMs` 6000 at most).
 
@@ -393,12 +463,13 @@ two plates. Nothing else in the game is plated like it.
   free spot before the planned one, and the telegraph shows that spot.
 - **Slam:** the slime in the ring takes `slamDamage` 5 with 220 knockback; the screen shakes. The
   Roll's i-frames or a step out of the ring dodge it.
-- **Open** (`openMs` 900): it lies flat, dazed, the visor open. Only a hit tagged `spear` or
-  `thrown` gets through (`_shields`; the Axe, the Hammer and the Roll still clink; thrown things
-  since 2026-10-22). 32 health: two jabs and
-  the finisher (about 42 together) kill it inside one opening. A reaction stun pauses the pattern, so
+- **Open** (`openMs` 900): it lies flat, dazed, the visor open. Its material decides then (eye, one
+  combat, 2026-11-25): the Spear hurts, the Axe and the Hammer clink, a thrown thing hurts it (as from
+  2026-10-22; the owner, 2026-11-26: a light throw's 40 ends it), and so do the abilities (the owner,
+  2026-11-26: an arrow 20, two; a Goo Bomb's blast 40, one); shut, every hit clinks (`_shields`). 32 health: a combo (26 at half damage)
+  and a jab, or one light throw, kill it. A reaction stun pauses the pattern, so
   a chain that has started keeps the eye open until it ends.
-- **Right tool:** the Spear, or something thrown, in the eye after its slam.
+- **Right tool:** the Spear, something thrown, an arrow or a Goo Bomb, in the eye after its slam.
 
 ### 12. Pipe Worm (turret)
 
@@ -537,8 +608,14 @@ Fatty's Lair's mini-boss: the Squint's script with its own numbers (`big-squint`
 - **Two stomps** (`stomps` 2): after the first it settles `betweenMs` 260, visor shut, and rears
   again (`nextRearMs` 420) with a new ring under the slime's feet.
 - **Open** (`openMs` 1100) after the second: the Spear only, as the Squint's (taps hold it, the
-  finisher knocks it back). 96 health: two openings of a Spear chain.
-- **Right tool:** the Spear, or something thrown, in the eye after its second stomp.
+  finisher knocks it back, so one combo an opening). Open, its eye takes `states.open.damageTaken`
+  **1.3** of a hit (the bosses' pass of the one combat, 2026-11-26: the Spear at half damage): a
+  combo 33, three openings for its 96 health.
+- **Right tool:** the Spear in the eye after its second stomp, or something thrown, an arrow or a Goo
+  Bomb (the owner, 2026-11-26: throws and abilities hurt the eye): the open share lifts them too (light
+  throw 52: two; medium 94: two, it is left on 2; heavy 156: one; an arrow 26: four; a Goo Bomb's blast
+  52 and a knockdown of 1.5 s in which the next hits count double, 2.6 in all, so a blast and a combo
+  end it in one opening).
 
 ### 18. Silk Lurker (ambusher)
 
@@ -642,15 +719,17 @@ forelegs, drawn about twice the slime's size.
   After `betweenMs` 250 the second sweep comes from the other side, aimed again.
 - **Planted** (`plantedMs` 1200): after the two sweeps its legs stay dug in and its back plates open
   on glowing joints: the only time it can be hurt (heavy: the hits land as armor, no stagger, so the
-  window never stretches). Every other hit clinks. Then it rises (`recoverMs` 500) and guards again
+  window never stretches), each for `states.planted.damageTaken` **1.6** of itself (the bosses' pass
+  of the one combat, 2026-11-26: a Spear combo 41; a light throw 64). Every other hit clinks. Then it rises (`recoverMs` 500) and guards again
   (`nextSweepMs` 600).
-- **Right tool:** hit it while it is planted (120 health: a Spear chain per window, three windows).
+- **Right tool:** hit it while it is planted (120 health: a Spear combo per window, three windows).
   Back out of the half-ring in the wind-up (or Roll), step in when it plants.
 - **The ram** (2026-11-25, the rebuilt Weaver Hollow's den: DUNGEONS.md "The Weaver Hollow rebuilt"):
   a ram's log that reaches it on its lane (`on_mechanism_hit(&"ram", ...)`) slides it `ramSlidePx`
   110 along the swing over `ramSlideMs` 260, hurts it `ramDamage` 20 as it stops (a hit's stun would
   hold its body still, so the slide comes first) and leaves it **knocked** `knockedMs` 3000 from the
-  blow: on his back, every hit landing as when it is planted (`states.knocked`). His frames for it
+  blow: on his back, every hit landing as when it is planted (`states.knocked`, 1.6: the ram's 20,
+  two combos and two jabs end him in one knock). His frames for it
   (2026-11-25, sheet frames 16 to 23): flung over the slide (tipped onto his side, then tumbling over,
   mirrored to the log's way), on his back belly up and kicking (a loop of four, `knockedKickFrameMs`
   150 a frame), and getting up over the last `knockedRiseMs` 400 (heaving up on his blades, crouched
@@ -803,14 +882,19 @@ of 120 px, out after 20 s).
   shards and dust, a small shake. **Recover** (`recoverMs` 900). The slam also puts out every lit
   brazier with `stomp_puts_out` in its ellipse grown by `slamPutsOutScale` (1.8; `CandleScript.put_out_near`,
   2026-10-17): the Crystal Mine's Den, the rehearsal for the Colossus's stomps.
-- **The shell:** unlit, hits are armor (heavy, poise 4: every fourth jab staggers it, which cancels
-  a slam) and only `shellDamageTaken` 0.3 of them hurt, with a clink: about 33 jabs, the patient way.
+- **The shell:** unlit, hits are armor (heavy, poise 4: every fourth hit that lands staggers it,
+  which cancels a slam) and only `shellDamageTaken` 0.3 of them hurt. Since the materials
+  (2026-11-26) the shell is `shell`: the Spear clinks on it for nothing (a thrown thing still takes
+  the share), so the patient way is gone.
   **Brittle** in fire light (`light_sense.gd` with `fire_only`: a lit brazier, a flame, a bomb, never
   the slime's own ember) and for `brittleLingerMs` 1200 after, or `brittleMs` 4000 after a Lantern
-  flame hits it: its shell glows hot orange and hits take `brittleDamageTaken` 1.6, cracking it
+  flame hits it: its shell glows hot orange and hits take `brittleDamageTaken` **2.5** (1.6 until the
+  bosses' pass of the one combat, 2026-11-26: the Spear at half damage), cracking it
   (crystal shards, `BreakGlass`).
 - **Right tool:** light a brazier with the Lantern and lead it into the light, or puff it straight
-  on; then the Spear (140 health: about two chains while brittle).
+  on; then the Spear (140 health: seven jabs, two combos and one, while brittle: about 2.3 s of a
+  Lantern's 4 s window; a brittle combo's finisher also breaks its poise, a stagger and the weapon
+  daze).
 - **The runaway cart** (2026-11-25, the rebuilt Crystal Mine's Den; `shardback.gd` `on_mechanism_hit`,
   as the Brood Warden answers the ram; [Mechanisms](DUNGEONS.md#mechanisms-the-knock-target-the-ram-the-runaway-cart)):
   a cart stopped against it while its shell is brittle **shatters the shell** in one blow
@@ -1065,8 +1149,8 @@ Boar's charge as its model); pen 37; placeable from the Scenery dock's Enemies c
   thing's weight is its hit (the hit carries it: `thrown_object.gd` `rework_hit`, the `weight`
   field), a thrown enemy is a medium hit; the weapons' hits and the Goo Bomb by their tags
   (`byTag`: the Axe's `cut` light, the Hammer's `crush` and the bomb's `blast` medium). The bomb's
-  blast goes round the shield (`roundShield`). The Spear, arrows, the Lantern's flame and the Roll
-  (`clinkTags`: `spear`, `arrow`, `fire`, `roll`) clink from every side. The blows a knock brings
+  blast goes round the shield (`roundShield`). The Spear (his shell's material since 2026-11-25), arrows,
+  the Lantern's flame and the Roll (`clinkTags`: `arrow`, `fire`, `roll`) clink from every side. The blows a knock brings
   (a wall splat, a bowled enemy, a fall, a danger zone) do not hurt him (`take_reaction_damage`):
   only counted hits wear him down, so a pot that knocks him into the wall he faces is still one
   light hit. A hole or deep water still takes him.

@@ -899,6 +899,10 @@ func can_receive_damage(input: Dictionary) -> Dictionary:
 	var request: Dictionary = input.get("request", {})
 	if ReworkMode.is_rework_request(request):
 		return EnemyReactions.can_receive(self, input)
+	# An old-style request whose weapon tags its hit material refuses clinks too (BESTIARY.md
+	# "Materials"; the Roll's bonk and the Heavy Roll carry no weapon's tag and get through).
+	if ReworkMode.is_on() and EnemyReactions.refuse_old(self, request):
+		return {"accepted": false, "reason": "immune"}
 	if not _authored_rule.is_empty() and not DamageResolverScript.source_matches(_authored_rule, request):
 		return {"accepted": false, "reason": DamageResolverScript.REASON_SOURCE_BLOCKED}
 	return {"accepted": true, "reason": ""}

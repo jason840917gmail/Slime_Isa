@@ -22,7 +22,6 @@ const ItemIcons := preload("res://game/inventory/item_icons.gd")
 const ItemCell := preload("res://game/ui/screens/item_cell.gd")
 const ChestModel := preload("res://game/ui/screens/chest_model.gd")
 const WindowStyle := preload("res://game/ui/screens/window_style.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const Services := preload("res://game/shared/services.gd")
 
 const SURFACE_ID := &"shop"
@@ -39,7 +38,6 @@ const DETAILS_PITCH := 19.6
 
 const BUY_TEXT := "Buy"
 const CLOSE_TEXT := "Close"
-const OPEN_STATUS := "Select something to buy. Right-click or press Buy to buy it."
 const KEYS_OPEN_STATUS := "Arrows or WASD choose. Space buys."
 const READY_STATUS := "Press Buy to buy it."
 const BOUGHT_FORMAT := "Bought %s for %d coins."
@@ -111,7 +109,7 @@ func open_shop(shop_id: String) -> bool:
 		return false
 	_shop_id = shop_id
 	_selected_id = str(stock[0].get("itemId", ""))
-	_message = KEYS_OPEN_STATUS if ControlScheme.current() == ControlScheme.KEYS else OPEN_STATUS
+	_message = KEYS_OPEN_STATUS
 	_message_color = UiTokens.TEXT_SECONDARY
 	open()
 	return is_open()

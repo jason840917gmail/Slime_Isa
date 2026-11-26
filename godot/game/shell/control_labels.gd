@@ -35,44 +35,24 @@ const MOVEMENT_ACTIONS: Array[StringName] = [&"move_up", &"move_left", &"move_do
 ## The potion belt's keys, slot order (project.godot: 1 to 4; game/inventory/potion_belt.gd).
 const POTION_ACTIONS: Array[StringName] = [&"potion_1", &"potion_2", &"potion_3", &"potion_4"]
 const POTION_KEYS_TEXT := "Drink one potion from that belt slot (belt slots are found; set a potion to one in your bag)"
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 
 
-## `controlRows()` (ControlsSurfacePort.ts:9-27): [key label, what it does] per control. A mouse
-## control scheme (game/player/mouse/control_scheme.gd) lists its own buttons and walking first
-## instead of move / attack / interact; the last row switches the scheme. The body-shapes rework
-## mode lists its own controls (`rework_rows`).
+## `controlRows()` (ControlsSurfacePort.ts:9-27): [key label, what it does] per control, keys only (one
+## combat, 2026-11-25: the mouse schemes are gone; everything aimed goes the way the slime faces). The
+## body-shapes rework mode lists its own controls (`rework_rows`).
 static func control_rows() -> Array[PackedStringArray]:
-	var scheme := ControlScheme.current()
 	if ReworkMode.is_on():
-		return rework_rows(scheme)
+		return rework_rows()
 	var rows: Array[PackedStringArray] = []
-	if ControlScheme.uses_orders(scheme):
-		var order := str(MOUSE_NAMES[ControlScheme.order_button(scheme)])
-		rows.append(PackedStringArray([order, "Walk there (hold to follow the pointer); attack, chop or mine what is under it; talk to, open or use it"]))
-		if scheme == ControlScheme.CLICK:
-			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.use_button(scheme)]), "Talk, open or use what is under the pointer (walking there), else what is in reach; hold to pick up placed furniture"]))
-			rows.append(PackedStringArray(["Shift + " + order.to_lower(), "Attack in place toward the pointer"]))
-		else:
-			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.swing_button(scheme)]), "Attack in place toward the pointer"]))
-		rows.append(PackedStringArray([movement_label(), "Move (stops a click order)"]))
-	elif ControlScheme.faces_pointer(scheme):
-		rows.append(PackedStringArray([control_label(&"move_up"), "Walk toward the pointer (the slime always faces it)"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack toward the pointer, or chop and mine"]))
-		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
-	else:
-		rows.append(PackedStringArray([movement_label(), "Move"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack, or chop and mine"]))
-		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
-	# Without the mouse (the keys-only scheme) what aims goes where the slime faces.
-	var keys_only := not ControlScheme.uses_mouse(scheme)
-	var toward := "the way the slime faces" if keys_only else "toward the pointer"
+	rows.append(PackedStringArray([movement_label(), "Move"]))
+	rows.append(PackedStringArray([control_label(&"attack"), "Attack, or chop and mine"]))
+	rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
 	rows.append_array([
-		PackedStringArray([control_label(&"dodge"), "Roll %s: spin up, then dash straight on while held; bonk into walls (learned in the story)" % toward]),
-		PackedStringArray([control_label(&"stretch_lash"), "Stretch Lash %s" % toward]),
+		PackedStringArray([control_label(&"dodge"), "Roll the way the slime faces: spin up, then dash straight on while held; bonk into walls (learned in the story)"]),
+		PackedStringArray([control_label(&"stretch_lash"), "Stretch Lash the way the slime faces"]),
 		PackedStringArray([control_label(&"squash_slam"), "Squash Slam"]),
-		PackedStringArray([control_label(&"teleport"), "Teleport %s" % ("as far as it goes the way the slime faces" if keys_only else "to the pointer")]),
+		PackedStringArray([control_label(&"teleport"), "Teleport as far as it goes the way the slime faces"]),
 		PackedStringArray([control_label(&"eat"), "Hold to suck in an essence or a light thing (a pot, a rock, a pumpkin...); press again to throw it"]),
 		PackedStringArray([control_label(&"swallow"), "Swallow the essence you hold to take its form; with nothing held, spit the form out"]),
 		PackedStringArray([potion_keys_label(), POTION_KEYS_TEXT]),
@@ -82,7 +62,6 @@ static func control_rows() -> Array[PackedStringArray]:
 		PackedStringArray([control_label(&"map"), "World map"]),
 		PackedStringArray(["%s / %s" % [control_label(&"zoom_in"), control_label(&"zoom_out")], "Zoom in / out"]),
 		PackedStringArray([control_label(&"pause"), "Pause menu, or close the open window"]),
-		PackedStringArray([control_label(&"control_scheme_next"), "Switch the control scheme (now: %s)" % ControlScheme.display_name(scheme)]),
 	])
 	# The old Swallow, Stretch Lash, Squash Slam and Teleport have no key since 2026-11-20 (1 to 4
 	# are the potion belt's): a control without a key is not listed.
@@ -105,36 +84,18 @@ static func potion_keys_label() -> String:
 
 
 ## The body-shapes rework mode's rows (docs/godot/BODY_SHAPES.md "Controls in the rework mode";
-## body-shapes plan sections 5 and 6; one combat, 2026-11-25): the attack is the current weapon's (tap
-## to chain, hold to charge, free), E the next weapon, Q the whole mouth with the throw rules,
-## `ability_use` the box ability chosen in the bag;
-## no Swallow, Lash, Slam or Teleport keys. The scheme's own buttons come first, as in
-## `control_rows`.
-static func rework_rows(scheme: String) -> Array[PackedStringArray]:
+## body-shapes plan sections 5 and 6; one combat, 2026-11-25): keys only; the attack is the current
+## weapon's (tap to chain, hold to charge, free), E the next weapon, Q the whole mouth with the throw
+## rules, `ability_use` the box ability chosen in the bag; no Swallow, Lash, Slam or Teleport keys.
+static func rework_rows() -> Array[PackedStringArray]:
 	var rows: Array[PackedStringArray] = []
 	var charge := "taps in rhythm chain a combo (each strikes as you let go); hold until the ring fills, then let go to charge"
-	if ControlScheme.uses_orders(scheme):
-		var order := str(MOUSE_NAMES[ControlScheme.order_button(scheme)])
-		rows.append(PackedStringArray([order, "Walk there (hold to follow the pointer); attack what is under it with your weapon; talk to, open or use it"]))
-		if scheme == ControlScheme.CLICK:
-			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.use_button(scheme)]), "Talk, open or use what is under the pointer (walking there), else what is in reach; hold to pick up placed furniture"]))
-			rows.append(PackedStringArray(["Shift + " + order.to_lower(), "Attack in place toward the pointer; hold to charge"]))
-		else:
-			rows.append(PackedStringArray([str(MOUSE_NAMES[ControlScheme.swing_button(scheme)]), "Attack in place toward the pointer; hold to charge"]))
-		rows.append(PackedStringArray([movement_label(), "Move (stops a click order)"]))
-	elif ControlScheme.faces_pointer(scheme):
-		rows.append(PackedStringArray([control_label(&"move_up"), "Walk toward the pointer (the slime always faces it)"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your weapon toward the pointer; %s" % charge]))
-		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
-	else:
-		rows.append(PackedStringArray([movement_label(), "Move"]))
-		rows.append(PackedStringArray([control_label(&"attack"), "Attack with your weapon; %s" % charge]))
-		rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
-	var keys_only := not ControlScheme.uses_mouse(scheme)
-	var toward := "the way the slime faces" if keys_only else "toward the pointer"
+	rows.append(PackedStringArray([movement_label(), "Move"]))
+	rows.append(PackedStringArray([control_label(&"attack"), "Attack with your weapon; %s" % charge]))
+	rows.append(PackedStringArray([control_label(&"interact"), "Talk, open, sleep, craft at a bench; hold to pick up placed furniture"]))
 	rows.append_array([
-		PackedStringArray([control_label(&"dodge"), "Roll %s as you let go: a tap rolls a short way; with the charged-roll upgrade, hold to spin up, then dash straight on while held; bonk into walls (learned in the story)" % toward]),
-		PackedStringArray([control_label(&"ability_use"), "Use the ability chosen in the bag (%s)" % toward]),
+		PackedStringArray([control_label(&"dodge"), "Roll the way the slime faces as you let go: a tap rolls a short way; with the charged-roll upgrade, hold to spin up, then dash straight on while held; bonk into walls (learned in the story)"]),
+		PackedStringArray([control_label(&"ability_use"), "Use the ability chosen in the bag (the way the slime faces)"]),
 		PackedStringArray([control_label(&"eat"), "Gulp: press to suck for a second; tap to throw what you hold (its weight sets the blow) or spit an essence out; hold until the ring fills to swallow an essence, or with an empty mouth to spit your form out"]),
 		PackedStringArray([control_labels(&"weapon_next"), "Next weapon (Spear, War Axe, Hammer: the ones you have)"]),
 		PackedStringArray([potion_keys_label(), POTION_KEYS_TEXT]),
@@ -143,7 +104,6 @@ static func rework_rows(scheme: String) -> Array[PackedStringArray]:
 		PackedStringArray([control_label(&"map"), "World map"]),
 		PackedStringArray(["%s / %s" % [control_label(&"zoom_in"), control_label(&"zoom_out")], "Zoom in / out"]),
 		PackedStringArray([control_label(&"pause"), "Pause menu, or close the open window"]),
-		PackedStringArray([control_label(&"control_scheme_next"), "Switch the control scheme (now: %s)" % ControlScheme.display_name(scheme)]),
 	])
 	return rows
 

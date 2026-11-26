@@ -73,7 +73,7 @@ func test_start_shows_hint_and_blocks(t: TestContext) -> void:
 	t.equal(placement.variant_index(), 0, "first variant")
 	t.equal(messages.size(), 1, "texts on start")
 	if messages.size() > 0:
-		t.equal(messages[0]["text"], "Left click to place · Mouse wheel to switch · Right click or Esc to cancel", "hint")
+		t.equal(messages[0]["text"], "A to place · E to switch · W or Esc to cancel", "hint (keys only, the default)")
 		t.near_vec(Vector2(messages[0]["x"], messages[0]["y"]), SPAWN - Vector2(0.0, 56.0), 0.5, "hint position")
 	await t.steps(2)
 	t.check(not t.main.interaction.has_candidate(), "the interaction offers a target while placing")
@@ -188,7 +188,7 @@ func test_bench_station_and_hold_pick_up(t: TestContext) -> void:
 	interaction.refresh(null)
 	var current: Dictionary = interaction.current()
 	t.check(str(current.get("id", "")).begins_with("world-workbenches:"), "the placed bench is not offered: %s" % current.get("id", ""))
-	t.equal(interaction.prompt_text(current), "Right-click: Use workbench     Hold: Pick up", "prompt")
+	t.equal(interaction.prompt_text(current), "Press W: Use workbench     Hold: Pick up", "prompt (keys only, the default)")
 	t.press(&"interact")
 	await t.sim_wait(480.0)
 	t.release(&"interact")

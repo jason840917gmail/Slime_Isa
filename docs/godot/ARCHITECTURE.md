@@ -344,8 +344,7 @@ The trial was built in four areas; files keep these areas so related code stays 
 | `game/dev/playground.tscn` | world | `main.tscn` with `map_id = "playground"`; run with F6 |
 | `tools/build_region_worlds.gd`, `tools/region_worlds/`, `tools/render_world_atlas.gd` | world | Builds the placeholder region worlds from the layout; renders the atlas ([WORLD_ATLAS.md](WORLD_ATLAS.md)) |
 | `game/player/player_input_buffer.gd` | player | |
-| `game/player/pointer_aim.gd` | player | |
-| `game/player/mouse/control_scheme.gd`, `key_bindings.gd`, `click_orders.gd`, `click_path.gd`, `pointer_targets.gd`, `click_marker.gd` | player | The control schemes (experiment): click / right-click to walk, attack or use, face the pointer, or keys only (InputMap rebound); shortest routes over every ground level (any-angle A* queried from physics: narrow gaps, stairs, drops); hover targets and ground rings ([MOUSE_CONTROLS.md](MOUSE_CONTROLS.md)) |
+| `game/player/mouse/key_bindings.gd` | player | Keys only, the one control scheme: the InputMap rebound to its layout (the four mouse schemes went on 2026-11-25: [MOUSE_CONTROLS.md](MOUSE_CONTROLS.md)) |
 | `game/player/squash_stretch.gd` | player | |
 | `game/scripts/enemy.gd` | enemy | |
 | `game/enemy/enemy_ai.gd` | enemy | |

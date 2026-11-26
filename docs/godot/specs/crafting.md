@@ -1535,7 +1535,7 @@ gone".
   an essence's gulp: the Slime Tonic, the Fizzy Brew, the Berry Basket.
 - **Keys**: input actions `potion_1` .. `potion_4` on 1-4 (`project.godot`; the old Swallow, Roll,
   Stretch Lash, Squash Slam and Teleport lost their digits, and the Roll is on Space there too, as
-  the rework layer had it). The keys-only layouts bind no digit, so 1-4 work in every scheme. The
+  the rework layer had it). The keys-only layout binds no digit, so project.godot's 1-4 stay. The
   player captures them (`PlayerInputBuffer.ACTIONS`) and reads them in every physics step it is
   under control (walking, rolling, climbing, swinging: `player.gd _use_belt_presses`), not while
   dead, asleep, in a bath, walking out of a door, or while a travel, a scene's hold or a knockback

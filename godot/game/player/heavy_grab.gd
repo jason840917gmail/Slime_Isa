@@ -7,8 +7,8 @@ extends RefCounted
 ## - **Grab** (`try_begin`): the slime faces a heavy block (group `heavy_blocks`) and touches it
 ##   (its body within `grabReachPx` of the block's footprint, overlapping it sideways). It latches on
 ##   with its mouth and slides to stand square on that side.
-## - **Hold**: while the interact key stays held (W in keys-only, a held right click in the
-##   keyboard + mouse and pointer schemes), walking toward the block pushes it and walking away pulls
+## - **Hold**: while the interact key stays held (W; keys only is the one scheme since 2026-11-25),
+##   walking toward the block pushes it and walking away pulls
 ##   it, one cell (`cellPx`) per move over `moveMs`, after the walk key has been held `startDelayMs`
 ##   (a tap does not move it; a held key goes on cell after cell). Walking sideways does nothing.
 ## - **Only the Heavy skin moves it** (`presses_plates`: SkinState, docs/godot/SKINS.md; the slime

@@ -1519,8 +1519,10 @@ out on 2026-11-25, the day the one-scene Mine went: everything below is how he f
   fixed order (`CRYSTAL_ORDER`, one constant to flip the shoulders): **L** (the shoulder on the screen's
   left as he faces the viewer, his right), then **R**, then **C** (his chest). Nothing hurts a plate;
   a cart's burst only bares its crystal (no harm); only Spear hits and thrown things on the bare
-  crystal take its health, never more than it has left (each phase ends at its third): five Spear
-  hits (12) a crystal, three of the Spear's Lunge (its Ability Box power, 25), ten thrown things.
+  crystal take its health, never more than it has left (each phase ends at its third). Since the one
+  combat (2026-11-25) the Spear hits at half damage: eight jabs a crystal (7, 8, 11: about two and a
+  half combos; five fit the 1.8 s stagger after a burst, the rest land on the bare crystal as he
+  fights), five Lunges (13), ten thrown things (6); the crystal's 60 was left as it is (piece 6).
 - **Brittle:** only this phase's plate (`current_plate`, the one a cart takes) heats, so the one that
   glows is the one that goes: a shoulder plate with his feet within a lit brazier's ring (its light:
   `light_radius` round its flame, the lab's 150), or **while all four braziers burn, anywhere** (the
@@ -1611,7 +1613,8 @@ out on 2026-11-25, the day the one-scene Mine went: everything below is how he f
   `kickBackMs` (1200), fast at first; then the line is ready again. A cart that struck him as he lay
   he kicks as he gets up. If he falls or leaves the fight first, it rolls home slowly.
 - **The bare crystal** (`_shields`, `_hit_meets`): a Spear hit on this phase's crystal, bare and
-  **showing to the hitter**, hurts (`shapes.spear.baseDamage`, 12; the Lunge 25); a thrown thing
+  **showing to the hitter**, hurts (the Spear's hit as it lands: `ShapeDefs.damage`, a jab 7 to 11, the Lunge 13 since the one
+  combat); a thrown thing
   (a pot, a rock, a stunned Crystal Mite) `thrownShare` (0.5) of one (6). A crystal shows where the
   art draws it (`SHOWS_FROM`): a shoulder's from his front, his back and its own side; the chest's from
   his front and both sides; on his back every one faces the sky. **A deliberate change** (2026-11-25)

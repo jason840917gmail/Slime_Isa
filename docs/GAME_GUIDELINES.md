@@ -184,8 +184,8 @@ has a clear look and exactly one rule.
 - **Holding.** What was sucked in sits inside the slime, which swells up and
   waddles, at 70% of its speed (owner, 2026-10-09). While it holds something it
   cannot attack or use abilities; it can only throw or swallow.
-- **Throw (Q).** It spits a light thing as a projectile, aimed at the pointer
-  (where the slime faces in the keys-only scheme). The thing breaks where it
+- **Throw (Q).** It spits a light thing as a projectile, aimed where the slime
+  faces (keys only, the one scheme since 2026-11-25). The thing breaks where it
   lands, by what it is made of: a pot shatters into shards, a crate splinters,
   a kettle clangs, a pumpkin splats, each with its own sound. It hits for
   damage, harder for metal and stone. An essence is never thrown (owner,
@@ -241,7 +241,7 @@ has a clear look and exactly one rule.
   2026-10-09). The owner still judges the feel.
 - **Keys (owner, 2026-10-09):** Q sucks and throws; 1 swallows; 2 rolls;
   Stretch Lash, Squash Slam and Teleport move to 3, 4 and 5; interact stays on
-  right-click (W in the keys-only scheme).
+  right-click (W in the keys-only layout, the one scheme since 2026-11-25).
 - New forms are tried in the dev-only `playground` map and enter chapter
   content only after the user accepts them as fun.
 - Forms open traversal puzzles and secrets. A fight requires a form only when

@@ -216,11 +216,12 @@ func is_open() -> bool:
 	return _phase == PHASE_OPEN
 
 
-## Its armour: every hit clinks but the Spear's and a thrown thing's (SPEAR_TAG, THROWN_TAG:
-## PatternedEnemyScript) while the visor is open (owner, 2026-10-22: the Squints take damage from
-## throwables as well).
-func _shields(request: Dictionary) -> bool:
-	return not (_phase == PHASE_OPEN and (has_tag(request, SPEAR_TAG) or has_tag(request, THROWN_TAG)))
+## Its armour: every hit clinks while the visor is shut. Open, its hit material decides (the eye, one
+## combat, 2026-11-25: the Spear hurts, the Axe and the Hammer clink, a thrown thing hurts it as it
+## did before, the owner's word of 2026-11-26; until then the visor let the Spear and a thrown thing
+## through here: owner, 2026-10-22).
+func _shields(_request: Dictionary) -> bool:
+	return _phase != PHASE_OPEN
 
 
 ## In the air or rearing it does not slide; dazed and open, a hit's knockback moves it.

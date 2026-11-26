@@ -39,12 +39,12 @@ extends Node
 ## - **What ends a chain** (`reset_chain`): no tap in time, a clink (the slime recoils
 ##   `combat.chain.clink.recoilPx` through PlayerScript.recoil), being hit, a switch, Q, a box
 ##   ability, the Roll, a door or window (`stop_movement`), death.
-## - **Aim.** `press_attack(aim)`: the pointer's aim from the slime's centre, where every shape strikes
-##   from (PlayerScript.get_strike_aim), or ZERO for the facing; a tap strikes along its press's aim.
+## - **Aim.** `press_attack(aim)`: an aim (ZERO, the player's press: the facing, keys only since
+##   2026-11-25); a tap strikes along its press's aim.
 ##   Every shape aims 4-way (owner, 2026-10-12, round 2: `aim` "snap4"; ShapeDefs.aim_for: the
 ##   nearest of right, down, left and up, an exact diagonal to the side; the `exact` and `snap8` modes
 ##   stay for data); the slime faces the snapped aim and shows its strike (below).
-##   A charge aims where the pointer is at the release (the same strike aim, or the facing).
+##   A charge aims along the facing at the release.
 ## - **Strikes** (owner, 2026-10-12; game/shapes/shape_poses.gd, shape_strikes.gd, StrikeLibrary): every
 ##   step and charge but the Axe's Spin plays its strike animation on the step's own timeline (the
 ##   Spear's jabs `spear-jab`, its lunging jab and Lunge `spear-finisher`; the Axe's sweep, backswing and
@@ -83,8 +83,7 @@ extends Node
 ##   every step and still feeds it presses; while `is_charging()` it walks at `walk_scale()`;
 ## - `reset_chain(reason)` on: "hurt" (a hit with damage), "death", "roll", "ability" (a box ability
 ##   started), "mouth" (a Q press), "stopped" (doors, windows, a modal pause: `stop_movement`);
-## - `drop_press()` when it clears its input (`clear_input`), so a held press is never let go there;
-## - the click and moba schemes' attack order asks `reaches(aim, area)`.
+## - `drop_press()` when it clears its input (`clear_input`), so a held press is never let go there.
 ## It never calls `player.stop_movement()` (that resets the chain) and reads the hold with
 ## `player.is_action_held(&"attack")`.
 ##
@@ -265,7 +264,7 @@ func press_attack(aim: Vector2) -> bool:
 	var toward := aim if aim != Vector2.ZERO else _player.get_facing()
 	if _phase != Phase.IDLE and _elapsed(now) < ShapeDefs.contact_start_ms(_data):
 		return false
-	# A press already waiting for its release (a click order repeats its press) keeps its time.
+	# A press already waiting for its release keeps its time.
 	if _press_ms < 0.0:
 		_press_ms = now
 	_press_aim = toward
@@ -467,27 +466,6 @@ func reset_chain(reason: String) -> void:
 	_end_pose()
 	if was_running and reason != RESET_CLINK and _visuals != null and is_instance_valid(_visuals):
 		_visuals.clear()
-
-
-## True when the current shape's next step toward `aim` (unit) would reach the hurtbox `area` from
-## where the slime stands (the whole area: an arc fully swept, the Spear's line cut at walls).
-func reaches(aim: Vector2, area: Area2D) -> bool:
-	if not _player_valid() or _current.is_empty() or area == null or not is_instance_valid(area):
-		return false
-	var data := ShapeDefs.step(_current, _next_step_index(Services.now_ms()))
-	if data.is_empty():
-		return false
-	var direction := ShapeDefs.aim_for(_current, aim if aim != Vector2.ZERO else _player.get_facing())
-	if direction == Vector2.ZERO:
-		return false
-	var origin := _player.get_centre()
-	var hit_data := _with_strike(_current, data, _poses.strike_frames_for(_current, data, direction),
-		ShapePoses.direction_of(direction), ShapePoses.mirrors(direction), false)
-	var reach := ShapeDefs.num(hit_data, "reach")
-	if ShapeDefs.area_kind(hit_data) == ShapeDefs.AREA_LINE and ShapeDefs.line_check(_current):
-		reach = ShapeStrike.wall_reach(_player, origin, direction, reach, ShapeStrike.hit_offset(hit_data))
-	var sweep := _sweep_for(data, ShapeDefs.snap8(direction))
-	return ShapeStrike.areas_in(_player, ShapeStrike.area_shapes(hit_data, origin, direction, reach, sweep, 1.0)).has(area)
 
 
 ## How far `now` is into the running unit on its own timeline (the Feral skin's Spear runs it
@@ -931,9 +909,8 @@ func _fire_charge() -> void:
 	_ring_full = false
 	if _visuals != null and is_instance_valid(_visuals):
 		_visuals.show_charge(shape, -1.0)
-	# The pointer's aim from the strike's origin (the slime's centre), else the facing.
-	var aim := _player.get_strike_aim()
-	_begin_unit(Phase.CHARGE, charge, aim if aim != Vector2.ZERO else _player.get_facing())
+	# Along the facing (keys only).
+	_begin_unit(Phase.CHARGE, charge, _player.get_facing())
 
 
 ## Disarms the ring; a ring already on screen drains (`gulp.rework.ringCancelMs`) when `drain`.
@@ -1121,12 +1098,12 @@ func _recoil(px: float) -> void:
 	_player.recoil(-_aim, px / (ms / 1000.0), ms)
 
 
-## True when the player asks to walk (a walk key held, or a click order walking).
+## True when the player asks to walk (a walk key held).
 func _wants_walk() -> bool:
 	for action: StringName in MOVE_ACTIONS:
 		if _player.is_action_held(action):
 			return true
-	return _player.is_click_moving()
+	return false
 
 
 ## The cue of `table` for shape `shape_id`, if any.

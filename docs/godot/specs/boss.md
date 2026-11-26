@@ -357,6 +357,10 @@ Roll bonks off him (`immune`); the Heavy Roll has no part any more.
   at its `clod_spots` picked at random and scattered up to `clod_scatter_px` 40, each after a shadow
   (`clod_shadow_ms` 600); a clod landing on the slime hurts (`clod_damage` 10); then it lies as a
   liftable mud ball, the slime's ammo (a used one still leaves its heart or energy).
+- **His eye** takes `reactions.parts.eye.damageTaken` **2** of a Spear hit (the bosses' pass of the
+  one combat, 2026-11-26: the Spear at half damage; a Lunge is the 25 it was, a jab 14; a thrown
+  thing's half Spear hit, 6, is worked out apart in `fatty.gd` `mitigate_damage`), so each phase takes
+  three openings with the Lunge, as before.
 - **Phase one:** a hit that lands shuts his eye for `eye_shut_ms` 3000 (the `closed-eye` clip while he
   chases; `is_eye_open()` false): every hit clinks then, and a throw splats (`thrown_text`, "It splats
   on his shut eye.", at most every 2.2 s). His eye opens again after it.

@@ -13,11 +13,13 @@ class_name ShardbackScript
 ##   `slamKnockback`; crystal shards fly and the ground shakes.
 ## - **Recover** (`recoverMs`): it stands, then walks again.
 ## - **The shell:** unlit, every hit is armor (the reaction profile: heavy, poise 4) and only
-##   `shellDamageTaken` of it hurts (a clink, so it can still be worn down with patience: about 40
-##   jabs). **Brittle** in fire light: inside a burning candle's or brazier's light (any light
+##   `shellDamageTaken` of it hurts; since the one combat's materials (2026-11-26) its shell is `shell`,
+##   which refuses the Spear: a Spear hit clinks for nothing, a thrown thing still takes the share
+##   (game/combat/reactions/hit_materials.gd). **Brittle** in fire light: inside a burning candle's or brazier's light (any light
 ##   source but the slime's own ember, game/enemy/light_sense.gd), and for `brittleLingerMs` after
 ##   it leaves it, or for `brittleMs` after a Lantern flame (a hit tagged `fire`) hits it, its shell
-##   glows hot and cracks: hits take `brittleDamageTaken` (140 health: a Spear chain or two there).
+##   glows hot and cracks: hits take `brittleDamageTaken` (2.5 since the one combat's boss pass, 2026-11-26: the Spear at half
+##   damage kills its 140 health in about seven taps, within one Lantern window, as four Lunges did).
 ## A stun (its poise broken) in the rear cancels the slam. The slam puts out a brazier marked
 ## `stomp_puts_out` within `slamPutOutScale` times its ellipse (candle.gd `put_out_near`).
 ## - **The runaway cart** (the rebuilt Crystal Mine's Den, 2026-11-25; game/crystal_mine/ram_cart.gd,
@@ -40,6 +42,8 @@ class_name ShardbackScript
 const LightSense := preload("res://game/enemy/light_sense.gd")
 const CandleScript := preload("res://game/world/fire/candle.gd")
 
+## The reaction phase of a brittle shell (enemy-types.json `shardback.reactions.states.brittle`).
+const PHASE_BRITTLE := "brittle"
 const PHASE_WALK := "walk"
 const PHASE_REAR := "rear"
 const PHASE_SLAM := "slam"
@@ -101,6 +105,13 @@ func _exit_tree() -> void:
 ## True while fire light has its shell brittle.
 func is_brittle() -> bool:
 	return Services.now_ms() < _brittle_until
+
+
+## Its reaction phase: "brittle" while fire light has its shell brittle (its `reactions.states.brittle`
+## makes it flesh then: the Spear's moment; one combat, 2026-11-25: the cold shell refuses the Spear),
+## else its phase.
+func reaction_phase() -> String:
+	return PHASE_BRITTLE if is_brittle() else super()
 
 
 ## Beaten by the cart, its corpse plays the shatter's frames on (the base steps the corpse after).
@@ -350,7 +361,7 @@ func _clear_zone() -> void:
 
 ## Its shell: a share of each hit unlit, more than the hit brittle.
 func mitigate_damage(input: Dictionary) -> float:
-	var share := pattern("brittleDamageTaken", 1.6) if is_brittle() else pattern("shellDamageTaken", 0.3)
+	var share := pattern("brittleDamageTaken", 2.5) if is_brittle() else pattern("shellDamageTaken", 0.3)
 	return super(input) * share
 
 

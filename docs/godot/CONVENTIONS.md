@@ -181,8 +181,7 @@ input points into the door for `worldNavigation.doorPushMs` (200) of simulation 
 within `doorPushAlignment` (0.7), or for a door without a side toward the trigger's middle
 (`holePushAlignment` 0.35); in a hole any walking counts once the slime's centre is over it. Size
 the trigger so the slime touches it where it stops against the wall (the level-1 mushroom door's is
-taller, the house stands on a hill). A click order in the mouse schemes leans into the door the same
-way (MOUSE_CONTROLS.md). **A Roll goes through an open door as a walk does** (owner, 2026-10-31):
+taller, the house stands on a hill). **A Roll goes through an open door as a walk does** (owner, 2026-10-31):
 while the ball rolls, its way counts as the input (player.gd `get_travel_intent`) and the door
 travels as soon as the ball touches its trigger, without the push wait, so it does not bonk off the
 room's edge behind the doorway; stair doors take a rolling ball too. A shut door or gate still

@@ -68,7 +68,7 @@ func test_plain_talk_candidate_and_markers(t: TestContext) -> void:
 	var interaction := _interaction(t)
 	t.equal(interaction.current().get("id"), "quest-npcs:%s:talk" % PIP, "candidate id")
 	t.equal(interaction.current().get("priority"), 50, "talk priority")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Pip", "talk prompt")
+	t.equal(interaction.get_prompt().get_text(), "Press W: Talk to Pip", "talk prompt (keys only, the default)")
 	var quests := _quests(t)
 	t.equal(quests.marker_for(PIP_ID), "", "Pip's marker")
 	t.equal(quests.marker_for(ELDER_ID), "", "the Elder's marker before the prologue is over")

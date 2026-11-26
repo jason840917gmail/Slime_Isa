@@ -7,20 +7,18 @@ extends CanvasLayer
 ## Hints in priority order (the first one not learned and useful now shows):
 ## | id | text | useful while |
 ## |---|---|---|
-## | move | "Move with WASD" | always |
-## | interact | "Right-click to talk, open or use" | the interact button has a target |
-## | attack | "Left-click to attack" | a weapon is in hand |
+## | move | "Move with ↑←↓→" (the arrows) | always |
+## | interact | "Press W to talk, open or use" | the interact button has a target |
+## | attack | "Press A to attack" | a weapon is in hand |
 ## | dodge | "Press Space to roll out of danger" (the key from the bindings) | the dodge is learned and an enemy is within 360 px |
 ## | inventory | "Press B to open your bag" | the bag holds something |
 ## | crafting | "Campfires cook and brew: walk up to one and use it" | a campfire recipe is known (since 2026-11-20: crafting is at the stations, crafting spec 12) |
 ## | journal | "Press J to read your Journal" | `inventory` was learned (2026-10-08: the quest list lives there since the one-line tracker) |
-## | weapon-switch | "Use the mouse wheel or E to switch weapons: tools only work in hand" | two owned weapons on the belt |
+## | weapon-switch | "Press E to switch weapons: tools only work in hand" | two owned weapons on the belt |
 ## | map | "Press M for the map" | `inventory` was learned |
 ## | pause | "Press Esc to pause, save or change settings" | `inventory` was learned |
 ##
-## A mouse control scheme (game/player/mouse/control_scheme.gd) words move, interact and attack for
-## its buttons ("Click the ground to move", ...); walking a click order counts as moving. The
-## pointer scheme words move as "Hold W to walk toward the pointer".
+## Keys only (one combat, 2026-11-25: the mouse schemes and their wordings are gone).
 ##
 ## (No sprint hint since 2026-10-08: sprint is not available from the start, owner.)
 ##
@@ -40,13 +38,13 @@ extends CanvasLayer
 ## "Ability Box and HUD"): the list is REWORK_HINT_IDS, with these rework hints and texts:
 ## | id | text | useful while | learned by |
 ## |---|---|---|---|
-## | attack | "Left-click to attack" | a shape is current | a shape step (or the old swing) |
+## | attack | "Press A to attack" | a shape is current | a shape step (or the old swing) |
 ## | charge | "Hold A to charge a strong attack" (free: the hold is its cost) | `attack` learned, a shape | the attack held `combat.chain.chargeStartMs` (or ShapeController `is_charging`) |
 ## | mouth | "Press Q to suck things in; tap Q to throw or spit them out" | something suckable near, or something in the mouth | a suck |
 ## | ability | "Press D to use your ability; choose it in the bag (B)" | the box holds an ability | a box ability started (AbilityBox.use_count) |
-## | weapon-switch | "Press E to switch weapon" (with the wheel in a mouse scheme) | two shapes learned | the shape changing |
+## | weapon-switch | "Press E to switch weapon" | two shapes learned | the shape changing |
 ## | swallow | "Hold Q until the ring fills to swallow the essence" | an essence in the mouth, Swallow learned | a form taken |
-## | heavy-grab | "Hold W to push or pull" (the interact key) | the Heavy skin on, and the slime touches a heavy block it faces (HeavyGrab.block_in_reach) or holds one; nothing in its mouth; not in the moba scheme | a block pushed and a block pulled in the slime's grab (story flags `hint.heavy-grab.push` and `.pull` on the way) |
+## | heavy-grab | "Hold W to push or pull" (the interact key) | the Heavy skin on, and the slime touches a heavy block it faces (HeavyGrab.block_in_reach) or holds one; nothing in its mouth | a block pushed and a block pulled in the slime's grab (story flags `hint.heavy-grab.push` and `.pull` on the way) |
 ## heavy-grab comes right after move, before interact: it is the hint of the block the slime touches.
 ## The others (move, interact, dodge, inventory, crafting, journal, map, pause) are as above; the old
 ## belt's switch never teaches `weapon-switch` in the mode.
@@ -66,7 +64,6 @@ extends CanvasLayer
 
 const Services := preload("res://game/shared/services.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 const ReworkMode := preload("res://game/shapes/rework_mode.gd")
 const AbilityBox := preload("res://game/player/abilities/ability_box.gd")
 const BodyCards := preload("res://game/ui/body_cards.gd")
@@ -192,28 +189,15 @@ func is_learned(id: StringName) -> bool:
 
 ## The text of hint `id`, from the current key bindings.
 static func hint_text(id: StringName) -> String:
-	var scheme := ControlScheme.current()
 	match id:
 		&"throw-move":
 			return "Keep moving while you aim: the worms can bite!"
 		&"thrust-bars":
 			return "Thrust through the bars: stand at them and attack (%s)" % ControlLabels.control_label(&"attack")
 	if ReworkMode.is_on():
-		var rework := rework_hint_text(id, scheme)
+		var rework := rework_hint_text(id)
 		if not rework.is_empty():
 			return rework
-	if ControlScheme.uses_orders(scheme):
-		match id:
-			&"move":
-				return "%s the ground to move" % ControlScheme.order_verb(scheme)
-			&"interact":
-				return "%s people and things to talk, open or use" % ControlScheme.order_verb(scheme)
-			&"attack":
-				return "%s an enemy to attack; %s swings in place" % [ControlScheme.order_verb(scheme), ControlScheme.swing_verb(scheme)]
-	elif ControlScheme.faces_pointer(scheme) and id == &"move":
-		return "Hold %s to walk toward the pointer" % ControlLabels.control_label(&"move_up")
-	elif not ControlScheme.uses_mouse(scheme) and id == &"weapon-switch":
-		return "Press %s to switch weapons: tools only work in hand" % ControlLabels.control_label(&"weapon_next")
 	match id:
 		&"move":
 			return "Move with %s" % ControlLabels.movement_label()
@@ -230,10 +214,7 @@ static func hint_text(id: StringName) -> String:
 		&"journal":
 			return "Press %s to read your Journal" % ControlLabels.control_label(&"journal")
 		&"weapon-switch":
-			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
-			if labels.size() > 1:
-				return "Use the %s or %s to switch weapons: tools only work in hand" % [labels[0].to_lower(), labels[1]]
-			return "Use the %s to switch weapons: tools only work in hand" % labels[0].to_lower()
+			return "Press %s to switch weapons: tools only work in hand" % ControlLabels.control_label(&"weapon_next")
 		&"map":
 			return "Press %s for the map" % ControlLabels.control_label(&"map")
 		&"pause":
@@ -241,16 +222,13 @@ static func hint_text(id: StringName) -> String:
 	return ""
 
 
-## Rework mode: the text of a rework hint (charge, mouth, ability, swallow, weapon-switch) in
-## `scheme`; "" for the hints whose classic text stands.
-static func rework_hint_text(id: StringName, scheme: String) -> String:
+## Rework mode: the text of a rework hint (charge, mouth, ability, swallow, weapon-switch); "" for the
+## hints whose classic text stands.
+static func rework_hint_text(id: StringName) -> String:
 	var eat := ControlLabels.control_label(&"eat")
 	match id:
 		&"charge":
-			if ControlScheme.uses_orders(scheme):
-				return "%s and hold to charge a strong attack" % ControlScheme.swing_verb(scheme)
-			var attack := ControlLabels.control_label(&"attack")
-			return "Hold %s to charge a strong attack" % (attack.to_lower() if attack.ends_with(" click") else attack)
+			return "Hold %s to charge a strong attack" % ControlLabels.control_label(&"attack")
 		&"mouth":
 			return "Press %s to suck things in; tap %s to throw or spit them out" % [eat, eat]
 		&"ability":
@@ -261,10 +239,7 @@ static func rework_hint_text(id: StringName, scheme: String) -> String:
 		&"heavy-grab":
 			return ControlLabels.with_keys("Hold {interact} to push or pull")
 		&"weapon-switch":
-			var labels := ControlLabels.control_labels(&"weapon_next").split(" / ")
-			if not ControlScheme.uses_mouse(scheme) or labels.size() < 2:
-				return "Press %s to switch weapon" % ControlLabels.control_label(&"weapon_next")
-			return "Use the %s or %s to switch weapon" % [labels[0].to_lower(), labels[1]]
+			return "Press %s to switch weapon" % ControlLabels.control_label(&"weapon_next")
 	return ""
 
 
@@ -299,10 +274,9 @@ func is_relevant(id: StringName, player: Node) -> bool:
 				var held: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
 				return str(held.get("kind", "")) == ESSENCE_KIND and bool(player.call(&"is_learned", &"swallow"))
 			&"heavy-grab":
-				# Not in the moba scheme (its right button walks: nothing holds the grab there), nor
-				# with the mouth full (the grab does not start then).
+				# Not with the mouth full (the grab does not start then).
 				var mouth: Dictionary = player.call(&"held") if player.has_method(&"held") else {}
-				return ControlScheme.current() != ControlScheme.MOBA and mouth.is_empty() \
+				return mouth.is_empty() \
 					and SkinState.is_on(player, SkinState.HEAVY) and _heavy_block_at(player) != null
 	match id:
 		&"move":
@@ -362,8 +336,6 @@ func _learn_from_play(player: Node) -> void:
 	var moving := false
 	for action: StringName in [&"move_up", &"move_down", &"move_left", &"move_right"]:
 		moving = moving or bool(player.call(&"is_action_held", action))
-	if player.has_method(&"is_click_moving"):
-		moving = moving or bool(player.call(&"is_click_moving"))
 	if moving:
 		learn(&"move")
 		# The prologue's rescue: walking with something in the mouth while a worm is near.

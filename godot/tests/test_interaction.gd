@@ -208,7 +208,7 @@ func test_bed_sleep_and_wake(t: TestContext) -> void:
 	var interaction := _interaction(t)
 	t.teleport_player(BED_STAND)
 	await t.steps(2)
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Sleep", "bed prompt")
+	t.equal(interaction.get_prompt().get_text(), "Press W: Sleep", "bed prompt (keys only, the default)")
 	t.equal(interaction.current().get("priority"), 85, "bed priority")
 	t.tap(&"interact")
 	await t.steps(3)
@@ -260,7 +260,7 @@ func test_forge_station_appears(t: TestContext) -> void:
 	t.teleport_player((station.call(&"origin") as Vector2) + FORGE_STAND_OFFSET)
 	await t.steps(2)
 	t.check(str(interaction.current().get("id", "")).begins_with("world-workbenches:"), "workbench target %s" % [interaction.current().get("id")])
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Use the Forge", "forge prompt")
+	t.equal(interaction.get_prompt().get_text(), "Press W: Use the Forge", "forge prompt (keys only, the default)")
 	t.equal(interaction.current().get("priority"), 88, "workbench priority")
 	t.check(_station(t, "workshop") == null, "the Workshop still has a station")
 
@@ -281,7 +281,7 @@ func test_the_nearest_target_wins_and_the_pointer_picks(t: TestContext) -> void:
 	await t.steps(1)
 	interaction.refresh(null)
 	t.equal(interaction.current().get("id"), "quest-npcs:level-1-npc-red-slime-boy:talk", "the nearer NPC")
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Talk to Pip", "talk prompt")
+	t.equal(interaction.get_prompt().get_text(), "Press W: Talk to Pip", "talk prompt (keys only, the default)")
 	# Lili a little farther, but the slime faces her.
 	_place_npc(lili, centre + Vector2(-48.0, 0.0))
 	t.player().face(Vector2.LEFT)

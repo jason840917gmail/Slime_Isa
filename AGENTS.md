@@ -89,9 +89,18 @@ its code is in git history.
   them out ([The Spear's reach](docs/godot/BODY_SHAPES.md#the-spears-reach-2026-11-25)).
 - `"<Godot console exe>" --path godot --fixed-fps 60 -s res://tools/film_one_combat.gd -- --out=<dir>` — films
   the one combat in the playground's pen (a Spear combo, a pot thrown, E to the Axe, a free charge, an
-  ability picked in the bag and used on D: PASS or FAIL each) and pictures the HUD, the bag and the
-  Controls list; `python scripts/godot/one-combat-sheet.py <dir>` makes the strip and the GIF
+  ability picked in the bag and used on D: PASS or FAIL each) and pictures the HUD, the bag, the
+  Controls list and the Settings window; `python scripts/godot/one-combat-sheet.py <dir>` makes the strip and the GIF
   ([One combat](docs/godot/THROW_COMBAT.md#one-combat-2026-11-25)).
+- `"<Godot console exe>" --path godot --fixed-fps 60 -s res://tools/film_combo_daze.gd -- --out=<dir> [--only=<ids>]` —
+  films a combo setting up the throw (the finisher's daze, suck and throw; taps never; a charge; a heavy
+  enemy on a poise break; never a boss; too heavy for the Gulp), PASS or FAIL each; the strip and GIF with
+  `scripts/godot/one-combat-sheet.py` ([THROW_COMBAT.md](docs/godot/THROW_COMBAT.md#stunned-enemies-as-ammo-prototype)).
+- `"<Godot console exe>" --path godot --fixed-fps 60 -s res://tools/film_materials.gd -- --out=<dir> [--only=<materials>]` —
+  films each hit material in the Bestiary pens (its refused weapons clinking with their lines, one weapon
+  that hurts; for bark, iron and eye a pot hurting too and the right weapon killing), PASS or FAIL
+  each; the strip and GIF with `scripts/godot/one-combat-sheet.py`
+  ([Materials](docs/godot/BESTIARY.md#materials-2026-11-25-one-combat-piece-4)).
 - `bash scripts/godot/film-enemy-ways.sh <name> --film=<film> [options]` — films the Dung Roller's
   stolen ball (`axis`, `steal`, `throw-miss`, `throw-back`, `throw-other`, `leave`, `pen`) or an
   enemy's walk home (`home-wall`, `home-notice`) in the playground into `output/enemy-ways/<name>/`

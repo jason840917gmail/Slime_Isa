@@ -1,7 +1,9 @@
 # Health and damage: the 2026-11-24 rebalance
 
 *Status: applied 2026-11-24 (uncommitted, not played, tests not run). Every number below is the one in
-the data or scene it names.*
+the data or scene it names. Re-read on 2026-11-26 with the weapons back beside the throws (the one
+combat): [With weapons](#with-weapons-the-one-combat-2026-11-26) at the end says what that changed and
+what no longer holds.*
 
 ## The owner's words (2026-11-24)
 
@@ -39,9 +41,13 @@ and before that: "the swordsman need to be kill by 2 light hits".
 5. **Healing** keeps its share of the slime's health: the new amount is the old share of 100 taken
    of 80, rounded to the nearest grid number.
 6. The **Worm Swordsman** dies to two light throws (a light throw is `gulp.throwCombat.throwDamage`
-   25): **40** health, in `worm-swordsman.tscn` and in `enemy-types.json`.
+   25): **40** health, in `worm-swordsman.tscn` and in `enemy-types.json`. **No longer holds:** the
+   game throws with the new feel, whose light throw is `gulp.throwFeel.throwDamage` **40**, so one
+   light throw kills him (a Spear combo and two jabs do too).
 7. Left alone: the slime's own damage, enemy health (but the swordsman's), energy, and the Goo
-   Heart's +20 (four quarters of 5).
+   Heart's +20 (four quarters of 5). **No longer holds for the slime's own damage:** since the one
+   combat (2026-11-25) every weapon hit is halved (`shapes.weaponDamageScale` 0.5) and five boss
+   multipliers moved (below).
 
 The slime's health through Release 1 (what this curve is set against): 80 at the start; about 100
 at Fatty (four of chapter 1's five heart quarters) and 120 after his full heart; about 140 at the
@@ -213,3 +219,68 @@ scene's: the Orb-weaver 70, the Clod Stomper 90, Fatty One Eye 140, the Matron 3
 - **The Popworm** is a chapter 1 enemy in the [bestiary](2026-10-16-bestiary.md) but is placed only
   in Gloop Forest, so it is tier 2 (10). The four tier-1 enemies placed nowhere (Spitcap, Hopper,
   Bramble Boar, Thorn Guard Statue) took their design chapter.
+
+## With weapons: the one combat (2026-11-26)
+
+The weapons came back beside the throws ([the plan](2026-11-25-weapons-beside-throws.md)): every weapon
+hit is `ShapeDefs.damage` = base x attack (12) / 10 x the step's scale x `shapes.weaponDamageScale`
+(0.5), rounded once where it lands; charges are free; the throws keep their numbers. Enemy materials
+(`combat.materials`, [BESTIARY.md](../godot/BESTIARY.md#materials-2026-11-25-one-combat-piece-4)) refuse
+some weapons outright.
+
+### What the slime deals
+
+| Hit | Before (the energy powers) | Now (free) |
+|---|---|---|
+| Spear jab, jab, lunging jab | 14, 16, 21 (taps unused in throw mode) | **7, 8, 11** (a combo 26) |
+| Spear Lunge (charge) | 25, 15 energy, no ring | **13**, the ring's hold |
+| Axe sweep, backswing, chop | 18, 21, 27 | **9, 11, 14** (a combo 34) |
+| Axe Spin (charge) | 40, 20 energy | **20** |
+| Hammer thud, boom | 36, 54 | **18, 27** (a combo 45) |
+| Hammer Quake (charge) | 72, 25 energy | **36** |
+| Light, medium, heavy throw (`gulp.throwFeel.throwDamage` 40 x the weight's scale x the thing's material) | 40, 72, 120 | unchanged |
+| A thrown thing on Fatty, the Matron or the Colossus | 6 (half the Spear's base 12) | unchanged |
+
+### Each chapter's typical enemy
+
+| Enemy (health, material) | A Spear combo | A Lunge | A light throw |
+|---|---|---|---|
+| Chapter 1: Worm Swordsman (40, flesh) | 26: a combo and two jabs | 13: four | 40: one |
+| Chapter 1: Worm Brawler (55, flesh) | two combos and a jab | five | two (one medium) |
+| Chapter 1: Bone Leaper (40, bone) | refused: the Spear clinks | refused | one |
+| Chapter 1: Squint (32, eye; open 0.9 s) | a combo and a jab (33) | three | one (open; shut, its visor clinks it; open, an arrow 20 or a Goo Bomb 40 hurts it too) |
+| Chapter 2: Orb-weaver (70, flesh) | three combos | six | two |
+| Chapter 2: Thornball (50, plant) | refused (the Axe only) | refused | two |
+| Chapter 2: Clod Stomper (90, iron) | refused (the Hammer only) | refused | three (medium two, heavy one; throws hurt it, owner 2026-11-26) |
+| Chapter 2: Thorn Guard Statue (90, bark; not placed) | refused (the Axe only) | refused | three (medium two, heavy one) |
+
+On bark, iron and eye only the two other weapons are refused: the abilities (an arrow 20, a Goo Bomb's
+blast 40, the flame, the Roll, a slam) hurt them as they hurt flesh (the owner, 2026-11-26: "Yes, they
+hurt", "until i decide otherwise"), and the Thorn Guard's Heavy Roll still takes all its health.
+| Chapter 3: Glint Bat (20), Pick Mole (24) (flesh) | one combo | two | one |
+| Chapter 3: Rock Chucker (30, crystal) | a combo and a jab | three | one |
+
+A combo's last step or a charge leaves a non-boss enemy dazed and liftable for 1.5 s
+(`combat.rules.weaponDaze`), so after a combo the enemy is also the next throw.
+
+### The bosses and mini-bosses (one combat's piece 6)
+
+Their openings were built for the 25-damage Lunge. Measured against it, five moved by one data value
+each (`enemy-types.json`); the films and `tests/test_boss_spear.gd` check them:
+
+| Fight | Openings before | At half damage, untuned | Changed | Now |
+|---|---|---|---|---|
+| Fatty One Eye (140; one hit an opening, his eye shuts after it) | 3 Lunges a phase, 6 in all | 6 Lunges or 10 jabs a phase | `parts.eye.damageTaken` 1 → **2** (the Spear only: a thrown thing's 6 is worked out apart) | a Lunge 25, a jab 14: 3 openings a phase with the Lunge |
+| The Big Squint (96; one combo an opening, 1.1 s) | 2 to 4 (4 Lunges; throws hurt it then) | 4 combos | `states.open.damageTaken` **1.3** (throws too, since they hurt it again on 2026-11-26) | a combo 33: 3 openings; a light throw 52: 2, a medium 94: 2, a heavy 156: 1; an arrow 26: four; a Goo Bomb 52, then the next hits double in its 1.5 s knockdown |
+| The Matron, round 1 (100 in a 4 s open window) | 1 (4 Lunges) | 2 (85 a window) | `states.fight` / `volley-telegraph` / `volley-rest` `.damageTaken` **1.35** (thrown things and her last hit are worked out apart) | 3 combos, 102: 1 window; round 2 stays 2 ram catches |
+| The Brood Warden (120; plant 1.2 s, knocked 3 s) | 3 plants (2 Lunges each), or the ram and one knock | 5 plants, or the ram, a knock and 2 plants | `states.planted` / `knocked` `.damageTaken` 1 → **1.6** (throws too: a light throw 64 there) | a combo 41: 3 plants; the ram (20) and a knock's two combos and two jabs: 1 knock |
+| The Shardback (140; brittle 4 s after the Lantern) | 1 window (4 Lunges, 1.8 s) | 11 jabs, 3.7 s of a 4 s window | `pattern.brittleDamageTaken` 1.6 → **2.5** (throws too) | 7 jabs (2.3 s): 1 window; its cold shell refuses the Spear (piece 4) |
+| The Crystal Colossus (60 a crystal) | 3 Lunges in the 1.8 s stagger after a burst | 8 jabs: 5 in the stagger, the rest on the bare crystal as he fights | nothing: the crystal's 60 is a mechanism number; the approved plan counts two and a half combos a crystal | as untuned |
+| The Worm Bulwark (hits, not health) | the Spear clinked (a clink tag) | the Spear clinks (the shell) | nothing | 3 light, 2 medium or 1 heavy throw |
+
+### What no longer holds
+
+- Rule 6's two light throws for the Worm Swordsman (one now, above).
+- Rule 7's "the slime's own damage left alone" (halved weapons, the boss multipliers above).
+- Everything about the slime's health and the damage it takes (the grid, the tiers, the hits to die,
+  healing) still holds: the one combat changed only what the slime deals.

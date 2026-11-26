@@ -630,6 +630,14 @@ energy shard, and a hurtbox the reaction profile gates as a part (Fatty's eye) r
 `acceptedSources` (the gate decides; old hits still meet them). With the mode off and old requests
 everything above runs as written.
 
+**Hit materials** (one combat, 2026-11-25; [BESTIARY.md](../BESTIARY.md#materials-2026-11-25-one-combat-piece-4)):
+every non-boss type has `reactions.hitMaterial`, and `combat.materials` says which weapon tags it refuses
+(only weapons are ever refused, never a thrown thing or an ability: the owner, 2026-11-26).
+`HitReaction.gate` applies it (`material_gate`: a refused hit is GATE_CLINK), so a refused weapon
+answers `immune` from `can_receive_damage` and clinks; a patterned enemy asks it before its own shields
+and kill hit. The first refusal of a material in a run shows its line and flashes the enemy
+(`hit_materials.gd` `on_refused`).
+
 ---
 
 ## 7. Death and despawn

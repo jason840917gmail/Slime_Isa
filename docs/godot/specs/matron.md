@@ -612,6 +612,11 @@ Crown keeps section 8's fight through a copy of the encounter. matron.gd changed
   it lay and fades.
 - **Thrown things** hurt her for `thrown_damage_share` 0.5 of a Spear hit (`shapes.spear.baseDamage`)
   whenever she is open, as Fatty's eye.
+- **The Spear on her** (the bosses' pass of the one combat, 2026-11-26): open, she takes
+  `reactions.states.fight` / `volley-telegraph` / `volley-rest` `.damageTaken` **1.35** of a weapon hit
+  (her phases while she can be open; thrown things and round 3's last hit are worked out apart), so a
+  Spear combo is 34: round 1's 100 in three combos inside one `open_ms` window, round 2 still two ram
+  catches.
 - **Her missed webs are ammo** (the owner, 2026-11-24: "the webs that she miss should be throwables
   in case we ran out of pot", as Fatty's mud balls): every mark of a volley that missed the slime
   (`_land_volley`) and every spit that missed it (it ended on a wall or at its range:

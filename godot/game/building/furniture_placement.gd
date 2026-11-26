@@ -5,8 +5,8 @@ extends Node2D
 ## kept across worlds; group `furniture_placement`.
 ##
 ## Crafting a Workbench, or "Place" in the bag, starts placement mode: a translucent ghost of the
-## bench follows the pointer (in the keys-only control scheme: 80 px in front of the slime,
-## `_aim_point`) snapped to 32 px, green (#9dffc8) where it is within 220 px of the
+## bench stands 80 px in front of the slime (keys only, the one scheme since 2026-11-25: it walks to
+## move the ghost, `_aim_point`) snapped to 32 px, green (#9dffc8) where it is within 220 px of the
 ## slime's centre on a free footprint, red (#ff7a7a) otherwise, with a 2 px outline round the
 ## footprint. The game keeps running and the slime keeps walking. Left click places (the bench
 ## leaves the bag, a record joins the map's `placed_furniture`, the bench is mounted and the quest
@@ -26,7 +26,6 @@ const PlacedFurniture := preload("res://game/building/placed_furniture.gd")
 const ItemCatalog := preload("res://game/world_objects/item_catalog.gd")
 const ControlLabels := preload("res://game/shell/control_labels.gd")
 const QuestEvents := preload("res://game/quests/quest_events.gd")
-const ControlScheme := preload("res://game/player/mouse/control_scheme.gd")
 ## Keys-only control scheme (no pointer): how far in front of the slime's centre the ghost stands,
 ## clear of its body and well inside REACH_PX.
 const KEYS_AHEAD_PX := 80.0
@@ -107,16 +106,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## Where the ghost goes: the pointer, or in the keys-only control scheme (no mouse) KEYS_AHEAD_PX in
-## front of the slime's centre, the way it faces (it walks to move the ghost). `aim_override`
-## (tests) wins.
+## Where the ghost goes: KEYS_AHEAD_PX in front of the slime's centre, the way it faces (keys only: it
+## walks to move the ghost). `aim_override` (tests) wins.
 func _aim_point() -> Vector2:
 	if aim_override is Vector2:
 		return aim_override
 	var player := _player()
-	if player != null and not ControlScheme.uses_mouse(ControlScheme.current()):
+	if player != null:
 		return (player.call(&"get_centre") as Vector2) + (player.call(&"get_facing") as Vector2) * KEYS_AHEAD_PX
-	return get_global_mouse_position()
+	return Vector2.ZERO
 
 
 func is_active() -> bool:

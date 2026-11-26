@@ -23,7 +23,9 @@ const MenuWindows := preload("res://game/ui/screens/menu_windows.gd")
 
 const CHEST_ID := "level-1-fatty-guarded-chest"
 const KEY := "green-key"
-const INITIAL_STATUS := "Select a stack to inspect. Right-click or press Take Stack to collect it."
+## The window's first line in the keys-only scheme, the default for a fresh settings file (and so for
+## the test runs) since 2026-11-25.
+const INITIAL_STATUS := "Arrows or WASD choose a stack. Space takes it."
 const KEY_DETAILS := "Verdant Key\nKEY · ×1\n\nA leaf-shaped green key carried by Fatty One Eye's guarded chest.\n\nTake Stack transfers as much as your inventory can hold."
 const IRON_DETAILS := "Iron Ore\nMATERIAL · ×6\n\nDense iron-bearing ore ready to be refined into metal.\n\nTake Stack transfers as much as your inventory can hold."
 const TONIC_DETAILS := "Slime Tonic\nCONSUMABLE · ×1\n\nRestores 40 HP.\n\nTake Stack transfers as much as your inventory can hold."
@@ -207,7 +209,7 @@ func test_empty_chest(t: TestContext) -> void:
 	var interaction := _interaction(t)
 	t.teleport_player(CHEST_STAND)
 	await t.steps(2)
-	t.equal(interaction.get_prompt().get_text(), "Right-click: Inspect empty chest", "prompt")
+	t.equal(interaction.get_prompt().get_text(), "Press W: Inspect empty chest", "prompt (keys only, the default)")
 	t.check(interaction.handle_interact(), "the interact button did nothing")
 	var window := _window(t)
 	if not t.check(window.is_open(), "an empty chest did not open the window"):

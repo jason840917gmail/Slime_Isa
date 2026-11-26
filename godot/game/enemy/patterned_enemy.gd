@@ -194,7 +194,8 @@ func _is_engaged(target: Dictionary) -> bool:
 
 # --- hits ------------------------------------------------------------------------------------------
 
-## A shielded phase refuses every hit but its kill hit and a sleep throw on the ground
+## A weapon the enemy's hit material refuses clinks first, in every phase, before its kill hit
+## (BESTIARY.md "Materials"). A shielded phase refuses every hit but its kill hit and a sleep throw on the ground
 ## (EnemyReactions `sleeps_through`: not a boss, not a `noSleep` phase; owner, 2026-11-01)
 ## ("immune": the sender clinks). The kill hit
 ## gets through in every phase, past the reaction profile's `states` immunities too (the seed
@@ -203,6 +204,11 @@ func _is_engaged(target: Dictionary) -> bool:
 func can_receive_damage(input: Dictionary) -> Dictionary:
 	if not is_defeated():
 		var request: Dictionary = input.get("request", {})
+		# The shared material rule first (a weapon the enemy's material refuses clinks with its line,
+		# whatever the phase, even a blow its own rule would take as its kill: the Bone Marcher's "any
+		# damage piles it"): EnemyReactions.can_receive, through the base.
+		if EnemyReactions.material_refuses(self, request):
+			return super(input)
 		if _kill_hit(request):
 			return {"accepted": true, "reason": ""}
 		if _shields(request) and not EnemyReactions.sleeps_through(self, request) \

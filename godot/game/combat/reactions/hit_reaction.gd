@@ -93,6 +93,8 @@ const SUCK_RESIST := "resist"
 const WEIGHT_TINY := "tiny"
 ## The weight that never sleeps.
 const WEIGHT_BOSS := "boss"
+## What a hit meets: a material that refuses a weapon clinks it.
+const HitMaterials := preload("res://game/combat/reactions/hit_materials.gd")
 ## `immune` wildcard: every class.
 const ANY_CLASS := "*"
 ## Verbs that move the body (only a `last` hit may send one).
@@ -221,7 +223,8 @@ static func preview(profile: Dictionary, hit: Dictionary, state: RefCounted, now
 
 
 ## Whether `hit` gets through: GATE_CLINK when its class is immune (the profile's `immune` or the
-## phase's; "*" = all) and it is no sleep that lands anyway (`sleeps_through`), or the part it landed
+## phase's; "*" = all) and it is no sleep that lands anyway (`sleeps_through`), or when the enemy's hit
+## material refuses the weapon (`material_gate`), or the part it landed
 ## on (`state.part`, the profile's `parts`) is shut (its `tags` must all be on the hit, and its `open`
 ## phases must hold the current one) and the class verb is neither daze nor knockdown; GATE_ZERO when
 ## the part is shut but the verb is daze or knockdown (it lands with 0 damage); else GATE_OPEN.
@@ -233,11 +236,28 @@ static func gate(profile: Dictionary, hit: Dictionary, state: RefCounted) -> Str
 	if (_listed(profile.get("immune", []), hit_class) or _listed(phase.get("immune", []), hit_class)) \
 			and not sleeps_through(profile, hit, phase_name) and not blow_lands(profile, hit, phase_name):
 		return GATE_CLINK
+	var by_material := material_gate(profile, hit, phase_name)
+	if not by_material.is_empty():
+		return by_material
 	var part := part_entry(profile, memory.part if memory != null else "")
 	if part.is_empty() or part_open(part, hit, phase_name) or blow_lands(profile, hit, phase_name):
 		return GATE_OPEN
 	var verb := str(class_entry(profile, hit, phase).get("verb", ""))
 	return GATE_ZERO if verb == VERB_DAZE or verb == VERB_KNOCKDOWN else GATE_CLINK
+
+
+## The shared material rule (one combat, 2026-11-25; HitMaterials): GATE_CLINK when the enemy's hit
+## material refuses `hit`'s weapon (the Spear's `spear`, the Axe's `cut`, the Hammer's `crush`), "" when
+## the material takes it. Only the weapons are ever refused (the owner, 2026-11-26: "the rule is only for
+## weapons"): a thrown thing and the abilities never. A sleep that lands anyway and a mechanism's true
+## blow pass.
+static func material_gate(profile: Dictionary, hit: Dictionary, phase_name: String = "") -> String:
+	if sleeps_through(profile, hit, phase_name) or blow_lands(profile, hit, phase_name):
+		return ""
+	var material := HitMaterials.of(profile, phase_name)
+	if not HitMaterials.refused_tag(material, hit).is_empty():
+		return GATE_CLINK
+	return ""
 
 
 ## True when `hit` puts the enemy to sleep even while it cannot be hurt (owner, 2026-11-01: so an

@@ -4,7 +4,7 @@ extends Node2D
 ## shadow 1 px right and 2 px down) with a mouse glyph whose right button is lit, its bottom
 ## centre at the target's anchor. When `interact`'s first binding is a key (the keys-only control
 ## scheme puts it on W) the plate shows that key's letter instead of the mouse (owner, 2026-10-20:
-## no mouse icon where the mouse isn't used); it follows the InputMap, so F2 changes it at once. It bobs 2.5 px every 1400 ms and pops in (scale 0.5 -> 1, alpha
+## no mouse icon where the mouse isn't used); it follows the InputMap (keys only is the one scheme since 2026-11-25). It bobs 2.5 px every 1400 ms and pops in (scale 0.5 -> 1, alpha
 ## 0 -> 1, 140 ms, back-out) whenever the target changes. World space, z_index 1 (above every
 ## world sprite), so it zooms and fades with the world. PAUSABLE.
 ##

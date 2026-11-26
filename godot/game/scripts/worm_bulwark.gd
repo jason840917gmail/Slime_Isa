@@ -28,7 +28,8 @@ class_name WormBulwarkScript
 ##   thing's weight is its hit (a thrown enemy is a medium hit); the shapes' and powers' hits are
 ##   counted by their tags (`hits.byTag`: the Axe's `cut` light, the Hammer's `crush` and the Goo
 ##   Bomb's `blast` medium). `hits.roundShield` tags reach round the shield (the Goo Bomb's blast).
-## - `hits.clinkTags` never hurt him, from any side (the Spear, arrows, the Lantern's flame, the Roll).
+## - `hits.clinkTags` never hurt him, from any side (arrows, the Lantern's flame, the Roll); the Spear clinks
+##   on his shell too, by the shared material rule (`reactions.hitMaterial` shell, BESTIARY.md "Materials").
 ## - His armour shrugs off the blows a knock brings (a wall splat, a bowled enemy, a fall, a danger
 ##   zone: `take_reaction_damage`): only counted hits wear him down. A hole or deep water still
 ##   takes him (that blow is all his health). Any other routed blow that hurts deals its own damage.
