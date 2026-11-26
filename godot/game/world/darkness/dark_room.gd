@@ -14,8 +14,8 @@ extends Node2D
 ## - **Lit by its candles** (owner, 2026-10-19: "turning candles on should bring some light to the
 ##   room"; 2026-11-25: "definitly a lot more"): its candles are the ones it lists (`candles`) and every
 ##   candle, sconce or brazier (candle.gd) standing inside its rectangle. With `lit` of `n` burning, the
-##   dark lifts by (lit / n) ^ `darkness.candleShareCurve` (0.6: one of three lifts about half of it,
-##   so the first is seen); while every one burns, the room fades to lit over `litFadeMs`; when one
+##   dark lifts by (lit / n) ^ `darkness.candleShareCurve` (0.5: one of three lifts 58 % of it, one
+##   of four half, so the first is seen); while every one burns, the room fades to lit over `litFadeMs`; when one
 ##   goes out (candles burn 60 s by default, candle.gd) it fades darker again. A room with no candle
 ##   never lifts (the Tally Room's lesson). `lifts_by_candles` off: only the listed candles count, and
 ##   only all together (the Colossus's arena, whose braziers' circles are his brittle rings).
@@ -139,13 +139,11 @@ func room_flag() -> String:
 	return FLAG_PREFIX + str(get_path())
 
 
-func _process(_delta: float) -> void:
+## Whether it is lit follows its candles on the gameplay tick (the Gloomlings, the bats and the
+## slime's ember read `is_dark` there); the drawing (the fade, the lights) follows in `_process`.
+func _physics_process(_delta: float) -> void:
 	if Engine.is_editor_hint() or _overlay == null:
 		return
-	var world := Services.world()
-	var player: Node = world.player if world != null else null
-	if player != null and is_instance_valid(player):
-		LanternGlow.ensure(player)
 	var all_lit := _all_candles_lit()
 	if all_lit and lit_for_good_when_all_lit and not _for_good:
 		_light_for_good()
@@ -153,6 +151,15 @@ func _process(_delta: float) -> void:
 		_lit = all_lit
 		_cue_change()
 	_lit = _lit or _for_good
+
+
+func _process(_delta: float) -> void:
+	if Engine.is_editor_hint() or _overlay == null:
+		return
+	var world := Services.world()
+	var player: Node = world.player if world != null else null
+	if player != null and is_instance_valid(player):
+		LanternGlow.ensure(player)
 	var now := Services.now_ms()
 	var step := now - _last_ms if _last_ms >= 0.0 else 0.0
 	_last_ms = now
@@ -230,7 +237,7 @@ func lift_share() -> float:
 		return 0.0
 	if not lifts_by_candles and lit < all.size():
 		return 0.0
-	var curve := maxf(0.05, FireTargets.lantern_number("darkness.candleShareCurve", 0.6))
+	var curve := maxf(0.05, FireTargets.lantern_number("darkness.candleShareCurve", 0.5))
 	return pow(float(lit) / float(all.size()), curve)
 
 

@@ -28,6 +28,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="26_gib6f"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="27_qyq0e"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="28_31gwx"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-tools-crate.tscn" id="97_tools-crate"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_rb6e1"]
 blend_mode = 1
@@ -163,6 +164,9 @@ pause_min_ms = 2500.0
 pause_max_ms = 7000.0
 wander_radius = 40.0
 rest_clips = PackedStringArray()
+
+[node name="mine-tools-crate" parent="Scenery" instance=ExtResource("97_tools-crate")]
+position = Vector2(947.2, 448)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1614372616]
 y_sort_enabled = true

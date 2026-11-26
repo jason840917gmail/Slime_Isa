@@ -9,7 +9,7 @@ extends Node2D
 ## - A flame lights it (`receive_fire`: true, the flame stops; a lit candle lets the flame fly on).
 ## - Lit, it is a light source (`light_circle`, flickering, at `flame_offset`), with a warm glow on its
 ##   flame: `light_radius`, else by `light_kind` a candle's or sconce's
-##   `abilities.lantern.candle.lightRadiusPx` (240) or a brazier's `candle.brazierLightRadiusPx` (320)
+##   `abilities.lantern.candle.lightRadiusPx` (300) or a brazier's `candle.brazierLightRadiusPx` (380)
 ##   (owner, 2026-11-25: a lit candle owns its corner of the room).
 ## - It burns for `burn_ms` of gameplay time (60000 by default; owner, 2026-10-14: candles do not
 ##   stay lit forever) and goes out; in its last `abilities.lantern.candle.gutterMs` it gutters (the
@@ -232,8 +232,9 @@ func light_circle() -> Vector3:
 func light_radius_px() -> float:
 	if light_radius > 0.0:
 		return light_radius
-	var key := "candle.brazierLightRadiusPx" if light_kind == "brazier" else "candle.lightRadiusPx"
-	return FireTargets.lantern_number(key, 240.0)
+	if light_kind == "brazier":
+		return FireTargets.lantern_number("candle.brazierLightRadiusPx", 380.0)
+	return FireTargets.lantern_number("candle.lightRadiusPx", 300.0)
 
 
 ## 1 while it burns steadily, falling to 0 over its last `candle.gutterMs` (always 1 for good).

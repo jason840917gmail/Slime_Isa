@@ -1,6 +1,6 @@
 extends Node2D
-## The Crystal Colossus's quake on his floor (game/scripts/crystal_colossus.gd, the plate fight;
-## docs/godot/DUNGEONS.md "The plate fight"): presentation only, made when his warning starts, at his
+## The Crystal Colossus's quake on his floor (game/scripts/crystal_colossus.gd, the crystal fight;
+## docs/godot/DUNGEONS.md "The crystal fight"): presentation only, made when his warning starts, at his
 ## feet, under the actors (z -1). While he warns (`warn_ms`) painted fissures
 ## (`colossus-quake-fissures-1x4.webp`) run out from his feet across his whole floor (`floor_rect`),
 ## piece after piece along wandering rays, each growing from its near end, and the climb walls by his

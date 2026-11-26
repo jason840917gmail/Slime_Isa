@@ -13,7 +13,8 @@ cross-correlation, so only the moving parts move.
 
 The Colossus's sheets come twice, with his plates and as a plate-less edit: his frames are a bare
 body and a layer per plate ("the Colossus's plates as layers" below), so any plate can be cold, hot
-or gone in any frame.
+or gone in any frame; the crystal under each plate is cut from the bare body live and dead ("the
+Colossus's crystals" below), so any crystal can be live or dark in any frame.
 
 usage:
     python scripts/art/boss_frames.py preview [<animation> ...]
@@ -697,7 +698,8 @@ def contact(boss: str, zoom: float = 1.0) -> None:
 #    picture in its cell), "fps", "order" (frame indices to play)}}}
 # The Colossus's strips are his bare body; each animation also has `<key>-plates.webp`, an atlas of
 # its plate pieces, and per frame "plates": {plate: {"cold": piece, "hot": piece}} with a piece
-# {"rect": [x, y, w, h] in the atlas, "at": [x, y] its top left in the frame's cell}. His side walk
+# {"rect": [x, y, w, h] in the atlas, "at": [x, y] its top left in the frame's cell}, and "crystals":
+# {plate: {"live": piece, "dead": piece}} in the same atlas (the crystal under each plate). His side walk
 # faces right ("faces"); the game mirrors it, and its plates, for the left (L and R swap). The burst's
 # shards are `shards.webp` with "shards": {"cold": [rect], "hot": [rect], "dust": rect}.
 
@@ -758,6 +760,90 @@ def _hot_piece(layer: Image.Image) -> Image.Image:
 	return glow
 
 
+# --- the Colossus's crystals: live and dead -------------------------------------------------------
+#
+# Under each plate a crystal of rose quartz sits in his rock (the bare body's socket): his health, one
+# crystal a phase (the three-crystal fight, 2026-11-25). Destroyed, it stays dark and cracked. Per
+# frame and plate the pack cuts the socket's crystal out of the bare body, inside that plate's layer:
+# the "live" piece is the crystal as drawn (the game pulses it), the "dead" piece the same pixels on a
+# cool slate ramp with cracks drawn from its middle. The cracks come from one seed per crystal (its
+# plate's letter), so they keep their shape from frame to frame.
+
+CRYSTAL_MIN_PX = 6
+CRYSTAL_RIM_PX = 3
+# The dead crystal: its brightness (after DEAD_DIM) mapped to slate, the cracks' colours and width.
+DEAD_DIM = 0.8
+DEAD_RAMP = [(0.0, (14, 13, 20)), (0.35, (38, 37, 48)), (0.7, (78, 77, 92)), (1.0, (150, 148, 166))]
+CRACK_DARK = (8, 7, 12, 255)
+CRACK_LIGHT = (176, 172, 192, 255)
+CRACK_WIDTH = 2
+CRACKS = 4
+
+
+def _pinkish(a: np.ndarray) -> np.ndarray:
+	"""Rose quartz: red well over green, blue over green (the rock's browns have blue under green)."""
+	r, g, b = a[..., 0], a[..., 1], a[..., 2]
+	return (a[..., 3] > 128) & (r > 110) & (r > g + 35) & (b > g + 4)
+
+
+def crystal_region(body: Image.Image, layer: Image.Image) -> np.ndarray:
+	"""The crystal under a plate (bool, the body's size): the bare body's rose quartz inside the plate's
+	layer, closed and filled whole, with the socket's darker pink rim round it (never the brown rock)."""
+	a = np.asarray(body).astype(np.float32)
+	inside = np.asarray(layer.getchannel("A")) > 20
+	pink = _pinkish(a) & inside
+	if pink.sum() < CRYSTAL_MIN_PX:
+		return np.zeros(pink.shape, bool)
+	from PIL import ImageFilter
+	im = Image.fromarray(np.where(pink, 255, 0).astype(np.uint8), "L")
+	closed = np.asarray(im.filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.MinFilter(5))) > 0
+	whole = _fill_holes(closed | pink) & inside & (a[..., 3] > 128)
+	rim = _grow(whole, CRYSTAL_RIM_PX) & inside & (a[..., 3] > 128) & (a[..., 2] >= a[..., 1] - 4)
+	return whole | rim
+
+
+def _crystal_piece(body: Image.Image, region: np.ndarray) -> Image.Image:
+	"""The body's pixels inside `region` (the live crystal), the rest clear."""
+	a = np.asarray(body).copy()
+	a[..., 3] = np.where(region, a[..., 3], 0)
+	return Image.fromarray(a, "RGBA")
+
+
+def dead_crystal(live: Image.Image, plate: str) -> Image.Image:
+	"""A crystal destroyed: its pixels on a cool slate ramp, dimmed, and cracked from its middle (the
+	cracks' shape from the plate's seed: the same in every frame)."""
+	a = np.asarray(live).astype(np.float32)
+	luma = (0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]) / 255.0 * DEAD_DIM
+	xs = [p for p, _ in DEAD_RAMP]
+	out = a.copy()
+	for c in range(3):
+		out[..., c] = np.interp(luma, xs, [col[c] for _, col in DEAD_RAMP])
+	dead = Image.fromarray(out.astype(np.uint8), "RGBA")
+	solid = a[..., 3] > 128
+	ys, xs_ = np.nonzero(solid)
+	if len(xs_) < CRYSTAL_MIN_PX:
+		return dead
+	cx, cy = float(xs_.mean()), float(ys.mean())
+	reach = 0.5 * max(xs_.max() - xs_.min(), ys.max() - ys.min())
+	rng = np.random.default_rng(ord(plate) * 7919)
+	lines = Image.new("RGBA", dead.size)
+	draw = ImageDraw.Draw(lines)
+	for k in range(CRACKS):
+		angle = (k + rng.uniform(-0.3, 0.3)) * 2.0 * np.pi / CRACKS
+		points = [(cx, cy)]
+		for step in range(1, 4):
+			angle += rng.uniform(-0.55, 0.55)
+			length = reach * step / 3.0 * rng.uniform(0.8, 1.05)
+			points.append((cx + np.cos(angle) * length, cy + np.sin(angle) * length))
+		draw.line([(x + 1, y + 1) for x, y in points], fill=CRACK_DARK, width=CRACK_WIDTH + 1)
+		draw.line(points, fill=CRACK_LIGHT, width=CRACK_WIDTH)
+	# the cracks only on the crystal
+	la = np.asarray(lines).copy()
+	la[..., 3] = np.where(solid, la[..., 3], 0)
+	dead.alpha_composite(Image.fromarray(la, "RGBA"))
+	return dead
+
+
 def _save(image: Image.Image, path: Path) -> None:
 	sys.path.insert(0, str(REPO / "scripts" / "lib"))
 	from game_webp import save_game_webp
@@ -798,30 +884,48 @@ def pack(boss: str) -> None:
 		if armour:
 			pieces: list[Image.Image] = []
 			refs: list[dict] = []
-			for i in anim.use:
+			crystal_refs: list[dict] = []
+			for k, i in enumerate(anim.use):
 				frame_plates: dict = {}
+				frame_crystals: dict = {}
 				for plate in PLATES:
 					if plate not in layers[i]:
 						continue
-					cold, at = _crop(scaled(layers[i][plate], z))
+					layer = scaled(layers[i][plate], z)
+					cold, at = _crop(layer)
 					hot_full = _hot_piece(cold)
 					frame_plates[plate] = {
 						"cold": {"piece": len(pieces), "at": [at[0] + PACK_PAD, at[1] + PACK_PAD]},
 						"hot": {"piece": len(pieces) + 1, "at": [at[0] + PACK_PAD - HALO_PX * 2, at[1] + PACK_PAD - HALO_PX * 2]},
 					}
 					pieces += [cold, hot_full]
+					# the crystal under it (the bare body's socket), live and dead
+					region = crystal_region(shown[k], layer)
+					if region.sum() >= CRYSTAL_MIN_PX:
+						live, c_at = _crop(_crystal_piece(shown[k], region))
+						frame_crystals[plate] = {
+							"live": {"piece": len(pieces), "at": [c_at[0] + PACK_PAD, c_at[1] + PACK_PAD]},
+							"dead": {"piece": len(pieces) + 1, "at": [c_at[0] + PACK_PAD, c_at[1] + PACK_PAD]},
+						}
+						pieces += [live, dead_crystal(live, plate)]
 				refs.append(frame_plates)
+				crystal_refs.append(frame_crystals)
 			atlas, rects = _atlas(pieces)
 			for frame_plates in refs:
 				for plate in frame_plates.values():
 					for state in ("cold", "hot"):
 						plate[state] = {"rect": rects[plate[state].pop("piece")], "at": plate[state]["at"]}
+			for frame_crystals in crystal_refs:
+				for crystal in frame_crystals.values():
+					for state in ("live", "dead"):
+						crystal[state] = {"rect": rects[crystal[state].pop("piece")], "at": crystal[state]["at"]}
 			entry["plates_file"] = f"{key}-plates.webp"
 			entry["plates"] = refs
+			entry["crystals"] = crystal_refs
 			_save(atlas, out / entry["plates_file"])
 		manifest["animations"][key] = entry
 		print(f"  {key}: {len(shown)} frames, cell {cell[0]} x {cell[1]} art px ({cell[0] / PX_PER_UNIT:.0f} x {cell[1] / PX_PER_UNIT:.0f} units)"
-			+ (f", {sum(len(f) for f in entry['plates'])} plate pieces" if armour else ""))
+			+ (f", {sum(len(f) for f in entry['plates'])} plate pieces, {sum(len(f) for f in entry['crystals'])} crystals" if armour else ""))
 	if boss == "colossus":
 		z = boss_scale("colossus") * PX_PER_UNIT
 		sheet = cut_grid(SRC / "colossus" / "frames" / "colossus-plate-burst.png")

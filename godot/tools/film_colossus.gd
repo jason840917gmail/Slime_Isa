@@ -1,20 +1,23 @@
 extends SceneTree
-## Films the Crystal Colossus's plate fight (docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap
-## 12.4)", "The Colossus lab") in its lab (world.colossus-lab, game/dev/bosses/colossus-lab.tscn),
-## frame by frame, the camera still. Run windowed (it renders) with a fixed frame time, one film at a
-## time, from the repo (or through `scripts/godot/film-colossus.sh <name> --film=<film>`):
-##     "<Godot 4.7.2 console exe>" --path godot --fixed-fps 60 -s res://tools/film_colossus.gd -- \
-##         --out=<dir> --film=<name> [--every=<n>] [--zoom=<z>] [--tail=<frames>]
-## Films (what the tool stages is said; the rest is the game playing):
+## Films the Crystal Colossus's crystal fight (docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap
+## 12.4)", "The crystal fight", "The Colossus lab") in its lab (world.colossus-lab,
+## game/dev/bosses/colossus-lab.tscn), frame by frame, the camera still. Run windowed (it renders) with
+## a fixed frame time, one film at a time, from the repo (or through `scripts/godot/film-colossus.sh
+## <name> --film=<film>`):
+##     "<Godot 4.7.2 console exe>" --path godot --fixed-fps 60 -s res://tools/film_colossus.gd -- ##         --out=<dir> --film=<name> [--every=<n>] [--zoom=<z>] [--tail=<frames>]
+## Films (what the tool stages is said; the rest is the game playing). poses, phase1, phase2, phase3 and
+## fight say PASS or FAIL (`verdict` in film.json, and the last line printed):
 ##   look      the lab before the fight (the slime in the lobby), then the slime walks in: he wakes
-##   poses     every animation's every frame with his plates three ways (all cold; all hot; the chest
-##             gone, L hot, R cold), the side walk both ways: the tool sets each pose on the look (he
-##             stands frozen), for checking the plates sit on him
+##   poses     every animation's every frame with his plates and crystals five ways (L hot, the others
+##             cold; L gone, its crystal live; L dead, R gone and live; both shoulders dead, the chest
+##             gone and live; all dead), the side walk both ways: the tool sets each pose on the look (he
+##             stands frozen), for checking the plates and crystals sit on him; PASS when every bare
+##             crystal the art has for a frame shows
 ##   walks     he walks down, right, up and left after the slime (the tool moves it round him; his
-##             stomps held off), with three plates, then again with the breastplate gone
+##             stomps held off), with three plates, then again with his first shoulder dead and bare
 ##   glow      the slime lights the lower-west brazier with the Lantern (cast by the tool as its key
-##             does) and baits him into its ring: his plates glow hot; then it lets him close in: his
-##             stomp leaves the brazier lit (he is not dousing: one brazier lit, nobody hurt him)
+##             does) and baits him into its ring: his first plate glows hot; then it lets him close in:
+##             his stomp leaves the brazier lit (he is not dousing: one brazier lit, nobody hurt him)
 ##   hop       his leap: the slime keeps far from him (put there by the tool, his stomps held): he
 ##             crouches, a ring marks where he lands, he leaps and lands short of it; twice
 ##   quake     his quake twice (made due by the tool, his stomps and leap held, the camera over the whole
@@ -25,18 +28,19 @@ extends SceneTree
 ##   rocks     his falling rocks as ammo: every pot taken away (staged); two stomps shake rocks down
 ##             (noted: none by the rails); one dropped on the slime by the tool hurts it; the slime
 ##             sucks a rock up and throws it at the lower target as he walks the rails in the lit
-##             brazier's ring (put there by the tool): the cart bursts his plate
-##   douse     every brazier lit by the tool, then `burst`'s cart bursts his hot breastplate: hurt with
+##             brazier's ring (put there by the tool): the cart bursts his first plate
+##   douse     every brazier lit by the tool, then `burst`'s cart bursts his hot first plate: hurt with
 ##             all four lit he douses, and each stomp by the slime puts out the lit brazier nearest him
 ##             until none burns; two lit again restart the long wait (`douseAfterMs`, most of it staged
 ##             as gone first) and survive a stomp; the wait staged as over, the next stomp puts one
 ##             out, which restarts the wait, and the stomp after leaves the other
 ##   burst     round 1: the lower-west brazier lit (by the tool), he walks east along the lower line in
 ##             its ring (put there by the tool as the pot leaves); the slime throws a pot at the lower
-##             target: the cart runs west, stops against him and bursts the plate facing it (his
-##             breastplate); staggered, then furious, he kicks the cart back home up its line
-##   clang     the same with every brazier cold: the cart clangs off the cold plate, he staggers and
-##             kicks it back; the first clang's hint: the line over him, the nearest unlit brazier
+##             target: the cart runs west, stops against him and bursts his first plate (L, the one
+##             that glows, though the cart meets his front); staggered, then furious, he kicks the cart
+##             back home up its line
+##   clang     the same with every brazier cold: the cart clangs off his cold first plate, he staggers
+##             and kicks it back; the first clang's hint: the line over him, the nearest unlit brazier
 ##             flickering
 ##   heat      his heat cues: one brazier lit, him held outside its ring, inside it on the lower line
 ##             (embers, a flash, the lower target glowing), outside again (steam); then all four lit,
@@ -46,22 +50,37 @@ extends SceneTree
 ##   pass      a pot at the lower target with him off the rails (held away by the tool): the cart comes
 ##             out of the east tunnel, rolls over the dips and the floor into the west tunnel and is
 ##             gone; the next comes out of the east tunnel, its target rearmed
-##   bare      round 2 (his breastplate gone, staged): held still facing the viewer (his step held),
-##             the Spear (its Ability Box power, the Lunge) from the front (bare: it hurts), from his
-##             left and his back (plated / no plate: clinks); a pot thrown from the front (half a
-##             Spear hit)
-##   wall      round 3 (one plate left, staged): he leaps onto his wall at the west spot and throws
-##             two mites (then taken away by the tool); the slime climbs the roots west of him and
-##             strikes his claws three times from the face; he crashes across the west down line, on
-##             his back; the slime (taken off the wall by the tool) throws a pot at the west target:
-##             the cart comes down out of the north wall and takes his last plate; getting up he kicks
-##             it back into its tunnel
-##   core      the core (no plate, his core at `--core=<hp>`, 40 by default, staged): held still (his step
-##             held), the Spear from his back and his side until he falls: the fall, the burst, the small
-##             golem
+##   wall      the last phase (both shoulders dead, staged): he leaps onto his wall at the west spot
+##             and throws two mites (then taken away by the tool); the slime climbs the roots west of
+##             him and strikes his claws three times from the face; he crashes across the west down
+##             line, on his back; the slime (taken off the wall by the tool) throws a pot at the west
+##             target: the cart comes down out of the north wall and bursts his breastplate; getting
+##             up he kicks it back into its tunnel
+##   phase1    phase 1 from the wake (nothing staged on his crystals): a Spear hit on his front clinks
+##             (the phase's line, his first plate flashing); the slime lights the lower-west brazier
+##             with the Lantern; he is put on the lower line in its ring as the pot leaves for the
+##             lower target (as `burst`): the cart bursts plate L; staggered, he kicks it home; the
+##             slime strikes the bare crystal (a pot while he staggers, then the Spear from his front,
+##             its own side or his back: put there by the tool each time, his steps his own) until it
+##             is destroyed: the beat, phase 2
+##   phase2    phase 2 (L dead and bare, staged): the same, but he is turned to face north on the line
+##             as the pot leaves (held still until the cart meets him: staged), so the cart meets him
+##             on his dead shoulder's side: the spark there, plate R bursts; the slime strikes crystal R
+##             until it is destroyed: the beat, and he makes for his wall (the slime put by the west
+##             roots, so he takes the west spot)
+##   phase3    phase 3 (both shoulders dead, staged): up his wall at the west spot; the slime climbs the
+##             west roots (his mites and rocks held while it climbs: staged) and strikes his claws loose;
+##             on his back across the west line, a pot at the west target: the cart bursts his
+##             breastplate; the Spear on his chest twice (the tool stops there), he gets up, kicks the
+##             cart home and goes back up; the claws again, the second fall, the Spear on the bare chest
+##             until it goes dark: his fall for good, the small golem
+##   fight     the three phases in a row, nothing staged on his crystals or plates (only where he
+##             stands when each pot leaves, and his turn north in phase 2, as above)
+## Every film holds his quake off (staged: the films run longer than its first wait), the phases again
+## at each phase's start; the quake film lets it go.
 ## Writes <dir>/f<nnn>.png and <dir>/film.json: per saved frame its time (ms of the game's clock since
-## the film began), his phase, plates, health, brittleness and facing, the slime's health; and the
-## notes (what struck what, health before and after).
+## the film began), his phase, plates, crystals, health, brittleness and facing, the slime's health;
+## and the notes (what struck what, health before and after).
 
 const Services := preload("res://game/shared/services.gd")
 const ThrowAmmo := preload("res://game/throw/throw_ammo.gd")
@@ -71,6 +90,8 @@ const MAIN_SCENE := "res://game/main.tscn"
 const MAP_ID := "colossus-lab"
 const WINDOW := Vector2i(1024, 768)
 const WATCHDOG_S := 420.0
+## The longer films' watchdogs (the phase on his wall, the whole fight).
+const WATCHDOG_LONG_S := {"phase3": 900.0, "fight": 1800.0}
 const SPEAR := &"shape-spear"
 const LANTERN := &"lantern"
 ## Where a thing to throw is put: behind the slime's feet, so the suck faces away and the throw turns
@@ -79,6 +100,12 @@ const AMMO_BEHIND_PX := 34.0
 ## Long enough that a staged hold (a stomp held off, a stagger) outlasts the shot.
 const HOLD_MS := 60000.0
 const PLATES: Array[String] = ["L", "C", "R"]
+## His phases where a hit can land (not up his wall, in the air or asleep).
+const HITTABLE: Array[String] = ["walk", "raise", "stomp", "recover", "stagger", "kick", "hop-crouch", "quake-warn",
+	"quake", "stunned"]
+## Where the slime stands to strike him: this far from his feet in front or behind, beside him.
+const STRIKE_FRONT_PX := 74.0
+const STRIKE_SIDE_PX := 118.0
 
 var _main: Node
 var _out := "user://colossus"
@@ -86,7 +113,6 @@ var _film := "look"
 var _every := 2
 var _zoom := 1.2
 var _tail := 60
-var _core := 40.0
 var _index := 0
 var _step := 0
 var _start_ms := 0.0
@@ -111,11 +137,11 @@ func _initialize() -> void:
 			_zoom = float(arg.trim_prefix("--zoom="))
 		elif arg.begins_with("--tail="):
 			_tail = maxi(0, int(arg.trim_prefix("--tail=")))
-		elif arg.begins_with("--core="):
-			_core = float(arg.trim_prefix("--core="))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_out))
-	create_timer(WATCHDOG_S, true, false, true).timeout.connect(func() -> void:
-		push_error("film_colossus: gave up after %d s" % int(WATCHDOG_S))
+	_fresh_colossus_pictures()
+	var watchdog := float(WATCHDOG_LONG_S.get(_film, WATCHDOG_S))
+	create_timer(watchdog, true, false, true).timeout.connect(func() -> void:
+		push_error("film_colossus: gave up after %d s" % int(watchdog))
 		quit(1))
 	DisplayServer.window_set_size(WINDOW)
 	_main = (load(MAIN_SCENE) as PackedScene).instantiate()
@@ -163,12 +189,16 @@ func _initialize() -> void:
 			await _film_dip()
 		"pass":
 			await _film_pass()
-		"bare":
-			await _film_bare()
 		"wall":
 			await _film_wall()
-		"core":
-			await _film_core()
+		"phase1":
+			await _film_phase1()
+		"phase2":
+			await _film_phase2()
+		"phase3":
+			await _film_phase3()
+		"fight":
+			await _film_fight()
 		_:
 			push_error("film_colossus: no film '%s'" % _film)
 	_notes["slime_hp_at_end"] = _slime_health()
@@ -190,7 +220,8 @@ func _film_look() -> void:
 	await _run(_tail + 60)
 
 
-## Every animation's every frame, three plate states, on the frozen boss.
+## Every animation's every frame, five plate and crystal states, on the frozen boss; PASS when every
+## bare crystal the frame's art has shows (live or dead as asked).
 func _film_poses() -> void:
 	if not await _start_fight():
 		return
@@ -204,33 +235,58 @@ func _film_poses() -> void:
 	_place_slime(_floor_rect().end - Vector2(60.0, 60.0), Vector2.LEFT)
 	_still_camera(middle - Vector2(0.0, 80.0))
 	var look: Node2D = _boss.call(&"plate_look")
-	var states: Array[Dictionary] = [
-		{"L": ColossusLook.COLD, "C": ColossusLook.COLD, "R": ColossusLook.COLD},
-		{"L": ColossusLook.HOT, "C": ColossusLook.HOT, "R": ColossusLook.HOT},
-		{"L": ColossusLook.HOT, "C": ColossusLook.GONE, "R": ColossusLook.COLD},
+	var gone := ColossusLook.GONE
+	var cold := ColossusLook.COLD
+	var live := ColossusLook.LIVE
+	var dead := ColossusLook.DEAD
+	# [plates, crystals]: L hot (the one that glows); L bare and live; L dead, R bare and live; both
+	# shoulders dead, the chest bare and live; all dead
+	var states: Array = [
+		[{"L": ColossusLook.HOT, "C": cold, "R": cold}, {"L": live, "C": live, "R": live}],
+		[{"L": gone, "C": cold, "R": cold}, {"L": live, "C": live, "R": live}],
+		[{"L": gone, "C": cold, "R": gone}, {"L": dead, "C": live, "R": live}],
+		[{"L": gone, "C": gone, "R": gone}, {"L": dead, "C": live, "R": dead}],
+		[{"L": gone, "C": gone, "R": gone}, {"L": dead, "C": dead, "R": dead}],
 	]
-	var shown: Array = []
+	var shown := 0
+	var missing: Array = []
 	for key: String in ["walk-down", "walk-side", "walk-up", "stomp", "leap-cling", "fall"]:
-		var frames := int(ColossusLook.entry(key).get("frames", 0))
+		var anim := ColossusLook.entry(key)
+		var frames := int(anim.get("frames", 0))
+		var crystals_art: Array = anim.get("crystals", [])
 		for mirrored: bool in ([false, true] if key == "walk-side" else [false]):
-			for state: Dictionary in states:
+			for state: Array in states:
+				var plates: Dictionary = state[0]
+				var crystals: Dictionary = state[1]
 				for index in frames:
-					look.call(&"show_pose", key, index, mirrored, state)
-					_caption_extra = "%s %d%s  L %s C %s R %s" % [key, index, " mirrored" if mirrored else "",
-						_state_name(int(state["L"])), _state_name(int(state["C"])), _state_name(int(state["R"]))]
+					look.call(&"show_pose", key, index, mirrored, plates, crystals)
+					_caption_extra = "%s %d%s  plates L %s C %s R %s  crystals L %s C %s R %s" % [key, index,
+						" mirrored" if mirrored else "", _state_name(int(plates["L"])), _state_name(int(plates["C"])),
+						_state_name(int(plates["R"])), _crystal_name(int(crystals["L"])), _crystal_name(int(crystals["C"])),
+						_crystal_name(int(crystals["R"]))]
 					await _tick(true)
-					shown.append(_caption_extra)
-	_notes["poses"] = shown.size()
+					shown += 1
+					# every crystal whose plate is gone and whose piece the frame's art has must show
+					var art: Dictionary = crystals_art[index] if index < crystals_art.size() and crystals_art[index] is Dictionary else {}
+					for crystal: String in PLATES:
+						var piece := crystal
+						if mirrored and crystal != "C":
+							piece = "R" if crystal == "L" else "L"
+						if int(plates[crystal]) == gone and art.has(piece) 								and (look.call(&"crystal_point", crystal) as Vector2) == Vector2.INF:
+							missing.append("%s %d%s %s" % [key, index, " M" if mirrored else "", crystal])
+	_notes["poses"] = shown
+	_notes["crystals_missing"] = missing
+	_verdict(shown > 0 and missing.is_empty(), "%d poses shown, every bare crystal drawn (missing: %s)" % [shown, missing])
 
 
-## He walks after the slime four ways, three plates and then two.
+## He walks after the slime four ways, three plates and then his first shoulder dead and bare.
 func _film_walks() -> void:
 	if not await _start_fight():
 		return
 	var middle := _floor_rect().get_center()
 	_still_camera(middle - Vector2(0.0, 60.0))
-	for plates: Array in [["L", "C", "R"], ["L", "R"]]:
-		_boss.call(&"stage_plates", plates)
+	for plates: Array in [["L", "C", "R"], ["C", "R"]]:
+		_boss.call(&"stage_crystals", plates, {} if plates.size() == 3 else {"L": 0.0})
 		_put_boss(middle)
 		for way: Vector2 in [Vector2.DOWN, Vector2.RIGHT, Vector2.UP, Vector2.LEFT]:
 			_hold_stomps()
@@ -605,7 +661,7 @@ func _film_climb() -> void:
 	await _run(_tail)
 
 
-## His last phase (one plate left, staged): on his feet he leaps straight up his wall; up there a rock
+## His last phase (both shoulders dead, staged): on his feet he leaps straight up his wall; up there a rock
 ## every 5 s at the slime: on the floor (it lies there after, a rock to throw), then up the roots
 ## beside him (it hits it on the vines and shatters); a quake made due (by the tool): he leaps down to
 ## the middle, quakes, and goes back up. His mites held (staged: they knock a climber off), noted.
@@ -613,7 +669,7 @@ func _film_last() -> void:
 	if not await _start_fight():
 		return
 	_listen()
-	_boss.call(&"stage_plates", ["R"])
+	_boss.call(&"stage_crystals", ["C"], {"L": 0.0, "R": 0.0})
 	_boss.set(&"_thrown", 99)
 	_notes["mites_held_by_the_tool"] = true
 	var middle := _floor_rect().get_center()
@@ -810,44 +866,12 @@ func _film_dip() -> void:
 	await _run(_tail)
 
 
-## Round 2: the breastplate gone; the Spear and a pot from his sides.
-func _film_bare() -> void:
-	if not await _start_fight():
-		return
-	var middle := _floor_rect().get_center()
-	_boss.call(&"stage_plates", ["L", "R"])
-	_listen()
-	_put_boss(middle)
-	_hold_still(Vector2.DOWN)
-	_still_camera(middle + Vector2(0.0, 20.0))
-	await _run(20)
-	var hits: Array = []
-	for side: Array in [["front", Vector2(0.0, 74.0), Vector2.UP], ["his left", Vector2(118.0, 0.0), Vector2.LEFT],
-			["back", Vector2(0.0, -72.0), Vector2.DOWN], ["front again", Vector2(0.0, 74.0), Vector2.UP]]:
-		_place_slime(_boss_feet() + (side[1] as Vector2), side[2])
-		await _run(12)
-		var before := _boss_hp()
-		var answer := _spear()
-		await _run(50)
-		hits.append({"from": side[0], "spear": answer, "hp_before": before, "hp_after": _boss_hp()})
-		_restore_slime()
-	_notes["spear"] = hits
-	# a pot thrown from the front: half a Spear hit
-	_place_slime(_boss_feet() + Vector2(0.0, 170.0), Vector2.UP)
-	await _run(10)
-	var before_pot := _boss_hp()
-	await _throw(Vector2.UP)
-	await _run(70)
-	_notes["pot"] = {"from": "front", "hp_before": before_pot, "hp_after": _boss_hp()}
-	await _run(_tail)
-
-
-## Round 3: the wall, the claws, the crash across the west down line under his spot, the cart's last
-## plate.
+## The last phase: the wall, the claws, the crash across the west down line under his spot, the cart
+## bursting his breastplate.
 func _film_wall() -> void:
 	if not await _start_fight():
 		return
-	_boss.call(&"stage_plates", ["R"])
+	_boss.call(&"stage_crystals", ["C"], {"L": 0.0, "R": 0.0})
 	_listen()
 	var roots := _piece("claw-roots-1")
 	var target := _piece("west-target")
@@ -929,36 +953,329 @@ func _film_wall() -> void:
 	await _run(_tail)
 
 
-## The core: no plate; the Spear from his back and his side until he falls.
-func _film_core() -> void:
+## Phase 1 from the wake: nothing staged on his crystals (see the head).
+func _film_phase1() -> void:
 	if not await _start_fight():
 		return
-	var middle := _floor_rect().get_center()
-	_boss.call(&"stage_plates", [], _core)
 	_listen()
-	_put_boss(middle)
-	_hold_still(Vector2.DOWN)
-	_still_camera(middle + Vector2(0.0, 20.0))
-	await _run(20)
-	var hits: Array = []
-	var sides: Array = [["back", Vector2(0.0, -72.0), Vector2.DOWN], ["his right", Vector2(-118.0, 0.0), Vector2.RIGHT],
-		["front", Vector2(0.0, 74.0), Vector2.UP], ["back", Vector2(0.0, -72.0), Vector2.DOWN]]
-	for side: Array in sides:
+	var ok := await _arm_phase("L", false)
+	_notes["phase_at_end"] = int(_boss.call(&"crystal_phase"))
+	_verdict(ok and int(_notes["phase_at_end"]) == 2, "phase 1: the cart burst %s without harm (%s), its crystal destroyed in %s strikes, phase now %d"
+		% [_notes.get("L_burst", "-"), _notes.get("L_burst_harmless", "-"), _notes.get("L_struck_by", "-"), int(_notes["phase_at_end"])])
+
+
+## Phase 2: his first shoulder dead and bare (staged), then as phase 1 with the cart on his dead side.
+func _film_phase2() -> void:
+	if not await _start_fight():
+		return
+	_boss.call(&"stage_crystals", ["C", "R"], {"L": 0.0})
+	_listen()
+	var ok := await _arm_phase("R", true)
+	_notes["went_up_his_wall"] = await _wait_phase("cling", 400) == "cling"
+	_verdict(ok and bool(_notes["went_up_his_wall"]), "phase 2: the cart met him %s (his dead side east), burst %s, its crystal destroyed, up his wall %s"
+		% [_notes.get("R_cart_side", "-"), _notes.get("R_burst", "-"), _notes["went_up_his_wall"]])
+
+
+## Phase 3: both shoulders dead (staged); the wall, the claws, the falls, the chest.
+func _film_phase3() -> void:
+	if not await _start_fight():
+		return
+	_boss.call(&"stage_crystals", ["C"], {"L": 0.0, "R": 0.0})
+	_listen()
+	_send_him_west()
+	var ok := await _chest_phase(2)
+	_verdict(ok, "phase 3: the breastplate burst on his back (%s), he got up %d time(s) before the chest died, defeated %s"
+		% [_notes.get("C_burst_lying", "-"), int(_notes.get("got_up", 0)), _notes.get("defeated", false)])
+
+
+## The whole fight: the three phases in a row, nothing staged on his crystals or plates.
+func _film_fight() -> void:
+	if not await _start_fight():
+		return
+	_listen()
+	var one := await _arm_phase("L", false)
+	_notes["phase_after_one"] = int(_boss.call(&"crystal_phase"))
+	var two := false
+	if one:
+		two = await _arm_phase("R", true)
+	_notes["phase_after_two"] = int(_boss.call(&"crystal_phase"))
+	var three := false
+	if two:
+		three = await _chest_phase(2)
+	var order := _events("crystal_broken")
+	_notes["crystals_broken"] = order
+	_verdict(three and order == ["L", "R", "C"], "the whole fight: crystals broken %s, defeated %s" % [order, _notes.get("defeated", false)])
+
+
+## One shoulder's phase (`crystal`, L or R): the phase's first clink (a Spear hit on his front: the
+## line, the plate flashing); the lower-west brazier lit by the Lantern if it is out; the pot at the
+## lower target as he is put on the line in its ring (turned north and held still till the cart meets
+## him when `dead_side`: the cart then meets his dead first shoulder); the burst (no harm), the kick
+## home; the bare crystal struck until it is destroyed. True when it was.
+func _arm_phase(crystal: String, dead_side: bool) -> bool:
+	var cart := _piece("lower-cart")
+	var target := _piece("lower-target")
+	var brazier := _piece("lower-brazier-west")
+	var line_y := cart.global_position.y
+	var spot := Vector2(brazier.global_position.x + 42.0, line_y)
+	_still_camera(Vector2((spot.x + cart.global_position.x) * 0.5, line_y - 60.0))
+	_hold_stomps()
+	# his quake held off for the phase (as `_start_fight` holds it: the films run longer than its wait)
+	_boss.set(&"_quake_ready_at", Services.now_ms() + HOLD_MS)
+	# the phase's first clink: the Spear on his plated front
+	await _wait_hittable(240)
+	var facing: Vector2 = _boss.call(&"facing")
+	_place_slime(_boss_feet() + facing * STRIKE_FRONT_PX, -facing)
+	await _tick()
+	var hp := _boss_hp()
+	_notes["%s_first_spear" % crystal] = _spear()
+	await _run(40)
+	_notes["%s_first_spear_clinked" % crystal] = is_equal_approx(_boss_hp(), hp)
+	_notes["%s_line_given" % crystal] = int(_boss.get(&"_clink_hinted_phase")) == int(_boss.call(&"crystal_phase"))
+	await _run(60)
+	_restore_slime()
+	# the brazier lit with the Lantern (from just west of it, facing it) when it is out
+	if not bool(brazier.call(&"is_lit")):
+		_place_slime(brazier.global_position + Vector2(-64.0, 4.0), Vector2.RIGHT)
+		await _run(6)
+		_notes["%s_lantern" % crystal] = await _cast_lantern(Vector2.RIGHT)
+		await _run(20)
+	_notes["%s_brazier_lit" % crystal] = bool(brazier.call(&"is_lit"))
+	# the slime by the lower target, to throw east at it; he is put on the line as the pot leaves
+	_notes["%s_cart_ready" % crystal] = await _wait_state(cart, "held", 400)
+	_place_slime(target.global_position + Vector2(-150.0, 12.0), Vector2.RIGHT)
+	_hold_stomps()
+	_put_boss(spot)
+	await _run(10)
+	var bursts_before := _events("burst").size()
+	await _throw(Vector2.RIGHT, func() -> void:
+		_hold_stomps()
+		_put_boss(spot)
+		if dead_side:
+			# turned north and held still (staged): the cart from the east meets his dead shoulder
+			_hold_still(Vector2.UP)
+		else:
+			_boss.call(&"_transition", "walk", Services.now_ms()))
+	_notes["%s_target_after_throw" % crystal] = await _wait_state(target, "spin", 90)
+	var hp_before := _boss_hp()
+	await _wait_state(cart, "bump", 300)
+	_boss.set_physics_process(true)
+	await _run(4)
+	var bursts := _events("burst")
+	_notes["%s_burst" % crystal] = bursts[bursts.size() - 1] if bursts.size() > bursts_before else "-"
+	# the way he faced as the cart met him (the burst's own record: the stagger turns him to the viewer)
+	for event: Variant in _notes.get("plate_events", []):
+		if event is Dictionary and (event as Dictionary).has("burst"):
+			_notes["%s_cart_side" % crystal] = "facing %s" % (event as Dictionary).get("facing", "-")
+	_notes["%s_burst_harmless" % crystal] = is_equal_approx(_boss_hp(), hp_before)
+	# staggered, he kicks it home; the slime strikes the bare crystal meanwhile
+	var dead := await _strike_crystal(crystal, 16)
+	_notes["%s_cart_after" % crystal] = str(cart.call(&"state_name"))
+	if crystal == "R":
+		# he makes for his wall: the slime by the west roots, so he takes the west spot
+		_send_him_west()
+	# the beat
+	await _run(100)
+	return dead and str(_notes["%s_burst" % crystal]) == crystal and bool(_notes["%s_burst_harmless" % crystal])
+
+
+## The slime by the west roots' foot: his next leap onto his wall takes the west spot.
+func _send_him_west() -> void:
+	var roots := _piece("claw-roots-1")
+	_place_slime(roots.global_position + Vector2(40.0, 90.0), Vector2.UP)
+
+
+## The chest's phase: up his wall (at the west spot), the slime up the roots striking his claws (his
+## mites and rocks held while it climbs: staged), his crash across the nearest crash line; on his back
+## a pot at that line's target while his breastplate is on (the cart bursts it), and the Spear on his
+## chest while he lies, at most `first_strikes` strikes the first time (he gets up, kicks the cart home
+## and goes back up); again until the chest goes dark and he falls for good. True when he fell after
+## getting up at least once.
+func _chest_phase(first_strikes: int) -> bool:
+	_zoom = 0.85
+	# his quake held off for the phase (it would bring him down while the slime climbs)
+	_boss.set(&"_quake_ready_at", Services.now_ms() + HOLD_MS)
+	var falls := 0
+	_notes["got_up"] = 0
+	for round in 4:
 		if bool(_boss.call(&"is_defeated")):
 			break
-		_place_slime(_boss_feet() + (side[1] as Vector2), side[2])
-		await _run(12)
-		var before := _boss_hp()
-		var answer := _spear()
-		await _run(50)
-		hits.append({"from": side[0], "spear": answer, "hp_before": before, "hp_after": _boss_hp()})
-		_restore_slime()
-	_notes["spear"] = hits
+		var phase := await _wait_phase("cling", 900)
+		if phase != "cling":
+			_notes["no_climb_in_round_%d" % round] = phase
+			break
+		_still_camera(Vector2(_boss_feet().x + 20.0, 420.0))
+		# his mites and rocks held while the slime climbs (a hit knocks a climber off); the thrown taken away
+		_boss.set(&"_next_throw_at", INF)
+		_boss.set(&"_next_rock_at", INF)
+		_boss.call(&"clear_mites")
+		_boss.set(&"_phase_started_at", Services.now_ms())
+		if not await _strike_claws():
+			_notes["claws_failed_in_round_%d" % round] = str(_boss.call(&"get_phase"))
+			break
+		await _let_go()
+		if await _wait_phase("stunned", 90) != "stunned":
+			break
+		falls += 1
+		_still_camera(_boss_feet() + Vector2(60.0, -80.0))
+		if bool(_boss.call(&"has_plate", "C")):
+			await _cart_on_his_back()
+		await _strike_crystal("C", first_strikes if falls == 1 else 12, true)
+		if bool(_boss.call(&"is_defeated")):
+			break
+		# up again: he kicks the cart home and goes back up; the slime by the west roots for the west spot
+		_send_him_west()
+		var up := await _wait_phase("leap-up", 500)
+		if up in ["leap-up", "cling"]:
+			_notes["got_up"] = int(_notes["got_up"]) + 1
+	_notes["falls"] = falls
 	_notes["defeated"] = bool(_boss.call(&"is_defeated"))
-	# his fall plays on (the step runs again)
-	_boss.set_physics_process(true)
-	_place_slime(_boss_feet() + Vector2(0.0, 200.0), Vector2.UP)
-	await _run(_tail + 150)
+	if bool(_notes["defeated"]):
+		# his fall plays on
+		_place_slime(_boss_feet() + Vector2(0.0, 200.0), Vector2.UP)
+		await _run(_tail + 150)
+	return bool(_notes["defeated"]) and int(_notes["got_up"]) >= 1
+
+
+## The slime climbs the roots nearest his spot and strikes his claws (from the roots' side of him)
+## until he loses his grip. True when he falls.
+func _strike_claws() -> bool:
+	var spot_x := _boss_feet().x
+	var roots: Node2D = null
+	for name: String in ["claw-roots-1", "claw-roots-2", "claw-roots-3", "claw-roots-4"]:
+		var r := root.find_child(name, true, false) as Node2D
+		if r != null and (roots == null or absf(r.global_position.x - spot_x) < absf(roots.global_position.x - spot_x)):
+			roots = r
+	if roots == null:
+		return false
+	var player: Node = Services.world().player
+	_place_slime(roots.global_position, Vector2.UP)
+	await _run(4)
+	_push(&"interact", true)
+	roots.call(&"use")
+	_push(&"move_up", true)
+	for i in 200:
+		await _tick()
+		if bool(player.call(&"get_climb").call(&"is_holding")):
+			break
+	_push(&"move_up", false)
+	var toward := &"move_right" if spot_x > roots.global_position.x else &"move_left"
+	for i in 4:
+		_push(toward, true)
+		_push(&"eat", true)
+		await _tick()
+		await _tick()
+		_push(&"eat", false)
+		for k in 40:
+			await _tick()
+			if str(_boss.call(&"get_phase")) == "fall":
+				break
+		_push(toward, false)
+		await _run(10)
+		if str(_boss.call(&"get_phase")) in ["fall", "stunned"]:
+			break
+	_notes["claw_hits"] = int(_notes.get("claw_hits", 0)) + int(_boss.call(&"claw_hits"))
+	return str(_boss.call(&"get_phase")) in ["fall", "stunned"]
+
+
+## On his back: a pot at the target of the crash line he lies across, from its outer side; the cart
+## comes down and bursts his breastplate.
+func _cart_on_his_back() -> void:
+	var cart: Node2D = null
+	var nearest := INF
+	for node: Variant in _boss.get(&"crash_carts"):
+		var line := node as Node2D
+		if line != null and is_instance_valid(line) and line.global_position.distance_to(_boss_feet()) < nearest:
+			nearest = line.global_position.distance_to(_boss_feet())
+			cart = line
+	if cart == null or not cart.has_method(&"get_knock_target"):
+		_notes["no_crash_cart"] = true
+		return
+	var target := cart.call(&"get_knock_target") as Node2D
+	var bursts_before := _events("burst").size()
+	_place_slime(target.global_position + Vector2(-150.0, 6.0), Vector2.RIGHT)
+	await _tick()
+	await _throw(Vector2.RIGHT)
+	await _wait_state(cart, "bump", 200)
+	await _run(4)
+	var bursts := _events("burst")
+	_notes["C_burst_lying"] = bursts[bursts.size() - 1] if bursts.size() > bursts_before else "-"
+
+
+## The slime strikes `crystal` (bare) until it is destroyed, at most `tries` strikes: a pot thrown from
+## his front while he staggers (once), else the Spear from his front, the crystal's own side or his
+## back by turns (the sides it shows on; the chest: his front and sides; lying, from below), put there
+## by the tool each time, his steps his own (`while_lying`: only while he lies on his back). True when
+## it was destroyed.
+func _strike_crystal(crystal: String, tries: int, while_lying: bool = false) -> bool:
+	var strikes: Array = []
+	var potted := false
+	for i in tries:
+		if bool(_boss.call(&"is_defeated")) or bool(_boss.call(&"is_crystal_dead", crystal)):
+			break
+		if while_lying and str(_boss.call(&"get_phase")) != "stunned":
+			break
+		if not while_lying:
+			await _wait_hittable(300)
+		var phase := str(_boss.call(&"get_phase"))
+		var facing: Vector2 = _boss.call(&"facing")
+		var right := Vector2(-facing.y, facing.x)
+		var own := right if crystal == "L" else -right
+		var spots: Array = [facing * STRIKE_FRONT_PX, own * STRIKE_SIDE_PX, -facing * STRIKE_FRONT_PX]
+		if crystal == "C":
+			spots = [facing * STRIKE_FRONT_PX, right * STRIKE_SIDE_PX, -right * STRIKE_SIDE_PX]
+		var offset: Vector2 = Vector2(0.0, STRIKE_FRONT_PX) if phase == "stunned" else spots[i % spots.size()]
+		var before := _boss_hp()
+		var clinks_before := int(_boss.call(&"clinks"))
+		var how := "spear"
+		var answer := ""
+		if not potted and phase == "stagger" and not while_lying:
+			potted = true
+			how = "pot"
+			_place_slime(_boss_feet() + facing * 170.0, -facing)
+			await _tick()
+			await _throw(-facing)
+			await _run(30)
+		else:
+			_place_slime(_boss_feet() + offset, -offset.normalized())
+			await _tick()
+			# the Lunge's own answer: "" struck, "busy" while its last strike runs (the tool strikes
+			# faster than a player)
+			answer = _spear()
+			await _run(30)
+		var landed := "hurt" if _boss_hp() < before else ("clinked" if int(_boss.call(&"clinks")) > clinks_before else "missed")
+		strikes.append({"how": how, "phase": phase, "from": _way_name(offset), "hp_before": before, "hp_after": _boss_hp(),
+			"left": float(_boss.call(&"crystal_left", crystal)), "landed": landed, "lunge": answer})
+		_restore_slime()
+	_notes["%s_strikes" % crystal] = (_notes.get("%s_strikes" % crystal, []) as Array) + strikes
+	var dead := bool(_boss.call(&"is_crystal_dead", crystal)) or bool(_boss.call(&"is_defeated"))
+	if dead:
+		_notes["%s_struck_by" % crystal] = (_notes["%s_strikes" % crystal] as Array).size()
+	return dead
+
+
+## Steps until he can be hit (on his feet or his back, not up his wall or in the air), at most `frames`.
+func _wait_hittable(frames: int) -> void:
+	for i in frames:
+		if str(_boss.call(&"get_phase")) in HITTABLE:
+			return
+		await _tick()
+
+
+## The plate events of one kind ("burst", "clang", "crystal_broken"): their plate or crystal.
+func _events(kind: String) -> Array:
+	var found: Array = []
+	for event: Variant in _notes.get("plate_events", []):
+		if event is Dictionary and (event as Dictionary).has(kind):
+			found.append((event as Dictionary)[kind])
+	return found
+
+
+## The film's verdict (PASS or FAIL) and what was checked, into the notes and the last line printed.
+func _verdict(ok: bool, what: String) -> void:
+	_notes["verdict"] = "PASS" if ok else "FAIL"
+	_notes["checked"] = what
+	print("film_colossus: %s %s: %s" % [_film, _notes["verdict"], what])
 
 
 # --- staging -----------------------------------------------------------------------------------------
@@ -974,7 +1291,6 @@ func _start_fight() -> bool:
 	if _boss == null:
 		push_error("film_colossus: the fight did not start")
 		return false
-	_notes["plate_fight"] = bool(_boss.get(&"plate_fight"))
 	# his quake held off (the films run longer than its first wait); the quake film lets it go
 	_boss.set(&"_quake_ready_at", Services.now_ms() + HOLD_MS)
 	return true
@@ -1050,6 +1366,15 @@ func _hold_still(way: Vector2) -> void:
 	_boss.set_physics_process(false)
 
 
+## His crystals' health now, in their order ("L60 R60 C60"; a dead one "L-").
+func _crystals_now() -> String:
+	var out: Array[String] = []
+	for crystal: String in ["L", "R", "C"]:
+		var left := float(_boss.call(&"crystal_left", crystal))
+		out.append(crystal + ("-" if left <= 0.0 else str(int(left))))
+	return " ".join(out)
+
+
 func _plates_now() -> String:
 	var on := ""
 	for plate: String in PLATES:
@@ -1068,6 +1393,9 @@ func _listen() -> void:
 	_boss.connect(&"plate_clanged", func(payload: Dictionary) -> void:
 		events.append({"clang": payload.get("plate"), "by": payload.get("by"), "frame": _index,
 			"facing": _way_name(_boss.call(&"facing"))}))
+	_boss.connect(&"crystal_broken", func(payload: Dictionary) -> void:
+		events.append({"crystal_broken": payload.get("crystal"), "by": payload.get("by"), "hp": payload.get("hp"),
+			"phase": payload.get("phase"), "frame": _index}))
 	Services.world().player.connect(&"damaged", func(commit: Dictionary) -> void:
 		var request: Dictionary = commit.get("request", {})
 		var result: Dictionary = commit.get("result", {})
@@ -1157,6 +1485,26 @@ func _still_camera(at: Vector2) -> void:
 
 
 ## The control hints' bar and the lab's note: off for the film.
+## His packed pictures read straight from disk (the films only): a strip or atlas packed since the
+## editor last imported it would show its old import (the crystal pieces, packed 2026-11-25, lie past
+## the old atlases' end); the game shows the new ones once the editor has imported them.
+func _fresh_colossus_pictures() -> void:
+	var animations: Variant = ColossusLook.manifest().get("animations", {})
+	if not animations is Dictionary:
+		return
+	var fresh := 0
+	for anim: Variant in (animations as Dictionary).values():
+		for key: String in ["file", "plates_file"]:
+			var file := str((anim as Dictionary).get(key, ""))
+			if file.is_empty():
+				continue
+			var image := Image.load_from_file(ProjectSettings.globalize_path(ColossusLook.FOLDER + file))
+			if image != null and not image.is_empty():
+				ColossusLook._pictures[file] = ImageTexture.create_from_image(image)
+				fresh += 1
+	_notes["pictures_from_disk"] = fresh
+
+
 func _hide_hints() -> void:
 	for child: Node in _main.get_children():
 		var script := child.get_script() as Script
@@ -1225,11 +1573,12 @@ func _tick(still: bool = false) -> void:
 	if _boss != null and is_instance_valid(_boss):
 		row["phase"] = str(_boss.call(&"get_phase"))
 		row["plates"] = _plates_now()
+		row["crystals"] = _crystals_now()
 		row["hp"] = _boss_hp()
 		row["brittle"] = bool(_boss.call(&"is_brittle"))
 		row["facing"] = _way_name(_boss.call(&"facing"))
-		line += "   %s  plates %s  hp %d%s  facing %s" % [row["phase"], row["plates"], int(row["hp"]),
-			"  HOT" if row["brittle"] else "", row["facing"]]
+		line += "   %s  plates %s  crystals %s  hp %d%s  facing %s" % [row["phase"], row["plates"],
+			row["crystals"], int(row["hp"]), "  HOT" if row["brittle"] else "", row["facing"]]
 	if not _caption_extra.is_empty():
 		line += "\n" + _caption_extra
 		row["pose"] = _caption_extra
@@ -1265,6 +1614,10 @@ static func _way_name(way: Variant) -> String:
 
 static func _state_name(state: int) -> String:
 	return ["gone", "cold", "hot"][clampi(state, 0, 2)]
+
+
+static func _crystal_name(state: int) -> String:
+	return "dead" if state == ColossusLook.DEAD else "live"
 
 
 ## The key as the game reads it (tests/lib/test_context.gd `_push`).

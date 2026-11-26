@@ -56,6 +56,19 @@ from behind L is on the right; in profile facing right the near plate is L and t
 the layer's light pixels mapped to an ember ramp with an orange halo (the game may do it as a
 shader); a burst plate is its layer gone, the shards of `colossus-plate-burst.png` flying.
 
+**The crystals, live and dead** (2026-11-25, the three-crystal fight: his health is the three rose
+quartz crystals under the plates, one a phase; `boss_frames.py`, "the Colossus's crystals"): no new
+pictures. Per frame and plate the pack cuts the crystal out of the bare body inside that plate's
+layer (rose quartz: red well over green, blue over green, so the rock's browns stay out), closed,
+filled whole, with the socket's darker pink rim; the **live** piece is those pixels as drawn (the
+game pulses it and lays a rose glow over the dark), the **dead** piece the same pixels dimmed onto a
+cool slate ramp with four cracks drawn from its middle, one seed per crystal (its letter), so the
+cracks keep their shape from frame to frame. Both go into the animation's plate atlas
+(`<animation>-plates.webp`) and `frames.json` (`crystals`). The owner saw a first trial of the dead
+look (`output/boss-rework/colossus-crystals/colossus-dark-crystals-trial.png`) before it was built.
+If it ever needs painting, the fallback is one GPT 2.5 edit of each `-bare` sheet with the three
+crystals dead, cut by the same tool.
+
 Fixes the tool makes, by name: `colossus-walk-down-bare.png` came back with a see-through grey haze
 for a background (the only one; its figure is its opaque part, the light patches and rim peeled
 off), and its frame 3 has no chest socket (frame 4's is copied in, `borrow`); `colossus-fall.png`'s

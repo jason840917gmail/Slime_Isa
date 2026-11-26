@@ -405,7 +405,6 @@ climb_wall = NodePath("../M15-root-wall")
 seal_cells = PackedVector2Array(800, 1376, 864, 1376)
 climb_spots = PackedVector2Array(640, 300, 1024, 300)
 wall_rect = Rect2(64, 64, 1536, 296)
-plate_fight = true
 crash_carts = Array[NodePath]([NodePath("../west-cart"), NodePath("../east-cart")])
 floor_rect = Rect2(192, 320, 1280, 1024)
 

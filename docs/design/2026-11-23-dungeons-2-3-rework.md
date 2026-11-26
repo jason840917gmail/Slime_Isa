@@ -189,7 +189,7 @@ stomp, the leap, the cling and the fall; the three plates as layers over his bod
 and burst into shards; his own stomp, roar and shatter sounds.
 
 **As built (2026-11-24, `world.colossus-lab`), with the owner's changes** (the fight in full:
-[DUNGEONS.md, "The plate fight"](../godot/DUNGEONS.md#the-plate-fight-step-2-of-the-rework)): a
+[DUNGEONS.md, "The crystal fight"](../godot/DUNGEONS.md#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25)): a
 bigger room (24 x 20 cells) with a void strip down each side (a fall costs 10 and puts the slime
 back); the carts come out of tunnels in the walls, roll the whole room and leave by the far
 tunnel when they miss him; a cart that strikes him he kicks back into its tunnel. The owner's
@@ -201,6 +201,24 @@ the floor cracking) and quakes the floor for 5 s, hurting a slime on it over tim
 roots up his wall escapes it; and his blows shake rocks loose from the roof (never by the rails):
 they hurt a slime they land on and lie as things to throw, so the fight never runs out of ammo. Step
 4 builds his room in the Mine to this.
+
+**As built: the three crystals (2026-11-25, after the owner played it;** in the lab and M15 at once,
+one script): "colossus have 3 phases like the 3 crystals in his body ... starting from the 2 arms and
+finally the one in the chest while climbing. to simulate a broken crystal we can paint it dark". His
+health (180: the number to tune when he plays) is the three crystals of rose quartz under his plates,
+60 each; plates and core no longer hold any. A phase is one crystal, in a fixed order (one constant):
+the shoulder on the screen's left, the other shoulder, the chest. A cart only ever bursts this
+phase's plate, whichever side it meets him from, and the burst does no harm: it bares the crystal;
+only that plate glows in a brazier's ring; the chest's bursts only on his back. The Spear (and
+thrown things, for half) hurts the bare crystal from every side it shows on in the art (a shoulder's
+from his front, back and own side; the chest's from his front and sides), a deliberate change from
+point 3's "from that side": he turns to face the slime as he walks. Destroyed, a crystal bursts in
+rose shards, he roars and staggers, and it stays dark and cracked on him in every pose (no new art:
+the dead look is made from the live crystal's pixels). Every refused hit clinks, and the first of each
+phase gives a line and flashes the thing to hit. He rages from phase 2 (`rageFromPhase` 2: faster,
+more mites, sooner quakes), so each crystal's death leaves him harder; phase 3 is point 4's wall, the
+chest's crystal struck while he lies, usually over two falls. Points 1 to 4 above are the plate fight
+as planned; DUNGEONS.md has the crystal fight in full.
 
 ## What the engine has, and what must be built
 

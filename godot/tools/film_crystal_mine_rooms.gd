@@ -431,6 +431,11 @@ func _walk_wing2() -> void:
 	await _run(150)
 	_check(lens != null and bool(lens.call(&"is_struck")), "the Bow's arrow across the chasm strikes the lens")
 	_check(bridge != null and bool(bridge.call(&"is_down_for_good")), "the lens lowers the bridge for good")
+	# its lowering runs on real time (drawbridge.gd): wait until it holds
+	for i in 900:
+		if bridge == null or bool(bridge.call(&"holds")):
+			break
+		await physics_frame
 	await _note("m9-bridge", "M9: the arrow in the lens, the bridge down")
 	_place(Vector2(6.0, 9.5), Vector2.RIGHT)
 	await _hold("move_right", 4000)
@@ -662,8 +667,14 @@ func _from_camp() -> void:
 	await _in_by_the_mouth()
 
 
-## From the camp in G4 up through the mine's gate and G4's mine door into M1 (the rebuilt Mine).
+## From the camp in G4 up through the mine's gate and G4's mine door into M1 (the rebuilt Mine). A walk
+## that did not start at the camp (`--from=`) finds the gate's brazier cold: the Lantern lights it first.
 func _in_by_the_mouth() -> void:
+	var gate := _node("Spiral/mine-gate")
+	var brazier := _node("Spiral/mine-gate-brazier") as Node2D
+	if gate != null and not bool(gate.call(&"is_open")) and brazier != null:
+		await _light(brazier.global_position / CELL + Vector2(1.1, 0.0), Vector2.LEFT)
+		await _run(60)
 	var camp := _node("Spiral/camp-mine-mouth") as Node2D
 	if camp != null:
 		_place(camp.global_position / CELL, Vector2.UP)
@@ -749,7 +760,7 @@ func _walk_wing4() -> void:
 	if not _check_ok(arena != null, "M15 has his arena"):
 		return
 	_check(str(arena.get(&"camp_id")) == "crystal-mine-colossus" and str(arena.get(&"boss_id")) == "crystal-colossus"
-		and not bool(arena.get(&"refights")) and bool(arena.get(&"plate_fight")), "his camp: today's ids, the plate fight, once")
+		and not bool(arena.get(&"refights")), "his camp: today's ids, the fight once")
 	# in: he wakes (from the nook, north onto his floor)
 	_place(Vector2(13.0, 21.5), Vector2.UP)
 	await _run(6)
@@ -1096,7 +1107,12 @@ func _look() -> void:
 	_place(_look_slime if _look_slime.is_finite() else _look_at + Vector2(0.0, 1.0), Vector2.DOWN)
 	await _run(40)
 	_still_camera(_look_at * CELL, _look_zoom)
-	await _run(60)
+	# the quests' first toasts fade before the picture; the area's banner is left out of it
+	await _run(300)
+	var shell := Services.shell()
+	var banner: Variant = shell.get(&"area_title") if shell != null else null
+	if banner is Node and &"visible" in (banner as Node):
+		(banner as Node).set(&"visible", false)
 	await _shoot("look-%s%s.png" % [_look_world, "-bright" if _look_bright else "-lit" if _look_lit else ""])
 
 
@@ -1416,9 +1432,24 @@ func _wait_world(room: String, frames: int) -> bool:
 	for i in frames:
 		var world := Services.world()
 		if world != null and world.map_id() == want and world.player_body != null and is_instance_valid(world.player_body):
+			await _arrived()
 			return true
 		await physics_frame
 	return false
+
+
+## Waits until the travel has ended and the slime has walked in out of the doorway (both run on real
+## time: a screen scroll, a fade, the walk out; a frame count alone ends too soon when the window
+## draws frames faster than real time).
+func _arrived() -> void:
+	for i in 1200:
+		var world := Services.world()
+		var player: Node = world.player if world != null else null
+		var travelling := bool(_main.call(&"is_transitioning"))
+		var walking := player != null and is_instance_valid(player) and bool(player.call(&"is_walking_out"))
+		if not travelling and not walking:
+			return
+		await physics_frame
 
 
 func _check_ok(ok: bool, what: String) -> bool:

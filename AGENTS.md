@@ -107,12 +107,15 @@ its code is in git history.
   the room) into `output/dungeon-rework/hollow/crown-films/<name>/`, round1, ram-catch and round3 with
   a PASS or FAIL ([The Crown](docs/godot/DUNGEONS.md#the-crown-step-3s-third-piece-2026-11-25)).
 - `bash scripts/godot/film-colossus.sh <name> --film=<film> [options]` — films the Crystal Colossus's
-  plate fight (the rework) in his lab (`world.colossus-lab`, built by `tools/build_colossus_lab.gd`)
-  into `output/boss-rework/colossus-films/<name>/`: `look`, `poses`, `walks`, `glow`, `burst`, `clang`,
-  `pass`, `dip`, `bare`, `wall`, `core` ([The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab));
-  with `--tool=film_colossus_arena` the same films in the rebuilt Crystal Mine's arena (M15, the lab's
-  world carried into the room) into `output/dungeon-rework/mine/arena-films/<name>/`, burst, clang, wall
-  and core with a PASS or FAIL ([Wing 4](docs/godot/DUNGEONS.md#wing-4-the-shaft-and-the-colossus-2026-11-25)).
+  crystal fight (the rework; three crystals, one a phase, since 2026-11-25) in his lab
+  (`world.colossus-lab`, built by `tools/build_colossus_lab.gd`) into
+  `output/boss-rework/colossus-films/<name>/`: `look`, `poses`, `walks`, `glow`, `hop`, `quake`,
+  `rocks`, `douse`, `heat`, `climb`, `last`, `burst`, `clang`, `pass`, `dip`, `wall`, `phase1`,
+  `phase2`, `phase3`, `fight` (`poses` and the phases with a PASS or FAIL;
+  [The Colossus lab](docs/godot/DUNGEONS.md#the-colossus-lab)); with `--tool=film_colossus_arena` the
+  same films in the rebuilt Crystal Mine's arena (M15, the lab's world carried into the room) into
+  `output/dungeon-rework/mine/arena-films/<name>/`, burst, clang, wall, poses and the phases with a
+  PASS or FAIL ([Wing 4](docs/godot/DUNGEONS.md#wing-4-the-shaft-and-the-colossus-2026-11-25)).
 - `"<Godot console exe>" --path godot -s res://tools/film_weaver_hollow_rooms.gd -- --film=<walk|ram|wall-walk|warden-ram|webbed-slab|look> --out=<dir>`
   — plays the rebuilt Weaver Hollow (step 3 of the dungeons rework; the game enters it since the
   switch-over of 2026-11-25, its four floor worlds before retired at step 5;

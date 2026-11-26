@@ -36,6 +36,9 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/crystal-mine-dungeon.tscn" id="34_1uhux"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="35_8jxrq"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="36_cn5mq"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-ladder-foot.tscn" id="97_ladder-foot"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-lift-gantry.tscn" id="97_lift-gantry"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-pit-props.tscn" id="97_pit-props"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_livup"]
 size = Vector2(66, 26)
@@ -215,15 +218,6 @@ offset = Vector2(-64, -124)
 script = ExtResource("23_ribkb")
 sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
 
-[node name="mine-lantern-2" type="Sprite2D" parent="Scenery" unique_id=1607647048]
-position = Vector2(166.4, 131.2)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("28_usmhn")
-centered = false
-offset = Vector2(-64, -124)
-script = ExtResource("23_ribkb")
-sheet_path = "res://asset/MAPS/props/mine/128x128-mine-lantern.webp"
-
 [node name="brazier-lit" parent="Scenery" unique_id=2064980524 instance=ExtResource("29_aw2y3")]
 position = Vector2(576, 819.2)
 
@@ -248,6 +242,15 @@ fly_ms = 500.0
 flight_height = 22.0
 flight_speed = 20.0
 flight_wobble_px = 5.0
+
+[node name="mine-ladder-foot" parent="Scenery" instance=ExtResource("97_ladder-foot")]
+position = Vector2(166.4, 150.4)
+
+[node name="mine-lift-gantry" parent="Scenery" instance=ExtResource("97_lift-gantry")]
+position = Vector2(256, 300.8)
+
+[node name="mine-pit-props" parent="Scenery" instance=ExtResource("97_pit-props")]
+position = Vector2(384, 153.6)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=460320415]
 y_sort_enabled = true

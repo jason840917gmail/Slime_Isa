@@ -35,6 +35,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="33_gchro"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="34_3w4hf"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="35_48qh6"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/mine-pit.res" id="98_mpit"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bl1uq"]
 blend_mode = 1
@@ -62,6 +63,7 @@ position = Vector2(256, 640)
 script = ExtResource("4_2gn1v")
 size = Vector2(384, 192)
 cables = PackedFloat32Array()
+picture = ExtResource("98_mpit")
 pattern_seed = 2
 
 [node name="m2-void-north-depth" type="Node2D" parent="." unique_id=54063587]
@@ -70,6 +72,7 @@ position = Vector2(256, 192)
 script = ExtResource("4_2gn1v")
 size = Vector2(320, 256)
 cables = PackedFloat32Array()
+picture = ExtResource("98_mpit")
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1757415358]
 y_sort_enabled = true

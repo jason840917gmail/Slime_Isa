@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/crystal-mine-dungeon.tscn" id="30_8jc8f"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="31_mow5p"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="32_slxb5"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-tipped-cart.tscn" id="97_tipped-cart"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mx44a"]
 size = Vector2(66, 26)
@@ -90,7 +91,7 @@ y_sort_enabled = true
 position = Vector2(768, 793.6)
 
 [node name="M10-veil" parent="Objects" unique_id=699453822 instance=ExtResource("11_7tccl")]
-position = Vector2(896, 857.6)
+position = Vector2(896, 921.6)
 size = 128.0
 braziers = Array[NodePath]([NodePath("../M10-brazier")])
 
@@ -187,6 +188,9 @@ fly_ms = 400.0
 flight_height = 38.0
 flight_speed = 46.0
 flight_wobble_px = 7.0
+
+[node name="mine-tipped-cart" parent="Scenery" instance=ExtResource("97_tipped-cart")]
+position = Vector2(780.8, 332.8)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1147772745]
 y_sort_enabled = true

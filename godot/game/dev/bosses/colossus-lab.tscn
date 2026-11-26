@@ -389,7 +389,7 @@ offset_top = 1356.0
 offset_right = 1532.0
 offset_bottom = 1416.0
 theme_override_font_sizes/font_size = 13
-text = "Colossus lab (the plate fight). Walk north to wake him; back into this nook to start over. Light a brazier with the Lantern (its flame flies in a line), bait him over the rails in its light, throw at that line's target: the cart bursts a hot plate, and he kicks it back. Keep away and he leaps at you. When he rears and the floor cracks, climb the roots: the quake hurts all over the floor for 5 s. His stomps put braziers out only once all four burn and he is hurt, or 45 s after a brazier was last lit or put out. Bare crystal takes the Spear; with two plates gone, climb the roots and Spear his claws: he falls across the line under him. The dips are void."
+text = "Colossus lab (the crystal fight). Walk north to wake him; back into this nook to start over. His health is three crystals, one a phase: left shoulder, right shoulder, chest. Light a brazier with the Lantern (its flame flies in a line), bait him over the rails in its light, throw at that line's target: the cart bursts the glowing plate, and he kicks it back. Spear or throw at the bare crystal until it goes dark. Keep away and he leaps at you. When he rears and the floor cracks, climb the roots: the quake hurts all over the floor for 5 s. His stomps put braziers out only once all four burn and he is hurt, or 45 s after a brazier was last lit or put out. Both shoulders dark, he climbs: climb the roots and Spear his claws; on his back, the cart bursts his chest plate. The dips are void."
 autowrap_mode = 3
 
 [node name="ColossusArena" type="Node2D" parent="Objects" unique_id=881869318]
@@ -403,7 +403,6 @@ braziers = Array[NodePath]([NodePath("../west-brazier"), NodePath("../east-brazi
 seal_cells = PackedVector2Array()
 climb_spots = PackedVector2Array(640, 300, 1024, 300)
 wall_rect = Rect2(64, 64, 1536, 296)
-plate_fight = true
 crash_carts = Array[NodePath]([NodePath("../west-cart"), NodePath("../east-cart")])
 refights = true
 floor_rect = Rect2(192, 320, 1280, 1024)

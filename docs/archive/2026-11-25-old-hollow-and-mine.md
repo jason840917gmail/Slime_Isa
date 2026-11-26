@@ -107,10 +107,14 @@ reached only up the Den's ledge.
 
 ### The Colossus's first fight
 
-His fight in the one-scene Mine (crystal_colossus.gd with `plate_fight` off: the code is still there,
-placed nowhere since the world was retired; the rebuilt Mine's M15 and his lab play the plate fight,
-[DUNGEONS.md](../godot/DUNGEONS.md#the-plate-fight-step-2-of-the-rework)). What differs from the plate
-fight:
+His fight in the one-scene Mine (crystal_colossus.gd with its `plate_fight` switch off). Its code went
+too, the same day the world was retired (2026-11-25): the switch and every branch of the first fight
+were taken out of crystal_colossus.gd and colossus_arena.gd (the weak spot and `set_exposed`, the
+reel, the stomp-count climb, the old sheet's frames, the always-on brazier stomp), and its numbers
+(`reelMs`, `weakSideDot`, `stompsPerClimb`, `fallStunMs`) out of `enemy-types.json`; what the two
+fights shared stayed. The rebuilt Mine's M15 and his lab play the plate fight, his only fight
+([DUNGEONS.md](../godot/DUNGEONS.md#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25)); the first fight's code is
+in git history (`cee2a03b` is its last commit). What differed from the plate fight:
 
 - **On the floor, the Lantern's exam (as built):** the braziers (candle.gd, `burn_ms` -1: they burn
   until put out, `stomp_puts_out`): while all four burn his weak spot is open (`set_exposed`): a plate

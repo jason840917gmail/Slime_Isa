@@ -54,6 +54,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="52_pvl77"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="53_2j4mi"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="54_2ggja"]
+[ext_resource type="Texture2D" path="res://asset/MAPS/interiors/mine-pit.res" id="98_mpit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fsaa8"]
 size = Vector2(66, 26)
@@ -87,6 +88,7 @@ position = Vector2(896, 896)
 script = ExtResource("4_1e0r4")
 size = Vector2(512, 576)
 cables = PackedFloat32Array()
+picture = ExtResource("98_mpit")
 pattern_seed = 8
 
 [node name="interior-walls" type="TileMapLayer" parent="." unique_id=1611913929]

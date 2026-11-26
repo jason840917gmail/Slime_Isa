@@ -37,7 +37,7 @@ class_name RamCart
 ## takes `slimeDamage` and is knocked aside too (its invulnerability and a Roll's i-frames pass it).
 ## Standing still (held, or at its line's end) the cart is solid.
 ##
-## **Kicked back** (the Crystal Colossus's plate fight, game/scripts/crystal_colossus.gd): a node it
+## **Kicked back** (the Crystal Colossus's crystal fight, game/scripts/crystal_colossus.gd): a node it
 ## stopped against may `hold_for_kick()` it there (it waits, solid, instead of its haul back after
 ## `restMs`) and then `kick_back(ms)` it: it rolls home up its line over `ms`, fast at first and slowing
 ## to its chock (no chain clicks), and is held again as after a haul back (the brake, its target

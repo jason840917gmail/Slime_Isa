@@ -44,6 +44,10 @@ darkens the rectangle `size` from its position.
   the room fades to lit over `litFadeMs` (1500 ms). When one goes out, it fades darker again. A room
   with no candle never lifts. `lifts_by_candles` off: only the listed ones count, and only all
   together (the Colossus's arena, Bestiary pen 34: a brazier's circle there is a ring that matters).
+- Whether it is lit (`is_dark`) follows its candles on the gameplay tick (`_physics_process`), where
+  the Gloomlings, the Glint Bats and the slime's ember read it; only the fade and the light holes are
+  drawn per frame (2026-11-25: it had followed the drawn frames, a frame or more behind the candles
+  when several ticks ran in one frame).
 - `lit_for_good_when_all_lit` (off by default): once all its candles burn, the room stays lit for
   good and keeps them lit. This sets the story flag `lit_flag` (default
   `dark-room-lit.<persistence key or path>`), and the overlay is removed.

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Films one of the Crystal Colossus's plate-fight films (godot/tools/film_colossus.gd, in
+# Films one of the Crystal Colossus's crystal-fight films (godot/tools/film_colossus.gd, in
 # world.colossus-lab) and lays it out (mechanism-film-sheet.py), one film at a time: it waits on the
 # throw films' lock folder, since two game windows rendering at once stall each other.
 #   scripts/godot/film-colossus.sh <name> --film=<film> [film options...] [sheet options...]
-# Films: look, poses, walks, glow, burst, clang, pass, dip, bare, wall, core. With
+# Films: look, poses, walks, glow, hop, quake, rocks, douse, heat, climb, last, burst, clang, dip,
+# pass, wall, phase1, phase2, phase3, fight (the last five say PASS or FAIL). With
 # --tool=film_colossus_arena the same films in the rebuilt Crystal Mine's arena (godot/tools/
 # film_colossus_arena.gd, world.crystal-mine-m15-colossus-arena: the lab's world carried into the room),
-# into output/dungeon-rework/mine/arena-films/<name>/ (burst, clang, wall and core say PASS or FAIL).
+# into output/dungeon-rework/mine/arena-films/<name>/ (burst, clang, wall, poses and the phases say PASS
+# or FAIL). The lock is kept fresh while a film runs (the whole fight takes longer than 8 minutes).
 # Writes output/boss-rework/colossus-films/<name>/ (frames, film.json, godot.log, strip.png, film.gif,
 # film-slow.gif). Sheet options (--crop= --step= --cols= --scale= --from= --to= --title=) go to the
 # sheet tool, everything else to the film (its camera zoom is --zoom=<z>). $GODOT overrides the Godot
@@ -36,7 +38,10 @@ until mkdir "$lock" 2>/dev/null; do
 done
 trap 'rmdir "$lock" 2>/dev/null' EXIT
 rm -rf "$out"; mkdir -p "$out"
-"$godot" --path "$here/godot" --fixed-fps 60 -s "res://tools/$tool.gd" -- --out="$out" ${film[@]+"${film[@]}"} > "$out/godot.log" 2>&1
+"$godot" --path "$here/godot" --fixed-fps 60 -s "res://tools/$tool.gd" -- --out="$out" ${film[@]+"${film[@]}"} > "$out/godot.log" 2>&1 &
+pid=$!
+while kill -0 "$pid" 2>/dev/null; do touch "$lock" 2>/dev/null; sleep 20; done
+wait "$pid"
 grep -E "film_colossus|SCRIPT ERROR|Parse Error|ERROR|^ +at: .*\.gd" "$out/godot.log" | grep -v "leaked" | cut -c1-300 | head -40
 rmdir "$lock" 2>/dev/null
 trap - EXIT

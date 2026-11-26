@@ -1,64 +1,63 @@
 extends "res://game/enemy/patterned_enemy.gd"
 class_name CrystalColossusScript
 ## Scene script `game.crystal-colossus` (`character.crystal-colossus`; roadmap 12.4; Chapter 3's
-## boss, docs/godot/DUNGEONS.md "The Crystal Mine (built)"; decisions archive questions 59, 69 and
-## 94): a hulking golem of icy blue crystal grown round Pearl 3, part beast. His arena
-## (game/crystal_mine/colossus_arena.gd) rings him with four braziers.
+## boss, docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap 12.4)" and "The crystal fight"; step 2
+## of docs/design/2026-11-23-dungeons-2-3-rework.md, "The Crystal Colossus"): a hulking golem of icy
+## blue crystal grown round Pearl 3, part beast. His arena (game/crystal_mine/colossus_arena.gd: the
+## rebuilt Mine's M15 and the Colossus lab, game/dev/bosses/colossus-lab.tscn) rings him with four
+## braziers and gives him its runaway carts. **The crystal fight** (the owner, 2026-11-25: "colossus
+## have 3 phases like the 3 crystals in his body"): his health (the scene's `max_health`, 180) is
+## three crystals of rose quartz in his body, a third each (`crystal_share`), each under an armour
+## plate (L his right shoulder, C his breastplate, R his left shoulder), drawn on his bare body
+## (game/bosses/colossus_look.gd; the scene's old sheet is blanked): plates and crystals are his health
+## bar in sight, a live crystal glowing and pulsing (over a dark room's darkness too), a dead one dark
+## slate and cracked for good. A phase is one crystal, in a fixed order (CRYSTAL_ORDER: the shoulder on
+## the screen's left, the other shoulder, then the chest): a cart bursts its plate (no harm), then the
+## Spear and thrown things destroy the bare crystal. The crystal fight replaced his plate fight (the
+## plates were his health, then a core; 2026-11-24 to 25), which replaced his first fight, built for
+## the one-scene Mine on 2026-10-17 (a weak spot that opened while all four braziers burned), gone with
+## that world on 2026-11-25 (docs/archive/2026-11-25-old-hollow-and-mine.md).
 ##
-## - **Walk:** he plods at the slime (`walkSpeed`); touching him hurts (`contactDamage`).
+## - **Walk:** he plods at the slime (`walkSpeed`), only as far as his own floor goes (a slime at a void
+##   dip's edge is not followed over it); touching him hurts (`contactDamage`).
 ## - **Stomp:** within `stompRangePx` of the slime, or every `stompEveryMs` anyway, he lifts a crystal
 ##   foot (the tell, `raiseMs`) while a dark ring grows round his feet, then stomps: the slime's feet
-##   in the ring (`stompRx` x `stompRy`) take `stompDamage`; the screen shakes; and the stomp puts out
-##   the lit brazier nearest to him, one at a time (candle.gd `put_out_near`, the braziers'
-##   `stomp_puts_out`: the Shardback's Den rehearsed it).
-## - **The weak spot:** only while all four braziers burn (the arena calls `set_exposed`), a plate of
-##   his armour cracks open at a random place: his front, his back, his left or his right side (a
-##   hot glow there). He reels for `reelMs` (an opening), then fights on. Only the Spear hurts him,
-##   only there: a Spear hit from the slime standing on that side of him lands; every other hit, and
-##   every hit while the braziers do not all burn, clinks off his crystal.
-## - **The climb:** after `stompsPerClimb` stomps he leaps onto the north wall of his arena at the
-##   climb spot nearest the slime (the arena's `climb_spots`) and clings there (not solid; his pose up
-##   the face), throwing a Crystal Mite down every `throwEveryMs` (`character.crystal-mite`: it drops
-##   in near the slime behind its shadow, and on a slime climbing above its spot; `mitesPerClimb`, at
-##   most `maxMites` alive). After `climbMs` he leaps down where the slime stands (kept inside his
-##   arena), a ring marking the spot before he lands: the landing is a stomp and puts out
-##   `landPutsOut` braziers.
-## - **His claws: the Feral skin's exam** (the Pearl mid-dungeon plan, 2026-10-17): roots run up the
-##   wall beside each climb spot, and a slime climbing them strikes his gripping claws with the
-##   Spear (the strike while clinging, player.gd `_climb_strike`): while he clings his hurtbox rides
-##   up the face with his pose, and only a Spear hit from a climbing slime reaches it. `clawHits`
-##   such hits and he loses his grip: he crashes down `fallDropPx` from the wall over `fallMs` with
-##   no landing stomp (no brazier goes out) and lies stunned `fallStunMs`, his back cracked open: any
-##   Spear hit lands while he lies there. Then he gets up and fights on (his stomps counted afresh).
-## - **His second phase** (below `phaseTwoShare` of his health; not the Pearl's rage, EnragedLook):
-##   faster stomps, more mites, two braziers a landing.
-##
-## **The plate fight** (`plate_fight`, off by default: the fight above, placed nowhere since the
-## one-scene Mine was retired on 2026-11-25; step 2 of docs/design/2026-11-23-dungeons-2-3-rework.md,
-## "The Crystal Colossus"; on in both arenas the game has: the rebuilt Mine's M15 and the Colossus
-## lab, game/dev/bosses/colossus-lab.tscn). His 240 health is three armour plates of
-## `plateHp` (L his right shoulder, C his breastplate, R his left shoulder) and a core (the rest),
-## drawn on his bare body (game/bosses/colossus_look.gd): his health bar in sight.
-## - **Nothing hurts a plate.** Standing within a lit brazier's ring (its light, `light_radius` round
-##   its flame, measured to his feet) with two plates or more, his plates glow hot: brittle; while all
-##   the braziers burn, anywhere. As they heat a burst of embers flies off each plate, they flash and
-##   `FireIgnite` sounds; while hot embers rise off them and the knock target of the cart line he
-##   stands on glows (its cart ready, the target armed); as they cool, steam. The first clang off a
-##   cold plate in a fight shows `clang_hint_text` over him and makes the unlit brazier nearest him
-##   flicker (the owner, 2026-11-24: the player must see what changed, and be told why a cart failed).
+##   in the ring (`stompRx` x `stompRy`) take `stompDamage`; the screen shakes. A stomp puts a brazier
+##   out only as below ("His stomps put braziers out only when he is dousing").
+## - **Nothing hurts a plate; only this phase's plate heats.** Standing within a lit brazier's ring (its
+##   light, `light_radius` round its flame, measured to his feet), this phase's shoulder plate glows
+##   hot: brittle; while all the braziers burn, anywhere (the other plates stay cold: the one that
+##   glows is the one the cart takes). As it heats a burst of embers flies off it, it flashes and
+##   `FireIgnite` sounds; while hot embers rise off it and the knock target of the cart line he stands
+##   on glows (its cart ready, the target armed); as it cools, steam. The breastplate never heats on
+##   the floor. The first clang off a cold shoulder plate in a fight shows `clang_hint_text` over him
+##   and makes the unlit brazier nearest him flicker (the owner, 2026-11-24: the player must see what
+##   changed, and be told why a cart failed).
 ## - **The runaway cart** (game/crystal_mine/ram_cart.gd; the hook `on_mechanism_hit(&"cart", cart)`)
-##   strikes the side of him that faces it (the way its line runs, against his facing): the plate on
-##   that side; struck from behind, or on a side whose plate is gone, his breastplate; that gone too,
-##   the shoulder plate left. Brittle, the plate shatters for good (`plateHp` off his health, the
-##   shards, a flash, a roar; staggered `burstStaggerMs`); cold, it clangs and he staggers
-##   (`staggerMs`, the stomp sheet's last frame). The cart waits against him (`hold_for_kick`); his
-##   feet back, furious (a roar), he turns to it and kicks it back up its line into the tunnel it came
-##   from (`kickMs`; it rolls home over `kickBackMs`; the owner, 2026-11-24). One that struck him as he
-##   lay he kicks as he gets up; if he falls or leaves, it is hauled home as ever (`let_go`).
-## - **Bare crystal:** a Spear hit from a side whose plate is gone hurts (the side is where the hitter
-##   stands); a thrown thing (a pot, a stunned mite) from there hurts `thrownShare` of a Spear hit
-##   (`shapes.spear.baseDamage`). Both come off his core, which never goes below 0 while a plate is left
-##   (hits on a spent core clink). Every other hit clinks.
+##   only ever strikes this phase's plate, whichever side it meets him from (a spark where it meets
+##   him; the owner, 2026-11-25: the first two blows take the shoulders in order). Brittle, the plate
+##   shatters for good: the shards, a flash, a roar, no harm (its crystal is bare); he staggers
+##   `burstStaggerMs`. Cold, it clangs and he staggers (`staggerMs`, the stomp sheet's last frame). With
+##   this phase's plate already gone (its crystal bare, still live) it clangs off his rock and staggers
+##   him: a free window. The breastplate bursts only on his back (below). The cart waits against him
+##   (`hold_for_kick`); his feet back, furious (a roar), he turns to it and kicks it back up its line
+##   into the tunnel it came from (`kickMs`; it rolls home over `kickBackMs`; the owner, 2026-11-24).
+##   One that struck him as he lay he kicks as he gets up; if he falls or leaves, it is hauled home as
+##   ever (`let_go`).
+## - **The bare crystal:** a Spear hit on this phase's crystal, bare and showing to the hitter, hurts
+##   (`shapes.spear.baseDamage`); a thrown thing (a pot, a rock, a stunned mite) `thrownShare` of one; a
+##   crystal shows where the art draws it (SHOWS_FROM: a shoulder's from his front, his back and its own
+##   side; the chest's from his front and both sides; on his back every one faces the sky: a deliberate
+##   change, 2026-11-25, from the plate fight's "a side whose plate is gone", which his turning to face
+##   the slime left almost out of reach). A hit never takes more than the crystal has left: each phase
+##   ends at its third. Every other hit clinks: the Spear's own clink, a spark off a plate or grit off a
+##   dead crystal or his rock, and at the phase's first clink a line (`plated_hint_text` while this
+##   phase's crystal wears its plate, else `dead_hint_text` or `crystal_hint_text`) and the thing to hit
+##   flashing under an arrow, following him.
+## - **A crystal destroyed:** rose shards burst from it, a roar, the burst's shake; it shows dark and
+##   cracked for good, and he staggers `crystalBreakStaggerMs`. The next phase starts: after the first
+##   shoulder he walks on; after the second he makes for his wall (his last phase); the chest's is his
+##   fall.
 ## - **His leap** (the owner, 2026-11-24: the fight felt slow, he "does not have a jump or a charge to
 ##   follow you"): a slime more than `hopFarPx` from him for `hopAfterMs` while he walks, and he
 ##   crouches (`hopCrouchMs`, a ring marking where he lands) and leaps at it (`hopAirMs`), landing
@@ -66,7 +65,7 @@ class_name CrystalColossusScript
 ##   in the ring, never a brazier out; again at most every `hopCooldownMs`.
 ## - **His quake** (the owner, the same day: "the queke last 5 secodns and it make damage over time
 ##   the way to avoid it is by climbing . a warning have to be issue by colossus"): every
-##   `quakeEveryMs` (the first `quakeFirstMs` after he wakes; sooner in his second phase), the slime
+##   `quakeEveryMs` (the first `quakeFirstMs` after he wakes; sooner while he rages), the slime
 ##   on the floor, he warns `quakeWarnMs`: a roar and the ground's creak, reared (foot and fists up)
 ##   and trembling harder, the screen rumbling, while glowing cracks run out from his feet over his
 ##   whole floor and the climb walls up his wall light up (game/bosses/colossus_quake.gd). Then he
@@ -83,31 +82,47 @@ class_name CrystalColossusScript
 ##   there as a liftable to throw; at most `debrisMax` lie at once (the oldest crumbles).
 ## - **His stomps put braziers out only when he is dousing** (the owner, the same day: "it should
 ##   only happen after all braziers are on and after colossus had receive damage, or a long period of
-##   time to allow time for the player to make mistakes"): hurt while every brazier burns, he douses:
+##   time to allow time for the player to make mistakes"): hurt while every brazier burns (a plate
+##   burst counts, though it costs him no health), he douses:
 ##   each stomp (and a landing from his wall) puts out the lit one nearest him, until none burns.
 ##   Else a stomp puts one out only once `douseAfterMs` has passed with no brazier lit or put out (the
 ##   wait starts again at each one lit or put out, and at the fight's start: the owner, "the player
-##   have 45 seconds after lighting a brazier to make his move").
-## - **His last phase** (one plate left, then his core alone; the owner, 2026-11-24: "the last phase he
-##   stay on the vines and only comes down to do the quake them goes up again , he does not wander
-##   around ... so the player knows he have to climb and do something"): on his feet he goes straight
-##   up his wall (`_last_phase`), at the climb spot nearest the slime, and stays there (no `climbMs`
-##   leap down): his mites as before, and a rock at the slime every `wallRockEveryMs` (the first
-##   `wallRockFirstMs` up), thrown from his hand in an arc to where it is (`_throw_rock`): it hits
-##   there, on the floor or up the roots ("you are not safe anywhere"), and lies as a rock to throw
+##   have 45 seconds after lighting a brazier to make his move"). Dousing, a stomp puts out
+##   `stompPutsOut` and a landing `landPutsOut` (twice that while he rages); after the long wait,
+##   one (candle.gd `put_out_near`, the braziers' `stomp_puts_out`: the Shardback's Den rehearsed it).
+## - **His last phase** (both shoulder crystals dead, his chest's left; the owner, 2026-11-24: "the
+##   last phase he stay on the vines and only comes down to do the quake them goes up again , he does
+##   not wander around ... so the player knows he have to climb and do something"): on his feet he goes
+##   straight up his wall (`_last_phase`), at the climb spot nearest the slime, and stays there (no `climbMs`
+##   leap down): his mites as on any climb (below), and a rock at the slime every `wallRockEveryMs`
+##   (the first `wallRockFirstMs` up), thrown from his hand in an arc to where it is (`_throw_rock`): it
+##   hits there, on the floor or up the roots ("you are not safe anywhere"), and lies as a rock to throw
 ##   (on the floor, off the rails) or shatters (on the wall, by the rails). He comes down only for his
 ##   quake (leaping to the middle of his floor) and goes back up after it.
-## - **The wall:** he climbs only once two plates are gone (at once after the second bursts; in his last
-##   phase whenever he is on his feet), as above; struck loose he crashes across the nearest of the arena's
-##   `crash_carts` lines (the lab's run down the room from under his climb spots) and lies on his back
-##   `plateFallStunMs` (longer than the mine's
-##   `fallStunMs`: the cart comes from the far wall's tunnel): his last plate shows hot there
-##   (the fall cracked it; on the floor it never glows) and that cart takes it; the Spear and thrown
-##   things hurt his core from every side while he lies.
-## - **The core:** with no plate left the Spear hurts from every side (thrown things for half); the
-##   cart only staggers him.
-## Sounds by name (silent until staged): `ColossusStomp`, `ColossusRoar` (the wake, a burst, the leap),
-## `ColossusShatter`, `ColossusClang`.
+## - **The wall:** he climbs only in his last phase (at once after his second shoulder crystal's
+##   stagger, and whenever he is on his feet): he leaps onto the north wall of his arena at the climb
+##   spot nearest the slime (the arena's `climb_spots`) and clings there (not solid; his pose up the face),
+##   throwing a Crystal Mite down every `throwEveryMs` (`character.crystal-mite`: it drops in near the
+##   slime behind its shadow, and on a slime climbing above its spot; `mitesPerClimb`, at most
+##   `maxMites` alive). (Put up his wall before his last phase, as only a film could, he leaps down
+##   where the slime stands after `climbMs`, a ring marking the spot: the landing is a stomp.)
+## - **His claws: the Feral skin's exam** (the Pearl mid-dungeon plan, 2026-10-17): roots run up the
+##   wall beside each climb spot, and a slime climbing them strikes his gripping claws with the Spear
+##   (the strike while clinging, player.gd `_climb_strike`): while he clings his hurtbox rides up the
+##   face with his pose, and only a Spear hit from a climbing slime reaches it. `clawHits` such hits and
+##   he loses his grip: he crashes down from the wall over `fallMs`, across the nearest of the arena's
+##   `crash_carts` lines (the lab's run down the room from under his climb spots; `fallDropPx` out from
+##   the wall with none), with no landing stomp (no brazier goes out), and lies on his back
+##   `plateFallStunMs` (long enough for the slime to drop from the roots and the cart to come from the
+##   far wall's tunnel): his breastplate shows hot there (the fall cracked it; on the floor it never
+##   glows) and that cart takes it; the Spear and thrown things hurt his chest crystal from every side
+##   while he lies. Then he gets up and goes back up his wall; the next fall, the chest is already bare.
+##   His chest crystal destroyed, he falls for good.
+## - **His rage** (from phase `rageFromPhase`: 2, once a crystal is dead; not the Pearl's rage,
+##   EnragedLook): he walks and stomps faster, throws more mites, quakes sooner and, dousing, puts out
+##   twice the braziers a landing; his last phase adds the wall's rocks.
+## Sounds by name (silent until staged): `ColossusStomp`, `ColossusRoar` (the wake, a burst, a crystal
+## destroyed, the leap), `ColossusShatter`, `ColossusClang`.
 ##
 ## Numbers: `crystal-colossus` in game/data/enemy-types.json.
 ##
@@ -129,7 +144,7 @@ const CUE_DEBRIS := &"DropLand"
 ## His last phase's rock thrown from the wall: its toss.
 const CUE_ROCK_THROW := &"ThrowToss"
 const DEBRIS_TRIES := 24
-## The plate fight's heat cues (the owner, 2026-11-24: the player must see something change): the
+## His plates' heat cues (the owner, 2026-11-24: the player must see something change): the
 ## sound as his plates heat, the embers that burst from each plate then and rise off one every
 ## HEAT_EMBER_EVERY_MS while they glow, the steam as they cool; the glow on the knock target of the
 ## cart line he stands hot on (its colour, size, pulse, how near the line his feet must be); the
@@ -164,55 +179,39 @@ const PHASE_WALK := "walk"
 const PHASE_RAISE := "raise"
 const PHASE_STOMP := "stomp"
 const PHASE_RECOVER := "recover"
-const PHASE_REEL := "reel"
 const PHASE_LEAP_UP := "leap-up"
 const PHASE_CLING := "cling"
 const PHASE_LEAP_DOWN := "leap-down"
 ## His claws struck loose: the crash down from the wall, then the stun.
 const PHASE_FALL := "fall"
 const PHASE_STUNNED := "stunned"
-## The plate fight: rocked by the cart (a clang, a burst).
+## Rocked by the cart (a clang, a burst).
 const PHASE_STAGGER := "stagger"
-## The plate fight: furious, he kicks the cart that struck him back up its line.
+## Furious, he kicks the cart that struck him back up its line.
 const PHASE_KICK := "kick"
-## The plate fight: his leap at a slime far from him: the crouch (on the floor), then the leap (in the
-## air: nothing reaches him, a cart passes under him).
+## His leap at a slime far from him: the crouch (on the floor), then the leap (in the air: nothing
+## reaches him, a cart passes under him).
 const PHASE_HOP_CROUCH := "hop-crouch"
 const PHASE_HOP := "hop"
-## The plate fight: his quake: the warning (reared, trembling, the floor cracking from his feet, the
-## climb walls lit), then the floor shaking under his pounding; only a climbing slime is safe.
+## His quake: the warning (reared, trembling, the floor cracking from his feet, the climb walls lit),
+## then the floor shaking under his pounding; only a climbing slime is safe.
 const PHASE_QUAKE_WARN := "quake-warn"
 const PHASE_QUAKE := "quake"
-## Up his wall or in the air (the leap up, the cling, the leap down, the fall off the wall, the plate
-## fight's leap): drawn at ABOVE_THE_WALL_Z, over the tunnel doorways (ram_cart.gd's mouths, z 2) and
-## the root climbs; on the floor at 0 (sorted by his feet as before).
+## Up his wall or in the air (the leap up, the cling, the leap down, the fall off the wall, his leap):
+## drawn at ABOVE_THE_WALL_Z, over the tunnel doorways (ram_cart.gd's mouths, z 2) and the root
+## climbs; on the floor at 0 (sorted by his feet as before).
 const UP_PHASES: Array[String] = ["leap-up", "cling", "leap-down", "fall", "hop"]
 const ABOVE_THE_WALL_Z := 3
 const PHASE_DEAD := "dead"
-const FRAME_STAND := 0
-const FRAME_RAISE := 1
-const FRAME_STOMP := 2
-const FRAME_CRACKED := 3
-const FRAME_CLIMB := 4
-const FRAME_THROW := 5
-const FRAME_LAND := 6
-const FRAME_DEFEATED := 7
-## Sprawled face down after his fall from the wall, his back cracked open (the sheet's ninth pose;
-## FRAME_DEFEATED's heap on an older sheet of eight).
-const FRAME_STUNNED := 8
-## Where his claws' crack shows on his clinging pose, and his open back on the stunned one (art
-## units are world units here).
+## Where the chips fly off his gripping claws as they are struck, from his centre (art units are world
+## units here).
 const CLAW_GLOW_AT := Vector2(0, -170)
-const STUN_GLOW_AT := Vector2(0, -88)
-const CUE_GRIP_LOST := &"StomperSlam"
 const MITE_SCENE := "character.crystal-mite"
 ## Its own wind-up sound (Sound Picker round 13, 2026-11-21; it played the slime's SlamWindup before).
 const CUE_RAISE := &"ColossusRaise"
-const CUE_STOMP := &"StomperSlam"
 const CUE_CLINK := &"HitBlocked"
 const CUE_CRACK := &"BreakGlass"
-const CUE_ROAR := &"SlamImpact"
-## The plate fight's own cues (Sound Picker round 16; silent until staged in global.tscn).
+## His own cues (Sound Picker round 16; silent until staged in global.tscn).
 const CUE_PLATE_STOMP := &"ColossusStomp"
 const CUE_PLATE_ROAR := &"ColossusRoar"
 const CUE_SHATTER := &"ColossusShatter"
@@ -224,29 +223,29 @@ const CLANG_TINT := Color("#d6f2ff")
 const ZONE_NAME := "StompZone"
 const ZONE_TINT := Color(0.32, 0.05, 0.02, 0.5)
 const LAND_TINT := Color(0.12, 0.08, 0.2, 0.55)
-## The plate fight's leap: where he lands, a warm ring bright enough to read in a dark room (the
-## leap's tell; a dark one is lost on the dark floor).
+## His leap: where he lands, a warm ring bright enough to read in a dark room (the leap's tell; a dark
+## one is lost on the dark floor).
 const HOP_TINT := Color(0.95, 0.42, 0.16, 0.55)
-## The weak spot's sides (from his centre toward where the slime must stand), and where its glow
-## shows on his pose (art units are world units here).
-const SIDES := {
-	"front": [Vector2(0, 1), Vector2(0, -78)],
-	"back": [Vector2(0, -1), Vector2(0, -150)],
-	"left": [Vector2(-1, 0), Vector2(-58, -108)],
-	"right": [Vector2(1, 0), Vector2(58, -108)],
-}
-const SIDE_ORDER: Array[String] = ["front", "back", "left", "right"]
-const WEAK_TINT := Color(1.0, 0.55, 0.18, 0.9)
-const STEP_MS := 300.0
-const STEP_BOB := 0.02
-## The plate fight: his plates (L his right shoulder, C his breastplate, R his left shoulder) and the
-## side of him that has none.
+## His plates (L his right shoulder, C his breastplate, R his left shoulder; each over the crystal of
+## the same name) and the side of him that has none.
 const PLATE_NAMES: Array[String] = ["L", "C", "R"]
 const SIDE_BACK := "back"
-## The plate fight's look (presentation): ground walked per walk frame; a new facing wins once its
-## way leads the other by this factor; the cling shifts its grip every this long; the crash lies in its
-## dust this long, then the dazed frames swap every this long; the share of the raise before he rears,
-## of the leap before he springs, of the recovery he stays bent after the slam.
+## The crystals' fixed order, one a phase (the owner, 2026-11-25: the arms, then the chest while
+## climbing): the shoulder on the screen's left when he faces the viewer (L), the other (R), then his
+## chest. Flip the two shoulders here; the chest stays last (the wall phase is built on it).
+const CRYSTAL_ORDER: Array[String] = ["L", "R", "C"]
+const CHEST := "C"
+## Which crystals show to a hit from each side of him (as the art draws them): a shoulder's on its
+## front, its back and its own side; the chest's on his front and both sides.
+const SHOWS_FROM := {"C": ["L", "R", "C"], "back": ["L", "R"], "L": ["L", "C"], "R": ["R", "C"]}
+## A crystal destroyed: its shards' tint (the burst's cold shards, rose), the grit off a dead one.
+const CRYSTAL_SHARDS := Color(1.0, 0.55, 0.75)
+## Where a clinked hit sparks: this far from his centre toward the hitter (presentation).
+const CLINK_OUT_PX := 40.0
+## His look (presentation): ground walked per walk frame; a new facing wins once its way leads the
+## other by this factor; the cling shifts its grip every this long; the crash lies in its dust this
+## long, then the dazed frames swap every this long; the share of the raise before he rears, of the
+## leap before he springs, of the recovery he stays bent after the slam.
 const WALK_STEP_PX := 11.0
 const FACING_LEAD := 1.2
 const CLING_SHIFT_MS := 600.0
@@ -270,37 +269,39 @@ const SHADOW_LYING := Vector2(100.0, 26.0)
 ## Where a damage number rises from: this far over his feet (his picture's top).
 const NUMBER_RISE := 190.0
 
-## The plate fight: a plate burst. Payload {"plate", "by" (the node's name), "hp" (after)}.
+## A plate burst (its crystal bare; no harm to his health). Payload {"plate", "by" (the node's name),
+## "hp" (after)}.
 signal plate_burst(payload: Dictionary)
-## The plate fight: the cart clanged off a cold plate (or his bare core). Payload {"plate", "by"}.
+## The cart clanged off a cold plate (or his rock: "plate" empty). Payload {"plate", "by"}.
 signal plate_clanged(payload: Dictionary)
+## A crystal destroyed (dark for good; the next phase starts, or he falls). Payload {"crystal", "by"
+## (the hit's weapon), "hp" (after), "phase" (the phase now)}.
+signal crystal_broken(payload: Dictionary)
 
-## The plate fight (see above). Off: the first fight as built (no arena leaves it off since
-## 2026-11-25). The arena sets it before
-## he enters the tree (colossus_arena.gd `plate_fight`).
-@export var plate_fight: bool = false
-## The plate fight: the liftable kinds his blows shake loose from the roof (one at random a rock),
-## and the weight they land as (light: any Gulp lifts them, as the Lair's mud balls; their kinds'
-## own weights are medium and heavy).
+## The liftable kinds his blows shake loose from the roof (one at random a rock), and the weight they
+## land as (light: any Gulp lifts them, as the Lair's mud balls; their kinds' own weights are medium
+## and heavy).
 @export var debris_kinds: PackedStringArray = PackedStringArray(["ore-rock", "crystal-cluster", "geode"])
 @export var debris_weight: String = "light"
-## The plate fight: the line over him the first time in a fight a cart clangs off a cold plate (the
-## unlit brazier nearest him flickers with it).
+## The line over him the first time in a fight a cart clangs off a cold plate (the unlit brazier
+## nearest him flickers with it).
 @export var clang_hint_text: String = "Too cold to crack. Heat it in a brazier's light!"
+## The line over the slime at the first clink of a phase (a Spear hit or a throw that meets no bare
+## live crystal), the thing to hit flashing under an arrow: while this phase's crystal still wears its
+## plate; once it is bare (the hit met a dead crystal, or plate or rock).
+@export var plated_hint_text: String = "The plate holds. Crack it with a hot cart!"
+@export var dead_hint_text: String = "That crystal is dead. Strike the glowing one!"
+@export var crystal_hint_text: String = "Strike the glowing crystal!"
 
-## The arena (game/crystal_mine/colossus_arena.gd sets it): the spots on the north wall's foot he
-## climbs from (old centres).
+## The arena (game/crystal_mine/colossus_arena.gd sets these as it places him): the spots on
+## the north wall's foot he climbs from (old centres), its braziers, whose rings make his plates
+## brittle, and the runaway carts whose lines he crashes across when his claws are struck loose (the
+## nearest).
 var climb_spots: Array[Vector2] = []
-## The plate fight (the arena sets them): its braziers, whose rings make his plates brittle, and the
-## runaway carts whose lines he crashes across when his claws are struck loose (the nearest).
 var braziers: Array[Node] = []
 var crash_carts: Array[Node2D] = []
 
-var _exposed := false
-var _weak_side := "front"
-var _weak_glow: Sprite2D
 var _stomp_ready_at := 0.0
-var _stomps := 0
 var _zone: GroundShadowLook
 var _air_from := Vector2.ZERO
 var _air_to := Vector2.ZERO
@@ -316,8 +317,8 @@ var _claw_hits := 0
 var _claw_activation: Variant = null
 ## His hurtbox's authored position (it rides up the face with his pose while he clings).
 var _area_home := Vector2.ZERO
-## The plate fight: the plates he still wears, the way he faces (down, up, left or right: the art's),
-## his look, the ground walked (the walk frames), a leap owed (the second plate burst), how long the
+## The plates he still wears, the way he faces (down, up, left or right: the art's), his look, the
+## ground walked (the walk frames), a leap owed (his second shoulder crystal destroyed), how long the
 ## stagger lasts, until when the cling shows its throw, his hurtbox's shape (his own copy), lying.
 var _plates := {"L": true, "C": true, "R": true}
 var _turned := Vector2.DOWN
@@ -328,25 +329,37 @@ var _stagger_ms := 0.0
 var _throw_pose_until := 0.0
 var _hurt_box: RectangleShape2D
 var _lying := false
-## The plate fight: the cart that struck him, held where it stopped until he kicks it back, and
-## whether this kick has met it.
+## The cart that struck him, held where it stopped until he kicks it back, and whether this kick has
+## met it.
 var _kick_cart: Node2D
 var _kicked := false
-## The plate fight: when he fell for good (his topple's frames run from it).
+## When he fell for good (his topple's frames run from it).
 var _dead_at := -1.0
-## The plate fight's leap: since when the slime has been far from him (-1: it is not), when he may
-## leap next, where this leap lands (his feet).
+## His leap: since when the slime has been far from him (-1: it is not), when he may leap next, where
+## this leap lands (his feet).
 var _far_since := -1.0
 var _hop_ready_at := 0.0
 var _hop_to := Vector2.ZERO
-## The plate fight's dousing (`_step_douse`): his stomps put braziers out one after another (hurt
-## while all burned); since when no brazier was lit or put out (the long wait), which burned then;
-## his health at the last step (a drop is a hurt).
+## His dousing (`_step_douse`): his stomps put braziers out one after another (hurt while all
+## burned); since when no brazier was lit or put out (the long wait), which burned then; the harm
+## count at the last step (a rise is a hurt).
 var _dousing := false
 var _douse_clock_from := 0.0
 var _lit_states: Array[bool] = []
-var _douse_hp := -1.0
-## The plate fight's quake: when he may start the next, the next pound, the last pound (its slam
+var _douse_harm := -1
+## His crystals (the three-crystal fight): each one's health left (his health is their sum); his harm
+## so far (each plate burst and each crystal hit: the dousing reads it); the phase whose first clink
+## gave its line (one line a phase), and the last clinked hit's activation (one clink a strike).
+var _crystal_hp := {"L": 0.0, "C": 0.0, "R": 0.0}
+var _harm := 0
+var _clink_hinted_phase := 0
+var _clink_activation: Variant = null
+var _clinks := 0
+## The clink's hint (its arrow and glow, following him) and the crystal whose plate or crystal it
+## flashes.
+var _clink_cue: Node2D
+var _clink_cue_on := ""
+## His quake: when he may start the next, the next pound, the last pound (its slam
 ## frame), the next crater, the warning's next rumble, the next harm to a slime on the floor, and the
 ## harms dealt in this one (the films read it).
 var _quake_ready_at := 0.0
@@ -361,13 +374,13 @@ var _quake_hits := 0
 var _quake_look: Node2D
 var _quake_craters := 0
 var _quake_pounds := 0
-## The plate fight's falling rocks: those on their way down ({"at", "kind", "lands_at", "look"}) and
+## His falling rocks: those on their way down ({"at", "kind", "lands_at", "look"}) and
 ## those lying on his floor (oldest first; gone ones are dropped as they are found).
 var _debris_due: Array[Dictionary] = []
 var _debris: Array[Node2D] = []
 ## His last phase: when he throws his next rock from his wall.
 var _next_rock_at := INF
-## The plate fight's heat cues: brittle at the last step, the next rising ember, the glow on the
+## His plates' heat cues: brittle at the last step, the next rising ember, the glow on the
 ## target of the line he stands hot on (and that target), the clang hint given in this fight.
 var _was_brittle := false
 var _next_ember_at := 0.0
@@ -378,21 +391,12 @@ var _clang_hinted := false
 func _ready() -> void:
 	super()
 	_rng.seed = 7311
-	if plate_fight:
-		_setup_plates()
+	for crystal: String in PLATE_NAMES:
+		_crystal_hp[crystal] = crystal_share()
+	_setup_plates()
 	if damage_area != null:
 		_area_home = damage_area.position
 	_transition(PHASE_WAIT, Services.now_ms())
-	set_frame(FRAME_STAND)
-	if pose != null and not plate_fight:
-		_weak_glow = Sprite2D.new()
-		_weak_glow.name = "WeakSpot"
-		_weak_glow.texture = FireFx.glow_texture()
-		_weak_glow.material = FireFx.additive()
-		_weak_glow.modulate = WEAK_TINT
-		_weak_glow.scale = Vector2.ONE * 0.7
-		_weak_glow.visible = false
-		pose.add_child(_weak_glow)
 
 
 func _exit_tree() -> void:
@@ -410,30 +414,6 @@ func _exit_tree() -> void:
 
 # --- the arena's hooks -------------------------------------------------------------------------------
 
-## The weak spot opens (all four braziers burn) or shuts. Nothing in the plate fight.
-func set_exposed(on: bool) -> void:
-	if plate_fight or on == _exposed or is_defeated():
-		return
-	_exposed = on
-	if on:
-		_weak_side = SIDE_ORDER[_rng.randi_range(0, SIDE_ORDER.size() - 1)]
-		_cue(CUE_CRACK)
-		_puff(SHARDS, get_centre())
-		if _phase in [PHASE_WALK, PHASE_RECOVER]:
-			_transition(PHASE_REEL, Services.now_ms())
-			set_frame(FRAME_CRACKED)
-	_show_weak_spot()
-
-
-func is_exposed() -> bool:
-	return _exposed
-
-
-## Where the weak spot is ("front", "back", "left", "right").
-func weak_side() -> String:
-	return _weak_side
-
-
 ## True while he clings to the wall (out of reach).
 func is_on_wall() -> bool:
 	return _phase in [PHASE_LEAP_UP, PHASE_CLING]
@@ -443,7 +423,7 @@ func is_on_wall() -> bool:
 func wake() -> void:
 	if _phase == PHASE_WAIT:
 		_transition(PHASE_WALK, Services.now_ms())
-		_cue(CUE_PLATE_ROAR if plate_fight else CUE_ROAR)
+		_cue(CUE_PLATE_ROAR)
 		var feel := Services.feel()
 		if feel != null:
 			feel.shake(500.0, 0.012)
@@ -452,7 +432,7 @@ func wake() -> void:
 		_quake_ready_at = Services.now_ms() + pattern("quakeFirstMs", 14000.0)
 		_douse_clock_from = Services.now_ms()
 		_lit_states = _brazier_states()
-		_douse_hp = float(get_damage_state().get("hp", 0.0))
+		_douse_harm = _harm
 
 
 ## Takes away every mite he threw (the fight is reset).
@@ -490,7 +470,7 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 	# while jumping and in the vines").
 	if body != null:
 		body.z_index = ABOVE_THE_WALL_Z if _phase in UP_PHASES else 0
-	if plate_fight and _phase != PHASE_WAIT:
+	if _phase != PHASE_WAIT:
 		_step_douse(now)
 		_step_debris(now, target, engaged)
 		_step_heat(now)
@@ -509,9 +489,9 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 					_begin_quake_warn(now)
 				else:
 					_leap_up(now, _slime_centre(slime))
-			elif plate_fight and _slime_climbing():
-				# the plate fight: while the slime climbs his wall's roots (engaged or not: a climbing
-				# slime is no target) he walks off to the middle of his floor (the owner, 2026-11-24:
+			elif _slime_climbing():
+				# while the slime climbs his wall's roots (engaged or not: a climbing slime is no
+				# target) he walks off to the middle of his floor (the owner, 2026-11-24:
 				# standing at the wall's foot he left the slime no way down), no leap at it, no quake,
 				# his stomps on their own pace (their rocks still fall)
 				# (far from it, he leaps there when his leap is ready: the walk is slow)
@@ -524,60 +504,41 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 					if now >= _stomp_ready_at and elapsed >= pattern("stompEveryMs", 2600.0) / _rage(1.4):
 						_raise(now)
 			elif engaged:
-				# the plate fight: after the slime, but only as far as his own floor goes (a slime at a
-				# void dip's edge is not followed over it)
-				var goal := slime if not plate_fight else _inside_arena(_feet_for(slime)) + (centre - feet())
+				# after the slime, but only as far as his own floor goes (a slime at a void dip's edge is
+				# not followed over it)
+				var goal := _inside_arena(_feet_for(slime)) + (centre - feet())
 				body.velocity = _velocity_toward(goal, pattern("walkSpeed", 34.0) * _rage(1.25), delta)
-				face_x(slime.x - centre.x)
 				_contact(target, pattern("contactDamage", 20.0), pattern("contactKnockback", 260.0), pattern("contactReachPx", 70.0))
-				if plate_fight and _wants_quake(now):
+				if _wants_quake(now):
 					_begin_quake_warn(now)
-				elif plate_fight and _wants_hop(now, centre, slime):
+				elif _wants_hop(now, centre, slime):
 					_begin_hop(now, slime)
 				elif now >= _stomp_ready_at and (centre.distance_to(slime) <= pattern("stompRangePx", 120.0) or elapsed >= pattern("stompEveryMs", 2600.0) / _rage(1.4)):
 					_raise(now)
 			else:
 				body.velocity = Vector2.ZERO
-			if plate_fight:
-				# the walk shows itself in its frames: no bob
-				_walk_facing(delta)
-				set_look(0.0)
-			else:
-				var bob := sin(now / STEP_MS * PI) * STEP_BOB if body.velocity.length() > WALK_SPEED_THRESHOLD else 0.0
-				set_look(0.0, Vector2(1.0 + bob, 1.0 - bob))
+			# the walk shows itself in its frames: no bob
+			_walk_facing(delta)
+			set_look(0.0)
 		PHASE_RAISE:
 			body.velocity = Vector2.ZERO
 			var t := clampf(elapsed / maxf(1.0, pattern("raiseMs", 650.0)), 0.0, 1.0)
-			if plate_fight:
-				set_look(0.0)
-			else:
-				set_look(6.0 * t, Vector2(1.0 - 0.03 * t, 1.0 + 0.05 * t))
+			set_look(0.0)
 			if _zone != null:
 				_zone.strength = lerpf(0.2, 1.0, t)
 			if t >= 1.0:
 				_stomp(now, target, engaged, int(pattern("stompPutsOut", 1.0)))
 		PHASE_STOMP:
 			body.velocity = Vector2.ZERO
-			set_look(0.0, Vector2.ONE if plate_fight else Vector2(1.06, 0.94))
+			set_look(0.0)
 			if elapsed >= pattern("stompPoseMs", 420.0):
 				_transition(PHASE_RECOVER, now)
-				set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
 		PHASE_RECOVER:
+			# then he walks on (in his last phase the walk sends him up his wall, or into a quake)
 			body.velocity = Vector2.ZERO
 			set_look(0.0)
 			if elapsed >= pattern("recoverMs", 600.0):
-				if _stomps >= int(pattern("stompsPerClimb", 3.0)) and not climb_spots.is_empty() and _may_climb():
-					_leap_up(now, slime)
-				else:
-					_transition(PHASE_WALK, now)
-					set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
-		PHASE_REEL:
-			body.velocity = Vector2.ZERO
-			set_look(0.0, Vector2(1.0, 1.0), sin(elapsed / 90.0) * 0.03)
-			if elapsed >= pattern("reelMs", 1800.0):
 				_transition(PHASE_WALK, now)
-				set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
-				_stomp_ready_at = now + pattern("afterReelStompMs", 900.0)
 		PHASE_STAGGER:
 			body.velocity = Vector2.ZERO
 			var left := 1.0 - clampf(elapsed / maxf(1.0, _stagger_ms), 0.0, 1.0)
@@ -647,7 +608,6 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			_fly(elapsed, pattern("leapUpMs", 700.0), 0.0, pattern("wallLiftPx", 120.0))
 			if elapsed >= pattern("leapUpMs", 700.0):
 				_transition(PHASE_CLING, now)
-				set_frame(FRAME_CLIMB)
 				_next_throw_at = now + pattern("firstThrowMs", 900.0)
 				_next_rock_at = now + pattern("wallRockFirstMs", 2000.0)
 				_thrown = 0
@@ -658,8 +618,6 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			set_look(pattern("wallLiftPx", 120.0) + sway)
 			if now >= _next_throw_at and _thrown < int(pattern("mitesPerClimb", 2.0) * _rage(1.5)) and live_mites() < int(pattern("maxMites", 4.0)):
 				_throw_mite(now, target)
-			elif now >= _next_throw_at - pattern("throwEveryMs", 1300.0) + pattern("throwPoseMs", 380.0):
-				set_frame(FRAME_CLIMB)
 			if _last_phase():
 				# his last phase: he stays up his wall, a rock at the slime every `wallRockEveryMs`, and
 				# comes down only to quake
@@ -682,26 +640,28 @@ func _step_pattern(now: float, delta: float, target: Dictionary, engaged: bool) 
 			var t := clampf(elapsed / fall, 0.0, 1.0)
 			body.velocity = Vector2.ZERO
 			body.global_position = _air_from.lerp(_air_to, t)
-			set_look(lerpf(pattern("wallLiftPx", 120.0), 0.0, t * t), Vector2.ONE, 0.0 if plate_fight else t * 0.25)
+			set_look(lerpf(pattern("wallLiftPx", 120.0), 0.0, t * t))
 			if t >= 1.0:
 				_crash(now)
 		PHASE_STUNNED:
+			# on his back `plateFallStunMs` (long enough for the slime to drop from the roots and the
+			# cart to come from the far wall's tunnel)
 			body.velocity = Vector2.ZERO
-			var wobble := sin(elapsed / 70.0) * 0.02 * (1.0 - clampf(elapsed / maxf(1.0, _fall_stun_ms()), 0.0, 1.0))
+			var stun := pattern("plateFallStunMs", 4000.0)
+			var wobble := sin(elapsed / 70.0) * 0.02 * (1.0 - clampf(elapsed / maxf(1.0, stun), 0.0, 1.0))
 			set_look(0.0, Vector2(1.0 + wobble, 1.0 - wobble))
-			if elapsed >= _fall_stun_ms():
+			if elapsed >= stun:
 				_get_up(now)
 
 
-## His second phase: below `phaseTwoShare` of his health he stomps and throws faster (`factor`).
+## His rage: from phase `rageFromPhase` on (a crystal dead: 2) he walks and stomps faster, throws more
+## mites, quakes sooner and douses double (`factor`).
 func _rage(factor: float) -> float:
-	var state := get_damage_state()
-	var share := float(state.get("hp", 1.0)) / maxf(1.0, float(state.get("max_hp", 1.0)))
-	return factor if share <= pattern("phaseTwoShare", 0.5) else 1.0
+	return factor if crystal_phase() >= int(pattern("rageFromPhase", 2.0)) else 1.0
 
 
-## True in his second phase (below `phaseTwoShare` of his health).
-func is_phase_two() -> bool:
+## True while he rages (from phase `rageFromPhase` on).
+func is_raging() -> bool:
 	return _rage(2.0) > 1.0
 
 
@@ -746,62 +706,41 @@ func _claw_hit(request: Dictionary) -> void:
 		_lose_grip(Services.now_ms())
 
 
-## His claws lose their grip: he crashes down off the wall, `fallDropPx` out from it (the plate fight:
-## across the nearest crash cart's line).
+## His claws lose their grip: he crashes down off the wall across the nearest crash cart's line
+## (`fallDropPx` out from the wall with none).
 func _lose_grip(now: float) -> void:
 	_grip(false)
 	_clear_zone()
-	var drop := feet() + Vector2(0.0, pattern("fallDropPx", 70.0))
-	if plate_fight:
-		drop = _on_crash_line(drop)
+	var drop := _on_crash_line(feet() + Vector2(0.0, pattern("fallDropPx", 70.0)))
 	var landing := _inside_arena(drop)
 	_begin_air(landing)
 	_transition(PHASE_FALL, now)
-	set_frame(FRAME_LAND)
-	_cue(CUE_PLATE_ROAR if plate_fight else CUE_ROAR)
+	_cue(CUE_PLATE_ROAR)
 
 
-## The crash at the wall's foot: a hard shake and dust, no stomp ring and no brazier out; then the stun.
+## The crash at the wall's foot: a hard shake and dust, no stomp ring and no brazier out; then the stun,
+## on his back.
 func _crash(now: float) -> void:
 	_end_air()
 	_let_go_cart()
-	_stomps = 0
-	_cue(CUE_PLATE_STOMP if plate_fight else CUE_GRIP_LOST)
+	_cue(CUE_PLATE_STOMP)
 	_puff(DUST, feet())
 	_puff(SHARDS, get_centre())
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(pattern("crashShakeMs", 420.0), pattern("crashShake", 0.016))
 	_transition(PHASE_STUNNED, now)
-	set_frame(_stunned_frame())
-	if plate_fight:
-		_lie_hurtbox()
-	_show_weak_spot()
+	_lie_hurtbox()
 
 
-## Up again after the stun: he fights on, his stomps counted afresh (the plate fight: a cart that
-## struck him as he lay he kicks back first).
+## Up again after the stun: he fights on (a cart that struck him as he lay he kicks back first).
 func _get_up(now: float) -> void:
 	_transition(PHASE_WALK, now)
-	set_frame(FRAME_CRACKED if _exposed else FRAME_STAND)
 	_stomp_ready_at = now + pattern("afterReelStompMs", 900.0)
-	if plate_fight:
-		_turned = Vector2.DOWN
-		_stand_hurtbox()
-		if _kick_cart != null and is_instance_valid(_kick_cart) and bool(_kick_cart.call(&"is_held_for_kick")):
-			_start_kick(now)
-	_show_weak_spot()
-
-
-## How long he lies after his fall from the wall: `fallStunMs`; the plate fight's `plateFallStunMs`
-## (its carts come from the far wall's tunnel).
-func _fall_stun_ms() -> float:
-	return pattern("plateFallStunMs", 4000.0) if plate_fight else pattern("fallStunMs", 2500.0)
-
-
-func _stunned_frame() -> int:
-	var visual_sprite := visual as Sprite2D
-	return FRAME_STUNNED if visual_sprite != null and visual_sprite.hframes > FRAME_STUNNED else FRAME_DEFEATED
+	_turned = Vector2.DOWN
+	_stand_hurtbox()
+	if _kick_cart != null and is_instance_valid(_kick_cart) and bool(_kick_cart.call(&"is_held_for_kick")):
+		_start_kick(now)
 
 
 ## `point` (feet) kept `arenaInsetPx` inside his arena (the point itself without one).
@@ -818,31 +757,28 @@ func _inside_arena(point: Vector2) -> Vector2:
 
 func _raise(now: float) -> void:
 	_transition(PHASE_RAISE, now)
-	set_frame(FRAME_RAISE)
 	_cue(CUE_RAISE)
-	if plate_fight:
-		_set_facing(Vector2.DOWN)
+	_set_facing(Vector2.DOWN)
 	_show_zone(feet(), Vector2(pattern("stompRx", 116.0), pattern("stompRy", 78.0)), ZONE_TINT)
 
 
+## His stomp (a landing from his wall is one): `put_out` braziers go out while he douses, else one once
+## the long wait is over (`_step_douse`), else none.
 func _stomp(now: float, target: Dictionary, engaged: bool, put_out: int) -> void:
 	_transition(PHASE_STOMP, now)
-	set_frame(FRAME_STOMP)
 	_clear_zone()
-	_stomps += 1
 	_stomp_ready_at = now + pattern("stompPoseMs", 420.0) + pattern("recoverMs", 600.0) + pattern("stompCooldownMs", 1400.0) / _rage(1.4)
-	_cue(CUE_PLATE_STOMP if plate_fight else CUE_STOMP)
+	_cue(CUE_PLATE_STOMP)
 	_puff(SHARDS, feet())
 	_puff(DUST, feet())
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(pattern("stompShakeMs", 320.0), pattern("stompShake", 0.012))
-	# the plate fight: while he douses, or one once the long wait is over (`_step_douse`)
-	if plate_fight and not _dousing:
+	if not _dousing:
 		put_out = mini(put_out, 1) if _douse_due(now) else 0
 	for i in maxi(0, put_out):
 		CandleScript.put_out_near(get_tree(), feet(), Vector2(4000, 4000), true)
-	if plate_fight and put_out > 0:
+	if put_out > 0:
 		_douse_clock_from = now
 	_ring_hit(target, engaged, pattern("stompDamage", 40.0), pattern("stompKnockback", 340.0))
 	_drop_debris(int(pattern("debrisPerStomp", 2.0)))
@@ -860,7 +796,7 @@ func _ring_hit(target: Dictionary, engaged: bool, damage: float, knockback: floa
 		_route_hit_from(get_centre(), target, damage, knockback)
 
 
-## The plate fight: a slime (its old centre `slime`) more than `hopFarPx` from him (`centre`) for
+## A slime (its old centre `slime`) more than `hopFarPx` from him (`centre`) for
 ## `hopAfterMs` in a row, and his last leap `hopCooldownMs` ago: he leaps after it.
 func _wants_hop(now: float, centre: Vector2, slime: Vector2) -> bool:
 	if centre.distance_to(slime) <= pattern("hopFarPx", 300.0):
@@ -896,8 +832,8 @@ func _begin_hop(now: float, slime: Vector2, short_px: float = -1.0) -> void:
 	_show_zone(_hop_to, Vector2(pattern("stompRx", 116.0), pattern("stompRy", 78.0)), HOP_TINT)
 
 
-## The leap lands: the slam (a slime in the ring takes `hopDamage`), no brazier out, no stomp counted;
-## then he recovers as from a stomp and walks on.
+## The leap lands: the slam (a slime in the ring takes `hopDamage`), no brazier out; then he recovers
+## as from a stomp and walks on.
 func _hop_land(now: float, target: Dictionary, engaged: bool) -> void:
 	_end_air()
 	set_look(0.0)
@@ -905,7 +841,6 @@ func _hop_land(now: float, target: Dictionary, engaged: bool) -> void:
 	_stand_hurtbox()
 	_hop_ready_at = now + pattern("hopCooldownMs", 5000.0)
 	_transition(PHASE_STOMP, now)
-	set_frame(FRAME_STOMP)
 	_stomp_ready_at = now + pattern("stompPoseMs", 420.0) + pattern("recoverMs", 600.0) + pattern("afterHopStompMs", 300.0)
 	_cue(CUE_PLATE_STOMP)
 	_puff(SHARDS, feet())
@@ -917,18 +852,18 @@ func _hop_land(now: float, target: Dictionary, engaged: bool) -> void:
 	_drop_debris(int(pattern("debrisPerHop", 1.0)))
 
 
-## The plate fight: whether his stomps put braziers out. Hurt while every brazier burns, he douses
-## (one a stomp, until none burns). The long wait (`douseAfterMs`) starts again whenever a brazier is
-## lit or put out; once it is over his next stomp puts one out (`_douse_due`).
+## Whether his stomps put braziers out. Hurt while every brazier burns (a plate burst or a crystal hit:
+## `_harm`, as a burst no longer costs him health), he douses (one a stomp, until none burns). The long
+## wait (`douseAfterMs`) starts again whenever a brazier is lit or put out; once it is over his next
+## stomp puts one out (`_douse_due`).
 func _step_douse(now: float) -> void:
 	var states := _brazier_states()
 	if states != _lit_states:
 		_lit_states = states
 		_douse_clock_from = now
-	var hp := float(get_damage_state().get("hp", 0.0))
-	if _douse_hp >= 0.0 and hp < _douse_hp and _braziers_lit() >= braziers.size() and not braziers.is_empty():
+	if _douse_harm >= 0 and _harm > _douse_harm and _braziers_lit() >= braziers.size() and not braziers.is_empty():
 		_dousing = true
-	_douse_hp = hp
+	_douse_harm = _harm
 	if _dousing and _braziers_lit() == 0:
 		_dousing = false
 
@@ -946,8 +881,8 @@ func _brazier_states() -> Array[bool]:
 	return out
 
 
-## The plate fight: his quake is due (`quakeFirstMs` after he wakes, `quakeEveryMs` after the last
-## one began, sooner in his second phase), the slime is on the floor (not up a wall), and his wall has
+## His quake is due (`quakeFirstMs` after he wakes, `quakeEveryMs` after the last
+## one began, sooner while he rages), the slime is on the floor (not up a wall), and his wall has
 ## climb walls to escape up.
 func _wants_quake(now: float) -> bool:
 	return now >= _quake_ready_at and not _slime_climbing() and not _quake_roots().is_empty()
@@ -1070,11 +1005,11 @@ func quake_hits() -> int:
 	return _quake_hits
 
 
-# --- the plate fight's last phase ------------------------------------------------------------------
+# --- his last phase --------------------------------------------------------------------------------
 
-## His last phase: one plate left, then his core alone. He lives up his wall (see the head).
+## His last phase: both shoulder crystals dead, his chest's left. He lives up his wall (see the head).
 func _last_phase() -> bool:
-	return plate_fight and plates_left() <= 1 and not is_defeated()
+	return current_crystal() == CHEST and not is_defeated()
 
 
 ## In his last phase a quake is due whatever the slime does (on the roots it is safe: the quake is
@@ -1103,7 +1038,6 @@ func _throw_rock(now: float) -> void:
 	var slime_body: Node2D = world.player_body if world != null else null
 	if slime_body == null or not is_instance_valid(slime_body):
 		return
-	set_frame(FRAME_THROW)
 	_throw_pose_until = now + pattern("throwPoseMs", 380.0)
 	var at := slime_body.global_position
 	var shatter := _slime_climbing() or not _floor_rect().has_point(at) \
@@ -1115,14 +1049,14 @@ func _throw_rock(now: float) -> void:
 	_cue(CUE_ROCK_THROW)
 
 
-# --- the plate fight's falling rocks ---------------------------------------------------------------
+# --- his falling rocks -----------------------------------------------------------------------------
 
 ## His blow shakes `count` rocks loose from the roof (the owner, 2026-11-24: "colossus need to make
 ## rocks or cristals on every single attack they fall from the roof in ramdom spots making damage if
 ## they fall on you, thy never block the rails"): each falls on a free spot of his floor
 ## (`_debris_spot`), its shadow growing, `debrisStaggerMs` after the last.
 func _drop_debris(count: int) -> void:
-	if not plate_fight or count <= 0 or debris_kinds.is_empty() or is_defeated():
+	if count <= 0 or debris_kinds.is_empty() or is_defeated():
 		return
 	for i in count:
 		var at := _debris_spot()
@@ -1297,20 +1231,18 @@ func _braziers_lit() -> int:
 	return lit
 
 
-## True while his next stomp puts a brazier out (the plate fight: dousing, or the long wait over;
-## always in the fight as built).
+## True while his next stomp puts a brazier out (dousing, or the long wait over).
 func is_dousing() -> bool:
-	return _dousing or not plate_fight or _douse_due(Services.now_ms())
+	return _dousing or _douse_due(Services.now_ms())
 
 
-## The plate fight: the time left of the long wait (ms; 0 once it is over).
+## The time left of the long wait (ms; 0 once it is over).
 func douse_wait_left() -> float:
 	return maxf(0.0, pattern("douseAfterMs", 45000.0) - (Services.now_ms() - _douse_clock_from))
 
 
-## Onto the wall at the climb spot nearest the slime (`slime`, its old centre).
+## Onto the wall at the climb spot nearest the slime (`slime`, its old centre), with a roar.
 func _leap_up(now: float, slime: Vector2) -> void:
-	_stomps = 0
 	_clear_zone()
 	var best := climb_spots[0]
 	for spot in climb_spots:
@@ -1319,12 +1251,8 @@ func _leap_up(now: float, slime: Vector2) -> void:
 	_cling_at = best
 	_begin_air(_feet_for(_cling_at))
 	_transition(PHASE_LEAP_UP, now)
-	set_frame(FRAME_LAND)
-	if plate_fight:
-		_turned = Vector2.UP
-		_cue(CUE_PLATE_ROAR)
-	else:
-		_cue(CUE_RAISE)
+	_turned = Vector2.UP
+	_cue(CUE_PLATE_ROAR)
 
 
 func _leap_down(now: float, slime: Vector2) -> void:
@@ -1337,9 +1265,7 @@ func _leap_down_to(now: float, landing_feet: Vector2) -> void:
 	var landing := _inside_arena(landing_feet)
 	_begin_air(landing)
 	_transition(PHASE_LEAP_DOWN, now)
-	set_frame(FRAME_LAND)
-	if plate_fight:
-		_turned = Vector2.DOWN
+	_turned = Vector2.DOWN
 	_show_zone(landing, Vector2(pattern("stompRx", 116.0), pattern("stompRy", 78.0)), LAND_TINT)
 
 
@@ -1347,9 +1273,7 @@ func _land(now: float, target: Dictionary, engaged: bool) -> void:
 	_end_air()
 	set_look(0.0)
 	_stomp(now, target, engaged, int(pattern("landPutsOut", 1.0) * _rage(2.0)))
-	set_frame(FRAME_LAND)
-	if plate_fight:
-		_stand_hurtbox()
+	_stand_hurtbox()
 
 
 ## Airborne: not solid, no hurtbox, nothing collides; the body is moved straight there.
@@ -1381,7 +1305,6 @@ func _fly(elapsed: float, air_ms: float, from_lift: float, to_lift: float, arc: 
 
 
 func _throw_mite(now: float, target: Dictionary) -> void:
-	set_frame(FRAME_THROW)
 	_throw_pose_until = now + pattern("throwPoseMs", 380.0)
 	_next_throw_at = now + pattern("throwEveryMs", 1300.0)
 	_thrown += 1
@@ -1432,46 +1355,111 @@ func _clear_zone() -> void:
 	_zone = null
 
 
-func _show_weak_spot() -> void:
-	if _weak_glow == null:
-		return
-	if _phase == PHASE_STUNNED and not is_defeated():
-		# His back cracked open as he lies there.
-		_weak_glow.visible = true
-		_weak_glow.position = STUN_GLOW_AT
-		return
-	_weak_glow.visible = _exposed and not is_defeated()
-	var side: Array = SIDES.get(_weak_side, SIDES["front"])
-	_weak_glow.position = side[1]
-
-
-func _process(delta: float) -> void:
-	if _weak_glow != null and _weak_glow.visible:
-		var pulse := 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) / 110.0)
-		_weak_glow.scale = Vector2.ONE * lerpf(0.55, 0.85, pulse)
-	if plate_fight:
-		_show_plates(Services.now_ms())
+func _process(_delta: float) -> void:
+	_show_plates(Services.now_ms())
+	if _clink_cue != null:
+		_follow_clink_cue()
 
 
 # --- hits ------------------------------------------------------------------------------------------
 
-## Every hit clinks off his crystal but the Spear's on the open weak spot from its side, the Spear's
-## on his back while he lies stunned, and (counted, not hurting him) the Spear's from a climbing
-## slime on his claws while he clings. The plate fight: `_plate_shields`.
+## His hit rules (the head): the Spear from a climbing slime on his claws while he clings (counted,
+## not hurting him); in the air and asleep nothing lands; the Spear and thrown things land only on this
+## phase's crystal, bare (its plate gone) and showing to the hitter (`_hit_meets`); everything else
+## clinks (the Spear's own clink, a spark off a plate or grit off a dead crystal or his rock, and at the
+## phase's first clink a line and the thing to hit flashing).
 func _shields(request: Dictionary) -> bool:
-	if plate_fight:
-		return _plate_shields(request)
 	if _phase == PHASE_CLING:
 		if has_tag(request, SPEAR_TAG) and _from_climber(request):
 			_claw_hit(request)
 		return true
-	if _phase == PHASE_STUNNED:
-		return not has_tag(request, SPEAR_TAG)
-	if not _exposed or is_on_wall() or _phase in [PHASE_LEAP_DOWN, PHASE_FALL]:
+	if _phase in [PHASE_WAIT, PHASE_LEAP_UP, PHASE_LEAP_DOWN, PHASE_FALL, PHASE_HOP]:
 		return true
-	if not has_tag(request, SPEAR_TAG):
+	if not has_tag(request, SPEAR_TAG) and not has_tag(request, THROWN_TAG):
 		return true
-	return not _from_weak_side(request)
+	var from := _hit_from(request)
+	var meets := _hit_meets(from)
+	if not meets.is_empty() and meets == current_crystal():
+		return false
+	_clink(request, meets, from)
+	return true
+
+
+## What a Spear hit or a throw from `from` (unit, from him toward it) meets: this phase's crystal's
+## name when it is bare and shows that way (it hurts), else "plate", "dead" (a dead crystal) or "rock".
+## A crystal shows where the art draws it (SHOWS_FROM: a shoulder's from his front, his back and its
+## own side; the chest's from his front and both sides); on his back every one faces the sky.
+func _hit_meets(from: Vector2) -> String:
+	var current := current_crystal()
+	var showing: Array = PLATE_NAMES if _phase == PHASE_STUNNED else SHOWS_FROM.get(_side_of(from), [])
+	if not current.is_empty() and current in showing:
+		return "plate" if has_plate(current) else current
+	for crystal: String in showing:
+		if not has_plate(crystal) and crystal_left(crystal) <= 0.0:
+			return "dead"
+	for crystal: String in showing:
+		if has_plate(crystal):
+			return "plate"
+	return "rock"
+
+
+## A hit that met no bare live crystal (once a strike): a cyan spark off a plate, grey grit off a dead
+## crystal or his rock, where it struck; the phase's first such hit gives its line (`_hint_clink`).
+func _clink(request: Dictionary, meets: String, from: Vector2) -> void:
+	var activation: Variant = request.get("activation_id")
+	if activation != null and activation == _clink_activation:
+		return
+	_clink_activation = activation
+	_clinks += 1
+	var at := get_centre() + from * CLINK_OUT_PX
+	var feel := Services.feel()
+	if meets == "plate":
+		if feel != null:
+			feel.burst(SPARK, at, from if from != Vector2.ZERO else Vector2.UP, CLANG_TINT, 0.6)
+	else:
+		_puff(DUST, at)
+	if _clink_hinted_phase != crystal_phase():
+		_clink_hinted_phase = crystal_phase()
+		_hint_clink(meets)
+
+
+## The phase's first clink: the line over the slime, and the thing to hit flashing under an arrow (a
+## hint flashes the thing it is about: docs/GAME_GUIDELINES.md "Hints"), following him: this phase's
+## plate while it is on, else its bare crystal.
+func _hint_clink(meets: String) -> void:
+	var current := current_crystal()
+	if current.is_empty():
+		return
+	var plated := has_plate(current)
+	var text := plated_hint_text if plated else (dead_hint_text if meets == "dead" else crystal_hint_text)
+	var feel := Services.feel()
+	var world := Services.world()
+	var player: Node = world.player if world != null else null
+	if feel != null and player != null and not text.is_empty():
+		feel.hint_text(player, HINT_LIFT, text, &"orange", HINT_MS)
+	if _clink_cue != null and is_instance_valid(_clink_cue):
+		_clink_cue.queue_free()
+	var cue := HintCue.new()
+	cue.name = "CrystalHint"
+	cue.set(&"flashes", HINT_FLASHES)
+	cue.set(&"life_ms", HINT_MS)
+	_effects_parent().add_child(cue)
+	_clink_cue = cue
+	_clink_cue_on = current
+	_follow_clink_cue()
+
+
+## The Spear hits and throws that clinked off him so far (once a strike; the films and tests read it).
+func clinks() -> int:
+	return _clinks
+
+
+## The clink's hint follows the thing it flashes (he moves): this phase's plate, else its crystal.
+func _follow_clink_cue() -> void:
+	if _clink_cue == null or not is_instance_valid(_clink_cue):
+		_clink_cue = null
+		return
+	_clink_cue.global_position = _plate_point(_clink_cue_on) if has_plate(_clink_cue_on) else _crystal_point(_clink_cue_on)
 
 
 ## True when the hit's source is the slime climbing a wall (the Feral skin).
@@ -1479,14 +1467,6 @@ static func _from_climber(request: Dictionary) -> bool:
 	var source: Variant = request.get("source")
 	return is_instance_valid(source) and source is Node and (source as Node).has_method(&"is_climbing") \
 		and bool((source as Node).call(&"is_climbing"))
-
-
-func _from_weak_side(request: Dictionary) -> bool:
-	var from := _hit_from(request)
-	if from == Vector2.ZERO:
-		return false
-	var side: Array = SIDES.get(_weak_side, SIDES["front"])
-	return from.dot(side[0]) >= pattern("weakSideDot", 0.45)
 
 
 ## The way from his centre toward where `request` came from (unit): its source's centre, else
@@ -1503,37 +1483,70 @@ func _hit_from(request: Dictionary) -> Vector2:
 
 
 func mitigate_damage(input: Dictionary) -> float:
-	if not plate_fight:
-		return super(input)
 	var request: Dictionary = input.get("request", {})
 	var amount := super(input)
+	if _kill_hit(request):
+		return amount
 	# a thrown thing on bare crystal: half a Spear hit, whatever it would do elsewhere
 	if has_tag(request, THROWN_TAG) and not has_tag(request, SPEAR_TAG):
 		var constants := Services.constants()
 		var spear := float(constants.value("shapes.spear.baseDamage", 12.0)) if constants != null else 12.0
 		amount = spear * pattern("thrownShare", 0.5)
-	# his core never goes below 0 while a plate is left (a plate's share is the cart's)
-	return clampf(amount, 0.0, maxf(0.0, core_left()))
+	# only this phase's crystal takes it, and never past its own share (each phase ends at its third)
+	return clampf(amount, 0.0, crystal_left(current_crystal()))
 
 
+## A hit on this phase's crystal: its share comes off it (a crack, rose chips, the crystal flashing);
+## at 0 it is destroyed (`_crystal_breaks`). The chest's last hit is his fall (`_defeat`).
 func commit_damage(commit: Dictionary) -> void:
+	var crystal := current_crystal()
 	super(commit)
+	var result: Dictionary = commit.get("result", {})
+	var dealt := float(result.get("actual_damage", 0.0))
+	if dealt <= 0.0 or crystal.is_empty():
+		return
+	_harm += 1
+	_crystal_hp[crystal] = maxf(0.0, crystal_left(crystal) - dealt)
 	if is_defeated():
 		return
-	var result: Dictionary = commit.get("result", {})
-	if int(result.get("actual_damage", 0)) > 0:
-		_cue(CUE_CRACK)
-		_puff(SHARDS, get_centre())
+	_cue(CUE_CRACK)
+	_puff(SHARDS, _crystal_point(crystal))
+	if _look != null:
+		_look.flash_crystal(crystal)
+	if crystal_left(crystal) <= 0.0:
+		var request: Dictionary = commit.get("request", {})
+		_crystal_breaks(crystal, str(request.get("weapon_id", "")))
+
+
+## A crystal destroyed: rose shards burst from it, a roar, the burst's shake; it shows dead for good
+## and he staggers `crystalBreakStaggerMs` (the stomp sheet's last frame). The next phase starts: after
+## the second shoulder he makes for his wall once the stagger is over (and the cart is kicked home).
+func _crystal_breaks(crystal: String, by: String) -> void:
+	_crystal_hp[crystal] = 0.0
+	var shards := ColossusShards.burst(_effects_parent(), _crystal_point(crystal), feet().y, false, Vector2.ZERO,
+		211 + CRYSTAL_ORDER.find(crystal) * 17)
+	if shards != null:
+		shards.modulate = CRYSTAL_SHARDS
+	_cue(CUE_SHATTER)
+	_cue(CUE_PLATE_ROAR)
+	var feel := Services.feel()
+	if feel != null:
+		feel.shake(pattern("burstShakeMs", 420.0), pattern("burstShake", 0.014))
+	crystal_broken.emit({"crystal": crystal, "by": by, "hp": get_damage_state()["hp"], "phase": crystal_phase()})
+	if _clink_cue != null and is_instance_valid(_clink_cue):
+		_clink_cue.queue_free()
+	_clink_cue = null
+	if _last_phase() and _phase != PHASE_STUNNED:
+		_leap_due = true
+	if _phase != PHASE_STUNNED:
+		_stagger(pattern("crystalBreakStaggerMs", 1400.0))
 
 
 func _defeat() -> void:
 	if is_defeated():
 		return
 	_clear_zone()
-	_exposed = false
 	_grip(false)
-	if _weak_glow != null:
-		_weak_glow.visible = false
 	_end_air()
 	clear_mites()
 	_let_go_cart()
@@ -1543,13 +1556,20 @@ func _defeat() -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(700.0, 0.016)
-	if plate_fight:
-		_dead_at = Services.now_ms()
-		for plate: String in PLATE_NAMES:
-			_plates[plate] = false
-		_cue(CUE_SHATTER)
-		_cue(CUE_PLATE_ROAR)
-		ColossusShards.burst(_effects_parent(), get_centre(), feet().y, false, Vector2.ZERO, 409)
+	_dead_at = Services.now_ms()
+	# his last crystal (the chest) goes dark with him: every plate gone, every crystal dead
+	var last := current_crystal()
+	for plate: String in PLATE_NAMES:
+		_plates[plate] = false
+		_crystal_hp[plate] = 0.0
+	if _clink_cue != null and is_instance_valid(_clink_cue):
+		_clink_cue.queue_free()
+	_clink_cue = null
+	if not last.is_empty():
+		crystal_broken.emit({"crystal": last, "by": "", "hp": 0.0, "phase": crystal_phase()})
+	_cue(CUE_SHATTER)
+	_cue(CUE_PLATE_ROAR)
+	ColossusShards.burst(_effects_parent(), get_centre(), feet().y, false, Vector2.ZERO, 409)
 	super()
 
 
@@ -1565,27 +1585,59 @@ func _clear_falling_rocks() -> void:
 	_debris_due.clear()
 
 
-## The art and its effects in the plate fight; the old sheet's frames outside it.
-func set_frame(index: int) -> void:
-	if plate_fight:
-		return
-	super(index)
+## His look draws him (`_show_plates`): the scene's old sheet, blanked in `_setup_plates`, takes no
+## frame (the base's defeat sets `defeated_frame`).
+func set_frame(_index: int) -> void:
+	pass
 
 
-## The plate fight's look turns him itself (`_turned`); the old sheet is mirrored.
-func face_x(dx: float) -> void:
-	if plate_fight:
-		return
-	super(dx)
+## His look turns him itself (`_turned`): the Visual that holds it is never mirrored.
+func face_x(_dx: float) -> void:
+	pass
 
 
 func _damage_number_top() -> float:
-	if plate_fight:
-		return feet().y - NUMBER_RISE
-	return super()
+	return feet().y - NUMBER_RISE
 
 
-# --- the plate fight -------------------------------------------------------------------------------
+# --- his crystals ----------------------------------------------------------------------------------
+
+## A crystal's share of his health: his health in three equal parts.
+func crystal_share() -> float:
+	return max_health / float(CRYSTAL_ORDER.size())
+
+
+## The crystal of this phase: the first live one in CRYSTAL_ORDER ("" once all are dead).
+func current_crystal() -> String:
+	for crystal: String in CRYSTAL_ORDER:
+		if crystal_left(crystal) > 0.0:
+			return crystal
+	return ""
+
+
+## His phase: 1 (the first crystal) to 3 (the chest); 4 once all are dead.
+func crystal_phase() -> int:
+	var current := current_crystal()
+	return CRYSTAL_ORDER.find(current) + 1 if not current.is_empty() else CRYSTAL_ORDER.size() + 1
+
+
+## Crystal `crystal`'s health left (0: dead, dark for good).
+func crystal_left(crystal: String) -> float:
+	return float(_crystal_hp.get(crystal, 0.0))
+
+
+func is_crystal_dead(crystal: String) -> bool:
+	return crystal_left(crystal) <= 0.0
+
+
+## Where crystal `crystal` is drawn now (global): its piece when bare, else its plate's place, else
+## his centre.
+func _crystal_point(crystal: String) -> Vector2:
+	var at := _look.crystal_point(crystal) if _look != null else Vector2.INF
+	return at if at != Vector2.INF else _plate_point(crystal)
+
+
+# --- his plates ------------------------------------------------------------------------------------
 
 ## How many plates he still wears.
 func plates_left() -> int:
@@ -1601,9 +1653,10 @@ func has_plate(plate: String) -> bool:
 	return bool(_plates.get(plate, false))
 
 
-## His core's health: what is left beyond his plates' shares.
-func core_left() -> float:
-	return float(get_damage_state().get("hp", 0.0)) - pattern("plateHp", 60.0) * float(plates_left())
+## The plate a cart takes now: this phase's crystal's, while he wears it ("" once it is gone).
+func current_plate() -> String:
+	var current := current_crystal()
+	return current if has_plate(current) else ""
 
 
 ## The way he faces (down, up, left or right: the art's).
@@ -1611,21 +1664,22 @@ func facing() -> Vector2:
 	return _turned
 
 
-## His look (the plate fight; null outside it).
+## His look (game/bosses/colossus_look.gd; null without a Visual).
 func plate_look() -> Node2D:
 	return _look
 
 
-## True while his plates are brittle and glow: standing with two plates or more within a lit
-## brazier's ring, or anywhere while all the braziers burn (the owner, 2026-11-24: "when all 4
-## braziers are on make the plater brittler also"), or lying on his back after his fall from the wall
-## (the last plate cracked).
+## True while this phase's plate (`current_plate`, the one a cart takes: only it glows) is brittle:
+## a shoulder plate standing within a lit brazier's ring, or anywhere while all the braziers burn (the
+## owner, 2026-11-24: "when all 4 braziers are on make the plater brittler also"); the breastplate only
+## lying on his back after his fall from the wall (the fall cracked it; on the floor it never glows).
 func is_brittle() -> bool:
-	if not plate_fight or is_defeated() or plates_left() == 0:
+	var plate := current_plate()
+	if is_defeated() or plate.is_empty():
 		return false
 	if _phase == PHASE_STUNNED:
-		return true
-	if plates_left() < 2 or _phase in [PHASE_WAIT, PHASE_LEAP_UP, PHASE_CLING, PHASE_LEAP_DOWN, PHASE_FALL, PHASE_HOP]:
+		return plate == CHEST
+	if plate == CHEST or _phase in [PHASE_WAIT, PHASE_LEAP_UP, PHASE_CLING, PHASE_LEAP_DOWN, PHASE_FALL, PHASE_HOP]:
 		return false
 	return in_fire_ring() or _all_braziers_lit()
 
@@ -1635,10 +1689,10 @@ func _all_braziers_lit() -> bool:
 	return not braziers.is_empty() and _braziers_lit() >= braziers.size()
 
 
-# --- the plate fight's heat cues -------------------------------------------------------------------
+# --- his plates' heat cues -------------------------------------------------------------------------
 
-## As his plates heat (a burst of embers off each, a flash, the sound), while they glow (embers
-## rising, the target of the cart line he stands on lit up) and as they cool (a puff of steam).
+## As this phase's plate heats (a burst of embers off it, a flash, the sound), while it glows (embers
+## rising, the target of the cart line he stands on lit up) and as it cools (a puff of steam).
 func _step_heat(now: float) -> void:
 	var brittle := is_brittle()
 	if brittle and not _was_brittle:
@@ -1648,30 +1702,25 @@ func _step_heat(now: float) -> void:
 	_was_brittle = brittle
 	if brittle and now >= _next_ember_at:
 		_next_ember_at = now + HEAT_EMBER_EVERY_MS
-		var worn: Array[String] = []
-		for plate: String in PLATE_NAMES:
-			if has_plate(plate):
-				worn.append(plate)
-		if not worn.is_empty():
-			FireFx.embers(_plate_point(worn[_rng.randi_range(0, worn.size() - 1)]), 2)
+		FireFx.embers(_plate_point(current_plate()), 2)
 	_glow_target(_line_target() if brittle and _phase != PHASE_STUNNED else null, now)
 
 
 func _heat_up() -> void:
 	_cue(CUE_HEAT)
-	for plate: String in PLATE_NAMES:
-		if has_plate(plate):
-			FireFx.embers(_plate_point(plate), HEAT_EMBERS)
-			if _look != null:
-				_look.flash_plate(plate)
+	var plate := current_plate()
+	if not plate.is_empty():
+		FireFx.embers(_plate_point(plate), HEAT_EMBERS)
+		if _look != null:
+			_look.flash_plate(plate)
 	FireFx.smoke(get_centre(), 3)
 
 
 func _cool_down() -> void:
 	FireFx.smoke(get_centre(), COOL_STEAM)
-	for plate: String in PLATE_NAMES:
-		if has_plate(plate):
-			FireFx.smoke(_plate_point(plate), 2)
+	var plate := current_plate()
+	if not plate.is_empty():
+		FireFx.smoke(_plate_point(plate), 2)
 
 
 ## The knock target of the cart line his feet stand on (within ON_LINE_PX of its rails), its cart
@@ -1765,47 +1814,53 @@ func in_fire_ring() -> bool:
 		var radius := float((node as Node).call(&"light_radius_px")) if (node as Node).has_method(&"light_radius_px") \
 			else float((node as Node).get(&"light_radius"))
 		if radius <= 0.0:
-			radius = FireTargets.lantern_number("candle.lightRadiusPx", 240.0)
+			radius = FireTargets.lantern_number("candle.lightRadiusPx", 300.0)
 		var flame := (node as Node2D).global_position + ((node as Node).get(&"flame_offset") as Vector2)
 		if at.distance_to(flame) <= radius:
 			return true
 	return false
 
 
-## For the films and tests: he wears only the plates in `on` and his core has `core` health (below 0:
-## whole); his health follows.
-func stage_plates(on: Array, core: float = -1.0) -> void:
+## For the films and tests: he wears only the plates in `on`, and each crystal has the health in
+## `crystals` ({"L": 0.0, ...}: 0 dead; one not named whole); his health follows (their sum), and the
+## phase's first clink gives its line again.
+func stage_crystals(on: Array, crystals: Dictionary = {}) -> void:
+	var total := 0.0
 	for plate: String in PLATE_NAMES:
 		_plates[plate] = plate in on
-	var whole := max_health - pattern("plateHp", 60.0) * float(PLATE_NAMES.size())
-	_hp = pattern("plateHp", 60.0) * float(plates_left()) + (whole if core < 0.0 else minf(core, whole))
+		_crystal_hp[plate] = clampf(float(crystals.get(plate, crystal_share())), 0.0, crystal_share())
+		total += crystal_left(plate)
+	_hp = total
+	_clink_hinted_phase = 0
 	health_changed.emit(_health_payload())
 
 
 ## A dungeon mechanism's blow (game/dungeon/mechanism_strike.gd calls it instead of damage). Only the
-## plate fight's runaway cart does anything: on his back it takes his last plate; standing, it bursts
-## the plate on the side it strikes when he is brittle, else clangs off it and staggers him; with no
-## plate left it staggers him.
+## runaway cart does anything, and only to this phase's plate (the owner's fixed order: the first two
+## blows take the shoulders, whichever side the cart meets him from; it sparks where it meets him):
+## brittle, it bursts; cold, it clangs off it and he staggers. With this phase's plate already gone it
+## clangs off his rock and staggers him. The breastplate bursts only on his back (after his fall from
+## the wall); standing, it clangs.
 func on_mechanism_hit(kind: StringName, source: Node) -> void:
-	if not plate_fight or is_defeated() or kind != &"cart":
+	if is_defeated() or kind != &"cart":
 		return
 	if _phase in [PHASE_WAIT, PHASE_LEAP_UP, PHASE_CLING, PHASE_LEAP_DOWN, PHASE_FALL, PHASE_HOP]:
 		return
 	var along := _line_way(source)
+	var plate := current_plate()
 	if _phase == PHASE_STUNNED:
-		if plates_left() > 0:
-			_burst(_lying_plate(), along, source)
+		if is_brittle():
+			_burst(plate, along, source)
+		else:
+			_impact_spark(along, source)
 		# he kicks it back as he gets up
 		if not is_defeated():
 			_hold_cart(source as Node2D)
 		return
-	if plates_left() == 0:
+	if plate.is_empty():
 		_clang("", along, source)
-		_hold_cart(source as Node2D)
-		return
-	var from := -along if along != Vector2.ZERO else ((source as Node2D).global_position - feet()).normalized()
-	var plate := _plate_struck(from)
-	if is_brittle():
+	elif is_brittle():
+		_impact_spark(along, source)
 		_burst(plate, along, source)
 	else:
 		_clang(plate, along, source)
@@ -1814,30 +1869,12 @@ func on_mechanism_hit(kind: StringName, source: Node) -> void:
 		_hold_cart(source as Node2D)
 
 
-## The plate a blow from `from` (unit, from him toward it) strikes: the one on that side; from behind,
-## or on a side whose plate is gone, the breastplate; that gone too, the shoulder plate left nearest to
-## facing the blow.
-func _plate_struck(from: Vector2) -> String:
-	var side := _side_of(from)
-	if has_plate(side):
-		return side
-	if has_plate("C"):
-		return "C"
-	var best := ""
-	var best_dot := -INF
-	for plate: String in PLATE_NAMES:
-		if has_plate(plate) and _plate_normal(plate).dot(from) > best_dot:
-			best = plate
-			best_dot = _plate_normal(plate).dot(from)
-	return best
-
-
-## On his back the plates face the sky: the cart takes the breastplate first, then a shoulder.
-func _lying_plate() -> String:
-	for plate: String in ["C", "L", "R"]:
-		if has_plate(plate):
-			return plate
-	return ""
+## A spark where the cart meets him (his rock, on its side of him).
+func _impact_spark(along: Vector2, cart: Node) -> void:
+	var from := -along if along != Vector2.ZERO else (((cart as Node2D).global_position - feet()).normalized() if cart is Node2D else Vector2.DOWN)
+	var feel := Services.feel()
+	if feel != null:
+		feel.burst(SPARK, get_centre() + from * CLINK_OUT_PX, from, CLANG_TINT, 0.8)
 
 
 ## The side of him (as he faces) that `from` (unit, from him toward it) meets: "C" his front, "L" his
@@ -1863,34 +1900,8 @@ func _plate_normal(plate: String) -> Vector2:
 	return _turned
 
 
-## The plate fight's hit rules (the doc above): his claws while he clings, as built; in the air and
-## asleep nothing lands; the Spear and thrown things land on bare crystal (a side whose plate is gone;
-## every side on his back and once every plate is gone) while his core has health; everything else
-## clinks.
-func _plate_shields(request: Dictionary) -> bool:
-	if _phase == PHASE_CLING:
-		if has_tag(request, SPEAR_TAG) and _from_climber(request):
-			_claw_hit(request)
-		return true
-	if _phase in [PHASE_WAIT, PHASE_LEAP_UP, PHASE_LEAP_DOWN, PHASE_FALL, PHASE_HOP]:
-		return true
-	if not has_tag(request, SPEAR_TAG) and not has_tag(request, THROWN_TAG):
-		return true
-	if core_left() <= 0.0:
-		return true
-	if _phase == PHASE_STUNNED or plates_left() == 0:
-		return false
-	var side := _side_of(_hit_from(request))
-	return side == SIDE_BACK or has_plate(side)
-
-
-## May he climb his wall: always outside the plate fight; in it, once two plates are gone.
-func _may_climb() -> bool:
-	return not plate_fight or plates_left() <= 1
-
-
-## A brittle plate shatters for good: the shards, a flash, a roar, `plateHp` off his health, and he
-## staggers (not on his back). After the second, he makes for his wall.
+## A brittle plate shatters for good: the shards, a flash, a roar; its crystal is bare (no harm to his
+## health: only the crystal's hits take it) and he staggers (not on his back).
 func _burst(plate: String, along: Vector2, by: Node) -> void:
 	if plate.is_empty() or not has_plate(plate):
 		return
@@ -1902,20 +1913,16 @@ func _burst(plate: String, along: Vector2, by: Node) -> void:
 	var feel := Services.feel()
 	if feel != null:
 		feel.shake(pattern("burstShakeMs", 420.0), pattern("burstShake", 0.014))
-	var lying := _phase == PHASE_STUNNED
-	# his share off his health (it flashes him, as any hurt)
-	take_reaction_damage(pattern("plateHp", 60.0))
+	flash_hit()
+	_harm += 1
 	plate_burst.emit({"plate": plate, "by": str(by.name) if by != null else "", "hp": get_damage_state()["hp"]})
-	if is_defeated():
-		return
-	if plates_left() == 1:
-		_leap_due = true
-	if not lying:
+	if _phase != PHASE_STUNNED:
 		_stagger(pattern("burstStaggerMs", 1800.0))
 
 
-## A cold plate (or, with none left, his core) clangs under the blow: sparks, a white flash on the
-## plate, and he staggers.
+## A cold plate (or his rock: `plate` empty, this phase's plate already gone) clangs under the blow:
+## sparks, a white flash on the plate, and he staggers. The first clang off a cold shoulder plate in a
+## fight gives the cold hint (the breastplate never heats on the floor: no hint there).
 func _clang(plate: String, along: Vector2, by: Node) -> void:
 	var at := _plate_point(plate) if not plate.is_empty() else get_centre()
 	_cue(CUE_CLANG)
@@ -1927,7 +1934,7 @@ func _clang(plate: String, along: Vector2, by: Node) -> void:
 		_look.flash_plate(plate)
 	plate_clanged.emit({"plate": plate, "by": str(by.name) if by != null else ""})
 	_stagger(pattern("staggerMs", 1100.0))
-	if not plate.is_empty() and not _clang_hinted:
+	if not plate.is_empty() and plate != CHEST and not _clang_hinted:
 		_hint_cold()
 
 
@@ -1987,7 +1994,8 @@ func _kick(_now: float) -> void:
 			feel.shake(pattern("kickShakeMs", 260.0), pattern("kickShake", 0.01))
 
 
-## Rocked by the cart (and the kick done): to his wall when the second plate burst, else he walks on.
+## Rocked (and the cart kicked home): to his wall when his second shoulder crystal was destroyed, else
+## he walks on.
 func _after_rocked(now: float, slime: Vector2) -> void:
 	if _leap_due and not climb_spots.is_empty():
 		_leap_due = false
@@ -2051,8 +2059,8 @@ func _on_crash_line(point: Vector2) -> Vector2:
 	return best
 
 
-## The plate fight's set-up: the old sheet off (the Visual draws nothing, scaled to the art's size),
-## his look under it, his own hurtbox shape, a shadow on the ground.
+## His set-up (`_ready`): the scene's old sheet off (the Visual draws nothing, scaled to the art's
+## size), his look under it, his own hurtbox shape, a shadow on the ground.
 func _setup_plates() -> void:
 	if visual != null:
 		visual.texture = null
@@ -2203,8 +2211,11 @@ func _show_plates(now: float) -> void:
 			index = 0 if down < DEATH_TOPPLE_MS else (1 if down < DEATH_TOPPLE_MS * 2.5 else 2)
 			rise = DEATH_TOPPLE_RISE if index == 0 else 0.0
 	var hot := is_brittle()
+	var hot_plate := current_plate()
 	var states := {}
+	var crystals := {}
 	for plate: String in PLATE_NAMES:
-		states[plate] = ColossusLook.GONE if not has_plate(plate) else (ColossusLook.HOT if hot else ColossusLook.COLD)
+		states[plate] = ColossusLook.GONE if not has_plate(plate) else (ColossusLook.HOT if hot and plate == hot_plate else ColossusLook.COLD)
+		crystals[plate] = ColossusLook.DEAD if is_crystal_dead(plate) else ColossusLook.LIVE
 	_look.position = Vector2(0.0, -rise * ColossusLook.px_per_unit())
-	_look.show_pose(key, index, mirrored, states)
+	_look.show_pose(key, index, mirrored, states, crystals)

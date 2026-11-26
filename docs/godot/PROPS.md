@@ -59,7 +59,12 @@ crystal pillar, the cocoon prize) and the dungeon decor set of `game/scenes/obje
 (2026-10-19: hanging chains, wall shackles, a hanging cage, a weapon rack, a guard table and bench,
 a barrel stack, broken crates, a sarcophagus, a broken pillar, a bone pile, a worm-head statue, a
 candelabra, a bookshelf, a floor grate, stalagmites; `scripts/art/pack-dungeon-decor-art.py` cuts
-them from `asset/Originals/dungeon-kit/decor/` and writes their scenes). **Town** and **Garden** (2026-11-01, for the West village) are palette categories like the others;
+them from `asset/Originals/dungeon-kit/decor/` and writes their scenes; 2026-11-25, the mine's
+dressing, `mine-*`, cut by `scripts/art/pack-mine-decor-art.py` from `asset/Originals/mine/mine-props-e.png`:
+a pit-prop frame and a lift gantry the slime walks between the legs of and behind (a small box at each
+leg), a ladder's foot (nothing blocks), and a stack of spare props, a slate heap, a lantern post, a
+tipped ore cart and a pickaxe and shovel by a crate (each a foot box); the lantern's light flickers and
+the slate heap's and tipped cart's crystals shine, `scripts/art/build-ambient-strips.py`). **Town** and **Garden** (2026-11-01, for the West village) are palette categories like the others;
 their houses are under **houses**. Houses and town buildings (`game/scenes/objects/town/houses/`):
 a jelly dome, a pumpkin, a tree stump, a snail shell, a timber townhouse, a drop-thatch cottage, a
 general store, an inn, Burr's gatekeeper house and a throwing-game booth; buildings of several
@@ -237,7 +242,20 @@ one leaves a gap, and a source taken out of the builder's list stays as a retire
 tiles (its id is kept). A prop whose picture outgrew its block gets a new slot, and the builder
 moves the painted cells of every world that used the old one. Run the builder **with the editor
 closed** (the editor would save its own copies of the tile sets and worlds over the new ones), after
-adding scenery scenes; then open the editor to import the images. `tools/build_old_prop_palettes.gd`
+adding scenery scenes; then open the editor to import the images.
+
+**Spare rows** (2026-11-25): a game run builds a palette's tiles against its picture as the editor
+last imported it, and a tile past that picture's edge is no tile: every world that paints the palette
+fails to load ("TileSetAtlasSource has no tile at ..."), as the dungeon decor palette did when eight
+props made its picture taller. So each picture keeps empty rows below its last tile (at least 4, or a
+fifth of its tile rows), its height in cells kept in the manifest (`height`, beside `width`): a new
+prop goes into a spare row and the picture keeps its size, so the worlds load before the editor has
+imported the new picture (only the Scenery dock waits for that import). When the tiles outgrow the
+spare rows the picture grows again, with new spare rows, and the builder ends with an error naming
+the palettes whose tiles reach past their imported pictures: focus the editor (it imports them)
+before any game run. A picture, tile set or manifest is written only when it changed.
+
+`tools/build_old_prop_palettes.gd`
 builds the `old-props` palette ("props" in the manifest) the same way: true-size pictures in slots of
 16 px squares (at least 64 px, 32 for the ground), a foot-anchored tile per size, painted cells moved
 when their tile moves, sizes no longer offered kept as `legacy` alternatives. The `large-props`

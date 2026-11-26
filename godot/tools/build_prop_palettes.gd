@@ -13,6 +13,16 @@ extends SceneTree
 ##     "<Godot 4.7.2 console exe>" --path godot -s res://tools/build_prop_palettes.gd
 ## Then open the editor and let it import the palette images.
 ##
+## Spare rows (2026-11-25): a game run loads a palette's tiles against its picture as the editor last
+## imported it, and a tile past that picture's edge is no tile (every world that paints the palette
+## fails to load). So each picture is taller than its tiles: its height in cells is kept in the
+## manifest ("height", written once), with SPARE_ROWS (or SPARE_SHARE of it) empty rows below the last
+## tile, and a new prop goes into them without changing the picture's size: the worlds keep loading
+## before the editor has imported the new picture (only the Scenery dock waits for that import). Only
+## when the tiles outgrow the spare rows does the picture grow again (with new spare rows); the end
+## of the run says loudly which palettes need the editor's import before any game run. A picture, a
+## tile set or the manifest is written only when it changed.
+##
 ## A scene is scenery when its only scripts are presentation (idle animation, sound;
 ## tools/lib/prop_pictures.gd, shared with tools/build_old_prop_palettes.gd). The manifest
 ## game/world/props/prop_palettes.json keeps every scene's place and its tiles' slots, so a rebuild
@@ -40,6 +50,10 @@ const FILL := 0.94
 const ASPECT := 3.0
 ## The largest palette image a source should make (Godot's texture limit).
 const MAX_IMAGE := 16384
+## The empty rows (cells) a palette picture keeps below its last tile, at least SPARE_ROWS and at
+## least SPARE_SHARE of its tiles' rows (see "Spare rows" above).
+const SPARE_ROWS := 4
+const SPARE_SHARE := 0.2
 ## palette -> its tile set, cell (units) and sources (name, scene path prefixes, sized).
 const PALETTES := {
 	"cell": {
@@ -127,8 +141,26 @@ func _initialize() -> void:
 		quit(1)
 		return
 	_move_painted(manifest, before)
-	print("prop palettes written; open the editor to import ", ART_DIR)
+	_report_imports()
 	quit(0)
+
+
+## Palette pictures written this run, the ones whose size changed, and the ones whose tiles reach past
+## the picture the editor last imported (those break every world load until it imports again).
+var _written: Array[String] = []
+var _resized: Array[String] = []
+var _past_import: Array[String] = []
+
+
+func _report_imports() -> void:
+	if not _past_import.is_empty():
+		push_error("build_prop_palettes: the tiles of %s reach past the picture the editor last imported: EVERY WORLD LOAD FAILS until the Godot editor has imported %s (give it focus). No game run before that." % [", ".join(_past_import), ART_DIR])
+	if not _resized.is_empty():
+		print("palette pictures that changed size (their tiles grew into new rows): ", ", ".join(_resized))
+	if _written.is_empty():
+		print("prop palettes: no picture changed")
+	elif _past_import.is_empty():
+		print("prop palettes: %d pictures written; every tile lies inside the pictures the editor last imported, so game runs keep working; the Scenery dock shows the new pictures once the editor has imported %s" % [_written.size(), ART_DIR])
 
 
 func _load_manifest() -> Dictionary:
@@ -139,10 +171,18 @@ func _load_manifest() -> Dictionary:
 
 
 func _save_manifest(manifest: Dictionary) -> bool:
-	var err := SceneSave.write_text(MANIFEST, JSON.stringify(manifest, "\t") + "\n")
+	var err := _write_if_changed(MANIFEST, JSON.stringify(manifest, "\t") + "\n")
 	if err != OK:
 		push_error("build_prop_palettes: cannot write %s (%s)" % [MANIFEST, error_string(err)])
 	return err == OK
+
+
+## Writes `text` to `path` unless the file already holds it (no churn, and an open editor's copy stays
+## the file's).
+static func _write_if_changed(path: String, text: String) -> Error:
+	if FileAccess.file_exists(path) and FileAccess.get_file_as_string(path) == text:
+		return OK
+	return SceneSave.write_text(path, text)
 
 
 ## The source a new scene goes to: the one with the longest prefix it matches ("dungeon decor"'s
@@ -336,11 +376,18 @@ func _render_source(palette: String, tile: int, entry: Dictionary) -> Dictionary
 				layouts[_key(scene, i)] = layout
 	_allocate(entry, layouts)
 	var slots: Dictionary = entry["slots"]
-	var sheet := Vector2i(int(entry["width"]), 1)
+	var tiles_end := Vector2i(1, 1)
 	for key: String in layouts:
 		var slot: Array = slots[key]
-		sheet.y = maxi(sheet.y, slot[1] + slot[3])
-	sheet *= tile
+		tiles_end = Vector2i(maxi(tiles_end.x, slot[0] + slot[2]), maxi(tiles_end.y, slot[1] + slot[3]))
+	# the picture's height stays as the manifest keeps it while the tiles fit; past it, it grows to
+	# the tiles' rows and new spare rows (see "Spare rows" at the top)
+	var height := int(entry.get("height", 0))
+	if tiles_end.y > height:
+		height = tiles_end.y + maxi(SPARE_ROWS, ceili(tiles_end.y * SPARE_SHARE))
+		entry["height"] = height
+	var sheet := Vector2i(int(entry["width"]), height) * tile
+	_check_import(palette, entry, tiles_end * tile)
 	if sheet.x > MAX_IMAGE or sheet.y > MAX_IMAGE:
 		push_warning("%s / %s: palette image %s is over %d px" % [palette, entry["name"], sheet, MAX_IMAGE])
 	var viewport := SubViewport.new()
@@ -362,14 +409,35 @@ func _render_source(palette: String, tile: int, entry: Dictionary) -> Dictionary
 	for f in 6:
 		await process_frame
 	var image := viewport.get_texture().get_image()
+	image.convert(Image.FORMAT_RGBA8)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ART_DIR))
-	for attempt in SceneSave.TRIES:
-		if image.save_png(ProjectSettings.globalize_path(_art_path(palette, entry))) == OK:
-			break
-		OS.delay_msec(SceneSave.RETRY_MS)
+	var file := ProjectSettings.globalize_path(_art_path(palette, entry))
+	var old := Image.load_from_file(file) if FileAccess.file_exists(file) else null
+	if old != null:
+		old.convert(Image.FORMAT_RGBA8)
+	if old == null or old.get_size() != image.get_size() or old.get_data() != image.get_data():
+		if old == null or old.get_size() != image.get_size():
+			_resized.append("%s %s (%s -> %s)" % [palette, entry["name"], Vector2i.ZERO if old == null else old.get_size(), image.get_size()])
+		for attempt in SceneSave.TRIES:
+			if image.save_png(file) == OK:
+				break
+			OS.delay_msec(SceneSave.RETRY_MS)
+		_written.append("%s %s" % [palette, entry["name"]])
 	viewport.free()
 	print("%s / %s: %d tiles, %s px" % [palette, entry["name"], layouts.size(), sheet])
 	return layouts
+
+
+## Notes the palette when its tiles (up to `tiles_px`) reach past the picture the editor last
+## imported: a game run builds the tiles against that one, and a tile past its edge is no tile.
+func _check_import(palette: String, entry: Dictionary, tiles_px: Vector2i) -> void:
+	var path := _art_path(palette, entry)
+	if not ResourceLoader.exists(path):
+		_past_import.append("%s %s (never imported)" % [palette, entry["name"]])
+		return
+	var imported := ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_IGNORE) as Texture2D
+	if imported == null or imported.get_width() < tiles_px.x or imported.get_height() < tiles_px.y:
+		_past_import.append("%s %s (tiles to %s, imported %s)" % [palette, entry["name"], tiles_px, Vector2.ZERO if imported == null else imported.get_size()])
 
 
 ## The tile set of `palette`: one atlas source per palette source (a retired one leaves its id
@@ -427,7 +495,7 @@ func _write_tileset(palette: String, config: Dictionary, sources: Array, layouts
 			uid = found.get_string(1)
 	if not uid.is_empty():
 		lines[0] = '[gd_resource type="TileSet" format=3 uid="%s"]' % uid
-	var err := SceneSave.write_text(path, "\n".join(lines))
+	var err := _write_if_changed(path, "\n".join(lines))
 	if err != OK:
 		push_error("build_prop_palettes: cannot write %s (%s)" % [path, error_string(err)])
 		return false

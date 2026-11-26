@@ -150,7 +150,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   size, in a block of whole cells, into wide sheets in `godot/asset/MAPS/palettes/`, writes the `cell-props`
   and `details` palettes (`game/world/props/props_cell_tileset.tres`, `props_detail_tileset.tres`) and
   `prop_palettes.json`, and moves painted cells whose tile moved (open the editor to import the images
-  after); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
+  after; each sheet keeps spare empty rows below its tiles, so a new prop rarely changes its size and
+  the worlds keep loading before that import; when a sheet must grow, the run ends with an error naming
+  it: focus the editor before any game run, [PROPS.md](godot/PROPS.md) "Spare rows"); `res://tools/build_old_prop_palettes.gd` (the same way) builds the free-placement `old-props`
   palette (`props_tileset.tres`: true-size tiles, at least 64 px, 32 for ground details);
   `res://tools/paint_to_nodes.gd` (headless, `-- --scene=<world> [--keep=<prefixes>] [--group] [--dry]`) turns
   painted props back into nodes under the world's `Scenery` node (the ground details and water life stay
@@ -397,6 +399,14 @@ See [assets/README.md](assets/README.md) for the art workflow.
   prompts in its README): sixteen props at 2 px per unit in `godot/asset/MAPS/objects/dungeon/decor/`
   and their scenes in `godot/game/scenes/objects/dungeon-decor/` (written only when missing;
   `--scenes` rewrites them), listed under "dungeon decor" after `tools/build_prop_palettes.gd`.
+- `python scripts/art/pack-mine-decor-art.py [--scenes]` — the Mine's eight dressing props (2026-11-25)
+  from `asset/Originals/mine/mine-props-e.png` (one GPT 2.5 still, an uneven 4 x 2 grid): each cut at
+  its box (its README's table), its faint glow cleared, trimmed and scaled by 0.61 (the game mine
+  cart's packing scale), into `godot/asset/MAPS/objects/dungeon/decor/mine-*.webp` and their scenes
+  in `godot/game/scenes/objects/dungeon-decor/` (written only when missing; `--scenes` rewrites them);
+  the lantern post's flicker and the slate heap's and tipped cart's shine are
+  `build-ambient-strips.py`'s (`mine-lantern-post mine-slate-heap mine-tipped-cart`). Listed under
+  "dungeon decor" after `tools/build_prop_palettes.gd`.
 - `python scripts/art/pack-town-art.py [--scenes] [--only=<sheet>,...]` (**numpy**) — the town set (2026-11-01, the West
   village) from `asset/Originals/town/concepts/` (Magnific GPT 2.5 sheets the owner picked,
   `<sheet>-a.png`, with their 2x Magnific Precision upscales `<sheet>-a-up.jpg` for colour): houses
@@ -417,7 +427,9 @@ See [assets/README.md](assets/README.md) for the art workflow.
   `asset/Originals/dungeon-kit/bosses/{matron,colossus}/frames/` (Magnific GPT 2.5 sheets of four
   frames; prompts in the READMEs there): it cuts and cleans each sheet, lines the frames up on the
   part of the body that holds still, at one scale per boss. The Colossus's sheets come twice, with
-  his plates and as a plate-less edit, and become a bare body per frame and a layer per plate.
+  his plates and as a plate-less edit, and become a bare body per frame and a layer per plate; under
+  each plate the crystal is cut from the bare body live and made dead (dark slate, cracked: no
+  generated art; 2026-11-25, the three-crystal fight), packed in the plate atlases.
   `pack` writes the game's strips, plate atlases and `frames.json` to
   `godot/asset/MAPS/enemies/bosses/<boss>/` (read by `game/bosses/boss_sheet_sprite.gd`);
   `preview`, `contact` and `showcase` write GIFs and sheets for judging to `output/boss-rework/frames/`.

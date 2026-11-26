@@ -652,7 +652,7 @@ holds. It is not the mine's travel cart (`mine_cart.gd`), which the slime rides.
   the tunnel at its end, and the next cart comes out of the start a moment later. A boss that it hits
   can hold it and send it home: `hold_for_kick`, `kick_back` (it rolls back fast into its start
   tunnel and its target rearms), `let_go`. The details:
-  [The plate fight](#the-plate-fight-step-2-of-the-rework).
+  [The crystal fight](#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25).
 - **What it rams** (each thing once per run, only on its own elevation level): a `ram_breakable`
   (the rail gate) gets `on_ram_hit(cart)` and the cart runs on through; a node with
   `on_mechanism_hit` is found a little ahead and the cart rolls on until its front touches the near
@@ -1177,10 +1177,20 @@ Wing 1 is built:
   `tools/pack_pit_picture.gd` into `godot/asset/MAPS/interiors/mine-shaft.res` (a texture resource:
   no import). `PitDepth`'s `picture` draws it from the faces' inner edge (`picture_margins`), cropped
   about its middle to the hole's shape; the dark over it reaches only `picture_dark` (0.55), and the
-  dust and glints move over both. The other holes stay drawn: M8's void could take a square crop of the
-  same picture; M9's chasm is a rift with a bridge, not a timbered shaft.
-- **No bare boards:** the plain wall planks (`interior-structure-beam-wood*`) are gone from the rooms;
-  the project has no mine timber set that reads as a pit prop.
+  dust and glints move over both.
+- **The natural holes are painted** too (2026-11-25): M9's chasm (`mine-chasm.res`, a rock rift of
+  slate ledges and crystal veins) and M8's void and M2's two pits (`mine-pit.res`, a square pit, cropped
+  about its middle to each), packed whole by `tools/pack_pit_picture.gd` from
+  `asset/Originals/dungeon-kit/pits/` (its README: the sources, prompts and crops), the dust and
+  glints over them as over the shaft.
+- **The Mine's dressing** (2026-11-25, the dungeon decor set's `mine-*` props, PROPS.md "Dungeon
+  decor"): M14, the shaft's foot, has a ladder's foot against the north wall, a lift gantry straddling
+  the lift's landing and a pit-prop frame by the boss door, as M4's painted shaft shows them above (its
+  second wall lantern went where the ladder stands); M1 a lantern post by the mouth and a stack of
+  spare props; M5 a pickaxe and shovel by a crate; M10 a tipped ore cart; M11 fallen slate on the
+  rift's floor, off its crossing. None stands in a doorway, on a line, in a throw's lane or a climb.
+  (The plain wall planks, `interior-structure-beam-wood*`, are still gone: they never read as pit
+  props.)
 - **S3:** the Silk lock is a web wall (the only Silk lock there is), now across a three-row nook walled
   off by crates, clear of the floor trim's row (a barrel closes the row under it); its prize is a chest
   in the Mine's look (`crystal-mine-M6-S3-chest`: 30 coins, an energy potion) where the one-scene Mine had a
@@ -1310,8 +1320,9 @@ layout's floor -1.
   upper landing stands under the painting's right-hand rope, the lower one straight below it.
 - **The way:** after Pearl 3, the Den's rim (its shutter sunk by his fall) drops onto M14's ledge; the
   roots down (Feral). The boss door holds without the big key; the lift's crank rides up to the hub
-  (the shortcut back). With the big key (M12), the boss door, the nook, his fight (the lab's: a brazier
-  lit, his plates burst by the carts in its ring, the roots, his claws, his core); his fall sinks the
+  (the shortcut back). With the big key (M12), the boss door, the nook, his fight (the lab's crystal fight: a brazier
+  lit, a cart bursts a shoulder's plate in its ring, the Spear destroys its crystal, twice; the roots,
+  his claws, his chest's plate and crystal on his back); his fall sinks the
   seals (Pearl 3's: the mouth's, the climb out's), lights the braziers for good, raises his full heart
   and shows Release 1's end card (`chapter-3-complete`); the climb out to the Lookout.
 - **Films:** the walk plays all four wings from the camp in G4 (its first step puts the slime through
@@ -1320,7 +1331,8 @@ layout's floor -1.
   out of the mouth to G4 (`--from=wing4`: wing 4 alone from M14). `tools/film_colossus_arena.gd` films
   his fight in M15 with `tools/film_colossus.gd`'s films and staging, only the world changed and the
   Feral skin lent (`scripts/godot/film-colossus.sh <name> --film=<film> --tool=film_colossus_arena`,
-  into `output/dungeon-rework/mine/arena-films/<name>/`); burst, clang, wall and core say PASS or FAIL.
+  into `output/dungeon-rework/mine/arena-films/<name>/`); burst, clang, wall, poses, phase1, phase2,
+  phase3 and fight say PASS or FAIL.
 
 ### The switch-over (the Mine, 2026-11-25)
 
@@ -1335,8 +1347,9 @@ the reviewer passed wing 4: the game enters the rebuilt Mine. Step 5 retired the
   lands at the Lookout (H4 `lookout-from-mine`) as it did. Nothing else in the open world leads into the
   Mine (the smith's cart ends in G4's yard), and no joined area copy holds G4.
   `tools/build_caverns_spiral.gd` writes the same target.
-- **His fight:** M15's `ColossusArena` sets `plate_fight` on, as the lab's does; the old world's
-  arena was the only one that left it off ([The Crystal Colossus](#the-crystal-colossus-roadmap-124)).
+- **His fight:** the crystal fight (the plate fight until 2026-11-25), in M15 as in the lab; the old
+  world's first fight went with it,
+  its code too ([The Crystal Colossus](#the-crystal-colossus-roadmap-124)).
 - **The names:** the world map (the Caverns' `interiors`, the dungeon marker's `map`), the area banner
   and the dev powers name the Mine by its record id `crystal-mine` (the old world's id too), so they
   hold for the rooms (one banner, "Crystal Mine", for every room: the shell names a room world by its
@@ -1403,20 +1416,23 @@ the reviewer passed wing 4: the game enters the rebuilt Mine. Step 5 retired the
 ### The Crystal Colossus (roadmap 12.4)
 
 `character.crystal-colossus` (`game/scenes/characters/crystal-colossus.tscn`,
-`game/scripts/crystal_colossus.gd`, a patterned enemy; 240 health; his numbers in
-`enemy-types.json` `crystal-colossus.pattern`; nine poses in
-`godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`, the ninth his stun). His arena is
+`game/scripts/crystal_colossus.gd`, a patterned enemy; 180 health, three crystals of 60; his numbers in
+`enemy-types.json` `crystal-colossus.pattern`; drawn by his look, `game/bosses/colossus_look.gd`,
+[below](#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25): the scene still names the first fight's nine-pose
+sheet, `godot/asset/MAPS/enemies/384x384-tile_9x1-crystal-colossus.webp`, which his look blanks). His arena is
 `colossus_arena.gd` (node `ColossusArena` in M15 and in his lab), a boss camp for the HUD's boss bar
 and the boss music, and the map's boss mark (`dungeon_map_mark`) until he falls. The slime arrives
 with the Feral skin, the mine sealed: his fight starts enraged in look (`EnragedLook`, the seal's: his
 strength the built one).
 
-His fight is **the plate fight** ([below](#the-plate-fight-step-2-of-the-rework)): both arenas the
-game has set `plate_fight` on. It grew out of the fight first built for the one-scene Mine on
-2026-10-17, whose own rules (a weak spot cracked open while all four braziers burned, the climb after
-`stompsPerClimb` stomps, every stomp putting a brazier out) are in
-[the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-colossuss-first-fight): with the switch off `crystal_colossus.gd` still plays
-them, but no scene leaves it off since that world was retired. What the plate fight keeps of it:
+His fight is **the crystal fight** ([below](#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25)), his only one: the
+plate fight of 2026-11-24 with his health moved into three crystals (2026-11-25). It grew out of the
+fight first built for the one-scene Mine on 2026-10-17, whose own rules (a weak spot
+cracked open while all four braziers burned, the climb after three stomps, every stomp putting a
+brazier out) are in [the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-colossuss-first-fight):
+that fight went with the one-scene Mine on 2026-11-25, and its code went from `crystal_colossus.gd`
+and `colossus_arena.gd` the same day (with the `plate_fight` switch that chose between the two, and
+its numbers in `enemy-types.json`). What the crystal fight keeps of it:
 
 - **The start:** the slime's centre in `arena_rect`: crystal grows over the way in behind it
   (`seal_cells`, the BreakGlass cue and a shake), the four braziers go cold, he stands at `post` and
@@ -1425,22 +1441,26 @@ them, but no scene leaves it off since that world was retired. What the plate fi
 - **His stomp** (the tell: a foot raised for `raiseMs` 650 over a darkening ring `stompRx` x
   `stompRy` 116 x 78; within `stompRangePx` 120 of the slime or every `stompEveryMs` 2600): 40 damage
   in the ring. Which brazier it puts out, and when: his dousing (below).
-- **On the wall, the Feral skin's exam (2026-10-17):** when the plate fight says so ("The wall",
+- **On the wall, the Feral skin's exam (2026-10-17):** when the crystal fight says so ("The wall",
   below) he leaps onto the north wall at the climb spot nearest the slime (`climb_spots`) and
-  clings for `climbMs` (5200), throwing a Crystal Mite down every `throwEveryMs` (1300;
+  clings there, throwing a Crystal Mite down every `throwEveryMs` (1300;
   `mitesPerClimb` 2, at most `maxMites` 4 alive; at a climbing slime the mite drops straight down the
   face onto it, `climberHitPx` 30, and its hit knocks the slime off: no cost but the hit). Roots run
   up the wall beside each spot. The slime climbs them to his height and strikes
   his gripping claws with the Spear from the face (the strike while clinging: an attack press aims
   the Spear left or right along the face, player.gd `_climb_strike`, at the Feral tempo); while he
   clings his hurtbox rides up the face with his pose and only a Spear hit from a climbing slime
-  counts (no damage). **`clawHits` (3)** and he loses his grip: he crashes down `fallDropPx` (70) from
-  the wall over `fallMs` (450) with no landing stomp (no brazier goes out), a hard shake, and lies
-  stunned, sprawled (in the plate fight across a cart's line, `plateFallStunMs`: below). Then he gets
-  up and fights on. If the slime does not reach him, he leaps down at it (kept on his floor: a landing
-  ring).
-- **His second phase** (below `phaseTwoShare` 0.5 of his health; named so in code since 2026-10-17,
-  not the Pearl's rage): quicker stomps, more mites, and a landing puts out two braziers.
+  counts (no damage). **`clawHits` (3)** and he loses his grip: he crashes down from the wall over
+  `fallMs` (450) across a cart's line (`fallDropPx` 70 out from the wall in an arena with no
+  `crash_carts`) with no landing stomp (no brazier goes out), a hard shake, and lies on his back
+  (`plateFallStunMs`: below). Then he gets up and fights on. If the slime does not reach him, he stays
+  up there and comes down only to quake (his last phase, below; put up his wall before his last
+  phase, as only a film can, he leaps down at the slime after `climbMs` 5200, a landing ring).
+- **His rage** (from phase `rageFromPhase` 2, once a crystal is dead; until 2026-11-25 his "second
+  phase", below half his health; not the Pearl's rage): a quicker walk and quicker stomps, more
+  mites, quakes sooner, and while he douses a landing puts out two braziers. Chosen so the fight gets
+  harder as his crystals die: phase 1 his calm pace, phase 2 the rage, phase 3 the rage and the wall's
+  rocks (with 3 phase 2 would be as easy as phase 1).
 - In the rework mode a killed mite can drop an energy shard (the generic `combat.energyShard` roll);
   the arena holds no other refill.
 - **Fainting** or leaving the arena while he stands starts it over (he goes, the mites go, the
@@ -1452,27 +1472,40 @@ them, but no scene leaves it off since that world was retired. What the plate fi
   `crystal-colossus`, +20 max HP and max energy) rises; the way in stays shut, so the way out is the
   climb up the roots of his wall's east end, to the Lookout (H4).
 
-#### The plate fight (step 2 of the rework)
+#### The crystal fight (step 2 of the rework, three crystals since 2026-11-25)
 
+> **The three crystals (2026-11-25):** the owner, after playing the plate fight: "colossus have 3
+> phases like the 3 crystals in his body, once a phase end is because we broke the crystal in his body
+> starting from the 2 arms and finally the one in the chest while climbing. to simulate a broken
+> crystal we can paint it dark" (the crystals under the plates). Built the same day, in the lab and
+> in M15 at once (one script): his health moved from the plates into the three crystals, a cart's
+> burst only bares one, one crystal a phase in a fixed order. Filmed (`poses`, `phase1`, `phase2`,
+> `phase3`, `fight`, in both); tested by `test_crystal_mine.gd`; not played with a keyboard.
+>
 > **Status:** built 2026-11-24 in the Colossus lab, from [the plan](../design/2026-11-23-dungeons-2-3-rework.md#the-crystal-colossus)
 > (the owner approved his new look and frames, then "Yes, build the fights"), with the owner's
 > changes of the same day (a bigger room, void dips along its sides, carts out of tunnels that pass
 > through, his kick). Since 2026-11-25 the lab's world is also the rebuilt Mine's M15
 > ([Wing 4](#wing-4-the-shaft-and-the-colossus-2026-11-25)): the fight the game plays. Filmed in both
 > (`scripts/godot/film-colossus.sh`), not played with a keyboard; tested in M15 by
-> `test_crystal_mine.gd` since step 5 (not run yet).
+> `test_crystal_mine.gd` since step 5 (its 19 passed on 2026-11-25, again after the first fight's
+> code was taken out).
 
-**The switch:** `plate_fight` on the Colossus (`crystal_colossus.gd`, off by default); the arena that
-makes him passes its own `plate_fight` on (`colossus_arena.gd`), with its braziers and its
-`crash_carts`. Both arenas set it (M15, the lab). Off, the first fight's rules
-([the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-colossuss-first-fight)) hold instead and none below applies; no scene
-leaves it off.
+**His only fight:** the arena that makes him (`colossus_arena.gd`, M15's and the lab's) gives him its
+braziers and its `crash_carts`. The `plate_fight` switch on both scripts, and the first fight it kept
+([the archive](../archive/2026-11-25-old-hollow-and-mine.md#the-colossuss-first-fight)), were taken
+out on 2026-11-25, the day the one-scene Mine went: everything below is how he fights.
 
 - **His look** (`game/bosses/colossus_look.gd`, under the enemy's Visual, which draws nothing and
   carries the hit flash): his packed frames (`godot/asset/MAPS/enemies/bosses/colossus/`,
-  `frames.json`; `scripts/art/boss_frames.py pack colossus`): the bare body (rose quartz in the plate
-  sockets) with each plate he still wears laid on it, cold (pale cyan) or hot (orange, pulsing); a
-  plate gone shows its socket. He faces four ways, from his walk (a new way wins once it leads by a
+  `frames.json`; `scripts/art/boss_frames.py pack colossus`): the bare body (a crystal of rose quartz
+  in each plate's socket) with each plate he still wears laid on it, cold (pale cyan) or hot (orange,
+  pulsing); a plate gone shows its crystal, **live** (as drawn, pulsing brighter, a rose glow over
+  the dark room's darkness: his health in sight) or **dead** (dark slate, cracked, no glow, for good).
+  The dead pieces are made by the pack from the live ones (no generated art: the same pixels on a
+  slate ramp, cracks drawn from the middle with one seed a crystal, so they hold still from frame to
+  frame), packed in each animation's plate atlas beside the plates; every pose (the three walks, the
+  raise, the stomp, the leap, the cling, the fall) shows them (film `poses`). He faces four ways, from his walk (a new way wins once it leads by a
   fifth): the walk toward the viewer, the side walk (mirrored for the left, its near shoulder piece
   then his left shoulder) and the walk away, a frame every 11 units walked. The stomp's raise, rear
   and slam, the stagger (the stomp sheet's fourth frame), the leap (crouch, then from behind), the
@@ -1480,20 +1513,27 @@ leaves it off.
   back, dazed). The stomp and the stagger are drawn facing the viewer only, so he turns to the viewer
   for them. A shadow lies under him. Plates: **L** his right shoulder, **C** his breastplate, **R**
   his left shoulder.
-- **His health:** 240 = three plates of `plateHp` (60) and a core (60): his health is 60 a plate he
-  still wears plus his core's. Nothing hurts a plate; the boss bar shows the sum.
-- **Brittle:** standing with two plates or more, his feet within a lit brazier's ring (its light:
-  `light_radius` round its flame, the lab's 150), his plates glow hot; **while all four braziers
-  burn, anywhere** (the owner, 2026-11-24: "when all 4 braziers are on make the plater brittler
-  also"). One lit brazier is enough to make him brittle in its ring. The ring is the brazier's pool
+- **His health:** 180 (the scene's `max_health`, `maxHp` in the data: the number for the owner to tune
+  when he plays) = three crystals of 60 (`crystal_share`, a third each): his health is what his
+  crystals have left, and the boss bar shows it falling in thirds. **A phase is one crystal**, in a
+  fixed order (`CRYSTAL_ORDER`, one constant to flip the shoulders): **L** (the shoulder on the screen's
+  left as he faces the viewer, his right), then **R**, then **C** (his chest). Nothing hurts a plate;
+  a cart's burst only bares its crystal (no harm); only Spear hits and thrown things on the bare
+  crystal take its health, never more than it has left (each phase ends at its third): five Spear
+  hits (12) a crystal, three of the Spear's Lunge (its Ability Box power, 25), ten thrown things.
+- **Brittle:** only this phase's plate (`current_plate`, the one a cart takes) heats, so the one that
+  glows is the one that goes: a shoulder plate with his feet within a lit brazier's ring (its light:
+  `light_radius` round its flame, the lab's 150), or **while all four braziers burn, anywhere** (the
+  owner, 2026-11-24: "when all 4 braziers are on make the plater brittler also"); the breastplate only
+  on his back (below), never on the floor. One lit brazier is enough to make him brittle in its ring. The ring is the brazier's pool
   of light in the dark (the lab's dark room). The braziers are lit by the Lantern (its flame flies a
   short line from the slime's mouth: stand within about a cell of the brazier, facing it).
-- **Heat cues** (the owner, the same day: so "the player knows something change"): as his plates
-  heat, a burst of embers off each, a flash and `FireIgnite`; while they glow, embers rise off them
+- **Heat cues** (the owner, the same day: so "the player knows something change"): as this phase's
+  plate heats, a burst of embers off it, a flash and `FireIgnite`; while it glows, embers rise off it
   and the knock target of the cart line his feet stand on (within 90 of its rails, the cart held
   ready, the target armed) glows warm and pulses over the dark; as they cool, a puff of steam
   (`_step_heat`).
-- **The clang hint:** the first time in a fight a cart clangs off a cold plate, `clang_hint_text`
+- **The clang hint:** the first time in a fight a cart clangs off a cold shoulder plate, `clang_hint_text`
   ("Too cold to crack. Heat it in a brazier's light!") shows over the slime for 6 s, following it,
   opaque, kept on screen (`GameFeel.hint_text`), and every unlit brazier flashes three times under a
   bobbing arrow, embers rising off it (`game/feel/hint_cue.gd`; the owner, 2026-11-24: the hint must
@@ -1503,7 +1543,8 @@ leaves it off.
 - **His stomps put braziers out only while he douses** (the owner, 2026-11-24: the stomp put them
   out so often he never had them all lit; "it should only happen after all braziers are on and after
   colossus had receive damage, or a long period of time to allow time for the player to make
-  mistakes"): hurt while every brazier burns, he douses: each stomp (and a landing from his wall)
+  mistakes"): hurt while every brazier burns (a plate's burst counts, though it costs him no health:
+  `_harm`), he douses: each stomp (and a landing from his wall)
   puts out the lit brazier nearest him (`stompPutsOut`), until none burns. Else his stomps leave the
   braziers alone until `douseAfterMs` (45 s) has passed with no brazier lit or put out: the wait
   starts again at the fight's start and every time a brazier is lit or goes out (the owner: "that
@@ -1520,8 +1561,8 @@ leaves it off.
   the earliest `firstHopMs` (2500) after he wakes, the next `hopCooldownMs` (5000) after a landing.
 - **His quake** (the owner, 2026-11-24: "the queke last 5 secodns and it make damage over time the
   way to avoid it is by climbing . a warning have to be issue by colossus so is clear that attack is
-  coming"): `quakeFirstMs` (14 s) after he wakes, then `quakeEveryMs` (22 s, a third sooner in his
-  second phase) after each one starts, with the slime on the floor and climb walls up his wall
+  coming"): `quakeFirstMs` (14 s) after he wakes, then `quakeEveryMs` (22 s, a third sooner while he
+  rages) after each one starts, with the slime on the floor and climb walls up his wall
   (those within 260 of a climb spot). **The warning** (`quakeWarnMs` 2500): a roar and
   `GroundCreak`, he rears (the stomp's foot-and-fists-up frame, facing the viewer) and trembles harder
   and harder, the screen rumbling and dust falling, while glowing cracks run out from his feet over
@@ -1551,26 +1592,45 @@ leaves it off.
   chips, and it lies there: a liftable of one of `debris_kinds` (ore rock, crystal cluster, geode)
   that lands as `debris_weight` (light: any Gulp lifts it, as the mud balls), nothing under it. At
   most `debrisMax` (8) lie at once; the oldest crumbles away (`get_debris()` lists them).
-- **The cart** (the runaway cart, its hook `on_mechanism_hit(&"cart", cart)`) strikes the side of him
-  that faces it (against the way its line runs, as he faces now): the plate on that side; from behind,
-  or on a side whose plate is gone, his breastplate; that gone too, the shoulder plate left. A
-  brittle plate **bursts** for good: `plateHp` off his health, the eight hot shards of `shards.webp`
-  flying the way the cart pushed, the crystal dust and a flash (`game/bosses/colossus_shards.gd`),
-  his hurt flash, a roar and a shake; he staggers `burstStaggerMs` (1800). A cold plate **clangs**
-  (sparks, the plate flashes white) and he staggers `staggerMs` (1100). A stomp on the way is cut
-  short (no brazier goes out).
+- **The cart** (the runaway cart, its hook `on_mechanism_hit(&"cart", cart)`) only ever strikes
+  **this phase's plate, whichever side it meets him from** (the owner, 2026-11-25: the first two blows
+  take the shoulders in order; the plate fight's side-of-impact choice is gone): a spark where it
+  meets him, and a brittle plate **bursts** for good on its own shoulder: no harm (its crystal is
+  bare), the eight hot shards of `shards.webp` flying the way the cart pushed, the crystal dust and a
+  flash (`game/bosses/colossus_shards.gd`), his hurt flash, a roar and a shake; he staggers
+  `burstStaggerMs` (1800). So a cart arriving on his dead shoulder's side in phase 2 sparks there and
+  bursts the hot plate on the other shoulder (film `phase2`). A cold plate **clangs** (sparks, the
+  plate flashes white) and he staggers `staggerMs` (1100). **This phase's plate already gone** (its
+  crystal bare, still live): the cart clangs off his rock and staggers him, no harm, no hint: a free
+  window to strike. The next shoulder's plate never goes early (one bare crystal at a time). The
+  breastplate bursts only on his back; standing, a cart clangs off it (no heat hint: it cannot heat
+  there). A stomp on the way is cut short (no brazier goes out).
 - **His kick** (the owner, 2026-11-24): the cart that struck him waits against him; his feet back,
   furious (a roar), he turns to it, draws a foot back and kicks it (`kickMs` 760, the side walk's
   stride in profile, leaning in): it rolls back up its line into the tunnel it came from in
-  `kickBackMs` (1200), fast at first; then the line is ready again. A cart that took his last plate as
-  he lay he kicks as he gets up. If he falls or leaves the fight first, it rolls home slowly.
-- **Bare crystal:** a Spear hit from a side whose plate is gone hurts (the side is where the hitter
-  stands, as he faces); a thrown thing from there (a pot, a stunned Crystal Mite) hurts `thrownShare`
-  (0.5) of `shapes.spear.baseDamage` (6). Both come off his core, which stops at 0 while a plate is
-  left (a hit on a spent core clinks: the plates are the cart's). Every other hit clinks: a plated
-  side, his back, any other weapon, a blast, an arrow. Filmed: the Spear's Lunge (its throw-combat
-  power) does 25.
-- **His last phase: he lives on his wall** (one plate left, then his core alone; the owner,
+  `kickBackMs` (1200), fast at first; then the line is ready again. A cart that struck him as he lay
+  he kicks as he gets up. If he falls or leaves the fight first, it rolls home slowly.
+- **The bare crystal** (`_shields`, `_hit_meets`): a Spear hit on this phase's crystal, bare and
+  **showing to the hitter**, hurts (`shapes.spear.baseDamage`, 12; the Lunge 25); a thrown thing
+  (a pot, a rock, a stunned Crystal Mite) `thrownShare` (0.5) of one (6). A crystal shows where the
+  art draws it (`SHOWS_FROM`): a shoulder's from his front, his back and its own side; the chest's from
+  his front and both sides; on his back every one faces the sky. **A deliberate change** (2026-11-25)
+  from the plate fight's rule, "a side whose plate is gone": he turns to face the slime as he walks,
+  so a shoulder's side was almost never in reach outside his staggers. Every other hit clinks: the
+  Spear's own clink (the router's refusal), a cyan spark off a plate or grey grit off a dead crystal
+  or his rock; any other weapon, a blast, an arrow clink as before.
+- **The clink's line** (one a phase, at its first clink): while this phase's crystal still wears its
+  plate, `plated_hint_text` ("The plate holds. Crack it with a hot cart!") and the plate flashing under
+  a bobbing arrow; once it is bare, `dead_hint_text` ("That crystal is dead. Strike the glowing one!")
+  when the hit met a dead crystal, else `crystal_hint_text` ("Strike the glowing crystal!"), and the
+  live crystal flashing under the arrow. The line stays 6 s over the slime, the arrow follows him
+  (`game/feel/hint_cue.gd`, [GAME_GUIDELINES.md "Hints"](../GAME_GUIDELINES.md#hints)).
+- **A crystal destroyed** (`crystal_broken`): rose shards burst from it (the burst's cold shards
+  tinted), a roar, `ColossusShatter`, the burst's shake; it shows dead (dark, cracked) for good in
+  every pose, and he staggers `crystalBreakStaggerMs` (1400: the beat). After L he walks on into
+  phase 2; after R, once the stagger (and a kick) is over, he leaps up his wall (phase 3); the chest's
+  is his fall.
+- **His last phase: he lives on his wall** (both shoulder crystals dead, his chest's left; the owner,
   2026-11-24: "the last phase he stay on the vines and only comes down to do the quake them goes up
   again , he does not wander around confusing the player , so the player knows he have to climb and
   do something"): whenever he is on his feet (up from a fall, after a kick, a stagger or a quake) he
@@ -1585,17 +1645,19 @@ leaves it off.
   landing a stomp), warns, quakes, and leaps back up. Film `last`: up at once; a rock hits the slime
   on the floor (10) and lies there; one hits it up the roots (10) and shatters; a quake due: down,
   quake (the slime on the roots unhurt), back up.
-- **The wall** (two plates gone): he leaps at once once his stagger (and his kick) is over (in his
-  last phase whenever he is on his feet, above); the climb, the mites and the claws are as above ("On the wall"). Struck loose, he
+- **The wall** (his last phase): he leaps at once once the second shoulder crystal's stagger (and
+  his kick) is over (and whenever he is on his feet, above); the climb, the mites and the claws are as above ("On the wall"). Struck loose, he
   crashes across the nearest line of the arena's `crash_carts` (his feet on its nearest point; the
   lab's run down the room right under his two climb spots, so he falls straight onto one) and lies
-  on his back **`plateFallStunMs` (4000)**, not the first fight's `fallStunMs` 2500: the slime must drop from the roots,
-  take a pot and throw at that line's target first. His last plate shows hot there (the fall cracked it; standing, the last plate
-  never glows, so the floor's carts only clang off it and the Feral climb stays needed); the cart
-  takes it. While he lies the Spear and thrown things hurt his core from every side.
-- **The core:** no plate left: the Spear hurts from every side (thrown things for half); a cart only
-  staggers him (and is kicked back). At 0 he falls: a last burst of cold shards, the fall frames, and
-  the arena's small golem as built.
+  on his back **`plateFallStunMs` (4000)** (the first fight's stun was 2500): the slime must drop from the roots,
+  take a pot and throw at that line's target first. His breastplate shows hot there (the fall cracked
+  it; standing, it never glows, so the floor's carts only clang off it and the Feral climb stays
+  needed); the cart bursts it. While he lies the Spear and thrown things hurt his chest crystal from
+  every side. **The chest crystal:** its hits rarely all fit in one stun after the cart's walk, so
+  he usually gets up (kicking the cart home) and goes back up his wall; the next fall his chest is
+  already bare and the Spear goes straight at it (film `phase3`: two strikes the first time, then the
+  second fall). Its last hit is his fall for good: the chest goes dark with him, a last burst of cold
+  shards, the fall frames, and the arena's small golem as built.
 - **The roots as a refuge** (the owner, 2026-11-24: standing at the wall's foot under a climbing
   slime he left it no way down): while the slime climbs (engaged or not: a climbing slime is no
   target) he goes to the middle of his floor, by his leap when he is more than `retreatLeapPx` (140)
@@ -1612,7 +1674,8 @@ leaves it off.
   `plateHurtSide` 110 wide by `plateHurtHeight` 110, its middle `plateHurtRise` 45 over his feet), so a
   cart meets him when his feet are about on its rails and stops with its front against him; lying,
   his length (`lyingHurtW` 180 x `lyingHurtH` 90).
-- **Numbers** (`crystal-colossus.pattern`, new): `plateHp`, `thrownShare`, `staggerMs`,
+- **Numbers** (`crystal-colossus.pattern`, new; `plateHp` and `phaseTwoShare` went with the plate
+  fight on 2026-11-25, `crystalBreakStaggerMs` and `rageFromPhase` came with the crystals): `thrownShare`, `staggerMs`,
   `burstStaggerMs`, `burstShakeMs`/`burstShake`, `clangShakeMs`/`clangShake`, the hurtbox's six,
   `kickMs`, `kickBackMs`, `kickShakeMs`/`kickShake`, `plateFallStunMs`; the leap's `firstHopMs`,
   `hopFarPx`, `hopAfterMs`, `hopCooldownMs`, `hopCrouchMs`, `hopAirMs`, `hopArcPx`, `hopShortPx`,
@@ -1625,8 +1688,8 @@ leaves it off.
   `debrisRailClearPx`.
   His reactions' state `hop` (in the air) is immune, as his other leaps.
 - **Sounds** by name, silent until staged (Sound Picker round 16): `ColossusStomp` (the stomp, the
-  crash, the kick), `ColossusRoar` (the wake, a burst, the leap, the fury before a kick, the grip
-  lost), `ColossusShatter` (a burst, his fall), `ColossusClang`. The raise keeps `ColossusRaise`.
+  crash, the kick), `ColossusRoar` (the wake, a burst, a crystal destroyed, the leap, the fury before
+  a kick, the grip lost), `ColossusShatter` (a burst, a crystal destroyed, his fall), `ColossusClang`. The raise keeps `ColossusRaise`.
 
 **The runaway cart for this fight** (`ram_cart.gd`, two additions): `through` makes a line run tunnel
 to tunnel (its first and last points inside the walls; each mouth is the mine gate's open
@@ -1677,25 +1740,37 @@ overwrites hand edits). Painted as the mine paints (crystal rock at level 3 roun
 
 `bash scripts/godot/film-colossus.sh <name> --film=<film>` films it frame by frame into
 `output/boss-rework/colossus-films/<name>/` (`godot/tools/film_colossus.gd`; the mechanisms' lock,
-one game window at a time; what each stages is in the tool's head): `look`, `poses` (every frame,
-three plate states, for checking the plates sit on him), `walks`, `glow` (the Lantern lights a
-brazier, his plates glow in its ring, his stomp leaves it lit), `hop` (his leap at a far slime,
+one game window at a time; what each stages is in the tool's head; his strips and atlases are read
+from disk, so a pack the editor has not imported yet still films as packed): `look`, `poses` (every
+frame, five plate and crystal states, for checking the plates and crystals sit on him: PASS when every
+bare crystal shows), `walks`, `glow` (the Lantern lights a
+brazier, his first plate glows in its ring, his stomp leaves it lit), `hop` (his leap at a far slime,
 twice), `heat` (one brazier lit: cold outside its ring, hot inside with the lower target glowing,
 cold again; all four lit: hot far from every ring), `quake` (twice: the slime stays on the floor and is hurt, then climbs the roots in the
 warning and is not), `rocks` (every pot taken away: his stomps drop rocks, none by the rails, one on
-the slime hurts it, a thrown one trips the lower cart and it bursts his plate), `douse` (all four lit, a burst, then his stomps put them out one by one; two relit restart
+the slime hurts it, a thrown one trips the lower cart and it bursts his first plate), `douse` (all four lit, a burst, then his stomps put them out one by one; two relit restart
 the long wait and survive a stomp; the wait staged as over, one goes out and the wait restarts, so
-the next stomp leaves the other), `burst` and `clang` (round 1, with his kick; `clang` shows the
-hint), `pass` (a cart
-that meets nothing), `dip`, `bare` (round 2), `wall` (round 3: the crash on the west down line),
-`core`. The films that stage him somewhere hold his stomps and his leap (`_hold_stomps`).
+the next stomp leaves the other), `burst` and `clang` (his first plate, with his kick; `clang` shows
+the hint), `pass` (a cart that meets nothing), `dip`, `wall` (the last phase: the crash on the west
+down line, the cart bursting his breastplate), and the crystal fight's own, each with a PASS or FAIL:
+`phase1` (from the wake: the first clink and its line, the Lantern, the cart bursts plate L, the kick,
+crystal L struck until dark, phase 2), `phase2` (L dead, staged: turned north, the cart meets his dead
+side and bursts plate R; R struck until dark; up his wall), `phase3` (both shoulders dead, staged: the
+claws, the fall, the cart bursts the breastplate on his back, two strikes, he gets up and climbs again,
+the second fall, the chest struck until dark, his fall for good) and `fight` (the three in a row,
+nothing staged on his crystals or plates). The tool puts the slime where it strikes (his front, the
+crystal's side or his back, by turns), and stages him only where the head says (on the line as the
+pot leaves, turned north in phase 2). The films that stage him somewhere hold his stomps and his leap
+(`_hold_stomps`). `bare` and `core` went with the plate fight.
 
-**Limits of the plate fight:**
+**Limits of the crystal fight:**
 
 - Played in M15 and the lab; neither played with a keyboard.
-- The stomp and the stagger are drawn facing the viewer only: he turns to the viewer for them, and
-  the plate a cart strikes then follows that facing. In the stagger his raised fist hides most of his
-  left shoulder plate (R): the art's.
+- The stomp and the stagger are drawn facing the viewer only: he turns to the viewer for them. In
+  the stagger his raised fist hides most of his left shoulder (R), plate and crystal: the art's.
+- The dead crystals are the live ones' pixels on a slate ramp with cracks drawn on (no painted
+  frames): flat next to the hand-painted plates; a painted dead look is one GPT edit of each bare sheet
+  if the owner wants it.
 - The kick is the side walk's stride in profile (no kick frame was drawn); a cart up or down the
   screen gets the stomp's raise and lift (from the front) or the walk away (from behind), not filmed.
 - The tunnel mouths are the mine gate's doorway turned on its side (no tunnel art was made); the
@@ -1798,7 +1873,9 @@ under `Spiral`, its `elevation`, `forest` and `vines` layers its own), the caves
   classic game an attack press on a wall does nothing.
 - Tests: `test_crystal_mine.gd` (19, rewritten for the rooms at step 5, 2026-11-25: the rooms and
   their doors, the keys and the Foreman's Gate, the travel cart, the lift, the lens, the veils, the
-  timbers, the Feral climbs, the Den, the boss door, his plate fight in M15 and his fall, an old save;
+  timbers, the Feral climbs, the Den, the boss door, his crystal fight in M15 (four tests since
+  2026-11-25: his first plate burst without harm, clanged cold, the bare crystal where it shows, the
+  carts' order) and his fall, an old save;
   the candles and dark rooms are `test_dark_room_candles.gd`'s) and
   `test_mine_camp.gd` (the Spiral: the yard's gate and cart end, the first talk's Lantern and crystal,
   the lamp freeing the one-way cart, the gate, the mine's way in and out through M1, the seal, the

@@ -172,6 +172,15 @@ PIECES: dict[str, tuple[int, tuple[str, int, int, int], list[tuple]]] = {
 	"rock-stump": (7, ("props/mine/256x256-rock-stump.webp", 1, 1, 0), [
 		("bands", 0, 0, 256, 256, "blue", 0.3, 70.0),
 	]),
+	# the rebuilt Mine's dressing (2026-11-25, scripts/art/pack-mine-decor-art.py): the lantern's light
+	# flickers, a shine travels over the crystals
+	"dungeon-decor/mine-lantern-post": (9, ("objects/dungeon/decor/mine-lantern-post.webp", 1, 1, 0), [("auto", "lamp")]),
+	"dungeon-decor/mine-slate-heap": (7, ("objects/dungeon/decor/mine-slate-heap.webp", 1, 1, 0), [
+		("bands", 0, 0, 207, 171, "blue", 0.3, 70.0),
+	]),
+	"dungeon-decor/mine-tipped-cart": (7, ("objects/dungeon/decor/mine-tipped-cart.webp", 1, 1, 0), [
+		("bands", 0, 0, 209, 164, "blue", 0.3, 70.0),
+	]),
 	# --- found by colour ("auto"): every other interior piece with fire, light or liquid; the forge ---
 	"interiors/decor/interior-decor-candle-lit": (9, ("interiors/128x128-tile_8x8-interior-decor-lighting-utility.webp", 8, 8, 1), [("glow", 44, 41, 80, 80, "warm", 0.22, "flicker", 0), ("flame", 62, 70, 6, 17, 0.0)]),
 	"interiors/decor/interior-decor-candlestick-lit": (9, ("interiors/128x128-tile_8x8-interior-decor-lighting-utility.webp", 8, 8, 5), [("glow", 46, 12, 82, 50, "warm", 0.22, "flicker", 0), ("flame", 64, 40, 6, 16, 0.0)]),

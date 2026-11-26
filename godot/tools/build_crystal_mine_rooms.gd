@@ -109,7 +109,21 @@ const P_PILLAR := OBJ + "interiors/structure/interior-structure-pillar-stone.tsc
 const P_WEAPON_RACK := OBJ + "dungeon-decor/weapon-rack.tscn"
 const P_BARREL_STACK := OBJ + "dungeon-decor/barrel-stack.tscn"
 const P_ARMOR_STAND := OBJ + "interiors/workshop/interior-workshop-armor-stand.tscn"
+## The Mine's own dressing (2026-11-25, scripts/art/pack-mine-decor-art.py; the dungeon decor set).
+const P_MINE_PIT_PROPS := OBJ + "dungeon-decor/mine-pit-props.tscn"
+const P_MINE_LADDER_FOOT := OBJ + "dungeon-decor/mine-ladder-foot.tscn"
+const P_MINE_LIFT_GANTRY := OBJ + "dungeon-decor/mine-lift-gantry.tscn"
+const P_MINE_SPARE_PROPS := OBJ + "dungeon-decor/mine-spare-props.tscn"
+const P_MINE_SLATE_HEAP := OBJ + "dungeon-decor/mine-slate-heap.tscn"
+const P_MINE_LANTERN_POST := OBJ + "dungeon-decor/mine-lantern-post.tscn"
+const P_MINE_TIPPED_CART := OBJ + "dungeon-decor/mine-tipped-cart.tscn"
+const P_MINE_TOOLS_CRATE := OBJ + "dungeon-decor/mine-tools-crate.tscn"
 const MINE_SHAFT_PICTURE := "res://asset/MAPS/interiors/mine-shaft.res"
+## The painted natural holes (tools/pack_pit_picture.gd; sources asset/Originals/dungeon-kit/pits/):
+## the Chasm's rift, and a pit for the maze's void and the Lamp Tunnel's two (PitDepth crops each about
+## its middle to the hole's shape).
+const MINE_CHASM_PICTURE := "res://asset/MAPS/interiors/mine-chasm.res"
+const MINE_PIT_PICTURE := "res://asset/MAPS/interiors/mine-pit.res"
 ## The ore lift between M4's gallery and M14 (today's lift's id: an old save that worked today's lift
 ## finds this one working; ore_lift.gd keeps it under the dungeon's record).
 const LIFT_ID := "great-shaft-lift"
@@ -708,6 +722,12 @@ func _pit(node_name: String, rect: Rect2i, pattern: int) -> Node2D:
 	return depth
 
 
+## A painted hole's inside under the depth look's dark, dust and glints (PitDepth `picture`).
+func _paint(depth: Node2D, picture: String) -> void:
+	if ResourceLoader.exists(picture):
+		depth.set(&"picture", load(picture))
+
+
 ## Drawn rails (no collision) through `points` (cells).
 func _rail_line(points: Array) -> void:
 	var rails := Node2D.new()
@@ -836,6 +856,9 @@ func _unique(base: String, parent: Node) -> String:
 ## shelf (L1) in the north-west corner, vines up its face (the Feral skin), its chest seen from the
 ## floor.
 func _m1() -> void:
+	# the Mine's dressing: a lantern post by the mouth, spare props in the south-east
+	_prop(P_MINE_LANTERN_POST, Vector2(7.3, 12.9))
+	_prop(P_MINE_SPARE_PROPS, Vector2(12.2, 10.4))
 	_level(Rect2i(0, 0, 6, 5), 1)
 	_vine(Rect2i(3, 5, 2, 1))
 	_opening("s", 8, "seal")
@@ -918,8 +941,8 @@ func _m2() -> void:
 	_room_door("m2-north", "n", 12, "m4-great-shaft", "m4-south-m2")
 	_room_door("m2-west", "w", 8, "m5-tally-room", "m5-east")
 	_spawn(Vector2(13, 12.5))
-	_pit("m2-void-north", Rect2i(4, 3, 5, 4), 1)
-	_pit("m2-void-south", Rect2i(4, 10, 6, 3), 2)
+	_paint(_pit("m2-void-north", Rect2i(4, 3, 5, 4), 1), MINE_PIT_PICTURE)
+	_paint(_pit("m2-void-south", Rect2i(4, 10, 6, 3), 2), MINE_PIT_PICTURE)
 	_rail_line([Vector2(13, 0), Vector2(13, 16)])
 	_candle("m2-sconce-1", "sconce-iron", Vector2(2.6, 2.05), 60000.0)
 	_candle("m2-sconce-2", "sconce-iron", Vector2(15.4, 2.05), 60000.0)
@@ -1170,6 +1193,7 @@ func _arrival(door_id: String, at: Vector2) -> void:
 ## sitting on key 1 (light drives it off); the cracked north wall (the Goo Bomb, today's flag) to the
 ## Survey Office and the map.
 func _m5() -> void:
+	_prop(P_MINE_TOOLS_CRATE, Vector2(14.8, 7.0))
 	_opening("e", 8, "doorway")
 	_opening("n", 4, "cracked")
 	_room_door("m5-east", "e", 8, "m2-lamp-tunnel", "m2-west")
@@ -1262,7 +1286,7 @@ func _m8() -> void:
 	_room_door("m8-east", "e", 6, "m9-the-chasm", "m9-west")
 	_room_door("m8-south-shelf", "s", 7, "m3-survey-office", "m3-north-shelf")
 	_spawn(Vector2(27.0, 27.6))
-	_pit("M8-void", MAZE_VOID, 8)
+	_paint(_pit("M8-void", MAZE_VOID, 8), MINE_PIT_PICTURE)
 	var cells: Array[Vector2i] = []
 	for cell: Vector2i in [Vector2i(0, 3), Vector2i(1, 3), Vector2i(2, 3), Vector2i(2, 2), Vector2i(2, 1), Vector2i(2, 0),
 			Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0), Vector2i(7, 0)]:
@@ -1337,6 +1361,7 @@ func _m9() -> void:
 	_room_door("m9-south", "s", 13, "m13-shardback-den", "m13-north")
 	_spawn(Vector2(3.6, 7.0))
 	var chasm := _pit("M9-chasm", Rect2i(7, 2, 6, 12), 9)
+	_paint(chasm, MINE_CHASM_PICTURE)
 	chasm.set(&"fade_px", 120.0)
 	chasm.set(&"dust", 16)
 	var bridge := _kit("drawbridge", "M9-chasm-bridge", Vector2(13 * CELL, 10 * CELL), {"toward": "west", "length": 6,
@@ -1448,6 +1473,8 @@ func _m13() -> void:
 ## landing's north doorway to the Prism Gallery, open while its brazier on the landing burns (20 s);
 ## two Glint Bats roost by it.
 func _m11() -> void:
+	# fallen slate on the rift's floor, off its crossing (row 12.5)
+	_prop(P_MINE_SLATE_HEAP, Vector2(9.0, 6.2))
 	_level(Rect2i(0, 0, 6, 11), 1)
 	_level(Rect2i(11, 0, 7, 11), 1)
 	_vine(Rect2i(3, 11, 2, 1))
@@ -1487,11 +1514,14 @@ func _m11() -> void:
 ## cover), the war journal's third page in its chest (today's record), the veil's far brazier: the veil
 ## on this side of the doorway opens only while it burns.
 func _m10() -> void:
+	_prop(P_MINE_TIPPED_CART, Vector2(12.2, 5.2))
 	_opening("s", 13, "doorway")
 	_room_door("m10-south", "s", 13, "m11-crystal-veil", "m11-north")
 	_spawn(Vector2(14.0, 12.0))
 	_object("brazier", "M10-brazier", Vector2(12.0, 12.4) * CELL, {"burn_ms": 20000.0})
-	var veil := _object("crystal-veil", "M10-veil", Vector2(14.0, 13.4) * CELL, {"size": 2.0 * CELL})
+	# its foot in the doorway's gap (its crystals rise north from it: at a south doorway a foot on the
+	# floor in front would stand clear of the opening)
+	var veil := _object("crystal-veil", "M10-veil", Vector2(14.0, 14.4) * CELL, {"size": 2.0 * CELL})
 	var braziers: Array[NodePath] = [NodePath("../M10-brazier")]
 	veil.set(&"braziers", braziers)
 	_chest("M10-journal-chest", Vector2(5.5, 4.0), {"war-journal-page-3": 1}, "crystal-mine-M10-journal-chest")
@@ -1591,8 +1621,12 @@ func _m14() -> void:
 	_crystals(7, Vector2(15.4, 12.6), true)
 	_glow(Vector2(15.4, 5.2), Vector2(70, 46), Color(0.55, 0.8, 1.0, 0.5))
 	_lantern(Vector2(9.6, 2.05))
-	_lantern(Vector2(2.6, 2.05))
 	_prop(P_BRAZIER, Vector2(9.0, 12.8))
+	# the shaft's foot, as M4's painted shaft shows it above: a ladder's foot, the lift's gantry over its
+	# landing, a pit-prop frame against the wall
+	_prop(P_MINE_LADDER_FOOT, Vector2(2.6, 2.35))
+	_prop(P_MINE_LIFT_GANTRY, Vector2(4.0, 4.7))
+	_prop(P_MINE_PIT_PROPS, Vector2(6.0, 2.4))
 	_prop(P_SNAIL, Vector2(11.8, 9.4))
 	_prop(P_FIREFLY, Vector2(13.0, 8.0))
 

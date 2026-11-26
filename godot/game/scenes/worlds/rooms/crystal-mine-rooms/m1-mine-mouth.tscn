@@ -40,6 +40,8 @@
 [ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon/crystal-mine-dungeon.tscn" id="38_0ivdl"]
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="39_r62av"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="40_ybh8p"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-lantern-post.tscn" id="97_lantern-post"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-spare-props.tscn" id="97_spare-props"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_28cr2"]
 blend_mode = 1
@@ -260,6 +262,12 @@ fly_ms = 400.0
 flight_height = 38.0
 flight_speed = 46.0
 flight_wobble_px = 7.0
+
+[node name="mine-lantern-post" parent="Scenery" instance=ExtResource("97_lantern-post")]
+position = Vector2(467.2, 825.6)
+
+[node name="mine-spare-props" parent="Scenery" instance=ExtResource("97_spare-props")]
+position = Vector2(780.8, 665.6)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=250741867]
 y_sort_enabled = true

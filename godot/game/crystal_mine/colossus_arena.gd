@@ -1,6 +1,6 @@
 extends Node2D
 class_name ColossusArena
-## The Crystal Colossus's arena (roadmap 12.4; docs/godot/DUNGEONS.md "The Crystal Mine (built)";
+## The Crystal Colossus's arena (roadmap 12.4; docs/godot/DUNGEONS.md "The Crystal Colossus";
 ## decisions archive questions 59, 69, 94 and 132): a round crystal cavern at the bottom of the mine,
 ## dark (its DarkRoom lists the four braziers, so it fades to lit while all four burn), its north wall
 ## the one he climbs, under a crack of daylight.
@@ -9,7 +9,11 @@ class_name ColossusArena
 ##   grows over the way in behind it (`seal_cells`: no leaving until he falls, roadmap 5.9), the four
 ##   braziers are cold, he stands at `post` and wakes after `wake_ms`.
 ## - **The four braziers** (`braziers`, candle.gd with `burn_ms` -1: they burn until a stomp puts them
-##   out, `stomp_puts_out`): while all four burn his weak spot is open (`set_exposed`), else shut.
+##   out, `stomp_puts_out`), given to him: their rings make his plates brittle, and with all four
+##   burning he is brittle anywhere (crystal_colossus.gd; docs/godot/DUNGEONS.md "The crystal fight").
+## - **The runaway carts** (`crash_carts`, ram_cart.gd), given to him: struck loose off his wall he
+##   crashes across the line of the one nearest where he falls (the Colossus lab's two run down the
+##   room from under his climb spots).
 ## - **His wall** (`wall_rect`): roots run up the north wall beside each of his `climb_spots`
 ##   (climb_wall.gd, `holds_at_top`: they end on the face); a slime at the wall's foot or climbing it
 ##   (its centre in `wall_rect`) is still in the fight, and strikes his claws from there
@@ -30,14 +34,11 @@ class_name ColossusArena
 ## `boss_disengaged`, `get_live_boss`, `arena_perimeter`, `camp_id`, `boss_id`), and the compass's
 ## boss mark on the dungeon map until he falls (the kit's group `dungeon_map_mark`, `mark` "boss").
 ##
-## **The plate fight** (`plate_fight`, on in both arenas the game has: M15 and the Colossus lab;
-## docs/godot/DUNGEONS.md "The plate fight"; off, the first fight as built on 2026-10-17, the weak
-## spot above, placed nowhere since the one-scene Mine was retired on 2026-11-25):
-## he is made with crystal_colossus.gd's `plate_fight` on, and given the braziers (their rings make his
-## plates brittle) and `crash_carts`, the runaway carts whose lines he crashes across (the nearest)
-## when his claws are struck loose. `refights` (a lab's arena): his fall is not recorded (no `defeated_boss_ids`, no
-## dungeon mark), the braziers are lit but not for good, and once the slime has left the arena the next
-## walk in starts the fight again.
+## The two arenas the game has: the rebuilt Mine's M15 and the Colossus lab (the crystal fight is his
+## only fight: the first one, the weak spot while all four braziers burned, went with the one-scene
+## Mine on 2026-11-25). `refights` (a lab's arena): his fall is not recorded (no `defeated_boss_ids`,
+## no dungeon mark), the braziers are lit but not for good, and once the slime has left the arena the
+## next walk in starts the fight again.
 ##
 ## Owner: dungeons (the Crystal Mine).
 
@@ -75,11 +76,8 @@ signal boss_defeated(payload: Dictionary)
 @export var climb_spots: PackedVector2Array = PackedVector2Array()
 ## The north wall's face (world coordinates): a slime climbing in it is still in the fight.
 @export var wall_rect: Rect2 = Rect2()
-## The plate fight (crystal_colossus.gd `plate_fight`); off: the first fight as built (no scene leaves
-## it off since 2026-11-25).
-@export var plate_fight: bool = false
-## The plate fight: the runaway carts (ram_cart.gd) whose lines he crashes across off his wall (the
-## one nearest where he falls; the Colossus lab's two run down the room from under his climb spots).
+## The runaway carts (ram_cart.gd) whose lines he crashes across off his wall (the one nearest where
+## he falls; the Colossus lab's two run down the room from under his climb spots).
 @export var crash_carts: Array[NodePath] = []
 ## A lab's arena: his fall is not recorded and the fight can start again (see above).
 @export var refights: bool = false
@@ -170,7 +168,6 @@ func _physics_process(_delta: float) -> void:
 	if _wake_at >= 0.0 and Services.now_ms() >= _wake_at:
 		_wake_at = -1.0
 		_boss.call(&"wake")
-	_boss.call(&"set_exposed", all_lit())
 
 
 ## Starts the fight (the slime walked in): the seal, the cold braziers, the boss at his post.
@@ -191,8 +188,6 @@ func _start() -> void:
 		_boss_root.free()
 		_boss_root = null
 		return
-	if plate_fight:
-		_boss.set(&"plate_fight", true)
 	parent.add_child(_boss_root)
 	FeetAnchor.place_at_phaser_position(_boss_root, global_position + post)
 	var no_zones: Array[Dictionary] = []
@@ -204,19 +199,18 @@ func _start() -> void:
 	for spot in climb_spots:
 		spots.append(spot)
 	_boss.set(&"climb_spots", spots)
-	if plate_fight:
-		var fires: Array[Node] = []
-		for path in braziers:
-			var node := get_node_or_null(path)
-			if node != null:
-				fires.append(node)
-		_boss.set(&"braziers", fires)
-		var carts: Array[Node2D] = []
-		for path in crash_carts:
-			var cart := get_node_or_null(path) as Node2D
-			if cart != null:
-				carts.append(cart)
-		_boss.set(&"crash_carts", carts)
+	var fires: Array[Node] = []
+	for path in braziers:
+		var node := get_node_or_null(path)
+		if node != null:
+			fires.append(node)
+	_boss.set(&"braziers", fires)
+	var carts: Array[Node2D] = []
+	for path in crash_carts:
+		var cart := get_node_or_null(path) as Node2D
+		if cart != null:
+			carts.append(cart)
+	_boss.set(&"crash_carts", carts)
 	_boss.connect(&"defeated", _on_defeated)
 	for path in braziers:
 		var node := get_node_or_null(path)

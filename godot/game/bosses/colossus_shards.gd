@@ -1,5 +1,5 @@
 extends Node2D
-## A plate of the Crystal Colossus bursting (the plate fight: docs/godot/DUNGEONS.md "The Crystal
+## A plate of the Crystal Colossus bursting (the crystal fight: docs/godot/DUNGEONS.md "The Crystal
 ## Colossus (roadmap 12.4)"): a flash where the plate was, a puff of crystal dust and glints, and the
 ## eight shards of `shards.webp` (hot ones for a brittle plate, cold ones else) flying out from it,
 ## mostly the way the blow pushes, falling to the floor round him, bouncing once, lying a moment and

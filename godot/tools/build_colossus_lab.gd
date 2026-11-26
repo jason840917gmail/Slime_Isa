@@ -1,8 +1,8 @@
 extends SceneTree
 ## Builds the Colossus lab (docs/godot/DUNGEONS.md "The Crystal Colossus (roadmap 12.4)", "The Colossus
 ## lab"; step 2 of docs/design/2026-11-23-dungeons-2-3-rework.md): a dev world to fight the Crystal
-## Colossus's plate fight (crystal_colossus.gd `plate_fight`) before the Crystal Mine's arena is
-## rebuilt.
+## Colossus's plate fight (crystal_colossus.gd) before the Crystal Mine's arena was rebuilt (M15 is
+## this lab's room, carried into the mine).
 ##     "<Godot 4.7.2 console exe>" --headless --path godot -s res://tools/build_colossus_lab.gd [-- --force]
 ## Writes res://game/dev/bosses/colossus-lab.tscn (world.colossus-lab; launch it with
 ## `?map=colossus-lab` or `-- --map=colossus-lab`). It does not overwrite an existing lab (the scene to
@@ -378,7 +378,7 @@ func _place() -> void:
 	var lobby_loot: Array[String] = ["none", "none", "heart", "none"]
 	for i in LOBBY_POTS_X.size():
 		_pot("lobby-pot-%d" % (i + 1), Vector2(middle + LOBBY_POTS_X[i], arena_rect.end.y - LOBBY_POTS_ABOVE - (0.0 if i % 2 == 0 else 40.0)), lobby_loot[i])
-	_label("lobby-note", Vector2(spawn.x + 80.0, arena_rect.end.y + 12), "Colossus lab (the plate fight). Walk north to wake him; back into this nook to start over. Light a brazier with the Lantern (its flame flies in a line), bait him over the rails in its light, throw at that line's target: the cart bursts a hot plate, and he kicks it back. Keep away and he leaps at you. When he rears and the floor cracks, climb the roots: the quake hurts all over the floor for 5 s. His stomps put braziers out only once all four burn and he is hurt, or 45 s after a brazier was last lit or put out. Bare crystal takes the Spear; with two plates gone, climb the roots and Spear his claws: he falls across the line under him. The dips are void.")
+	_label("lobby-note", Vector2(spawn.x + 80.0, arena_rect.end.y + 12), "Colossus lab (the crystal fight). Walk north to wake him; back into this nook to start over. His health is three crystals, one a phase: left shoulder, right shoulder, chest. Light a brazier with the Lantern (its flame flies in a line), bait him over the rails in its light, throw at that line's target: the cart bursts the glowing plate, and he kicks it back. Spear or throw at the bare crystal until it goes dark. Keep away and he leaps at you. When he rears and the floor cracks, climb the roots: the quake hurts all over the floor for 5 s. His stomps put braziers out only once all four burn and he is hurt, or 45 s after a brazier was last lit or put out. Both shoulders dark, he climbs: climb the roots and Spear his claws; on his back, the cart bursts his chest plate. The dips are void.")
 	# His arena.
 	var arena := Node2D.new()
 	arena.name = "ColossusArena"
@@ -391,7 +391,6 @@ func _place() -> void:
 	arena.set(&"post", Vector2(0, -40))
 	arena.set(&"climb_spots", spots)
 	arena.set(&"wall_rect", Rect2(Vector2(arena_rect.position.x, HALL.position.y * CELL), Vector2(arena_rect.size.x, FACE_ROWS * CELL + 40.0)))
-	arena.set(&"plate_fight", true)
 	arena.set(&"refights", true)
 	_objects.add_child(arena)
 	var paths: Array[NodePath] = []

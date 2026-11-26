@@ -14,6 +14,7 @@ the first and only take.
 | `mine-props-b.png` | the crystal lens on its post (the Bow's target), the same lens struck and glowing, the crystal veil grown across a passage, the veil shrunk back | `256x256-tile_2x1-crystal-lens.webp`, `256x256-tile_2x1-crystal-veil.webp` |
 | `mine-props-c.png` | thick living roots and rocky handholds on a slab of cliff (the Feral skin's climb), a miner's lantern on a bracket, the rails' buffer stop, Pearl 3 on a crystal cradle | `256x256-root-wall.webp`, `128x128-mine-lantern.webp`, `256x256-buffer-stop.webp`, `256x256-pearl.webp` |
 | `mine-props-d.png` | the mine gate shut (cold lamp cups), the gate open (the cups burning), a rock stump (cover), a heap of ore with a pickaxe | `256x256-tile_2x1-mine-gate.webp`, `256x256-rock-stump.webp`, `256x256-ore-heap.webp` |
+| `mine-props-e.png` (2026-11-25, the rebuilt Mine's dressing; 1536 x 768, a 4 x 2 grid) | top row: a timber pit-prop set (two posts, a cross beam, iron brackets), a ladder's foot with its upper rungs snapped off, a lift gantry (an A-frame, a pulley wheel, two ropes), a stack of spare props tied with rope; bottom row: a heap of fallen slate with crystal shards, a lantern post with a lit miner's lantern, a tipped ore cart spilling blue ore, a pickaxe and a shovel by a crate | `godot/asset/MAPS/objects/dungeon/decor/mine-pit-props.webp`, `-ladder-foot`, `-lift-gantry`, `-spare-props`, `-slate-heap`, `-lantern-post`, `-tipped-cart`, `-tools-crate` (`scripts/art/pack-mine-decor-art.py`; the dungeon decor set's `mine-*` scenes), placed in M14, M1, M5, M10, M11 |
 | `smith-sheet.png` | the smith, Pip's dad, at his mine camp: standing with his hammer, the hammer raised to strike, holding out the Lantern, pointing | `godot/asset/characters/authored/npcs/smith.webp` (4 x 1, 260 x 280 cells) |
 
 `python scripts/art/pack-mine-art.py` cuts each sheet along its emptiest middle row and columns,
@@ -23,6 +24,28 @@ cells), the lens's and the veil's two at one scale each, the smith's four at one
 feet centred, and every other prop alone in its cell.
 
 Cost: 800 Magnific credits (eight generations at 100; sheet C on 2026-10-17 for the rework).
+
+**`mine-props-e.png`** (2026-11-25) is one GPT 2.5 still at 2:1 (`gpt-2-mini`, 1k, transparent
+background), the first and only take, 40 credits (counted with the pits' 200 in
+`../dungeon-kit/pits/README.md`). References: `mine-props-a.png` and `mine-props-d.png`, downscaled to 768
+px on grey. It is stripped of its credentials block. Its props are not on an even grid, and
+`pack-mine-art.py` cuts 2 x 2 sheets only. Faint glow pixels reach past the props, so cut on the gaps:
+the rows split at y 399, and each column has a gap (boxes x0, y0, x1, y1, alpha 16 and up):
+
+| # | Prop | Box | Size | At the mine cart's scale |
+|---|---|---|---|---|
+| 1 | pit-prop set | 42, 59, 373, 381 | 331 x 322 | 203 x 197 |
+| 2 | ladder foot | 461, 53, 677, 391 | 216 x 338 | 132 x 207 |
+| 3 | lift gantry | 787, 25, 1111, 393 | 324 x 368 | 198 x 225 |
+| 4 | spare props | 1167, 127, 1502, 389 | 335 x 262 | 205 x 160 |
+| 5 | slate heap | 42, 456, 381, 736 | 339 x 280 | 207 x 171 |
+| 6 | lantern post | 499, 405, 672, 730 | 173 x 325 | 106 x 199 |
+| 7 | tipped ore cart | 761, 464, 1103, 733 | 342 x 269 | 209 x 165 |
+| 8 | pickaxe, shovel, crate | 1236, 436, 1468, 734 | 232 x 298 | 142 x 182 |
+
+The last column is in px. The standing cart on `mine-props-a.png` (362 x 405) packs to 222 x 248 in
+`256x256-mine-cart.webp`, so 0.61. Packed at that scale, every prop fits a 256 cell, and the tipped cart
+matches the standing one.
 
 ## Prompts
 
@@ -83,6 +106,20 @@ no grid lines." Between them:
   and gone, the way open, a warm flame burning in each lamp cup; bottom left a low stump of grey
   cave rock with a few blue crystal points, waist high, a rock to hide behind; bottom right a small
   heap of mined ore rocks with glinting blue crystal chunks and a pickaxe stuck in it."
+- **Mine props E** (2026-11-25; its ending reads "Each prop isolated on ..."): "A sprite sheet of eight
+  separate mine props for a top-down adventure game, matching the reference prop sheets exactly in
+  style, scale, timber colour, rusty iron bands and rivets, outline and shading, laid out as a 4 by 2
+  grid with wide empty space between the props. Top row, left to right: 1) a timber pit-prop set that
+  holds up a mine roof, two thick upright posts and a heavy cross beam on top joined by iron brackets,
+  seen from the front, flat as if standing against a wall; 2) the foot of a wooden mine ladder, its two
+  rails and the lowest four rungs whole, the rails snapped and the upper rungs broken off in splinters;
+  3) a lift gantry over a shaft, a tall timber A-frame of two leaning beams with a big iron pulley wheel
+  at its top and two thick ropes hanging straight down from it; 4) a neat stack of spare square mine
+  timbers lying crosswise in layers, a rope tied round them. Bottom row, left to right: 5) a heap of
+  fallen dark blue-grey slate rubble with a few icy-blue and violet crystal shards poking out; 6) a
+  wooden lantern post with a short arm and an iron miner's lantern hanging from it, a warm flame lit;
+  7) a wooden ore cart with iron wheels tipped over on its side, a few blue ore chunks spilled out on
+  the ground; 8) a pickaxe and a shovel leaning against a small wooden crate."
 - **The smith** (the slime line of the style block added): "the village smith, a big burly grown-up
   red jelly slime, a father, with a bushy dark red moustache, kind tired eyes, a smudge of soot on
   his cheek, a dark leather smith's apron with a pocket and rivets tied round his round body, a

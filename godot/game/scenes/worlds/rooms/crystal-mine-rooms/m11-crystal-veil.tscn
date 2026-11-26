@@ -30,6 +30,7 @@
 [ext_resource type="AudioStream" path="res://asset/audio/music/dungeon.wav" id="28_hsr6q"]
 [ext_resource type="Script" uid="uid://dkqvx30nl2c6r" path="res://game/runtime/sfx_player.gd" id="29_ri5pa"]
 [ext_resource type="Script" uid="uid://bsb7063ee23vh" path="res://game/world/darkness/dark_room.gd" id="30_s6gh2"]
+[ext_resource type="PackedScene" path="res://game/scenes/objects/dungeon-decor/mine-slate-heap.tscn" id="97_slate-heap"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_tu406"]
 blend_mode = 1
@@ -165,6 +166,9 @@ wander_radius = 48.0
 rest_clips = PackedStringArray()
 notice_px = 30.0
 calm_ms = 3000.0
+
+[node name="mine-slate-heap" parent="Scenery" instance=ExtResource("97_slate-heap")]
+position = Vector2(576, 396.8)
 
 [node name="Enemies" type="Node2D" parent="." unique_id=1524552328]
 y_sort_enabled = true

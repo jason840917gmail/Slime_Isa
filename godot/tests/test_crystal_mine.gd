@@ -18,16 +18,18 @@ extends RefCounted
 ## balcony and its big key); the Den (M13): the runaway cart clangs off the Shardback's cold shell and
 ## shatters it brittle, Pearl 3 rises and its take seals the mine; the Den's broken rim (sunk by his
 ## fall) onto M14's ledge, the roots down, the boss door held without the big key and opened with it;
-## the Colossus's plate fight in M15 (`plate_fight`: the lower line's cart bursts a hot plate in a lit
-## brazier's ring and he kicks it home, clangs off a cold one, the Spear on bare crystal and his core);
+## the Colossus's crystal fight in M15 (the lower line's cart bursts his first hot plate without harm and
+## he kicks it home, clangs off it cold; the Spear on the bare crystal from where it shows, a throw for a
+## share, a blow capped at the crystal, the crystal dead and phase 2; the carts take the shoulders in
+## order from whichever side, never the breastplate on the floor, which bursts on his back);
 ## his fall breaking the seal and the climb out to the Lookout (H4); an old save standing in the
 ## retired Mine moved into M1 by RunState (`RETIRED_WORLDS`), its record kept and its entrance forgotten.
 ##
 ## Not here: the candles, the dark rooms and the Dark Maze's candle gate are tested with the darkness
-## work (tests/test_dark_room_candles.gd); the plate fight's wall and claws are filmed
-## (tools/film_colossus_arena.gd `--film=wall`); the old fight (his weak spot while four braziers burn,
-## his claws struck from the roots for a stun, the old stomp) is no longer placed anywhere. The mine's
-## outside (G4's gate and its way back, the smith) is test_mine_camp.gd. Positions in cells are the walk's
+## work (tests/test_dark_room_candles.gd); the crystal fight's phases, wall and claws are filmed
+## (tools/film_colossus_arena.gd `--film=phase1` ... `phase3`, `fight`, `wall`); his first fight (his
+## weak spot while four braziers burn) went with the one-scene Mine, its code too (2026-11-25). The mine's outside (G4's gate and its
+## way back, the smith) is test_mine_camp.gd. Positions in cells are the walk's
 ## (tools/film_crystal_mine_rooms.gd), in the room's own cells.
 
 const TestContext := preload("res://tests/lib/test_context.gd")
@@ -105,7 +107,6 @@ const KEPT_IDS := [
 	["m14-shaft-floor", "Objects/colossus-door", "lock", "big"],
 	["m15-colossus-arena", "Objects/ColossusArena", "camp_id", "crystal-mine-colossus"],
 	["m15-colossus-arena", "Objects/ColossusArena", "boss_id", COLOSSUS_ID],
-	["m15-colossus-arena", "Objects/ColossusArena", "plate_fight", true],
 	["m15-colossus-arena", "Objects/ColossusArena", "refights", false],
 	["m15-colossus-arena", "Objects/ColossusArena", "mark", "boss"],
 	["m15-colossus-arena", "Objects/M15-root-wall", "exit_area_id", LOOKOUT_ID],
@@ -580,16 +581,17 @@ func test_the_dens_broken_rim_leads_down_to_the_shaft_floor_and_the_big_key_open
 	t.check(inside, "the big key did not open the boss door into his arena (in %s)" % t.world().map_id())
 
 
-# --- the Colossus's plate fight (M15) ----------------------------------------------------------------
+# --- the Colossus's crystal fight (M15) --------------------------------------------------------------
 
-func test_a_runaway_cart_bursts_a_hot_plate_in_a_braziers_ring_and_he_kicks_it_home(t: TestContext) -> void:
+func test_a_runaway_cart_bursts_his_first_hot_plate_without_harm_and_he_kicks_it_home(t: TestContext) -> void:
 	var fight := await _start_fight(t)
 	if fight.is_empty():
 		return
 	var boss: Node = fight["boss"]
 	var line := await _cart_line(t, true)
 	var cart: Node2D = line["cart"]
-	t.check(bool(boss.call(&"is_brittle")), "his plates are not hot in the lit brazier's ring")
+	t.check(bool(boss.call(&"is_brittle")), "his first plate is not hot in the lit brazier's ring")
+	t.equal(str(boss.call(&"current_plate")), "L", "the plate that glows (the first in the fixed order)")
 	var bursts: Array = []
 	boss.connect(&"plate_burst", func(payload: Dictionary) -> void: bursts.append(payload))
 	var hp := _hp(boss)
@@ -597,9 +599,12 @@ func test_a_runaway_cart_bursts_a_hot_plate_in_a_braziers_ring_and_he_kicks_it_h
 	var burst := await t.until(func() -> bool: return not bursts.is_empty(), 6000.0)
 	if not t.check(burst, "the cart did not burst a plate (cart %s)" % cart.call(&"state_name")):
 		return
-	t.equal(str((bursts[0] as Dictionary).get("plate", "")), "C", "the plate the cart burst (his breastplate, facing it)")
+	# the cart met his front (he faces its tunnel): it bursts his first shoulder's plate all the same
+	t.equal(str((bursts[0] as Dictionary).get("plate", "")), "L", "the plate the cart burst (his first, whatever side it met)")
 	t.equal(int(boss.call(&"plates_left")), 2, "his plates left after the burst")
-	t.near(_hp(boss), hp - float(boss.call(&"pattern", "plateHp", 0.0)), 0.5, "his health after the burst")
+	t.near(_hp(boss), hp, 0.1, "his health after the burst (a burst does no harm)")
+	t.equal(int(boss.call(&"crystal_phase")), 1, "his phase after the burst (crystal L bare, still live)")
+	t.check(not bool(boss.call(&"is_crystal_dead", "L")), "the burst killed crystal L")
 	t.check(bool(cart.call(&"is_held_for_kick")), "the cart does not wait against him to be kicked")
 	# His feet back, furious, he kicks it home up its line.
 	boss.set_physics_process(true)
@@ -609,7 +614,7 @@ func test_a_runaway_cart_bursts_a_hot_plate_in_a_braziers_ring_and_he_kicks_it_h
 	t.check(home, "he did not kick the cart home (cart %s, his phase %s)" % [cart.call(&"state_name"), boss.call(&"get_phase")])
 
 
-func test_a_runaway_cart_clangs_off_a_cold_plate_and_staggers_him(t: TestContext) -> void:
+func test_a_runaway_cart_clangs_off_his_cold_first_plate_and_staggers_him(t: TestContext) -> void:
 	var fight := await _start_fight(t)
 	if fight.is_empty():
 		return
@@ -617,7 +622,7 @@ func test_a_runaway_cart_clangs_off_a_cold_plate_and_staggers_him(t: TestContext
 	var line := await _cart_line(t, false)
 	var cart: Node2D = line["cart"]
 	t.check(not bool((fight["arena"] as Node).call(&"all_lit")), "the braziers are not cold at the fight's start")
-	t.check(not bool(boss.call(&"is_brittle")), "his plates are hot with every brazier cold")
+	t.check(not bool(boss.call(&"is_brittle")), "his first plate is hot with every brazier cold")
 	var clangs: Array = []
 	var bursts: Array = []
 	boss.connect(&"plate_clanged", func(payload: Dictionary) -> void: clangs.append(payload))
@@ -627,14 +632,14 @@ func test_a_runaway_cart_clangs_off_a_cold_plate_and_staggers_him(t: TestContext
 	var clang := await t.until(func() -> bool: return not clangs.is_empty(), 6000.0)
 	if not t.check(clang, "the cart did not clang off him (cart %s)" % cart.call(&"state_name")):
 		return
-	t.equal(str((clangs[0] as Dictionary).get("plate", "")), "C", "the plate the cart clanged off")
+	t.equal(str((clangs[0] as Dictionary).get("plate", "")), "L", "the plate the cart clanged off (his first)")
 	t.equal(bursts.size(), 0, "plates the cold cart burst")
 	t.equal(int(boss.call(&"plates_left")), 3, "his plates left after the clang")
 	t.near(_hp(boss), hp, 0.1, "his health after the clang")
 	t.equal(str(boss.call(&"get_phase")), "stagger", "his phase after the clang")
 
 
-func test_bare_crystal_takes_the_spear_and_with_every_plate_gone_his_core_does_from_every_side(t: TestContext) -> void:
+func test_the_bare_crystal_takes_the_spear_where_it_shows_then_goes_dark_into_the_next_phase(t: TestContext) -> void:
 	var fight := await _start_fight(t)
 	if fight.is_empty():
 		return
@@ -642,26 +647,87 @@ func test_bare_crystal_takes_the_spear_and_with_every_plate_gone_his_core_does_f
 	var his_floor: Rect2 = (fight["arena"] as Node).get(&"floor_rect")
 	_put_boss(boss, his_floor.get_center())
 	_hold_still(t, boss, Vector2.DOWN)
-	# His breastplate alone (staged), facing down: his front plated, his left side (screen right) bare.
-	boss.call(&"stage_plates", ["C"])
+	# Phase 1 (staged): plate L gone, crystal L bare and whole. Facing down, L is his right shoulder, on
+	# the screen's left; it shows from his front, his back and its own side (the left), not his right.
+	boss.call(&"stage_crystals", ["C", "R"])
 	await t.steps(2)
+	var share := float(boss.call(&"crystal_share"))
+	t.near(share, 60.0, 0.01, "a crystal's share (180 health, a third each)")
+	t.near(_hp(boss), 3.0 * share, 0.1, "his health: his three crystals")
 	var hp := _hp(boss)
-	_hit(t, boss, ["spear"], Vector2.DOWN)
-	t.near(_hp(boss), hp, 0.1, "his health after a Spear hit on his breastplate")
-	_hit(t, boss, ["spear"], Vector2.UP)
-	t.near(_hp(boss), hp, 0.1, "his health after a Spear hit on his back while a plate is left")
-	_hit(t, boss, ["weapon"], Vector2.RIGHT)
-	t.near(_hp(boss), hp, 0.1, "his health after a hit that is not the Spear's on bare crystal")
 	_hit(t, boss, ["spear"], Vector2.RIGHT)
-	t.check(_hp(boss) < hp, "a Spear hit on his bare side did not hurt him")
-	# Every plate gone: the Spear hurts his core from every side.
-	boss.call(&"stage_plates", [])
-	await t.steps(2)
-	for side: Vector2 in [Vector2.UP, Vector2.LEFT, Vector2.DOWN]:
+	t.near(_hp(boss), hp, 0.1, "his health after a Spear hit on his far side (plate R and his breastplate)")
+	t.equal(int(boss.get(&"_clink_hinted_phase")), 1, "the phase's first clink gave no line")
+	_hit(t, boss, ["weapon"], Vector2.LEFT)
+	t.near(_hp(boss), hp, 0.1, "his health after a hit that is not the Spear's on the bare crystal")
+	for side: Vector2 in [Vector2.DOWN, Vector2.UP, Vector2.LEFT]:
 		var before := _hp(boss)
 		_hit(t, boss, ["spear"], side)
-		t.check(_hp(boss) < before, "a Spear hit from %s did not hurt his bare core" % side)
+		t.near(_hp(boss), before - _spear_damage(), 0.1, "a Spear hit from %s on his bare shoulder crystal" % side)
 		await t.steps(2)
+	var before_throw := _hp(boss)
+	_hit(t, boss, ["thrown"], Vector2.DOWN)
+	t.near(_hp(boss), before_throw - _spear_damage() * float(boss.call(&"pattern", "thrownShare", 0.0)), 0.1,
+		"a thrown thing on the bare crystal (a share of a Spear hit)")
+	await t.steps(2)
+	# A blow far bigger than the crystal has left takes only the crystal: it is dead, phase 2.
+	var broken: Array = []
+	boss.connect(&"crystal_broken", func(payload: Dictionary) -> void: broken.append(payload))
+	_hit(t, boss, ["spear"], Vector2.LEFT, 999.0)
+	t.near(_hp(boss), 2.0 * share, 0.1, "his health after the blow that destroyed crystal L (no more than it had)")
+	t.check(bool(boss.call(&"is_crystal_dead", "L")), "crystal L is not dead")
+	t.equal(int(boss.call(&"crystal_phase")), 2, "his phase once crystal L is dead")
+	t.equal(broken.size(), 1, "crystal_broken signals")
+	t.equal(str(boss.call(&"get_phase")), "stagger", "his phase after his crystal broke (the beat)")
+	await t.steps(2)
+	# Dead, it clinks: the Spear from his left (it meets the dead crystal; R is not there).
+	var after := _hp(boss)
+	_hit(t, boss, ["spear"], Vector2.LEFT)
+	t.near(_hp(boss), after, 0.1, "his health after a Spear hit on his dead crystal")
+	t.equal(int(boss.get(&"_clink_hinted_phase")), 2, "phase 2's first clink gave no line")
+
+
+func test_the_carts_take_the_shoulders_in_order_whichever_side_and_never_the_chest_on_the_floor(t: TestContext) -> void:
+	var fight := await _start_fight(t)
+	if fight.is_empty():
+		return
+	var boss: Node = fight["boss"]
+	var line := await _cart_line(t, true)
+	var cart: Node2D = line["cart"]
+	# Phase 2 (staged: crystal L dead, its plate gone), turned north: the cart from the east tunnel meets
+	# his dead shoulder's side; it bursts plate R all the same.
+	boss.call(&"stage_crystals", ["C", "R"], {"L": 0.0})
+	_hold_still(t, boss, Vector2.UP)
+	await t.steps(2)
+	t.equal(int(boss.call(&"crystal_phase")), 2, "his phase with crystal L dead")
+	t.equal(str(boss.call(&"current_plate")), "R", "the plate that glows in phase 2")
+	t.check(bool(boss.call(&"is_brittle")), "plate R is not hot in the lit brazier's ring")
+	var bursts: Array = []
+	var clangs: Array = []
+	boss.connect(&"plate_burst", func(payload: Dictionary) -> void: bursts.append(payload))
+	boss.connect(&"plate_clanged", func(payload: Dictionary) -> void: clangs.append(payload))
+	var hp := _hp(boss)
+	(line["target"] as Node).call(&"strike")
+	var burst := await t.until(func() -> bool: return not bursts.is_empty(), 6000.0)
+	if not t.check(burst, "the cart did not burst a plate on his dead side (cart %s)" % cart.call(&"state_name")):
+		return
+	t.equal(str((bursts[0] as Dictionary).get("plate", "")), "R", "the plate the cart burst from his dead side")
+	t.near(_hp(boss), hp, 0.1, "his health after the burst")
+	t.check(bool(boss.call(&"has_plate", "C")), "the cart took his breastplate on the floor")
+	# Phase 3 standing (staged): the breastplate never heats on the floor; the cart's blow clangs off it.
+	boss.call(&"stage_crystals", ["C"], {"L": 0.0, "R": 0.0})
+	_hold_still(t, boss, Vector2.RIGHT)
+	await t.steps(2)
+	t.check(not bool(boss.call(&"is_brittle")), "his breastplate is hot on the floor in the lit brazier's ring")
+	boss.call(&"on_mechanism_hit", &"cart", cart)
+	t.equal(clangs.size(), 1, "clangs off his breastplate on the floor")
+	t.check(bool(boss.call(&"has_plate", "C")), "the cart burst his breastplate on the floor")
+	# On his back (staged) it is hot, and the cart bursts it.
+	boss.call(&"_transition", "stunned", t.now())
+	t.check(bool(boss.call(&"is_brittle")), "his breastplate is not hot on his back")
+	boss.call(&"on_mechanism_hit", &"cart", cart)
+	t.check(not bool(boss.call(&"has_plate", "C")), "the cart did not burst his breastplate on his back")
+	t.near(_hp(boss), float(boss.call(&"crystal_share")), 0.1, "his health after the chest plate burst (his chest crystal whole)")
 
 
 func test_his_fall_breaks_the_seal_and_the_climb_out_leads_to_the_lookout(t: TestContext) -> void:
@@ -679,17 +745,18 @@ func test_his_fall_breaks_the_seal_and_the_climb_out_leads_to_the_lookout(t: Tes
 	t.check(DungeonState.seal(run, RECORD_ID, COLOSSUS_ID, COLOSSUS_ID), "the mine could not be sealed")
 	t.check(await t.until(func() -> bool: return bool(seal.call(&"is_shut")), 2000.0), "the climb out's seal is not shut while the mine is sealed")
 	t.check(not bool(wall.call(&"can_use")), "the climb out can be used while the mine is sealed")
-	# His plates gone and his core worn to one Spear hit (staged): the Spear until he falls.
+	# His shoulders dead, his chest bare and worn to one Spear hit (staged): the Spear from his front
+	# (where his chest shows) until he falls.
 	var his_floor: Rect2 = arena.get(&"floor_rect")
 	_put_boss(boss, his_floor.get_center())
 	_hold_still(t, boss, Vector2.DOWN)
-	boss.call(&"stage_plates", [], _spear_damage())
+	boss.call(&"stage_crystals", [], {"L": 0.0, "R": 0.0, "C": _spear_damage()})
 	for i in 4:
 		if bool(boss.call(&"is_defeated")):
 			break
-		_hit(t, boss, ["spear"], Vector2.UP)
+		_hit(t, boss, ["spear"], Vector2.DOWN)
 		await t.steps(2)
-	if not t.check(bool(boss.call(&"is_defeated")), "the Spear on his bare core did not fell him (health %.0f)" % _hp(boss)):
+	if not t.check(bool(boss.call(&"is_defeated")), "the Spear on his bare chest crystal did not fell him (health %.0f)" % _hp(boss)):
 		return
 	# his fall plays on
 	boss.set_physics_process(true)
@@ -1024,7 +1091,7 @@ func _start_fight(t: TestContext) -> Dictionary:
 	if not t.check(awake, "the fight did not start, or he did not wake, when the slime walked onto his floor"):
 		return {}
 	var boss := arena.call(&"get_live_boss") as Node
-	t.check(bool(boss.get(&"plate_fight")), "M15's Colossus does not fight the plate fight")
+	t.check(boss.call(&"plate_look") != null, "M15's Colossus has no plate look")
 	for timer: StringName in [&"_stomp_ready_at", &"_hop_ready_at", &"_quake_ready_at", &"_next_throw_at"]:
 		boss.set(timer, t.now() + HOLD_MS)
 	return {"arena": arena, "boss": boss}
@@ -1065,9 +1132,9 @@ func _hold_still(t: TestContext, boss: Node, way: Vector2) -> void:
 	boss.set_physics_process(false)
 
 
-## A Spear's damage with `tags` on the Colossus from the slime standing on his `side` (a unit vector
-## from his centre toward the slime), two cells off, on his floor (its own activation).
-func _hit(t: TestContext, boss: Node, tags: Array, side: Vector2) -> void:
+## A Spear's damage (or `damage`) with `tags` on the Colossus from the slime standing on his `side` (a
+## unit vector from his centre toward the slime), two cells off, on his floor (its own activation).
+func _hit(t: TestContext, boss: Node, tags: Array, side: Vector2, damage: float = -1.0) -> void:
 	var centre: Vector2 = boss.call(&"get_centre")
 	var his_floor: Rect2 = _objects(t).get_node("ColossusArena").get(&"floor_rect")
 	var inset := Vector2.ONE * CELL * 0.5
@@ -1078,6 +1145,6 @@ func _hit(t: TestContext, boss: Node, tags: Array, side: Vector2) -> void:
 	var activation := router.begin_activation(player, areas)
 	router.route({"activation_id": activation, "source": player, "attack_area": player.get_damage_area(),
 		"target_area": boss.get(&"damage_area"), "weapon_id": "test-" + str(tags[0]), "weapon_tags": tags,
-		"damage_types": ["physical"], "base_damage": _spear_damage(), "effects": [],
+		"damage_types": ["physical"], "base_damage": _spear_damage() if damage < 0.0 else damage, "effects": [],
 		"impact": {"position": centre, "knock": (centre - player.get_centre()).normalized()}})
 	router.end_activation(activation)

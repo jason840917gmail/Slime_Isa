@@ -314,7 +314,7 @@ fights until steps 3 and 4 rebuild their rooms.
   `colossus_shards.gd`, the cart's `through` mode and kick (`ram_cart.gd`), new keys in
   `enemy-types.json` `crystal-colossus`; `world.colossus-lab` (`tools/build_colossus_lab.gd`, its own
   boss id, so the real Colossus is never marked beaten). All of it in DUNGEONS.md
-  ["The plate fight"](../godot/DUNGEONS.md#the-plate-fight-step-2-of-the-rework) and
+  ["The plate fight"](../godot/DUNGEONS.md#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25) and
   ["The Colossus lab"](../godot/DUNGEONS.md#the-colossus-lab). With the owner's changes: a bigger
   room (24 x 20 cells); a void strip down each side (a fall costs 10 and puts the slime back where it
   stepped off); the carts come out of tunnels in the side walls (the mine gate's doorway turned on its
@@ -1950,10 +1950,17 @@ memory.
   carts' tunnels' own timber doorway (`mine-gate-leaves.webp`, as `ram_cart.gd` lays a south wall's
   mouth), the room door in it: a doorway, not a gap. The cut through row 23 is gone (the lab's nook as
   it was); the slime comes out 96 units inside the nook. Pictured in `rooms/game/look-m15-colossus-arena-bright.png`.
-- **Not made: the generation was refused** by the builder session's own permission check, as the
-  painted shaft's first try was, so no credit is spent; the owner's yes in that session lets it go on.
-  What waits, each one GPT 2.5 picture of 40 credits (`simulate_cost` checked), references uploaded
-  (crops of the game's own mine props and of the painted shaft):
+- **Made on 2026-11-25 by the art session, with the owner's yes there; not packed or placed yet.** The
+  builder session's own permission check had refused the generation, as it refused the painted
+  shaft's first try. It cost 200 credits: the three pictures at 40 each, then the chasm and the pit
+  again, because the first takes' rims came out sandy gold, which read as yellow frames in the blue
+  rooms (those takes are kept in `pits/rejected/`). The files:
+  - `asset/Originals/mine/mine-props-e.png`, since `-b` was taken (the lens and the veil);
+  - `asset/Originals/dungeon-kit/pits/mine-chasm-a.png` and `mine-pit-a.png`.
+
+  Each prop's box and scale is in `asset/Originals/mine/README.md`, and each hole's crop box in the
+  new `asset/Originals/dungeon-kit/pits/README.md`. The contact picture is
+  `output/dungeon-rework/mine/pictures/mine-pictures-contact.png`. What was asked:
   1. **A sheet of eight mine props** (2:1): a timber pit-prop frame against a wall, a ladder's foot
      with its upper rungs broken off, a lift gantry (A-frame, pulley, two ropes), a stack of spare props,
      a heap of fallen slate with crystal shards, a lantern post, a tipped ore cart, a pickaxe and shovel
@@ -1971,6 +1978,138 @@ scene edit (M15's tunnel mouth), with the new light (the candle run 49.8 s of it
 an earlier run with the light alone passed the same. Its strip and `walk.json` in
 `output/dungeon-rework/mine/walk/`, the step pictures deleted. Every changed script and the new test
 compile (`--check-only`); no test run.
+
+**Follow-ups (2026-11-25, the reviewer's read):** the comments and fallbacks of `dark_room.gd`,
+`candle.gd` and `crystal_colossus.gd` say the data's numbers (300, 380, 0.5; they quoted the trial's
+240, 320, 0.6). **M10's veil was off its doorway:** centred on it (x 896) but its foot on the floor 38
+units in front of the south wall (y 857.6); its crystals rise north from the foot, so at a south
+doorway they stood clear of the opening with floor between (M11's, at a north doorway, fills its mouth).
+Moved by hand into the gap (y 921.6, the builder too); pictured in the game
+(`rooms/game/look-m10-prism-gallery.png`, `rooms/m10-prism-gallery.png`). The walk's wing 3
+(`--from=wing3`) passes 86 checks after it, the veil both ways; a `--from` walk now lights G4's gate
+brazier itself before going in by the mouth (it had found the gate shut, as only the full walk lit it).
+
+**The Mine's new art placed (2026-11-25; the three pictures by the boss-art session, the owner's
+words: "even if they are not place make them available on scenery tab, under dungeon decoration" and
+"place at least one of each in the dungeon").**
+- **The eight props** cut from `asset/Originals/mine/mine-props-e.png` by the new
+  `scripts/art/pack-mine-decor-art.py` (each at its README box, faint glow cleared, scaled by 0.61, the
+  game mine cart's packing scale) into `godot/asset/MAPS/objects/dungeon/decor/mine-*.webp`, with their
+  scenes in `game/scenes/objects/dungeon-decor/` (the dungeon decor set's way: a scenery scene, the root
+  at the bottom middle, y-sorted): `mine-pit-props` and `mine-lift-gantry` (a small box at each leg: the
+  slime walks between and behind), `mine-ladder-foot` (nothing blocks), `mine-spare-props`,
+  `mine-slate-heap`, `mine-lantern-post`, `mine-tipped-cart`, `mine-tools-crate` (a foot box each).
+  **Moving parts:** the lantern's light flickers and the slate heap's and tipped cart's crystals shine
+  (`scripts/art/build-ambient-strips.py`, three entries; strips in `decor/ambient/`). The gantry's ropes
+  do not sway: they are painted into the gantry; a sway would need the ropes cut to a sprite of their
+  own and a Tier 2 rotation on it (or a redraw of the gantry without them), about an hour, no credits.
+  **The lantern post is no light source:** it lights no dark room (a candle node would; it would lift
+  the dark of every dark room it stands in): the owner's call.
+- **Placed by hand** (and in the builder): M14, the shaft's foot, a ladder's foot at (2.6, 2.35), the
+  lift gantry straddling the lift's landing at (4.0, 4.7) and a pit-prop frame at (6.0, 2.4) by the boss
+  door, as M4's painted shaft shows them (its second wall lantern at (2.6, 2.05) went where the ladder
+  stands); M1 the lantern post by the mouth (7.3, 12.9) and spare props (12.2, 10.4); M5 the pickaxe
+  and shovel by a crate (14.8, 7.0); M10 the tipped ore cart (12.2, 5.2); M11 the slate heap on the
+  rift's floor (9.0, 6.2), off the crossing on row 12.5. None in a doorway, on a line, in a throw's lane
+  or a climb.
+- **The pits painted:** `mine-chasm-a.png` and `mine-pit-a.png` packed whole by
+  `tools/pack_pit_picture.gd` into `godot/asset/MAPS/interiors/mine-chasm.res` and `mine-pit.res`; M9's
+  chasm takes the chasm, M8's void and M2's two pits the pit (`PitDepth` crops it about its middle to
+  each hole's shape), the dust and glints over them (scenes by hand, the builder's `_paint`).
+- **The Scenery dock:** the eight scenes are written; the dock lists the Dungeon decor category from
+  the prop palette's manifest, so they show there once `tools/build_prop_palettes.gd` has run (windowed,
+  with the editor closed: it rewrites the tile set the editor holds). Run once the owner said the
+  open editor was free (it was closed first, nothing unsaved in it): the Dungeon decor palette grew
+  from 96 to 120 tiles, the eight props at small, normal and big in new rows 18 to 21
+  (`output/dungeon-rework/mine/pictures/dock-dungeon-decor-mine.png` is that part of the palette, as
+  the dock shows it); no existing tile moved and no world's painted cells changed (the tile sets and
+  the manifest compared before and after: only the 24 new tiles, the rest the same values written
+  again, `32` as `32.0` and the defaults spelt out). Its log's "cannot create tile" errors are the
+  new rows against the old, smaller palette picture the game had imported; the saved tile set has
+  them. **Open the editor once** so it imports the new palette pictures before painting with them.
+  That run broke every world load until the editor imported (the game builds a palette's tiles
+  against the picture it last imported, and the new rows lay past it), so the builder now keeps
+  **spare rows** (PROPS.md "Spare rows": each picture's height kept in the manifest with at least 4
+  empty rows below its tiles, a new prop goes into them without changing the picture's size, the run
+  ends with an error naming any palette whose tiles reach past its imported picture, and a picture,
+  tile set or manifest is written only when it changed). Rebuilt with it at 22:38 (after the walk):
+  every cell and detail palette picture grew by its spare rows (no tile moved for them), but the
+  eight mine props had been measured at 21:43 before their pictures were imported (blocks of 1 x 1 and
+  1 x 2, the props shrunk into them), and now measured true they took bigger slots: 14 tiles moved,
+  some to rows 20 to 24, past the imported 1408 px (the builder said so). No world paints them, so no
+  world's cells moved; but **every world load fails again until the editor has imported the palettes
+  once more**, the last time (Dungeon decor is now 1600 x 1920, 25 rows of tiles and 5 spare). The
+  open editor holds the old `props_cell_tileset.tres`: reload it, never save over it.
+  `pictures/dock-dungeon-decor-mine.png` is the new palette's rows 18 to 24.
+- **The candle test:** `test_dark_room_candles.gd`'s "all its candles burn: the room is lit" failed
+  because `dark_room.gd` was wrong, not the test: the room took its lit state in `_process`, once a
+  drawn frame, while the Gloomlings, the bats and the slime's ember read `is_dark` on the gameplay tick;
+  with several ticks in one frame (the test runner, a slow frame) it lagged. The lit state now follows
+  the candles in `_physics_process`; the fade and the light holes stay per frame. The file's five tests
+  pass (`pnpm test:godot -- --filter=dark_room_candles`, the only tests run).
+- **The look film** waits for the quests' first toasts to fade before its picture and leaves the area
+  banner out of it.
+- **Pictures:** `output/dungeon-rework/mine/rooms/game/look-*.png` for M1, M2, M5, M8, M9, M10, M11, M14.
+- **The walk:** PASS, 158 checks, run again at 22:30 on the editor's 22:25 imports (before the last
+  palette rebuild); first run after the last scene edit (the candle run 49.7 s of its 90). It
+  first failed in every dark room and on the Chasm's bridge, for no change of the game's: the game
+  window now draws frames unthrottled (60 frames in 122 ms of real time), and the doors' walk-in and
+  scroll and the drawbridge's lowering run on real time, so the walk's frame counts ended before the
+  slime had walked in (its placements were taken back by the walk-in). The walk now waits until a
+  travel and the walk-in have ended (`_arrived`) and until the bridge holds. Found on the way: the
+  drawbridge opens its passage on real time (`drawbridge.gd`, `Time.get_ticks_msec`), against the
+  one-gameplay-clock rule; not changed (the kit's, not this round's).
+- For the owner, in the editor: an editor was open while these changed on disk: reload M1, M2, M5, M8,
+  M9, M10, M11, M14 and `dark_room.gd` before a save-all.
+
+**The Colossus's three crystals, built (2026-11-25; the owner after playing: "colossus have 3 phases
+like the 3 crystals in his body"; the plan accepted by the planner:
+`output/boss-rework/colossus-crystals/colossus-three-crystals-plan-2026-11-25.md`).** His plate fight
+became the crystal fight in the lab and M15 at once (one script); in full in DUNGEONS.md,
+["The crystal fight"](../godot/DUNGEONS.md#the-crystal-fight-step-2-of-the-rework-three-crystals-since-2026-11-25).
+- **The rules:** his health (180, the scene's `max_health` and the data's `maxHp`: the number to tune
+  when the owner plays) is three rose-quartz crystals under his plates, 60 each; a phase is one
+  crystal in a fixed order (`CRYSTAL_ORDER`: L, the shoulder on the screen's left, then R, then the
+  chest). A cart bursts only this phase's plate, whichever side it meets him from, and does no harm
+  (it bares the crystal); only that plate heats in a ring; the breastplate bursts only on his back. The
+  Spear (12; its Lunge 25) and thrown things (6) hurt the bare crystal from every side it shows on in
+  the art (a deliberate change from the plate fight's side rule), never past its share. Destroyed: rose
+  shards, a roar, a 1.4 s stagger, the crystal dark for good; after R he goes up his wall; the chest's
+  is his fall. A cart with this phase's plate gone clangs off his rock and staggers him. Every refused
+  hit clinks; the first of each phase gives a line and flashes the thing to hit (an arrow following
+  him). He rages from phase 2 (`rageFromPhase`). The dousing counts a burst as a hurt (`_harm`).
+- **Data:** `maxHp` 180 (and the scene's `max_health`); `plateHp` and `phaseTwoShare` gone;
+  `crystalBreakStaggerMs` 1400 and `rageFromPhase` 2 new.
+- **The art, no credits:** `boss_frames.py pack colossus` cuts each socket's crystal from the bare body
+  live and makes it dead (a slate ramp, cracks from one seed a crystal), into each animation's plate
+  atlas and `frames.json` (`crystals`); the bodies are byte for byte the same; the plate pieces are the
+  same but for the lossy noise, 20 of the 118 at new places in their atlas (the atlases grew).
+  His look draws the crystals under the plates, live pulsing with a rose glow over the dark. **The six
+  atlases need the editor's import before anyone plays** (an editor was open the whole time and the
+  godot-ai bridge was not connected to this session: no headless `--import`): until the editor is
+  focused once, the game reads the old atlases with the new `frames.json`: no crystal pieces (never a
+  dead one) and those 20 plate pieces drawn from the wrong place. The films read the atlases from
+  disk (`_fresh_colossus_pictures`), so they show the new pack.
+- **Proof:** the Mine's test file (`pnpm test:godot -- --filter=crystal_mine`, the only tests run): 20
+  passed, the four plate-fight tests rewritten and one added (the carts' order). Films, each with a
+  PASS or FAIL, in the lab (`output/boss-rework/colossus-films/crystals-*`) and in M15
+  (`output/dungeon-rework/mine/arena-films/crystals-*`), all PASS: `poses` (140 poses, every bare
+  crystal drawn), `phase1` (the first clink's line, plate L burst without harm, crystal L dead in 6
+  tool strikes, phase 2), `phase2` (the cart met his dead side facing north, burst R, R dead, up his
+  wall), `phase3` (the breastplate burst on his back, 1 strike, up and climbing again, the second fall,
+  dead: his fall), `fight` (L, R, C in order, his fall after 32 s of game time with the tool playing);
+  in M15 also `burst`, `clang` (both on plate L) and `wall`. The tool's strikes come every 0.5 s, so
+  the Lunge refuses every other one ("busy"); a player's pace is slower. The owner's picture: 
+  `output/boss-rework/colossus-crystals/crystals-in-game.png` (every animation in five states, from the
+  poses film). Frames deleted; strips, GIFs and `film.json` kept.
+- **Changed:** `crystal_colossus.gd`, `colossus_look.gd`, `crystal-colossus.tscn` (`max_health`),
+  `enemy-types.json`, `boss_frames.py`, the six `*-plates.webp` and `frames.json`, `film_colossus.gd`
+  and `film_colossus_arena.gd` (`bare` and `core` gone; `phase1`, `phase2`, `phase3`, `fight` new),
+  `film-colossus.sh` (the lock kept fresh while a long film runs), `test_crystal_mine.gd`, the lab's
+  note (`colossus-lab.tscn` and its builder), comments in `colossus_arena.gd`, `colossus_quake.gd`,
+  `colossus_shards.gd`, `ram_cart.gd`; DUNGEONS.md, the plan doc's "As built", AGENTS.md, TOOLING.md,
+  the colossus art README, `docs/story/04-characters.md` and the links to the renamed section. Reload
+  `crystal-colossus.tscn` and `colossus-lab.tscn` before a save-all if open. Nothing committed.
 
 State on 2026-11-24: step 1 passed review after two fix rounds (the reviewer kept the blow through a
 sleeping statue's shield, and left the shove's lead for a playtest). The owner has seen four films of
@@ -2159,9 +2298,49 @@ until step 5 updates them.
    **The Shardback's cart frames (boss-art, 80 credits): accepted.** Struck and cracking hot, the
    shell bursting, on his side among the pieces; a rocked-back frame for the cold clang. Weak: the
    clang's pose is close to his slam's tell, and he flips to face the cart.
-   **The Mine's paid art:** the Mine's builder session cannot call the image tool (refused there), so
-   the three pictures it specified (a sheet of eight mine props, the Chasm painted, a pit painted)
-   are generated by the boss-art session and placed by the Mine's builder afterwards.
+   **The suite, run at the owner's word (2026-11-25, twice, by the Hollow's builder): 545 of 651
+   pass.** The rebuilt dungeons' tests pass (one rewritten test was wrong and is fixed); four climb
+   and balcony tests fail on out-of-date playground positions; the other 102 failures are old tests
+   the game has outgrown (shapes and throw combat on everywhere, level-1 repainted, walk speed 180,
+   the Lair, the playground, Gloop Forest's chunks). All of them by file and line:
+   `output/tests/triage-run1.md` (on disk, git-ignored). Two game-side suspects from it: the
+   prologue's way out frees the world during a physics step (`main.gd:744`), and the climb lab's
+   balconies do not hold the slime. A session to bring the suite to green is proposed, not started.
+   **The owner's Colossus (2026-11-25, after playing): three body crystals under his plates.** Burst
+   the plate with the cart, destroy the bared crystal, it goes dark, the next phase starts: left arm,
+   right arm, then the chest on the wall; 180 health, 60 a crystal; the core stage goes. The plan is
+   `output/boss-rework/colossus-crystals/colossus-three-crystals-plan-2026-11-25.md`; the boss-art
+   session builds it in both arenas. His first fight's dead code was removed by its own session
+   (not yet read by the reviewer).
+   **The reviewer's read of the three-crystal fight (2026-11-25): accepted.** Read in
+   `crystal_colossus.gd`: `_shields`, `_hit_meets`, `mitigate_damage`, `commit_damage`,
+   `_crystal_breaks`, `on_mechanism_hit`, `is_brittle` (the chest's plate bursts only on his back),
+   the order and the thirds. The films' notes in his lab and in M15 (poses, phase 1 to 3, the whole
+   fight: L, R, C, defeated), the in-game pose picture, the scripts compile, `plate_fight` is gone
+   from the code. Not proven: nobody has played it; the films stage the slime and strike faster than
+   a player. For the owner's tuning: 180 health, `rageFromPhase` 2. The dead crystals are made from
+   the live ones' pixels (a painted version about 240 credits, not spent).
+   **A trap found the same day:** rebuilding the prop palettes (`build_prop_palettes.gd`) changes a
+   palette picture's size, and until the editor reimports it every world load fails ("TileSetAtlas
+   Source has no tile"). The owner's editor reimported at 22:25; the Mine's builder is padding the
+   palette pictures so adding a prop needs no reimport.
+   **The Mine's three paid pictures were made after all** (the owner's yes in the boss-art session,
+   200 credits: a sheet of eight mine props, the Chasm, a pit); the Mine's builder places them, adds
+   the props to the Scenery dock's Dungeon decor category and puts one of each in the Mine (the
+   owner's words). What follows on the art is the earlier note:
+   **The Mine's paid art: not made.** The Mine's builder session cannot call the image tool (refused
+   there), and the boss-art session would not make the three pictures (a sheet of eight mine props,
+   the Chasm painted, a pit painted) on another session's request alone: it waits for the owner's
+   yes. The Mine's builder places them once they exist.
+   **The reviewer's read of step 5 (2026-11-25): accepted and committed** (`cee2a03b`, with the
+   candles and the Shardback's frames; `09d5ebae` holds step 4). Checked: `scene_index.json` has no
+   path to a missing file; no scene has a `WallDoorway` node any more, so the room mask's frame code
+   and `doorway_art.gd` were dead; the live docs name the removed files only as removed; all 30
+   changed or new scripts compile, the eight test files among them; both walks pass after the
+   removal (124 and 158 checks). **Not proven:** about 60 rewritten tests were never run. Left: the
+   Colossus's first fight (`plate_fight` off) is still in `crystal_colossus.gd`, used by nothing;
+   three props only the old Mine placed; M10's veil against its doorway (asked of the Mine's
+   builder, with the stale numbers in two script headers).
    **The Brood Warden's knocked frames (2026-11-25, the boss-art session, 80 credits): accepted.**
    Eight new frames (flung, on his back kicking, getting up) after his walk on a 24-frame sheet,
    wired into `PHASE_KNOCKED` (`knockedKickFrameMs`, `knockedRiseMs`); the squash is gone; the
